@@ -1,0 +1,2586 @@
+<!-- ---
+sidebar_position: 1
+id: ios
+--- -->
+
+# iOS SDK 4.0.1
+
+
+## Introduction
+
+
+
+
+The Handpoint iOS SDK provides a simple application programming interface for the Handpoint card readers.
+
+:::tip
+
+Please note that before submitting an app to the Apple App store a MFi hardware request has to be submitted to Apple, 
+to be able to use an external accessory. Please fill our this form before submitting your app to the App store and we will get back to you. 
+If you have any questions, contact us for more details.
+
+:::
+
+## Installation	
+
+
+### CocoaPods
+
+CocoaPods is a dependency manager for Cocoa projects. You can install it with the following command:
+
+````
+$ gem install cocoapods
+````
+
+If you don't have a Podfile yet:
+
+````
+$ pod init
+````
+
+To integrate HandpointSDK into your Xcode project using CocoaPods, specify it in your `Podfile`:
+
+````
+source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, '8.0'
+use_frameworks!
+
+target 'your_target' do
+    pod 'HandpointSDK', '~> 3.2.3'
+end
+````
+
+Then, run the following command:
+
+````
+$ pod install
+````
+
+### Carthage
+
+[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks.
+
+You can install Carthage with [Homebrew](https://brew.sh/) using the following command:
+
+```
+$ brew update
+$ brew install carthage
+```
+
+To integrate HandpointSDK into your Xcode project using Carthage, specify it in your `Cartfile`:
+
+````
+github "handpoint/HandpointSDK-iOS"
+`````
+
+Run `carthage update` to build the framework and drag the built `HandpointSDK.framework` into your Xcode project.
+
+### Manually
+
+If you'd rather handle the dependency manually there are three approaches to include ```HandpointSDK``` in your project:
+
+#### Prebuilt static library
+
+Download the latest pre-built static library from [Handpoint's developer portal](https://www.handpoint.com/docs/device/iOS/) and refer to the documentation there for the installation steps.
+
+#### Building the project yourself
+
+Download the latest version from the master branch:
+
+```
+$ git clone https://github.com/handpoint/HandpointSDK-iOS.git
+```
+
+Alternatively you can add it as a git [submodule](https://git-scm.com/docs/git-submodule):
+
+```
+$ git submodule add https://github.com/handpoint/HandpointSDK-iOS.git
+```
+
+### Framework
+
+You'll find the dynamic framework project called `HandpointSDK.xcodeproj` at the root of the repo.
+
+Static Library
+You'll find the static library project called `headstart.xcodeproj` under the `Library` folder.
+
+We **strongly** discourage you from building this project yourself.
+
+This project contains several targets, you need to build the aggregated target `device-simulator Release`
+
+This target produces a .zip file in the same directory as the `headstart.xcodeproj` file containing both the library and the simulator library.
+
+## Migration from 3.X
+
+
+:::tip
+Version 4.0.0 introduces a well defined, typed, way of passing extra values, options, parameters or flags to the financial transactions.
+:::
+
+
+We have unified all the extra and optional parameters in an Options object. Different operations have different options.
+
+**1. For a [Sale](#2) or [Sale and Tokenize operation](#4) please see SaleOptions**<br />If you use a customer reference:
+
+```
+	SaleOptions *options = [SaleOptions new];
+	options.customerReference = @"Your customer reference";
+```                 
+
+ 
+If you need Multi MID / Custom merchant Authentication:
+
+   
+````objectivec
+	MerchantAuth *auth = [MerchantAuth new];
+	Credential *cred = [Credential new];
+	//Optionally
+	cred.acquirer = [Credential getAcquirerFromString:@"acquirer"];
+	//Optionally
+	cred.mid = @"mid";
+	//Optionally
+	cred.tid = @"tid";
+	//Add as many credentials as Acquirers your merchant have agreements with
+	[auth add:cred];
+	options.merchantAuth = auth;
+```  
+
+If you want to specify the budget period `Only available for SureSwipe`:
+
+````objectivec
+options.divideByMonths = @"YOUR_BUDGET_NUMBER";
+ ````  
+
+Finally:
+
+````objectivec   
+[self.api saleWithAmount:amount currency:currency options:options];
+````    
+
+   
+**2. Similar to SaleOptions, but with less possible parameters, for a [Refund](#5) operation, please see RefundOptions**<br />If you use a customer reference:
+  
+````objectivec
+	SaleOptions *options = [SaleOptions new];
+	options.customerReference = @"Your customer reference";
+````
+    
+If you need Multi MID / Custom merchant Authentication:
+
+````objectivec
+MerchantAuth *auth = [MerchantAuth new];
+	Credential *cred = [Credential new];
+	//Optionally
+	cred.acquirer = [Credential getAcquirerFromString:@"acquirer"];
+	//Optionally
+	cred.mid = @"mid";
+	//Optionally
+	cred.tid = @"tid";
+	//Add as many credentials as Acquirers your merchant have agreements with
+	[auth add:cred];
+	options.merchantAuth = auth;
+````                       
+Finally:
+
+```objectivec
+[self.api refundWithAmount:amount currency:currency transaction:originalTransactionID options:options];
+```             
+
+**3. For the rest of operations, please see Options**<br />If you use a customer reference:
+
+```objectivec
+options.customerReference = @"Your customer reference";
+```
+
+## Integration Guide
+
+### Files in iOS SDK
+
+#### If you're using the library/Cocoapods:
+
+- **HandpointAll.h**: #import this header file into your classes.
+- **libheft.a**: The SDK library.
+
+#### If you're using the framework/Carthage:
+
+- ** HandpointSDK.h**: #import this header file into your classes.
+- **HandpointSDK.framework**: The SDK library.
+
+The SDK also includes a simulator, a library configured to simulate a card reader - intended for early development of an user interface. To use it, just link the libheft.a file in the HeftSimulatorLibrary folder, instead of the actual SDK library.
+
+###  Development settings for the SDK
+
+- **Dependencies**:The Heft library depends on the``` ExternalAccessory``` and ``` libc++.dylib``` frameworks included with the iOS SDK. These frameworks and the **libheft.a** SDK library itself need to be linked to your project for the Handpoint interface to work properly.
+
+- **Communication protocol**: Your application needs to support the card reader communication protocol. For this reason, the ```com.datecs.pinpad``` string needs to be added to the ```Supported external accessory protocols``` in the **.plist file**:
+
+````xml
+    <key>UISupportedExternalAccessoryProtocols</key>
+    <array>
+        <string>com.datecs.pinpad</string>
+    </array>
+````       
+
+- **Background mode support**: Your application needs to support connection to external devices when in the background. For this reason, in the "Capabilities" section of the project settings, the **Background Modes** profile needs to be ON, and the ```External accessory communication ``` option must be checked. This is equivalent to adding the following entry in the .plist file:
+
+
+````xml
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>external-accessory</string>
+    </array>
+````
+            
+- **C++ linker flag**: A part of the library is written in c++ therefore the **-lc++ linker flag** needs to be set. Add it under "Other Linker Flags" under the "Linking" section of your projects settings "Build Settings" tab.
+- **Other settings**: To prevent the warning: "file was built for archive which is not the architecture being linked (armv7s)", **set Build Active Architecture Only** to YES.
+
+
+### Usage summary
+
+Any application using the Handpoint SDK should follow these steps:
+
+1. Define a class that implements the** HeftDiscoveryDelegate **protocol.
+This class defines the behavior of the app when discovery related events are received from the SDK.
+2. Define a class that implements the **HeftStatusReportDelegate** protocol (it can be the same as above).
+This class defines the behavior of the app when connection and transaction related events are received from the SDK
+3. Get a reference to the HeftManager singleton and assign your HeftDiscoveryDelegate instance as delegate.
+4. If device is available through BT connection, start the discovery process by calling the** startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders **function of the HeftManager.
+5. If device is using a Lightning connector (HiPro devices), recover the device by directly calling the **connectedCardReaders** function of the HeftManager.
+6. Connect to a device by calling the **clientForDevice** function of the HeftManager.
+7. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked.
+8. From this point, make transactions and have fun!
+
+### Usage details
+
+1. Define a class that implements the ** HeftDiscoveryDelegate **protocol.
+This class will define the behavior of the application when discovery related events are received from the SDK.
+
+````objectivec
+    @interface MyDiscoveryDelegate () <HeftDiscoveryDelegate>
+    @implementation MyDiscoveryDelegate
+````  
+ 
+2. Define a class that implements the** HeftStatusReportDelegate **protocol (it can be the same as above).
+This class will define the behavior of the application when connection and transaction related events are received from the SDK.
+
+````objectivec
+    @interface MyStatusReportDelegate () <HeftStatusReportDelegate>
+    @implementation MyStatusReportDelegate
+````
+ 
+3. Get a reference to the HeftManager singleton in SDK by calling the **sharedManager** class method.
+Assign your HeftDiscoveryDelegate instance as delegate of the manager.
+
+````objectivec
+    MyDiscoveryDelegate* myDiscoveryDelegate = [[alloc MyDiscoveryDelegate] init];
+    HeftManager* manager = [HeftManager sharedManager];
+    manager.delegate = myDiscoveryDelegate;
+````          
+
+4. If device is available through BT connection, start the discovery process by calling the **startDiscovery** function of the HeftManager.
+
+````objectivec
+    [manager startDiscovery];
+````
+   
+When a device is selected by the user in the “Select device” popup window, the **didFindAccessoryDevice** function of the HeftDiscoveryDelegate is invoked.
+
+````objectivec
+    - (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice
+    {
+        NSLog(@"Found new device");
+        //Connect to found device or store it for later
+    } 
+````
+   
+When the discovery process is finished, the **didDiscoverFinished** function of the HeftDiscoveryDelegate instance will be invoked. Recover a list of all the discovered devices by calling the **connectedCardReaders** function of the HeftManager.
+
+````objectivec
+    - (void)didDiscoverFinished
+    {
+        NSMutableDictionary *discoveredDevices = [self.manager connectedCardReaders];
+    }
+````
+   
+5. If device is using a Lightning connection (HiPro devices), skip the previous step and recover the device by directly calling the **connectedCardReaders** function of the HeftManager.
+
+````objectivec
+HeftRemoteDevice *lightningDevice = [[self.manager connectedCardReaders] firstObject];
+````
+   
+6. Connect to a device by calling the **clientForDevice** function of the HeftManager.
+
+Expected parameters of this function are:
+
+
+* A discovered device (HeftRemoteDevice object).
+
+* A shared secret. The shared secret is a unique identifier. It is a used to link a merchant with his readers. Each one of your merchants will be assigned a different shared secret so it needs to be a configurable value in your application or backend. If you received a development kit with a card reader, our support team probably sent you a shared secret via email already.
+
+* A HeftStatusReportDelegate instance, which will be notified of all the events related with the device.
+
+```` objectivec
+    // Declare the shared secret (below SS is an example, please put the one sent by our support team)
+    NSString *sharedSecret =@"0102030405060708091011121314151617181920212223242526272829303132";
+    // Connect to reader
+    [manager clientForDevice:device
+			sharedSecret:mySharedSecret
+			delegate:myStatusReportDelegate];
+````
+  
+7. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked. Function receives as parameter a HeftClient object, whose reference must be stored since it is the communication bridge to the device we have connected to.
+
+```` objectivec
+    - (void)didConnect:(id <HeftClient>)client
+    {
+        self.heftClient = client;
+    }
+````
+   
+8. Once connected to the card reader, transactions can be started through the HeftClient object. For example, the next code starts a sale of 100 GBP:
+
+````objectivec
+[self.heftClient saleWithAmount:100 currency:@"GBP" cardholder:YES];
+````
+   
+9. When a transaction has been initiated (f.ex saleWithAmount), the HeftClient alerts the HeftStatusReportDelegate object by invoking **responseStatus** during the process and **responceFinanceStatus** when the process has finished.
+
+````objectivec
+    - (void)responseStatus:(id<ResponseInfo>)info
+    {
+        NSLog(@"responseStatus:");
+        NSLog(info.status);
+        NSLog(info.xml.description);
+    }
+    
+    - (void)responseFinanceStatus:(id<FinanceResponseInfo>)info
+    {
+        NSLog(@"responseFinanceStatus:");
+        NSLog(info.status);
+        NSLog(info.customerReceipt);
+        NSLog(info.xml.description);
+    }
+````
+	
+10. In case you are using the **SDK simulator**, the behavior changes according to the amount of the transaction:
+
+| **Amount**      | **Behavior** |
+| ----------- | ----------- |
+| 1000     | 		Declined transaction|
+| 2000     | 		User Cancelled|
+| 3000     | 		Signature Requested|
+| Other  amount     | 		Approved transaction|
+
+## Processing Payments Simulation
+
+Your test payments are sent against a test server on the Handpoint side which simulates the behavior of an acquiring bank. Funds are not moved and sensitive data from the card is fully encrypted. You can use trigger amounts to generate some specific responses from our server:
+
+**Sale amounts**
+
+| Amount      | Behaviour |
+| ----------- | ----------- |
+| 37.79      | Issuer response code = 01 (Refer to issuer)       |
+| 37.84      | Issuer response code = 05 (Not authorized)        |
+| 37.93      | Issuer response code = 04 (Pick up card)       |
+| 37.57      | Request is partially approved        |
+| 37.68      | Request timeout       |
+
+## SDK integration example
+
+### HandpointModule header
+
+**HandpointModule.h**
+
+````objectivec
+#import "HandpointAll.h"
+
+@interface HandpointModule : NSObject <HeftDiscoveryDelegate, HeftStatusReportDelegate>
+
+- (instancetype)initWithSharedSecret:(NSString *)sharedSecret;
+
+- (void)saleWithAmount:(NSInteger)amount
+                currency:(NSString *)currency;
+
+- (void)refundWithAmount:(NSInteger)amount
+                currency:(NSString *)currency;
+
+- (void)saleReversalWithAmount:(NSInteger)amount
+                        currency:(NSString *)currency
+            originalTransactionID:(NSString *)originalTransactionID;
+
+- (void)refundReversalWithAmount:(NSInteger)amount
+                        currency:(NSString *)currency
+            originalTransactionID:(NSString *)originalTransactionID;
+
+- (void)connectToAddress:(NSString *)address;
+
+- (void)setLogLevel:(eLogLevel)logLevel;
+
+- (void)getDeviceLogs;
+
+- (void)getPendingTransaction;
+
+- (void)update;
+
+- (void)listDevices;
+
+@end 
+````
+
+### HandpointModule
+
+**HandpointModule.m**
+
+````objectivec
+#import "<Foundation/Foundation.h>"
+#import "HandpointModule.h"
+#import "HeftRemoteDevice+SendableDevice.h"
+#import "SDKEvent.h"
+#import "ConnectionStatus.h"
+#import "Currency.h"
+#import "CDVInvokedUrlCommand+Arguments.h"
+#import "StatusInfo.h"
+#import "TransactionResult.h"
+
+typedef NS_ENUM(NSInteger, ConnectionStatus)
+{
+    ConnectionStatusNotConfigured,
+    ConnectionStatusConnected,
+    ConnectionStatusConnecting,
+    ConnectionStatusDisconnected,
+    ConnectionStatusDisconnecting,
+    ConnectionStatusInitializing
+};
+
+@interface HandpointModule ()
+
+@property (nonatomic) HeftManager* manager;
+@property (nonatomic, strong) id<HeftClient> api;
+@property (nonatomic) NSString *ssk;
+@property (nonatomic) HeftRemoteDevice* preferredDevice;
+@property (nonatomic) NSString *eventHandlerCallbackId;
+@property (nonatomic) NSMutableDictionary *devices;
+
+@end
+
+@implementation HandpointModule
+
+- (instancetype)initWithSharedSecret:(NSString *)sharedSecret
+{
+    NSLog(@"\n\tpluginInitialize");
+    self.manager = [HeftManager sharedManager];
+    self.manager.delegate = self;
+    self.devices = [@{} mutableCopy];
+    
+    [self fillDevicesFromConnectedCardReaders];
+    
+    self.ssk = sharedSecret;
+}
+
+- (void)saleWithAmount:(NSInteger)amount
+                currency:(NSString *)currency
+{
+    BOOL result = [self.api saleWithAmount:amount
+                                    currency:currency
+                                cardholder:YES];
+
+    if (result == false)
+    {
+        //Do something
+    }
+}
+
+- (void)refundWithAmount:(NSInteger)amount
+                currency:(NSString *)currency
+{
+    BOOL result = [self.api refundWithAmount:amount
+                                    currency:currency
+                                    cardholder:YES]
+
+    if (result == false)
+    {
+        //Do something
+    }
+}
+
+- (void)saleReversalWithAmount:(NSInteger)amount
+                        currency:(NSString *)currency
+            originalTransactionID:(NSString *)originalTransactionID
+{
+    BOOL result = [self.api saleVoidWithAmount:amount
+                                        currency:currency
+                                    cardholder:YES
+                                    transaction:originalTransactionID];
+
+    if (result == false)
+    {
+        //Do something
+    }
+}
+
+- (void)refundReversalWithAmount:(NSInteger)amount
+                        currency:(NSString *)currency
+            originalTransactionID:(NSString *)originalTransactionID
+{
+    BOOL result = [self.api refundVoidWithAmount:amount
+                                    currency:currency
+                                cardholder:YES
+                                transaction:originalTransactionID];
+
+    if (result == false)
+    {
+        //Do something
+    }
+}
+
+#pragma mark - Device Management
+
+- (void)connectToAddress:(NSString *)address
+{
+    HeftRemoteDevice *remoteDevice = self.devices[address];
+
+    if (remoteDevice)
+    {
+        BOOL isRemoteDeviceSameAsPreferred = self.preferredDevice &&
+                [self.preferredDevice.address isEqualToString:remoteDevice.address];
+
+        // If we are already connected to this device, update shared secret
+        if (self.api && isRemoteDeviceSameAsPreferred)
+        {
+            // Already connected to device
+        }
+        else
+        {
+            self.preferredDevice = remoteDevice;
+
+            [self.manager clientForDevice:remoteDevice
+                                sharedSecret:self.ssk
+                                    delegate:self];
+        }
+
+        [self connectionStatusChanged:ConnectionStatusConnecting];
+    }
+    else
+    {
+        NSLog(@"Can't connect. No device available. Have you searched?");
+    }
+}
+    
+- (void)setLogLevel:(eLogLevel)logLevel
+{
+    [self.api logSetLevel:logLevel];
+}
+
+- (void)getDeviceLogs
+{
+    [self.api logGetInfo];
+}
+
+- (void)getPendingTransaction
+{
+    BOOL success = NO;
+
+    if ([self.api isTransactionResultPending])
+    {
+        success = [self.api retrievePendingTransaction];
+    }
+
+    if (success)
+    {
+        //...
+    }
+    else
+    {
+        //...
+    }
+}
+
+- (void)update
+{
+    [self.api financeInit];
+}
+
+- (void)listDevices
+{
+    NSArray* devices = [self.manager connectedCardReaders];
+
+    /**
+        * A device can have four levels of connection: unpaired, paired,
+        * connected and connected in the SDK.
+        *
+        * Due to the nature of the iOS ExternalAccessory framework,
+        * devices that are already connected at an iOS level will not appear in a normal search,
+        * as they already appear through the "connectedCardReaders" array in the manager
+        * (Yeah, I know)
+        *
+        * So the "if" takes care of differentiating those two cases
+        *
+        * If we have device(s) connected we just go for those, otherwise, search.
+        */
+
+    if(devices.count)
+    {
+        //We have device(s) already connected, we skip the search.
+        for (HeftRemoteDevice *device in devices)
+        {
+            [self addDevice:device];
+        }
+
+        [self didDiscoverFinished];
+    }
+    else
+    {
+        //We search and wait...
+        [self.manager startDiscovery];
+    }
+}
+
+# pragma mark - Callbacks
+    
+- (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice
+{
+    [self addDevice:newDevice];
+}
+
+- (void)didLostAccessoryDevice:(HeftRemoteDevice *)oldDevice
+{
+    [self removeDevice:oldDevice];
+    
+    if(self.preferredDevice && self.preferredDevice.address == oldDevice.address)
+    {
+        [self connectionStatusChanged:ConnectionStatusDisconnected];
+        
+        self.preferredDevice = nil;
+    }
+}
+
+- (void)didDiscoverFinished
+{
+    [self fillDevicesFromConnectedCardReaders];
+
+    for (NSString *key in [self.devices allKeys])
+    {
+        HeftRemoteDevice *device = self.devices[key];
+        
+        if ([device.address isEqualToString:<my_saved_mac_address>])
+        {
+            //Do something with the device if it's the same one you expect.
+            break;
+        }
+    }
+}
+
+- (void)didConnect:(id <HeftClient>)client
+{
+    if(client)
+    {
+        self.api = client;
+        
+        [self connectionStatusChanged:ConnectionStatusConnected];
+    }
+}
+
+- (void)connectionStatusChanged:(ConnectionStatus)status
+{
+    //Here you get notified of connection status changes
+}
+
+- (NSString *)stringFromConnectionStatus:(ConnectionStatus)status
+{
+    switch(status)
+    {
+        case ConnectionStatusNotConfigured:
+            return @"NotConfigured";
+        case ConnectionStatusConnected:
+            return @"Connected";
+        case ConnectionStatusConnecting:
+            return @"Connecting";
+        case ConnectionStatusDisconnected:
+            return @"Disconnected";
+        case ConnectionStatusDisconnecting:
+            return @"Diconnecting";
+        case ConnectionStatusInitializing:
+            return @"Initializing";
+    }
+}
+
+- (void)responseStatus:(id <ResponseInfo>)info
+{
+    //Here you'll get status updates during the transaction
+}
+
+- (void)responseError:(id <ResponseInfo>)info
+{
+    //Here if something went wrong
+}
+
+- (void)responseFinanceStatus:(id <FinanceResponseInfo>)info
+{
+    //Here's the result of your transaction
+}
+
+- (void)responseLogInfo:(id <LogInfo>)info
+{
+    NSLog(@"\n\tresponseLogInfo: %@", info.status);
+}
+
+- (void)requestSignature:(NSString *)receipt
+{
+    [self.api acceptSignature:YES];
+}
+
+- (void)addDevice:(HeftRemoteDevice *)device
+{
+    self.devices[device.address] = device;
+}
+
+- (void)removeDevice:(HeftRemoteDevice *)device
+{
+    if (self.devices[device.address])
+    {
+        [self.devices removeObjectForKey:device.address];
+    }
+}
+
+- (void)fillDevicesFromConnectedCardReaders
+{
+    for (HeftRemoteDevice *device in [self.manager connectedCardReaders])
+    {
+        [self addDevice:device];
+    }
+}
+    
+@end
+````
+
+## Transactions
+
+### Sale{#2}
+
+`saleWithAmount`
+
+A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+	
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount *`  <br />*NSInteger*   | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency *` <br />*NSString*     | 3 letter currency code in accordance to ISO4217|
+| `options` <br />*SaleOptions*      | An object to store all the customization options for a sale.|
+
+**Code example**
+
+````objectivec
+//If you just need a plain vanilla sale:
+[api saleWithAmount:100
+           currency:Currency.EUR.alpha];
+
+//But you can customize your sale:
+SaleOptions *options = [SaleOptions new];
+//Optionally
+options.customerReference = @"Your customer reference";
+//If you need Multi MID / Custom merchant Authentication:
+MerchantAuth *auth = [MerchantAuth new];
+Credential *cred = [Credential new];
+//Optionally
+cred.acquirer = [Credential getAcquirerFromString:@"acquirer"];
+//Optionally
+cred.mid = @"mid";
+//Optionally
+cred.tid = @"tid";
+//Add as many credentials as Acquirers your merchant have agreements with
+[auth add:cred];
+options.merchantAuth = auth;
+//If you want to specify the budget period
+//Only available for SureSwipe
+//Here it's 3 months
+options.divideByMonths = @"3";
+
+[api saleWithAmount:100
+           currency:Currency.EUR.alpha
+            options:options];
+````			
+
+**Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader.
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**requestSignature**](#17)
+***
+Invoked if card verification requires signature.
+
+[**responseFinanceStatus **](#16)
+***
+Invoked when the card reader finishes processing the transaction
+
+** Returns**
+
+**Boolean**
+
+YES if operation starts successfully
+
+### Sale Reversal{#3}
+
+`saleVoidWithAmount`
+
+Request a void operation on previous sale transaction, referred to by the parameter transaction. Parameters amount, currency and present must be the same as the in the sale to be voided. This operation reverts (if possible) a specific sale identified with a transaction id. Note that transactions can only be reversed within the same day as the transaction was made.
+
+**Parameters**
+
+
+| Parameter        | Notes |
+| ----------- | ----------- |
+| `amount *`  <br />*NSInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency *` <br />*NSString*    | 3 letter currency code in accordance to ISO4217 |
+| `transaction *` <br/> *NSString*   | TransactionID of the sale transaction to be voided |
+| `options` <br />*Options*     | An object to store all the customization options for this operation.|
+
+**Code example**
+
+```objectivec
+//If you just need a plain vanilla sale reversal:
+[api saleReversalWithAmount:100
+                   currency:Currency.EUR.alpha
+              transactionId:originalTransactionID
+                    options:options];
+
+//But you can customize your sale:
+Options *options = [Options new];
+//Optionally
+options.customerReference = @"Your customer reference";
+
+[api saleReversalWithAmount:100
+                   currency:Currency.EUR.alpha
+              transactionId:@"00000000-0000-0000-0000-000000000000"
+                    options:options];
+```
+
+**Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader
+
+[**responseError **](#15)
+***
+Invoked to inform when an error response happens.
+
+[**responseFinanceStatus**](#16)
+***
+Invoked when the card reader finishes processing the transaction
+
+**Returns**
+
+**Boolean**
+YES if operation starts successfully
+
+
+### Sale And Tokenize Card{#4}
+
+`saleAndTokenizeCardWithAmount`
+
+A sale initiates a payment operation to the card reader.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount *`  <br />*NSInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency *` <br />*NSString*     | 3 letter currency code in accordance to ISO4217|
+| `options` <br />*SaleOptions*   | An object to store all the customization options for a sale.|
+
+**Code example**
+
+````objectivec
+//If you just need a plain vanilla sale tokenization:
+[api saleAndTokenizeWithAmount:100
+                      currency:Currency.EUR.alpha];
+
+//But you can customize your sale:
+SaleOptions *options = [SaleOptions new];
+//Optionally
+options.customerReference = @"Your customer reference";
+//If you need Multi MID / Custom merchant Authentication:
+MerchantAuth *auth = [MerchantAuth new];
+Credential *cred = [Credential new];
+//Optionally
+cred.acquirer = [Credential getAcquirerFromString:@"acquirer"];
+//Optionally
+cred.mid = @"mid";
+//Optionally
+cred.tid = @"tid";
+//Add as many credentials as Acquirers your merchant have agreements with
+[auth add:cred];
+options.merchantAuth = auth;
+//If you want to specify the budget period
+//Only available for SureSwipe
+//Here it's 3 months
+options.divideByMonths = @"3";
+
+[api saleAndTokenizeWithAmount:100
+                      currency:Currency.EUR.alpha
+                       options:options];
+````
+
+**Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**requestSignature**](#17)
+***
+Invoked if card verification requires signature.
+
+[**responseFinanceStatus**](#16)
+***
+Invoked when the card reader finishes processing the transaction
+
+**Returns**
+
+**Boolean**
+
+YES if operation starts successfully
+
+### Refund{#5}
+
+`refundWithAmount`
+
+A refund initiates a refund operation to the card reader. This operation moves funds from your account to the cardholders credit card.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount *`  <br />*NSInteger*    | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency *` <br />*NSString*     | Currency of the charge|
+| `transaction *` <br />*NSString*     | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
+| `options` <br />*MerchantAuthOptions*    | An object to store all the customization options for a refund.|
+
+**Code example**
+
+````objectivec
+//If you just need a plain vanilla refund:
+[api refundWithAmount:100
+		     currency:Currency.EUR.alpha
+		  transaction:@"00000000-0000-0000-0000-000000000000"];
+
+//But you can customize your sale:
+MerchantAuthOptions *options = [MerchantAuthOptions new];
+//Optionally
+options.customerReference = @"Your customer reference";
+//If you need Multi MID / Custom merchant Authentication:
+MerchantAuth *auth = [MerchantAuth new];
+Credential *cred = [Credential new];
+//Optionally
+cred.acquirer = [Credential getAcquirerFromString:@"acquirer"];
+//Optionally
+cred.mid = @"mid";
+//Optionally
+cred.tid = @"tid";
+//Add as many credentials as Acquirers your merchant have agreements with
+[auth add:cred];
+options.merchantAuth = auth;
+
+[api refundWithAmount:100
+		     currency:Currency.EUR.alpha
+		  transaction:@"00000000-0000-0000-0000-000000000000"
+			  options:options];
+````
+
+** Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader
+
+[**responseError**](#15)
+***
+Invoked when the card reader finishes processing the transaction
+
+[**responseFinanceStatus**](#16)
+***
+Invoked to inform when an error response happens.
+
+**Returns**
+
+**Boolean**
+
+YES if operation starts successfully
+
+### Refund reversal{#6}
+
+`refundVoidWithAmount`
+
+Request a void operation on previous refund transaction, referred to by the parameter transaction. Parameters amount, currency and present must be the same as the in the refund to be voided. This operation reverts (if possible) a specific refund identified with a transaction id. Note that transactions can only be reversed within the same day as the transaction was made.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount *`  <br />*NSInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency *` <br />*NSString*    | 3 letter currency code in accordance to ISO4217|
+| `transaction *` <br />*NSString*     | TransactionID of the refund transaction to be voided|
+| `options` <br />*Options*     | An object to store all the customization options for this operation.|
+
+**Code example**
+
+````objectivec
+//If you just need a plain vanilla refund reversal:
+[api refundReversalWithAmount:100
+                    currency:Currency.EUR.alpha
+               transactionId:originalTransactionID
+                     options:options];
+
+//But you can customize your sale:
+Options *options = [Options new];
+//Optionally
+options.customerReference = @"Your customer reference";
+
+[api refundReversalWithAmount:100
+                     currency:Currency.EUR.alpha
+                transactionId:@"00000000-0000-0000-0000-000000000000"
+                      options:options];
+````
+
+** Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**responseFinanceStatus**](#16)
+***
+Invoked when the card reader finishes processing the transaction
+
+**Returns**
+
+**Boolean**
+
+YES if the operation was successfully sent to device
+
+### Accept signature{#7}
+
+`acceptSignature`
+
+A [*requestSignature*](#17) event is invoked during transaction when signature verification is needed (f.ex when payment is done with a magstripe card). The merchant is required to ask the cardholder for signature and approve (or disapprove) the signature. signatureRequired tells the card reader if the signature was approved by passing YES. To disapprove then NO is passed.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `flag *`  <br />*Boolean*    | YES if signature is valid, NO otherwise|
+
+
+**Code example**
+
+````objectivec
+//acceptSignature:
+//Inform the card reader if signature is valid or not
+-(IBAction)accept
+{
+	[heftClient acceptSignature:YES];
+}
+-(IBAction)decline
+{
+	[heftClient acceptSignature:NO];
+}
+````
+
+** Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**responseFinanceStatus**](#16)
+***
+Invoked when the card reader finishes processing the transaction
+
+
+### Retrieve Pending Transaction{#8}
+
+`retrievePendingTransaction`
+
+Retrieving a pending transaction fetches a transaction result that was lost due to unexpected disconnect between card reader and application.
+
+**Code example**
+
+````objectivec
+//retrievePendingTransaction:
+//Called when a pending transaction is discovered upon connecting to a specific card reader
+- (void)didConnect:(id<HeftClient>)client{
+	heftClient = client;
+
+	if(heftClient){
+		if([heftClient isTransactionResultPending] == YES) {
+			// a pending transaction has been detected ...
+			// ... so, lets get it
+			[heftClient retrievePendingTransaction];
+		}
+	}
+}
+````
+
+** Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked during the operation with different statuses from the card reader.
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**responseRecoveredTransactionStatus**](#18)
+***
+Invoked when the card reader has returned a recovered transaction.
+
+**Returns**
+
+**Boolean**
+
+YES if operation starts successfully
+
+### Tip Adjustment{#9}
+
+`tipAdjustment`
+
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled automatically by the processor at the end of the day.
+Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+The tip adjustment method does not rely on a card reader and is therefore a separate method that must be initialized with a shared secret. The function is defined in the file HapiRemoteService.h
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `tipAmount *`  <br />*NSInteger*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `transaction*` <br />*NSString*   | TransactionID (GUID) of the original sale transaction to be adjusted|
+
+
+**Code example**
+
+````objectivec
+//First, you need to include the following dependency
+#include "HapiRemoteService.h"
+
+//Second, the shared secret needs to be initialized
+NSString* shared_secret = @"0102030405060708091011121314151617181920212223242526272829303132";
+BOOL result = setupHandpointApiConnection(shared_secret);
+
+//Third, you need to retrieve the unique transaction id of the original sale transaction you want to adjust. The below GUID is only an example and will result in a decline from the host if used for tip adjustment
+NSString* transaction = @"d50af540-a1b0-11e6-85e6-07b2a5f091ec";
+
+//Fourth, let's tip adjust a transaction for $10.00!
+-(IBAction)tipAdjustment:(UIButton*) sender
+{
+	BOOL result = tipAdjustment(transaction, 1000, ^(TipAdjustmentStatus status)
+	{
+		if(status == TipAdjustmentAuthorised) {
+
+			//Successfully adjusted!
+
+		}
+
+		else if(status == TipAdjustmentDeclined) {
+
+			//Declined!
+
+		}
+
+		else if(status == TipAdjustmentFailed) {
+
+			//Timeout!
+
+		}
+	});
+}
+````
+
+**Returns**
+
+**status**
+
+- **TipAdjustmentAuthorised** (tip adjustment approved by the processor)
+- **TipAdjustmentFailed** (system error or timeout)
+- **TipAdjustmentDeclined** (tip adjustment declined by the processor)
+
+If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
+
+### Tokenize Card{#10}
+
+`tokenizeCard`
+
+Initiates a card-tokenization operation to the card reader (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice).
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `reference *`  <br />*NSString*     | string for customer reference|
+
+
+**Code example**
+
+````objectivec
+//Initiates a card tokenization operation.
+[heftClient tokenizeCard];
+````
+
+
+** Events invoked**
+
+[**responseStatus**](#14)
+***
+Invoked while during transaction with different statuses from card reader
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**requestSignature**](#17)
+***
+Invoked if card verification requires signature.
+
+[**responseRecoveredTransactionStatus**](#18)
+***
+Invoked when the card reader finishes processing the transaction
+
+
+**Returns**
+
+**Boolean**
+
+YES if operation starts successfully
+
+## Device management
+
+### Shared Manager{#11}
+
+`sharedManager`
+
+Provides access to the heftManager. The heft manager is used for discovering devices and creating a HeftClient with a connection to selected device.
+
+**Code example**
+
+````objectivec
+//SharedManager
+//Provides access to the heftManager
+
+//Create an instance of the shared manager at set it's delegate
+HeftManager* heftManager = [HeftManager sharedManager];
+heftManager.delegate = self;
+````
+
+**Returns**
+
+[**HeftManager**](#19)
+
+The heftManager instance
+
+### Client for device (NSString){#12}
+
+`clientForDevice`
+
+Creates a HeftClient object. If a connection is successful the HeftClient object is returned in the didConnect event. All transactions are done using the heftClient.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `device *`  <br />*NSInteger*  | The device to connect to.|
+| `sharedSecret *`  <br />*NSString*  | Shared secret only known by the merchant and Handpoint.|
+| `aDelegate *`  <br />*BOOL*  | The HeftStatusReportDelegate for the HeftClient to report to.|
+
+
+**Code example**
+
+````objectivec
+//clientForDevice:sharedSecretString:delegate:
+//Creates a HeftClient object(connection to device)
+NSString* sharedSecret = @"0102030405060708091011121314151617181920212223242526272829303132";
+-(void)connectToFirstCardReaderWith:(NSString*)sharedSecret;
+{
+	//Try to connect to first device in devices array
+	[heftManager clientForDevice:[[heftManager devicesCopy] objectAtIndex:0] sharedSecretString:sharedSecret delegate:self];
+	//Client calls the didConnect delegate function if successful 
+}
+````
+
+**Events invoked**
+
+[**didConnect**](#20)
+***
+Called when a connection to specified device was created.
+
+**Returns**
+
+**Boolean**
+
+YES if operation starts successfully
+
+### Start Discovery	{#32}
+
+`startDiscovery`
+
+Displays a list of available accessory devices in a modal window.
+
+**Code example**
+
+````objectivec
+//startDiscovery
+//Starts the BT discovery process
+-(void)startDiscovery; 
+{
+	[heftManager startDiscovery];
+	//Start search activity indicator or other desired functions
+}
+````
+
+### Set log level{#33}	
+
+`logSetLevel`
+
+Sets the log level of the card reader. There are for levels of logging for the device: none, info, full, debug. Setting the log level means that relevant information concerning the application operation will be stored.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `level *`  <br />[eLogLevel](#13) | eLogLevel available types: eLogNone, eLogInfo, eLogFull, eLogDebug|
+
+**Code example**
+
+````objectivec
+//logSetLevel:
+//Sets the log level of the card reader.
+-(void)disableCardReaderLogs
+{
+	[heftClient logSetLevel:eLogNone];
+}
+-(void)enableCardReaderDebugLogs
+{
+	[heftClient logSetLevel:eLogDebug];
+}
+````
+
+**Returns**
+
+**Boolean**
+
+This method always returns YES
+
+
+### Fetch logs{#34}
+
+`logSetLevel`
+
+Retrieves the logging info. Returns them in the responseLogInfo event.
+
+**Code example**
+
+````objectivec
+//logGetInfo
+//Retrieves the logging info.
+-(void)getLogsFromCardReader
+{
+	[heftClient logGetInfo];
+}
+````
+
+**Returns**
+
+**Boolean**
+
+This method always returns YES
+
+### Reset logs{#35}	
+
+`logReset`
+
+Clears the logging information stored so far.
+
+**Code example**
+
+````objectivec
+//logReset
+//Clears the logging information stored so far
+-(void)clearLogs
+{
+	[heftClient logReset];
+}
+````
+
+**Returns**
+
+**Boolean**
+
+This method always returns YES
+
+### Enable scanner{#36}	
+
+`enableScanner`
+
+Places the card reader in a scan mode. Only if the card reader supports it. To cancel/stop scan mode call the cancel method of the heft client.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `multiScan`  <br />*Boolean* | Yes [default] to activate multiScan mode - No to activate singleScan mode. Multi-scan mode allows the user to scan until scan operation is canceled or timeout occurs, single-scan mode is active until one scan has occurred then it disables the scan mode.|
+| `buttonMode`  <br />*Boolean* | Yes [default] if buttonMode is on - No otherwise. If button mode is on then the operator needs to press the scan buttons to activate the scanner(during scan mode).|
+| `timeoutSeconds`  <br />*NSInteger* | 0 [default] - card reader will determine when scanning should time out. x - the scanner will time out if x seconds of inactivity occur.|
+
+**Code example**
+
+````objectivec
+//enableScanner:multiScan:buttonMode:timeoutSeconds
+//Places the card reader in a scan only mode. 
+//To cancel/stop scan mode call cancel function.
+-(IBAction)startScan 
+{
+	[heftClient enableScanner];
+}
+-(IBAction)startMultiScan
+{
+	[heftClient enableScannerWithMultiScan:YES];
+}
+````
+
+**Events invoked**
+
+**responseScannerEvent**
+***
+Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).
+
+### Disable scanner	
+
+`disableScanner`
+
+Disables the scanner if possible
+
+**Code example**
+
+````objectivec
+//disableScanner
+//Disable the scanner
+	-(IBAction)disableScanner
+{
+[heftClient disableScanner];
+}
+````
+
+**Events invoked**
+***
+[**responseScannerDisabled**](#42)
+
+Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).
+
+### financeInit{#47}	
+
+`financeInit`
+
+The update operation checks for update to the card reader and initiates an update if needed. The update can either be a software update or a configuration update.
+
+**Code example**
+
+````objectivec
+//financeInit
+//Initializes the card reader and updates config.
+-(IBAction)updateCardReader
+{
+	[heftClient financeInit];
+}
+````
+
+**Events invoked**
+
+[**responseStatus**](#14)
+***
+Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).**responseStatus**](#14)
+
+[**responseError**](#15)
+***
+Invoked to inform when an error response happens.
+
+[**responseFinanceStatus**](#16)
+***
+Invoked when the card reader finishes processing the transaction
+
+**Returns**
+
+**Boolean**
+
+This method always returns YES
+
+### Get SDK version	
+
+`getSDKVersion`
+
+Returns the current SDK version number in string format
+
+**Code example**
+
+````objectivec
+//getSDKVersion
+//Log SDK version number
+	NSLOG(@"SDK version: %@", [heftManager getSDKVersion];
+````
+
+### Get SDK build number	
+
+`getSDKBuildNumber`
+
+Returns the current SDK build number in string format
+
+**Code example**
+
+````objectivec
+//getSDKBuildNumber
+//Log SDK build number
+	NSLOG(@"SDK build: %@", [heftManager getSDKBuildNumber];
+````
+
+## Events
+
+### didConnect{#20}	
+
+`didConnect`
+
+Called when a connection to the client has been established through the method clientForDevice.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `client *`  <br />[HeftClient](#22) | Yes [default] to activate multiScan mode - No to activate singleScan mode. Multi-scan mode allows the user to scan until scan operation is canceled or timeout occurs, single-scan mode is active until one scan has occurred then it disables the scan mode.|
+
+**Code example**
+
+````objectivec
+//didConnect:
+//Called when a connection to specified device was created.
+-(void)didConnect:(id<HeftClient>)client 
+{
+	// connected successfully to a device
+	// assign the client to our heftClient property
+	heftClient = client;
+}
+````
+
+### didDiscoverFinished {#37}	
+
+`didDiscoverFinished`
+
+When the modal window from startDiscovery is closed then this event is called.
+
+**Code example**
+
+````objectivec
+//didDiscoverFinished
+// This function gets called when discovery is finished
+- (void)didDiscoverFinished;
+{
+	NSLog(@"Discover finished"); 
+	//Stop search activity indicator or other desired functions 
+}
+````
+
+
+### didFindAccessoryDevice{#38}	
+
+`didFindAccessoryDevice`
+
+Notifies that new accessory device was found. When a card reader is detected this delegate is called. You can take the newDevice object and create a new heft client for that particular device or store it in memory to connect to it later.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `newDevice *`  <br />[HeftRemoteDevice](#23) | An object containing a reference to the accessory device|
+
+**Code example**
+
+````objectivec
+//didFindAccessoryDevice
+//Delegate that notifies that new accessory device was found.
+- (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice
+{
+	NSLog(@"Found new device");
+	//Connect to device or store found device for later
+}
+````
+
+
+### didLostAccessoryDevice{#39}
+	
+
+`didLostAccessoryDevice`
+
+Notifies that accessory device was disconnected.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `oldDevice *`  <br />[HeftRemoteDevice](#23) | An object containing a reference to the accessory device|
+
+**Code example**
+
+````objectivec
+//didLostAccessoryDevice
+//Delegate that notifies that accessory device was disconnected
+- (void)didLostAccessoryDevice:(HeftRemoteDevice*)oldDevice
+{
+	NSLog(@"Device disconnected");
+	//Remove device from devices array
+	[heftManager.devicesCopy removeObject:oldDevice];
+	//Do some cleanup after disconnecting if necessary 
+	
+} 
+````
+
+### responseStatus{#14}	
+
+`responseStatus`
+
+Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about status of operation. The info object contains a string (status) and a dictionary (xml).
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[ResponseInfo](#24) | Includes status code, status text and detailed xml.|
+
+**Code example**
+
+````objectivec
+//responseStatus:
+//Called to inform about the status of the transaction
+-(void)esponseStatus:(id<ResponseInfo>)info
+{
+	NSLog(info.status);
+	NSLog(info.xml.description);
+}
+````
+
+### responseFinanceStatus{#16}	
+
+`responseFinanceStatus`
+
+Notifies that transaction has completed.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[FinanceResponseInfo](#25) | Information about current transaction status.|
+
+**Code example**
+
+````objectivec
+//responseFinanceStatus:
+//Called at the end of transaction to inform about the result of the operation
+-(void)responseFinanceStatus:(id<FinanceResponseInfo>)info
+{
+	NSLog(info.status);
+	NSLog(info.customerReceipt);
+	//print receipts
+}
+````
+
+### responseError{#15}	
+
+`responseError`
+
+Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about status of operation. The info object contains a string (status) and a dictionary (xml).
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[ResponseInfo](#24) | The info object contains a string (status) and a dictionary (xml).|
+
+**Code example**
+
+````objectivec
+//responseError:
+//Called when to inform when an error response happens.
+-(void)responseError:(id<ResponseInfo>)info
+{
+	NSLog(info.status);
+	NSLog(info.xml.description);
+}
+````
+
+### requestSignature{#17}	
+
+`requestSignature`
+
+Is called if during a financial operation a signature from the customer is needed. The requestSignature delegate should be implemented to print out or display the receipt for the customer to sign and provide the merchant with the means to confirm the signature.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `receipt *`  <br />*NSString* | The receipt is a html formatted string containing a receipt for the customer to sign|
+
+**Code example**
+
+````objectivec
+//requestSignature:
+//Is called if a signature from the customer is needed.
+-(void)requestSignature:(NSString*)receipt
+{
+	NSLog(receipt);
+	//Display buttons to accept or decline customer signature
+	UIAlertView* alert = [[UIAlertView alloc] initWithTitle:@"" message:@"sign?" delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes", nil];
+	[alert show];
+}
+````
+
+### cancelSignature{#40}	
+
+`cancelSignature`
+
+Called if the signature request times out. If the card reader does not receive an approval for the signature within a certain timeframe (45 sec) it cancels the transaction and sends a notification to the app.
+
+**Code example**
+
+````objectivec
+//cancelSignature
+//Called if the signature request times out.
+-(void)cancelSignature
+{
+	NSLog(@"Signature request timed out");
+}
+````
+
+### responseScannerEvent{#41}	
+
+`responseScannerEvent`
+
+Called to inform that a scan has been performed, several calls can be expected.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[ScannerEventResponseInfo](#26) | The info object contains scanCode, status and a dictionary (xml).|
+
+**Code example**
+
+````objectivec
+//responseScannerEvent:
+//Called to inform that a scan has been performed
+-(void)responseScannerEvent:(id<ScannerEventResponseInfo>)info
+{
+	NSLog(info.scanCode); //barcode scanned
+	NSLog(info.xml.description);
+}
+````
+
+### responseScannerDisabled{#42}	
+
+`responseScannerDisabled`
+
+Called to notify that the scanner has been disabled.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[ScannerDisabledResponseInfo](#27) | The info object contains information about the scanner operation.|
+
+**Code example**
+
+````objectivec
+//responseScannerDisabled:
+//Called to notify that the scanner has been disabled. 
+-(void)responseScannerDisabled:(id<ScannerDisabledResponseInfo>)info
+{
+	NSLog(info.status);
+}
+````
+
+### responseLogInfo{#43}	
+
+`responseLogInfo`
+
+Called when logs have been downloaded from the card reader by using the logGetInfo method.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[LogInfo](#27) | The info object has the string property log which holds the log info in text with carriage returns.|
+
+**Code example**
+
+````objectivec
+//responseLogInfo:
+//Called when logs have been downloaded from the card reader by using the logGetInfo method.
+-(void)responseLogInfo:(id<LogInfo>)info
+{
+	NSLog(info.log);
+	//write to log file
+}
+````
+
+### responseRecoveredTransactionStatus{#44}	
+
+`responseRecoveredTransactionStatus`
+
+This method is **OPTIONAL** and only required if retrievePendingTransaction will be called.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `info *`  <br />[*ResponseInfo*](#24) | Information about the recovered transaction status.|
+|	|**If an attempt was made to recover a transaction when none was pending then this parameter WILL be nil.**|
+
+**Code example**
+
+````objectivec
+//responseRecoveredTransactionStatus:
+//Called when a pending transaction result has been recovered from the card reader
+- (void)responseRecoveredTransactionStatus:(id<FinanceResponseInfo>)info{
+	if(info != nil) {
+		if(info.statusCode == EFT_PP_STATUS_SUCCESS) {
+			NSLog(info.status);
+			NSLog(info.customerReceipt);
+			NSLog(info.merchantReceipt);
+			// print receipts and/or save receipts in transaction log
+
+			if(info.financialResult == EFT_FINANC_STATUS_TRANS_APPROVED){
+				// Process recovered authorized transaction result
+			} else if(info.financialResult == EFT_FINANC_STATUS_TRANS_DECLINED) {
+				// Process recovered declined transaction result
+			}
+		} else if(info.statusCode != EFT_PP_STATUS_NO_DATA_AVAILABLE) {
+			// some other error was detected while waiting for a pending transaction result
+		}
+	}
+	// else a pending transaction result was not found on the card reader
+}
+````
+
+### Card Reader Requirements
+
+**Version Requirements**
+
+Card reader software v1.7.0+ and v2.1.7+ is required in order for this response to be received.
+
+## Objects
+
+### HeftManager{#19}	
+
+`HeftManager`
+
+The HeftManager is used for discovering devices and to connect and create a HeftClient object for the appropriate device. The manager reports messages to HeftDiscoveryDelegate protocol during the discovery process. Starting the manager is usually the first thing that should be done after loading up an UIView that enables the user to search for and connect to BT devices. When starting the manager an object (usually the UIViewController itself) is passed as the HeftDiscoveryDelegate delegate to report to.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `devicesCopy`  <br />[NSArray] | **DEPRECATED_ATTRIBUTE**: Stored array which contains all found devices.|
+| `connectedCardReaders`  <br />[NSArray] | Stored array which contains all found devices.|
+| `delegate`  <br />[NSObjectHeftDiscoveryDelegate] | Key for value in mpedInfo|
+| `version`  <br />*NSString* | Current HeftManager version.|
+
+**Code example**
+
+````objectivec
+// Create a manager on view load
+- (void)viewDidLoad{
+	[super viewDidLoad];
+	HeftManager* manager = [HeftManager sharedManager];
+	manager.delegate = self;
+	[manager resetDevices]; // Clean out device list
+}
+````
+
+**Methods**
+
+[**Start Discovery**](#29)
+***
+- (void)startDiscovery;
+
+[**Shared Manager**](#30)
+***
++ (HeftManager*)sharedManager;
+
+[**Client for device (NSString)**](#31)
+***
+- (void)clientForDevice:(HeftRemoteDevice *)device sharedSecret:(NSString *)sharedSecret delegate:(NSObject HeftStatusReportDelegate*)delegate;
+
+### HeftClient{#22}	
+
+`HeftClient`
+
+High level interface for Headstart API. HeftClient handles the communication between the mPos app and the card reader. The HeftClient object also stores information about it's card reader device in the mpedInfo dictionary. Device Log operations are also implemented in HeftClient. To create a new HeftClient object the clientForDevice method is called from an instance of the HeftManager. Transaction and log requests (and the acceptSignature response) are done by calling HeftClient methods with the relevant input. The library reports the status of the requests by calling delegates of the HeftStatusReportDelegate protocol.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `sharedSecret`  <br />[NSString] | The shared secret is a key provided by Handpoint when you get your account that enables you to perform live operations with the card reader. However, if you're developing with a starter kit, the test shared secret is specified in the example.|
+| `mpedInfo`  <br />[NSDictionary] | Dictionary with card reader info details, obtained by querying it from device on interface creation.|
+| `isTransactionResultPending`  <br />[BOOL] | Indicates whether a transaction result is pending on the card reader.|
+| | **Note: A pending transaction result is retained by the card reader if a disconnect occurs between card reader and app before the transaction result can be delivered during a SALE, REFUND or VOID processing.**|	
+| `kSerialNumberInfoKey`  <br />[NSString constant	] | Key for value in mpedInfo|
+| `kPublicKeyVersionInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kEMVParamVersionInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kGeneralParamInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kManufacturerCodeInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kModelCodeInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kAppNameInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kAppVersionInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+| `kXMLDetailsInfoKey`  <br />[NSString Constant ] | Key for value in mpedInfo|
+
+
+**Code example**
+
+````objectivec
+//clientForDevice:sharedSecret:delegate:
+//Creates a HeftClient object(connection to device)
+-(void)connectToFirstCardReaderWith:(NSData*)sharedSecret;
+{
+	//Try to connect to first device in devices array
+	[heftManager clientForDevice:[[heftManager devicesCopy] objectAtIndex:0] sharedSecret:sharedSecret delegate:self];
+	//Client calls the didConnect delegate function if successful 
+}
+
+//....
+
+//didConnect:
+//Called when a connection to specified device was created.
+-(void)didConnect:(id<HeftClient>)client 
+{
+	// connected successfully to a device
+	// assigne the client to our heftClient property
+	heftClient = client;
+}
+
+// .....
+
+// Do one sale later in code
+[heftClient saleWithAmount:1000 currency:@"GBP" cardholder:YES];
+````	
+
+**Methods**
+
+[**cancel**](#32)
+***
+- (void)cancel;
+
+[**saleWithAmount**](#2)
+***
+- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present;
+
+[**saleWithAmount**](#2)
+***
+- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+
+[**saleWithAmount**](#2)
+***
+- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+
+[**refundWithAmount**](#5)
+***
+- (BOOL)refundWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present;
+
+[**refundWithAmount**](#5)
+***
+- (BOOL)refundWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+
+[**saleVoidWithAmount**](#3)
+***
+- (BOOL)saleVoidWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present transaction:(NSString*)transaction;
+
+[**refundVoidWithAmount**](#3)
+***
+- (BOOL)refundVoidWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present transaction:(NSString*)transaction;
+
+[**retrievePendingTransaction**](#8)
+***
+- (BOOL)retrievePendingTransaction;
+
+[**enableScanner**](#36)
+***
+- (BOOL)retrievePendingTransaction;
+
+[**enableScannerWithMultiScan**]
+***
+- (BOOL)enableScannerWithMultiScan:(BOOL)multiScan;
+
+[**enableScannerWithMultiScan**]
+***
+- (BOOL)enableScannerWithMultiScan:(BOOL)multiScan buttonMode:(BOOL)buttonMode;
+
+[**enableScannerWithMultiScan**]
+***
+- (BOOL)enableScannerWithMultiScan:(BOOL)multiScan buttonMode:(BOOL)buttonMode timeoutSeconds:(NSInteger)timeoutSeconds;
+
+[**Disable scanner**](#37)
+***
+- (BOOL)disableScanner;
+
+[**financeStartOfDay**]
+***
+- (BOOL)financeStartOfDay;
+
+[**financeEndOfDay**]
+***
+- (BOOL)financeEndOfDay;
+
+[**financeInit**](#47)
+***
+- (BOOL)financeInit;
+
+[**logSetLevel**](#33)
+***
+- (BOOL)logSetLevel:(eLogLevel)level;
+
+[**logReset**](#35)
+***
+- (BOOL)logReset;
+
+[**logGetInfo**](#34)
+***
+- (BOOL)logGetInfo;
+
+[**acceptSignature**](#7)
+***
+- (void)acceptSignature:(BOOL)flag;
+
+[**getEMVConfiguration**](#7)
+***
+- (BOOL)getEMVConfiguration;
+
+
+### HeftRemoteDevice{#23}	
+
+`HeftRemoteDevice`
+
+An object containing a reference to the accessory device which is passed to the HeftClient on creation.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `name`  <br />[NSString] | Name of device|
+| `accessory`  <br />[EAAccessory] | The EAAccessory object|
+| `address`  <br />[NSString] | Address of device|
+
+
+### HeftDiscoveryDelegate	
+
+`HeftDiscoveryDelegate`
+
+Notifications sent by the SDK on various events - new available device found, connection lost, connection found, etc
+
+**Methods**
+
+[**didDiscoverFinished**](#37)
+***
+- (void)didDiscoverFinished;
+
+[**didFindAccessoryDevice**](#38)
+***
+- (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice;
+
+[**didLostAccessoryDevice**](#39)
+***
+- (void)didLostAccessoryDevice:(HeftRemoteDevice*)oldDevice;
+
+### HeftStatusReportDelegate	
+
+`HeftStatusReportDelegate`
+
+Notifications sent by the SDK on various events - connected to device, request signature, response on error etc.
+
+**Methods**
+
+[**didConnect**](#20)
+***
+- (void)didConnect:(id-HeftClient)client;
+
+[**responseStatus**](#14)
+***
+- (void)responseStatus:(id-ResponseInfo)info;
+
+[**responseError**](#15)
+***
+- (void)responseError:(id-ResponseInfo)info;
+
+[**responseFinanceStatus**](#16)
+***
+- (void)responseFinanceStatus:(id-FinanceResponseInfo)info;
+
+[**responseLogInfo**](#43)
+***
+- (void)responseLogInfo:(id-LogInfo)info;
+
+[**requestSignature**](#17)
+***
+- (void)requestSignature:(NSString*)receipt;
+
+[**cancelSignature**](#40)
+***
+- (void)cancelSignature;
+
+[**responseRecoveredTransactionStatus**](#44)
+***
+- (void)responseRecoveredTransactionStatus:(id-FinanceResponseInfo)info;
+
+[**responseScannerEvent**](#41)
+***
+- (void)responseScannerEvent:(id-ScannerEventResponseInfo)info;
+
+[**responseScannerDisabled **](#2)
+***
+- (void)responseScannerDisabled:(id-ScannerDisabledResponseInfo)info;
+
+[**responseEMVReport**](#43)
+***
+- (void)responseEMVReport:(NSString *)report;
+
+
+### ResponseInfo{#24}	
+
+`ResponseInfo`
+
+A ResponseInfo object is passed to the ResponseStatus delegate. It contains information from the card reader about the status of the current transaction. There are two properties: status and xml. status is a string and xml is a dictionary. Usually status contains a message descriptive enough to know whats going on and is useful for displaying to user. The xml dictionary contains all elements of the XML formatted data passed from the card reader and has detailed information on the current state of the card reader.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `statusCode`  <br />*int* | A numerical representation of the status.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+
+
+### FinanceResponseInfo{#25}	
+
+`FinanceResponseInfo`
+
+A FinanceResponseInfo is passed to the responseFinanceStatus delegate at the end of transaction. It contains all necessary information needed about the relevant transaction. FinanceResponseInfo inherits from ResponseInfo so it includes the status string and xml dictionary in addition to authorisedAmount, transactionId and the html formatted receipts.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `financialResult`  <br />*NSInteger* | A numerical representation of a financial status result. **Status**							  **Value**		EFT_FINANC_STATUS_UNDEFINED				0x00 	EFT_FINANC_STATUS_TRANS_APPROVED		0x01 EFT_FINANC_STATUS_TRANS_DECLINED		0x02 EFT_FINANC_STATUS_TRANS_PROCESSED		0x03 EFT_FINANC_STATUS_TRANS_NOT_PROCESSED	0x04 EFT_FINANC_STATUS_TRANS_CANCELLED		0x05|
+| `isRestarting`  <br />[*BOOL*] | Indicates whether the card reader is about to restart or not (usually indicated after a software update was received on the card reader).If a restart is indicated then you have 2 seconds to start fetching the logs (before the card reader restarts).After fetching the logs you should disconnect from the card reader and wait for it to be visible again.|
+| `authorisedAmount`  <br />*NSInteger* | In the smallest unit for the given CurrencyCode - for the transaction. ISO 4217 defines number of digits in fractional part of currency for every currency code. Example 1000 in the case where CurrencyCode is "0826" (GBP) the amount would be 10.00 pounds or 1000 pense.|
+| `transactionId`  <br />[*NSString*] | The id of current transaction.|
+| `customerReceipt`  <br />[*NSString*] | Customer receipt in html format.|
+| `merchantReceipt`  <br />[*NSString*] | Merchant receipt in html format.|
+| `statusMessage`  <br />[*NSString*] | A human readable message describing the result of the transaction.|
+| `type`  <br />[*NSString*] | The transaction type represents which type of transaction was done. "SALE" for example.|
+| `finStatus`  <br />[*NSString*] | The financial status describes the conclusion of the transaction as received from the card reader. "AUTHORISED" for example.|
+| `requestedAmount`  <br />[*NSString*] | The requested amount is the payment amount sent in the original request to the card reader, i.e. the amount which was to charge the card with.|
+| `gratuityAmount`  <br />[*NSString*] | The gratuity amount is an additional amount added to the requested payment amount which represents additional fee added to the requested amount. This is used when the card reader is supporting the tipping functionality. An example: A sale is started with the amount 1000 and the card reader is set to support tipping. The card reader asks if a tip should be applied by the customer. The customer inputs an additional amount as a tip, lets say 100. The card is then charged for the requested amount, 1000, as well as the additional gratuity amount, 100. The result will be that the card will be charged for 1100. A calculated gratuity percentage will also be returned.|
+| `gratuityPercentage`  <br />[*NSString*] | The gratuity percentage is used to calculate an additional amount to the requested amount. The card reader calculates that amount, rounded up to the closest whole number. This is used when the card reader is supporting the tipping functionality. An example: A sale is started with the amount 1000 and the card reader is set to support tipping. The card reader asks if a tip should be applied by the customer. Instead of the customer adding a value he selects the percentage of the requested amount to be applied as a tip, lets say 10%. The card is then charged for the requested amount, 1000, as well as the additional gratuity percentage, 10%. The result will be that the card will be charged for 1100. A calculated gratuity amount will also be returned.|
+| `totalAmount`  <br />[*NSString*] | The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality.|
+| `currency`  <br />[*NSString*] | The currency used in this transaction.|
+| `eFTTransactionID`  <br />[*NSString*] | The EFT (electronic funds transfer) transaction id is a unique GUID from the servers which is linked to this transaction in order to search for a particual transaction. This id is used if a transaction is to be reversed.|
+| `originalEFTTransactionID`  <br />[*NSString*] | The original EFT (electronic funds transfer) transaction id is a unique GUID previously received from the servers in order to reverse a transaction. This id is sent with the new eFTTransactionID in order to reference the original transaction. An example: A transaction is made. An eFTTransactionID is received. That transaction has to be reversed. A new transaction is started, now a reverse transaction, with the previously received eFTTransactionID as a parameter in the transaction. In the end result there will be a new eFTTransactionID, for the reverse transaction, and an originalEFTTransactionID referencing the original transaction.|
+| `eFTTimestamp`  <br />[*NSString*] | The eFTTimestamp represents the time when the transaction was done. This time is set by the device communicating to the card reader when the connection is established to the card reader.|
+| `authorisationCode`  <br />[*NSString*] | If the transaction was authorised the value represented can be used to search for a transaction in our system.|
+| `verificationMethod`  <br />[*NSString*] | The verification method represents the card holder verification method used to allow the payment. "PIN" for an example.|
+| `cardEntryType`  <br />[*NSString*] | The card entry type is the method the card information was input to card reader. "ICC" for an example represents "Integrated Circuit Card" i.e. the information was read from the chip of the card.|
+| `cardSchemeName`  <br />[*NSString*] | The scheme which was used when the transaction was made. (VISA, Mastercard, etc...)|
+| `errorMessage`  <br />[*NSString*] | If there was an error during the transaction it is represented here in a human readable text.|
+| `customerReference`  <br />[*NSString*] | If a customer reference was added, as an optional parameter, when the transaction was started. It is received here, unaltered. The customer reference can be used to reference in internal systems.|
+| `budgetNumber`  <br />[*NSString*] | If a budget number was added, as an optional parameter, when the transaction was started. It is received here, unaltered. The budget number can be used to split payments over a period of months.|
+| `recoveredTransaction`  <br />[*NSString*] | This flag is true if the transaction result is from a previous transaction which failed to get sent from the card reader, false otherwise. In the case that the communication between the device and the card reader breaks down, the card reader will attempt to send the result of the previous transaction as an immediate reply when the next transaction is started. If this happens the transaction is flagged as a "RecoveredTransaction". This should be displayed very well in the UI since this is *NOT* the result from the transaction just started.|
+| `cardTypeId`  <br />[*NSString*] | The card type id is an identifier inside the Handpoint gateway which represents what kind of card was used. "U015" for an example represents SAS Airline-Systems in our systems.|
+| `chipTransactionReport`  <br />[*NSString*] | If present, a full EMV report by the card reader on the Card and Terminal involved in the transaction.|
+| `deviceStatus`  <br />[*NSString*] | Gets the device status.|
+| `dueAmount`  <br />[*NSString*] | If there's still a part of the amount to be paid.|
+| `balance`  <br />[*NSString*] | The balance of the Cardholder's cards if the bank/acquirer supports it.|
+| `CardToken`  <br />[*String*] | Gets the card token if it's available, null otherwise.|
+
+
+### ScannerEventResponseInfo{#26}	
+
+`ScannerEventResponseInfo`
+
+A ScannerEventResponseInfo is passed to the responseScannerEvent delegate during scanner mode when a scan is detected. It contains all necessary information needed about the relevant operation. ScannerEventResponseInfo inherits from ResponseInfo so it includes the status string and xml dictionary in addition to scanCode string.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `statusCode`  <br />*int* | A numerical representation of the status.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `scanCode`  <br />*NSString* | The code that was scanned.|
+
+### ScannerDisabledResponseInfo{#27}	
+
+`ScannerDisabledResponseInfo`
+
+The info object contains information about the scanner operation.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `statusCode`  <br />*int* | A numerical representation of the status.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+
+### LogInfo{#28}	
+
+`LogInfo`
+
+A LogInfo object is passed to the ResponseLogInfo delegate when logs have been downloaded from the card reader.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `statusCode`  <br />*int* | A numerical representation of the status.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `log`  <br />*NSString* | String containing the logging information.|
+
+### eLogLevel{#13}	
+
+`eLogLevel`
+
+An enum describing the different levels of logging used in the SDK and in the device.
+
+**Possible values**
+
+`eLogNone` `eLogError` `eLogInfo` `eLogFull` `eLogDebug`
+
+### Transaction Details{#46}	
+
+`XML as NSDictionary`
+
+The contents of the xml property depend on which type of operation the card reader is responding to. Listed below are all possible keys in the dictionary. Note that not all fields are included all the time.
+
+### Dictionary keys:
+
+**StatusMessage**
+***
+A human readable description for the returned Status.
+
+**TransactionType**
+***
+The type of transaction performed: UNDEFINED, SALE, VOID_SALE, REFUND, VOID_REFUND, CANCEL_SALE, CANCEL_REFUND
+
+**FinancialStatus**
+***
+The result of the transaction: UNDEFINED, APPROVED, DECLINED, PROCESSED, FAILED, CANCELLED
+
+**RequestedAmount**
+***
+The amount requested by the POS, as requested by the POS (i.e. no decimal point).
+
+**GratuityAmount**
+***
+The gratuity amount entered by the cardholder, if any.
+
+**GratuityPercentage**
+***
+The gratuity amount, as a percentage of the requested amount.
+
+**TotalAmount**
+***
+The total of the gratuity and requested amount.
+
+**TransactionID**
+***
+The transaction number used for this transaction, as maintained by the Eft Client.
+
+**EFTTransactionID**
+***
+The EFT reference, given by the system, to make the transaction unique.
+
+**OriginalEFTTransactionID**
+***
+The original EFT reference, given by the POS, as part of a VOID_SALE or a VOID_REFUND transaction.
+
+**EFTTimestamp**
+***
+The date and time of the transaction, in ISO format (YYYYMMDDHHmmSS).
+
+**AuthorisationCode**
+***
+The transaction authorization code, as given by the system.
+
+**CVM**
+***
+The Cardholder Verfication Method: UNDEFINED, SIGNATURE, PIN, PIN_SIGNATURE, FAILED, NOT_REQUIRED
+
+**CardEntryType**
+***
+The card data acquisition type: UNDEFINED, MSR, ICC, CNP
+
+**CardSchemeName**
+***
+The card, reported, scheme name.
+
+**CardTypeId**
+***
+The ID of the Card Type.
+
+**SerialNumber**
+***
+The serial number of the PED.
+
+**BatteryStatus**
+***
+A number, followed by the % sign, which indicates current charge level of the battery.
+
+**BatterymV**
+***
+An integer, which represent the batter charge, in mV.
+
+**BatteryCharging**
+***
+Indicates whether the battery is charging, or not. Values are true or false.
+
+**ExternalPower**
+***
+Indicates whether the PED is connected to an external power source (e.g. a AC adapter). Values are true or false.
+
+**ApplicationName**
+***
+The name of the application running on the PED.
+
+**ApplicationVersion**
+***
+A version string of the form major.minor.build”(e.g. 1.2.118).
+
+**ErrorMessage**
+***
+Description of the error, if any.
+
+**RecoveredTransaction**
+***
+Indicates that the transaction result is a recovered transaction. The key is only included if value is true.
+
+### CmdIds	
+
+`card reader Status messages`
+
+Status messages received from card reader:
+
+### Possible values
+
+`EFT_PP_STATUS_SUCCESS`
+`EFT_PP_STATUS_INVALID_DATA`
+`EFT_PP_STATUS_PROCESSING_ERROR`
+`EFT_PP_STATUS_COMMAND_NOT_ALLOWED`
+`EFT_PP_STATUS_NOT_INITIALISED`
+`EFT_PP_STATUS_CONNECT_TIMEOUT`
+`EFT_PP_STATUS_CONNECT_ERROR`
+`EFT_PP_STATUS_SENDING_ERROR`
+`EFT_PP_STATUS_RECEIVING_ERROR`
+`EFT_PP_STATUS_NO_DATA_AVAILABLE`
+`EFT_PP_STATUS_TRANS_NOT_ALLOWED`
+`EFT_PP_STATUS_UNSUPPORTED_CURRENCY`
+`EFT_PP_STATUS_NO_HOST_AVAILABLE`
+`EFT_PP_STATUS_CARD_READER_ERROR`
+`EFT_PP_STATUS_CARD_READING_FAILED`
+`EFT_PP_STATUS_INVALID_CARD`
+`EFT_PP_STATUS_INPUT_TIMEOUT`
+`EFT_PP_STATUS_USER_CANCELLED`
+`EFT_PP_STATUS_INVALID_SIGNATURE`
+`EFT_PP_STATUS_WAITING_CARD`
+`EFT_PP_STATUS_CARD_INSERTED`
+`EFT_PP_STATUS_APPLICATION_SELECTION`
+`EFT_PP_STATUS_APPLICATION_CONFIRMATION`
+`EFT_PP_STATUS_AMOUNT_VALIDATION`
+`EFT_PP_STATUS_PIN_INPUT`
+`EFT_PP_STATUS_MANUAL_CARD_INPUT`
+`EFT_PP_STATUS_WAITING_CARD_REMOVAL`
+`EFT_PP_STATUS_TIP_INPUT`
+`EFT_PP_STATUS_SHARED_SECRET_INVALID`
+`EFT_PP_STATUS_SHARED_SECRET_AUTH`
+`EFT_PP_STATUS_WAITING_SIGNATURE`
+`EFT_PP_STATUS_CONNECTING`
+`EFT_PP_STATUS_SENDING`
+`EFT_PP_STATUS_RECEIVEING`
+`EFT_PP_STATUS_DISCONNECTING`
+`EFT_PP_STATUS_PIN_INPUT_COMPLETED`
+`EFT_PP_STATUS_POS_CANCELLED`
+`EFT_PP_STATUS_REQUEST_INVALID`
+`EFT_PP_STATUS_CARD_CANCELLED`
+`EFT_PP_STATUS_CARD_BLOCKED`
+`EFT_PP_STATUS_REQUEST_AUTH_TIMEOUT`
+`EFT_PP_STATUS_REQUEST_PAYMENT_TIMEOUT`
+`EFT_PP_STATUS_RESPONSE_AUTH_TIMEOUT`
+`EFT_PP_STATUS_RESPONSE_PAYMENT_TIMEOUT`
+`EFT_PP_STATUS_ICC_CARD_SWIPED`
+`EFT_PP_STATUS_REMOVE_CARD`
+`EFT_PP_STATUS_SCANNER_IS_NOT_SUPPORTED`
+`EFT_PP_STATUS_SCANNER_EVENT`
+`EFT_PP_STATUS_BATTERY_TOO_LOW`
+`EFT_PP_STATUS_ACCOUNT_TYPE_SELECTION`
+`EFT_PP_STATUS_BT_IS_NOT_SUPPORTED`
+`EFT_PP_STATUS_PAYMENT_CODE_SELECTION`
+`EFT_PP_STATUS_PARTIAL_APPROVAL`
+`EFT_PP_STATUS_AMOUNT_DUE_VALIDATION`
+`EFT_PP_STATUS_INVALID_URL`
+`EFT_PP_STATUS_WAITING_CUSTOMER_RECEIPT`
+`EFT_PP_STATUS_PRINTING_MERCHANT_RECEIPT`
+`EFT_PP_STATUS_PRINTING_CUSTOMER_RECEIPT`
+`EFT_PP_STATUS_WAITING_HOST_MSG_TO_HOST`
+`EFT_PP_STATUS_WAITING_HOST_MSG_RESP`
+`EFT_PP_STATUS_INITIALISATION_COMPLETE`
+
+
+### Status strings{#45}	
+
+`Status as NSString`
+
+An NSString containing the status message - can be one of the following:
+	
+### Possible values
+
+`Success`
+`Invalid data`
+`Processing error`
+`Not allowed`
+`Not initialized`
+`Connect timeout`
+`Connect error`
+`Sending error`
+`Receiveing error`
+`No data available`
+`Transaction not allowed`
+`Unsupported currency`
+`No host available`
+`Card reader error`
+`Card reading failed`
+`Invalid card`
+`Input timeout`
+`User cancelled`
+`Invalid signature`
+`Waiting card`
+`Card inserted`
+`Application selection`
+`Application confirmation`
+`Amount validation`
+`PIN input`
+`Manual card input`
+`Waiting card removal`
+`Tip input`
+`Shared secret invalid`
+`Connecting`
+`Sending`
+`Receiving`
+`Disconnecting`
+`PIN entry completed`
+`Merchant cancelled the transaction`
+`Request invalid`
+`Card cancelled the transaction`
+`Blocked card`
+`Request for authorisation timed out`
+`Request for payment timed out`
+`Response to authorisation request timed out`
+`Response to payment request timed out`
+`Please insert card in chip reader`
+`Remove the card from the reader`
+`This device does not have a scanner`
+`Scanner is not supported`
+`Scanner event`
+
+## Process details
+
+The following table contains result codes that can occur in the COMMAND response STATUS field (see section 1.3 above).
+
+In addition the following table contains the text information presented in the StatusMessage field that is part of the FinancialTransactionResponse Xml response object.
+
+All values are in hex in the following table.
+
+| Status ID	      | Value 	|		StatusMessage| 	Details	|
+| ----------- | ----------- |----------- | ----------- |
+| EFT_SUCCESS   | 0001| One of the following: "" (an empty string) "AUTH CODE #" "REFUND ACCEPTED" "REVERSAL ACCEPTED"|Operation completed successfully. No further actions required.|
+| EFT_INVALID_DATA   | 0002|"Invalid data"|Invalid COMMAND request object, from the POS App, at the start of an operation. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
+|EFT_PROCESSING_ERROR	|0003|	"Processing error"|	An unexpected error occurred during processing. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
+|EFT_COMMAND_NOT_ALLOWED|	0004|	"Command not allowed"|	The card reader is currently busy processing another command. Please retry the operation once the current operation has completed.||
+|EFT_NOT_INITIALISED	|0005	|"Device is not initialized"|	The current operation can’t be completed because there is a pending software update that must be applied before processing can continue. Please retry the operation after the card reader has restarted itself.|
+|EFT_CONNECT_TIMEOUT	|0006	|"Connection time out detected"|	The back end connection timed out during an update. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
+|EFT_CONNECT_ERROR	|0007	|"Connection error"	|It was not possible to establish a connection to the back end system during an update operation. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
+|EFT_SENDING_ERROR	|0008	|"Send error"	|A failure was detected during communication with the back end system. If a SALE or a REFUND transaction was in progress when this occurred then you MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Note: You may be asked to provide the card reader logs. Once verified please retry the operation.|
+|EFT_RECEIVING_ERROR	|0009|	"Receiving error"|	A failure was detected during communication with the back end system. If a SALE or a REFUND transaction was in progress when this occurred then you MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Note: You may be asked to provide the card reader logs. Once verified please retry the operation.|
+|EFT_NO_DATA_AVAILABLE	|000A|	"No data available"|	The POS App is trying to fetch the card reader log file but there is no data stored in the log file. If logs are required then please set the log level to an appropriate value and retry the operation.|
+|EFT_TRANS_NOT_ALLOWED	|000B|	"Transaction not allowed"|	`Currently not used`|
+|EFT_UNSUPPORTED_CURRENCY|	000C|	"Currency not supported"|	A currency has been selected that the card reader has not been configured for. Please select the correct currency and retry the operation. Alternatively, please contact technical support and ask for the specific currency to be supported.|
+|EFT_NO_HOST_AVAILABLE|	000D	|"No host configuration found"|	An update was initiated but the card reader could not find any host information for the back end system, even though it otherwise contains valid configuration. This is indicative of an invalid `hostBlock` block with in the `HostList` block in this device configuration, which was placed on the card reader during a previous update. Please contact technical support and provide card reader logs and ask for a replacement device. The card reader will be unable to update itself and must be replaced.|
+|EFT_CARD_READER_ERROR	|000E	|"Card reader error"|	Error detected in the chip reader or the magnetic stripe reader. Please retry the operation. If the issue persists please contact technical support and provide them with the card reader logs as well as asking for a replacement reader.|
+|EFT_CARD_READING_FAILED|	000F|	"Failed to read card data"|	The card reader could not read any data from the card. Please retry the operation. If the issue persists the card may be faulty, please try another card. If the issue still persists the card reader may require replacement, please contact technical support.|
+|EFT_INVALID_CARD	|0010	|"INVALID CARD"	|The card reader detected invalid card data. Please retry the operation. If the issue persists the card may be faulty, please try another card. If the issue still persists the card reader may require replacement, please contact technical support.|
+|EFT_INPUT_TIMEOUT	|0011|	"Timeout waiting for user input"|	The card reader timed out while waiting for a user action. No further actions required.|
+|EFT_USER_CANCELLED	|0012|	"TRANSACTION VOID" "User cancelled the transaction"	|The current operation was cancelled by card holder. No further actions required.|
+|EFT_SHARED_SECRET_INVALID|	001D|	"Shared Secret invalid"|	The card reader believes that the POS App has an incorrect shared secret. No financial operations will be possible (e.g. SALE, REFUND). Please type the correct shared secret into the POS App or contact technical support for further assistance.|
+|EFT_SHARED_SECRET_AUTH	|001E	|"Authenticating POS"|	The card reader is about to challenge the POS App for a correct shared secret. No further actions are required.|
+ | REPORT STATUS SPECIFIC|
+|EFT_INVALID_SIGNATURE	|0013|	"TRANSACTION VOID"|	The merchant indicated that the signature provided by the card holder was invalid. No further actions are required.|
+|EFT_WAITING_CARD	|0014|	"Waiting for card"	|The card reader is waiting for a card to be inserted into the chip reader or for a card to be swiped (only applies to card readers with external MSR). Insert or swipe a card to continue with the transaction.|
+|EFT_CARD_INSERTED	|0015|	"Card detected"	|`Currently not used`|
+|EFT_APPLICATION_SELECTION	|0016|	"Waiting for application selection"	|The card reader is waiting for the card holder to select a card application to be used for the transaction. The card holder must select an application for use (e.g. VISA, MASTERCARD, etc.) and should then press either the OK button to continue. Press the C/Cancel button to abort the transaction.|
+|EFT_APPLICATION_CONFIRMATION|	0017|	"Waiting for application confirmation"|	The card reader is waiting for the card holder to confirm that the displayed card application should be used for the transaction. The card holder should press either the OK or the C/Cancel button.|
+|EFT_AMOUNT_VALIDATION|	0018	|"Waiting for amount validation"|	The card reader is waiting for the card holder to confirm that the amount presented is correct. The card holder should press either the OK or the C/Cancel button.|
+|EFT_PIN_INPUT	|0019|	"Waiting for PIN entry"|	The card reader is waiting for the card holder to enter his/her PIN. The card holder should enter his PIN and then press the OK button to continue. For PIN bypass press the OK button without entering any PIN digits (this will trigger signature fallback). Press the C/Cancel button to abort the transaction. Note: It is not possible to cancel this operation from the POS App.|
+|EFT_MANUAL_CARD_INPUT	|001A|	"Waiting for manual card data"|	`Currently not used`|
+|EFT_WAITING_CARD_REMOVAL|	001B|	"Waiting for card removal"|	A card was detected in the card reader at the start of a transaction, presumably left there from a previous transaction. Please remove the card and restart the operation.|
+|EFT_TIP_INPUT	|001C|	"Waiting for gratuity"	|The card reader is waiting for the card holder to enter/confirm tip/gratuity information.|
+|EFT_WAITING_SIGNATURE	|001F|	"Waiting for signature"	|The card reader is waiting for confirmation from the merchant that the card holder signature is valid. The merchant should press either the Accepted or Declined/Cancel in the POS App. Pressing Cancel or OK on the card reader will not have any effect.|
+|EFT_WAITING_HOST_CONNECT	|0020|	"Connecting to host"|	The card reader is establishing a connection to the back end system. No further actions are required.|
+|EFT_WAITING_HOST_SEND|	0021	|"Sending data to host"	|The card reader is sending data to the back end system. No further actions are required.|
+|EFT_WAITING_HOST_RECEIVE|	0022|	"Waiting for data from host"	|The card reader is waiting for data from to the back end system. No further actions are required.|
+|EFT_WAITING_HOST_DISCONNECT|	0023|	"Disconnecting from host"|	The card reader is disconnecting from the back end system. No further actions are required.|
+|EFT_PIN_INPUT_COMPLETED|	0024|	"PIN entry completed"|	PIN entry has been completed. No further actions required.|
+|EFT_POS_CANCELLED	|0025|	"TRANSACTION VOID"	|The current operation was cancelled by merchant. No further actions required.|
+|EFT_REQUEST_INVALID|	0026|	"Request invalid"|	Card not allowed with this transaction type.|
+|EFT_CARD_CANCELLED	|0027|	"TRANSACTION VOID"|	The chip on the card cancelled the transaction. No further actions required.|
+|EFT_CARD_BLOCKED	|0028|	|"CARD BLOCKED"	|The card used in the transaction is blocked. Please retry the transaction with a non-blocked card.|
+|EFT_REQUEST_AUTH_TIMEOUT	|0029|	"Request for authorisation timed out"|	Indicates that the card reader detected a communication failure between itself and the back end system during the authorization phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support. Note: You may be asked to provide the card reader logs.|
+|EFT_REQUEST_PAYMENT_TIMEOUT|	002A|	"Request for payment timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the payments phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support. Note: You may be asked to provide the card reader logs.|
+|EFT_RESPONSE_AUTH_TIMEOUT	|002B|	"Response to authorisation request timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the authorization phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support. Note: You may be asked to provide the card reader logs.|
+|EFT_RESPONSE_PAYMENT_TIMEOUT|	002C|	"Response to payment request timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the payments phase. You MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges.   Note: You may be asked to provide the card reader logs. Once you have verified that the transaction did not go through then please make sure the phone/pc has an internet connection and then retry the operation.|
+|EFT_ICC_CARD_SWIPED|	002D|	"Please insert card in chip reader"	|`Currently not used`|
+|EFT_REMOVE_CARD	|002E|	"Remove the card from the reader"	|`Currently not used`|
+|EFT_SCANNER_IS_NOT_SUPPORTED|	002F|	"This device does not have a scanner"	|Bar-code scanner hardware is not present on this card reader. No further actions are required.|
+|EFT_SCANNER_EVENT|	0030|	""	|Bar-code data was just read with the bar-code scanner and returned to the POS App. No further actions are required.|
+|EFT_BATTERY_TOO_LOW|	0031|	"Operation cancelled, the battery is too low. Please charge."|	An operation was started, but the battery charge level is too low to complete the operation. Please recharge the card reader.|
+|EFT_ACCOUNT_TYPE_SELECTION|	0032|	"Waiting for account type selection"|	The card reader is waiting for the card holder to choose an account type for the transaction (i.e. default, credit, cheque/debit or savings).|
