@@ -12,6 +12,7 @@ id: androidintroduction
   <div class="card card-background" >
     <div class="card__header">
       <h3>Android SDK</h3>
+      <p>version 6.4.0</p>
     </div>
     <div class="card__body">
       <a href="https://search.maven.org/artifact/com.handpoint.api/sdk/">

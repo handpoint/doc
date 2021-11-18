@@ -3,6 +3,7 @@ import Layout from '@theme/Layout';
 import logo from './header.png';
 import './index.module.css';
 import styles from './index.module.css';
+import Link from '@docusaurus/Link';
 
 
 function Hello() {
@@ -105,33 +106,7 @@ function Hello() {
         </div>
         <Step2tablecomms />
         <br></br>
-        <div
-          style={{
-            display: 'block',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: '15px',
-            marginTop: '25px',
-            marginLeft: '250px',
-            marginRight: '150px'
-          }}>
-          <h2>Step 3. Choose your payment processor(s)</h2>
-          <h3>Solutions by processor</h3>
-        </div>
-        <Step3tableprocessor />
-        <div style={{
-          display: 'block',
-          justifyContent: 'center',
-          alignItems: 'center',
-          fontSize: '15px',
-          marginTop: '25px',
-          marginLeft: '250px',
-          marginRight: '150px'
-        }}>
-          <h3>By features supported:</h3>
-        </div>
-        <Step3tablefeatures />
-        <Step4 />
+        <Step3 />
         <Github />
         <Helpandsupport />
       </main>
@@ -144,7 +119,27 @@ export default Hello;
 
 function Header() {
   // Import result is the URL of your image
-  return <img src={logo} alt="Logo" />;
+  //return <img src={logo} alt="Logo" />;
+
+  return (
+
+    <div
+      style={{
+        backgroundColor: 'rgb(35, 79, 119)',
+        textAlign: 'center',
+        display: 'flex',
+        height: '300px',
+        justifyContent: 'center',
+        alignItems: 'center'
+      }}>
+
+      <img src="https://handpoint.imgix.net/handpoint-logo-w.png?w=300" alt="Logo" height="50px" />
+
+    </div>
+
+
+
+  );
 }
 
 
@@ -881,7 +876,7 @@ function Step3tablefeatures() {
 }
 
 
-function Step4() {
+function Step3() {
   return (
 
     <div>
@@ -894,7 +889,7 @@ function Step4() {
         marginLeft: '250px',
         marginRight: '250px'
       }}>
-        <h2>Step 4. Start your integration!</h2>
+        <h2>Step 3. Start your integration!</h2>
       </div>
 
 
@@ -910,42 +905,52 @@ function Step4() {
         paddingRight: '50px'
       }}>
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
+          <a>
             <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
           </a>
           <p>Android</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
-        </div>
 
-        <div className={styles.margingImages}>           <a href="https://www.github.com/handpoint">
-          <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
-        </a>
-          <p>iOS</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <Link
+            className="button button--secondary button--lg"
+            to="/android/androidintroduction">
+            View the SDK
+          </Link>
         </div>
 
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/ios-devices.png"></img>
           </a>
           <p>iOS</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <Link
+            className="button button--secondary button--lg"
+            to="/ios/iosintroduction">
+            View the SDK
+          </Link>
         </div>
 
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/macbook.png"></img>
           </a>
-          <p>iOS</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <p>Windows .NET</p>
+          <Link
+            className="button button--secondary button--lg"
+            to="/windows/windowsintroduction">
+            View the SDK
+          </Link>
+        </div>
+
+        <div className={styles.margingImages}>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"></img>
+          </a>
+          <p>JavaScript</p>
+          <Link
+            className="button button--secondary button--lg"
+            to="/javascript/javascriptintroduction">
+            View the SDK
+          </Link>
         </div>
       </div>
       <div style={{
@@ -960,43 +965,51 @@ function Step4() {
         paddingRight: '50px'
       }}>
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
           </a>
-          <p>Android</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <p>REST API</p>
+          <Link
+            className="button button--secondary button--lg"
+            to="/restapi/restintroduction">
+            View the API
+          </Link>
         </div>
 
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
           </a>
-          <p>iOS</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <p>Xamarin SDK (Community)</p>
+          <Link
+            className="button button--secondary button--lg"
+            href="https://github.com/thescruba/xamarin-handpoint-bindings">
+            View the SDK
+          </Link>
         </div>
 
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/browser.png"></img>
           </a>
-          <p>iOS</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <p>Express</p>
+          <Link
+            className="button button--secondary button--lg"
+            href="https://www.handpoint.com/docs/device/Express/">
+            View the SDK
+          </Link>
         </div>
 
         <div className={styles.margingImages}>
-          <a href="https://www.github.com/handpoint">
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+          <a>
+            <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
           </a>
-          <p>iOS</p>
-          <p>
-            <a>View the SDK</a>
-          </p>
+          <p>Cordova Plugin</p>
+          <Link
+            className="button button--secondary button--lg"
+            href="https://www.npmjs.com/package/cordova-plugin-handpoint">
+            View the SDK
+          </Link>
         </div>
       </div>
 
@@ -1060,9 +1073,9 @@ function Helpandsupport() {
         need assistance
         integrating,
         or are unsure where to go from here, our developer support team is here to help. </p>
-      <button className="button button--secondary button--lg">
-        Contact Us
-      </button>
+
+      <a class="button button--secondary button--lg" href="mailto:support@handpoint.com">Contact Us</a>
+
     </div>
   );
 }

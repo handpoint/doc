@@ -217,9 +217,9 @@ Print on demand functionality allowing the merchant to print any HTML formatted 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `receipt` <br />*String*    | The receipt must match the following HTML Print Format. The Transaction Report (also called End of Day Report) can be printed from the string returned in the ReportResult event.|
+| `receipt` <span class="badge badge--primary">Required</span> <br />*String*    | The receipt must match the following [HTML Print Format](https://handpoint.atlassian.net/wiki/spaces/PD/pages/1409875969/Html+Print+Format). The Transaction Report (also called End of Day Report) can be printed from the string returned in the [ReportResult](androideventlisteners.md#report-result) event.|
 
-**Code example**
+**Code example (Prints a receipt with Handpoint logo)**
 
 ```java
 //Print a receipt with Handpoint logo (bitmap format)

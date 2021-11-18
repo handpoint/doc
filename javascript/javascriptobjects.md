@@ -108,7 +108,7 @@ An object holding information about the result of a transaction.
 | `aid`  <br />*String	*   | Application Identifier of the card (EMV tag 9F06)|
 | `arc`  <br />*String	*   | EMV Authorisation Response Code (EMV tag 8A)|
 | `authorisationCode`  <br />*String	*   | Application Identifier of the card (EMV tag 9F06)|
-| `balance`  <br />*BigInteger	*   | Balance available on the card|
+| `balance`  <br />[*Balance*](#balance)    | Balance available on the card|
 | `budgetNumber`  <br />*String	*   | Used to split payments over a period of months|
 | `cardEntryType`  <br />[*CardEntryType*](#29)   | Method used by the terminal to read the card|
 | `cardLanguagePreference`  <br />*String	*   | Preferred language of the card (EMV tag 5F2D)|
@@ -358,12 +358,16 @@ An object to store merchant authentication options for regular operations.
 
 `Balance`
 
-
-## Options{#26}
-
-`Options`
-
 Balance available on the card
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `amount`  <br />*Integer*   | The amount balance|
+| `currency`  <br />*Currency*   | The balance currency|
+| `positive`  <br />*Boolean*   | Marks if the balance is positive|
+| `negative`  <br />*Boolean*   | Marks if the balance is negative|
 
 **Code example**
 
@@ -374,6 +378,29 @@ Balance available on the card
     "negative": false,
     "positive": true
   }
+```	
+
+
+## Options{#26}
+
+`Options`
+
+An object to store all the customisation options for an operation. This object can be empty if no options are required.
+
+
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction|
+
+**Code example**
+
+```json
+{
+    "customerReference": "MyCustomReference"    
+}
 ```	
 
 **Properties**

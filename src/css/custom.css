@@ -15,6 +15,8 @@
   --ifm-color-primary-light: rgb(202, 248, 239);
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
+      
+  
 
   /* Color for links*/ 
   --ifm-link-color:#5b4abe;
@@ -23,6 +25,8 @@
   /* Navbar */
   --ifm-navbar-background-color: #34495e;
   --ifm-navbar-link-color: #fdfdfd;
+  --ifm-navbar-sidebar:30px;
+
 
 
   /* Footer */
@@ -62,9 +66,11 @@ html[data-theme='dark'] {
   --ifm-color-primary: #e97d29;
   --ifm-footer-background-color: #black;
   /* --ifm-color-primary-dark: #5a91ea; */
+
   
   
 }
+
 
 
 /* Modifies the Sidebar (effect on the left side) */
@@ -90,4 +96,9 @@ html[data-theme='dark'] {
 .card-background{
   background-color: rgba(146, 128, 223, 0.1);
   ;
+}
+
+
+.navbar__item {
+  font-size: small;
 }

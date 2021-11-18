@@ -23,6 +23,10 @@ The new generation of Handpoint SDK's is designed to make your life easier. Simp
 
 At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements.
 
+:::warning
+Please, start an operation (sale,refund etc.) ONLY if you have received the **InitialisationComplete** message from the **currentTransactionStatus** method
+:::
+
 **Let's start programming!**
 
 **1. Modify the AndroidManifest.xml**
@@ -221,6 +225,10 @@ The new generation of Handpoint SDK's is designed to make your life easier. Simp
 
 At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements.
 
+:::warning
+Please, start an operation (sale,refund etc.) ONLY if you have received the **InitialisationComplete** message from the **currentTransactionStatus** method
+:::
+
 **Let's start programming!**
 
 **1. Modify the AndroidManifest.xml**
@@ -270,6 +278,7 @@ import com.handpoint.api.shared.Currency;
 import com.handpoint.api.shared.Device;
 import com.handpoint.api.shared.Events;
 import com.handpoint.api.shared.SignatureRequest;
+import com.handpoint.api.shared.StatusInfo;
 import com.handpoint.api.shared.TransactionResult;
 
 import java.math.BigInteger;
@@ -277,7 +286,7 @@ import java.util.List;
 
 //Check all the events available in the Events interface.
 //If you want to subscribe to more events, just add to the list of implemented interfaces.
-public class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged {
+public class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
 
     private Hapi api;
 
@@ -342,14 +351,22 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
     @Override
     public void connectionStatusChanged(ConnectionStatus status, Device device) {
         if (status == ConnectionStatus.Connected) {
-            // Let's launch a payment
-            pay();
+            // Connected to device
         }
     }
 
     public boolean pay() {
         return this.api.sale(new BigInteger("1000"), Currency.GBP);
         // Let´s start our first payment of 10 pounds
+    }
+
+    @Override
+    public void currentTransactionStatus(StatusInfo statusInfo, Device device) {
+        if (statusInfo.getStatus() == StatusInfo.Status.InitialisationComplete) {
+            // The StatusInfo object holds the different transaction statuses like reading card, pin entry, etc.
+            // Let's launch a payment
+            pay();
+        }
     }
 
     @Override
@@ -384,10 +401,11 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
         //This disconnects the connection
     }
 }
-
+                
 ```
-
+:::info
 **Note about reconnections:** By default, the SDK will automatically reconnect to the last known device when the connection is lost.If you want to change this behaviour set the property Settings.AutomaticReconnection in HapiManager to **false**.
+:::
 
 **We're done!**
 
@@ -401,11 +419,17 @@ Explore the rest of the documentation to see more transaction types supported an
 
 This tutorial is guiding you through all the required steps to integrate with a Handpoint (PAX, Telpo or Datecs) payment terminal, from your Android application, through the internet. CLOUD will be the ConnectionMethod of choice for this guide. With this connection method you become the client in a client - server connection.
 
+:::tip
 **There needs to be another app with one of our SDKs that is active and keeping the connection open.**
+:::
 
 The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
 
 At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. The platform is always up to the latest PCI-DSS security requirements.
+
+:::warning
+Please, start an operation (sale,refund etc.) ONLY if you have received the **InitialisationComplete** message from the **currentTransactionStatus** method
+:::
 
  **Let's start programming!**
 

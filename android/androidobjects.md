@@ -22,7 +22,7 @@ An object holding information about the result of a transaction.
 | `aid`   <br />*String*  | 		Application Identifier of the card (EMV tag 9F06)|
 | `arc`  <br />*String*   | 		EMV Authorisation Response Code (EMV tag 8A)|
 | `authorisationCode`   <br />*String*  | 		Acquirer response code|
-| `balance` <br />*String*    | 		Balance available on the card|
+| `balance` <br />[*Balance*](#balance)   | 		Balance available on the card|
 | `budgetNumber` <br />*String*    | 		Used to split payments over a period of months|
 | `cardEntryType`  <br />[*CardEntryType *](#22)  | 		Method used by the terminal to read the card|
 | `cardLanguagePreference`   <br />*String*  | 		Preferred language of the card (EMV tag 5F2D))|
@@ -207,9 +207,8 @@ public enum ConnectionMethod {
 
 `ConnectionStatus`
 
-A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for ConnectionMethod.CLOUD.
+A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enable).
 
-Currently `BLUETOOTH`, `SIMULATOR`, `CLOUD` and `ANDROID_PAYMENT` are supported types.
 
 **Possible values**
 
@@ -478,6 +477,41 @@ An object holding the capabilities of the payment terminal.
 | ----------- | ----------- |
 | `printer`   <br />*Boolean* | 		True if the terminal has printer, false otherwise|
 | `cloudApi`<br />[*Boolean*]| 		True if the terminal is cloud-enabled, false otherwise|
+
+## Balance
+
+`Balance`
+
+Balance available on the card
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `amount`   <br />*Integer* | The amount balance |
+| `currency`<br />*Currency*| The balance currency |
+| `sign`<br />[*BalanceSign*](#balance-sign) | Positive (C) or negative (D) balance. You can retrieve the balance sign using the methods isPositive() or isNegative() |
+
+**Code example**
+
+```java
+Balance balance = Balance.Companion.factory(
+    "1000", 
+    Currency.EUR.getAlpha(), 
+    BalanceSign.POSITIVE_SIGN.name()
+  )
+```
+
+## Balance Sign
+
+`BalanceSign`
+
+An enum representing the balance sign.
+
+
+**Possible values**
+
+`POSITIVE_SIGN('C')` `NEGATIVE_SIGN('D')`
 
 
 ## Device{#17}

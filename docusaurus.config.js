@@ -92,6 +92,12 @@ module.exports = {
           type: 'docsVersionDropdown',
             docsPluginId: 'express',
         },
+        {
+          
+           href: 'https://www.handpoint.com/docs/txnfeedapi/',
+          label: 'TXN Feed API',
+         
+        },
 
         // {
         //   href: 'https://github.com/handpoint',
@@ -141,11 +147,16 @@ module.exports = {
               label: 'Download on the App Store',
               href: 'https://apps.apple.com/us/app/handpoint/id1450546788?itsct=apps_box_link&itscg=30200',
             },
+            
           ],
         },
         {
           title: 'More',
           items: [
+            {
+              label: 'FAQ',
+              to: 'docs/faq',
+            },
             {
               label: 'Subscribe to the Handpoint Newsletter',
               href: 'https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e',
@@ -272,7 +283,7 @@ module.exports = {
       // ... other options
     },
 
-  ]
+  ],
 ]
 
 };

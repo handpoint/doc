@@ -11,4 +11,4 @@ Here is a Postman collection to get started with the REST API integration. In th
 
 **Get the Postman Collection!**
 
-[![Example banner](./assets/postmanCollection.png)](https://handpoint.com/downloads/rest-api/Handpoint_REST-API_Postman_collection.zip)
+<a class="button button--primary" href="https://handpoint.com/downloads/rest-api/Handpoint_REST-API_Postman_collection.zip">Postman Collection</a>

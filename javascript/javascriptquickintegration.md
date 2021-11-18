@@ -11,7 +11,7 @@ This js script sample shows how you can integrate your solution with Handpoint J
 
 1) Request your test configuration (apiKey and deviceName constants) from Handpoint and set them in your web application
 
-2) Download handpoint.js from this link
+2) Download handpoint.js from this [link](https://hpoint-cr-binaries-prod.s3.amazonaws.com/cloud/sdk/wrappers/js/6.0.0/handpoint-6.0.0.js)
 
 3) In the same directory, copy both handpoint.js and the code below in an html file
 
