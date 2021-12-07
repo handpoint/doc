@@ -14,10 +14,12 @@ module.exports = {
   projectName: 'docusaurus', // Usually your repo name.
   themeConfig: {
     navbar: {
-
+      style: 'dark',
       logo: {
         alt: 'My Site Logo',
-        src: 'https://handpoint.imgix.net/handpoint-logo-w.png?w=200',
+        src: 'img/handpoint-logo-hvitt.svg',
+        width: 90
+        
       },
       items: [
 
@@ -39,8 +41,14 @@ module.exports = {
         //   docId: 'intro'
         // },
         {
+          className: 'navbar-statuspage-icon',
+          href:'https://status.handpoint.com',
+          position:'right',
+          'aria-label': 'Status Page',
+        },
+        {
           type: 'docsVersionDropdown',
-          docsPluginId: 'android'
+          docsPluginId: 'android',
         },
         // {
         //   type:'doc',
@@ -94,10 +102,28 @@ module.exports = {
         },
         {
           
+          href: 'https://www.npmjs.com/package/cordova-plugin-handpoint',
+         label: 'Cordova Plugin',
+        
+       },
+       {
+          
+        href: 'https://github.com/thescruba/xamarin-handpoint-bindings',
+       label: 'Xamarin SDK',
+      
+     },
+        {
+          
            href: 'https://www.handpoint.com/docs/txnfeedapi/',
           label: 'TXN Feed API',
          
+        }, 
+        {
+          
+          href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',
+          label: 'FAQ',
         },
+        
 
         // {
         //   href: 'https://github.com/handpoint',
@@ -154,8 +180,12 @@ module.exports = {
           title: 'More',
           items: [
             {
+              label: 'Handpoint Status Page',
+              href: 'https://status.handpoint.com',
+            },
+            {
               label: 'FAQ',
-              to: 'docs/faq',
+              href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',
             },
             {
               label: 'Subscribe to the Handpoint Newsletter',
@@ -171,15 +201,15 @@ module.exports = {
       ],
       logo: {
         alt: 'Handpoint Logo',
-        src: 'https://handpoint.imgix.net/handpoint-logo-w.png?w=200',
-        href: 'https://www.handpoint.com',
+        src: 'https://handpoint.imgix.net/handpoint-logo-w.png?w=150',
+        href: 'https://www.handpoint.com'
       },
       // logo: {
       //   alt: 'Download on the App Store',
       //   src: 'https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&amp;releaseDate=1560988800&h=f6bf5ef34e546a6c4ee5dfa277259cf2',
       //   href: 'https://apps.apple.com/us/app/handpoint/id1450546788?itsct=apps_box_link&itscg=30200',
       // },
-      copyright: `Copyright © ${new Date().getFullYear()} Handpoint. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Handpoint`,
     },
     prism: {
       theme: darkCodeTheme,
@@ -212,7 +242,12 @@ module.exports = {
     ],
   ],
   plugins: [
-     require.resolve('docusaurus-lunr-search')
+     require.resolve('docusaurus-lunr-search',{
+      
+      
+    
+    })
+     
   ,[
     '@docusaurus/plugin-content-docs',
     {
@@ -221,6 +256,7 @@ module.exports = {
       path:'ios',
       routeBasePath: 'ios',
       sidebarPath: require.resolve('./sidebarsIos.js'),
+      sidebarCollapsed: false
       // ... other options
     },
 
@@ -234,6 +270,7 @@ module.exports = {
       path: 'javascript',
       routeBasePath: 'javascript',
       sidebarPath: require.resolve('./sidebarsIos.js'),
+      sidebarCollapsed: false
       // ... other options
     },
 
@@ -246,6 +283,7 @@ module.exports = {
       path: 'restapi',
       routeBasePath: 'restapi',
       sidebarPath: require.resolve('./sidebarsIos.js'),
+      sidebarCollapsed: false
       // ... other options
     },
 
@@ -258,6 +296,7 @@ module.exports = {
       path: 'windows',
       routeBasePath: 'windows',
       sidebarPath: require.resolve('./sidebarsIos.js'),
+      sidebarCollapsed: false
       // ... other options
     },
   ],
@@ -269,6 +308,7 @@ module.exports = {
       path: 'express',
       routeBasePath: 'express',
       sidebarPath: require.resolve('./sidebarsIos.js'),
+      sidebarCollapsed: false
       // ... other options
     },
   ],
@@ -280,6 +320,8 @@ module.exports = {
       path: './android',
       routeBasePath: 'android',
       sidebarPath: require.resolve('./sidebarsAndroid.js'),
+      sidebarCollapsed: false
+      
       // ... other options
     },
 

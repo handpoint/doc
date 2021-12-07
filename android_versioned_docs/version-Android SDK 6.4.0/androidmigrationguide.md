@@ -11,7 +11,7 @@ Version 6.0.0 introduces a well defined, typed, way of passing extra values, opt
 
 We have unified all the extra and optional parameters in an Options object. Different operations have different options.
 
-**1. For a [Sale](androidtransactions.md#sale-reversal) or [Sale and Tokenize](androidtransactions.md#3) operation, please see [SaleOptions](androidobjects.md#4)**
+**1. For a [Sale](androidtransactions.md#2) or [Sale and Tokenize](androidtransactions.md#3) operation, please see [SaleOptions](androidobjects.md#4)**
 
 If you use a customer reference:
 

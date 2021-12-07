@@ -19,7 +19,7 @@
   
 
   /* Color for links*/ 
-  --ifm-link-color:#5b4abe;
+  --ifm-link-color:#0074CC;
   --ifm-code-font-size: 90%;
 
   /* Navbar */
@@ -34,6 +34,7 @@
   --ifm-footer-link-color : #fdfdfd;
   --ifm-footer-title-color: #fdfdfd;
   --ifm-navbar-search-input-background-color:#fdfdfd;
+  
 
 
   /* Colors used in Sidebar and TOC */
@@ -57,22 +58,27 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   background-color: rgba(245, 239, 239, 0.3);
 }
 
-/* .navbar--dark {
-  --ifm-navbar-background-color: #1a80e6;
-} */
+.navbar--dark {
+  --ifm-navbar-background-color: #34495e;
+}
 
 html[data-theme='dark'] {
   /* any other colors you wish to overwrite */
   --ifm-color-primary: #e97d29;
   --ifm-footer-background-color: #black;
+ 
   /* --ifm-color-primary-dark: #5a91ea; */
 
   
   
 }
 
-
-
+.navbar__search{
+  width:95px;
+}
+.navbar__search-input {
+  width: 100px
+}
 /* Modifies the Sidebar (effect on the left side) */
 .theme-doc-sidebar-item-link .menu__link--active {
   border-left-width: 4px;
@@ -81,6 +87,7 @@ html[data-theme='dark'] {
   font-weight: 700 !important;
   color: var(--ifm-font-color-base);
   padding-left: 8px;
+
 }
 
 /* Modifies the TOC (effect on the left side) */
@@ -92,7 +99,9 @@ html[data-theme='dark'] {
   border-left: 4px solid var(--brand);
 }
 
-
+/* .menu__link {
+  color: #fdfdfd;
+} */
 .card-background{
   background-color: rgba(146, 128, 223, 0.1);
   ;
@@ -100,5 +109,38 @@ html[data-theme='dark'] {
 
 
 .navbar__item {
-  font-size: small;
+  font-size: 10px;
+}
+
+.navbar-statuspage-icon:after {
+  transition: opacity 0.2s;
+  content: "";
+  width: 30px;
+  height: 35px;
+  
+  display: flex;
+  background-image: url('/img/monitor.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  
+}
+
+.step1 {  
+  display: block;
+  justify-content: center;
+  font-size: 15px;
+  margin-top: 25px;
+  width: 80%;
+  margin-left:150px;
+}
+
+@media only screen and (max-width: 600px) {
+  .step1 {
+    display: block;
+    justify-content: center;
+    font-size: 15px;
+    margin-top: 25px;
+    width: 80%;
+    margin-left:10px;
+  }
 }
