@@ -9,7 +9,7 @@ id: androidtransactions
 
 `Sale`
 
-A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the **amount** and **currency** but it also accepts tip configuration and a map with extra parameters.
 
 
 **Parameters**
@@ -131,7 +131,7 @@ Invoked when the terminal finishes processing the transaction.
 
 `saleReversal`
 
-A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id. In its simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with extra parameters. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission.
+A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id. In its simplest form you only have to pass the **amount**, **currency** and **originalTransactionID** but it also accepts a map with extra parameters. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission.
 
 **Parameters**
 
@@ -248,7 +248,7 @@ api.refundReversal(new BigInteger("1000"),Currency.GBP,"00000000-0000-0000-0000-
 
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
-Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
 ***
 
 [**signatureRequired**](androideventlisteners.md#15)
@@ -258,7 +258,7 @@ Invoked if card verification requires signature.
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction.
+Invoked when the terminal finishes processing the transaction
 ***
 
 **Returns**
@@ -296,12 +296,12 @@ public void signatureRequired(SignatureRequest signatureRequest, Device device){
 
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
-Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
 ***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction.
+Invoked when the terminal finishes processing the transaction
 ***
 
 **Returns**
@@ -320,7 +320,7 @@ A tip adjustment operation allows merchants to adjust the tip amount of a sale t
 Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
 
 Dependencies:
-The code example provided depends on RxJava, take a look a their documentation to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then AsyncTask, provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
+The code example provided depends on RxJava, take a look a their [documentation](https://github.com/ReactiveX/RxAndroid) to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then [AsyncTask](https://developer.android.com/reference/android/os/AsyncTask.html), provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
 
 **Parameters**
 
@@ -389,12 +389,12 @@ api.tokenizeCard();
 
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
-Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
 ***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction.
+Invoked when the terminal finishes processing the transaction
 ***
 
 **Returns**
@@ -428,12 +428,12 @@ api.cardPan();
 
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
-Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
 ***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction.
+Invoked when the terminal finishes processing the transaction
 ***
 
 **Returns**

@@ -122,14 +122,13 @@ HeftRemoteDevice *lightningDevice = [[self.manager connectedCardReaders] firstOb
    
 6. Connect to a device by calling the **clientForDevice** function of the HeftManager.
 
-Expected parameters of this function are:
+* Expected parameters of this function are:
 
+    - A discovered device (HeftRemoteDevice object).
 
-* A discovered device (HeftRemoteDevice object).
+    - A shared secret. The shared secret is a unique identifier. It is a used to link a merchant with his readers. Each one of your merchants will be assigned a different shared secret so it needs to be a configurable value in your application or backend. If you received a development kit with a card reader, our support team probably sent you a shared secret via email already.
 
-* A shared secret. The shared secret is a unique identifier. It is a used to link a merchant with his readers. Each one of your merchants will be assigned a different shared secret so it needs to be a configurable value in your application or backend. If you received a development kit with a card reader, our support team probably sent you a shared secret via email already.
-
-* A HeftStatusReportDelegate instance, which will be notified of all the events related with the device.
+    - A HeftStatusReportDelegate instance, which will be notified of all the events related with the device.
 
 ```` objectivec
     // Declare the shared secret (below SS is an example, please put the one sent by our support team)

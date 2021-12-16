@@ -36,15 +36,17 @@ Each time the card reader state changes (ex : going from Connected to Disconnect
 
 **Returns**
 
-**Boolean**
 
-true if the operation was successfully.
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully.|
+
 
 ## Get Transactions Report
 
 `getTransactionsReport`
 
-Fetches your transactions report from a device/devices. If you want to print the report, you can call printReceipt with the string returned in ReportResult event as parameter.
+Fetches your transactions report from a device/devices. If you want to print the report, you can call [printReceipt](#print-receipt) with the string returned in ReportResult event as parameter.
 
 **Parameters**
 
@@ -71,9 +73,11 @@ The report will be returned to the ReportResult interface which has been registe
 
 **Returns**
 
-**Boolean**
 
-True if the command was processed successfully. False if the sending was not successful
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the command was processed successfully. `False` if the sending was not successful.|
+
 
 ## Disconnect
 
@@ -96,9 +100,10 @@ Causes the connection manager to invoke this event with the appropriate informat
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successful.|
 
-true if the operation was successful.
 
 ## Get EMV Report
 
@@ -119,11 +124,12 @@ api.getDeviceLogs();
 
 Invoked when hapi has finished downloading the EMV report from the card reader.
 
-** Returns**
+**Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
 
-true if the operation was successfully sent to device
 
 ## Get Paired Devices
 
@@ -147,9 +153,13 @@ List<Device> devices = api.getPairedDevices(ConnectionMethod.XXX);
 
 **Returns**
 
-**`List<Device>`**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **`List<Device>`**| The list of payment terminals.|
 
-The list of payment terminals.
+
+
+
 
 ## Get device logs
 
@@ -170,17 +180,18 @@ api.getDeviceLogs();
 
 Invoked when hapi has finished downloading logs from the card reader.
 
-** Returns**
+**Returns**
 
-**Boolean**
 
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
+
 
 ## Get Device Manufacturer
 
 `getDeviceManufacturer`
 
-Returns the manufacturer of the payment terminal
 
 **Code example**
 
@@ -190,9 +201,10 @@ Manufacturer manufacturer = api.getDeviceManufacturer();
 
 **Returns**
 
-**Manufacture **
+| Parameter      | Notes |
+| ----------- | ----------- |
+| Manufacturer| The payment terminal manufacturer.|
 
-The payment terminal manufacturer
 
 ## Flash Reset
 
@@ -229,9 +241,10 @@ boolean success = api.printReceipt(validReceipt);
 
  **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the receipt was sent to the printer, false otherwise.|
 
-true if the receipt was sent to the printer, false otherwise
 
 ## Search Devices
 
@@ -311,9 +324,11 @@ No events are invoked.
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` iif the operation was successfully sent to device.|
 
-true if the operation was successfully sent to device
+
 
 
 ## Stop current transaction
@@ -346,9 +361,9 @@ Transaction will fail with status **CANCELLED**
 
 **Returns**
 
-**Boolean**
-
-true if the transaction was successfully stopped, false otherwise
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the transaction was successfully stopped, false otherwise.|
 
 
 ## Update device
@@ -379,6 +394,6 @@ The merchant should be notified about the update process.
 
 **Returns**
 
-**Boolean**
-
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|

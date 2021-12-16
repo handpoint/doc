@@ -163,17 +163,6 @@ public enum Acquirer {	AMEX,
 }
 ```
 
-## Card Brands
-
-`CardBrands`
-
-A string representing the supported card brands.
-
-**Possible values**
-
-`VISA` `MASTERCARD` `MAESTRO` `AMEX` `DISCOVER` `DINERS` `JCB` `INTERAC` `OTHER`
-
-
 ## Card Entry Type{#22}
 
 `CardEntryType`

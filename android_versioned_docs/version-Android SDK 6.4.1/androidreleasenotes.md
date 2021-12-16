@@ -11,8 +11,35 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 6.4.1
+
+**Fixes**:
+- Automatic Cancellation parameters.
 
 
+
+## 6.4.0
+
+**Features**:
+- Populate operation timeout on CLOUD operations.
+- Max attempts on Cancellation retries.
+- Generic screen to show text messages.
+
+**Fixes**:
+- Base amount handling in TipDialog
+- Cancellation service max retry window
+- Verification method on transaction result object
+- Correct population of MessageReasonCode
+- Error message multi-language translation
+- Cardholder name for contact operations
+- Amount presentation in transactions report
+- Analytics and Cloud services stability moving terminals between merchants
+
+**Refactor**:
+
+- Deprecated jcenter repository
+- Improved structure of cryptography module
+- Legacy code removal
 
 ## 6.3.0
 

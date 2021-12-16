@@ -36,7 +36,7 @@ The Handpoint iOS SDK provides a simple application programming interface for th
 
 :::info
 Please note that before submitting an app to the Apple App store a MFi hardware request has to be submitted to Apple, 
-to be able to use an external accessory. Please fill our this form before submitting your app to the App store and we will get back to you. 
+to be able to use an external accessory. Please fill our [this form](http://hndpt.co/hp-mfi) before submitting your app to the App store and we will get back to you. 
 If you have any questions, contact us for more details.
 :::
 

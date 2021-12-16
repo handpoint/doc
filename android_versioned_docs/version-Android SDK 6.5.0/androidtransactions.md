@@ -9,7 +9,7 @@ id: androidtransactions
 
 `Sale`
 
-A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the **amount** and **currency** but it also accepts tip configuration and a map with extra parameters.
 
 
 **Parameters**
@@ -47,20 +47,24 @@ api.sale(new BigInteger("1000"),Currency.GBP, options);
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
 
 [**signatureRequired**](androideventlisteners.md#15)
 
 Invoked if card verification requires signature.
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction.
+***
 
-** Returns**
+**Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to the terminal
 
 ## Sale And Tokenize Card{#3}
 
@@ -103,20 +107,24 @@ api.saleAndTokenizeCard(new BigInteger("1000"),Currency.GBP,options);
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
 
 [**signatureRequired**](androideventlisteners.md#15)
 
 Invoked if card verification requires signature.
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction.
+***
 
  **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to the terminal
 
 
 ## Sale Reversal
@@ -147,20 +155,24 @@ api.saleReversal(new BigInteger("1000"),Currency.GBP,"00000000-0000-0000-0000-00
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
 
 [**signatureRequired**](androideventlisteners.md#15)
 
 Invoked if card verification requires signature.
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction.
+***
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to the terminal
 
 ## Refund{#5}
 
@@ -190,20 +202,24 @@ api.refund(new BigInteger("1000"),Currency.GBP,"00000000-0000-0000-0000-00000000
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
 
 [**signatureRequired**](androideventlisteners.md#15)
 
 Invoked if card verification requires signature.
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction
+***
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to terminal
 
 ## Refund reversal
 
@@ -233,20 +249,24 @@ api.refundReversal(new BigInteger("1000"),Currency.GBP,"00000000-0000-0000-0000-
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
 
 [**signatureRequired**](androideventlisteners.md#15)
 
 Invoked if card verification requires signature.
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction
+***
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to terminal
 
 
 ## Signature result
@@ -277,16 +297,19 @@ public void signatureRequired(SignatureRequest signatureRequest, Device device){
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction
+***
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to terminal
 
 
 ## Tip Adjustment
@@ -297,7 +320,7 @@ A tip adjustment operation allows merchants to adjust the tip amount of a sale t
 Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
 
 Dependencies:
-The code example provided depends on RxJava, take a look a their documentation to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then AsyncTask, provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
+The code example provided depends on RxJava, take a look a their [documentation](https://github.com/ReactiveX/RxAndroid) to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then [AsyncTask](https://developer.android.com/reference/android/os/AsyncTask.html), provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
 
 **Parameters**
 
@@ -333,13 +356,12 @@ Observable.fromCallable(new Callable() {
 
 **Returns**
 
-**FinancialStatus**
 
 Result of the tip adjustment transaction, it returns a FinancialStatus, the possible values are :
 
-- FinancialStatus.AUTHORISED (tip adjustment approved by the processor)
-- FinancialStatus.FAILED (system error or timeout)
-- FinancialStatus.DECLINED (tip adjustment declined by the processor)
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **FinancialStatus**| - **FinancialStatus.AUTHORISED** (tip adjustment approved by the processor) <br />  - **FinancialStatus.FAILED** (system error or timeout)<br /> - **FinancialStatus.DECLINED** (tip adjustment declined by the processor).|
 
 If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
 
@@ -368,16 +390,19 @@ api.tokenizeCard();
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction
+***
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
-true if the operation was successfully sent to terminal
 
 ## Card PAN
 
@@ -404,13 +429,15 @@ api.cardPan();
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
 Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
 Invoked when the terminal finishes processing the transaction
+***
 
 **Returns**
 
-**Boolean**
-
-true if the operation was successfully sent to terminal
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to the terminal.|

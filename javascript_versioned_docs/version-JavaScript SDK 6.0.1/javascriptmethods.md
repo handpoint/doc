@@ -35,11 +35,11 @@ Handpoint.init('API KEY', true, (pendingEoT) => {
 })
 ```
 
-** Returns**
+**Returns**
 
-**Devices**
-***
-List of Device objects
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Devices**| List of Device objects|
 
 
 ## Connect{#2}
@@ -61,11 +61,12 @@ Connect the JavaScript SDK to a payment terminal.
 Handpoint.connect('1234263-TYPE1');
 ```
 
-** Returns**
+**Returns**
 
-**Connection Result**
-***
-200 code for OK - 403 code for NOK
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Connection Result**|- **200** code for OK <br/> - **403** code for NOK|
+
 
 ## Disconnect{#3}
 
@@ -86,11 +87,12 @@ Connect the JavaScript SDK to a payment terminal.
 Handpoint.connect('1234263-TYPE1');
 ```
 
-** Returns**
+**Returns**
 
-**Connection Result**
-***
-'Disconnected' message for OK - 'ERROR disconnecting' message for NOK
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Connection Result**|- `Disconnected` message for OK <br/> - `ERROR disconnecting` message for NOK|
+
 
 ## Sale{#4}
 
@@ -143,11 +145,13 @@ Handpoint.sale('1000', 'USD', [*SaleOptions*](#23) , function (stat) {
 });
 ```
 
-** Returns**
+**Returns**
 
-**Sale Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Sale Response**|A Financial Response object|
+
+
 
 ## Sale And Tokenization{#5}
 
@@ -198,22 +202,22 @@ var [*SaleOptions*](#23)  = {
 Handpoint.saleAndTokenization('1000', 'USD', [*SaleOptions*](#23) , CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Sale and Tokenization Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Sale and Tokenization Response**|A Financial Response object|
 
 
 ## Transaction Recovery{#6}
 
 `StartRecovery`
 
-The terminal has a transaction recovery loop to automatically send back the pending [*Transaction Result*](#18) to the Point of sale in case it becomes unreachable (network issue or other).
+The terminal has a transaction recovery loop to automatically send back the pending [*Transaction Result*](javascriptobjects.md#18) to the Point of sale in case it becomes unreachable (network issue or other).
 
 For the first 100 seconds after a transaction is completed, a background thread will attempt to deliver the result every 5 seconds. If the point of sale is still unreachable after the first 100 seconds, the retry loop turns into an exponential increment to the power of 2 (8s-16s-32s etc…).
 
-The recovery loop is reinitialized every time the Handpoint application is restarted or the startRecovery method is triggered.The [*Transaction Result*](#18) received through the transaction recovery loop will have the recoveredTransaction field set to true
+The recovery loop is reinitialized every time the Handpoint application is restarted or the startRecovery method is triggered.The [*Transaction Result*](javascriptobjects.md#18) received through the transaction recovery loop will have the recoveredTransaction field set to true
 
 **Important information: The point of sale must be successfully connected to a terminal in order to receive the pending transactions.**
 	
@@ -224,15 +228,12 @@ The recovery loop is reinitialized every time the Handpoint application is resta
 Handpoint.startRecovery();
 ```
 
-** Returns**
+**Returns**
 
-**Promise Successful Response**
-***
-The event has been sent to the device
-
-**Promise Error Response**
-***
-The event was not sent to the terminal because it is unreachable
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Promise Successful Response**|The event has been sent to the device|
+| **Promise Error Response**|The event was not sent to the terminal because it is unreachable|
 
 ## Stop Listening Device{#7}
 
@@ -283,11 +284,12 @@ var saleReversalOptions = {
 Handpoint.saleReversal('1000', 'USD', 'OriginalSaleGUID', saleReversalOptions, CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Sale Reversal Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Sale Reversal Response**|A Financial Response object|
+
 
 ## Refund{#9}
 
@@ -331,11 +333,11 @@ Handpoint.refund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat)
 Handpoint.refund('1000', 'USD', 'OriginalSaleGUID' ,refundOptions, CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Refund Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Refund Response**|A Financial Response object|
 
 
 ## Refund Reversal{#10}
@@ -380,11 +382,12 @@ Handpoint.refund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat)
 Handpoint.refund('1000', 'USD', 'OriginalSaleGUID' ,refundOptions, CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Refund Reversal Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Refund Reversal Response**|A Financial Response object|
+
 
 
 ## Tokenize Card{#11}
@@ -411,11 +414,11 @@ var options = {
 Handpoint.tokenizeCard(options, CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Tokenize Card Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Tokenize Card Response**|A Financial Response object|
 
 
 ## Card Pan{#12}
@@ -442,11 +445,12 @@ var options = {
 Handpoint.tokenizeCard(options, CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Card Pan Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Card Pan Response**|A Financial Response object|
+
 
 ## Stop Current Transaction{#13}
 
@@ -462,17 +466,14 @@ Handpoint.stopCurrentTransaction();
 
 ```
 
-** Returns**
+**Returns**
 
-**Promise Successful Response**
-***
-{ finStatus: CANCELLED, statusMessage: 'Operation stopped' }
-**Promise Error Response**
-***
-{ finStatus: FAILED, errorMessage: 'Unable to stop current transaction' }
-**Promise Error Response**
-***
-{ finStatus: FAILED, errorMessage: 'No response received from the card reader' }
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Promise Successful Response**|`{finStatus: CANCELLED, statusMessage: 'Operation stopped'}`|
+| **Promise Error Response**|`{finStatus: FAILED, errorMessage: 'Unable to stop current transaction'}`|
+| **Promise Error Response**|`{ finStatus: FAILED, errorMessage: 'No response received from the card reader' }`|
+
 
 ## Print Receipt{#14}
 
@@ -497,11 +498,12 @@ Handpoint.printReceipt(htmlReceipt, CallbackFunction(stat){...});
 | `receipt` <span class="badge badge--primary">Required</span>   <br />*string*   | HTML receipt or url to locate the receipt, it can be found in the response of a financial operation, in the fields merchantReceipt or customerReceipt|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
-** Returns**
+**Returns**
 
-**Print Receipt Response**
-***
-A specific Status object that describes the printing action (PrinterOutOfPaper, ErrorConnectingToPrinter or ReceiptPrintSuccess)
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Print Receipt Response**|A specific Status object that describes the printing action (PrinterOutOfPaper, ErrorConnectingToPrinter or ReceiptPrintSuccess)|
+
 
 ## Ping Device{#15}
 
@@ -515,11 +517,11 @@ This operation will ping the terminal to confirm if it is online. The promise is
 Handpoint.pingDevice(CallbackFunction(stat){...});
 ```
 
-** Returns**
+**Returns**
 
-**Device Status**
-***
-A [*Device Status*](javascriptobjects.md#27) object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Device Status**|A [*Device Status*](javascriptobjects.md#27) object|
 
 ## Update{#16}
 
@@ -540,8 +542,9 @@ Handpoint.update(CallbackFunction(stat){...});
 | ----------- | ----------- |
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
-** Returns**
+**Returns**
 
-**Update Response**
-***
-A Financial Response object
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Update Response**|A Financial Response object|
+

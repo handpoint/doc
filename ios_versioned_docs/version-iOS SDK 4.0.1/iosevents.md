@@ -295,14 +295,15 @@ Called when logs have been downloaded from the card reader by using the logGetIn
 
 `responseRecoveredTransactionStatus`
 
+Notifies that a transaction has been recovered.
+
 This method is **OPTIONAL** and only required if retrievePendingTransaction will be called.
 
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `info` <span class="badge badge--primary">Required</span>  <br />[*ResponseInfo*](iosobjects.md#24) | Information about the recovered transaction status.|
-|	|**If an attempt was made to recover a transaction when none was pending then this parameter WILL be nil.**|
+| `info` <span class="badge badge--primary">Required</span>  <br />[*FinanceResponseInfo*](iosobjects.md#25) | Information about the recovered transaction status.<br/>**If an attempt was made to recover a transaction when none was pending then this parameter WILL be nil.**|
 
 **Code example**
 

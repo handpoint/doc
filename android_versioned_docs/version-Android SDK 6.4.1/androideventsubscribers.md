@@ -34,9 +34,11 @@ public class ObjectHelper implements Events.Required, Events.Status, Events.Log,
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the new delegate was added successfully.|
 
-True if the new delegate was added successfully
+
 
 ## Unregister events delegate
 
@@ -64,7 +66,8 @@ public class ObjectHelper implements Events.Required, Events.Status, Events.Log,
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the new delegate was removed successfully.|
 
-True if the new delegate was removed successfully
 

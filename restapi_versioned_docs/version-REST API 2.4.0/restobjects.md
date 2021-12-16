@@ -182,16 +182,16 @@ An object to store the information about the payment terminal in use
 
 | Property      | Description |
 | ----------- | ----------- |
-| `operation`   <br />[*OperationTypesDescription*](#operation-types-description)   | The type of transaction to be performed. **REQUIRED**       |
-| `serial_number` <br />*String*   | Device serial number. **REQUIRED**     |
-| `terminal_type`   <br />*String*    | Device type. **REQUIRED**     |
+| `operation` <span class="badge badge--primary">Required</span>  <br />[*OperationTypesDescription*](#operation-types-description)   | The type of transaction to be performed.   |
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Device serial number.     |
+| `terminal_type` <span class="badge badge--primary">Required</span>  <br />*String*    | Device type.      |
 | `callbackUrl`<br />*String*   | if used, url the terminal will use to send the Transaction Result. All 2XXs http response codes from the callbackUrl are valid to notify the terminal of a successful delivery of the result. If the callbackUrl is not present, the device will send back the transaction result to Handpoint's REST-API and results can be retrieved using the Transaction Result Retrieval endpoint       |
-| `token`   <br />*String*    | Token used to authenticate the terminal and transaction when serving the Transaction Result through the callbackUrl . The token will be injected in the Request Header with key value 'AUTH-TOKEN'. **REQUIRED** when the callbackUrl is present.       |
+| `token` <span class="badge badge--primary">Required</span>  <br />*String*    | Token used to authenticate the terminal and transaction when serving the Transaction Result through the callbackUrl . The token will be injected in the Request Header with key value 'AUTH-TOKEN'. **REQUIRED** when the callbackUrl is present.       |
 | `customerReference` <br />*String*   | Transaction identifier provided by the integrator. The customerReference sent in TransactionRequests objects is echoed in the TransactionResults        |
-| `amount`  <br />*String* | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 EUR). **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.    |
-| `currency` <br />[*Currency*](#currency)   | The currency of the transaction. **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.        |
-| `originalTransactionId`    <br />*String*   | The transaction id of the original transaction to reverse. **REQUIRED** for operations: refundReversal, saleReversal and LINKED refunds.       |
-| `receipt`  <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt.        |
+| `amount` <span class="badge badge--primary">Required</span> <br />*String* | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 EUR). **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.    |
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](#currency)   | The currency of the transaction. **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.        |
+| `originalTransactionId`  <span class="badge badge--primary">Required</span>  <br />*String*   | The transaction id of the original transaction to reverse. **REQUIRED** for operations: refundReversal, saleReversal and LINKED refunds.       |
+| `receipt` <span class="badge badge--primary">Required</span> <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt.        |
 | `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
 | `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations        |
 | `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal. This object allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.      |
@@ -329,10 +329,10 @@ An object to store the information about the payment terminal you are working wi
 
 | Property      | Description |
 | ----------- | ----------- |
-| `merchant_id_alpha` <br />*String*    | Merchant unique identifier to which the device is associated|
-| `serial_number`  <br />*String*   | Device serial number|
-| `ssk`  <br />*String*   | Merchant shared secret key, unique id for the merchant|
-| `terminal_type`  <br />*String*   | Device type|
+| `merchant_id_alpha` <span class="badge badge--primary">Required</span> <br />*String*    | Merchant unique identifier to which the device is associated|
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Device serial number|
+| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Merchant shared secret key, unique id for the merchant|
+| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Device type|
 
 **Code example**
 
@@ -408,7 +408,7 @@ An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merc
 
 | Property      | Description |
 | ----------- | ----------- |
-| `acquirer`  <br />[*Acquirer*](#acquirer)   | If present, it links this credential to the specified acquirer. Required if more than one credential is provided.|
+| `acquirer`  <br />[*Acquirer*](#acquirer)   | If present, it links this credential to the specified acquirer. **Required** if more than one credential is provided.|
 | `mid`  <br />*String*   | For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
 | `tid`    <br />*String* | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
 | `mcc`   <br />*String*  | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
@@ -551,7 +551,7 @@ Properties
 | ----------- | ----------- |
 | `baseAmount`  <br />*Biginteger*   | Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.       |
 | `headerName` <br />*String*  | Name of the tipping menu appearing on the terminal. Default: Tip      |
-| `tipPercentages`  <br />*List*    | List of percentages used to calculate the tip amount. **REQUIRED**      |
+| `tipPercentages` <span class="badge badge--primary">Required</span> <br />*List*    | List of percentages used to calculate the tip amount.    |
 | `enterAmountEnabled` <br />*boolean* |Flag used to enable the cardholder to manually enter the tip amount. Default: true       |
 | `skipEnabled`   <br />*Boolean*   | Flag used to enable the cardholder to skip the tipping step. Default: true       |
 | `footer`  <br />*String*    | Footer note which will appear on the tipping menu. Default: Empty string       |

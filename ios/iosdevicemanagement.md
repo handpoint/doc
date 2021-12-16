@@ -26,9 +26,14 @@ heftManager.delegate = self;
 
 **Returns**
 
-[**HeftManager**](iosobjects.md#19)
 
-The heftManager instance
+| Parameter      | Notes |
+| ----------- | ----------- |
+| [**HeftManager**](iosobjects.md#19)| The heftManager instance|
+
+
+
+
 
 ## Client for device (NSString){#12}
 
@@ -63,14 +68,17 @@ NSString* sharedSecret = @"01020304050607080910111213141516171819202122232425262
 **Events invoked**
 
 [**didConnect**](iosevents.md#20)
-***
+
 Called when a connection to specified device was created.
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| YES if operation starts successfully|
 
-YES if operation starts successfully
+
+  
 
 ## Start Discovery	{#32}
 
@@ -120,9 +128,14 @@ Sets the log level of the card reader. There are for levels of logging for the d
 
 **Returns**
 
-**Boolean**
 
-This method always returns YES
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| This method always returns YES|
+
+
+
+
 
 
 ## Fetch logs{#34}
@@ -144,9 +157,9 @@ Retrieves the logging info. Returns them in the responseLogInfo event.
 
 **Returns**
 
-**Boolean**
-
-This method always returns YES
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| This method always returns YES|
 
 ## Reset logs{#35}	
 
@@ -167,9 +180,9 @@ Clears the logging information stored so far.
 
 **Returns**
 
-**Boolean**
-
-This method always returns YES
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| This method always returns YES|
 
 ## Enable scanner{#36}	
 
@@ -205,7 +218,7 @@ Places the card reader in a scan mode. Only if the card reader supports it. To c
 **Events invoked**
 
 [**responseScannerEvent**](iosevents.md#41)
-***
+
 Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).
 
 ## Disable scanner	
@@ -228,8 +241,6 @@ Disables the scanner if possible
 **Events invoked**
 
 [**responseScannerDisabled**](iosevents.md#42)
-***
-
 
 Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).
 
@@ -253,22 +264,25 @@ The update operation checks for update to the card reader and initiates an updat
 **Events invoked**
 
 [**responseStatus**](iosevents.md#14)
+
+Invoked while during transaction with different statuses from card reader
 ***
-Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).**responseStatus**](#14)
 
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
+***
 
 [**responseFinanceStatus**](iosevents.md#16)
-***
-Invoked when the card reader finishes processing the transaction
 
+Invoked when the card reader finishes processing the transaction
+***
 **Returns**
 
-**Boolean**
 
-This method always returns YES
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| This method always returns YES|
 
 ## Get SDK version	
 

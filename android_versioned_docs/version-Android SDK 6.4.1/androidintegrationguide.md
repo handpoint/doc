@@ -423,7 +423,9 @@ Explore the rest of the documentation to see more transaction types supported an
 
 This tutorial is guiding you through all the required steps to integrate with a Handpoint (PAX, Telpo or Datecs) payment terminal, from your Android application, through the internet. CLOUD will be the ConnectionMethod of choice for this guide. With this connection method you become the client in a client - server connection.
 
-**There needs to be another app with one of our SDKs that is active and keeping the connection open.**
+:::warning
+There needs to be another app with one of our SDKs that is active and keeping the connection open.
+:::
 
 The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
 

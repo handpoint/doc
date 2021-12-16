@@ -10,7 +10,7 @@ The response object is sent to the callback url and contains data relevant to th
 
 It is formatted in JSON and structured as a collection of "name":"value" pairs. Values are always a string except in the cases where the value is a boolean or another collection of "name":"value" pairs.
 
-The response will be packed and added to your callbackUrl in the following format https://your_callback_url?data=<packed_response_data> in a GET request.
+The response will be packed and added to your callbackUrl in the following format `https://your_callback_url?data=<packed_response_data>` in a GET request.
 
 `<packed_response_data>` is a JSON string that has been URL encoded to make it safe to use as a GET parameter.
 

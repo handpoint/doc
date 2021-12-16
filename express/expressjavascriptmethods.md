@@ -22,8 +22,9 @@ Creates an instance of Hapi.
 
 **Returns**
 
- **object**    
-The Hapi interface object with functions to generate URLs for sale, refund and reversals     
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **object**|The Hapi interface object with functions to generate URLs for sale, refund and reversals     |   
 
 ## openURL
 
@@ -49,8 +50,9 @@ Constructs the URL needed for opening the express app and starting a refund oper
 
 **Returns**
 
- **string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation|   
 
 ## urlForRefundReversal
 
@@ -66,8 +68,9 @@ Constructs the URL needed for opening the express app and reverting a refund tra
 
 **Returns**
 
- **string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation| 
 
 ## urlForSale
 
@@ -82,8 +85,9 @@ Constructs the URL needed for opening the express app and starting a sale.
 
 **Returns**
 
- **string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation| 
 
 ## urlForSaleAndTokenizeCard
 
@@ -96,10 +100,11 @@ Constructs the URL needed for opening the express app and starting a saleAndToke
 | `extra_parameters` <span class="badge badge--primary">Required</span>  <br />*object*  | An object containing additional sale parameters, fx. Key: "Budget", Value: "03"     |
 | `callbacl_url` <span class="badge badge--primary">Required</span> <br />*string*   |  The URL that Handpoint Express will send its response to.    |
 
-**Returns** 
+**Returns**
 
-**string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation| 
 
 ## urlForSaleReversal
 
@@ -115,8 +120,9 @@ Constructs the URL needed for opening the express app and reverting a sale trans
 
 **Returns**
 
-**string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation| 
 
 
 ## urlForScanner
@@ -134,9 +140,11 @@ Constructs the URL needed for opening the express app and starting scanning.
 
 
 **Returns**
- 
- **string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation| 
+
 
 ## urlForTokenizeCard
 
@@ -149,5 +157,6 @@ Constructs the URL needed for opening the express app and starting a tokenizeCar
 
 **Returns**
 
-**string**    
-A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **String**|A complete constructed and encoded URL string that includes the data for opening the express app and performing the operation| 

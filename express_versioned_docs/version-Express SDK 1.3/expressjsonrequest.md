@@ -12,6 +12,8 @@ id: expressjsonrequest
 | action      | object       | <span class="badge badge--primary">Required</span> Contains the transaction type and relevant parameters|
 | client     | object        | <span class="badge badge--primary">Required</span> Contains information specific to the client setup |
 
+<br></br>
+
 **Action fields**
 
 | Name      | Type | Description |
@@ -20,6 +22,7 @@ id: expressjsonrequest
 | parameters     | object        | <span class="badge badge--primary">Required</span> An object containing the keys an values with the parameters required for this transaction. |
 | extraParameters     | object        | <span class="badge badge--primary">Required</span> Contains a custom set of keys and values passed that will go to the gateway and will be delivered back in the response. Useful for tracking the transactions, merchants, etc... |
 
+<br></br>
 
 **Transaction Parameters fields**
 
@@ -29,6 +32,7 @@ id: expressjsonrequest
 | currency     | string        | <span class="badge badge--primary">Required</span> The type of currency involved in the current payment, in ISO 4217 format. For example, the currency code for US dollars is USD. |
 | originalTransactionID     | string        | <span class="badge badge--primary">Required</span> (Required for reversals.) The original transaction Id required to reverse/cancel a transaction.|
 
+<br></br>
 
 **Barcode / QR Scanner Parameters fields**
 
@@ -39,6 +43,7 @@ id: expressjsonrequest
 | resultsGrouped     | boolean        | <span class="badge badge--secondary">Optional</span> True if you want the results of the scan to come all grouped when the scanner is turned off. Otherwise the device will send an event per each code scanned. Default is True.|
 | timeout     | integer        | <span class="badge badge--secondary">Optional</span> The amount of seconds after which the scanner, if left idle, turns itself off. Default is 0.|
 
+<br></br>
 
 **Client fields**
 

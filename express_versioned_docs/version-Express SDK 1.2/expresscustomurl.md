@@ -6,7 +6,7 @@ id: expresscustomurl
 # Custom URL
 
 
-To initiate an Express client transaction from your web or app, you open a URL with the following format:` handpoint://express/v1/?data=<url_encoded_data>` 
+To initiate an Express client transaction from your web or app, you open a URL with the following format: `handpoint://express/v1/?data=<url_encoded_data>` 
 
 * For web apps, you can open this URL just as you would any other URL on a webpage.
 * For native iOS apps, you use the openURL: method of UIApplication.

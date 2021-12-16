@@ -593,6 +593,30 @@ function Step1table() {
             </TableRow>
 
             <TableRow>
+              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
               <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a></b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">-</TableCell>
@@ -813,9 +837,10 @@ function Step2tableterminals() {
               <b><a href="https://handpoint.com/specs/hilite/">HiLite</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://handpoint.com/specs/hilite/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
-                alt="">
+                alt="df"
+                >
               </img></a>
             </div>
           </div>
@@ -823,10 +848,10 @@ function Step2tableterminals() {
         <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
-              <b><a href="https://handpoint.com/specs/hilite/">HiPro</a></b>
+              <b><a href="https://handpoint.com/specs/hipro/">HiPro</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://handpoint.com/specs/hipro/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
                 alt="">
               </img></a>
@@ -836,10 +861,10 @@ function Step2tableterminals() {
         <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
-              <b><a href="https://handpoint.com/specs/hilite/">Hi5</a></b>
+              <b><a href="https://handpoint.com/specs/hi5/">Hi5</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://handpoint.com/specs/hi5/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Hi5-large-crop.png?h=300&amp;w=200"
                 alt="">
               </img></a>
@@ -850,56 +875,71 @@ function Step2tableterminals() {
       <br></br>
 
       <div class="row">
-        <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
-              <b><a href="https://handpoint.com/specs/hilite/">PAX A920</a></b>
+              <b><a href="https://handpoint.com/specs/paxa920/">PAX A920</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://handpoint.com/specs/paxa920/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
                 alt="">
               </img></a>
             </div>
           </div>
         </div></div>
-        <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
-              <b><a href="https://handpoint.com/specs/hilite/">PAX A920 PRO</a></b>
+              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920 PRO</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
                 alt="">
               </img></a>
             </div>
           </div>
         </div></div>
-        <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
-              <b><a href="https://handpoint.com/specs/hilite/">PAX A80</a></b>
+              <b><a href="https://handpoint.com/specs/paxa80/">PAX A80</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://handpoint.com/specs/paxa80/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Pax_A80.png"
                 alt="">
               </img></a>
             </div>
           </div>
         </div></div>
+        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+          <div class="card shadow--md ">
+            <div class="card__header">
+              <b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b>
+            </div>
+            <div class="card__body" align="center">
+              <a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf"><img style={{ height: '80px' }}
+                src="https://user-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/92236_330021.png"
+                alt="">
+              </img></a>
+            </div>
+          </div>
+        </div></div>
       </div>
+      
       <br></br>
+      
 
       <div class="row">
         <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
-              <b><a href="https://handpoint.com/specs/hilite/">PAX A50</a></b>
+              <b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf"><img style={{ height: '80px' }}
                 src="https://i.ibb.co/LZvJ5hx/main-photo-min.png"
                 alt="">
               </img></a>
@@ -910,10 +950,10 @@ function Step2tableterminals() {
         <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
-              <b><a href="https://handpoint.com/specs/hilite/">PAX A60</a></b>
+              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A60.png"
                 alt="">
               </img></a>
@@ -924,10 +964,10 @@ function Step2tableterminals() {
         <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
-              <b><a href="https://handpoint.com/specs/hilite/">PAX A77</a></b>
+              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A77.png"
                 alt="">
               </img></a>
@@ -941,7 +981,7 @@ function Step2tableterminals() {
               <b><a href="https://handpoint.com/specs/TPS900/">TELPO TPS 900</a></b>
             </div>
             <div class="card__body" align="center">
-              <a><img style={{ height: '80px' }}
+              <a href="https://handpoint.com/specs/TPS900/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
                 alt="">
               </img></a>
@@ -1127,6 +1167,24 @@ function Step2tablecomms() {
               <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920 PRO</a></b></TableCell>
               <TableCell align="center">-</TableCell>
               <TableCell align="center">-</TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅(4G/LTE)</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b></TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅(4G/LTE)</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b></TableCell>
+              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center">-</TableCell>
               <TableCell align="center">✅(4G/LTE)</TableCell>
               <TableCell align="center">✅</TableCell>

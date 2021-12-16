@@ -8,7 +8,7 @@ id: windowsintegrationguide
 
 ## Hilite & Hi5 - Bluetooth Integration
 
-#### Introduction
+### Introduction
 
 This tutorial is guiding you through all the steps to create a basic payment application for Windows devices integrated with a Datecs terminal.
 
@@ -16,7 +16,7 @@ The new generation of Handpoint SDK's is designed to make your life easier. Simp
 
 At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements.
 
-#### Let's start programming!
+### Let's start programming!
 
 **1. Create a C# class**
 Create a new C# class called MyClass and include com.handpoint.api as a dependency :
@@ -284,7 +284,7 @@ namespace GettingStartedApp
 }
 ```
 
-#### Let's create a User Interface!
+### Let's create a User Interface!
 
 **1. Create buttons**
 - Go to your user interface (usually Form1.cs[Design])
@@ -317,7 +317,7 @@ Now that we have our 3 buttons, let´s create two webBrowsers items to display t
 - Change the attribute "Name" from "label3" to "CardholderReceiptLabel"
 - Change the attribute "text" from "label3" to "Cardholder Receipt :"
 
-#### Let's link our user interface with methods!
+### Let's link our user interface with methods!
 
 **1. Referencing the user interface(Form1.cs) in MyClass**
 
@@ -404,7 +404,7 @@ namespace GettingStartedApp
 }
 ```
 
-#### Let´s notify the user when the app is connected and ready to send the transaction
+### Let´s notify the user when the app is connected and ready to send the transaction
 
 **Update the ConnectionLabel to notify the user of the connection status**
 Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
@@ -455,7 +455,7 @@ public void UpdateLabel(bool Connected)
 }
 ```
 
-#### Let´s display the receipts at the end of a transaction!
+### Let´s display the receipts at the end of a transaction!
 
 **1. Fetch the cardholder's and merchant receipts from the method EndOfTransaction in MyClass**
 At this point all the buttons are connected but we are still missing to display the receipts in the webBrowsers. First, let´s get the receipts from the method EndOfTransaction in myClass.cs.
@@ -488,7 +488,7 @@ public void DisplayReceipts(string MerchantReceipt, string CustomerReceipt)
 }
 ```
 
-#### Final Result!
+### Final Result!
 
 Here is how MyClass.cs and Form1.cs must eventually look like :
 
@@ -671,7 +671,7 @@ namespace GettingStartedApp
 }
 ```
 
-#### Let's run our program!
+### Let's run our program!
 
 Run the program by clicking the "play" button :
 
@@ -683,9 +683,9 @@ Run the program by clicking the "play" button :
 
 ## PAX & Telpo - Cloud Integration
 
-#### Introduction
+### Introduction
 
-#### Let's start programming!
+### Let's start programming!
 
 **1. Create a C# class**
 
@@ -957,7 +957,7 @@ namespace GettingStartedApp
 }
 ```
 
-#### Let's create a User Interface!
+### Let's create a User Interface!
 
 **1. Create buttons and labels**
 - Go to your user interface (usually Form1.cs[Design])
@@ -989,7 +989,7 @@ Now that we have our 3 buttons, let´s create two webBrowsers items to display t
 - Change the attribute "Name" from "label3" to "CardholderReceiptLabel"
 - Change the attribute "text" from "label3" to "Cardholder Receipt :"
 
-#### Let's link our user interface with methods!
+### Let's link our user interface with methods!
 
 **1. Referencing the user interface(Form1.cs) in MyClass**
 
@@ -1075,7 +1075,7 @@ namespace GettingStartedApp
 }
 ```
 
-#### Let´s notify the user when the app is connected and ready to send the transaction
+### Let´s notify the user when the app is connected and ready to send the transaction
 
 **1. Update the ConnectionLabel to notify the user of the connection status**
 Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
@@ -1128,7 +1128,7 @@ public void UpdateLabel(bool Connected)
 }
 ```
 
-#### Let´s display the receipts at the end of a transaction!
+### Let´s display the receipts at the end of a transaction!
 
 **1. Fetch the cardholder's and merchant receipts from the method EndOfTransaction in MyClass**
 At this point all the buttons are connected but we are still missing to display the receipts in the webBrowsers. First, let´s get the receipts from the method EndOfTransaction in myClass.cs.
@@ -1161,7 +1161,7 @@ public void DisplayReceipts(string MerchantReceipt, string CustomerReceipt)
 }
 ```
 
-#### Final Result!
+### Final Result!
 
 Here is how MyClass.cs and Form1.cs must eventually look like:
 
@@ -1345,7 +1345,7 @@ namespace GettingStartedApp
     }
 ```
 
-#### Let's run our program!
+### Let's run our program!
 
 Run the program by clicking the "play" button :
 
@@ -1357,7 +1357,7 @@ Run the program by clicking the "play" button :
 
 ## Terminal Simulator Integration
 
-#### Introduction
+### Introduction
 
 This tutorial is guiding you through all the steps to create a basic payment application for Windows using a card reader simulator. The simulator only has limited capabilities and we highly recommend that you order a development kit if you want to carry a full integration. The development kit contains a card reader as well as a test card and will allow you to test your integration from end to end.
 
@@ -1365,7 +1365,7 @@ The new generation of Handpoint SDK's is designed to make your life easier. Simp
 
 At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements.
 
-#### Connecting to the simulator
+### Connecting to the simulator
 
 The SDK offers a method in which you will need to specify the card reader to be used:
 
@@ -1379,7 +1379,7 @@ Simply set the ConnectionMethod to Simulator, i.e. ConnectionMethod.Simulator. T
 hapi.useDevice(new Device("Name", "Port", "Address", ConnectionMethod.Simulator))
 ```
 
-#### Controlling responses
+### Controlling responses
 
 The simulator mimics the card reader as much as possible regarding information flow from the SDK interface to your application. It will return all the transaction statuses, transaction results and receipts.
 
@@ -1396,7 +1396,7 @@ hapi.Sale(X10XX, Currency.GBP); // amount = X 10 XX - where X represents an inte
 - X 10 XX = Pin authorized
 - X 11 XX = Pin declined
 
-#### Let's start programming!
+### Let's start programming!
 
 **1. Create a C# class**
 Create a new C# class called MyClass and include com.handpoint.api as a dependency :
@@ -1618,7 +1618,7 @@ Let´s add 4 methods to MyClass in order to represent the 4 cases above :
     }
 ```
 
-#### Let's create a User Interface!
+### Let's create a User Interface!
 
 **1. Create buttons**
 
@@ -1652,7 +1652,7 @@ Now that we have our 5 buttons let´s create two webBrowsers items to display th
 - Change the attribute "Name" from "label2" to "CardholderReceiptLabel"
 - Change the attribute "text" from "label2" to "Cardholder Receipt :"
 
-#### Let's link our user interface with methods!
+### Let's link our user interface with methods!
 
 **1. Referencing the user interface(Form1.cs) in MyClass**
 
@@ -1747,7 +1747,7 @@ Go back to Form1.cs[Design] and double click on each of the other buttons to aut
     }
 ```
 
-#### Let´s display the receipts at the end of a transaction!
+### Let´s display the receipts at the end of a transaction!
 
 **1. Fetch the cardholder's and merchant receipts from the method EndOfTransaction in MyClass**
 
@@ -1780,7 +1780,7 @@ At this point all the buttons are connected but we are still missing to display 
             }
 ```
 
-#### Final Result!
+### Final Result!
 
 Here is how MyClass.cs and Form1.cs must eventually look like :
 
@@ -1930,6 +1930,6 @@ Here is how MyClass.cs and Form1.cs must eventually look like :
     }
 ````
 
-#### Let's run our program!
+### Let's run our program!
 
 Run the program by clicking the "play" button, click on "Connect to simulator" and then Click on one of the payment types available and have a look at the receipts! Voila!

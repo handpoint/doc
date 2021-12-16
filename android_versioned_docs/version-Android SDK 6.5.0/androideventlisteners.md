@@ -29,6 +29,51 @@ An interface which needs to be implemented and added as a listener to receive ba
 
 `Required` `Log` `Status` `PendingResults` `ReportResult`
 
+
+## Card Brand Display
+
+`Events.CardBrandDisplay`
+
+An interface which needs to be implemented and added as a listener to get events providing information on the supported card brands and/or the card brand used during the transaction.
+
+**Methods**
+
+`deviceCapabilities( List supportedCardBrands );`
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `supportedCardBrands` <span class="badge badge--primary">Required</span> <br />*List*  | A list containing the supported card brands|
+
+<br></br>
+
+`readCard( CardBrands usedCard );`
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `usedCard` <span class="badge badge--primary">Required</span> <br />[*CardBrands*](androidobjects.md#card-brands)  | Name of the card brand|
+
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.CardBrandDisplay {
+
+	@Override
+	public void deviceCapabilities(List supportedCardBrands) {
+		// Get supported card brands 
+	}
+
+	@Override
+	public void readCard(CardBrands usedCard) {
+		// Get the used card brand 
+	}
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
 ## Connection status changed
 
 `Events.ConnectionStatusChanged`
@@ -47,7 +92,7 @@ Implement this interface in order to receive connection status changes.
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.ConnectionStatusChanged {
 
 	@Override
@@ -77,7 +122,7 @@ Implement this interface in order to receive events about the current transactio
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.CurrentTransactionStatus {
 
 	@Override
@@ -107,7 +152,7 @@ Implement this interface in case the terminal needs to notify the SDK of its cap
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.DeviceCapabilitiesReady {
 
 	@Override
@@ -137,7 +182,7 @@ Implement this interface in order to receive a list of available terminals. The 
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.DeviceDiscoveryFinished {
 
 	@Override
@@ -169,7 +214,7 @@ Implement this interface to receive an event when a transaction is complete.
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.EndOfTransaction {
 
 	@Override
@@ -201,7 +246,7 @@ Implement this interface in order to receive events when the hardware status cha
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.HardwareStatusChanged {
 
 	@Override
@@ -225,7 +270,7 @@ An interface which needs to be implemented and added as a listener to receive lo
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.Log {
 
 	@Override
@@ -264,7 +309,7 @@ An interface which needs to be implemented and added as a listener to get events
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.MessageHandling {
 
 	@Override
@@ -300,7 +345,7 @@ An interface which needs to be implemented and added as a listener to get events
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.PhysicalKeyboardEvent {
 
 	@Override
@@ -330,7 +375,7 @@ Implement this interface to receive logs from the payment terminal. You must cal
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.OnMessageLogged {
 
 	@Override
@@ -352,7 +397,7 @@ An interface which needs to be implemented and added as a listener to receive in
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.PendingResults {
 
 	@Override
@@ -376,7 +421,7 @@ An interface which needs to be implemented and added as a listener to receive al
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.PendingResults {
 
 	@Override
@@ -413,7 +458,7 @@ An interface which needs to be implemented and added as a listener to get events
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.PrinterEvents {
 
 	@Override
@@ -452,7 +497,7 @@ Implement this interface to receive an event when a report result from a getTran
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.ReportResult {
 
 	@Override
@@ -472,7 +517,7 @@ You must provide a class implementing this interface when initializing the SDK.
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.Required {
 
 	@Override
@@ -513,7 +558,7 @@ The SignatureRequired interface must be implemented in order to receive an event
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.SignatureRequired {
 
 	@Override
@@ -537,7 +582,7 @@ An interface which needs to be implemented and added as a listener to receive co
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.Status {
 
 	@Override
@@ -575,7 +620,7 @@ Implement this interface in order to receive an event after a pending Transactio
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.TransactionResultReady {
 
 	@Override
@@ -607,7 +652,7 @@ Implement this interface in order to receive an event when a transaction is star
 
 **Code example**
 
-```
+```java
 public final class EventHandler implements Events.TransactionStarted {
 
 	@Override

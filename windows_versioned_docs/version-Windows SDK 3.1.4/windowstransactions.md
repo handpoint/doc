@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 id: windowstransactions
 ---
 
@@ -31,21 +31,27 @@ api.Sale(new BigInteger(1000),Currency.GBP);
 #### Events invoked
 
 **[*currentTransactionStatus*](windowsevents.md#4)** 
-****
+
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+***
 
 **[*signatureRequired*](windowsevents.md#5)**
-****
+
 Invoked if card verification requires signature.
+****
 
 **[*endOfTransaction*](windowsevents.md#6)**
+
 Invoked when the card reader finishes processing the transaction
-
-#### Returns
-
-**Boolean**
 ****
-true if the operation was successfully sent to device
+
+ **Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+
+
 
 ## Sale And Tokenize Card
 
@@ -71,22 +77,27 @@ api.SaleAndTokenizeCard(new BigInteger("1000"),Currency.GBP);
 #### Events invoked
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
-****
+
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry').
+****
 
 **[*signatureRequired*](windowsevents.md#5)**
-****
+
 Invoked if card verification requires signature.
+****
 
 **[*endOfTransaction*](windowsevents.md#6)**
-****
+
 Invoked when the card reader finishes processing the transaction.
 
-#### Returns
-
-**Boolean**
 ****
-true if the operation was successfully sent to device
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+
 
 ## Sale Reversal
 
@@ -114,23 +125,26 @@ api.SaleReversal(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-0000
 #### Events invoked
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
-****
+
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
 
 **[*signatureRequired*](windowsevents.md#5)**
-****
+
 Invoked if card verification requires signature.
+****
 
 **[*endOfTransaction*](windowsevents.md#6)**
-****
+
 Invoked when the card reader finishes processing the transaction
-
-#### Returns
-
-**Boolean**
 ****
 
-true if the operation was successfully sent to device
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+
 
 ## Refund
 
@@ -156,23 +170,26 @@ api.Refund(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-0000000000
 
 #### Events invoked
 **[*currentTransactionStatus*](windowsevents.md#4)** 
-****
 
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
 
 **[*signatureRequired*](windowsevents.md#5)** 
-****
+
 Invoked if card verification requires signature.
+****
 
 **[*endOfTransaction*](windowsevents.md#6)**
-****
+
 Invoked when the card reader finishes processing the transaction
-
-#### Returns
-
-**Boolean**
 ****
-true if the operation was successfully sent to device
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+
 
 
 ## Refund reversal
@@ -201,21 +218,26 @@ api.RefundReversal(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-00
 #### Events invoked
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
-****
+
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
 
 **[*signatureRequired*](windowsevents.md#5)**
-****
+
 Invoked if card verification requires signature.
+****
 
 **[*endOfTransaction*](windowsevents.md#6)**
+
 Invoked when the card reader finishes processing the transaction
+***
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+
 
 ## Print Receipt
 
@@ -236,12 +258,12 @@ Print on demand functionality allowing the merchant to print any HTML formatted 
 bool success = api.PrintReceipt(validReceipt);
 ```
 
-#### Returns
+**Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the receipt was sent to the printer, false otherwise|
 
-****
-true if the receipt was sent to the printer, false otherwise
 
 ## Signature result
 
@@ -270,18 +292,21 @@ public void SignatureRequired(SignatureRequest signatureRequest, Device device)
 #### Events invoked
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
-****
+
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
 
 **[*endOfTransaction*](windowsevents.md#6)**
-****
+
 Invoked when the card reader finishes processing the transaction
-
-#### Returns
-
-**Boolean**
 ****
-true if the operation was successfully sent to device
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+
 
 
 ## Tip Adjustment
@@ -318,15 +343,14 @@ if (status != FinancialStatus.FAILED)
 }
 ```
 
-#### Returns
+**Returns**
 
-**FinancialStatus **
-****
 Result of the tip adjustment transaction, this is an asynchronous method that returns a task called `<FinancialStatus>`, the possible values are :
 
-- **FinancialStatus.AUTHORISED** (tip adjustment approved by the processor)
-- **FinancialStatus.FAILED** (system error or timeout)
-- **FinancialStatus.DECLINED** (tip adjustment declined by the processor)
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **FinancialStatus**| - **FinancialStatus.AUTHORISED** (tip adjustment approved by the processor) <br />- **FinancialStatus.FAILED** (system error or timeout) <br />- **FinancialStatus.DECLINED** (tip adjustment declined by the processor)|
+
 
 If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
 
@@ -352,19 +376,23 @@ api.TokenizeCard();
 #### Events invoked
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
-****
+
 Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry').
+****
 
 **[*signatureRequired*](windowsevents.md#5)**
-****
+
 Invoked if card verification requires signature.
+****
 
 **[*endOfTransaction*](windowsevents.md#6)** 
-****
+
 Invoked when the card reader finishes processing the transaction.
-
-#### Returns
-
-**Boolean**
 ****
-true if the operation was successfully sent to device
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `true` if the operation was successfully sent to device|
+

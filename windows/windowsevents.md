@@ -16,7 +16,7 @@ The recovery loop is reinitialized every time the Handpoint application is resta
 **Important information: The point of sale must be successfully connected to a terminal in order to receive the pending transactions.**
 
 **[*Transaction Result Ready Event*](windowsevents.md#11)**
-***
+
 Event containing the pending [*Transaction Result*](windowsobjects.md#14)
 
 ## Device discovery finished{#13}
@@ -48,7 +48,7 @@ public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
 **Subscribers Needed**
 
 **[*AddRequiredEventHandler*](#16)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve the devices information.
 
 
@@ -81,7 +81,7 @@ public void SignatureRequired(SignatureRequest signatureRequest, Device device)
 **Subscribers Needed**
 
 **[*AddRequiredEventHandler*](#16)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve signature information.
 
 ## End of transaction{#6}
@@ -111,7 +111,7 @@ public void EndOfTransaction(TransactionResult transactionResult, Device device)
 **Subscribers Needed**
 
 **[*AddRequiredEventHandler*](#16)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve signature information.
 
 ## Connection status changed{#7}
@@ -141,7 +141,7 @@ public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus connectionStatu
 **Subscribers Needed**
 
 **[*AddStatusNotificationEventHandler*](#19)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve the different connection statuses (e.g : CONNECTED, DISCONNECTED...).
 
 ## Current transaction status{#4}
@@ -171,7 +171,7 @@ public void currentTransactionStatus(StatusInfo statusInfo, Device device)
 **Subscribers Needed**
 
 **[*AddStatusNotificationEventHandler*](#19)**
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve the different states from the card reader (e.g : Waiting for card, Waiting for PIN entry...).
 
 ## Message logged
@@ -201,7 +201,7 @@ public void OnMessageLogged(LogLevel logLevel, String message)
 **Subscribers Needed**
 
 **[*AddLogEventHandler*](#20)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve the different log messages.
 
 ## Logs ready{#10}
@@ -231,7 +231,7 @@ public void **[*DeviceLogsReady*](#10)**(string logs, Device device)
 **Subscribers Needed**
 
 **[*AddLogEventHandler*](#20)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve the card reader logs.
 
 ## Pending transaction result
@@ -258,7 +258,7 @@ public void PendingTransactionResult(Device device){
 **Subscribers Needed**
 
 **[*AddPendingResultsEventHandler*](#21)** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve information about pending results.
 
 ## Transaction result ready{#11}
@@ -286,5 +286,5 @@ public void TransactionResultReady(TransactionResult transactionResult, Device d
 **Subscribers Needed**
 
 **AddPendingResultsEventHandler** 
-***
+
 This listener has to be implemented (preferably during initialisation) in order to retrieve information about pending results.

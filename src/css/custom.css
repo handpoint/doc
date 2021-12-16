@@ -66,6 +66,7 @@ html[data-theme='dark'] {
   /* any other colors you wish to overwrite */
   --ifm-color-primary: #e97d29;
   --ifm-footer-background-color: #black;
+  --ifm-navbar-sidebar-width: 80vw;
  
   /* --ifm-color-primary-dark: #5a91ea; */
 
@@ -112,6 +113,17 @@ html[data-theme='dark'] {
   font-size: 10px;
 }
 
+/* ////////////////////////// */
+
+
+@media only screen and (min-width: 1650px) {
+  .navbar__item {
+    font-size: 12.5px;
+  }
+}
+
+
+
 .navbar-statuspage-icon:after {
   transition: opacity 0.2s;
   content: "";
@@ -144,3 +156,16 @@ html[data-theme='dark'] {
     margin-left:10px;
   }
 }
+
+@media only screen and (min-width: 1400px) {
+  .navigationSlider.slidingNav ul {
+    background: none;
+    display: flex;
+    flex-flow: row nowrap;
+    margin: 0;
+    padding: 0;
+    width: auto;
+  }
+}
+
+

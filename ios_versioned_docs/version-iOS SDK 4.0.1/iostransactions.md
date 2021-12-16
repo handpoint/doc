@@ -11,7 +11,7 @@ id: iostransactions
 
 `saleWithAmount`
 
-A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the **amount** and **currency** but it also accepts tip configuration and a map with extra parameters.
 	
 **Parameters**
 
@@ -58,26 +58,29 @@ options.divideByMonths = @"3";
 **Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked while during transaction with different statuses from card reader.
-
+***
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
-
+***
 [**requestSignature**](iosevents.md#17)
-***
+
 Invoked if card verification requires signature.
-
-[**responseFinanceStatus **](iosevents.md#16)
 ***
+[**responseFinanceStatus **](iosevents.md#16)
+
 Invoked when the card reader finishes processing the transaction
+***
 
-** Returns**
 
-**Boolean**
+**Returns**
 
-YES if operation starts successfully
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if operation starts successfully.|
+
 
 ## Sale Reversal{#3}
 
@@ -118,21 +121,24 @@ options.customerReference = @"Your customer reference";
 **Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked while during transaction with different statuses from card reader
-
+***
 [**responseError **](iosevents.md#15)
-***
-Invoked to inform when an error response happens.
 
-[**responseFinanceStatus**](iosevents.md#16)
+Invoked to inform when an error response happens.
 ***
+[**responseFinanceStatus**](iosevents.md#16)
+
 Invoked when the card reader finishes processing the transaction
+***
 
 **Returns**
 
-**Boolean**
-YES if operation starts successfully
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if operation starts successfully.|
+
 
 
 ## Sale And Tokenize Card{#4}
@@ -186,26 +192,32 @@ options.divideByMonths = @"3";
 **Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked while during transaction with different statuses from card reader
+***
 
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
+***
 
 [**requestSignature**](iosevents.md#17)
-***
+
 Invoked if card verification requires signature.
+***
 
 [**responseFinanceStatus**](iosevents.md#16)
-***
+
 Invoked when the card reader finishes processing the transaction
+***
+
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if operation starts successfully.|
 
-YES if operation starts successfully
 
 ## Refund{#5}
 
@@ -257,22 +269,26 @@ options.merchantAuth = auth;
 ** Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
-Invoked while during transaction with different statuses from card reader
 
-[**responseError**](iosevents.md#15)
+Invoked while during transaction with different statuses from card reader
 ***
+[**responseError**](iosevents.md#15)
+
 Invoked when the card reader finishes processing the transaction
+***
 
 [**responseFinanceStatus**](iosevents.md#16)
-***
+
 Invoked to inform when an error response happens.
+***
+
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if operation starts successfully.|
 
-YES if operation starts successfully
 
 ## Refund reversal{#6}
 
@@ -313,22 +329,27 @@ options.customerReference = @"Your customer reference";
 ** Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked while during transaction with different statuses from card reader
+***
 
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
+***
 
 [**responseFinanceStatus**](iosevents.md#16)
-***
+
 Invoked when the card reader finishes processing the transaction
+***
+
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if the operation was successfully sent to device.|
 
-YES if the operation was successfully sent to device
 
 ## Accept signature{#7}
 
@@ -361,17 +382,19 @@ A [*requestSignature*](iosevents.md#17) event is invoked during transaction when
 ** Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked while during transaction with different statuses from card reader
+***
 
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
+***
 
 [**responseFinanceStatus**](iosevents.md#16)
-***
-Invoked when the card reader finishes processing the transaction
 
+Invoked when the card reader finishes processing the transaction
+***
 
 ## Retrieve Pending Transaction{#8}
 
@@ -400,22 +423,52 @@ Retrieving a pending transaction fetches a transaction result that was lost due 
 ** Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked during the operation with different statuses from the card reader.
+***
 
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
+***
 
 [**responseRecoveredTransactionStatus**](iosevents.md#44)
-***
+
 Invoked when the card reader has returned a recovered transaction.
+***
 
 **Returns**
 
-**Boolean**
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if operation starts successfully.|
 
-YES if operation starts successfully
+<br></br>
+
+**Card Reader Requirements**
+
+| Version Requirements      |
+| ----------- | 
+| Card reader software v1.7.0+ and v2.1.7+ is required in order for this method to work| 
+
+<br></br>
+
+**Notes**
+
+***On starting a new transaction***
+
+If a new transaction is started with out first fetching a pending transaction result, then the pending transaction result will be discarded.
+***
+
+***User notifications while a transaction result is pending***
+
+The card reader will not give any visible indication that a transaction result is pending.
+***
+
+***User notifications when fetching a pending transaction result***
+
+The card reader will briefly display a message when a pending transaction result is recovered.
+***
 
 ## Tip Adjustment{#9}
 
@@ -475,11 +528,15 @@ NSString* transaction = @"d50af540-a1b0-11e6-85e6-07b2a5f091ec";
 
 **Returns**
 
-**status**
+Result of the tip adjustment transaction, possible values :
 
-- **TipAdjustmentAuthorised** (tip adjustment approved by the processor)
-- **TipAdjustmentFailed** (system error or timeout)
-- **TipAdjustmentDeclined** (tip adjustment declined by the processor)
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **status**| - **TipAdjustmentAuthorised** (tip adjustment approved by the processor) <br />- **TipAdjustmentFailed** (system error or timeout) <br /> - **TipAdjustmentDeclined** (tip adjustment declined by the processor)|
+
+
+
+
 
 If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
 
@@ -508,24 +565,30 @@ Initiates a card-tokenization operation to the card reader (not available for al
 ** Events invoked**
 
 [**responseStatus**](iosevents.md#14)
-***
+
 Invoked while during transaction with different statuses from card reader
+***
 
 [**responseError**](iosevents.md#15)
-***
+
 Invoked to inform when an error response happens.
 
-[**requestSignature**](iosevents.md#17)
 ***
+
+[**requestSignature**](iosevents.md#17)
+
 Invoked if card verification requires signature.
 
-[**responseRecoveredTransactionStatus**](iosevents.md#44)
 ***
+
+[**responseRecoveredTransactionStatus**](iosevents.md#44)
+
 Invoked when the card reader finishes processing the transaction
 
+***
 
 **Returns**
 
-**Boolean**
-
-YES if operation starts successfully
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `YES` if operation starts successfully.|

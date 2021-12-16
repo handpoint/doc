@@ -25,12 +25,11 @@ Initializes the REST API client and returns the list of payment terminals associ
 | `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>    <br />*String*  | Request Header used to identify the merchant       |
 
 
-Returns
+**Returns**
 
-
-| Devices      |
-| ----------- |
-| List of Device objects     |
+| Parameter      | Notes |
+| ----------- | ----------- |
+| Devices | List of [Device](restobjects.md#device) objects        |
 
 
 **Code Example**
@@ -130,11 +129,7 @@ RESPONSE:
 
  **Returns**
 
- Transaction Result
-
-| Transaction Result      | 
-| ----------- |
-| The Transaction Result is delivered to the callback Url from the Transaction Request.   |
-
-
+| Parameter      | Notes |
+| ----------- | ----------- |
+| Transaction Result    | The [Transaction Result](restobjects.md#transaction-result-object) is delivered to the callback Url from the [Transaction Request](restobjects.md#transaction-request-object).    |
 

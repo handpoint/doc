@@ -32,11 +32,13 @@ public class ObjectHelper : Events.Required, Events.Status, Events.Log {
 }
 ```
 
-##### Returns
+**Returns**
 
-**Boolean**
-****
-True if the new delegate was added successfully
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the new delegate was added successfully.|
+
+
 
 ## Unregister events delegate
 
@@ -62,9 +64,10 @@ public class ObjectHelper : Events.Required, Events.Status, Events.Log {
 }
 ```
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-True if the new delegate was removed successfully
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the new delegate was removedded successfully.|
+
 

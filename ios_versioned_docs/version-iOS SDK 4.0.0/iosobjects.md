@@ -36,16 +36,18 @@ The HeftManager is used for discovering devices and to connect and create a Heft
 **Methods**
 
 [**Start Discovery**](iosdevicemanagement.md#32)
-***
+
 - (void)startDiscovery;
+***
 
 [**Shared Manager**](iosdevicemanagement.md#11)
+
++ (HeftManager `*`)sharedManager;
 ***
-+ (HeftManager*)sharedManager;
 
 [**Client for device (NSString)**](iosdevicemanagement.md#12)
-***
-- (void)clientForDevice:(HeftRemoteDevice *)device sharedSecret:(NSString *)sharedSecret delegate:(NSObject HeftStatusReportDelegate*)delegate;
+
+- (void)clientForDevice:(HeftRemoteDevice `*`)device sharedSecret:(NSString `*`)sharedSecret delegate:(NSObject HeftStatusReportDelegate `*`)delegate;
 
 ## HeftClient{#22}	
 
@@ -59,8 +61,7 @@ High level interface for Headstart API. HeftClient handles the communication bet
 | ----------- | ----------- |
 | `sharedSecret`  <br />*NSString* | The shared secret is a key provided by Handpoint when you get your account that enables you to perform live operations with the card reader. However, if you're developing with a starter kit, the test shared secret is specified in the example.|
 | `mpedInfo`  <br />*NSDictionary* | Dictionary with card reader info details, obtained by querying it from device on interface creation.|
-| `isTransactionResultPending`  <br />*BOOL* | Indicates whether a transaction result is pending on the card reader.|
-| | **Note: A pending transaction result is retained by the card reader if a disconnect occurs between card reader and app before the transaction result can be delivered during a SALE, REFUND or VOID processing.**|	
+| `isTransactionResultPending`  <br />*BOOL* | Indicates whether a transaction result is pending on the card reader. <br/>**Note: A pending transaction result is retained by the card reader if a disconnect occurs between card reader and app before the transaction result can be delivered during a SALE, REFUND or VOID processing.**|
 | `kSerialNumberInfoKey`  <br />*NSString Constant* | Key for value in mpedInfo|
 | `kPublicKeyVersionInfoKey`  <br />*NSString Constant* | Key for value in mpedInfo|
 | `kEMVParamVersionInfoKey`  <br />*NSString Constant* | Key for value in mpedInfo|
@@ -104,114 +105,114 @@ High level interface for Headstart API. HeftClient handles the communication bet
 **Methods**
 
 [**cancel**](#32)
-***
+
 - (void)cancel;
-
+***
 
 [**saleWithAmount**](iostransactions.md#2)
-***
+
 - (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present;
-
+***
 
 [**saleWithAmount**](iostransactions.md#2)
-***
-- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
 
+- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+***
 
 [**saleWithAmount**](iostransactions.md#2)
-***
-- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
 
+- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+***
 
 [**refundWithAmount**](iostransactions.md#5)
-***
+
 - (BOOL)refundWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present;
-
+***
 
 [**refundWithAmount**](iostransactions.md#5)
-***
-- (BOOL)refundWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
 
+- (BOOL)refundWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+***
 
 [**saleVoidWithAmount**](iostransactions.md#3)
-***
+
 - (BOOL)saleVoidWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present transaction:(NSString*)transaction;
-
-
-[**refundVoidWithAmount**](iostransactions.md#3)
 ***
-- (BOOL)refundVoidWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present transaction:(NSString*)transaction;
 
+[**refundVoidWithAmount**](iostransactions.md#6)
+
+- (BOOL)refundVoidWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present transaction:(NSString*)transaction;
+***
 
 [**retrievePendingTransaction**](iostransactions.md#8)
-***
-- (BOOL)retrievePendingTransaction;
 
+- (BOOL)retrievePendingTransaction;
+***
 
 [**enableScanner**](iosdevicemanagement.md#36)
-***
-- (BOOL)retrievePendingTransaction;
 
+- (BOOL)enableScanner;
+***
 
 **enableScannerWithMultiScan**
-***
+
 - (BOOL)enableScannerWithMultiScan:(BOOL)multiScan;
-
+***
 
 **enableScannerWithMultiScan**
-***
+
 - (BOOL)enableScannerWithMultiScan:(BOOL)multiScan buttonMode:(BOOL)buttonMode;
-
+***
 
 **enableScannerWithMultiScan**
-***
-- (BOOL)enableScannerWithMultiScan:(BOOL)multiScan buttonMode:(BOOL)buttonMode timeoutSeconds:(NSInteger)timeoutSeconds;
 
+- (BOOL)enableScannerWithMultiScan:(BOOL)multiScan buttonMode:(BOOL)buttonMode timeoutSeconds:(NSInteger)timeoutSeconds;
+***
 
 [**Disable scanner**](iosdevicemanagement.md#disable-scanner)
-***
-- (BOOL)disableScanner;
 
+- (BOOL)disableScanner;
+***
 
 **financeStartOfDay**
-***
-- (BOOL)financeStartOfDay;
 
+- (BOOL)financeStartOfDay;
+***
 
 **financeEndOfDay**
-***
-- (BOOL)financeEndOfDay;
 
+- (BOOL)financeEndOfDay;
+***
 
 [**financeInit**](iosdevicemanagement.md#47)
-***
-- (BOOL)financeInit;
 
+- (BOOL)financeInit;
+***
 
 [**logSetLevel**](iosdevicemanagement.md#33)
-***
-- (BOOL)logSetLevel:(eLogLevel)level;
 
+- (BOOL)logSetLevel:(eLogLevel)level;
+***
 
 [**logReset**](iosdevicemanagement.md#35)
-***
-- (BOOL)logReset;
 
+- (BOOL)logReset;
+***
 
 [**logGetInfo**](iosdevicemanagement.md#34)
-***
-- (BOOL)logGetInfo;
 
+- (BOOL)logGetInfo;
+***
 
 [**acceptSignature**](iostransactions.md#7)
-***
-- (void)acceptSignature:(BOOL)flag;
 
+- (void)acceptSignature:(BOOL)flag;
+***
 
 **getEMVConfiguration**
-***
-- (BOOL)getEMVConfiguration;
 
+- (BOOL)getEMVConfiguration;
+***
 
 ## HeftRemoteDevice{#23}	
 
@@ -237,16 +238,19 @@ Notifications sent by the SDK on various events - new available device found, co
 **Methods**
 
 [**didDiscoverFinished**](iosevents.md#37)
-***
+
 - (void)didDiscoverFinished;
+***
 
 [**didFindAccessoryDevice**](iosevents.md#38)
-***
+
 - (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice;
+***
 
 [**didLostAccessoryDevice**](iosevents.md#39)
-***
+
 - (void)didLostAccessoryDevice:(HeftRemoteDevice*)oldDevice;
+***
 
 ## HeftStatusReportDelegate	
 
@@ -257,48 +261,59 @@ Notifications sent by the SDK on various events - connected to device, request s
 **Methods**
 
 [**didConnect**](iosevents.md#20)
-***
+
 - (void)didConnect:(id-HeftClient)client;
+***
 
 [**responseStatus**](iosevents.md#14)
-***
+
 - (void)responseStatus:(id-ResponseInfo)info;
+***
 
 [**responseError**](iosevents.md#15)
-***
+
 - (void)responseError:(id-ResponseInfo)info;
+***
 
 [**responseFinanceStatus**](iosevents.md#16)
-***
+
 - (void)responseFinanceStatus:(id-FinanceResponseInfo)info;
+***
 
 [**responseLogInfo**](iosevents.md#43)
-***
+
 - (void)responseLogInfo:(id-LogInfo)info;
+***
 
 [**requestSignature**](iosevents.md#17)
-***
+
 - (void)requestSignature:(NSString*)receipt;
+***
 
 [**cancelSignature**](iosevents.md#40)
-***
+
 - (void)cancelSignature;
+***
 
 [**responseRecoveredTransactionStatus**](iosevents.md#44)
-***
+
 - (void)responseRecoveredTransactionStatus:(id-FinanceResponseInfo)info;
+***
 
 [**responseScannerEvent**](iosevents.md#41)
-***
+
 - (void)responseScannerEvent:(id-ScannerEventResponseInfo)info;
+***
 
 [**responseScannerDisabled **](iosevents.md#42)
-***
+
 - (void)responseScannerDisabled:(id-ScannerDisabledResponseInfo)info;
+***
 
 **responseEMVReport**
-***
+
 - (void)responseEMVReport:(NSString *)report;
+***
 
 
 ## ResponseInfo{#24}	
@@ -422,104 +437,129 @@ The contents of the xml property depend on which type of operation the card read
 ## Dictionary keys
 
 **StatusMessage**
-***
+
 A human readable description for the returned Status.
+***
 
 **TransactionType**
-***
+
 The type of transaction performed: UNDEFINED, SALE, VOID_SALE, REFUND, VOID_REFUND, CANCEL_SALE, CANCEL_REFUND
+***
 
 **FinancialStatus**
-***
+
 The result of the transaction: UNDEFINED, APPROVED, DECLINED, PROCESSED, FAILED, CANCELLED
+***
 
 **RequestedAmount**
-***
+
 The amount requested by the POS, as requested by the POS (i.e. no decimal point).
+***
 
 **GratuityAmount**
-***
+
 The gratuity amount entered by the cardholder, if any.
+***
 
 **GratuityPercentage**
-***
+
 The gratuity amount, as a percentage of the requested amount.
+***
 
 **TotalAmount**
-***
+
 The total of the gratuity and requested amount.
+***
 
 **TransactionID**
-***
+
 The transaction number used for this transaction, as maintained by the Eft Client.
+***
 
 **EFTTransactionID**
-***
+
 The EFT reference, given by the system, to make the transaction unique.
+***
 
 **OriginalEFTTransactionID**
-***
+
 The original EFT reference, given by the POS, as part of a VOID_SALE or a VOID_REFUND transaction.
+***
 
 **EFTTimestamp**
-***
+
 The date and time of the transaction, in ISO format (YYYYMMDDHHmmSS).
+***
 
 **AuthorisationCode**
-***
+
 The transaction authorization code, as given by the system.
+***
 
 **CVM**
-***
+
 The Cardholder Verfication Method: UNDEFINED, SIGNATURE, PIN, PIN_SIGNATURE, FAILED, NOT_REQUIRED
+***
 
 **CardEntryType**
-***
+
 The card data acquisition type: UNDEFINED, MSR, ICC, CNP
+***
 
 **CardSchemeName**
-***
+
 The card, reported, scheme name.
+***
 
 **CardTypeId**
-***
+
 The ID of the Card Type.
+***
 
 **SerialNumber**
-***
+
 The serial number of the PED.
+***
 
 **BatteryStatus**
-***
+
 A number, followed by the % sign, which indicates current charge level of the battery.
+***
 
 **BatterymV**
-***
+
 An integer, which represent the batter charge, in mV.
+***
 
 **BatteryCharging**
-***
+
 Indicates whether the battery is charging, or not. Values are true or false.
+***
 
 **ExternalPower**
-***
+
 Indicates whether the PED is connected to an external power source (e.g. a AC adapter). Values are true or false.
+***
 
 **ApplicationName**
-***
+
 The name of the application running on the PED.
+***
 
 **ApplicationVersion**
-***
+
 A version string of the form major.minor.build”(e.g. 1.2.118).
+***
 
 **ErrorMessage**
-***
+
 Description of the error, if any.
+***
 
 **RecoveredTransaction**
-***
+
 Indicates that the transaction result is a recovered transaction. The key is only included if value is true.
+***
 
 ## CmdIds	
 

@@ -203,11 +203,11 @@ An object to store the information about the payment terminal you are working wi
 
 | Property      | Description |
 | ----------- | ----------- |
-| `merchant_id_alpha`  <br />*String*   | Merchant unique identifier to which the device is associated|
-| `serial_number`  <br />*String*   | Device serial number|
-| `ssk`  <br />*String*   | Device shared secret key to authorize the operations.|
-| `terminal_type`  <br />*String*   | Device type|
-| `device_name`  <br />*String*   | Device name composed with serial_number - terminal_type|
+| `merchant_id_alpha`  <span class="badge badge--primary">Required</span>  <br />*String*   | Merchant unique identifier to which the device is associated|
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Device serial number|
+| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Device shared secret key to authorize the operations.|
+| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Device type|
+| `device_name` <span class="badge badge--primary">Required</span> <br />*String*   | Device name composed with serial_number - terminal_type|
 
 ## Acquirer{#21}
 
@@ -229,7 +229,7 @@ A class that holds the device status. This is the object that will be recieved i
 | Property      | Description |
 | ----------- | ----------- |
 | `deviceStatus`  <br />[*Device Status*](#27)   | OPTIONAL - The status of the payment terminal.|
-| `isCancelAllowed`  <br />*boolean*   | defines is a transaction can be cancelled or not.|
+| `isCancelAllowed`  <br />*boolean*   | Defines is a transaction can be cancelled or not.|
 | `message`  <br />*String*   | Human readable status message.|
 | `status`  <br />[*status*](#38)  | An enum containing information about the status of the transaction.|
 
@@ -588,7 +588,7 @@ An enum representing different tender types.
 | ----------- | ----------- |
 | `baseAmount`  <br />*BigInteger*   | Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.|
 | `headerName`  <br />*String*   | Name of the tipping menu appearing on the terminal. Default: Tip|
-| `tipPercentages`  <br />`List<Integer>`   | List of percentages used to calculate the tip amount. **REQUIRED**|
+| `tipPercentages`  <span class="badge badge--primary">Required</span>    <br /> *List<Integer\>*   | List of percentages used to calculate the tip amount. **REQUIRED**|
 | `enterAmountEnabled`  <br />*Boolean*   | Flag used to enable the cardholder to manually enter the tip amount. Default: true|
 | `skipEnabled`  <br />*Boolean*   | Flag used to enable the cardholder to skip the tipping step. Default: true|
 | `footer`  <br />*String*   | Footer note which will appear on the tipping menu. Default: Empty string|

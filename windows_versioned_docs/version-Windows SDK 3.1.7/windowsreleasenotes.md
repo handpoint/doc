@@ -17,5 +17,4 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 - CLOUD: Increased initial timeout for triggering transactions.
 
 
-## 3.1.4
 

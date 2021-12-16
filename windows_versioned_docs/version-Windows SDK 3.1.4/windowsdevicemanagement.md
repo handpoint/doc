@@ -1,5 +1,5 @@
 ---
-sidebar_position: 5
+sidebar_position: 6
 id: windowsdevicemanagement
 ---
 
@@ -35,14 +35,15 @@ api.UseDevice(device);
 #### Events invoked
 
 **[*ConnectionStatusChanged*](windowsevents.md#7)** 
-****
+
 Each time the card reader state changes (ex : going from Connected to Disconnected) the **[*ConnectionStatusChanged*](windowsevents.md#7)** event is called. It causes the connection manager to invoke this event with the appropriate information.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successful.
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successful.|
+
 
 ## Disconnect
 
@@ -66,14 +67,14 @@ api.Disconnect();
 #### Events invoked
 
 **[*ConnectionStatusChanged*](windowsevents.md#7)** 
-****
+
 Each time the card reader state changes (ex : going from Connected to Disconnected) the **[*ConnectionStatusChanged*](windowsevents.md#7)** event is called. It causes the connection manager to invoke this event with the appropriate information.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successful.
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was succesful|
 
 ## Set shared secret
 
@@ -97,14 +98,14 @@ api.SetSharedSecret("01020304050607080910111213141516171819202122232425262728293
 #### Events invoked
 
 **None**
-****
+
 No events invoked.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
 
 
 ## Set parameter
@@ -131,14 +132,15 @@ api.SetParameter(DeviceParameter.BluetoothName, "OrangeCardReader");
 #### Events invoked
 
 **None**
-****
+
 No events are invoked.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
+
 
 ## Set logging level
 
@@ -163,14 +165,14 @@ api.SetLogLevel(LogLevel.info);
 #### Events invoked
 
 **None**
-****
+
 No events are invoked.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
 
 
 ## Request device logs
@@ -195,14 +197,15 @@ api.GetDeviceLogs();
 #### Events invoked
 
 **[*DeviceLogsReady*](windowsevents.md#10)**
-****
+
 Invoked when hapi has finished downloading logs from the card reader.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
+
 
 ## Request pending transaction results
 
@@ -227,15 +230,15 @@ api.GetPendingTransaction();
 #### Events invoked
 
 **[*TransactionResultReady*](windowsevents.md#11)**
-****
 
 Invoked when hapi has finished fetching a TransactionResult from the device.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to the device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
+
 
 ## Update device
 
@@ -260,14 +263,15 @@ List Devices (search)
 #### Events invoked
 
 **None**
-****
+
 Information about this process should be available at the device's screen.
 
-#### Returns
+**Returns**
 
-**Boolean**
-****
-true if the operation was successfully sent to device
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| `True` if the operation was successfully sent to device.|
+
 
 ## List Devices (search)
 
@@ -294,7 +298,7 @@ api.ListDevices(ConnectionMethod.CLOUD);
 #### Events invoked
 
 **[*deviceDiscoveryFinished*](windowsevents.md#13)**
-****
+
 Invoked after the search is finished returning a list of the devices finished.
 
 ## Start monitoring connections
@@ -317,15 +321,16 @@ api.StopMonitoringConnections
 #### Events invoked
 
 **[*ConnectionStatusChanged*](windowsevents.md#7)**
-****
+
 
 Causes the connection manager to invoke this event with the appropriate information.
 
-#### Returns
+**Returns**
 
-**None**
-****
-No information is returned.
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **None**| No information is returned.|
+
 
 
 ## Stop monitoring connections
@@ -349,10 +354,10 @@ api.StopMonitoringConnections
 
 **[*ConnectionStatusChanged*](windowsevents.md#7)**
 
-****
 Causes the connection manager to invoke this event with the appropriate information.
 
-#### Returns
-**None**
+**Returns**
 
-No information is returned.
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **None**| No information is returned.|

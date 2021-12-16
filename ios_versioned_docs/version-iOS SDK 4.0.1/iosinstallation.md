@@ -11,13 +11,13 @@ id: iosinstallation
 
 ## CocoaPods
 
-CocoaPods is a dependency manager for Cocoa projects. You can install it with the following command:
+[CocoaPods](https://cocoapods.org/) is a dependency manager for Cocoa projects. You can install it with the following command:
 
 ````
 $ gem install cocoapods
 ````
 
-If you don't have a Podfile yet:
+If you don't have a `Podfile` yet:
 
 ````
 $ pod init
@@ -82,7 +82,7 @@ Alternatively you can add it as a git [submodule](https://git-scm.com/docs/git-s
 $ git submodule add https://github.com/handpoint/HandpointSDK-iOS.git
 ```
 
-## Framework
+### Framework
 
 You'll find the dynamic framework project called `HandpointSDK.xcodeproj` at the root of the repo.
 
@@ -94,4 +94,15 @@ We **strongly** discourage you from building this project yourself.
 This project contains several targets, you need to build the aggregated target `device-simulator Release`
 
 This target produces a .zip file in the same directory as the `headstart.xcodeproj` file containing both the library and the simulator library.
+
+### Static Library
+
+You'll find the static library project called `headstart.xcodeproj` under the `Library` folder.
+
+We **strongly** discourage you from building this project yourself.
+
+This project contains several targets, you need to build the aggregated target `device-simulator Release`
+
+This target produces a .zip file in the same directory as the `headstart.xcodeproj` file containing both the library and the simulator library.
+
 

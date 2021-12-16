@@ -30,49 +30,6 @@ An interface which needs to be implemented and added as a listener to receive ba
 `Required` `Log` `Status` `PendingResults` `ReportResult`
 
 
-## Card Brand Display
-
-`Events.CardBrandDisplay`
-
-An interface which needs to be implemented and added as a listener to get events providing information on the supported card brands and/or the card brand used during the transaction.
-
-**Methods**
-
-`deviceCapabilities( List supportedCardBrands );`
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `supportedCardBrands` <span class="badge badge--primary">Required</span> <br />*List*  | A list containing the supported card brands|
-
-<br></br>
-
-`readCard( CardBrands usedCard );`
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `usedCard` <span class="badge badge--primary">Required</span> <br />*CardBrands*  | Name of the card brand|
-
-**Code example**
-
-```java
-public final class EventHandler implements Events.CardBrandDisplay {
-
-	@Override
-	public void deviceCapabilities(List supportedCardBrands) {
-		// Get supported card brands 
-	}
-
-	@Override
-	public void readCard(CardBrands usedCard) {
-		// Get the used card brand 
-	}
-
-}
-
-// Remember to register the instance of this EventHandler:
-this.api.registerEventsDelegate(eventHandlerInstance);
-```
-
 ## Connection status changed
 
 `Events.ConnectionStatusChanged`
