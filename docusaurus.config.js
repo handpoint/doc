@@ -5,13 +5,13 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
   title: 'Handpoint',
   tagline: 'Card payments. Made simple',
-  url: 'https://www.google.com',
-  baseUrl: '/',
+  url: 'https://www.handpoint.com',
+  baseUrl: '/doc',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
   organizationName: 'handpoint', // Usually your GitHub org/user name.
-  projectName: 'documentation-docusaurus', // Usually your repo name.
+  projectName: 'doc', // Usually your repo name.
   deploymentBranch: 'gh-pages',
   themeConfig: {
     navbar: {
