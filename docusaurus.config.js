@@ -12,6 +12,7 @@ module.exports = {
   favicon: '/img/favicon.png',
   organizationName: 'handpoint', // Usually your GitHub org/user name.
   projectName: 'documentation-docusaurus', // Usually your repo name.
+  deploymentBranch: 'gh-pages',
   themeConfig: {
     navbar: {
       style: 'dark',
