@@ -4,14 +4,14 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Handpoint',
-  tagline: 'Dinosaurs are cool',
+  tagline: 'Card payments. Made simple',
   url: 'https://www.google.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
-  organizationName: 'facebook', // Usually your GitHub org/user name.
-  projectName: 'docusaurus', // Usually your repo name.
+  organizationName: 'handpoint', // Usually your GitHub org/user name.
+  projectName: 'documentation-docusaurus', // Usually your repo name.
   themeConfig: {
     navbar: {
       style: 'dark',
