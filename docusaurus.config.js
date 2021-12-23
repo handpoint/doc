@@ -6,7 +6,7 @@ module.exports = {
   title: 'Handpoint',
   tagline: 'Card payments. Made simple',
   url: 'https://www.handpoint.com',
-  baseUrl: '/doc',
+  baseUrl: '/doc/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
