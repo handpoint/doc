@@ -216,44 +216,6 @@ function Hello() {
             </div>
             <br></br>
 
-
-
-            {/* <ul>
-              <li> <b>Sale operation</b> - It starts a purchase transaction on the payment terminal. In its
-                simplest form
-                you only have to pass the transaction amount and currency as parameters.</li>
-              <li> <b>Sale and tokenize operation</b> - A sale operation which also returns a card token
-                (not available for all acquirers, please check with Handpoint to know if tokenization is
-                supported for your acquirer of choice)</li>
-              <li> <b>Tokenize operation</b> - Returns a card token representing the PAN of the card (not available for
-                all acquirers,
-                please check with Handpoint to know if tokenization is supported for your
-                acquirer of choice)</li>
-              <li> <b>Refund operation</b> - It starts a refund transaction on the payment terminal. This
-                operation moves
-                funds from the merchant account to the cardholder's payment card. </li>
-              <li> <b>Sale reversal operation</b> - Allows the merchant to reverse a previously approved sale
-                operation.
-              </li>
-              <li> <b>Refund reversal operation</b> - Allows the merchant to reverse a previously approved
-                refund
-                operation.</li>
-              <li> <b>Card pan operation</b> - A cardPan request will return the full PAN of the card being swiped,
-                dipped or tapped. Only the PANs of whitelisted card ranges will be returned by the
-                Handpoint systems. This operation is mostly used to be able to process funds or points
-                from loyalty card.</li>
-              <li> <b>Update operation</b> - Allows the merchant to search for the latest software updates on
-                the
-                terminal.</li>
-              <li> <b>Print receipt operation</b> - This method sends the merchant or customer receipt to the
-                terminal for printing. The printer can print any HTML data passed as parameter.</li>
-              <li> <b>Ping operation</b> - This operation will ping the terminal to confirm if it is online.</li>
-              <li> <b>Stop current transaction operation</b> - Operation used to stop the current transaction.
-                The transaction can only be stopped at specific stages of a payment processing,
-                for example a transaction can not be stopped when the card is being read but can
-                be stopped when waiting for the cardholder to initially insert a card.</li>
-
-            </ul> */}
           </p>
           <p>
             Status messages are sent back to the SDK throughout the transaction process so you can customize the checkout experience. At the end of the transaction, the result and receipts of the transaction are sent back to your application in a JSON format.
@@ -330,189 +292,6 @@ function Header() {
 
 function Step1table() {
   return (
-
-
-    // <table style={{ width: '80%', marginLeft: '15%' }}>
-    //   <thead>
-    //     <tr>
-    //       <th class="text-center" ></th>
-    //       <th class="text-center" >Android SDK</th>
-    //       <th class="text-center" >iOS SDK</th>
-    //       <th class="text-center" >Windows SDK</th>
-    //       <th class="text-center" >Cordova SDK</th>
-    //       <th class="text-center" >Express SDK</th>
-    //       <th class="text-center" >Javascript SDK</th>
-    //       <th class="text-center" >REST API</th>
-    //       <th class="text-center" >Xamarin SDK</th>
-    //     </tr>
-    //   </thead>
-    //   <tbody>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a href="https://handpoint.com/specs/hilite/">HiLite</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab" href="https://handpoint.com/specs/hipro/">HiPro</a>
-    //       </th>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>-</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab" href="https://handpoint.com/specs/hi5/">Hi5</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab" href="https://handpoint.com/specs/paxa920/">PAX A920</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab"
-    //           href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX
-    //           A920 Pro</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab"
-    //           href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab"
-    //           href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab" href="https://handpoint.com/specs/paxa80/">PAX A80</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     <tr>
-    //       <th class="text-center" >
-    //         <a target="_tab" href="https://handpoint.com/specs/TPS900/">Telpo TPS900</a>
-    //       </th>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>-</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //       <td align='center'>✅</td>
-    //     </tr>
-    //     {/* <tr>
-    //                 <td></td>
-    //                 <td class="text-left">
-    //                     - Written in native Java and Kotlin
-    //                     <br></br> - Available through Maven Central
-    //                     <br></br> - Min api version 22
-    //                     <br></br> - Target api version 29
-    //                     <br></br> - JDK 1.8
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - Written in Objective-C
-    //                     <br></br>- Available through Cocoapods and Carthage
-    //                     <br></br>- Min iOS deployment version 8.0
-    //                     <br></br>- iOS deployment target version 8.0
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - Written in csharp
-    //                     <br></br>- Available through NuGet
-    //                     <br></br>- .Net Framework Version 4.6.1
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - Version &gt;=3.0.0
-    //                     <br></br>- Compatible with Android and iOS
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - HiLite, HiPro or Hi5 terminals are your preferred form factors.
-    //                     <br></br>- Lightweight integration
-    //                     <br></br>- <b>Important Note:</b> The Express app must be installed on the merchants
-    //                     device (computer/tablet/phone).
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - ECMAScript 6
-    //                     <br></br>- Enables remote control of Android based terminals like PAX or Telpo.
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - Searching for a quick, simple and tremendously flexible integration, this is your choice
-    //                 </td>
-    //                 <td class="text-left">
-    //                     - Xamarin SDK maintained by the community of Handpoint developers.
-    //                 </td>
-    //             </tr> */}
-    //   </tbody>
-    // </table>
-
     <div>
       <TableContainer>
         <Table align="center" sx={{ maxWidth: 1000 }} aria-label="simple table">
@@ -677,157 +456,6 @@ function Step1table() {
 function Step2tableterminals() {
   return (
 
-
-    // <div style={{ width: '80%', marginLeft: '15%' }}>
-    //   <table style={{
-    //     width: '70%',
-    //     textAlign: 'center',
-    //     height: '30%'
-    //   }}>
-    //     <thead>
-    //       <tr>
-    //         <th >
-    //           <a href="https://handpoint.com/specs/hilite/">HiLite <br></br>
-    //             <img style={{ height: '80px' }}
-    //               src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
-    //               alt="">
-    //             </img>
-
-
-    //           </a>
-    //         </th>
-    //         <th >
-    //           <a href="https://handpoint.com/specs/hipro/">HiPro <br></br>
-    //             <img style={{ height: '80px' }}
-    //               src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
-    //               alt="">
-    //             </img>
-
-
-    //           </a>
-    //         </th>
-    //         <th>
-    //           <a href="https://handpoint.com/specs/hi5/">Hi5 <br></br><img style={{ height: '80px' }}
-    //             src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Hi5-large-crop.png?h=300&amp;w=200"
-    //             alt=""></img></a>
-    //         </th>
-    //         <th >
-    //           <a href="https://handpoint.com/specs/paxa920/">PAX A920 <br></br><img style={{ height: '80px' }}
-
-    //             src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
-    //             alt=""></img></a>
-    //         </th>
-    //         <th >
-    //           <a
-    //             href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX
-    //             A920 Pro<br></br><img style={{ height: '80px' }}
-    //               src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
-    //               alt=""></img></a>
-    //         </th>
-    //         <th >
-    //           <a
-    //             href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX
-    //             A50<br></br><img style={{ height: '80px' }}
-    //               src="https://i.ibb.co/LZvJ5hx/main-photo-min.png"
-    //               alt=""></img></a>
-    //         </th>
-
-    //         <th >
-    //           <a
-    //             href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX
-    //             A60<br></br><img style={{ height: '80px' }}
-    //               src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A60.png"
-    //               alt=""></img></a>
-    //         </th>
-    //         <th >
-    //           <a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77 <br></br>
-    //             <img style={{ height: '80px' }}
-    //               src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A77.png"
-    //               alt="">
-    //             </img>
-
-
-    //           </a>
-    //         </th>
-    //         <th>
-    //           <a href="https://handpoint.com/specs/paxa80/">PAX A80<br></br><img style={{ height: '80px' }}
-    //             src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Pax_A80.png"
-    //             alt=""></img></a>
-    //         </th>
-    //         <th >
-    //           <a href="https://handpoint.com/specs/TPS900/">Telpo TPS 900 <br></br><img style={{ height: '80px' }}
-
-    //             src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
-    //             alt=""></img></a>
-    //         </th>
-
-    //       </tr>
-
-    //     </thead>
-    //   </table>
-    // </div>
-    // <TableContainer>
-    // <Table align="center" sx={{ maxWidth:1050 , tableLayout:'fixed'}} aria-label="simple table">
-    //         <TableRow align="center">
-
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">HiLite <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
-    //                alt="">
-    //              </img></a>
-    //           </TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">HiPro <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
-    //                alt="">
-    //              </img></a></TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">Hi5 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Hi5-large-crop.png?h=300&amp;w=200"
-    //                alt="">
-    //              </img></a></TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">PAX A920 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
-    //                alt="">
-    //              </img></a>	</TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">PAX A920 PRO <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
-    //                alt="">
-    //              </img></a></TableCell>
-
-    //              <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">PAX A50 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://i.ibb.co/LZvJ5hx/main-photo-min.png"
-    //                alt="">
-    //              </img></a>
-    //           </TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">PAX A60 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A60.png"
-    //                alt="">
-    //              </img></a></TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">PAX A77 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A77.png"
-    //                alt="">
-    //              </img></a></TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">PAX A80 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Pax_A80.png"
-    //                alt="">
-    //              </img></a>	</TableCell>
-    //           <TableCell align="center"><a href="https://handpoint.com/specs/hilite/">Telpo TPS 900 <br></br>
-    //              <img style={{ height: '80px' }}
-    //                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
-    //                alt="">
-    //              </img></a></TableCell>
-
-    //         </TableRow>
-
-
-    //       </Table>
     <div class="container">
 
       <div class="row">
@@ -840,7 +468,7 @@ function Step2tableterminals() {
               <a href="https://handpoint.com/specs/hilite/"><img style={{ height: '80px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
                 alt="df"
-                >
+              >
               </img></a>
             </div>
           </div>
@@ -928,9 +556,9 @@ function Step2tableterminals() {
           </div>
         </div></div>
       </div>
-      
+
       <br></br>
-      
+
 
       <div class="row">
         <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
@@ -998,118 +626,6 @@ function Step2tableterminals() {
 
 function Step2tablecomms() {
   return (
-    // <table style={{ width: '80%', marginLeft: '15%' }}>
-    //   <thead className={styles.tableCentered}>
-    //     <tr>
-    //       <th class="text-center"></th>
-    //       <th class="text-center">Lightning</th>
-    //       <th class="text-center">Bluetooth</th>
-    //       <th class="text-center">Ethernet</th>
-    //       <th class="text-center">Mobile Network</th>
-    //       <th className={{ textAlign: "text-center" }}>Wifi</th>
-    //     </tr>
-    //   </thead>
-    //   <tr className={styles.tableCentered}>
-    //     <th className={{ textAlign: "text-center" }}>
-    //       <a target="_tab" href="https://handpoint.com/specs/hilite/">HiLite</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>✅</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab" href="https://handpoint.com/specs/hipro/">HiPro</a>
-    //     </th>
-    //     <td align='center'>✅</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab" href="https://handpoint.com/specs/hi5/">Hi5</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>✅</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'> ✅ (2G)
-    //     </td>
-    //     <td align='center'>-</td>
-    //   </tr>
-    //   <tr>
-    //     <th align='center' >
-    //       <a target="_tab" href="https://handpoint.com/specs/paxa920/">PAX A920</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'> ✅ (4G/LTE)
-    //     </td>
-    //     <td align='center'>✅</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab"
-    //         href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920
-    //         Pro</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'> ✅ (4G/LTE)
-    //     </td>
-    //     <td align='center'>✅</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab" href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX
-    //         A60</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>✅ (4G/LTE)
-    //     </td>
-    //     <td align='center'>✅</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab" href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX
-    //         A77</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'> ✅ (4G/LTE)
-    //     </td>
-    //     <td align='center'>✅</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab" href="https://handpoint.com/specs/paxa80/">PAX A80</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>✅</td>
-    //     <td align='center'> ✅ (4G/LTE)
-    //     </td>
-    //     <td align='center'>✅</td>
-    //   </tr>
-    //   <tr>
-    //     <th class="text-center" >
-    //       <a target="_tab" href="https://handpoint.com/specs/TPS900/">Telpo TPS900</a>
-    //     </th>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'>-</td>
-    //     <td align='center'> ✅ (4G)</td>
-    //     <td align='center'>✅</td>
-    //   </tr>
-    // </table>
     <div>
       <TableContainer >
         <Table align="center" sx={{ maxWidth: 1000 }} >
@@ -1618,9 +1134,11 @@ function Step3() {
                 <h3>Android</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
+                <Link
+                  to="/android/androidintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
-                </a>
+                </Link>
+
 
               </div>
               <div class="card__footer" align="center">
@@ -1639,9 +1157,11 @@ function Step3() {
                 <h3>iOS</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
+
+                <Link
+                  to="/ios/iosintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/ios-devices.png"></img>
-                </a>
+                </Link>
 
               </div>
               <div class="card__footer" align="center">
@@ -1660,9 +1180,11 @@ function Step3() {
                 <h3>Windows .NET</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
+
+                <Link
+                  to="/windows/windowsintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/macbook.png"></img>
-                </a>
+                </Link>
               </div>
               <div class="card__footer" align="center">
                 <Link
@@ -1680,9 +1202,11 @@ function Step3() {
                 <h3>JavaScript</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
+
+              <Link
+                  to="/javascript/javascriptintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"></img>
-                </a>
+                </Link>
               </div>
               <div class="card__footer" align="center">
                 <Link
@@ -1705,10 +1229,11 @@ function Step3() {
                 <h3>REST API</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
-                  <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
-                </a>
 
+              <Link
+                  to="/restapi/restintroduction">
+                  <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
+                </Link>
               </div>
               <div class="card__footer" align="center">
                 <Link
@@ -1726,7 +1251,7 @@ function Step3() {
                 <h4>Xamarin SDK (Community)</h4>
               </div>
               <div class="card__body" align="center">
-                <a>
+                <a href="https://github.com/thescruba/xamarin-handpoint-bindings">
                   <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
                 </a>
 
@@ -1747,9 +1272,11 @@ function Step3() {
                 <h3>Express</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
+
+              <Link
+                  to="/express/expressintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/browser.png"></img>
-                </a>
+                </Link>
               </div>
               <div class="card__footer" align="center">
                 <Link
@@ -1767,7 +1294,7 @@ function Step3() {
                 <h3>Cordova Plugin</h3>
               </div>
               <div class="card__body" align="center">
-                <a>
+                <a href="https://www.npmjs.com/package/cordova-plugin-handpoint">
                   <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
                 </a>
               </div>
@@ -1783,128 +1310,6 @@ function Step3() {
           </div></div>
       </div>
       <br></br>
-
-      {/* <div style={{
-        display: 'flex',
-        flexDirection:'row',  
-       
-        justifyContent:'center',
-        fontSize: '15px',
-        marginTop: '25px',
-        marginLeft: '25px',
-        marginRight: '25px',
-        textAlign: 'center',
-        //paddingRight: '50px'
-      }}>
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
-          </a>
-          <p>Android</p>
-
-          <Link
-            className="button button--secondary button--lg"
-            to="/android/androidintroduction">
-            View the SDK
-          </Link>
-        </div>
-
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/ios-devices.png"></img>
-          </a>
-          <p>iOS</p>
-          <Link
-            className="button button--secondary button--lg"
-            to="/ios/iosintroduction">
-            View the SDK
-          </Link>
-        </div>
-
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/macbook.png"></img>
-          </a>
-          <p>Windows .NET</p>
-          <Link
-            className="button button--secondary button--lg"
-            to="/windows/windowsintroduction">
-            View the SDK
-          </Link>
-        </div>
-
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"></img>
-          </a>
-          <p>JavaScript</p>
-          <Link
-            className="button button--secondary button--lg"
-            to="/javascript/javascriptintroduction">
-            View the SDK
-          </Link>
-        </div>
-      </div> */}
-      {/* <div style={{
-        display: 'flex  ',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '15px',
-        marginTop: '25px',
-        marginLeft: '25px',
-        marginRight: '25px',
-        textAlign: 'center',
-        //paddingRight: '50px'
-      }}>
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
-          </a>
-          <p>REST API</p>
-          <Link
-            className="button button--secondary button--lg"
-            to="/restapi/restintroduction">
-            View the API
-          </Link>
-        </div>
-
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
-          </a>
-          <p>Xamarin SDK (Community)</p>
-          <Link
-            className="button button--secondary button--lg"
-            href="https://github.com/thescruba/xamarin-handpoint-bindings">
-            View the SDK
-          </Link>
-        </div>
-
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/browser.png"></img>
-          </a>
-          <p>Express</p>
-          <Link
-            className="button button--secondary button--lg"
-            href="https://www.handpoint.com/docs/device/Express/">
-            View the SDK
-          </Link>
-        </div>
-
-        <div className={styles.margingImages}>
-          <a>
-            <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
-          </a>
-          <p>Cordova Plugin</p>
-          <Link
-            className="button button--secondary button--lg"
-            href="https://www.npmjs.com/package/cordova-plugin-handpoint">
-            View the SDK
-          </Link>
-        </div>
-      </div> */}
-
     </div>
 
   );

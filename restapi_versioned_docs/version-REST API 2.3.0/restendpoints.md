@@ -93,20 +93,55 @@ POST endpoint used to execute a financial operation
 ```shell
 Operation executed using CLI tool CURL:
 REQUEST:
-  curl -X GET \
-   -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
-   "https://cloud.handpoint.com/initialize"
+    curl -X POST \\
+     -H"ApiKeyCLoud: MeRcHaNt-ApIkEy" \\
+     -H"Content-Type: application/json" \\
+Transaction Request without callbackUrl and token
+     -d '{
+         "operation":"sale",
+         "amount":"10000",
+         "currency":"EUR",
+         "terminal_type":"PAXA920",
+         "serial_number":"1547854757",
+         "customerReference":"op15248"
+          }' \\
+Transaction Request with callbackUrl and token
+     -d '{
+         "operation":"sale",
+         "amount":"10000",
+         "currency":"EUR",
+         "terminal_type":"PAXA920",
+         "serial_number":"1547854757",
+         "customerReference":"op15248",
+         "callbackUrl":"https://url.where.the.result.is.served.com",
+         "token":"123456789"
+          }' \\  
+   "https://cloud.handpoint.com/transactions"
 
-RESPONSE:
- Code 200 -> Body:
-  [
+RESPONSES:
+  Code 202
+Transaction Request without callbackUrl
     {
-      "merchant_id_alpha": "merchantID",
-      "serial_number": "082104578",
-      "customerReference": "op15248",
-      "terminal_type": "PAXA920"
+      "transactionResultId": "0821032398-1628774190395",
+      "statusMessage": "Operation Accepted"
     }
-  ]
+ 
+Transaction Request with callbackUrl and token
+    {
+      "statusMessage": "Operation Accepted"
+    }
+
+  Code 400 Ex:DeviceIsBusy
+    {
+    "error": {
+      "statusCode": 400,
+      "name":"BadRequestError",
+      "message": {
+          "error": 1001,
+          "message":"The device is busy"
+        }
+      }
+    }
 ```
 
 

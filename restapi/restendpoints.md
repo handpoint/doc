@@ -94,20 +94,55 @@ POST endpoint used to execute a financial operation
 ```shell
 Operation executed using CLI tool CURL:
 REQUEST:
-  curl -X GET \
-   -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
-   "https://cloud.handpoint.com/initialize"
+    curl -X POST \\
+     -H"ApiKeyCLoud: MeRcHaNt-ApIkEy" \\
+     -H"Content-Type: application/json" \\
+Transaction Request without callbackUrl and token
+     -d '{
+         "operation":"sale",
+         "amount":"10000",
+         "currency":"EUR",
+         "terminal_type":"PAXA920",
+         "serial_number":"1547854757",
+         "customerReference":"op15248"
+          }' \\
+Transaction Request with callbackUrl and token
+     -d '{
+         "operation":"sale",
+         "amount":"10000",
+         "currency":"EUR",
+         "terminal_type":"PAXA920",
+         "serial_number":"1547854757",
+         "customerReference":"op15248",
+         "callbackUrl":"https://url.where.the.result.is.served.com",
+         "token":"123456789"
+          }' \\  
+   "https://cloud.handpoint.com/transactions"
 
-RESPONSE:
- Code 200 -> Body:
-  [
+RESPONSES:
+  Code 202
+Transaction Request without callbackUrl
     {
-      "merchant_id_alpha": "merchantID",
-      "serial_number": "082104578",
-      "customerReference": "op15248",
-      "terminal_type": "PAXA920"
+      "transactionResultId": "0821032398-1628774190395",
+      "statusMessage": "Operation Accepted"
     }
-  ]
+ 
+Transaction Request with callbackUrl and token
+    {
+      "statusMessage": "Operation Accepted"
+    }
+
+  Code 400 Ex:DeviceIsBusy
+    {
+    "error": {
+      "statusCode": 400,
+      "name":"BadRequestError",
+      "message": {
+          "error": 1001,
+          "message":"The device is busy"
+        }
+      }
+    }
 ```
 
 
@@ -137,7 +172,75 @@ GET endpoint used to retrieve transaction results. **IMPORTANT** Feature only co
 | **Not Found** | Response code 404. transactionResultId NOT found in the database      |
 
 
+**Code Example**
 
+```shell
+Operation executed using CLI tool CURL:
+REQUEST:
+    curl -X GET \\
+      -H"ApiKeyCLoud: MeRcHaNt-ApIkEy" \\
+      "https://cloud.handpoint.com/transaction-result/0821032398-1628774190395"
+
+RESPONSE:
+{
+  "aid": "A0000000041010",
+  "arc": "0000",
+  "authorisationCode": "123456",
+  "balance": null,
+  "budgetNumber": "",
+  "cardEntryType": "UNDEFINED",
+  "cardLanguagePreference": "",
+  "cardSchemeName": "MasterCard",
+  "cardToken": "",
+  "chipTransactionReport": "",
+  "currency": "USD",
+  "customerReceipt": "https://s3.[...]/customerReceipt.html",
+  "customerReference": "",
+  "deviceStatus": {
+      "applicationName": "ClientApp",
+      "applicationVersion": "20.1.0",
+      "batteryCharging": "Not Charging",
+      "batteryStatus": "100",
+      "batterymV": "4126",
+      "bluetoothName": "PAXA920",
+      "externalPower": "USB",
+      "serialNumber": "0821032398",
+      "statusMessage": "Approved or completed successfully"
+  },
+  "dueAmount": 0,
+  "errorMessage": "",
+  "expiryDateMMYY": "0422",
+  "finStatus": "AUTHORISED",
+  "iad": "0210A000002A0000000000000000000000FF",
+  "issuerResponseCode": "00",
+  "maskedCardNumber": "************1456",
+  "merchantAddress": "Plaza Soledad Torres Acosta 1 28013 Madrid",
+  "merchantName": "Hago la cama",
+  "merchantReceipt": "https://s3.[...]/merchantReceipt.html",
+  "mid": "",
+  "originalEFTTransactionID": "",
+  "paymentScenario": "CHIPCONTACTLESS",
+  "rrn": "",
+  "signatureUrl": "",
+  "statusMessage": "Approved or completed successfully",
+  "tenderType": "CREDIT",
+  "tid": "ACQUIRER_TID",
+  "tipAmount": 0,
+  "totalAmount": 100,
+  "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "tsi": "0000",
+  "tvr": "0400008001",
+  "type": "SALE",
+  "unMaskedPan": "",
+  "verificationMethod": "UNDEFINED",
+  "efttimestamp": 1615374961000,
+  "efttransactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "requestedAmount": 100,
+  "tipPercentage": 0,
+  "recoveredTransaction": false,
+  "cardHolderName": "cardholder name"
+}
+```
 
 
 

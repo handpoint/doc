@@ -11,10 +11,6 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
-## 6.6.3
-
-**Fixes**:
-- DATECS: Stop reconnection loop on api.disconnect()
 
 ## 6.6.0
 
@@ -28,7 +24,6 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 
 ## 6.5.0
-
 **Features**:
  - Card brand display: 2 new events deviceCapabilities (supportedCardBrands) and readCard to show the supported card brands and card used during a transaction respectively.
  - Update webview for devices that do not support co-branding.
