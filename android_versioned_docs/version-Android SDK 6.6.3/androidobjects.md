@@ -400,7 +400,7 @@ A enum representing the channel used for the card not present transaction (MO = 
 
 `MO` `TO`
 
-## MerchantAuthOptions
+## MerchantAuthOptions{#MerchantAuthOptions}
 
 `MerchantAuthOptions`
 
