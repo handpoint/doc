@@ -42,7 +42,7 @@ Each time the card reader state changes (ex : going from Connected to Disconnect
 | `Boolean`| `true` if the operation was successfully.|
 
 
-## Get Transactions Report
+## Get Transactions Report{#getTransactionReport}
 
 `getTransactionsReport` <span class="badge badge--info">Method</span>
 
@@ -306,7 +306,7 @@ No events are invoked.
 `stopCurrentTransaction` <span class="badge badge--info">Method</span>
 
 Stops the current transaction. A transaction can be stopped only if the last [currentTransactionStatus](androideventlisteners.md#14) event reported has the property **isCancelAllowed** set to **true**.
-This operation is **not supported** for **Hilite, Hipro and Hi5** devices.
+This operation is **not supported** for **Hilite and Hi5** devices.
 
 **Code example**
 

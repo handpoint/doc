@@ -163,7 +163,7 @@ public enum Acquirer {	AMEX,
 }
 ```
 
-## Card Brands
+## Card Brands{#cardBrands}
 
 `CardBrands`
 
