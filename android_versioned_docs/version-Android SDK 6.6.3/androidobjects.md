@@ -683,7 +683,7 @@ An enum representing different statuses of a finalized transaction
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`
 
-## Manufacturer
+## Manufacturer{#manufacturer}
 
 `Manufacturer`
 

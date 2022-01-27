@@ -73,7 +73,7 @@ public final class EventHandler implements Events.CardBrandDisplay {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Connection status changed
+## Connection status changed{#connectionStatusChanged}
 
 `Events.ConnectionStatusChanged`
 
@@ -164,7 +164,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
 
-## Device discovery finished
+## Device discovery finished{#deviceDiscoveryFinished}
 
 `Events.DeviceDiscoveryFinished`
 
@@ -476,7 +476,7 @@ public final class EventHandler implements Events.PrinterEvents {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Report result
+## Report result{#reportResult}
 
 `Events.ReportResult`
 
