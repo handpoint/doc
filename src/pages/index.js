@@ -271,16 +271,14 @@ function Header() {
         width: '100%'
       }}>
 
-      <img src="img/handpoint-logo-hvitt.svg" alt="Logo" height="60px" />
+      <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" />
 
       <br></br>
 
       <h2 style={{
         color: 'white'
       }} >Card payments. Made simple</h2>
-      <div>
-
-      </div>
+    
 
     </div>
 
@@ -1203,7 +1201,7 @@ function Step3() {
               </div>
               <div class="card__body" align="center">
 
-              <Link
+                <Link
                   to="/javascript/javascriptintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"></img>
                 </Link>
@@ -1230,7 +1228,7 @@ function Step3() {
               </div>
               <div class="card__body" align="center">
 
-              <Link
+                <Link
                   to="/restapi/restintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
                 </Link>
@@ -1273,7 +1271,7 @@ function Step3() {
               </div>
               <div class="card__body" align="center">
 
-              <Link
+                <Link
                   to="/express/expressintroduction">
                   <img src="https://handpoint.imgix.net/ballicons/small/browser.png"></img>
                 </Link>

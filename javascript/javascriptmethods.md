@@ -389,6 +389,108 @@ Handpoint.refund('1000', 'USD', 'OriginalSaleGUID' ,refundOptions, CallbackFunct
 | **Refund Reversal Response**|A Financial Response object|
 
 
+## MoTo Sale
+
+`moToSale`
+
+Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the charge|
+| `options` <span class="badge badge--primary">Required</span>   <br />[*Options*](javascriptobjects.md#26)   | An object to store all the customisation options for a sale. This object can be empty if no options are required.|
+| `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+var saleOptions = { 
+        customerReference: "MyCustomReference",
+    }
+
+Handpoint.moToSale('1000', 'USD', saleOptions, function (stat) {
+  console.log('Transaction Status received -> '+ stat.message) 
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Sale Response**|A Financial Response object|
+
+
+
+## MoTo Refund
+
+`moToRefund`
+
+A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the charge|
+| `originalTransactionID` <span class="badge badge--primary">Required</span>   <br />*string*   | If defined it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
+| `options` <span class="badge badge--primary">Required</span>   <br />[*Options*](javascriptobjects.md#26)  | An object to store all the customisation options for a sale. This object can be empty if no options are required.|
+| `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+var refundOptions = {
+    customerReference: "MyCustomReference"
+}
+
+Handpoint.moToRefund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
+
+// Linked Refund
+Handpoint.moToRefund('1000', 'USD', '00000000-0000-0000-0000-000000000000' ,refundOptions, CallbackFunction(stat){...});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Refund Response**|A Financial Response object|
+
+
+## MoTo Reversal
+
+`moToReversal`
+
+A MOTO reversal, also called VOID allows the user to reverse a previous sale/refund operation. This operation reverts (if possible) a specific operation identified with a transaction id. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission. MOTO Reversal is a type of card-not-present (CNP) transaction used to reverse a previous MOTO Sale or MOTO Refund.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `originalTransactionID` <span class="badge badge--primary">Required</span>   <br />*string*   |The transaction id of the original sale authorization|
+| `options` <span class="badge badge--primary">Required</span>   <br />[*Options*](javascriptobjects.md#26)   | An object to store all the customisation options for a sale. This object can be empty if no options are required.|
+| `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+var moToReversalOptions = {
+    customerReference: "MyCustomReference"
+}
+
+Handpoint.moToReversal('00000000-0000-0000-0000-000000000000', moToReversalOptions, CallbackFunction(stat){...});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Sale Reversal Response**|A Financial Response object|
+
+
 
 ## Tokenize Card{#11}
 
@@ -529,11 +631,6 @@ Handpoint.pingDevice(CallbackFunction(stat){...});
 
 Triggers a terminal software and config update
 
-**Code example**
-
-```javascript
-Handpoint.update(CallbackFunction(stat){...});
-```
 
 **Parameters**
 
@@ -541,6 +638,12 @@ Handpoint.update(CallbackFunction(stat){...});
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+Handpoint.update(CallbackFunction(stat){...});
+```
 
 **Returns**
 
