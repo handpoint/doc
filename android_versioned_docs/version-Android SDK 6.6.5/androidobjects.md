@@ -142,7 +142,7 @@ An object holding information about the result of a transaction.
 
 `Acquirer` <span class="badge badge--info">Enum</span>
 
-An enum representing all the supported acquirers for merchant authentication
+An enum representing all the supported acquirers for merchant authentication.
 
 **Possible values**
 
@@ -262,7 +262,7 @@ public enum ConnectionMethod {
 
 `ConnectionStatus` <span class="badge badge--info">Enum</span>
 
-A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enable).
+A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enabled).
 
 
 **Possible values**
@@ -338,7 +338,7 @@ An object holding the capabilities of the payment terminal.
 | Parameter      | Description |
 | ----------- | ----------- |
 | `printer`   <br />*Boolean* | 		True if the terminal has printer, false otherwise|
-| `cloudApi`<br />[*Boolean*]| 		True if the terminal is cloud-enabled, false otherwise|
+| `cloudApi`<br />*Boolean*| 		True if the terminal is cloud-enabled, false otherwise|
 
 ## Device Parameter
 
@@ -422,7 +422,7 @@ getAsyncInterface( Events.Required requiredListener , Context context , Handpoin
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `requiredListener` <span class="badge badge--primary">Required</span> <br />[*Events.Required*](#42)     | 			A listener object to report the required events.|
+| `requiredListener` <span class="badge badge--primary">Required</span> <br />[*Events.Required*](androideventlisteners.md#42)     | 			A listener object to report the required events.|
 | `context` <span class="badge badge--primary">Required</span>   <br />*Context*   | 		The Android context.|
 | `handpointCredentials` <span class="badge badge--primary">Required</span> <br />[*HandpointCredentials*](#43)    | 		An object containing the actor's shared secret key or shared secret key AND Api Key for CLOUD connections.|
 
@@ -546,7 +546,7 @@ credential.setAcquirer(YOUR_ACQUIRER);
 credential.setMerchantId(mid);
 //Optionally
 credential.setTerminalId(tid);
-//Add as many credentials as Acquirers your merchant have agreements with
+//Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 ```
 
@@ -615,7 +615,7 @@ credential.setAcquirer(YOUR_ACQUIRER);
 credential.setMerchantId(mid);
 //Optionally
 credential.setTerminalId(tid);
-//Add as many credentials as Acquirers your merchant have agreements with
+//Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
 ```
@@ -634,7 +634,7 @@ A enum representing the channel used for the card not present transaction (MO = 
 
 `MoToOptions` <span class="badge badge--info">Object</span>
 
-An object to store optional parameters for card not present MoTo transactions.
+An object to store optional parameters for card not present (MoTo) transactions.
 
 **Properties**
 
@@ -753,7 +753,7 @@ credential.setAcquirer(YOUR_ACQUIRER);
 credential.setMerchantId(mid);
 //Optionally
 credential.setTerminalId(tid);
-//Add as many credentials as Acquirers your merchant have agreements with
+//Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
 
@@ -821,7 +821,7 @@ credential.setAcquirer(YOUR_ACQUIRER);
 credential.setMerchantId(mid);
 //Optionally
 credential.setTerminalId(tid);
-//Add as many credentials as Acquirers your merchant have agreements with
+//Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
 
