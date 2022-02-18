@@ -327,36 +327,6 @@ public final class EventHandler implements Events.MessageHandling {
 // Remember to register the instance of this EventHandler:
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
-
-## PhysicalKeyboardEvent{#physicalKeyboardEvent}
-
-`Events.PhysicalKeyboardEvent` <span class="badge badge--info">Interface</span>
-
-An interface which needs to be implemented and added as a listener to get events coming from the PAX A80 physical keyboard.
-
-** Methods**
-
-`onKeyPressed( PaxA80Keys key );`
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `key` <span class="badge badge--primary">Required</span>  <br />[*PaxA80Keys*](androidobjects.md#28)     | 		The name of the key that has been pressed|
-
-
-**Code example**
-
-```java
-public final class EventHandler implements Events.PhysicalKeyboardEvent {
-
-	@Override
-	public void onKeyPressed(String key) { ... }
-
-}
-
-// Remember to register the instance of this EventHandler:
-this.api.registerEventsDelegate(eventHandlerInstance);
-```
-
 ## On message logged{#onMessageLogged}
 
 `Events.OnMessageLogged` <span class="badge badge--info">Interface</span>
@@ -381,6 +351,35 @@ public final class EventHandler implements Events.OnMessageLogged {
 	public void onMessageLogged(LogLevel level, String message) {
 		// Process log trace
 	}
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
+## PhysicalKeyboardEvent{#physicalKeyboardEvent}
+
+`Events.PhysicalKeyboardEvent` <span class="badge badge--info">Interface</span>
+
+An interface which needs to be implemented and added as a listener to get events coming from the PAX A80 physical keyboard.
+
+** Methods**
+
+`onKeyPressed( PaxA80Keys key );`
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `key` <span class="badge badge--primary">Required</span>  <br />[*PaxA80Keys*](androidobjects.md#28)     | 		The name of the key that has been pressed|
+
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.PhysicalKeyboardEvent {
+
+	@Override
+	public void onKeyPressed(String key) { ... }
 
 }
 

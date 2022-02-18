@@ -41,44 +41,6 @@ Each time the card reader state changes (ex : going from Connected to Disconnect
 | ----------- | ----------- |
 | `Boolean`| `true` if the operation was successfully.|
 
-
-## Get Transactions Report{#getTransactionReport}
-
-`getTransactionsReport` <span class="badge badge--info">Method</span>
-
-Fetches your transactions report from a payment terminal. If you want to print the report, you can call [printReceipt](#print-receipt) with the string returned in [ReportResult](androideventlisteners.md#reportResult) event as parameter.
-
-**Parameters**
-
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `reportConfiguration` <span class="badge badge--primary">Required</span>  <br />[*ReportConfiguration*](androidobjects.md#19)    | This parameter specifies the filter to get transactions report.|
-
-**Code example**
-
-```java
-//Get the transactions report for device "12345", from 30th April 2021 at 00:00:00, to 30th April 2021 at 23:59:59, in eurs:
-List terminalSerialNumber = new ArrayList<>();
-terminalSerialNumber.add("12345");
-ReportConfiguration configuration = new ReportConfiguration("EUR", "20210430000000", "20210430235959", terminalSerialNumber);
-api.getTransactionsReport(configuration);
-```
-
-**Events invoked**
-
-[**ReportResult**](androideventlisteners.md#reportResult)
-
-The report will be returned to the registered ReportResult interface.
-
-**Returns**
-
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Boolean`| `True` if the command was processed successfully. `False` if the sending was not successful.|
-
-
 ## Disconnect
 
 `disconnect` <span class="badge badge--info">Method</span>
@@ -103,6 +65,23 @@ Causes the connection manager to invoke this event with the appropriate informat
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `Boolean`| `True` if the operation was successful.|
+
+## Get Device Manufacturer
+
+`getDeviceManufacturer` <span class="badge badge--info">Method</span>
+
+
+**Code example**
+
+```java
+Manufacturer manufacturer = api.getDeviceManufacturer();
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| [*Manufacturer*](androidobjects.md#manufacturer)| The payment terminal manufacturer.|
 
 
 ## Get EMV Report
@@ -157,24 +136,41 @@ List<Device> devices = api.getPairedDevices(ConnectionMethod.XXX);
 | ----------- | ----------- |
 | **`List<Device>`**| The list of payment terminals.|
 
+## Get Transactions Report{#getTransactionReport}
 
-## Get Device Manufacturer
+`getTransactionsReport` <span class="badge badge--info">Method</span>
 
-`getDeviceManufacturer` <span class="badge badge--info">Method</span>
+Fetches your transactions report from a payment terminal. If you want to print the report, you can call [printReceipt](#print-receipt) with the string returned in [ReportResult](androideventlisteners.md#reportResult) event as parameter.
 
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `reportConfiguration` <span class="badge badge--primary">Required</span>  <br />[*ReportConfiguration*](androidobjects.md#19)    | This parameter specifies the filter to get transactions report.|
 
 **Code example**
 
 ```java
-Manufacturer manufacturer = api.getDeviceManufacturer();
+//Get the transactions report for device "12345", from 30th April 2021 at 00:00:00, to 30th April 2021 at 23:59:59, in eurs:
+List terminalSerialNumber = new ArrayList<>();
+terminalSerialNumber.add("12345");
+ReportConfiguration configuration = new ReportConfiguration("EUR", "20210430000000", "20210430235959", terminalSerialNumber);
+api.getTransactionsReport(configuration);
 ```
+
+**Events invoked**
+
+[**ReportResult**](androideventlisteners.md#reportResult)
+
+The report will be returned to the registered ReportResult interface.
 
 **Returns**
 
+
 | Parameter      | Notes |
 | ----------- | ----------- |
-| [*Manufacturer*](androidobjects.md#manufacturer)| The payment terminal manufacturer.|
-
+| `Boolean`| `True` if the command was processed successfully. `False` if the sending was not successful.|
 
 ## Flash Reset
 
