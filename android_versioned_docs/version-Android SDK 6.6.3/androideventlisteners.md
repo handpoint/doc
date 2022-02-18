@@ -133,7 +133,8 @@ public final class EventHandler implements Events.CurrentTransactionStatus {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Device capabilities ready
+## Device capabilities ready{#deviceCapabilitiesReady}
+
 
 `Events.DeviceCapabilitiesReady` <span class="badge badge--info">Interface</span>
 
@@ -227,7 +228,7 @@ public final class EventHandler implements Events.EndOfTransaction {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Hardware status changed
+## Hardware status changed{#hardwareStatusChanged}
 
 `Events.HardwareStatusChanged` <span class="badge badge--info">Interface</span>
 
@@ -360,8 +361,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 `Events.OnMessageLogged` <span class="badge badge--info">Interface</span>
 
-Implement this interface to receive logs from the payment terminal. You must call `getDeviceLogs` to request the logs.
-
+Implement this interface to receive logs from the payment terminal. 
 **Methods**
 
 `onMessageLogged( LogLevel level , String message );`
@@ -420,7 +420,7 @@ An interface which needs to be implemented and added as a listener to receive al
 
 **Extends**
 
-`SignatureRequired` `EndOfTransaction` `OnMessageLogged` `CurrentTransactionStatus`
+[`SignatureRequired`](#15) [`EndOfTransaction`](#16) [`OnMessageLogged`](#onMessageLogged) [`CurrentTransactionStatus`](#14) 
 
 
 ## PrinterEvents{#printerEvents}
@@ -522,8 +522,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 **Events**
 
-`SignatureRequired` `EndOfTransaction` `DeviceDiscoveryFinished` `PendingResults`
-
+[`DeviceDiscoveryFinished`](#deviceDiscoveryFinished) [`SignatureRequired`](#15) [`EndOfTransaction`](#16) [`PendingResults`](#pendingResults)
 
 ## Signature required{#15}
 
@@ -585,7 +584,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 **Extends**
 
-`ConnectionStatusChanged` `HardwareStatusChanged` `CurrentTransactionStatus`
+[`ConnectionStatusChanged`](#connectionStatusChanged) [`HardwareStatusChanged`](#hardwareStatusChanged) [`CurrentTransactionStatus`](#14)
 
 ## Transaction result ready{#transactionResultReady}
 
@@ -623,7 +622,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 Implement this interface in order to receive an event when a transaction is started through the Cloud API channel.
 
-**IMPORTANT NOTE**: This interface is only available for cloud-enabled devices. See DeviceCapabilitiesReady interface.
+**IMPORTANT NOTE**: This interface is only available for cloud-enabled devices. See [DeviceCapabilitiesReady](#deviceCapabilitiesReady) interface.
 
 **Methods**
 
