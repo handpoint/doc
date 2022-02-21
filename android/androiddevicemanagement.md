@@ -3,13 +3,13 @@ sidebar_position: 6
 id: androiddevicemanagement
 ---
 
-# Device management
+# Terminal management
 
 ## Connect
 
-`connect`
+`connect` <span class="badge badge--info">Method</span>
 
-Connects to a device. Whenever the connection to the device is lost, the SDK will keep on trying to establish a connection until it’s re-established. No special actions are needed.
+Connects to a payment terminal. Whenever the connection to the device is lost, the SDK will keep on trying to establish a connection until it’s re-established. No special actions are needed.
 
 **Parameters**
 
@@ -30,7 +30,7 @@ api.connect(device);
 
 **Events invoked**
 
-**connectionStatusChanged **
+[**connectionStatusChanged**](androideventlisteners.md#connectionStatusChanged)
 
 Each time the card reader state changes (ex : going from Connected to Disconnected) the ConnectionStatusChanged event is called. It causes the connection manager to invoke this event with the appropriate information.
 
@@ -41,60 +41,22 @@ Each time the card reader state changes (ex : going from Connected to Disconnect
 | ----------- | ----------- |
 | `Boolean`| `true` if the operation was successfully.|
 
-
-## Get Transactions Report
-
-`getTransactionsReport`
-
-Fetches your transactions report from a device/devices. If you want to print the report, you can call [printReceipt](#print-receipt) with the string returned in ReportResult event as parameter.
-
-**Parameters**
-
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `reportConfiguration` <span class="badge badge--primary">Required</span>  <br />[*ReportConfiguration*](androidobjects.md#19)    | This parameter specifies the filter to get transactions report.|
-
-**Code example**
-
-```java
-//Get the transactions report for device "12345", from 30th April 2021 at 00:00:00, to 30th April 2021 at 23:59:59, in eurs:
-List terminalSerialNumber = new ArrayList<>();
-terminalSerialNumber.add("12345");
-ReportConfiguration configuration = new ReportConfiguration("EUR", "20210430000000", "20210430235959", terminalSerialNumber);
-api.getTransactionsReport(configuration);
-```
-
-**Events invoked**
-
-**reportResult**
-
-The report will be returned to the ReportResult interface which has been registered
-
-**Returns**
-
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Boolean`| `True` if the command was processed successfully. `False` if the sending was not successful.|
-
-
 ## Disconnect
 
-`disconnect`
+`disconnect` <span class="badge badge--info">Method</span>
 
-Disconnect will stop the active connection (or reconnection process). Please note that the method ignores the current state of the terminal and just stops the connection. Calling disconnect might result in a commmunication error if triggered during a transaction.
+Disconnect will stop the active connection (or reconnection process). Please note that the method ignores the current state of the payment terminal and just stops the connection. Calling disconnect might result in a commmunication error if triggered during a transaction.
 
 **Code example**
 
 ```java
-//Disconnect from current device
+//Disconnects from the payment terminal 
 api.Disconnect();
 ```
 
 **Events invoked**
 
-**connectionStatusChanged**
+[**connectionStatusChanged**](androideventlisteners.md#connectionStatusChanged)
 
 Causes the connection manager to invoke this event with the appropriate information.
 
@@ -104,10 +66,27 @@ Causes the connection manager to invoke this event with the appropriate informat
 | ----------- | ----------- |
 | `Boolean`| `True` if the operation was successful.|
 
+## Get Device Manufacturer
+
+`getDeviceManufacturer` <span class="badge badge--info">Method</span>
+
+
+**Code example**
+
+```java
+Manufacturer manufacturer = api.getDeviceManufacturer();
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| [*Manufacturer*](androidobjects.md#manufacturer)| The payment terminal manufacturer.|
+
 
 ## Get EMV Report
 
-`getEMVConfiguration`
+`getEMVConfiguration` <span class="badge badge--info">Method</span>
 
 Fetches the logs from the device and reports them to the deviceLogsReady event.
 
@@ -120,9 +99,9 @@ api.getDeviceLogs();
 
 **Events invoked**
 
-**reportResult**
+[**ReportResult**](androideventlisteners.md#reportResult)
 
-Invoked when hapi has finished downloading the EMV report from the card reader.
+Invoked when the sdk has finished downloading the EMV report from the payment terminal.
 
 **Returns**
 
@@ -133,9 +112,9 @@ Invoked when hapi has finished downloading the EMV report from the card reader.
 
 ## Get Paired Devices
 
-`getPairedDevices`
+`getPairedDevices` <span class="badge badge--info">Method</span>
 
-Returns the payment terminals associated with the specified ConnectionMethod
+Returns the payment terminals associated with the specified ConnectionMethod.
 
 **Parameters**
 
@@ -157,60 +136,47 @@ List<Device> devices = api.getPairedDevices(ConnectionMethod.XXX);
 | ----------- | ----------- |
 | **`List<Device>`**| The list of payment terminals.|
 
+## Get Transactions Report{#getTransactionReport}
+
+`getTransactionsReport` <span class="badge badge--info">Method</span>
+
+Fetches your transactions report from a payment terminal. If you want to print the report, you can call [printReceipt](#print-receipt) with the string returned in [ReportResult](androideventlisteners.md#reportResult) event as parameter.
+
+**Parameters**
 
 
-
-
-## Get device logs
-
-`getDeviceLogs`
-
-Fetches the logs from the device and reports them to the deviceLogsReady event.
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `reportConfiguration` <span class="badge badge--primary">Required</span>  <br />[*ReportConfiguration*](androidobjects.md#19)    | This parameter specifies the filter to get transactions report.|
 
 **Code example**
 
 ```java
-//Downloads logs from device
-api.getDeviceLogs();
+//Get the transactions report for device "12345", from 30th April 2021 at 00:00:00, to 30th April 2021 at 23:59:59, in eurs:
+List terminalSerialNumber = new ArrayList<>();
+terminalSerialNumber.add("12345");
+ReportConfiguration configuration = new ReportConfiguration("EUR", "20210430000000", "20210430235959", terminalSerialNumber);
+api.getTransactionsReport(configuration);
 ```
 
 **Events invoked**
 
-**deviceLogsReady**
+[**ReportResult**](androideventlisteners.md#reportResult)
 
-Invoked when hapi has finished downloading logs from the card reader.
+The report will be returned to the registered ReportResult interface.
 
 **Returns**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to device.|
-
-
-## Get Device Manufacturer
-
-`getDeviceManufacturer`
-
-
-**Code example**
-
-```java
-Manufacturer manufacturer = api.getDeviceManufacturer();
-```
-
-**Returns**
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| Manufacturer| The payment terminal manufacturer.|
-
+| `Boolean`| `True` if the command was processed successfully. `False` if the sending was not successful.|
 
 ## Flash Reset
 
-`deleteDeviceConfig`
+`deleteDeviceConfig` <span class="badge badge--info">Method</span>
 
-Sends a command to the terminal to delete its configuration
+Sends a command to the payment terminal to delete its configuration.
 
 **Code example**
 
@@ -220,7 +186,7 @@ api.deleteDeviceConfig();
 
 ## Print Receipt
 
-`printReceipt`
+`printReceipt` <span class="badge badge--info">Method</span>
 
 Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html.
 
@@ -229,7 +195,7 @@ Print on demand functionality allowing the merchant to print any HTML formatted 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `receipt` <span class="badge badge--primary">Required</span> <br />*String*    | The receipt must match the following [HTML Print Format](https://handpoint.atlassian.net/wiki/spaces/PD/pages/1409875969/Html+Print+Format). The Transaction Report (also called End of Day Report) can be printed from the string returned in the [ReportResult](androideventlisteners.md#report-result) event.|
+| `receipt` <span class="badge badge--primary">Required</span> <br />*String*    | The receipt must match the following [HTML Print Format](https://handpoint.atlassian.net/wiki/spaces/PD/pages/1409875969/Html+Print+Format). The Transaction Report (also called End of Day Report) can be printed from the string returned in the [ReportResult](androideventlisteners.md#reportResult) event.|
 
 **Code example (Prints a receipt with Handpoint logo)**
 
@@ -248,9 +214,9 @@ boolean success = api.printReceipt(validReceipt);
 
 ## Search Devices
 
-`searchDevices`
+`searchDevices` <span class="badge badge--info">Method</span>
 
-Starts the search of payment terminals associated with the specified ConnectionMethod
+Starts the search of payment terminals associated with the specified ConnectionMethod.
 
 **Parameters**
 
@@ -270,13 +236,13 @@ api.searchDevices(ConnectionMethod.XXX);
 
 **Events invoked**
 
-**deviceDiscoveryFinished**
+[**deviceDiscoveryFinished**](androideventlisteners.md#deviceDiscoveryFinished)
 
 Returns a list of payment terminals.
 
 ## Set Locale
 
-`setLocale`
+`setLocale` <span class="badge badge--info">Method</span>
 
 Sets the SDK Locale (language). It is used to set the SDK language as well as the associated date and number formatting.
 
@@ -297,7 +263,7 @@ api.setLocale(SupportedLocales.en_CA);
 
 ## Set log level
 
-`setLogLevel`
+`setLogLevel` <span class="badge badge--info">Method</span>
 
 Sets the log level (info, debug...) for both the payment terminal and the SDK.
 
@@ -333,10 +299,10 @@ No events are invoked.
 
 ## Stop current transaction
 
-`stopCurrentTransaction`
+`stopCurrentTransaction` <span class="badge badge--info">Method</span>
 
-Stops the current transaction. A transaction can be stopped only if the last [**currentTransactionStatus**](androideventlisteners.md#14) event reported has the property **isCancelAllowed** set to **true**.
-**NOTE**: this operation is **Not supported** on ***Datecs*** devices.
+Stops the current transaction. A transaction can be stopped only if the last [currentTransactionStatus](androideventlisteners.md#14) event reported has the property **isCancelAllowed** set to **true**.
+This operation is **not supported** for **Hilite and Hi5** devices.
 
 **Code example**
 
@@ -353,7 +319,7 @@ if (api.stopCurrentTransaction()) {
 
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
-Invoked after stop transaction. Status **UserCancelled** will be reported
+Invoked after stop transaction. Status **UserCancelled** will be reported.
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
@@ -368,7 +334,7 @@ Transaction will fail with status **CANCELLED**
 
 ## Update device
 
-`update`
+`update` <span class="badge badge--info">Method</span>
 
 The update operation checks for new software or configuration updates and initiates a download if required.
 
@@ -377,7 +343,7 @@ The update operation checks for new software or configuration updates and initia
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `device`  <br />[*Device*](androidobjects.md#17)   | This parameter specifies to the system which device should be used for the operations. If no device is supplied, the system will attempt to use a default one.|
+| `device`  <br />[*Device*](androidobjects.md#17)   | This parameter specifies to the system which payment terminal should be used for the operation. If no device is supplied, the system will attempt to use a default one.|
 
 **Code example**
 

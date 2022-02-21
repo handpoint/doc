@@ -4,24 +4,24 @@ id: androidintegrationguide
 ---
 
 
-# Integration Guide
+# Integration Guides
 
 
 **We support the following connection methods** 
 
-1. **[Android Payment Terminal](#8)**
-2. **[Bluetooth](#9)**
-3. **[Cloud](#10)**
+1. **[Android Native (PAX/Telpo)](#8)**
+2. **[Bluetooth (HiLite/Hi5)](#9)**
+3. **[Cloud (PAX/Telpo)](#10)**
 
-## Android Terminal Native Integration{#8}
+## Android Native Integration (PAX/Telpo) {#8}
 
  **Introduction**
 
 This tutorial is guiding you through all the required steps to create a basic payment application for Android Payment devices such as PAX and Telpo.
 
-The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
+The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting card payments.
 
-At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements.
+At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI security requirements.
 
 :::warning
 Please, start an operation (sale,refund etc.) ONLY if you have received the **InitialisationComplete** message from the **currentTransactionStatus** method
@@ -54,6 +54,7 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
+        exclude ‘**/animator/*.xml'
     }
 }
 ```
@@ -215,11 +216,11 @@ Sort of. With the above tutorial you've done a basic integration that can perfor
 
 Explore the rest of the documentation to see more transaction types supported and possibilities.
 
-## Bluetooth Integration{#9}
+## Bluetooth Integration (HiLite/Hi5) {#9}
 
  **Introduction**
 
-This tutorial is guiding you through all the required steps to create a basic payment application for Android devices integrated with a HiLite or Hi5 payment terminal.
+This tutorial is guiding you through all the required steps to create a basic payment application for Android devices integrated with a HiLite or a Hi5 payment terminal.
 
 The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
 
@@ -246,7 +247,7 @@ android:launchMode="singleTask"
 ```groovy
 android {
 	defaultConfig {
-		minSdkVersion 22 //change the SDK version to the one corresponding to the device you are using
+		minSdkVersion 22 //Required to support all PAX & Telpo models
 		targetSdkVersion 29
 		multiDexEnabled true
 	}
@@ -258,6 +259,7 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
+        exclude ‘**/animator/*.xml'
     }
 }
 ```
@@ -417,7 +419,7 @@ Sort of. With the above tutorial you've done a basic integration that can perfor
 
 Explore the rest of the documentation to see more transaction types supported and possibilities.
 
-## Cloud Integration{#10}
+## Cloud Integration (PAX/Telpo) {#10}
 
  **Introduction**
 
@@ -447,14 +449,15 @@ android {
 		multiDexEnabled true
 	}
 
-  packagingOptions {
-    pickFirst '**/*.so'
-    exclude 'META-INF/*'
-    exclude '**/anim/*.xml'
-    exclude '**/layout/*.xml'
-    exclude 'resources.arsc'
-    exclude 'AndroidManifest.xml'
-}
+    packagingOptions {
+        pickFirst '**/*.so'
+        exclude 'META-INF/*'
+        exclude '**/anim/*.xml'
+        exclude '**/layout/*.xml'
+        exclude 'resources.arsc'
+        exclude 'AndroidManifest.xml'
+        exclude ‘**/animator/*.xml'
+    }
 }
 ```
 

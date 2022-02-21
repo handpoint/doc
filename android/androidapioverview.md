@@ -3,24 +3,9 @@ sidebar_position: 4
 id: androidapioverview
 ---
 
+# Trigger Amounts 
 
-
-
-
-# API overview
-
- **Supported functionality**
-
-- List the available payment terminals
-- Connect/disconnect to and from a payment terminal.
-- Automatically or manually reconnect to a payment terminal.
-- Execute financial transactions.
-- Get the status of transactions.
-- Control and access the device logs.
-
-**Processing Payments Simulation**
-
-Your test payments are sent against a test server on the Handpoint side which simulates the behavior of an acquiring bank. Funds are not moved and sensitive data from the card is fully encrypted. You can use trigger amounts to generate some specific responses from our server:
+Your test payments are sent against a test server on the Handpoint side which simulates the behavior of an acquiring bank. Funds are not moved and sensitive data from the card is fully encrypted. You can use trigger amounts to generate some specific responses from our servers:
 
 **Sale amounts**
 

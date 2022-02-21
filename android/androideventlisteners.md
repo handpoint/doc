@@ -10,35 +10,35 @@ id: androideventlisteners
 
 ## All
 
-`Events.All`
+`Events.All` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to receive all available events.
 
 **Extends**
 
-`Required` `Log` `Status` `PendingResults` `ReportResult` `PrinterEvents` `TransactionStarted` `MessageHandling` `PhysicalKeyboardEvent`
+[`Required`](#42) [`Log`](#log) [`Status`](#status) [`PendingResults`](#pendingResults) [`ReportResult`](#reportResult) [`PrinterEvents`](#printerEvents) [`TransactionStarted`](#transactionStarted) [`MessageHandling`](#messageHandling) [`PhysicalKeyboardEvent`](#physicalKeyboardEvent) [`CardBrandDisplay`](#cardBrandDisplay)
 
 
 ## Basic
 
-`Events.Basic`
+`Events.Basic` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to receive basic events.
 
 **Extends**
 
-`Required` `Log` `Status` `PendingResults` `ReportResult`
+[`Required`](#42) [`Log`](#log) [`Status`](#status) [`PendingResults`](#pendingResults) [`ReportResult`](#reportResult) 
 
 
-## Card Brand Display
+## Card Brand Display{#cardBrandDisplay}
 
-`Events.CardBrandDisplay`
+`Events.CardBrandDisplay` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to get events providing information on the supported card brands and/or the card brand used during the transaction.
 
 **Methods**
 
-`deviceCapabilities( List supportedCardBrands );`
+`deviceCapabilities( List supportedCardBrands );` 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
@@ -46,11 +46,11 @@ An interface which needs to be implemented and added as a listener to get events
 
 <br></br>
 
-`readCard( CardBrands usedCard );`
+`readCard( CardBrands usedCard );` 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `usedCard` <span class="badge badge--primary">Required</span> <br />*CardBrands*  | Name of the card brand|
+| `usedCard` <span class="badge badge--primary">Required</span> <br />[*CardBrands*](androidobjects.md#cardBrands)  | Name of the card brand|
 
 **Code example**
 
@@ -73,9 +73,9 @@ public final class EventHandler implements Events.CardBrandDisplay {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Connection status changed
+## Connection status changed{#connectionStatusChanged}
 
-`Events.ConnectionStatusChanged`
+`Events.ConnectionStatusChanged` <span class="badge badge--info">Interface</span>
 
 Implement this interface in order to receive connection status changes.
 
@@ -105,7 +105,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 ## Current transaction status{#14}
 
-`Events.CurrentTransactionStatus`
+`Events.CurrentTransactionStatus` <span class="badge badge--info">Interface</span>
 
 Implement this interface in order to receive events about the current transaction.
 
@@ -133,11 +133,12 @@ public final class EventHandler implements Events.CurrentTransactionStatus {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Device capabilities ready
+## Device capabilities ready{#deviceCapabilitiesReady}
 
-`Events.DeviceCapabilitiesReady`
 
-Implement this interface in case the terminal needs to notify the SDK of its capabilities
+`Events.DeviceCapabilitiesReady` <span class="badge badge--info">Interface</span>
+
+Implement this interface in case the payment terminal needs to notify the SDK of its capabilities
 
 **Methods**
 
@@ -164,11 +165,11 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
 
-## Device discovery finished
+## Device discovery finished{#deviceDiscoveryFinished}
 
-`Events.DeviceDiscoveryFinished`
+`Events.DeviceDiscoveryFinished` <span class="badge badge--info">Interface</span>
 
-Implement this interface in order to receive a list of available terminals. The event handler defined in this interface is invoked after calling the method searchDevices
+Implement this interface in order to receive a list of available payment terminals. The event handler defined in this interface is invoked after calling the method searchDevices
 
 **Methods**
 
@@ -176,7 +177,7 @@ Implement this interface in order to receive a list of available terminals. The 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `device` <span class="badge badge--primary">Required</span> <br />[*Device*](androidobjects.md#17)     | 	A list of available devices.|
+| `devices` <span class="badge badge--primary">Required</span> <br /> List `<Device>`  | 	A list of available devices.|
 
 
 **Code example**
@@ -186,7 +187,7 @@ public final class EventHandler implements Events.DeviceDiscoveryFinished {
 
 	@Override
 	public void deviceDiscoveryFinished(List<Device> devices) {
-		// Receiving a list of connectable devices
+		// Receiving a list of connectable payment terminals
 		foreach(Device device in devices) { ... }
 
 }
@@ -197,7 +198,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 ## End of transaction{#16}
 
-`Events.EndOfTransaction`
+`Events.EndOfTransaction` <span class="badge badge--info">Interface</span>
 
 Implement this interface to receive an event when a transaction is complete.
 
@@ -227,9 +228,9 @@ public final class EventHandler implements Events.EndOfTransaction {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Hardware status changed
+## Hardware status changed{#hardwareStatusChanged}
 
-`Events.HardwareStatusChanged`
+`Events.HardwareStatusChanged` <span class="badge badge--info">Interface</span>
 
 Implement this interface in order to receive events when the hardware status changes.
 
@@ -257,15 +258,15 @@ public final class EventHandler implements Events.HardwareStatusChanged {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Log
+## Log{#log}
 
-`Events.Log`
+`Events.Log` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to receive logging information.
 
 **Extends**
 
-`OnMessageLogged`
+[`OnMessageLogged`](#onMessageLogged)
 
 **Code example**
 
@@ -283,9 +284,9 @@ public final class EventHandler implements Events.Log {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## MessageHandling
+## MessageHandling{#messageHandling}
 
-`Events.MessageHandling`
+`Events.MessageHandling` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to get events which are called when the sdk asks the application to display or hide a message.
 
@@ -326,42 +327,11 @@ public final class EventHandler implements Events.MessageHandling {
 // Remember to register the instance of this EventHandler:
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
+## On message logged{#onMessageLogged}
 
-## PhysicalKeyboardEvent
+`Events.OnMessageLogged` <span class="badge badge--info">Interface</span>
 
-`Events.PhysicalKeyboardEvent`
-
-An interface which needs to be implemented and added as a listener to get events coming from the PAX A80 physical keyboard.
-
-** Methods**
-
-`onKeyPressed( PaxA80Keys key );`
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `key` <span class="badge badge--primary">Required</span>  <br />[*PaxA80Keys*](androidobjects.md#28)     | 		The name of the key that has been pressed|
-
-
-**Code example**
-
-```java
-public final class EventHandler implements Events.PhysicalKeyboardEvent {
-
-	@Override
-	public void onKeyPressed(String key) { ... }
-
-}
-
-// Remember to register the instance of this EventHandler:
-this.api.registerEventsDelegate(eventHandlerInstance);
-```
-
-## On message logged
-
-`Events.OnMessageLogged`
-
-Implement this interface to receive logs from the payment terminal. You must call `getDeviceLogs` to request the logs.
-
+Implement this interface to receive logs from the payment terminal. 
 **Methods**
 
 `onMessageLogged( LogLevel level , String message );`
@@ -388,9 +358,38 @@ public final class EventHandler implements Events.OnMessageLogged {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## PendingResults
+## PhysicalKeyboardEvent{#physicalKeyboardEvent}
 
-`Events.PendingResults`
+`Events.PhysicalKeyboardEvent` <span class="badge badge--info">Interface</span>
+
+An interface which needs to be implemented and added as a listener to get events coming from the PAX A80 physical keyboard.
+
+** Methods**
+
+`onKeyPressed( PaxA80Keys key );`
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `key` <span class="badge badge--primary">Required</span>  <br />[*PaxA80Keys*](androidobjects.md#28)     | 		The name of the key that has been pressed|
+
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.PhysicalKeyboardEvent {
+
+	@Override
+	public void onKeyPressed(String key) { ... }
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
+## PendingResults{#pendingResults}
+
+`Events.PendingResults` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to receive information about pending TransactionResults. In case of a communication failure between the SDK and the payment terminal there might be a result pending from the transaction which did not get sent to the SDK.
 
@@ -410,36 +409,22 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 **Extends**
 
-`TransactionResultReady`
+[`TransactionResultReady`](#transactionResultReady)
 
 ## PaymentProvider
 
-`Events.PaymentProvider`
+`Events.PaymentProvider` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to receive all available events related to financial operations.
 
-**Code example**
-
-```java
-public final class EventHandler implements Events.PendingResults {
-
-	@Override
-	public void transactionResultReady(TransactionResult transactionResult, Device device) { ... }
-
-}
-
-// Remember to register the instance of this EventHandler:
-this.api.registerEventsDelegate(eventHandlerInstance);
-```
-
 **Extends**
 
-`SignatureRequired` `EndOfTransaction` `OnMessageLogged` `CurrentTransactionStatus`
+[`SignatureRequired`](#15) [`EndOfTransaction`](#16) [`OnMessageLogged`](#onMessageLogged) [`CurrentTransactionStatus`](#14) 
 
 
-## PrinterEvents
+## PrinterEvents{#printerEvents}
 
-`Events.PrinterEvents`
+`Events.PrinterEvents` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to get events coming from the printer.
 
@@ -476,11 +461,11 @@ public final class EventHandler implements Events.PrinterEvents {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Report result
+## Report result{#reportResult}
 
-`Events.ReportResult`
+`Events.ReportResult` <span class="badge badge--info">Interface</span>
 
-Implement this interface to receive an event when a report result from a getTransactionsReport is returned
+Implement this interface to receive an event when a report result from a [getTransactionsReport](androiddevicemanagement.md#getTransactionReport) is returned.
 
 **Methods**
 
@@ -510,7 +495,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 ## Required{#42}
 
-`Events.Required`
+`Events.Required` <span class="badge badge--info">Interface</span>
 
 You must provide a class implementing this interface when initializing the SDK.
 
@@ -536,12 +521,11 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 **Events**
 
-`SignatureRequired` `EndOfTransaction` `DeviceDiscoveryFinished` `PendingResults`
-
+[`DeviceDiscoveryFinished`](#deviceDiscoveryFinished) [`SignatureRequired`](#15) [`EndOfTransaction`](#16) [`PendingResults`](#pendingResults)
 
 ## Signature required{#15}
 
-`Events.SignatureRequired`
+`Events.SignatureRequired` <span class="badge badge--info">Interface</span>
 
 The SignatureRequired interface must be implemented in order to receive an event when a card requires a signature as a verification method. This interface is only required for an Hi5 or Hilite integration, PAX and Telpo terminals automatically prompt for signature capture on the terminal.
 
@@ -573,9 +557,9 @@ public void signatureRequired(SignatureRequest signatureRequest, Device device) 
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Status
+## Status{#status}
 
-`Events.Status`
+`Events.Status` <span class="badge badge--info">Interface</span>
 
 An interface which needs to be implemented and added as a listener to receive connection and transaction statuses.
 
@@ -599,11 +583,11 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 **Extends**
 
-`ConnectionStatusChanged` `HardwareStatusChanged` `CurrentTransactionStatus`
+[`ConnectionStatusChanged`](#connectionStatusChanged) [`HardwareStatusChanged`](#hardwareStatusChanged) [`CurrentTransactionStatus`](#14)
 
-## Transaction result ready
+## Transaction result ready{#transactionResultReady}
 
-`Events.TransactionResultReady`
+`Events.TransactionResultReady` <span class="badge badge--info">Interface</span>
 
 Implement this interface in order to receive an event after a pending TransactionResult has been recovered from the payment terminal.
 
@@ -631,13 +615,13 @@ public final class EventHandler implements Events.TransactionResultReady {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
-## Transaction started
+## Transaction started{#transactionStarted}
 
-`Events.TransactionStarted`
+`Events.TransactionStarted` <span class="badge badge--info">Interface</span>
 
 Implement this interface in order to receive an event when a transaction is started through the Cloud API channel.
 
-**IMPORTANT NOTE**: This interface is only available for cloud-enabled devices. See DeviceCapabilitiesReady interface.
+**IMPORTANT NOTE**: This interface is only available for cloud-enabled devices. See [DeviceCapabilitiesReady](#deviceCapabilitiesReady) interface.
 
 **Methods**
 

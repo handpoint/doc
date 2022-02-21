@@ -8,7 +8,7 @@ id: androideventsubscribers
 
 ## Register events delegate
 
-`registerEventsDelegate`
+`registerEventsDelegate` <span class="badge badge--info">Method</span>
 
 Registers a delegate for the SDK events.
 
@@ -16,7 +16,7 @@ Registers a delegate for the SDK events.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `listener` <span class="badge badge--primary">Required</span> <br />*Object*    | Any Object implementing one or more of the available delegate interfaces.|
+| `listener` <span class="badge badge--primary">Required</span> <br />*Object*    | Any object implementing one or more of the available delegate interfaces.|
 
 **Code example**
 
@@ -42,7 +42,7 @@ public class ObjectHelper implements Events.Required, Events.Status, Events.Log,
 
 ## Unregister events delegate
 
-`unregisterEventsDelegate`
+`unregisterEventsDelegate` <span class="badge badge--info">Method</span>
 
 Unregisters an object from SDK events.
 
@@ -50,7 +50,7 @@ Unregisters an object from SDK events.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `listener` <span class="badge badge--primary">Required</span> <br />*Object*     | Any Object implementing one or more of the available delegate interfaces.|
+| `listener` <span class="badge badge--primary">Required</span> <br />*Object*     | Any object implementing one or more of the available delegate interfaces.|
 
 **Code example**
 
