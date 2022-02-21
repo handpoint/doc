@@ -5,7 +5,7 @@ id: iosdevicemanagement
 
 
 
-# Device management
+# Terminal Management
 
 ## Shared Manager{#11}
 

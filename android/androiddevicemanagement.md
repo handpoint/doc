@@ -3,7 +3,7 @@ sidebar_position: 6
 id: androiddevicemanagement
 ---
 
-# Terminal management
+# Terminal Management
 
 ## Connect
 

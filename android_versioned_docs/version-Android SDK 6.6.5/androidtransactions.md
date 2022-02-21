@@ -3,7 +3,7 @@ sidebar_position: 5
 id: androidtransactions
 ---
 
-# Transaction types
+# Transaction Types
 
 
 

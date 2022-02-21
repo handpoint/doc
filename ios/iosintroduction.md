@@ -31,7 +31,7 @@ If you are currently using 3.x of the iOS SDK, take a look at the [migration gui
 :::
 
 
-The Handpoint iOS SDK provides a simple application programming interface for the Handpoint card readers.
+The Handpoint iOS SDK provides a simple application programming interface for the Handpoint payment terminals.
 
 :::info
 Please note that before submitting an app to the Apple App store a MFi hardware request has to be submitted to Apple, 
