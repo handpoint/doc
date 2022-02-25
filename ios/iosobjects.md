@@ -393,36 +393,36 @@ A ScannerEventResponseInfo is passed to the responseScannerEvent delegate when a
 
 `ScannerDisabledResponseInfo` <span class="badge badge--info">Object</span>
 
-The info object contains information about the scanner operation.
+This object contains information about the scanner operation.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
 | `statusCode`  <br />*int* | A numerical representation of the status.|
-| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
-| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status.|
+| `xml`  <br />[*XML as NSDictionary*](#46) |  XML details from the payment terminal.|
 
 ## LogInfo{#28}	
 
 `LogInfo` <span class="badge badge--info">Object</span>
 
-A LogInfo object is passed to the ResponseLogInfo delegate when logs have been downloaded from the card reader.
+A LogInfo object is passed to the ResponseLogInfo delegate when logs have been downloaded from the payment terminal.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
 | `statusCode`  <br />*int* | A numerical representation of the status.|
-| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
-| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | XML details from the payment terminal.|
 | `log`  <br />*NSString* | String containing the logging information.|
 
 ## eLogLevel{#13}	
 
 `eLogLevel` <span class="badge badge--info">Enum</span>
 
-An enum describing the different levels of logging used in the SDK and in the device.
+An enum describing the different levels of logging used in the SDK and in the payment terminal.
 
 **Possible values**
 
@@ -432,26 +432,26 @@ An enum describing the different levels of logging used in the SDK and in the de
 
 `XML as NSDictionary` <span class="badge badge--info">Object</span>
 
-The contents of the xml property depend on which type of operation the card reader is responding to. Listed below are all possible keys in the dictionary. Note that not all fields are included all the time.
+The contents of the xml property depend on which type of operation the payment terminal is responding to. Listed below are all possible keys in the dictionary. Note that not all fields are included all the time.
 
 **StatusMessage**
 
-A human readable description for the returned Status.
+The status of the transaction, for example "Waiting for pin".
 ***
 
 **TransactionType**
 
-The type of transaction performed: UNDEFINED, SALE, VOID_SALE, REFUND, VOID_REFUND, CANCEL_SALE, CANCEL_REFUND
+The type of transaction performed: UNDEFINED SALE VOID_SALE REFUND VOID_REFUND REVERSAL, TOKENIZE_CARD SALE_AND_TOKENIZE_CARD
 ***
 
 **FinancialStatus**
 
-The result of the transaction: UNDEFINED, APPROVED, DECLINED, PROCESSED, FAILED, CANCELLED
+The result of the transaction: UNDEFINED AUTHORISED DECLINED PROCESSED FAILED CANCELLED PARTIAL_APPROVA
 ***
 
 **RequestedAmount**
 
-The amount requested by the POS, as requested by the POS (i.e. no decimal point).
+The requested amount is the transaction amount sent to the terminal.
 ***
 
 **GratuityAmount**
@@ -506,27 +506,27 @@ The card data acquisition type: UNDEFINED, MSR, ICC, CNP
 
 **CardSchemeName**
 
-The card, reported, scheme name.
+The card brand : MasterCard, Visa, Maestro, American Express, Discover, JCB, Diners, UnionPay
 ***
 
 **CardTypeId**
 
-The ID of the Card Type.
+DEPRECATED - The ID of the Card Type.
 ***
 
 **SerialNumber**
 
-The serial number of the PED.
+The serial number of the payment terminal.
 ***
 
 **BatteryStatus**
 
-A number, followed by the % sign, which indicates current charge level of the battery.
+A number, followed by the % sign, which indicates the current charge level of the battery.
 ***
 
 **BatterymV**
 
-An integer, which represent the batter charge, in mV.
+An integer, which represent the battery charge, in mV.
 ***
 
 **BatteryCharging**
@@ -541,7 +541,7 @@ Indicates whether the PED is connected to an external power source (e.g. a AC ad
 
 **ApplicationName**
 
-The name of the application running on the PED.
+The name of the application running on the payment terminal.
 ***
 
 **ApplicationVersion**
@@ -563,71 +563,71 @@ Indicates that the transaction result is a recovered transaction. The key is onl
 
 `card reader Status messages` <span class="badge badge--info">Value List</span>
 
-Status messages received from card reader:
+Status messages received from the payment terminal:
 
 **Possible values**
 
-`EFT_PP_STATUS_SUCCESS`
-`EFT_PP_STATUS_INVALID_DATA`
-`EFT_PP_STATUS_PROCESSING_ERROR`
-`EFT_PP_STATUS_COMMAND_NOT_ALLOWED`
-`EFT_PP_STATUS_NOT_INITIALISED`
-`EFT_PP_STATUS_CONNECT_TIMEOUT`
-`EFT_PP_STATUS_CONNECT_ERROR`
-`EFT_PP_STATUS_SENDING_ERROR`
-`EFT_PP_STATUS_RECEIVING_ERROR`
-`EFT_PP_STATUS_NO_DATA_AVAILABLE`
-`EFT_PP_STATUS_TRANS_NOT_ALLOWED`
-`EFT_PP_STATUS_UNSUPPORTED_CURRENCY`
-`EFT_PP_STATUS_NO_HOST_AVAILABLE`
-`EFT_PP_STATUS_CARD_READER_ERROR`
-`EFT_PP_STATUS_CARD_READING_FAILED`
-`EFT_PP_STATUS_INVALID_CARD`
-`EFT_PP_STATUS_INPUT_TIMEOUT`
-`EFT_PP_STATUS_USER_CANCELLED`
-`EFT_PP_STATUS_INVALID_SIGNATURE`
-`EFT_PP_STATUS_WAITING_CARD`
-`EFT_PP_STATUS_CARD_INSERTED`
-`EFT_PP_STATUS_APPLICATION_SELECTION`
-`EFT_PP_STATUS_APPLICATION_CONFIRMATION`
-`EFT_PP_STATUS_AMOUNT_VALIDATION`
-`EFT_PP_STATUS_PIN_INPUT`
-`EFT_PP_STATUS_MANUAL_CARD_INPUT`
-`EFT_PP_STATUS_WAITING_CARD_REMOVAL`
-`EFT_PP_STATUS_TIP_INPUT`
-`EFT_PP_STATUS_SHARED_SECRET_INVALID`
-`EFT_PP_STATUS_SHARED_SECRET_AUTH`
-`EFT_PP_STATUS_WAITING_SIGNATURE`
-`EFT_PP_STATUS_CONNECTING`
-`EFT_PP_STATUS_SENDING`
-`EFT_PP_STATUS_RECEIVEING`
-`EFT_PP_STATUS_DISCONNECTING`
-`EFT_PP_STATUS_PIN_INPUT_COMPLETED`
-`EFT_PP_STATUS_POS_CANCELLED`
-`EFT_PP_STATUS_REQUEST_INVALID`
-`EFT_PP_STATUS_CARD_CANCELLED`
-`EFT_PP_STATUS_CARD_BLOCKED`
-`EFT_PP_STATUS_REQUEST_AUTH_TIMEOUT`
-`EFT_PP_STATUS_REQUEST_PAYMENT_TIMEOUT`
-`EFT_PP_STATUS_RESPONSE_AUTH_TIMEOUT`
-`EFT_PP_STATUS_RESPONSE_PAYMENT_TIMEOUT`
-`EFT_PP_STATUS_ICC_CARD_SWIPED`
-`EFT_PP_STATUS_REMOVE_CARD`
-`EFT_PP_STATUS_SCANNER_IS_NOT_SUPPORTED`
-`EFT_PP_STATUS_SCANNER_EVENT`
-`EFT_PP_STATUS_BATTERY_TOO_LOW`
-`EFT_PP_STATUS_ACCOUNT_TYPE_SELECTION`
-`EFT_PP_STATUS_BT_IS_NOT_SUPPORTED`
-`EFT_PP_STATUS_PAYMENT_CODE_SELECTION`
-`EFT_PP_STATUS_PARTIAL_APPROVAL`
-`EFT_PP_STATUS_AMOUNT_DUE_VALIDATION`
-`EFT_PP_STATUS_INVALID_URL`
-`EFT_PP_STATUS_WAITING_CUSTOMER_RECEIPT`
-`EFT_PP_STATUS_PRINTING_MERCHANT_RECEIPT`
-`EFT_PP_STATUS_PRINTING_CUSTOMER_RECEIPT`
-`EFT_PP_STATUS_WAITING_HOST_MSG_TO_HOST`
-`EFT_PP_STATUS_WAITING_HOST_MSG_RESP`
-`EFT_PP_STATUS_INITIALISATION_COMPLETE`
+`EFT_PP_STATUS_SUCCESS`<br />
+`EFT_PP_STATUS_INVALID_DATA`<br />
+`EFT_PP_STATUS_PROCESSING_ERROR`<br />
+`EFT_PP_STATUS_COMMAND_NOT_ALLOWED`<br />
+`EFT_PP_STATUS_NOT_INITIALISED`<br />
+`EFT_PP_STATUS_CONNECT_TIMEOUT`<br />
+`EFT_PP_STATUS_CONNECT_ERROR`<br />
+`EFT_PP_STATUS_SENDING_ERROR`<br />
+`EFT_PP_STATUS_RECEIVING_ERROR`<br />
+`EFT_PP_STATUS_NO_DATA_AVAILABLE`<br />
+`EFT_PP_STATUS_TRANS_NOT_ALLOWED`<br />
+`EFT_PP_STATUS_UNSUPPORTED_CURRENCY`<br />
+`EFT_PP_STATUS_NO_HOST_AVAILABLE`<br />
+`EFT_PP_STATUS_CARD_READER_ERROR`<br />
+`EFT_PP_STATUS_CARD_READING_FAILED`<br />
+`EFT_PP_STATUS_INVALID_CARD`<br />
+`EFT_PP_STATUS_INPUT_TIMEOUT`<br />
+`EFT_PP_STATUS_USER_CANCELLED`<br />
+`EFT_PP_STATUS_INVALID_SIGNATURE`<br />
+`EFT_PP_STATUS_WAITING_CARD`<br />
+`EFT_PP_STATUS_CARD_INSERTED`<br />
+`EFT_PP_STATUS_APPLICATION_SELECTION`<br />
+`EFT_PP_STATUS_APPLICATION_CONFIRMATION`<br />
+`EFT_PP_STATUS_AMOUNT_VALIDATION`<br />
+`EFT_PP_STATUS_PIN_INPUT`<br />
+`EFT_PP_STATUS_MANUAL_CARD_INPUT`<br />
+`EFT_PP_STATUS_WAITING_CARD_REMOVAL`<br />
+`EFT_PP_STATUS_TIP_INPUT`<br />
+`EFT_PP_STATUS_SHARED_SECRET_INVALID`<br />
+`EFT_PP_STATUS_SHARED_SECRET_AUTH`<br />
+`EFT_PP_STATUS_WAITING_SIGNATURE`<br />
+`EFT_PP_STATUS_CONNECTING`<br />
+`EFT_PP_STATUS_SENDING`<br />
+`EFT_PP_STATUS_RECEIVEING`<br />
+`EFT_PP_STATUS_DISCONNECTING`<br />
+`EFT_PP_STATUS_PIN_INPUT_COMPLETED`<br />
+`EFT_PP_STATUS_POS_CANCELLED`<br />
+`EFT_PP_STATUS_REQUEST_INVALID`<br />
+`EFT_PP_STATUS_CARD_CANCELLED`<br />
+`EFT_PP_STATUS_CARD_BLOCKED`<br />
+`EFT_PP_STATUS_REQUEST_AUTH_TIMEOUT`<br />
+`EFT_PP_STATUS_REQUEST_PAYMENT_TIMEOUT`<br />
+`EFT_PP_STATUS_RESPONSE_AUTH_TIMEOUT`<br />
+`EFT_PP_STATUS_RESPONSE_PAYMENT_TIMEOUT`<br />
+`EFT_PP_STATUS_ICC_CARD_SWIPED`<br />
+`EFT_PP_STATUS_REMOVE_CARD`<br />
+`EFT_PP_STATUS_SCANNER_IS_NOT_SUPPORTED`<br />
+`EFT_PP_STATUS_SCANNER_EVENT`<br />
+`EFT_PP_STATUS_BATTERY_TOO_LOW`<br />
+`EFT_PP_STATUS_ACCOUNT_TYPE_SELECTION`<br />
+`EFT_PP_STATUS_BT_IS_NOT_SUPPORTED`<br />
+`EFT_PP_STATUS_PAYMENT_CODE_SELECTION`<br />
+`EFT_PP_STATUS_PARTIAL_APPROVAL`<br />
+`EFT_PP_STATUS_AMOUNT_DUE_VALIDATION`<br />
+`EFT_PP_STATUS_INVALID_URL`<br />
+`EFT_PP_STATUS_WAITING_CUSTOMER_RECEIPT`<br />
+`EFT_PP_STATUS_PRINTING_MERCHANT_RECEIPT`<br />
+`EFT_PP_STATUS_PRINTING_CUSTOMER_RECEIPT`<br />
+`EFT_PP_STATUS_WAITING_HOST_MSG_TO_HOST`<br />
+`EFT_PP_STATUS_WAITING_HOST_MSG_RESP`<br />
+`EFT_PP_STATUS_INITIALISATION_COMPLETE`<br />
 
 
 ## Status strings{#45}	
@@ -638,53 +638,53 @@ An NSString containing the status message - can be one of the following:
 	
 **Possible values**
 
-`Success`
-`Invalid data`
-`Processing error`
-`Not allowed`
-`Not initialized`
-`Connect timeout`
-`Connect error`
-`Sending error`
-`Receiveing error`
-`No data available`
-`Transaction not allowed`
-`Unsupported currency`
-`No host available`
-`Card reader error`
-`Card reading failed`
-`Invalid card`
-`Input timeout`
-`User cancelled`
-`Invalid signature`
-`Waiting card`
-`Card inserted`
-`Application selection`
-`Application confirmation`
-`Amount validation`
-`PIN input`
-`Manual card input`
-`Waiting card removal`
-`Tip input`
-`Shared secret invalid`
-`Connecting`
-`Sending`
-`Receiving`
-`Disconnecting`
-`PIN entry completed`
-`Merchant cancelled the transaction`
-`Request invalid`
-`Card cancelled the transaction`
-`Blocked card`
-`Request for authorisation timed out`
-`Request for payment timed out`
-`Response to authorisation request timed out`
-`Response to payment request timed out`
-`Please insert card in chip reader`
-`Remove the card from the reader`
-`This device does not have a scanner`
-`Scanner is not supported`
-`Scanner event`
+`Success`<br />
+`Invalid data`<br />
+`Processing error`<br />
+`Not allowed`<br />
+`Not initialized`<br />
+`Connect timeout`<br />
+`Connect error`<br />
+`Sending error`<br />
+`Receiveing error`<br />
+`No data available`<br />
+`Transaction not allowed`<br />
+`Unsupported currency`<br />
+`No host available`<br />
+`Card reader error`<br />
+`Card reading failed`<br />
+`Invalid card`<br />
+`Input timeout`<br />
+`User cancelled`<br />
+`Invalid signature`<br />
+`Waiting card`<br />
+`Card inserted`<br />
+`Application selection`<br />
+`Application confirmation`<br />
+`Amount validation`<br />
+`PIN input`<br />
+`Manual card input`<br />
+`Waiting card removal`<br />
+`Tip input`<br />
+`Shared secret invalid`<br />
+`Connecting`<br />
+`Sending`<br />
+`Receiving`<br />
+`Disconnecting`<br />
+`PIN entry completed`<br />
+`Merchant cancelled the transaction`<br />
+`Request invalid`<br />
+`Card cancelled the transaction`<br />
+`Blocked card`<br />
+`Request for authorisation timed out`<br />
+`Request for payment timed out`<br />
+`Response to authorisation request timed out`<br />
+`Response to payment request timed out`<br />
+`Please insert card in chip reader`<br />
+`Remove the card from the reader`<br />
+`This device does not have a scanner`<br />
+`Scanner is not supported`<br />
+`Scanner event`<br />
 
 ## Process details
 

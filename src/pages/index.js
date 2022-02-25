@@ -1,6 +1,5 @@
 import React from 'react';
 import Layout from '@theme/Layout';
-import logo from './header.png';
 import './index.module.css';
 import styles from './index.module.css';
 import Link from '@docusaurus/Link';
