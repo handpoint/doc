@@ -19,55 +19,54 @@ An object holding information about the result of a transaction.
 
 | Parameter      | Description |
 | ----------- | ----------- |
-| `aid`   <br />*String*  | 		Application Identifier of the card (EMV tag 9F06)|
-| `arc`  <br />*String*   | 		EMV Authorisation Response Code (EMV tag 8A)|
-| `authorisationCode`   <br />*String*  | 		Acquirer response code|
-| `balance` <br />[*Balance*](#balance)   | 		Balance available on the card|
-| `budgetNumber` <br />*String*    | 		Used to split payments over a period of months|
-| `cardEntryType`  <br />[*CardEntryType *](#22)  | 		Method used by the terminal to read the card|
-| `cardLanguagePreference`   <br />*String*  | 		Preferred language of the card (EMV tag 5F2D)|
-| `cardSchemeName`  <br />[*CardSchemeName*](#32)   | 		The brand of the card|
-| `cardToken`   <br />*String*  | 		Token representing the PAN of the card|
-| `chipTransactionReport` <br />*String*    | 		Full report of the card EMV parameters|
-| `currency`   <br />[*Currency*](#13)  | 		The currency used for the transaction|
-| `customerReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format|
-| `customerReference`  <br />*String*   | 		If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
-| `deviceStatus`  <br />[*DeviceStatus*](#33)   | 		Status of the device|
-| `dueAmount`    <br />*String* | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid|
-| `efttimestamp`   <br />*Date*  | 		Time of the transaction|
+| `aid`   <br />*String*  | 		Application Identifier of the card (EMV tag 9F06).|
+| `arc`  <br />*String*   | 		EMV Authorisation Response Code (EMV tag 8A).|
+| `authorisationCode`   <br />*String*  | 		Acquirer response code.|
+| `balance` <br />[*Balance*](#balance)   | 		Balance available on the card.|
+| `budgetNumber` <br />*String*    | 		Used to split payments over a period of months.|
+| `cardEntryType`  <br />[*CardEntryType *](#22)  | 		Method used by the terminal to read the card.|
+| `cardLanguagePreference`   <br />*String*  | 		Preferred language of the card (EMV tag 5F2D).|
+| `cardSchemeName`  <br />[*CardSchemeName*](#32)   | 		The brand of the card.|
+| `cardToken`   <br />*String*  | 		Token representing the PAN of the card.|
+| `chipTransactionReport` <br />*String*    | 		Full report of the card EMV parameters.|
+| `currency`   <br />[*Currency*](#13)  | 		The currency used for the transaction.|
+| `customerReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format.|
+| `customerReference`  <br />*String*   | 		If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field.|
+| `deviceStatus`  <br />[*DeviceStatus*](#33)   | 		Status of the device.|
+| `dueAmount`    <br />*String* | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid.|
+| `efttimestamp`   <br />*Date*  | 		Time of the transaction.|
 | `efttransactionID`  <br />*String*   | 		Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
-| `errorMessage`  <br />*String*   | 		Detailed reason for the transaction error|
-| `expiryDateMMYY` <br />*String*    | 		Expiry date of the card used for the operation|
-| `finStatus`  <br />[*FinancialStatus*](#34)   | 		The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"|
-| `iad`  <br />*String*   | 		Issuer Application Data (EMV tag 9F10)|
-| `issuerResponseCode` <br />*String*    | 		Response code from the card issuer|
-| `maskedCardNumber`  <br />*String*   | 		Masked card number of the card used for the operation|
-| `merchantAddress`  <br />*String*   | 		Merchant Address|
-| `merchantName`  <br />*String*   | 		Merchant Name|
-| `merchantReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format|
-| `mid`  <br />*String*   | 		Merchant Identifier|
-| `originalEFTTransactionID` <br />*String*    | 		In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed|
-| `paymentScenario`   <br />[*PaymentScenario*](#35)  | 		Indicates the card entry mode|
-| `recoveredTransaction` <br />*Boolean*    | 		This flag is set to true if the transaction result is sent through the transaction recovery logic (network or communication failure), false otherwise|
-| `requestedAmount` <br />*BigInteger*    | 		The requested amount is the transaction amount sent to the terminal|
-| `rrn`  <br />*String*   | 		Retrieval Reference Number, unique number assigned by the acquirer|
-| `signatureUrl` <br />*String*    | 		If a digital signature is required, this is the URL containing the image of the captured signature|
-| `statusMessage` <br />*String*    | 		The status of the transaction, for example "Waiting for pin"|
-| `tenderType`   <br />[*TenderType*](#36)  | 		Transaction tender type (credit / debit)|
-| `tid`  <br />*String*   | 		Terminal Identifier|
-| `tipAmount` <br />*BigInteger*    | 		Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `tipPercentage` <br />*Double*    | 		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
-| `totalAmount` <br />*BigInteger*    | 		The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality|
-| `transactionID` <br />*String*    | 		The transaction id is a terminal internal counter incremented for each transaction|
-| `tsi` <br />*String*    | 		Transaction Status Information (EMV tag 9B)|
-| `tvr` <br />*String*    | 		Transaction Verification Results (EMV tag 95)|
-| `type`  <br />[*TransactionType*](#31)   | 		The type of transaction initiated, for example "SALE"|
-| `unMaskedPan`  <br />*String*   | 		Unmasked PAN, only received if the card is a non-payment card (loyalty)|
-| `verificationMethod`   <br />[*VerificationMethod*](#38)  | 		cardholder verification method, for example "PIN"|
-| `multiLanguageStatusMessages` <br />*Map*     | 		`map` containing the status message in a human readable format for all the supported locales.|
-| `multiLanguageErrorMessages`  <br />*Map*   | 		`map` containing the error message in a human readable format for all the supported locales.|
-| `cardHolderName`  <br />*String*   | 		Name of the cardholder|
-
+| `errorMessage`  <br />*String*   | 		Detailed reason for the transaction error.|
+| `expiryDateMMYY` <br />*String*    | 		Expiry date of the card used for the operation.|
+| `finStatus`  <br />[*FinancialStatus*](#34)   | 		The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED".|
+| `iad`  <br />*String*   | 		Issuer Application Data (EMV tag 9F10).|
+| `issuerResponseCode` <br />*String*    | 		Response code from the card issuer.|
+| `maskedCardNumber`  <br />*String*   | 		Masked card number of the card used for the operation.|
+| `merchantAddress`  <br />*String*   | 		Merchant Address.|
+| `merchantName`  <br />*String*   | 		Merchant Name.|
+| `merchantReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format.|
+| `mid`  <br />*String*   | 		Merchant Identifier.|
+| `originalEFTTransactionID` <br />*String*    | 		In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed.|
+| `paymentScenario`   <br />[*PaymentScenario*](#35)  | 		Indicates the card entry mode.|
+| `recoveredTransaction` <br />*Boolean*    | 		This flag is set to true if the transaction result is sent through the transaction recovery logic (network or communication failure), false otherwise.|
+| `requestedAmount` <br />*BigInteger*    | 		The requested amount is the transaction amount sent to the terminal.|
+| `rrn`  <br />*String*   | 		Retrieval Reference Number, unique number assigned by the acquirer.|
+| `signatureUrl` <br />*String*    | 		If a digital signature is required, this is the URL containing the image of the captured signature.|
+| `statusMessage` <br />*String*    | 		The status of the transaction, for example "Waiting for pin".|
+| `tenderType`   <br />[*TenderType*](#36)  | 		Transaction tender type (credit / debit).|
+| `tid`  <br />*String*   | 		Terminal Identifier.|
+| `tipAmount` <br />*BigInteger*    | 		Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `tipPercentage` <br />*Double*    | 		If tipping is enabled, this field will return the tip percentage added on top of the base amount.|
+| `totalAmount` <br />*BigInteger*    | 		The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality.|
+| `transactionID` <br />*String*    | 		The transaction id is a terminal internal counter incremented for each transaction.|
+| `tsi` <br />*String*    | 		Transaction Status Information (EMV tag 9B).|
+| `tvr` <br />*String*    | 		Transaction Verification Results (EMV tag 95).|
+| `type`  <br />[*TransactionType*](#31)   | 		The type of transaction initiated, for example "SALE".|
+| `unMaskedPan`  <br />*String*   | 		Unmasked PAN, only received if the card is a non-payment card (loyalty).|
+| `verificationMethod`   <br />[*VerificationMethod*](#38)  | 		cardholder verification method, for example "PIN".|
+| `multiLanguageStatusMessages` <br />*Map*     | 		`Map` containing the status message in a human readable format for all the supported locales.|
+| `multiLanguageErrorMessages`  <br />*Map*   | 		`Map` containing the error message in a human readable format for all the supported locales.|
+| `cardHolderName`  <br />*String*   | 		Name of the cardholder.|
 
 **Code example**
 
