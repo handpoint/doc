@@ -5,13 +5,53 @@ id: iosdevicemanagement
 
 
 
-# Device management
+# Terminal Management
 
-## Shared Manager{#11}
+## Update terminal{#47}	
 
-`sharedManager`
+`financeInit` <span class="badge badge--info">Method</span>
 
-Provides access to the heftManager. The heft manager is used for discovering devices and creating a HeftClient with a connection to selected device.
+The update operation checks for available software or configuration update for the payment terminal and initiates a download if needed.
+
+**Code example**
+
+````objectivec
+//financeInit
+//Initializes the card reader and updates config.
+-(IBAction)updateCardReader
+{
+	[heftClient financeInit];
+}
+````
+
+**Events invoked**
+
+[**responseStatus**](iosevents.md#14)
+
+Invoked during a transaction with different statuses from the payment terminal.
+***
+
+[**responseError**](iosevents.md#15)
+
+Invoked when an error response happens.
+***
+
+[**responseFinanceStatus**](iosevents.md#16)
+
+Invoked when the payment terminal finishes processing the transaction.
+***
+**Returns**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| This method always returns YES|
+
+## Shared Manager{#11} 
+
+`sharedManager` <span class="badge badge--info">Method</span>
+
+Provides access to the heftManager. The heft manager is used for discovering devices and creating a HeftClient with a connection to selected payment terminals.
 
 **Code example**
 
@@ -37,16 +77,16 @@ heftManager.delegate = self;
 
 ## Client for device (NSString){#12}
 
-`clientForDevice`
+`clientForDevice` <span class="badge badge--info">Method</span>
 
-Creates a HeftClient object. If a connection is successful the HeftClient object is returned in the didConnect event. All transactions are done using the heftClient.
+Creates a HeftClient object. If a connection is successful, the HeftClient object is returned in the didConnect event. All transactions are done using the heftClient.
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `device` <span class="badge badge--primary">Required</span>  <br />*NSInteger*  | The device to connect to.|
+| `device` <span class="badge badge--primary">Required</span>  <br />*NSInteger*  | The payment terminal to connect to.|
 | `sharedSecret` <span class="badge badge--primary">Required</span>  <br />*NSString*  | Shared secret only known by the merchant and Handpoint.|
 | `aDelegate` <span class="badge badge--primary">Required</span>  <br />*BOOL*  | The HeftStatusReportDelegate for the HeftClient to report to.|
 
@@ -59,7 +99,7 @@ Creates a HeftClient object. If a connection is successful the HeftClient object
 NSString* sharedSecret = @"0102030405060708091011121314151617181920212223242526272829303132";
 -(void)connectToFirstCardReaderWith:(NSString*)sharedSecret;
 {
-	//Try to connect to first device in devices array
+	//Try to connect to the first payment terminal in the array
 	[heftManager clientForDevice:[[heftManager devicesCopy] objectAtIndex:0] sharedSecretString:sharedSecret delegate:self];
 	//Client calls the didConnect delegate function if successful 
 }
@@ -82,7 +122,7 @@ Called when a connection to specified device was created.
 
 ## Start Discovery	{#32}
 
-`startDiscovery`
+`startDiscovery` <span class="badge badge--info">Method</span>
 
 Displays a list of available accessory devices in a modal window.
 
@@ -100,9 +140,9 @@ Displays a list of available accessory devices in a modal window.
 
 ## Set log level{#33}	
 
-`logSetLevel`
+`logSetLevel` <span class="badge badge--info">Method</span>
 
-Sets the log level of the card reader. There are for levels of logging for the device: none, info, full, debug. Setting the log level means that relevant information concerning the application operation will be stored.
+Sets the log level of the payment terminal. There are four levels of logging: none, info, full, debug. Setting the log level means that relevant information concerning the application operation will be stored.
 
 **Parameters**
 
@@ -140,7 +180,7 @@ Sets the log level of the card reader. There are for levels of logging for the d
 
 ## Fetch logs{#34}
 
-`logGetInfo`
+`logGetInfo` <span class="badge badge--info">Method</span>
 
 Retrieves the logging info. Returns them in the responseLogInfo event.
 
@@ -163,7 +203,7 @@ Retrieves the logging info. Returns them in the responseLogInfo event.
 
 ## Reset logs{#35}	
 
-`logReset`
+`logReset` <span class="badge badge--info">Method</span>
 
 Clears the logging information stored so far.
 
@@ -186,18 +226,18 @@ Clears the logging information stored so far.
 
 ## Enable scanner{#36}	
 
-`enableScanner`
+`enableScanner` <span class="badge badge--info">Method</span>
 
-Places the card reader in a scan mode. Only if the card reader supports it. To cancel/stop scan mode call the cancel method of the heft client.
+Switches the payment terminal in scan mode. Only if the card reader supports it. To cancel/stop scan mode, call the cancel method of the heft client.
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `multiScan`  <br />*Boolean* | Yes [default] to activate multiScan mode - No to activate singleScan mode. Multi-scan mode allows the user to scan until scan operation is canceled or timeout occurs, single-scan mode is active until one scan has occurred then it disables the scan mode.|
-| `buttonMode`  <br />*Boolean* | Yes [default] if buttonMode is on - No otherwise. If button mode is on then the operator needs to press the scan buttons to activate the scanner(during scan mode).|
-| `timeoutSeconds`  <br />*NSInteger* | 0 [default] - card reader will determine when scanning should time out. x - the scanner will time out if x seconds of inactivity occur.|
+| `multiScan`  <br />*Boolean* | Yes [default] to activate multiScan mode. <br /> No to activate singleScan mode. <br /><br />Multi-scan mode allows the user to scan until the scan operation is canceled, or a timeout occurs, single-scan mode is active until one scan has occurred then it disables the scan mode.|
+| `buttonMode`  <br />*Boolean* | Yes [default] if buttonMode is on. <br />No otherwise. <br /><br />If button mode is on then the operator needs to press the scan button to activate the scanner (during scan mode).|
+| `timeoutSeconds`  <br />*NSInteger* | 0 [default] - The payment terminal will determine when scanning should time out.<br /> x - the scanner will time out if x seconds of inactivity occur.|
 
 **Code example**
 
@@ -219,13 +259,13 @@ Places the card reader in a scan mode. Only if the card reader supports it. To c
 
 [**responseScannerEvent**](iosevents.md#41)
 
-Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).
+Called to inform that a scan has been performed, several calls can be expected. The info object contains scanCode, status and a dictionary (xml).
 
 ## Disable scanner	
 
-`disableScanner`
+`disableScanner` <span class="badge badge--info">Method</span>
 
-Disables the scanner if possible
+Disables the scanner, if possible.
 
 **Code example**
 
@@ -242,53 +282,13 @@ Disables the scanner if possible
 
 [**responseScannerDisabled**](iosevents.md#42)
 
-Called to inform that a scan has been performed, several calls can be expected. Several calls to this method happen after a scan action has been performed to inform about scan information operation. The info object contains scanCode, status and a dictionary (xml).
-
-## financeInit{#47}	
-
-`financeInit`
-
-The update operation checks for update to the card reader and initiates an update if needed. The update can either be a software update or a configuration update.
-
-**Code example**
-
-````objectivec
-//financeInit
-//Initializes the card reader and updates config.
--(IBAction)updateCardReader
-{
-	[heftClient financeInit];
-}
-````
-
-**Events invoked**
-
-[**responseStatus**](iosevents.md#14)
-
-Invoked while during transaction with different statuses from card reader
-***
-
-[**responseError**](iosevents.md#15)
-
-Invoked to inform when an error response happens.
-***
-
-[**responseFinanceStatus**](iosevents.md#16)
-
-Invoked when the card reader finishes processing the transaction
-***
-**Returns**
-
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Boolean`| This method always returns YES|
+Called to inform that a scan has been performed, several calls can be expected. The info object contains scanCode, status and a dictionary (xml).
 
 ## Get SDK version	
 
-`getSDKVersion`
+`getSDKVersion` <span class="badge badge--info">Method</span>
 
-Returns the current SDK version number in string format
+Returns the current SDK version as a string.
 
 **Code example**
 
@@ -300,9 +300,9 @@ Returns the current SDK version number in string format
 
 ## Get SDK build number	
 
-`getSDKBuildNumber`
+`getSDKBuildNumber` <span class="badge badge--info">Method</span>
 
-Returns the current SDK build number in string format
+Returns the current SDK build as a string.
 
 **Code example**
 

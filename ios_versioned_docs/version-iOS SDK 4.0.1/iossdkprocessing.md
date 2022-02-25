@@ -4,7 +4,7 @@ id: iossdkprocessing
 ---
 
 
-# SDK integration example
+# Integration Example
 
 ## HandpointModule header
 

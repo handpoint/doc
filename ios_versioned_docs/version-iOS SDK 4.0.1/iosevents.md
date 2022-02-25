@@ -9,7 +9,7 @@ id: iosevents
 
 ### didConnect{#20}	
 
-`didConnect`
+`didConnect` <span class="badge badge--info">Method</span>
 
 Called when a connection to the client has been established through the method clientForDevice.
 
@@ -17,7 +17,7 @@ Called when a connection to the client has been established through the method c
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `client` <span class="badge badge--primary">Required</span>  <br />[HeftClient](iosobjects.md#22) | Yes [default] to activate multiScan mode - No to activate singleScan mode. Multi-scan mode allows the user to scan until scan operation is canceled or timeout occurs, single-scan mode is active until one scan has occurred then it disables the scan mode.|
+| `client` <span class="badge badge--primary">Required</span>  <br />[HeftClient](iosobjects.md#22) | The client object, used to perform transactions and communicate with the payment terminal.|
 
 **Code example**
 
@@ -34,7 +34,7 @@ Called when a connection to the client has been established through the method c
 
 ### didDiscoverFinished {#37}	
 
-`didDiscoverFinished`
+`didDiscoverFinished` <span class="badge badge--info">Method</span>
 
 When the modal window from startDiscovery is closed then this event is called.
 
@@ -53,25 +53,25 @@ When the modal window from startDiscovery is closed then this event is called.
 
 ### didFindAccessoryDevice{#38}	
 
-`didFindAccessoryDevice`
+`didFindAccessoryDevice` <span class="badge badge--info">Method</span>
 
-Notifies that new accessory device was found. When a card reader is detected this delegate is called. You can take the newDevice object and create a new heft client for that particular device or store it in memory to connect to it later.
+Notifies that a new accessory device was found. When a payment terminal is detected this delegate is called. You can take the newDevice object and create a new heft client for that particular terminal or store it in memory to connect to it later.
 
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `newDevice` <span class="badge badge--primary">Required</span>  <br />[HeftRemoteDevice](iosobjects.md#23) | An object containing a reference to the accessory device|
+| `newDevice` <span class="badge badge--primary">Required</span>  <br />[HeftRemoteDevice](iosobjects.md#23) | An object containing a reference to the accessory device.|
 
 **Code example**
 
 ````objectivec
 //didFindAccessoryDevice
-//Delegate that notifies that new accessory device was found.
+//Delegate which notifies that a new accessory device was found.
 - (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice
 {
 	NSLog(@"Found new device");
-	//Connect to device or store found device for later
+	//Connect to device or store found device for later.
 }
 ````
 
@@ -79,21 +79,21 @@ Notifies that new accessory device was found. When a card reader is detected thi
 ### didLostAccessoryDevice{#39}
 	
 
-`didLostAccessoryDevice`
+`didLostAccessoryDevice` <span class="badge badge--info">Method</span>
 
-Notifies that accessory device was disconnected.
+Notifies that the accessory device was disconnected.
 
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `oldDevice` <span class="badge badge--primary">Required</span>  <br />[HeftRemoteDevice](iosobjects.md#23) | An object containing a reference to the accessory device|
+| `oldDevice` <span class="badge badge--primary">Required</span>  <br />[HeftRemoteDevice](iosobjects.md#23) | An object containing a reference to the accessory device.|
 
 **Code example**
 
 ````objectivec
 //didLostAccessoryDevice
-//Delegate that notifies that accessory device was disconnected
+//Delegate which notifies that an accessory device was disconnected
 - (void)didLostAccessoryDevice:(HeftRemoteDevice*)oldDevice
 {
 	NSLog(@"Device disconnected");
@@ -106,9 +106,9 @@ Notifies that accessory device was disconnected.
 
 ### responseStatus{#14}	
 
-`responseStatus`
+`responseStatus` <span class="badge badge--info">Method</span>
 
-Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about status of operation. The info object contains a string (status) and a dictionary (xml).
+Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about the status of operation. The info object contains a string (status) and a dictionary (xml).
 
 **Parameters**
 
@@ -130,9 +130,9 @@ Called to inform about the status of the transaction, several calls can be expec
 
 ### responseFinanceStatus{#16}	
 
-`responseFinanceStatus`
+`responseFinanceStatus` <span class="badge badge--info">Method</span>
 
-Notifies that transaction has completed.
+Notifies that the transaction has completed.
 
 **Parameters**
 
@@ -144,7 +144,7 @@ Notifies that transaction has completed.
 
 ````objectivec
 //responseFinanceStatus:
-//Called at the end of transaction to inform about the result of the operation
+//Called at the end of a transaction to inform about the result of the operation.
 -(void)responseFinanceStatus:(id<FinanceResponseInfo>)info
 {
 	NSLog(info.status);
@@ -155,9 +155,9 @@ Notifies that transaction has completed.
 
 ### responseError{#15}	
 
-`responseError`
+`responseError` <span class="badge badge--info">Method</span>
 
-Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about status of operation. The info object contains a string (status) and a dictionary (xml).
+Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about the status of operation. The info object contains a string (status) and a dictionary (xml).
 
 **Parameters**
 
@@ -169,7 +169,7 @@ Called to inform about the status of the transaction, several calls can be expec
 
 ````objectivec
 //responseError:
-//Called when to inform when an error response happens.
+//Called when an error happens.
 -(void)responseError:(id<ResponseInfo>)info
 {
 	NSLog(info.status);
@@ -179,15 +179,15 @@ Called to inform about the status of the transaction, several calls can be expec
 
 ### requestSignature{#17}	
 
-`requestSignature`
+`requestSignature` <span class="badge badge--info">Method</span>
 
-Is called if during a financial operation a signature from the customer is needed. The requestSignature delegate should be implemented to print out or display the receipt for the customer to sign and provide the merchant with the means to confirm the signature.
+Called during a financial operation if a signature from the customer is needed. The requestSignature delegate should be implemented to print out or display the receipt for the customer to sign.
 
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `receipt` <span class="badge badge--primary">Required</span>  <br />*NSString* | The receipt is a html formatted string containing a receipt for the customer to sign|
+| `receipt` <span class="badge badge--primary">Required</span>  <br />*NSString* | The receipt is a html formatted string containing a receipt for the customer to sign.|
 
 **Code example**
 
@@ -205,9 +205,9 @@ Is called if during a financial operation a signature from the customer is neede
 
 ### cancelSignature{#40}	
 
-`cancelSignature`
+`cancelSignature` <span class="badge badge--info">Method</span>
 
-Called if the signature request times out. If the card reader does not receive an approval for the signature within a certain timeframe (45 sec) it cancels the transaction and sends a notification to the app.
+Called if the signature request times out. If the payment terminal does not receive an approval for the signature within a certain timeframe, it cancels the transaction and sends a notification to the app.
 
 **Code example**
 
@@ -222,7 +222,7 @@ Called if the signature request times out. If the card reader does not receive a
 
 ### responseScannerEvent{#41}	
 
-`responseScannerEvent`
+`responseScannerEvent` <span class="badge badge--info">Method</span>
 
 Called to inform that a scan has been performed, several calls can be expected.
 
@@ -246,7 +246,7 @@ Called to inform that a scan has been performed, several calls can be expected.
 
 ### responseScannerDisabled{#42}	
 
-`responseScannerDisabled`
+`responseScannerDisabled` <span class="badge badge--info">Method</span>
 
 Called to notify that the scanner has been disabled.
 
@@ -269,9 +269,9 @@ Called to notify that the scanner has been disabled.
 
 ### responseLogInfo{#43}	
 
-`responseLogInfo`
+`responseLogInfo` <span class="badge badge--info">Method</span>
 
-Called when logs have been downloaded from the card reader by using the logGetInfo method.
+Called when logs have been downloaded from the payment terminal by using the logGetInfo method.
 
 **Parameters**
 
@@ -293,46 +293,41 @@ Called when logs have been downloaded from the card reader by using the logGetIn
 
 ### responseRecoveredTransactionStatus{#44}	
 
-`responseRecoveredTransactionStatus`
+`responseRecoveredTransactionStatus` <span class="badge badge--info">Method</span>
 
 Notifies that a transaction has been recovered.
 
-This method is **OPTIONAL** and only required if retrievePendingTransaction will be called.
+This method is **OPTIONAL** and only required if retrievePendingTransaction is called.
 
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `info` <span class="badge badge--primary">Required</span>  <br />[*FinanceResponseInfo*](iosobjects.md#25) | Information about the recovered transaction status.<br/>**If an attempt was made to recover a transaction when none was pending then this parameter WILL be nil.**|
+| `info` <span class="badge badge--primary">Required</span>  <br />[*FinanceResponseInfo*](iosobjects.md#25) | Information about the recovered transaction status.<br/><br/>**If an attempt was made to recover a transaction when none was pending then this parameter WILL be nil.**|
+
 
 **Code example**
 
 ````objectivec
 //responseRecoveredTransactionStatus:
-//Called when a pending transaction result has been recovered from the card reader
+//Called when a pending transaction result has been recovered from the payment terminal.
 - (void)responseRecoveredTransactionStatus:(id<FinanceResponseInfo>)info{
 	if(info != nil) {
 		if(info.statusCode == EFT_PP_STATUS_SUCCESS) {
 			NSLog(info.status);
 			NSLog(info.customerReceipt);
 			NSLog(info.merchantReceipt);
-			// print receipts and/or save receipts in transaction log
+			// print receipts and/or save receipts in the transaction log.
 
 			if(info.financialResult == EFT_FINANC_STATUS_TRANS_APPROVED){
-				// Process recovered authorized transaction result
+				// Process to recover an authorized transaction result.
 			} else if(info.financialResult == EFT_FINANC_STATUS_TRANS_DECLINED) {
-				// Process recovered declined transaction result
+				// Process to recover a declined transaction result.
 			}
 		} else if(info.statusCode != EFT_PP_STATUS_NO_DATA_AVAILABLE) {
-			// some other error was detected while waiting for a pending transaction result
+			// some other error was detected while waiting for a pending transaction result.
 		}
 	}
-	// else a pending transaction result was not found on the card reader
+	// else a pending transaction result was not found. 
 }
 ````
-
-### Card Reader Requirements
-
-**Version Requirements**
-
-Card reader software v1.7.0+ and v2.1.7+ is required in order for this response to be received.
