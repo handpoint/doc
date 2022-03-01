@@ -104,7 +104,7 @@ High level interface for the API. HeftClient handles the communication between y
 
 **Methods**
 
-[**cancel**]
+**cancel**
 
 - (void)cancel;
 ***
