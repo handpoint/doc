@@ -8,17 +8,17 @@ id: iosobjects
 
 ## HeftManager{#19}	
 
-`HeftManager`
+`HeftManager` <span class="badge badge--info">Object</span>
 
-The HeftManager is used for discovering devices and to connect and create a HeftClient object for the appropriate device. The manager reports messages to HeftDiscoveryDelegate protocol during the discovery process. Starting the manager is usually the first thing that should be done after loading up an UIView that enables the user to search for and connect to BT devices. When starting the manager an object (usually the UIViewController itself) is passed as the HeftDiscoveryDelegate delegate to report to.
+The HeftManager is used for discovering and connecting to devices as well as creating a HeftClient object for the appropriate payment terminal. The manager reports messages to the HeftDiscoveryDelegate protocol during the discovery process. Starting the manager is the first thing to be done after loading up an UIView which enables the user to search for and connect to bluetooth terminals. When starting the manager an object (usually the UIViewController itself) is passed as the HeftDiscoveryDelegate delegate to report to.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `devicesCopy`  <br />*NSArray* | **DEPRECATED_ATTRIBUTE**: Stored array which contains all found devices.|
-| `connectedCardReaders`  <br />*NSArray* | Stored array which contains all found devices.|
-| `delegate`  <br />*NSObject<HeftDiscoveryDelegate\>*| Key for value in mpedInfo|
+| `devicesCopy`  <br />*NSArray* | **DEPRECATED_ATTRIBUTE**: Array which contains the discovered payment terminals.|
+| `connectedCardReaders`  <br />*NSArray* | Array which contains the discovered payment terminals.|
+| `delegate`  <br />*NSObject<HeftDiscoveryDelegate\>*| Key for value in mpedInfo.|
 | `version`  <br />*NSString* | Current HeftManager version.|
 
 **Code example**
@@ -29,7 +29,7 @@ The HeftManager is used for discovering devices and to connect and create a Heft
 	[super viewDidLoad];
 	HeftManager* manager = [HeftManager sharedManager];
 	manager.delegate = self;
-	[manager resetDevices]; // Clean out device list
+	[manager resetDevices]; // Clean out the payment terminal list
 }
 ````
 
@@ -51,17 +51,17 @@ The HeftManager is used for discovering devices and to connect and create a Heft
 
 ## HeftClient{#22}	
 
-`HeftClient`
+`HeftClient` <span class="badge badge--info">Object</span>
 
-High level interface for Headstart API. HeftClient handles the communication between the mPos app and the card reader. The HeftClient object also stores information about it's card reader device in the mpedInfo dictionary. Device Log operations are also implemented in HeftClient. To create a new HeftClient object the clientForDevice method is called from an instance of the HeftManager. Transaction and log requests (and the acceptSignature response) are done by calling HeftClient methods with the relevant input. The library reports the status of the requests by calling delegates of the HeftStatusReportDelegate protocol.
+High level interface for the API. HeftClient handles the communication between your application and the payment terminal. The HeftClient object also stores information about the payment terminal in the mpedInfo dictionary. Device Log operations are also implemented in HeftClient. To create a new HeftClient object the clientForDevice method is called from an instance of the HeftManager. Transaction and log requests (and the acceptSignature response) are done by calling HeftClient methods with the relevant input. The library reports the status of the requests by calling delegates of the HeftStatusReportDelegate protocol.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `sharedSecret`  <br />*NSString* | The shared secret is a key provided by Handpoint when you get your account that enables you to perform live operations with the card reader. However, if you're developing with a starter kit, the test shared secret is specified in the example.|
-| `mpedInfo`  <br />*NSDictionary* | Dictionary with card reader info details, obtained by querying it from device on interface creation.|
-| `isTransactionResultPending`  <br />*BOOL* | Indicates whether a transaction result is pending on the card reader. <br/>**Note: A pending transaction result is retained by the card reader if a disconnect occurs between card reader and app before the transaction result can be delivered during a SALE, REFUND or VOID processing.**|	
+| `sharedSecret`  <br />*NSString* | The shared secret is a unique authentication key provided by Handpoint for each merchant.|
+| `mpedInfo`  <br />*NSDictionary* | Dictionary with payment terminal details, obtained from the device on interface creation.|
+| `isTransactionResultPending`  <br />*BOOL* | Indicates whether a transaction result is pending on the payment terminal. <br/><br/>**Note: A pending transaction result is retained by the payment terminal if a disconnect occurs between the terminal and your application before the transaction result can be delivered during a SALE, REFUND or VOID operation.**|	
 | `kSerialNumberInfoKey`  <br />*NSString Constant* | Key for value in mpedInfo|
 | `kPublicKeyVersionInfoKey`  <br />*NSString Constant* | Key for value in mpedInfo|
 | `kEMVParamVersionInfoKey`  <br />*NSString Constant* | Key for value in mpedInfo|
@@ -80,7 +80,7 @@ High level interface for Headstart API. HeftClient handles the communication bet
 //Creates a HeftClient object(connection to device)
 -(void)connectToFirstCardReaderWith:(NSData*)sharedSecret;
 {
-	//Try to connect to first device in devices array
+	//Try to connect to the first device in the devices array
 	[heftManager clientForDevice:[[heftManager devicesCopy] objectAtIndex:0] sharedSecret:sharedSecret delegate:self];
 	//Client calls the didConnect delegate function if successful 
 }
@@ -88,11 +88,11 @@ High level interface for Headstart API. HeftClient handles the communication bet
 //....
 
 //didConnect:
-//Called when a connection to specified device was created.
+//Called when a connection to a specified device was created.
 -(void)didConnect:(id<HeftClient>)client 
 {
 	// connected successfully to a device
-	// assigne the client to our heftClient property
+	// assigned the client to the heftClient property
 	heftClient = client;
 }
 
@@ -104,7 +104,7 @@ High level interface for Headstart API. HeftClient handles the communication bet
 
 **Methods**
 
-[**cancel**](#32)
+[**cancel**]
 
 - (void)cancel;
 ***
@@ -121,7 +121,7 @@ High level interface for Headstart API. HeftClient handles the communication bet
 
 [**saleWithAmount**](iostransactions.md#2)
 
-- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference;
+- (BOOL)saleWithAmount:(NSInteger)amount currency:(NSString*)currency cardholder:(BOOL)present reference:(NSString*)reference divideBy:(NSString*)months;
 ***
 
 [**refundWithAmount**](iostransactions.md#5)
@@ -216,7 +216,7 @@ High level interface for Headstart API. HeftClient handles the communication bet
 
 ## HeftRemoteDevice{#23}	
 
-`HeftRemoteDevice`
+`HeftRemoteDevice` <span class="badge badge--info">Object</span>
 
 An object containing a reference to the accessory device which is passed to the HeftClient on creation.
 
@@ -254,7 +254,7 @@ Notifications sent by the SDK on various events - new available device found, co
 
 ## HeftStatusReportDelegate	
 
-`HeftStatusReportDelegate`
+`HeftStatusReportDelegate` <span class="badge badge--info">Object</span>
 
 Notifications sent by the SDK on various events - connected to device, request signature, response on error etc.
 
@@ -318,67 +318,67 @@ Notifications sent by the SDK on various events - connected to device, request s
 
 ## ResponseInfo{#24}	
 
-`ResponseInfo`
+`ResponseInfo` <span class="badge badge--info">Object</span>
 
-A ResponseInfo object is passed to the ResponseStatus delegate. It contains information from the card reader about the status of the current transaction. There are two properties: status and xml. status is a string and xml is a dictionary. Usually status contains a message descriptive enough to know whats going on and is useful for displaying to user. The xml dictionary contains all elements of the XML formatted data passed from the card reader and has detailed information on the current state of the card reader.
+A ResponseInfo object is passed to the ResponseStatus delegate. It contains information from the payment terminal about the status of the current transaction. There are two properties: status and xml. status is a string and xml is a dictionary. Usually status contains a descriptive enough message to know what is going, this messsage should be displayed to the yser. The xml dictionary has detailed information on the current state of the payment terminal.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
 | `statusCode`  <br />*int* | A numerical representation of the status.|
-| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
-| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `status`  <br />[*Status as NSString*](#45) | Status message of the financial operation.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | Details of the transaction.|
 
 
 ## FinanceResponseInfo{#25}	
 
-`FinanceResponseInfo`
+`FinanceResponseInfo` <span class="badge badge--info">Object</span>
 
-A FinanceResponseInfo is passed to the responseFinanceStatus delegate at the end of transaction. It contains all necessary information needed about the relevant transaction. FinanceResponseInfo inherits from ResponseInfo so it includes the status string and xml dictionary in addition to authorisedAmount, transactionId and the html formatted receipts.
+A FinanceResponseInfo is passed to the responseFinanceStatus delegate at the end of a transaction. It contains all necessary information about the outcome of the transaction. FinanceResponseInfo inherits from ResponseInfo so it includes the status string and xml dictionary in addition to the authorisedAmount, transactionId and the html formatted receipts.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `financialResult`  <br />*NSInteger* | A numerical representation of a financial status result. **Status**							  **Value**		EFT_FINANC_STATUS_UNDEFINED				0x00 	EFT_FINANC_STATUS_TRANS_APPROVED		0x01 EFT_FINANC_STATUS_TRANS_DECLINED		0x02 EFT_FINANC_STATUS_TRANS_PROCESSED		0x03 EFT_FINANC_STATUS_TRANS_NOT_PROCESSED	0x04 EFT_FINANC_STATUS_TRANS_CANCELLED		0x05|
-| `isRestarting`  <br />*BOOL* | Indicates whether the card reader is about to restart or not (usually indicated after a software update was received on the card reader).If a restart is indicated then you have 2 seconds to start fetching the logs (before the card reader restarts).After fetching the logs you should disconnect from the card reader and wait for it to be visible again.|
-| `authorisedAmount`  <br />*NSInteger* | In the smallest unit for the given CurrencyCode - for the transaction. ISO 4217 defines number of digits in fractional part of currency for every currency code. Example 1000 in the case where CurrencyCode is "0826" (GBP) the amount would be 10.00 pounds or 1000 pense.|
-| `transactionId`  <br />*NSString* | The id of current transaction.|
+| `financialResult`  <br />*NSInteger* | A numerical representation of a financial status result. <br />EFT_FINANC_STATUS_UNDEFINED	0x00<br />EFT_FINANC_STATUS_TRANS_APPROVED 0x01 <br />EFT_FINANC_STATUS_TRANS_DECLINED 0x02 <br />EFT_FINANC_STATUS_TRANS_PROCESSED 0x03 <br />EFT_FINANC_STATUS_TRANS_NOT_PROCESSED	0x04 <br />EFT_FINANC_STATUS_TRANS_CANCELLED 0x05|
+| `isRestarting`  <br />*BOOL* | Indicates whether the card reader is about to restart or not (usually triggered after a software update is received).If a restart is imminent then you have 2 seconds to start fetching the logs (before the card reader restarts). After fetching the logs you should disconnect from the card reader and wait for it to be visible again.|
+| `authorisedAmount`  <br />*NSInteger* | Amount in the smallest unit of the currency - For example 1000 in case the CurrencyCode is "0826" (GBP) corresponds to 10.00 pounds.|
+| `transactionId`  <br />*NSString* | The id of the current transaction.|
 | `customerReceipt`  <br />*NSString* | Customer receipt in html format.|
 | `merchantReceipt`  <br />*NSString* | Merchant receipt in html format.|
 | `statusMessage`  <br />*NSString* | A human readable message describing the result of the transaction.|
-| `type`  <br />*NSString* | The transaction type represents which type of transaction was done. "SALE" for example.|
-| `finStatus`  <br />*NSString* | The financial status describes the conclusion of the transaction as received from the card reader. "AUTHORISED" for example.|
-| `requestedAmount`  <br />*NSString* | The requested amount is the payment amount sent in the original request to the card reader, i.e. the amount which was to charge the card with.|
-| `gratuityAmount`  <br />*NSString* | The gratuity amount is an additional amount added to the requested payment amount which represents additional fee added to the requested amount. This is used when the card reader is supporting the tipping functionality. An example: A sale is started with the amount 1000 and the card reader is set to support tipping. The card reader asks if a tip should be applied by the customer. The customer inputs an additional amount as a tip, lets say 100. The card is then charged for the requested amount, 1000, as well as the additional gratuity amount, 100. The result will be that the card will be charged for 1100. A calculated gratuity percentage will also be returned.|
-| `gratuityPercentage`  <br />*NSString* | The gratuity percentage is used to calculate an additional amount to the requested amount. The card reader calculates that amount, rounded up to the closest whole number. This is used when the card reader is supporting the tipping functionality. An example: A sale is started with the amount 1000 and the card reader is set to support tipping. The card reader asks if a tip should be applied by the customer. Instead of the customer adding a value he selects the percentage of the requested amount to be applied as a tip, lets say 10%. The card is then charged for the requested amount, 1000, as well as the additional gratuity percentage, 10%. The result will be that the card will be charged for 1100. A calculated gratuity amount will also be returned.|
-| `totalAmount`  <br />*NSString* | The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality.|
-| `currency`  <br />*NSString* | The currency used in this transaction.|
-| `eFTTransactionID`  <br />*NSString* | The EFT (electronic funds transfer) transaction id is a unique GUID from the servers which is linked to this transaction in order to search for a particual transaction. This id is used if a transaction is to be reversed.|
-| `originalEFTTransactionID`  <br />*NSString* | The original EFT (electronic funds transfer) transaction id is a unique GUID previously received from the servers in order to reverse a transaction. This id is sent with the new eFTTransactionID in order to reference the original transaction. An example: A transaction is made. An eFTTransactionID is received. That transaction has to be reversed. A new transaction is started, now a reverse transaction, with the previously received eFTTransactionID as a parameter in the transaction. In the end result there will be a new eFTTransactionID, for the reverse transaction, and an originalEFTTransactionID referencing the original transaction.|
-| `eFTTimestamp`  <br />*NSString* | The eFTTimestamp represents the time when the transaction was done. This time is set by the device communicating to the card reader when the connection is established to the card reader.|
-| `authorisationCode`  <br />*NSString* | If the transaction was authorised the value represented can be used to search for a transaction in our system.|
-| `verificationMethod`  <br />*NSString* | The verification method represents the card holder verification method used to allow the payment. "PIN" for an example.|
-| `cardEntryType`  <br />*NSString* | The card entry type is the method the card information was input to card reader. "ICC" for an example represents "Integrated Circuit Card" i.e. the information was read from the chip of the card.|
-| `cardSchemeName`  <br />*NSString* | The scheme which was used when the transaction was made. (VISA, Mastercard, etc...)|
-| `errorMessage`  <br />*NSString* | If there was an error during the transaction it is represented here in a human readable text.|
-| `customerReference`  <br />*NSString* | If a customer reference was added, as an optional parameter, when the transaction was started. It is received here, unaltered. The customer reference can be used to reference in internal systems.|
+| `type`  <br />*NSString* | Type of financial operation ("SALE" is an example).|
+| `finStatus`  <br />*NSString* | The financial status describes the outcome of the transaction("AUTHORISED" is an example).|
+| `requestedAmount`  <br />*NSString* | Amount sent in the original request to the payment terminal.|
+| `gratuityAmount`  <br />*NSString* | The gratuity amount is an additional amount (for example a tip) added to the requested amount. This field is returned when the tipping functionality is activated on the payment terminal.<br /><br />  Example: a sale is started for 10.00 and the payment terminal is set to support tipping. The terminal asks the cardholder if a tip should be added for the transaction. The cardholder inputs an additional amount as a tip, lets say 1.00. The card is then charged for the requested amount, 10.00, as well as the additional gratuity amount, 1.00. The resulting charge will be for a total of 11.00.|
+| `gratuityPercentage`  <br />*NSString* | The gratuity percentage is used to calculate an additional amount (for example a tip) added to the requested amount. The terminal calculates the gratuity amount based on the percentage chosen by the cardholder on the payment terminal, the amount is rounded up to the closest whole number.<br /><br />  Example: a sale is started for 10.00 and the payment terminal is set to support tipping. The terminal asks the cardholder if a tip should be added for the transaction. The cardholder chooses a %  as a tip, lets say 10%. The card is then charged for the requested amount, 10.00, as well as the additional gratuity amount, 1.00 (10%). The resulting charge will be for a total of 11.00.|
+| `totalAmount`  <br />*NSString* | The total amount is the amount for which the card was charged in the minor unit of the currency. It is possible for the total amount to be different from the requested amount if a tip is added or the transaction is partially approved (US acquirers only).|
+| `currency`  <br />*NSString* | The currency used for the transaction.|
+| `eFTTransactionID`  <br />*NSString* | The EFT (electronic funds transfer) transaction id is a unique GUID assigned to the transaction. This id is used as a parameter for the sale or refund reversal function in case the transaction needs to be reversed.|
+| `originalEFTTransactionID`  <br />*NSString* | This field is only returned in a reversal or refund transaction and references the GUID of the original transaction being refunded or reversed.|
+| `eFTTimestamp`  <br />*NSString* | The eFTTimestamp is the time at which the transaction was processed.|
+| `authorisationCode`  <br />*NSString* | This is the approval code returned by the payment processor when a transaction is approved.|
+| `verificationMethod`  <br />*NSString* | Cardholder verification method, for example "PIN".|
+| `cardEntryType`  <br />*NSString* | Method used by the terminal to read the card.|
+| `cardSchemeName`  <br />*NSString* | A string representing different card brands (VISA, Mastercard, etc...)|
+| `errorMessage`  <br />*NSString* | Detailed reason for the transaction error.|
+| `customerReference`  <br />*NSString* | If a customer reference was added, as an optional parameter, when the transaction was started. It is received here, unaltered. The customer reference can be used at your will for tracking of transactions.|
 | `budgetNumber`  <br />*NSString* | If a budget number was added, as an optional parameter, when the transaction was started. It is received here, unaltered. The budget number can be used to split payments over a period of months.|
-| `recoveredTransaction`  <br />*NSString* | This flag is true if the transaction result is from a previous transaction which failed to get sent from the card reader, false otherwise. In the case that the communication between the device and the card reader breaks down, the card reader will attempt to send the result of the previous transaction as an immediate reply when the next transaction is started. If this happens the transaction is flagged as a "RecoveredTransaction". This should be displayed very well in the UI since this is *NOT* the result from the transaction just started.|
-| `cardTypeId`  <br />*NSString* | The card type id is an identifier inside the Handpoint gateway which represents what kind of card was used. "U015" for an example represents SAS Airline-Systems in our systems.|
-| `chipTransactionReport`  <br />*NSString* | If present, a full EMV report by the card reader on the Card and Terminal involved in the transaction.|
+| `recoveredTransaction`  <br />*BOOL* | This flag is true if the transaction result retrieved is from a previous transaction which failed to get sent from the payment terminal to your application, false otherwise. In case the communication between your application and the terminal breaks down, the terminal will attempt to send the result of the previous transaction as an immediate reply when the next transaction is started. If this happens, the transaction is flagged as a "RecoveredTransaction".|
+| `cardTypeId`  <br />*NSString* | DEPRECATED - The card type id is an identifier inside the Handpoint gateway which represents what kind of card was used. "U015" for an example represents SAS Airline-Systems in our systems.|
+| `chipTransactionReport`  <br />*NSString* | If present, a full report of the card EMV parameters.|
 | `deviceStatus`  <br />*NSString* | Gets the device status.|
-| `dueAmount`  <br />*NSString* | If there's still a part of the amount to be paid.|
-| `balance`  <br />*NSString* | The balance of the Cardholder's cards if the bank/acquirer supports it.|
-| `CardToken`  <br />*String* | Gets the card token if it's available, null otherwise.|
+| `dueAmount`  <br />*NSString* | If there's still a part of the amount to be paid, in case of a partial approval (US acquirers only).|
+| `balance`  <br />*NSString* | The balance of the cardholder's card, if the bank/acquirer supports it.|
+| `CardToken`  <br />*NSString* | Token representing the PAN of the card.|
 
 
 ## ScannerEventResponseInfo{#26}	
 
-`ScannerEventResponseInfo`
+`ScannerEventResponseInfo` <span class="badge badge--info">Object</span>
 
-A ScannerEventResponseInfo is passed to the responseScannerEvent delegate during scanner mode when a scan is detected. It contains all necessary information needed about the relevant operation. ScannerEventResponseInfo inherits from ResponseInfo so it includes the status string and xml dictionary in addition to scanCode string.
+A ScannerEventResponseInfo is passed to the responseScannerEvent delegate when a scan is detected. ScannerEventResponseInfo inherits from ResponseInfo so it includes the status string and xml dictionary in addition to the scanCode string.
 
 **Properties**
 
@@ -391,38 +391,38 @@ A ScannerEventResponseInfo is passed to the responseScannerEvent delegate during
 
 ## ScannerDisabledResponseInfo{#27}	
 
-`ScannerDisabledResponseInfo`
+`ScannerDisabledResponseInfo` <span class="badge badge--info">Object</span>
 
-The info object contains information about the scanner operation.
+This object contains information about the scanner operation.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
 | `statusCode`  <br />*int* | A numerical representation of the status.|
-| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
-| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status.|
+| `xml`  <br />[*XML as NSDictionary*](#46) |  XML details from the payment terminal.|
 
 ## LogInfo{#28}	
 
-`LogInfo`
+`LogInfo` <span class="badge badge--info">Object</span>
 
-A LogInfo object is passed to the ResponseLogInfo delegate when logs have been downloaded from the card reader.
+A LogInfo object is passed to the ResponseLogInfo delegate when logs have been downloaded from the payment terminal.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
 | `statusCode`  <br />*int* | A numerical representation of the status.|
-| `status`  <br />[*Status as NSString*](#45) | Financial transaction status message.|
-| `xml`  <br />[*XML as NSDictionary*](#46) | Feedback with xml details about transaction from the card reader.|
+| `status`  <br />[*Status as NSString*](#45) | Financial transaction status.|
+| `xml`  <br />[*XML as NSDictionary*](#46) | XML details from the payment terminal.|
 | `log`  <br />*NSString* | String containing the logging information.|
 
 ## eLogLevel{#13}	
 
-`eLogLevel`
+`eLogLevel` <span class="badge badge--info">Enum</span>
 
-An enum describing the different levels of logging used in the SDK and in the device.
+An enum describing the different levels of logging used in the SDK and in the payment terminal.
 
 **Possible values**
 
@@ -430,30 +430,28 @@ An enum describing the different levels of logging used in the SDK and in the de
 
 ## Transaction Details{#46}	
 
-`XML as NSDictionary`
+`XML as NSDictionary` <span class="badge badge--info">Object</span>
 
-The contents of the xml property depend on which type of operation the card reader is responding to. Listed below are all possible keys in the dictionary. Note that not all fields are included all the time.
-
-## Dictionary keys
+The contents of the xml property depend on which type of operation the payment terminal is responding to. Listed below are all possible keys in the dictionary. Note that not all fields are included all the time.
 
 **StatusMessage**
 
-A human readable description for the returned Status.
+The status of the transaction, for example "Waiting for pin".
 ***
 
 **TransactionType**
 
-The type of transaction performed: UNDEFINED, SALE, VOID_SALE, REFUND, VOID_REFUND, CANCEL_SALE, CANCEL_REFUND
+The type of transaction performed: UNDEFINED SALE VOID_SALE REFUND VOID_REFUND REVERSAL, TOKENIZE_CARD SALE_AND_TOKENIZE_CARD
 ***
 
 **FinancialStatus**
 
-The result of the transaction: UNDEFINED, APPROVED, DECLINED, PROCESSED, FAILED, CANCELLED
+The result of the transaction: UNDEFINED AUTHORISED DECLINED PROCESSED FAILED CANCELLED PARTIAL_APPROVA
 ***
 
 **RequestedAmount**
 
-The amount requested by the POS, as requested by the POS (i.e. no decimal point).
+The requested amount is the transaction amount sent to the terminal.
 ***
 
 **GratuityAmount**
@@ -508,27 +506,27 @@ The card data acquisition type: UNDEFINED, MSR, ICC, CNP
 
 **CardSchemeName**
 
-The card, reported, scheme name.
+The card brand : MasterCard, Visa, Maestro, American Express, Discover, JCB, Diners, UnionPay
 ***
 
 **CardTypeId**
 
-The ID of the Card Type.
+DEPRECATED - The ID of the Card Type.
 ***
 
 **SerialNumber**
 
-The serial number of the PED.
+The serial number of the payment terminal.
 ***
 
 **BatteryStatus**
 
-A number, followed by the % sign, which indicates current charge level of the battery.
+A number, followed by the % sign, which indicates the current charge level of the battery.
 ***
 
 **BatterymV**
 
-An integer, which represent the batter charge, in mV.
+An integer, which represent the battery charge, in mV.
 ***
 
 **BatteryCharging**
@@ -543,7 +541,7 @@ Indicates whether the PED is connected to an external power source (e.g. a AC ad
 
 **ApplicationName**
 
-The name of the application running on the PED.
+The name of the application running on the payment terminal.
 ***
 
 **ApplicationVersion**
@@ -563,130 +561,130 @@ Indicates that the transaction result is a recovered transaction. The key is onl
 
 ## CmdIds	
 
-`card reader Status messages`
+`card reader Status messages` <span class="badge badge--info">Value List</span>
 
-Status messages received from card reader:
+Status messages received from the payment terminal:
 
-## Possible values
+**Possible values**
 
-`EFT_PP_STATUS_SUCCESS`
-`EFT_PP_STATUS_INVALID_DATA`
-`EFT_PP_STATUS_PROCESSING_ERROR`
-`EFT_PP_STATUS_COMMAND_NOT_ALLOWED`
-`EFT_PP_STATUS_NOT_INITIALISED`
-`EFT_PP_STATUS_CONNECT_TIMEOUT`
-`EFT_PP_STATUS_CONNECT_ERROR`
-`EFT_PP_STATUS_SENDING_ERROR`
-`EFT_PP_STATUS_RECEIVING_ERROR`
-`EFT_PP_STATUS_NO_DATA_AVAILABLE`
-`EFT_PP_STATUS_TRANS_NOT_ALLOWED`
-`EFT_PP_STATUS_UNSUPPORTED_CURRENCY`
-`EFT_PP_STATUS_NO_HOST_AVAILABLE`
-`EFT_PP_STATUS_CARD_READER_ERROR`
-`EFT_PP_STATUS_CARD_READING_FAILED`
-`EFT_PP_STATUS_INVALID_CARD`
-`EFT_PP_STATUS_INPUT_TIMEOUT`
-`EFT_PP_STATUS_USER_CANCELLED`
-`EFT_PP_STATUS_INVALID_SIGNATURE`
-`EFT_PP_STATUS_WAITING_CARD`
-`EFT_PP_STATUS_CARD_INSERTED`
-`EFT_PP_STATUS_APPLICATION_SELECTION`
-`EFT_PP_STATUS_APPLICATION_CONFIRMATION`
-`EFT_PP_STATUS_AMOUNT_VALIDATION`
-`EFT_PP_STATUS_PIN_INPUT`
-`EFT_PP_STATUS_MANUAL_CARD_INPUT`
-`EFT_PP_STATUS_WAITING_CARD_REMOVAL`
-`EFT_PP_STATUS_TIP_INPUT`
-`EFT_PP_STATUS_SHARED_SECRET_INVALID`
-`EFT_PP_STATUS_SHARED_SECRET_AUTH`
-`EFT_PP_STATUS_WAITING_SIGNATURE`
-`EFT_PP_STATUS_CONNECTING`
-`EFT_PP_STATUS_SENDING`
-`EFT_PP_STATUS_RECEIVEING`
-`EFT_PP_STATUS_DISCONNECTING`
-`EFT_PP_STATUS_PIN_INPUT_COMPLETED`
-`EFT_PP_STATUS_POS_CANCELLED`
-`EFT_PP_STATUS_REQUEST_INVALID`
-`EFT_PP_STATUS_CARD_CANCELLED`
-`EFT_PP_STATUS_CARD_BLOCKED`
-`EFT_PP_STATUS_REQUEST_AUTH_TIMEOUT`
-`EFT_PP_STATUS_REQUEST_PAYMENT_TIMEOUT`
-`EFT_PP_STATUS_RESPONSE_AUTH_TIMEOUT`
-`EFT_PP_STATUS_RESPONSE_PAYMENT_TIMEOUT`
-`EFT_PP_STATUS_ICC_CARD_SWIPED`
-`EFT_PP_STATUS_REMOVE_CARD`
-`EFT_PP_STATUS_SCANNER_IS_NOT_SUPPORTED`
-`EFT_PP_STATUS_SCANNER_EVENT`
-`EFT_PP_STATUS_BATTERY_TOO_LOW`
-`EFT_PP_STATUS_ACCOUNT_TYPE_SELECTION`
-`EFT_PP_STATUS_BT_IS_NOT_SUPPORTED`
-`EFT_PP_STATUS_PAYMENT_CODE_SELECTION`
-`EFT_PP_STATUS_PARTIAL_APPROVAL`
-`EFT_PP_STATUS_AMOUNT_DUE_VALIDATION`
-`EFT_PP_STATUS_INVALID_URL`
-`EFT_PP_STATUS_WAITING_CUSTOMER_RECEIPT`
-`EFT_PP_STATUS_PRINTING_MERCHANT_RECEIPT`
-`EFT_PP_STATUS_PRINTING_CUSTOMER_RECEIPT`
-`EFT_PP_STATUS_WAITING_HOST_MSG_TO_HOST`
-`EFT_PP_STATUS_WAITING_HOST_MSG_RESP`
-`EFT_PP_STATUS_INITIALISATION_COMPLETE`
+`EFT_PP_STATUS_SUCCESS`<br />
+`EFT_PP_STATUS_INVALID_DATA`<br />
+`EFT_PP_STATUS_PROCESSING_ERROR`<br />
+`EFT_PP_STATUS_COMMAND_NOT_ALLOWED`<br />
+`EFT_PP_STATUS_NOT_INITIALISED`<br />
+`EFT_PP_STATUS_CONNECT_TIMEOUT`<br />
+`EFT_PP_STATUS_CONNECT_ERROR`<br />
+`EFT_PP_STATUS_SENDING_ERROR`<br />
+`EFT_PP_STATUS_RECEIVING_ERROR`<br />
+`EFT_PP_STATUS_NO_DATA_AVAILABLE`<br />
+`EFT_PP_STATUS_TRANS_NOT_ALLOWED`<br />
+`EFT_PP_STATUS_UNSUPPORTED_CURRENCY`<br />
+`EFT_PP_STATUS_NO_HOST_AVAILABLE`<br />
+`EFT_PP_STATUS_CARD_READER_ERROR`<br />
+`EFT_PP_STATUS_CARD_READING_FAILED`<br />
+`EFT_PP_STATUS_INVALID_CARD`<br />
+`EFT_PP_STATUS_INPUT_TIMEOUT`<br />
+`EFT_PP_STATUS_USER_CANCELLED`<br />
+`EFT_PP_STATUS_INVALID_SIGNATURE`<br />
+`EFT_PP_STATUS_WAITING_CARD`<br />
+`EFT_PP_STATUS_CARD_INSERTED`<br />
+`EFT_PP_STATUS_APPLICATION_SELECTION`<br />
+`EFT_PP_STATUS_APPLICATION_CONFIRMATION`<br />
+`EFT_PP_STATUS_AMOUNT_VALIDATION`<br />
+`EFT_PP_STATUS_PIN_INPUT`<br />
+`EFT_PP_STATUS_MANUAL_CARD_INPUT`<br />
+`EFT_PP_STATUS_WAITING_CARD_REMOVAL`<br />
+`EFT_PP_STATUS_TIP_INPUT`<br />
+`EFT_PP_STATUS_SHARED_SECRET_INVALID`<br />
+`EFT_PP_STATUS_SHARED_SECRET_AUTH`<br />
+`EFT_PP_STATUS_WAITING_SIGNATURE`<br />
+`EFT_PP_STATUS_CONNECTING`<br />
+`EFT_PP_STATUS_SENDING`<br />
+`EFT_PP_STATUS_RECEIVEING`<br />
+`EFT_PP_STATUS_DISCONNECTING`<br />
+`EFT_PP_STATUS_PIN_INPUT_COMPLETED`<br />
+`EFT_PP_STATUS_POS_CANCELLED`<br />
+`EFT_PP_STATUS_REQUEST_INVALID`<br />
+`EFT_PP_STATUS_CARD_CANCELLED`<br />
+`EFT_PP_STATUS_CARD_BLOCKED`<br />
+`EFT_PP_STATUS_REQUEST_AUTH_TIMEOUT`<br />
+`EFT_PP_STATUS_REQUEST_PAYMENT_TIMEOUT`<br />
+`EFT_PP_STATUS_RESPONSE_AUTH_TIMEOUT`<br />
+`EFT_PP_STATUS_RESPONSE_PAYMENT_TIMEOUT`<br />
+`EFT_PP_STATUS_ICC_CARD_SWIPED`<br />
+`EFT_PP_STATUS_REMOVE_CARD`<br />
+`EFT_PP_STATUS_SCANNER_IS_NOT_SUPPORTED`<br />
+`EFT_PP_STATUS_SCANNER_EVENT`<br />
+`EFT_PP_STATUS_BATTERY_TOO_LOW`<br />
+`EFT_PP_STATUS_ACCOUNT_TYPE_SELECTION`<br />
+`EFT_PP_STATUS_BT_IS_NOT_SUPPORTED`<br />
+`EFT_PP_STATUS_PAYMENT_CODE_SELECTION`<br />
+`EFT_PP_STATUS_PARTIAL_APPROVAL`<br />
+`EFT_PP_STATUS_AMOUNT_DUE_VALIDATION`<br />
+`EFT_PP_STATUS_INVALID_URL`<br />
+`EFT_PP_STATUS_WAITING_CUSTOMER_RECEIPT`<br />
+`EFT_PP_STATUS_PRINTING_MERCHANT_RECEIPT`<br />
+`EFT_PP_STATUS_PRINTING_CUSTOMER_RECEIPT`<br />
+`EFT_PP_STATUS_WAITING_HOST_MSG_TO_HOST`<br />
+`EFT_PP_STATUS_WAITING_HOST_MSG_RESP`<br />
+`EFT_PP_STATUS_INITIALISATION_COMPLETE`<br />
 
 
 ## Status strings{#45}	
 
-`Status as NSString`
+`Status as NSString` <span class="badge badge--info">Value List</span>
 
 An NSString containing the status message - can be one of the following:
 	
-## Possible values
+**Possible values**
 
-`Success`
-`Invalid data`
-`Processing error`
-`Not allowed`
-`Not initialized`
-`Connect timeout`
-`Connect error`
-`Sending error`
-`Receiveing error`
-`No data available`
-`Transaction not allowed`
-`Unsupported currency`
-`No host available`
-`Card reader error`
-`Card reading failed`
-`Invalid card`
-`Input timeout`
-`User cancelled`
-`Invalid signature`
-`Waiting card`
-`Card inserted`
-`Application selection`
-`Application confirmation`
-`Amount validation`
-`PIN input`
-`Manual card input`
-`Waiting card removal`
-`Tip input`
-`Shared secret invalid`
-`Connecting`
-`Sending`
-`Receiving`
-`Disconnecting`
-`PIN entry completed`
-`Merchant cancelled the transaction`
-`Request invalid`
-`Card cancelled the transaction`
-`Blocked card`
-`Request for authorisation timed out`
-`Request for payment timed out`
-`Response to authorisation request timed out`
-`Response to payment request timed out`
-`Please insert card in chip reader`
-`Remove the card from the reader`
-`This device does not have a scanner`
-`Scanner is not supported`
-`Scanner event`
+`Success`<br />
+`Invalid data`<br />
+`Processing error`<br />
+`Not allowed`<br />
+`Not initialized`<br />
+`Connect timeout`<br />
+`Connect error`<br />
+`Sending error`<br />
+`Receiveing error`<br />
+`No data available`<br />
+`Transaction not allowed`<br />
+`Unsupported currency`<br />
+`No host available`<br />
+`Card reader error`<br />
+`Card reading failed`<br />
+`Invalid card`<br />
+`Input timeout`<br />
+`User cancelled`<br />
+`Invalid signature`<br />
+`Waiting card`<br />
+`Card inserted`<br />
+`Application selection`<br />
+`Application confirmation`<br />
+`Amount validation`<br />
+`PIN input`<br />
+`Manual card input`<br />
+`Waiting card removal`<br />
+`Tip input`<br />
+`Shared secret invalid`<br />
+`Connecting`<br />
+`Sending`<br />
+`Receiving`<br />
+`Disconnecting`<br />
+`PIN entry completed`<br />
+`Merchant cancelled the transaction`<br />
+`Request invalid`<br />
+`Card cancelled the transaction`<br />
+`Blocked card`<br />
+`Request for authorisation timed out`<br />
+`Request for payment timed out`<br />
+`Response to authorisation request timed out`<br />
+`Response to payment request timed out`<br />
+`Please insert card in chip reader`<br />
+`Remove the card from the reader`<br />
+`This device does not have a scanner`<br />
+`Scanner is not supported`<br />
+`Scanner event`<br />
 
 ## Process details
 

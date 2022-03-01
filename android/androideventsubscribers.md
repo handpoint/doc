@@ -4,7 +4,7 @@ id: androideventsubscribers
 ---
 
 
-# Events subscribers
+# Events Subscribers
 
 ## Register events delegate
 

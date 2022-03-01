@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 id: iosintegration
 ---
 
@@ -18,7 +18,7 @@ id: iosintegration
 - ** HandpointSDK.h**: #import this header file into your classes.
 - **HandpointSDK.framework**: The SDK library.
 
-The SDK also includes a simulator, a library configured to simulate a card reader - intended for early development of an user interface. To use it, just link the libheft.a file in the HeftSimulatorLibrary folder, instead of the actual SDK library.
+The SDK also includes a simulator, a library configured to simulate a payment terminal - intended for early development of an user interface. To use it, just link the libheft.a file in the HeftSimulatorLibrary folder, instead of the actual SDK library.
 
 ##  Development settings for the SDK
 
@@ -44,7 +44,7 @@ The SDK also includes a simulator, a library configured to simulate a card reade
 ````
             
 - **C++ linker flag**: A part of the library is written in c++ therefore the **-lc++ linker flag** needs to be set. Add it under "Other Linker Flags" under the "Linking" section of your projects settings "Build Settings" tab.
-- **Other settings**: To prevent the warning: "file was built for archive which is not the architecture being linked (armv7s)", **set Build Active Architecture Only** to YES.
+- **Other settings**: To prevent the warning "file was built for archive which is not the architecture being linked (armv7s)", **set Build Active Architecture Only** to YES.
 
 
 ## Usage summary
@@ -60,7 +60,7 @@ This class defines the behavior of the app when connection and transaction relat
 5. If device is using a Lightning connector (HiPro devices), recover the device by directly calling the **connectedCardReaders** function of the HeftManager.
 6. Connect to a device by calling the **clientForDevice** function of the HeftManager.
 7. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked.
-8. From this point, make transactions and have fun!
+8. From this point, start processing transactions and have fun!
 
 ## Usage details
 
