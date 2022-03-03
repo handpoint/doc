@@ -37,13 +37,14 @@ We **strongly** recommend you add the following to your main **`<activity>`**:
 android:launchMode="singleTask"
 ```
 
-**2. In the gradle.build**
+**2.1 In the gradle.build (app module)** 
 
 ```groovy
 android {
 	defaultConfig {
 		minSdkVersion 22 //Required to support all PAX & Telpo models
-		targetSdkVersion 29
+		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
 		multiDexEnabled true
 	}
 
@@ -54,10 +55,51 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
-        exclude ‘**/animator/*.xml'
+        exclude '**/animator/*.xml'
+    }
+}
+````
+```groovy
+dependencies {
+
+    //Handpoint Production SDK (Production devices)
+    implementation 'com.handpoint.api:sdk:6.x.x'
+    
+    //Handpoint Staging/Development SDK (Debug devices)
+    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+}
+```
+
+
+**2.2 In the gradle.build (Top-level build file)** 
+
+```groovy
+allprojects {     //Handpoint Production SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
     }
 }
 ```
+
+```groovy
+allprojects {   //Handpoint Staging/Development SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "Handpoint Nexus"
+            url = uri("urlProvided")
+            credentials {
+                username = 'usernameProvided'
+                password = 'passwordProvided'
+            }
+        }
+    }
+}
+```
+
 
 **3. Create a Java class**
 
@@ -242,13 +284,14 @@ We **strongly** recommend you add the following to your main **`<activity>`**:
 android:launchMode="singleTask"
 ```
 
-**2. In the gradle.build**
+**2.1 In the gradle.build (app module)** 
 
 ```groovy
 android {
 	defaultConfig {
 		minSdkVersion 22 //Required to support all PAX & Telpo models
-		targetSdkVersion 29
+		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
 		multiDexEnabled true
 	}
 
@@ -259,7 +302,47 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
-        exclude ‘**/animator/*.xml'
+        exclude '**/animator/*.xml'
+    }
+}
+````
+```groovy
+dependencies {
+
+    //Handpoint Production SDK (Production devices)
+    implementation 'com.handpoint.api:sdk:6.x.x'
+    
+    //Handpoint Staging/Development SDK (Debug devices)
+    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+}
+```
+
+
+**2.2 In the gradle.build (Top-level build file)** 
+
+```groovy
+allprojects {     //Handpoint Production SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+```groovy
+allprojects {   //Handpoint Staging/Development SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "Handpoint Nexus"
+            url = uri("urlProvided")
+            credentials {
+                username = 'usernameProvided'
+                password = 'passwordProvided'
+            }
+        }
     }
 }
 ```
@@ -439,13 +522,14 @@ Please, start an operation (sale,refund etc.) ONLY if you have received the **In
 
  **Let's start programming!**
 
-**1. In the gradle.build**
+**1.1 In the gradle.build (app module)** 
 
 ```groovy
 android {
 	defaultConfig {
 		minSdkVersion 22 //Required to support all PAX & Telpo models
-		targetSdkVersion 29
+		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
 		multiDexEnabled true
 	}
 
@@ -456,7 +540,47 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
-        exclude ‘**/animator/*.xml'
+        exclude '**/animator/*.xml'
+    }
+}
+````
+```groovy
+dependencies {
+
+    //Handpoint Production SDK (Production devices)
+    implementation 'com.handpoint.api:sdk:6.x.x'
+    
+    //Handpoint Staging/Development SDK (Debug devices)
+    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+}
+```
+
+
+**1.2 In the gradle.build (Top-level build file)** 
+
+```groovy
+allprojects {     //Handpoint Production SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+```groovy
+allprojects {   //Handpoint Staging/Development SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "Handpoint Nexus"
+            url = uri("urlProvided")
+            credentials {
+                username = 'usernameProvided'
+                password = 'passwordProvided'
+            }
+        }
     }
 }
 ```

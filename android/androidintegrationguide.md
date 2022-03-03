@@ -54,7 +54,7 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
-        exclude ‘**/animator/*.xml'
+        exclude '**/animator/*.xml'
     }
 }
 ```
