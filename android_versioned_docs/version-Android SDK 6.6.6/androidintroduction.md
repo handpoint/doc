@@ -77,7 +77,7 @@ The latest version is compiled with java **1.8**
 
 
 
-- Some considerations to keep in mind when using gradle
+- Some considerations to keep in mind when using gradle:
 
  In the `gradle.build` (app module):
 
@@ -122,6 +122,7 @@ The latest version is compiled with java **1.8**
         }
   ```
 
-Do not hesitate to visit our [Integration Guides](androidintegrationguide) section
+
+It is time to visit our **[Integration Guides](androidintegrationguide)** section.
 
 If you have any questions, do not hesitate to **[Contact Us](mailto:support@handpoint.com)**.
