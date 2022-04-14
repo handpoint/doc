@@ -3,7 +3,7 @@ sidebar_position: 8
 id: windowsevents
 ---
 
-# Events
+# Events Listeners
 
 ## Transaction Result Recovery over CLOUD connection
 

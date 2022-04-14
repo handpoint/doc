@@ -4,7 +4,7 @@ id: windowsintegrationguide
 ---
 
 
-# Integration Guide
+# Integration Guides
 
 ## Hilite & Hi5 - Bluetooth Integration
 

@@ -3,7 +3,7 @@ sidebar_position: 6
 id: windowsdevicemanagement
 ---
 
-# Device management
+# Terminal Management
 
 ## Connect
 

@@ -4,7 +4,7 @@ id: windowseventssubscribers
 ---
 
 
-# Events subscribers
+# Events Subscribers
 
 ## Register events delegate
 

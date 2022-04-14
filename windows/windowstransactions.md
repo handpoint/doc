@@ -4,7 +4,7 @@ id: windowstransactions
 ---
 
 
-# Transactions
+# Transaction Types
 
 ## Sale
 
