@@ -10,8 +10,7 @@ id: androidintegrationguide
 **We support the following connection methods** 
 
 1. **[Android Native (PAX/Telpo)](#8)**
-2. **[Bluetooth (HiLite/Hi5)](#9)**
-3. **[Cloud (PAX/Telpo)](#10)**
+2. **[Bluetooth (HiLite)](#9)**
 
 ## Android Native Integration (PAX/Telpo) {#8}
 
@@ -37,13 +36,14 @@ We **strongly** recommend you add the following to your main **`<activity>`**:
 android:launchMode="singleTask"
 ```
 
-**2. In the gradle.build**
+**2.1 In the gradle.build (app module)** 
 
 ```groovy
 android {
 	defaultConfig {
 		minSdkVersion 22 //Required to support all PAX & Telpo models
-		targetSdkVersion 29
+		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
 		multiDexEnabled true
 	}
 
@@ -57,7 +57,48 @@ android {
         exclude '**/animator/*.xml'
     }
 }
+````
+```groovy
+dependencies {
+
+    //Handpoint Production SDK (Production devices)
+    implementation 'com.handpoint.api:sdk:6.x.x'
+    
+    //Handpoint Staging/Development SDK (Debug devices)
+    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+}
 ```
+
+
+**2.2 In the gradle.build (Top-level build file)** 
+
+```groovy
+allprojects {     //Handpoint Production SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+```groovy
+allprojects {   //Handpoint Staging/Development SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "Handpoint Nexus"
+            url = uri("urlProvided")
+            credentials {
+                username = 'usernameProvided'
+                password = 'passwordProvided'
+            }
+        }
+    }
+}
+```
+
 
 **3. Create a Java class**
 
@@ -216,7 +257,7 @@ Sort of. With the above tutorial you've done a basic integration that can perfor
 
 Explore the rest of the documentation to see more transaction types supported and possibilities.
 
-## Bluetooth Integration (HiLite/Hi5) {#9}
+## Bluetooth Integration (HiLite) {#9}
 
  **Introduction**
 
@@ -242,13 +283,14 @@ We **strongly** recommend you add the following to your main **`<activity>`**:
 android:launchMode="singleTask"
 ```
 
-**2. In the gradle.build**
+**2.1 In the gradle.build (app module)** 
 
 ```groovy
 android {
 	defaultConfig {
 		minSdkVersion 22 //Required to support all PAX & Telpo models
-		targetSdkVersion 29
+		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
 		multiDexEnabled true
 	}
 
@@ -259,7 +301,47 @@ android {
         exclude '**/layout/*.xml'
         exclude 'resources.arsc'
         exclude 'AndroidManifest.xml'
-        exclude ‘**/animator/*.xml'
+        exclude '**/animator/*.xml'
+    }
+}
+````
+```groovy
+dependencies {
+
+    //Handpoint Production SDK (Production devices)
+    implementation 'com.handpoint.api:sdk:6.x.x'
+    
+    //Handpoint Staging/Development SDK (Debug devices)
+    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+}
+```
+
+
+**2.2 In the gradle.build (Top-level build file)** 
+
+```groovy
+allprojects {     //Handpoint Production SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+```groovy
+allprojects {   //Handpoint Staging/Development SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven {
+            name = "Handpoint Nexus"
+            url = uri("urlProvided")
+            credentials {
+                username = 'usernameProvided'
+                password = 'passwordProvided'
+            }
+        }
     }
 }
 ```
@@ -412,251 +494,6 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
 :::info
 **Note about reconnections:** By default, the SDK will automatically reconnect to the last known device when the connection is lost.If you want to change this behaviour set the property Settings.AutomaticReconnection in HapiManager to **false**.
 :::
-
-**We're done!**
-
-Sort of. With the above tutorial you've done a basic integration that can perform sale transactions.
-
-Explore the rest of the documentation to see more transaction types supported and possibilities.
-
-## Cloud Integration (PAX/Telpo) {#10}
-
- **Introduction**
-
-This tutorial is guiding you through all the required steps to integrate with a Handpoint (PAX, Telpo or Datecs) payment terminal, from your Android application, through the internet. CLOUD will be the ConnectionMethod of choice for this guide. With this connection method you become the client in a client - server connection.
-
-:::warning
-There needs to be another app with one of our SDKs that is active and keeping the connection open.
-:::
-
-The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
-
-At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. The platform is always up to the latest PCI-DSS security requirements.
-
-:::warning
-Please, start an operation (sale,refund etc.) ONLY if you have received the **InitialisationComplete** message from the **currentTransactionStatus** method
-:::
-
- **Let's start programming!**
-
-**1. In the gradle.build**
-
-```groovy
-android {
-	defaultConfig {
-		minSdkVersion 22 //Required to support all PAX & Telpo models
-		targetSdkVersion 29
-		multiDexEnabled true
-	}
-
-    packagingOptions {
-        pickFirst '**/*.so'
-        exclude 'META-INF/*'
-        exclude '**/anim/*.xml'
-        exclude '**/layout/*.xml'
-        exclude 'resources.arsc'
-        exclude 'AndroidManifest.xml'
-        exclude ‘**/animator/*.xml'
-    }
-}
-```
-
-**2. Create a Java class**
-
-Create a new java class called HandpointDelegate.java and include com.handpoint.api.* as a dependency:
-
-```java
-package com.yourpackage.name;
-
-import android.content.Context;
-
-import com.handpoint.api.HandpointCredentials;
-import com.handpoint.api.Hapi;
-import com.handpoint.api.HapiFactory;
-import com.handpoint.api.shared.ConnectionMethod;
-import com.handpoint.api.shared.ConnectionStatus;
-import com.handpoint.api.shared.Currency;
-import com.handpoint.api.shared.Device;
-import com.handpoint.api.shared.Events;
-import com.handpoint.api.shared.SignatureRequest;
-import com.handpoint.api.shared.StatusInfo;
-import com.handpoint.api.shared.TipConfiguration;
-import com.handpoint.api.shared.TransactionResult;
-import com.handpoint.api.shared.agreements.Acquirer;
-import com.handpoint.api.shared.agreements.Credential;
-import com.handpoint.api.shared.agreements.MerchantAuth;
-import com.handpoint.api.shared.options.SaleOptions;
-
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
-
-//Check all the events available in the Events interface.
-//If you want to subscribe to more events, just add to the list of implemented interfaces.
-public class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
-
-    private Hapi api;
-
-    public HandpointDelegate(Context context) {
-        initApi(context);
-    }
-
-    public void initApi(Context context) {
-        String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-        String merchantApiKey = "This-is-my-api-key-provided-by-Handpoint";
-        HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret, merchantApiKey);
-        this.api = HapiFactory.getAsyncInterface(this, context, handpointCredentials);
-        // The api is now initialized. Yay! we've even set default credentials.
-        // The shared secret is a unique string shared between the payment terminal and your application, it is a free field.
-        // The Api key is a unique key per merchant used to authenticate the terminal against the Cloud.
-        // You should replace the API key with the one sent by the Handpoint support team.
-        // Now we need to find our device and connect to it.
-        discoverDevices();
-    }
-
-    // Now  we need to connect to a device to start taking payments.
-    // Let's search for them:
-    public void discoverDevices(){
-        this.api.searchDevices(ConnectionMethod.CLOUD);
-        // This triggers the asynchronous search for all the devices around that haven't been paired.
-
-        // You could, alternatively, search for the already paired devices
-        // List<Device> devices = this.api.getPairedDevices(ConnectionMethod.CLOUD);
-        // Now:
-        // selectDeviceAndConnect(devices);
-        // You'll receive the devices found through the deviceDiscoveryFinished method.
-        // See: https://handpoint.com/docs/device/Android/#elem_eventsDeviceDiscoveryFinished
-    }
-
-    @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
-        selectDeviceAndConnect(devices);
-    }
-
-    private void selectDeviceAndConnect(List<Device> devices) {
-        for (Device device : devices) {
-            if (device.getName() != null){
-                // All the devices here are all of the merchant's devices
-                if (/* Fill your logic here */) {
-                    this.api.connect(device);
-                    // Now take a look at connectionStatusChanged method
-                    break;
-                }
-            }
-        }
-    }
-
-    //Potentially, if you know the Serial number and model of the device you want to connect to, you can skip the search and do it this way
-    public void connect(){
-        Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
-        //new Device("name", "address", "port", ConnectionMethod.CLOUD);
-        this.api.connect(device);
-    }
-
-    @Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device) {
-        if (status == ConnectionStatus.Connected) {
-            // Let's launch a payment
-            pay();
-        }
-    }
-
-    public boolean pay() {
-        return this.api.sale(new BigInteger("1000"), Currency.GBP);
-        // Let´s start our first payment of 10 pounds
-    }
-
-    public boolean payWithOptions() {
-        SaleOptions options = new SaleOptions();
-
-        // Adding tipping
-        TipConfiguration config = new TipConfiguration();
-        //Optionally
-        config.setHeaderName("HEADER");
-        //Optionally
-        config.setFooter("FOOTER");
-        //Optionally
-        config.setEnterAmountEnabled(true);
-        //Optionally
-        config.setSkipEnabled(true);
-        //Optionally
-        config.setTipPercentages(Arrays.asList(5, 10, 15, 20));
-        options.setTipConfiguration(config);
-
-        // Adding Multi MID / Custom merchant Authentication
-        MerchantAuth auth = new MerchantAuth();
-        Credential credential = new Credential();
-        //Optionally
-        credential.setAcquirer(Acquirer.SANDBOX);
-        //Optionally
-        credential.setMid("mid");
-        //Optionally
-        credential.setTid("tid");
-        //Add as many credentials as Acquirers your merchant have agreements with
-        auth.add(credential);
-        options.setMerchantAuth(auth);
-
-        //Add a customer reference
-        options.setCustomerReference("Your customer reference");
-
-        //Enable pin bypass
-        options.setPinBypass(true);
-
-        //Enable signature bypass
-        options.setSignatureBypass(true);
-
-        //Define a budget number
-        options.setBudgetNumber("YOUR_BUDGET_NUMBER");
-
-        return this.api.sale(new BigInteger("1000"),Currency.GBP, options);
-    }
-
-    @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) {
-        if (statusInfo.getStatus() == StatusInfo.Status.InitialisationComplete) {
-            // The StatusInfo object holds the different transaction statuses like reading card, pin entry, etc.
-        }
-    }
-
-    @Override
-    public void signatureRequired(SignatureRequest signatureRequest, Device device) {
-        // This event can be safely ignored for a PAX/Telpo integration. The complete signature capture process
-        // is already handled in the sdk, a dialog will prompt the user for a signature if required.
-        // If a signature was entered, it should be printed on the receipts.
-
-        //For Datecs integrations:
-        // You'll be notified here if a sale process needs a signature verification
-        // A signature verification is needed if the cardholder uses an MSR or a chip & signature card
-        // This method will not be invoked if a transaction is made with a Chip & PIN card
-        // At this step, you are supposed to display the merchant receipt to the cardholder on the android device
-        // The cardholder must have the possibility to accept or decline the transaction
-        // If the cardholder clicks on decline, the transaction is VOID
-        // If the cardholder clicks on accept he is then asked to sign electronically the receipt
-        this.api.signatureResult(true);
-        // This line means that the cardholder ALWAYS accepts to sign the receipt
-        // For this sample app we are not going to implement the whole signature process
-    }
-
-    @Override
-    public void endOfTransaction(TransactionResult transactionResult, Device device) {
-        // The object TransactionResult stores the different receipts
-        // Other information can be accessed through this object like the transaction ID, the amount...
-    }
-
-    @Override
-    public void transactionResultReady(TransactionResult transactionResult, Device device) {
-        // Pending TransactionResult objects will be received through this event if the EndOfTransaction
-        // event was not delivered during the transaction, for example because of a network issue.
-        // For this sample app we are not going to implement this event.
-    }
-
-    public void disconnect(){
-        this.api.disconnect();
-        //This disconnects the connection
-    }
-
-}
-```
 
 **We're done!**
 
