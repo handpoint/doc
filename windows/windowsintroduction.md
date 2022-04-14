@@ -17,7 +17,7 @@ id: windowsintroduction
 </a>
     </div>
     <div class="card__footer">
-      <p><a class="button button--primary" href="https://www.nuget.org/packages/HandpointSDK/" >Get the latest SDK!</a></p>
+      <p><a class="button button--primary" href="https://www.nuget.org/packages/HandpointSDK/" >Get the latest Windows SDK!</a></p>
       <p><b>x.x.x-beta</b> versions are to be used with debug terminals</p>
       <p><b>x.x.x</b> versions are to be used with production terminals</p>
     </div>
