@@ -8,17 +8,17 @@ id: windowstransactions
 
 ## Sale
 
-`Sale`
+`Sale` <span class="badge badge--info">Method</span>
 
-A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts a map with extra parameters.
+A sale initiates a transaction with the payment terminal. In it's simplest form you only have to pass the **amount** and **currency** but it also accepts a map with optional parameters.
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*    | 		Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)     | 		Currency of the charge|
-| `map` <br />*Map*     | 		A map including extra [*optional transaction parameters.*](windowsobjects.md#3)|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*    | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)     | 		Currency of the transaction.|
+| `map` <br />*Map*     | 		A map including [*optional transaction parameters.*](windowsobjects.md#3)|
 
 
 **Code example**
@@ -38,40 +38,40 @@ this.Hapi.Sale(new BigInteger("1000"), Currency.EUR, dic);
 
 **[*currentTransactionStatus*](windowsevents.md#4)** 
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ***
 
 **[*signatureRequired*](windowsevents.md#5)**
 
-Invoked if card verification requires signature.
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
  **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 
 
 ## Sale And Tokenize Card
 
-`SaleAndTokenizeCard`
+`SaleAndTokenizeCard` <span class="badge badge--info">Method</span>
 
-A sale that returns the tokenized version of the card used if successful. (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)
+A sale operation which also returns a card token. This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice.
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the charge|
-| `map` <br />*Map*     | 		A map including extra [*optional transaction parameters.*](windowobjects#3)|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the transaction.|
+| `map` <br />*Map*     | 		A map including [*optional transaction parameters.*](windowobjects#3)|
 
 **Code example**
 
@@ -84,41 +84,40 @@ api.SaleAndTokenizeCard(new BigInteger("1000"),Currency.GBP);
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry').
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
 
-Invoked if card verification requires signature.
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction.
-
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 
 ## Sale Reversal
 
-`SaleReversal`
+`SaleReversal` <span class="badge badge--info">Method</span>
 
-A sale Reversal, also called sale VOID allows the user to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id. In it's simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with extra parameters. Note that transactions can only be reversed within the same day as the transaction was made.
+A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id. In its simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with optional parameters. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission.
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span><br />*String*     | 		As received from the card reader (EFTTransactionID)|
-| `map` <br />*Map*     | 		A map including extra [*optional transaction parameters.*](windowobjects#3)|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the transaction.|
+| `originalTransactionID` <span class="badge badge--primary">Required</span><br />*String*     | 		Id of the original sale transaction (EFTTransactionID)|
+| `map` <br />*Map*     | 		A map including [*optional transaction parameters.*](windowobjects#3)|
 
 **Code example**
 
@@ -136,35 +135,35 @@ Invoked during a transaction, it fetches statuses coming from the card reader (e
 
 **[*signatureRequired*](windowsevents.md#5)**
 
-Invoked if card verification requires signature.
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 
 ## Refund
 
-`Refund`
+`Refund` <span class="badge badge--info">Method</span>
 
-A refund initiates a refund operation to the card reader. This operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts a map with extra parameters.
+A refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts a map with optional parameters. Note that a card is required to be swiped, dipped or tapped for this operation. For Interac (Canadian Debit Network), refunds can only be processed until Interac closes the batch of transactions at night.
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span><br />*String*     | 		As received from the card reader (EFTTransactionID)|
-| `map` <br />*Map*  | A map including extra [*optional transaction parameters.*](windowobjects#3)|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the transaction.|
+| `originalTransactionID`<br />*String*     | 		Id of the original sale transaction (EFTTransactionID)|
+| `map` <br />*Map*  | A map including [*optional transaction parameters.*](windowobjects#3)|
 
 **Code example**
 
@@ -176,41 +175,41 @@ api.Refund(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-0000000000
 #### Events invoked
 **[*currentTransactionStatus*](windowsevents.md#4)** 
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*signatureRequired*](windowsevents.md#5)** 
 
-Invoked if card verification requires signature.
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 
 
 ## Refund Reversal
 
-`RefundReversal`
+`RefundReversal` <span class="badge badge--info">Method</span>
 
-A Refund Reversal, also called Refund VOID allows the merchant to reverse a previous refund operation. This operation reverts (if possible) a specific refund identified with a transaction id. In it's simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with extra parameters. Note that transactions can only be reversed within the same day as the transaction was made.
+A Refund Reversal, also called Refund VOID allows the merchant to reverse a previous refund operation. This operation reverts (if possible) a specific refund identified with a transaction id. In its simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with optional parameters. Note that transactions can only be reversed within the same day as the transaction was made.
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span><br />*String*     | 		As received from the card reader (EFTTransactionID)|
-| `map` <br />*Map*     | 		A map including extra [*optional transaction parameters.*](windowobjects#3)|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the transaction.|
+| `originalTransactionID` <span class="badge badge--primary">Required</span><br />*String*     | Id of the original refund transaction (EFTTransactionID)|
+| `map` <br />*Map*     | 		A map including [*optional transaction parameters.*](windowobjects#3)|
 
 
 **Code example**
@@ -224,28 +223,28 @@ api.RefundReversal(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-00
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
 
-Invoked if card verification requires signature.
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
-***
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
+****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 ## MoTo Sale
 
-`moToSale`
+`moToSale` <span class="badge badge--info">Method</span>
 
 Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.
 
@@ -253,9 +252,9 @@ Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span><br />*Currency*     | Currency of the charge|
-| `map` <br />*Map*     | A map including extra [*optional transaction parameters.*](windowobjects#3)|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span><br />*Currency*     | Currency of the transaction.|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3)|
 
 **Code example**
 
@@ -273,12 +272,12 @@ this.Hapi.MotoSale(new BigInteger("1000"), Currency.EUR, dic);
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment SDK during the transaction, for example 'processing'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
@@ -288,9 +287,9 @@ Invoked when the card reader finishes processing the transaction
 | `Boolean`| `true` if the operation was successfully sent to the gateway|
 
 
-## MoTo Refund
+## MoTo Refund 
 
-`moToRefund`
+`moToRefund` <span class="badge badge--info">Method</span>
 
 A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.
 
@@ -298,10 +297,10 @@ A MOTO refund operation moves funds from the merchant account to the cardholder�
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span>v*Currency*     | Currency of the charge|
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span>v*Currency*     | Currency of the transaction.|
 | `originalTransactionId`<br /> *String*     | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
-| `map` <br />*Map*     | A map including extra [*optional transaction parameters.*](windowobjects#3)|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3)|
 
 **Code example**
 
@@ -314,12 +313,12 @@ this.Hapi.MotoRefund(new BigInteger(1000), Currency.EUR, "00000000-0000-0000-000
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment SDK during the transaction, for example 'processing'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
@@ -331,7 +330,7 @@ Invoked when the card reader finishes processing the transaction
 
 ## MoTo Reversal
 
-`moToReversal`
+`moToReversal` <span class="badge badge--info">Method</span>
 
 A MOTO reversal, also called VOID allows the user to reverse a previous sale/refund operation. This operation reverts (if possible) a specific operation identified with a transaction id. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission. MOTO Reversal is a type of card-not-present (CNP) transaction used to reverse a previous MOTO Sale or MOTO Refund.
 
@@ -340,7 +339,7 @@ A MOTO reversal, also called VOID allows the user to reverse a previous sale/ref
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `originalTransactionId` <span class="badge badge--primary">Required</span><br /> *String*     | Id of the original sale transaction.|
-| `map` *Map*     | A map including extra optional transaction parameters|
+| `map` *Map*     | A map including optional transaction parameters|
 
 **Code example**
 
@@ -351,12 +350,12 @@ this.Hapi.MotoReversal("00000000-0000-0000-0000-000000000000");
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment SDK during the transaction, for example 'processing'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
@@ -367,15 +366,15 @@ Invoked when the card reader finishes processing the transaction
 
 ## Print Receipt
 
-`PrintReceipt`
+`PrintReceipt` <span class="badge badge--info">Method</span>
 
-Print on demand functionality allowing the merchant to print any HTML formatted receipt. Available for CLOUD connections
+Print on demand functionality allowing the payment terminal to print any HTML formatted receipt. Available for CLOUD connections
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `receipt` <span class="badge badge--primary">Required</span><br />*String*     | 		HTML receipt or url to locate the receipt, it can be found in the response of a financial operation, in the fields merchantReceipt or customerReceipt. The receipt must match the following HTML Print Format|
+| `receipt` <span class="badge badge--primary">Required</span><br />*String*     | 		HTML receipt or url to locate the receipt, it can be found in the response of a financial operation, in the fields merchantReceipt or customerReceipt. The receipt must match the following [HTML Print Format](https://handpoint.atlassian.net/wiki/spaces/PD/pages/1409875969/Html+Print+Format)|
 
 **Code example**
 
@@ -393,9 +392,9 @@ bool success = api.PrintReceipt(validReceipt);
 
 ## Signature Result
 
-`SignatureResult`
+`SignatureResult` <span class="badge badge--info">Method</span>
 
-A signatureRequired event is invoked during transaction when signature verification is needed (f.ex when payment is done with a magstripe card). The merchant is required to ask the cardholder for signature and approve (or disapprove) the signature. signatureResult tells the card reader if the signature was approved by passing true in the method. To disapprove then false is passed. Integrations with PAX or Telpo devices DO NOT need the implementation of this event.
+A signatureRequired event is invoked during a transaction when a signature verification is required, for example when a payment is done with a swiped or chip and signature card. The merchant is required to ask the cardholder for signature and approve (or decline) the transaction. signatureResult tells the payment terminal if the signature was approved by passing the value true in the method. To decline a signature event then false should be passed to the payment terminal. Note that this event is only required for an HiLite integration and can be safely ignored for a PAX or Telpo integration.
 
 #### Parameters
 
@@ -418,35 +417,35 @@ public void SignatureRequired(SignatureRequest signatureRequest, Device device)
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
 
-Invoked when the card reader finishes processing the transaction
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 
 
 ## Tip Adjustment
 
-`TipAdjustment`
+`TipAdjustment` <span class="badge badge--info">Method</span>
 
 A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day.
-Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV. This functionality is limited to HiLite terminals.
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `tipAmount` <span class="badge badge--primary">Required</span> <br/>*BigInteger* | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP) |
-| `originalTransactionID` <span class="badge badge--primary">Required</span> <br/>*String*     | Unique id of the original sale transaction as received from the card reader (EFTTransactionID) |
+| `tipAmount` <span class="badge badge--primary">Required</span> <br/>*BigInteger* | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). |
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br/>*String*     | Id of the original sale transaction (EFTTransactionID) |
 
 
 **Code example**
@@ -481,15 +480,15 @@ If two tip adjustments are sent for the same sale transaction, the second tip ad
 
 ## Tokenize Card
 
-`TokenizeCard`
+`TokenizeCard` <span class="badge badge--info">Method</span>
 
-Returns the tokenized version of the card used if successful (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice).
+Returns a card token (representing the card number). This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice. 
 
 #### Parameters
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `map` <br />*Map*     | A map including extra [*optional transaction parameters.*](windowsobjects.md#3)|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowsobjects.md#3)|
 
 **Code example**
 
@@ -502,32 +501,32 @@ api.TokenizeCard();
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry').
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
 
-Invoked if card verification requires signature.
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)** 
 
-Invoked when the card reader finishes processing the transaction.
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
 
 
 ## Stop Current Transaction
 
-`StopCurrentTransaction`
+`StopCurrentTransaction` <span class="badge badge--info">Method</span>
 
-This method attempts to cancel the current transaction on the card reader. Note that operations can only be cancelled before requests are sent to the gateway. There is a flag called [cancelAllowed](windowobjects#status-info) in the currentTransactionStatus event that can be used to check if the transaction is in a state that allows cancel.
+This method attempts to cancel the current transaction on the payment terminal. Note that operations can only be cancelled before requests are sent to the gateway. There is a flag called [cancelAllowed](windowobjects#status-info) in the currentTransactionStatus event that can be used to check if the transaction is in a state allowing the transaction to be cancelled.
 
 
 **Code example**
@@ -540,16 +539,16 @@ this.Hapi.StopCurrentTransaction();
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry').
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)** 
 
-Invoked when the card reader finishes processing the transaction.
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
 ****
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to device|
+| `Boolean`| `true` if the operation was successfully sent to the payment terminal|

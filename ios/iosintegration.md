@@ -6,10 +6,9 @@ id: iosintegration
 
 # Integration Guide
 
-**The SDK supports the following connection methods:** 
+**The SDK supports the following connection method:** 
 
 1. **[Bluetooth (HiLite)](#filesiniOSSDK)**
-
 
 ## Files in iOS SDK  {#filesiniOSSDK}
 

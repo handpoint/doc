@@ -514,9 +514,10 @@ The payment terminal will briefly display a message when a pending transaction r
 
 `tipAdjustment` <span class="badge badge--info">Method</span>
 
-A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled automatically by the processor at the end of the day.
-Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and Worldpay (FIS).
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day.
 The tip adjustment method does not rely on a card reader and is therefore a separate method that must be initialized with a shared secret. The function is defined in the file HapiRemoteService.h
+Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV. This functionality is limited to HiLite terminals.
+
 
 **Parameters**
 
