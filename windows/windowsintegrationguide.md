@@ -5,7 +5,686 @@ id: windowsintegrationguide
 
 # Integration Guides
 
-## Hilite - Bluetooth Integration
+**The SDK supports the following connection methods:** 
+
+1. **[Cloud (PAX/Telpo)](#WinPaxIntegration)**
+2. **[Bluetooth (HiLite)](#WinHiLiteIntegration)**
+
+## Cloud (PAX/Telpo) {#WinPaxIntegration}
+
+### Introduction
+
+### Let's start programming!
+
+**1. Create a C# class**
+
+Create a new C# class called MyClass and include com.handpoint.api as a dependency :
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using com.handpoint.api;
+                    
+namespace GettingStartedApp
+{
+    class MyClass
+    {
+    }
+}
+```
+ 
+**2. Initialize the API**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using com.handpoint.api;
+                    
+namespace GettingStartedApp
+{
+    class MyClass
+    {
+        Hapi api;
+
+        public MyClass()
+        {
+            InitApi();
+        }
+
+        public void InitApi()
+        {
+            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+            string apikey = "This-is-my-api-key-provided-by-Handpoint";
+            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
+            // The api is now initialized. Yay! we've even set default credentials.
+            // The shared secret is a unique string shared between the payment terminal and your application, it is a free field.
+            // The Api key is a unique key per merchant used to authenticate the terminal against the Cloud.
+            // You should replace the API key with the one sent by the Handpoint support team.
+        }
+    }
+}
+```
+
+**3. Implement the mandatory Events(Events.Required) and per recommendation Status events (Events.Status)**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using com.handpoint.api;
+                    
+namespace GettingStartedApp
+{
+    class MyClass : Events.Required, Events.Status
+    {
+        Hapi api;
+        Device myDevice;
+
+        public MyClass()
+        {
+            InitApi();
+        }
+
+        public void InitApi()
+        {
+            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+            string apikey = "This-is-my-api-key-provided-by-Handpoint"
+            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
+        }
+
+        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        {
+          // here you get a list of payment terminals associated with the api key.
+        }
+
+        public void EndOfTransaction(TransactionResult transactionResult, Device device)
+        {
+          // The TransactionResult object holds details about the transaction as well as the receipts.
+          // Useful information can be accessed through this object like the transaction ID, the amount, etc.
+        }
+
+        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        {
+            // The ConnectionStatus object holds details about the status regarding the connection to the target device.
+        }
+
+        public void CurrentTransactionStatus(StatusInfo info, Device device)
+        {
+            // The StatusInfo object holds details about the status and step taken during the transaction.
+        }
+
+        public void SignatureRequired(SignatureRequest request, Device device)
+        {
+            // Ignore for a PAX/Telpo integration. The complete signature capture process
+            // is already handled in the sdk, a dialog will prompt the user for a signature if required.
+            // If a signature was entered, it should be printed on the receipts.
+        }
+
+        public void HardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware)
+        {
+            // Ignore, legacy event, will be deleted in future version.
+        }
+    }
+}
+```
+
+**4. Add a method to list the terminals of your merchant and connect to one of them**
+Ensure that the card reader and PC are correctly paired via Cloud connection.
+
+```csharp
+public void DiscoverDevices()
+{
+    // This triggers the search for all the cloud devices related to your Api Key.
+    api.SearchDevices(ConnectionMethod.CLOUD);
+}
+
+public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+{
+    foreach (Device device in devices)
+    {
+        if (device.Name != null)
+        {
+            if (device.Name.Equals("9822032398-PAXA920"))
+            // Put the name of your device, it is the composition of: serial number - device model.
+            // Example for a PAX A920 device: serial_number - model -> 9822032398-PAXA920
+            {
+                this.myDevice = device;
+              //We'll remember the device for this session, it is nice if you would do that too
+              api.Connect(this.myDevice);
+              //Connection to the device is handled automatically by the api
+            }
+        }
+    }
+}
+```
+
+**5. Add a method to connect directly to the payment terminal**
+Instead of discovering terminals you can also connect directly to one of them:
+
+```csharp
+public void DirectConnect()
+{
+    Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+    // new Device("name", "address", "port (optional)", ConnectionMethod);
+    // The address always has to be written in UPPER CASE
+    // It is the composition of the serial number and model ot the payment terminal.
+    // Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
+    api.Connect(device);
+}
+```
+
+**6. Add a method to take payments**
+
+```csharp
+public bool Pay()
+{
+    return api.Sale(new BigInteger(1000), Currency.EUR);
+    // Let´s start our first transaction for 10 euros
+    // The amount should always be in the minor unit of the currency
+}
+```
+   
+**7. Add a method to disconnect from the card reader**
+
+```csharp
+public void Disconnect()
+{
+    api.Disconnect();
+}
+```
+
+**8. Eventually, MyClass.cs must look like this after implementing all the necessary methods :**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using com.handpoint.api;
+
+namespace GettingStartedApp
+{
+    class MyClass : Events.Required, Events.Status
+    {
+        Hapi api;
+        Device myDevice;
+
+        public MyClass(Form1 form1)
+        {
+            InitApi();
+        }
+
+        public void InitApi()
+        {
+            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+            string apikey = "This-is-my-api-key-provided-by-Handpoint"
+            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
+        }
+
+        public void DiscoverDevices()
+        {
+            api.SearchDevices(ConnectionMethod.CLOUD);
+        }
+
+        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        {
+            foreach (Device device in devices)
+            {
+                if (device.Name != null)
+                {
+                    if (device.Name.Equals("9822032398-PAXA920"))
+                    {
+                        this.myDevice = device;
+                        api.Connect(this.myDevice);
+                    }
+                }
+            }
+        }
+
+        public void DirectConnect()
+        {
+            Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+            api.Connect(device);
+        }
+
+        public bool Pay()
+        {
+            return api.Sale(new BigInteger(1000), Currency.EUR);
+        }
+
+        public void Disconnect()
+        {
+            api.Disconnect();
+        }
+
+        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        {
+            Console.WriteLine("*** ConnectionStatus *** " + status);
+        }
+
+        public void CurrentTransactionStatus(StatusInfo info, Device device)
+        {
+            Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
+        }
+
+        public void EndOfTransaction(TransactionResult result, Device device)
+        {
+            Console.WriteLine("*** EndOfTransaction *** " + result.ToJSON());
+        }
+
+        public void HardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware)
+        {
+            //Ignore
+        }
+
+        public void SignatureRequired(SignatureRequest request, Device device)
+        {
+            //Ignore
+        }
+    }
+}
+```
+
+### Let's create a User Interface!
+
+**1. Create buttons and labels**
+- Go to your user interface (usually Form1.cs[Design])
+- Select View > Toolbox
+- In the toolbox, under “Common Controls” drag and drop 3 button items to the user interface
+- Select "button1" > Right-Click > Properties
+- Change the attribute "Name" from "button1" to "PayButton"
+- Change the attribute "text" from "button1" to "Pay Now"
+- Change the attribute "Name" from "button2" to "ConnectButton"
+- Change the attribute "text" from "button2" to "Connect To Card reader"
+- Change the attribute "Name" from "button3" to "DisconnectButton"
+- Change the attribute "text" from "button3" to "Disconnect From Card Reader"
+- Select View > Toolbox > Common Controls > Label
+- Change the attribute "Name" from "label1" to "ConnectionLabel"
+- Change the attribute "text" from "label1" to "Disconnected"
+- Change the attribute "backColor" from "label1" to "Red"
+
+**2. Create WebBrowsers**
+Now that we have our 3 buttons, let´s create two webBrowsers items to display the merchant receipt as well as the cardholder´s receipt at the end of the transaction.
+
+- Select View > Toolbox > Common Controls > WebBrowser
+- Drag and drop two web browsers to the user interface
+- Select View > Toolbox > Common Controls > Label
+- Drag and drop two labels to the user interface in order to identify the webBrowser items
+- Change the attribute "Name" from the left webBrowser to "MerchantReceiptBrowser"
+- Change the attribute "Name" from the right webBrowser to "CardholderReceiptBrowser"
+- Change the attribute "Name" from "label2" to "MerchantReceiptLabel"
+- Change the attribute "text" from "label2" to "Merchant Receipt :"
+- Change the attribute "Name" from "label3" to "CardholderReceiptLabel"
+- Change the attribute "text" from "label3" to "Cardholder Receipt :"
+
+### Let's link our user interface with methods!
+
+**1. Referencing the user interface(Form1.cs) in MyClass**
+
+In MyClass.cs, create an instance of Form1 called UIClass and initialize it. Instantiate MyClass and add form1 as a parameter for the Class.
+
+```csharp
+class MyClass : Events.Required, Events.Status
+{
+    Hapi api;
+    Device myDevice;
+    private Form1 uIClass;
+
+    public MyClass(Form1 form1)
+    {
+        uIClass = form1;
+        InitApi();
+    }
+    
+    [...]
+}
+```
+ 
+**2. Referencing Myclass in Form1.cs and link methods to the user interface**
+Go to Form1.cs[Design] and double click on the button "Pay Now". By Double Clicking on it you created a method called PayButton_Click. Create a new instance of MyClass called "my" in Form1.cs then, inside the new method PayButton_Click call the Pay() method from MyClass.
+
+```csharp
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace GettingStartedApp
+{
+    public partial class Form1 : Form
+    {
+        MyClass my;
+        public Form1()
+        {
+            InitializeComponent();
+            my = new MyClass(this);
+        }
+        private void PayButton_Click(object sender, EventArgs e)
+        {
+            my.Pay();
+        }
+    }
+}
+```
+
+Go back to Form1.cs[Design] and double click on each of the other buttons to automatically generate an OnClick method in Form1.cs. Link each of the buttons to the correct methods in MyClass.cs.
+
+```csharp
+using System;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace GettingStartedApp
+{
+    public partial class Form1 : Form
+    {
+        MyClass my;
+        public Form1()
+        {
+            InitializeComponent();
+            my = new MyClass(this);
+        }
+
+        private void PayButton_Click(object sender, EventArgs e)
+        {
+            my.Pay();
+        }
+
+        private void ConnectButton_Click(object sender, EventArgs e)
+        {
+            //my.DiscoverDevices();
+            my.DirectConnect();
+        }
+
+        private void DisconnectButton_Click(object sender, EventArgs e)
+        {
+            my.Disconnect();
+        }
+    }
+}
+```
+
+### Let´s notify the user when the app is connected and ready to send the transaction
+
+**1. Update the ConnectionLabel to notify the user of the connection status**
+Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
+
+```csharp
+public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+{
+    Console.WriteLine("*** ConnectionStatus *** " + status);
+    if (status == ConnectionStatus.Connected)
+    {
+        uIClass.UpdateLabel(true);
+    }
+    else
+    {
+        uIClass.UpdateLabel(false);
+    }
+}
+
+public void CurrentTransactionStatus(StatusInfo info, Device device)
+{
+    //Let also console log the status during the transaction
+    Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
+}
+```
+
+**2. Create the UpdateLabel method in Form1.cs**
+
+```csharp
+public delegate void UpdateConnectionLabel(bool Connected);
+public void UpdateLabel(bool Connected)
+{
+    //Only need to check for one of the webbrowsers
+    if (ConnectionLabel.InvokeRequired)
+    {
+        UpdateConnectionLabel d = new UpdateConnectionLabel(UpdateLabel);
+        this.Invoke(d, new object[] { Connected });
+    }
+    else
+    {
+        if (Connected)
+        {
+            ConnectionLabel.Text = "Connected";
+            ConnectionLabel.BackColor = Color.Green;
+        }
+        else {
+            ConnectionLabel.Text = "Disconnected";
+            ConnectionLabel.BackColor = Color.Red;
+        }
+    }
+}
+```
+
+### Let´s display the receipts at the end of a transaction!
+
+**1. Fetch the cardholder's and merchant receipts from the method EndOfTransaction in MyClass**
+At this point all the buttons are connected but we are still missing to display the receipts in the webBrowsers. First, let´s get the receipts from the method EndOfTransaction in myClass.cs.
+
+```csharp
+public void EndOfTransaction(TransactionResult transactionResult, Device device)
+{
+    Console.WriteLine("*** EndOfTransaction *** " + result.ToJSON());
+    uIClass.DisplayReceipts(result.MerchantReceipt, result.CustomerReceipt);
+}
+```
+
+**2. Create the DisplayReceipts method in Form1.cs**
+
+```csharp
+public delegate void UpdateReceiptsCallback(string MerchantReceipt, string CustomerReceipt);
+public void DisplayReceipts(string MerchantReceipt, string CustomerReceipt)
+{
+    //Only need to check for one of the webbrowsers
+    if (MerchantReceiptBrowser.InvokeRequired)
+    {
+        UpdateReceiptsCallback d = new UpdateReceiptsCallback(DisplayReceipts);
+        this.Invoke(d, new object[] { MerchantReceipt, CustomerReceipt });
+    }
+    else
+    {
+        MerchantReceiptBrowser.DocumentText = MerchantReceipt;
+        CardholderReceiptBrowser.DocumentText = CustomerReceipt;
+    }
+}
+```
+
+### Final Result!
+
+Here is how MyClass.cs and Form1.cs must eventually look like:
+
+**1. MyClass.cs :**
+
+```csharp
+using System;
+using System.Collections.Generic;
+using System.Numerics;
+using com.handpoint.api;
+
+namespace GettingStartedApp
+{
+    class MyClass : Events.Required, Events.Status
+    {
+        Hapi api;
+        Device myDevice;
+        private Form1 uIClass;
+
+        public MyClass(Form1 form1)
+        {
+            uIClass = form1;
+            InitApi();
+        }
+
+        public void InitApi()
+        {
+            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+            string apikey = "This-is-my-api-key-provided-by-Handpoint"
+            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
+        }
+
+        public void DiscoverDevices()
+        {
+            api.SearchDevices(ConnectionMethod.CLOUD);
+        }
+
+        public void DirectConnect()
+        {
+            Device device = new Device("CloudDevice", "0821032398-PAXA920", "", ConnectionMethod.CLOUD);
+            api.Connect(device);
+        }
+
+        public bool Pay()
+        {
+            return api.Sale(new BigInteger(1000), Currency.EUR);
+        }
+
+        public void Disconnect()
+        {
+            api.Disconnect();
+        }
+
+        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        {
+            Console.WriteLine("***ConnectionStatus*** " + status);
+            if (status == ConnectionStatus.Connected)
+            {
+                uIClass.UpdateLabel(true);
+            }
+            else
+            {
+                uIClass.UpdateLabel(false);
+            }
+        }
+
+        public void CurrentTransactionStatus(StatusInfo info, Device device)
+        {
+            //Let's log also the status during the transaction
+            Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
+        }
+
+        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        {
+            foreach (Device device in devices)
+            {
+                if (device.Name != null)
+                {
+                    if (device.Name.Equals("0821032398-PAXA920"))
+                    {
+                        this.myDevice = device;
+                        api.Connect(this.myDevice);
+                    }
+                }
+            }
+        }
+
+        public void EndOfTransaction(TransactionResult result, Device device)
+        {
+            Console.WriteLine("*** EndOfTransaction *** " + result.ToJSON());
+            uIClass.DisplayReceipts(result.MerchantReceipt, result.CustomerReceipt);
+        }
+
+        public void HardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware)
+        {
+            //Ignore
+        }
+
+        public void SignatureRequired(SignatureRequest request, Device device)
+        {
+            //Ignore
+        }
+    }
+}
+```
+  
+**2. Form1.cs :**
+
+```csharp
+    using System;
+    using System.Drawing;
+    using System.Windows.Forms;
+    
+    namespace GettingStartedApp
+    {
+        public partial class Form1 : Form
+        {
+            MyClass my;
+            public Form1()
+            {
+                InitializeComponent();
+                my = new MyClass(this);
+            }
+    
+            private void PayButton_Click(object sender, EventArgs e)
+            {
+                my.Pay();
+            }
+    
+            private void ConnectButton_Click(object sender, EventArgs e)
+            {
+                my.DirectConnect();
+            }
+    
+            private void DisconnectButton_Click(object sender, EventArgs e)
+            {
+                my.Disconnect();
+            }
+    
+            public delegate void UpdateReceiptsCallback(string MerchantReceipt, string CustomerReceipt);
+            public void DisplayReceipts(string MerchantReceipt, string CustomerReceipt)
+            {
+                //Only need to check for one of the webbrowsers
+                if (MerchantReceiptBrowser.InvokeRequired)
+                {
+                    UpdateReceiptsCallback d = new UpdateReceiptsCallback(DisplayReceipts);
+                    this.Invoke(d, new object[] { MerchantReceipt, CustomerReceipt });
+                }
+                else
+                {
+                    MerchantReceiptBrowser.DocumentText = MerchantReceipt;
+                    CardholderReceiptBrowser.DocumentText = CustomerReceipt;
+                }
+            }
+    
+            public delegate void UpdateConnectionLabel(bool connected);
+    
+            public void UpdateLabel(bool Connected)
+            {
+                //Only need to check for one of the webbrowsers
+                if (ConnectionLabel.InvokeRequired)
+                {
+                    UpdateConnectionLabel d = new UpdateConnectionLabel(UpdateLabel);
+                    this.Invoke(d, new object[] { Connected });
+                }
+                else
+                {
+                    if (Connected)
+                    {
+                        ConnectionLabel.Text = "Connected";
+                        ConnectionLabel.BackColor = Color.Green;
+                    }
+                    else {
+                        ConnectionLabel.Text = "Disconnected";
+                        ConnectionLabel.BackColor = Color.Red;
+                    }
+                }
+            }
+    
+        }
+    }
+```
+
+### Let's run our program!
+
+Run the program by clicking the "play" button :
+
+1. Click on "Connect To Card Reader", this can take a little bit of time (10 sec max) due to the fact that we are looking for all the devices around before connecting to a specific one
+2. Click "Pay Now"
+3. Follow the instructions on the card reader
+4. When the transaction is finished, the receipts should be displayed in the webBrowsers
+5. Click on "Disconnect From Card Reader" to stop the connection with the card reader
+
+## Bluetooth (HiLite) {#WinHiLiteIntegration}
 
 ### Introduction
 
@@ -680,680 +1359,6 @@ namespace GettingStartedApp
 
     }
 }
-```
-
-### Let's run our program!
-
-Run the program by clicking the "play" button :
-
-1. Click on "Connect To Card Reader", this can take a little bit of time (10 sec max) due to the fact that we are looking for all the devices around before connecting to a specific one
-2. Click "Pay Now"
-3. Follow the instructions on the card reader
-4. When the transaction is finished, the receipts should be displayed in the webBrowsers
-5. Click on "Disconnect From Card Reader" to stop the connection with the card reader
-
-## PAX & Telpo - Cloud Integration
-
-### Introduction
-
-### Let's start programming!
-
-**1. Create a C# class**
-
-Create a new C# class called MyClass and include com.handpoint.api as a dependency :
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using com.handpoint.api;
-                    
-namespace GettingStartedApp
-{
-    class MyClass
-    {
-    }
-}
-```
- 
-**2. Initialize the API**
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using com.handpoint.api;
-                    
-namespace GettingStartedApp
-{
-    class MyClass
-    {
-        Hapi api;
-
-        public MyClass()
-        {
-            InitApi();
-        }
-
-        public void InitApi()
-        {
-            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-            string apikey = "This-is-my-api-key-provided-by-Handpoint";
-            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
-            // The api is now initialized. Yay! we've even set default credentials.
-            // The shared secret is a unique string shared between the payment terminal and your application, it is a free field.
-            // The Api key is a unique key per merchant used to authenticate the terminal against the Cloud.
-            // You should replace the API key with the one sent by the Handpoint support team.
-        }
-    }
-}
-```
-
-**3. Implement the mandatory Events(Events.Required) and per recommendation Status events (Events.Status)**
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using com.handpoint.api;
-                    
-namespace GettingStartedApp
-{
-    class MyClass : Events.Required, Events.Status
-    {
-        Hapi api;
-        Device myDevice;
-
-        public MyClass()
-        {
-            InitApi();
-        }
-
-        public void InitApi()
-        {
-            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-            string apikey = "This-is-my-api-key-provided-by-Handpoint"
-            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
-        }
-
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
-        {
-          // here you get a list of payment terminals associated with the api key.
-        }
-
-        public void EndOfTransaction(TransactionResult transactionResult, Device device)
-        {
-          // The TransactionResult object holds details about the transaction as well as the receipts.
-          // Useful information can be accessed through this object like the transaction ID, the amount, etc.
-        }
-
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
-        {
-            // The ConnectionStatus object holds details about the status regarding the connection to the target device.
-        }
-
-        public void CurrentTransactionStatus(StatusInfo info, Device device)
-        {
-            // The StatusInfo object holds details about the status and step taken during the transaction.
-        }
-
-        public void SignatureRequired(SignatureRequest request, Device device)
-        {
-            // Ignore for a PAX/Telpo integration. The complete signature capture process
-            // is already handled in the sdk, a dialog will prompt the user for a signature if required.
-            // If a signature was entered, it should be printed on the receipts.
-        }
-
-        public void HardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware)
-        {
-            // Ignore, legacy event, will be deleted in future version.
-        }
-    }
-}
-```
-
-**4. Add a method to list the terminals of your merchant and connect to one of them**
-Ensure that the card reader and PC are correctly paired via Cloud connection.
-
-```csharp
-public void DiscoverDevices()
-{
-    // This triggers the search for all the cloud devices related to your Api Key.
-    api.SearchDevices(ConnectionMethod.CLOUD);
-}
-
-public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
-{
-    foreach (Device device in devices)
-    {
-        if (device.Name != null)
-        {
-            if (device.Name.Equals("9822032398-PAXA920"))
-            // Put the name of your device, it is the composition of: serial number - device model.
-            // Example for a PAX A920 device: serial_number - model -> 9822032398-PAXA920
-            {
-                this.myDevice = device;
-              //We'll remember the device for this session, it is nice if you would do that too
-              api.Connect(this.myDevice);
-              //Connection to the device is handled automatically by the api
-            }
-        }
-    }
-}
-```
-
-**5. Add a method to connect directly to the payment terminal**
-Instead of discovering terminals you can also connect directly to one of them:
-
-```csharp
-public void DirectConnect()
-{
-    Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
-    // new Device("name", "address", "port (optional)", ConnectionMethod);
-    // The address always has to be written in UPPER CASE
-    // It is the composition of the serial number and model ot the payment terminal.
-    // Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
-    api.Connect(device);
-}
-```
-
-**6. Add a method to take payments**
-
-```csharp
-public bool Pay()
-{
-    return api.Sale(new BigInteger(1000), Currency.EUR);
-    // Let´s start our first transaction for 10 euros
-    // The amount should always be in the minor unit of the currency
-}
-```
-   
-**7. Add a method to disconnect from the card reader**
-
-```csharp
-public void Disconnect()
-{
-    api.Disconnect();
-}
-```
-
-**8. Eventually, MyClass.cs must look like this after implementing all the necessary methods :**
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using com.handpoint.api;
-
-namespace GettingStartedApp
-{
-    class MyClass : Events.Required, Events.Status
-    {
-        Hapi api;
-        Device myDevice;
-
-        public MyClass(Form1 form1)
-        {
-            InitApi();
-        }
-
-        public void InitApi()
-        {
-            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-            string apikey = "This-is-my-api-key-provided-by-Handpoint"
-            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
-        }
-
-        public void DiscoverDevices()
-        {
-            api.SearchDevices(ConnectionMethod.CLOUD);
-        }
-
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
-        {
-            foreach (Device device in devices)
-            {
-                if (device.Name != null)
-                {
-                    if (device.Name.Equals("9822032398-PAXA920"))
-                    {
-                        this.myDevice = device;
-                        api.Connect(this.myDevice);
-                    }
-                }
-            }
-        }
-
-        public void DirectConnect()
-        {
-            Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
-            api.Connect(device);
-        }
-
-        public bool Pay()
-        {
-            return api.Sale(new BigInteger(1000), Currency.EUR);
-        }
-
-        public void Disconnect()
-        {
-            api.Disconnect();
-        }
-
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
-        {
-            Console.WriteLine("*** ConnectionStatus *** " + status);
-        }
-
-        public void CurrentTransactionStatus(StatusInfo info, Device device)
-        {
-            Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
-        }
-
-        public void EndOfTransaction(TransactionResult result, Device device)
-        {
-            Console.WriteLine("*** EndOfTransaction *** " + result.ToJSON());
-        }
-
-        public void HardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware)
-        {
-            //Ignore
-        }
-
-        public void SignatureRequired(SignatureRequest request, Device device)
-        {
-            //Ignore
-        }
-    }
-}
-```
-
-### Let's create a User Interface!
-
-**1. Create buttons and labels**
-- Go to your user interface (usually Form1.cs[Design])
-- Select View > Toolbox
-- In the toolbox, under “Common Controls” drag and drop 3 button items to the user interface
-- Select "button1" > Right-Click > Properties
-- Change the attribute "Name" from "button1" to "PayButton"
-- Change the attribute "text" from "button1" to "Pay Now"
-- Change the attribute "Name" from "button2" to "ConnectButton"
-- Change the attribute "text" from "button2" to "Connect To Card reader"
-- Change the attribute "Name" from "button3" to "DisconnectButton"
-- Change the attribute "text" from "button3" to "Disconnect From Card Reader"
-- Select View > Toolbox > Common Controls > Label
-- Change the attribute "Name" from "label1" to "ConnectionLabel"
-- Change the attribute "text" from "label1" to "Disconnected"
-- Change the attribute "backColor" from "label1" to "Red"
-
-**2. Create WebBrowsers**
-Now that we have our 3 buttons, let´s create two webBrowsers items to display the merchant receipt as well as the cardholder´s receipt at the end of the transaction.
-
-- Select View > Toolbox > Common Controls > WebBrowser
-- Drag and drop two web browsers to the user interface
-- Select View > Toolbox > Common Controls > Label
-- Drag and drop two labels to the user interface in order to identify the webBrowser items
-- Change the attribute "Name" from the left webBrowser to "MerchantReceiptBrowser"
-- Change the attribute "Name" from the right webBrowser to "CardholderReceiptBrowser"
-- Change the attribute "Name" from "label2" to "MerchantReceiptLabel"
-- Change the attribute "text" from "label2" to "Merchant Receipt :"
-- Change the attribute "Name" from "label3" to "CardholderReceiptLabel"
-- Change the attribute "text" from "label3" to "Cardholder Receipt :"
-
-### Let's link our user interface with methods!
-
-**1. Referencing the user interface(Form1.cs) in MyClass**
-
-In MyClass.cs, create an instance of Form1 called UIClass and initialize it. Instantiate MyClass and add form1 as a parameter for the Class.
-
-```csharp
-class MyClass : Events.Required, Events.Status
-{
-    Hapi api;
-    Device myDevice;
-    private Form1 uIClass;
-
-    public MyClass(Form1 form1)
-    {
-        uIClass = form1;
-        InitApi();
-    }
-    
-    [...]
-}
-```
- 
-**2. Referencing Myclass in Form1.cs and link methods to the user interface**
-Go to Form1.cs[Design] and double click on the button "Pay Now". By Double Clicking on it you created a method called PayButton_Click. Create a new instance of MyClass called "my" in Form1.cs then, inside the new method PayButton_Click call the Pay() method from MyClass.
-
-```csharp
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace GettingStartedApp
-{
-    public partial class Form1 : Form
-    {
-        MyClass my;
-        public Form1()
-        {
-            InitializeComponent();
-            my = new MyClass(this);
-        }
-        private void PayButton_Click(object sender, EventArgs e)
-        {
-            my.Pay();
-        }
-    }
-}
-```
-
-Go back to Form1.cs[Design] and double click on each of the other buttons to automatically generate an OnClick method in Form1.cs. Link each of the buttons to the correct methods in MyClass.cs.
-
-```csharp
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace GettingStartedApp
-{
-    public partial class Form1 : Form
-    {
-        MyClass my;
-        public Form1()
-        {
-            InitializeComponent();
-            my = new MyClass(this);
-        }
-
-        private void PayButton_Click(object sender, EventArgs e)
-        {
-            my.Pay();
-        }
-
-        private void ConnectButton_Click(object sender, EventArgs e)
-        {
-            //my.DiscoverDevices();
-            my.DirectConnect();
-        }
-
-        private void DisconnectButton_Click(object sender, EventArgs e)
-        {
-            my.Disconnect();
-        }
-    }
-}
-```
-
-### Let´s notify the user when the app is connected and ready to send the transaction
-
-**1. Update the ConnectionLabel to notify the user of the connection status**
-Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
-
-```csharp
-public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
-{
-    Console.WriteLine("*** ConnectionStatus *** " + status);
-    if (status == ConnectionStatus.Connected)
-    {
-        uIClass.UpdateLabel(true);
-    }
-    else
-    {
-        uIClass.UpdateLabel(false);
-    }
-}
-
-public void CurrentTransactionStatus(StatusInfo info, Device device)
-{
-    //Let also console log the status during the transaction
-    Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
-}
-```
-
-**2. Create the UpdateLabel method in Form1.cs**
-
-```csharp
-public delegate void UpdateConnectionLabel(bool Connected);
-public void UpdateLabel(bool Connected)
-{
-    //Only need to check for one of the webbrowsers
-    if (ConnectionLabel.InvokeRequired)
-    {
-        UpdateConnectionLabel d = new UpdateConnectionLabel(UpdateLabel);
-        this.Invoke(d, new object[] { Connected });
-    }
-    else
-    {
-        if (Connected)
-        {
-            ConnectionLabel.Text = "Connected";
-            ConnectionLabel.BackColor = Color.Green;
-        }
-        else {
-            ConnectionLabel.Text = "Disconnected";
-            ConnectionLabel.BackColor = Color.Red;
-        }
-    }
-}
-```
-
-### Let´s display the receipts at the end of a transaction!
-
-**1. Fetch the cardholder's and merchant receipts from the method EndOfTransaction in MyClass**
-At this point all the buttons are connected but we are still missing to display the receipts in the webBrowsers. First, let´s get the receipts from the method EndOfTransaction in myClass.cs.
-
-```csharp
-public void EndOfTransaction(TransactionResult transactionResult, Device device)
-{
-    Console.WriteLine("*** EndOfTransaction *** " + result.ToJSON());
-    uIClass.DisplayReceipts(result.MerchantReceipt, result.CustomerReceipt);
-}
-```
-
-**2. Create the DisplayReceipts method in Form1.cs**
-
-```csharp
-public delegate void UpdateReceiptsCallback(string MerchantReceipt, string CustomerReceipt);
-public void DisplayReceipts(string MerchantReceipt, string CustomerReceipt)
-{
-    //Only need to check for one of the webbrowsers
-    if (MerchantReceiptBrowser.InvokeRequired)
-    {
-        UpdateReceiptsCallback d = new UpdateReceiptsCallback(DisplayReceipts);
-        this.Invoke(d, new object[] { MerchantReceipt, CustomerReceipt });
-    }
-    else
-    {
-        MerchantReceiptBrowser.DocumentText = MerchantReceipt;
-        CardholderReceiptBrowser.DocumentText = CustomerReceipt;
-    }
-}
-```
-
-### Final Result!
-
-Here is how MyClass.cs and Form1.cs must eventually look like:
-
-**1. MyClass.cs :**
-
-```csharp
-using System;
-using System.Collections.Generic;
-using System.Numerics;
-using com.handpoint.api;
-
-namespace GettingStartedApp
-{
-    class MyClass : Events.Required, Events.Status
-    {
-        Hapi api;
-        Device myDevice;
-        private Form1 uIClass;
-
-        public MyClass(Form1 form1)
-        {
-            uIClass = form1;
-            InitApi();
-        }
-
-        public void InitApi()
-        {
-            string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-            string apikey = "This-is-my-api-key-provided-by-Handpoint"
-            api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
-        }
-
-        public void DiscoverDevices()
-        {
-            api.SearchDevices(ConnectionMethod.CLOUD);
-        }
-
-        public void DirectConnect()
-        {
-            Device device = new Device("CloudDevice", "0821032398-PAXA920", "", ConnectionMethod.CLOUD);
-            api.Connect(device);
-        }
-
-        public bool Pay()
-        {
-            return api.Sale(new BigInteger(1000), Currency.EUR);
-        }
-
-        public void Disconnect()
-        {
-            api.Disconnect();
-        }
-
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
-        {
-            Console.WriteLine("***ConnectionStatus*** " + status);
-            if (status == ConnectionStatus.Connected)
-            {
-                uIClass.UpdateLabel(true);
-            }
-            else
-            {
-                uIClass.UpdateLabel(false);
-            }
-        }
-
-        public void CurrentTransactionStatus(StatusInfo info, Device device)
-        {
-            //Let's log also the status during the transaction
-            Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
-        }
-
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
-        {
-            foreach (Device device in devices)
-            {
-                if (device.Name != null)
-                {
-                    if (device.Name.Equals("0821032398-PAXA920"))
-                    {
-                        this.myDevice = device;
-                        api.Connect(this.myDevice);
-                    }
-                }
-            }
-        }
-
-        public void EndOfTransaction(TransactionResult result, Device device)
-        {
-            Console.WriteLine("*** EndOfTransaction *** " + result.ToJSON());
-            uIClass.DisplayReceipts(result.MerchantReceipt, result.CustomerReceipt);
-        }
-
-        public void HardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware)
-        {
-            //Ignore
-        }
-
-        public void SignatureRequired(SignatureRequest request, Device device)
-        {
-            //Ignore
-        }
-    }
-}
-```
-  
-**2. Form1.cs :**
-
-```csharp
-    using System;
-    using System.Drawing;
-    using System.Windows.Forms;
-    
-    namespace GettingStartedApp
-    {
-        public partial class Form1 : Form
-        {
-            MyClass my;
-            public Form1()
-            {
-                InitializeComponent();
-                my = new MyClass(this);
-            }
-    
-            private void PayButton_Click(object sender, EventArgs e)
-            {
-                my.Pay();
-            }
-    
-            private void ConnectButton_Click(object sender, EventArgs e)
-            {
-                my.DirectConnect();
-            }
-    
-            private void DisconnectButton_Click(object sender, EventArgs e)
-            {
-                my.Disconnect();
-            }
-    
-            public delegate void UpdateReceiptsCallback(string MerchantReceipt, string CustomerReceipt);
-            public void DisplayReceipts(string MerchantReceipt, string CustomerReceipt)
-            {
-                //Only need to check for one of the webbrowsers
-                if (MerchantReceiptBrowser.InvokeRequired)
-                {
-                    UpdateReceiptsCallback d = new UpdateReceiptsCallback(DisplayReceipts);
-                    this.Invoke(d, new object[] { MerchantReceipt, CustomerReceipt });
-                }
-                else
-                {
-                    MerchantReceiptBrowser.DocumentText = MerchantReceipt;
-                    CardholderReceiptBrowser.DocumentText = CustomerReceipt;
-                }
-            }
-    
-            public delegate void UpdateConnectionLabel(bool connected);
-    
-            public void UpdateLabel(bool Connected)
-            {
-                //Only need to check for one of the webbrowsers
-                if (ConnectionLabel.InvokeRequired)
-                {
-                    UpdateConnectionLabel d = new UpdateConnectionLabel(UpdateLabel);
-                    this.Invoke(d, new object[] { Connected });
-                }
-                else
-                {
-                    if (Connected)
-                    {
-                        ConnectionLabel.Text = "Connected";
-                        ConnectionLabel.BackColor = Color.Green;
-                    }
-                    else {
-                        ConnectionLabel.Text = "Disconnected";
-                        ConnectionLabel.BackColor = Color.Red;
-                    }
-                }
-            }
-    
-        }
-    }
 ```
 
 ### Let's run our program!

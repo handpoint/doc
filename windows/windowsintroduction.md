@@ -18,8 +18,9 @@ id: windowsintroduction
     </div>
     <div class="card__footer">
       <p><a class="button button--primary" href="https://www.nuget.org/packages/HandpointSDK/" >Get the latest Windows SDK!</a></p>
-      <p><b>x.x.x-beta</b> versions are to be used with debug terminals</p>
-      <p><b>x.x.x</b> versions are to be used with production terminals</p>
+      <p>If you are integrating your software with a <b>PAX debug terminal</b> you will need to use the <b>x.x.x-beta</b> version of the SDK.</p>
+      <p>If you are integrating your software with a <b>PAX production terminal</b> you will need to use the <b>x.x.x</b> version of the SDK.</p>
+      <p>If you are integrating your software with an <b>HiLite terminal</b> you will need to to use the <b>x.x.x</b> version of the SDK.</p>
     </div>
   </div>
 </div>
