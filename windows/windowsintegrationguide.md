@@ -3,10 +3,9 @@ sidebar_position: 4
 id: windowsintegrationguide
 ---
 
-
 # Integration Guides
 
-## Hilite & Hi5 - Bluetooth Integration
+## Hilite - Bluetooth Integration
 
 ### Introduction
 
@@ -15,6 +14,18 @@ This tutorial is guiding you through all the steps to create a basic payment app
 The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
 
 At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements.
+
+### How to implement a Sale Transaction
+
+The below flow chart shows the interaction between the SDK, the payment terminal and your application. The orange arrows represent methods (requests) that need to be invoked to communicate with the Handpoint SDK's. The dark arrows represent events that need to be integrated in your code in order to retrieve information from the SDK´s and the card reader.
+
+![Sandbox logo](/img/SaleTransaction.png)
+
+### How to implement a Sale Transaction with Recovery feature
+
+At some point, the connection between the SDK and the card reader can become unstable. For example, the Bluetooth connection can be cut in the middle of a sale transaction if the smartphone runs out of battery. If this happens, you need to have implemented the “transaction recovery feature” in order to get the receipts from the previous transaction and knowing if it was successful despite the connection problem.
+
+![Sandbox logo](/img/SaleTransactionRecovery.png)
 
 ### Let's start programming!
 

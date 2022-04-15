@@ -6,7 +6,12 @@ id: iosintegration
 
 # Integration Guide
 
-## Files in iOS SDK
+**The SDK supports the following connection methods:** 
+
+1. **[Bluetooth (HiLite)](#filesiniOSSDK)**
+
+
+## Files in iOS SDK  {#filesiniOSSDK}
 
 ### If you're using the library/Cocoapods:
 

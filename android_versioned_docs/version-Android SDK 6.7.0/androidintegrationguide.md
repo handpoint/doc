@@ -7,7 +7,7 @@ id: androidintegrationguide
 # Integration Guides
 
 
-**We support the following connection methods** 
+**The SDK supports the following connection methods:** 
 
 1. **[Android Native (PAX/Telpo)](#8)**
 2. **[Bluetooth (HiLite)](#9)**
