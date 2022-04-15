@@ -41,45 +41,65 @@ Created for humans, coders, geeks, no need of a dark and complex knowledge of th
 
 **Super secure**
 
-We take care of PCI compliance so you can be kept out of scope
-The Handpoint terminals encrypt all sensitive cardholder data so your app does not have to deal with it.
+We take care of PCI compliance so you can be kept out of PCI scope. The Handpoint terminals encrypt all sensitive cardholder data so your app does not have to deal with it.
 
+### SDK distribution 
 
+The Handpoint Android SDK is available on Maven central as well as the Handpoint internal Nexus server. Maven central contains the **production builds** while Nexus contains **development snapshots** of the SDK.
+- If you are integrating your software with a **PAX debug terminal** you will need to get the SDK from **Nexus**. 
+- If you are integrating your software with a **PAX production terminal** you will need to get the SDK from **Maven Central**. 
+- If you are integrating your software with an HiLite terminal you will need to get the SDK from **Maven Central**. 
 
-<br></br>
-
-
-**Available through Maven Central**
 
 The Handpoint Android SDK is compatible with Android version 5.1.1 [(API level 22)](https://developer.android.com/about/versions/lollipop/android-5.1) and up.
 The latest version is compiled with java **1.8**
 
-### Maven
+### Gradle Settings
 
-```json
-    <dependency>
-      <groupId>com.handpoint.api</groupId>
-      <artifactId>sdk</artifactId>
-      <version>[6.0.0,7.0.0)</version>
-      <type>aar</type>
-    </dependency>
-```
-
-### Gradle
-
+For production terminals (Maven):
 ```groovy
- //Handpoint Production SDK (Production devices)
+ //Handpoint Production SDK (Production terminals)
  implementation 'com.handpoint.api:sdk:6.x.x'
-    
- //Handpoint Staging/Development SDK (Debug devices)
+```
+In the `gradle.build` (Top-level build file) for production terminals (Maven):
+
+  ```groovy
+        allprojects {     //Handpoint Production SDK (Production terminals)
+          repositories {
+             google()
+             mavenCentral()
+             maven { url 'https://jitpack.io' }
+              }
+        }
+  ```
+
+For debug terminals (Nexus):  
+```groovy 
+ //Handpoint Staging/Development SDK (Debug terminals)
  implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
 ```
+   In the `gradle.build` (Top-level build file) for debug terminals (Nexus):
 
+  ```groovy
+        allprojects {   //Handpoint Staging/Development SDK (Debug terminals)
+          repositories {
+            google()
+            mavenCentral()
+            maven {
+              name = "Handpoint Nexus"
+              url = uri("urlProvided") //URL provided by Handpoint once you order a dev kit 
+              credentials { //Credentials provided by Handpoint once you order a dev kit 
+                username = 'usernameProvided' 
+                password = 'passwordProvided' 
+             }
+            }
+          }
+        }
+  ```
 
+- Some considerations to keep in mind when using gradle (for both production and debug terminals)
 
-- Some considerations to keep in mind when using gradle:
-
- In the `gradle.build` (app module):
+ In the `gradle.build` (app module) add the following packaging options:
 
   ```groovy
     packagingOptions {
@@ -93,35 +113,18 @@ The latest version is compiled with java **1.8**
     }
   ```
 
-  In the `gradle.build` (Top-level build file):
+### Maven Settings
 
-  ```groovy
-        allprojects {     //Handpoint Production SDK
-          repositories {
-             google()
-             mavenCentral()
-             maven { url 'https://jitpack.io' }
-              }
-        }
-  ```
+For production terminals: 
 
-  ```groovy
-        allprojects {   //Handpoint Staging/Development SDK
-          repositories {
-            google()
-            mavenCentral()
-            maven {
-              name = "Handpoint Nexus"
-              url = uri("urlProvided")
-              credentials {
-                username = 'usernameProvided'
-                password = 'passwordProvided'
-             }
-            }
-          }
-        }
-  ```
-
+```xml
+    <dependency>
+      <groupId>com.handpoint.api</groupId>
+      <artifactId>sdk</artifactId>
+      <version>[6.0.0,7.0.0)</version>
+      <type>aar</type>
+    </dependency>
+```
 
 It is time to visit our **[Integration Guides](androidintegrationguide)** section.
 
