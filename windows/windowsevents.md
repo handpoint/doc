@@ -204,7 +204,7 @@ public void OnMessageLogged(LogLevel logLevel, String message)
 
 This listener has to be implemented (preferably during initialisation) in order to retrieve the different log messages.
 
-## Logs ready{#10}
+## Logs ready{#WinDeviceLogsReady}
 
 `DeviceLogsReady`
 
