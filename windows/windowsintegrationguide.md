@@ -688,7 +688,7 @@ Run the program by clicking the "play" button :
 
 ### Introduction
 
-This tutorial is guiding you through all the steps to create a basic payment application for Windows devices integrated with a Datecs terminal.
+This tutorial is guiding you through all the steps to create a basic payment application for Windows devices integrated with an HiLite terminal.
 
 The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
 

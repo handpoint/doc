@@ -90,7 +90,7 @@ A [sale](#2) operation which also returns a card token. This functionality is no
 api.saleAndTokenizeCard(new BigInteger("1000"),Currency.GBP);
 
 //Initiate a sale for 10.00 in Great British Pounds with tipping configuration
-//This feature is not available for HiLite & Hi5 devices
+//This feature is not available for HiLite devices
 TipConfiguration tipConfiguration = new TipConfiguration();
 tipConfiguration.setTipPercentages(Arrays.asList(5, 10, 15, 20));
 tipConfiguration.setAmount(new BigInteger("1000"));

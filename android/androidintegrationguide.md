@@ -290,7 +290,7 @@ Explore the rest of the documentation to see more transaction types supported an
 
  **Introduction**
 
-This tutorial is guiding you through all the required steps to create a basic payment application for Android devices integrated with a HiLite or a Hi5 payment terminal.
+This tutorial is guiding you through all the required steps to create a basic payment application for Android devices integrated with an HiLite payment terminal.
 
 The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions.
 
