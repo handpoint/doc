@@ -8,9 +8,9 @@ id: windowseventssubscribers
 
 ## Register events delegate
 
-`RegisterEventsDelegate`
+`RegisterEventsDelegate` <span class="badge badge--info">Method</span>
 
-Registers a delegate for the SDK events. Method getAsyncInterface in HapiFactory executes internally this subscription.
+Registers a delegate for the SDK events. The method getAsyncInterface in HapiFactory executes internally this subscription.
 
 ##### Parameters
 
@@ -42,7 +42,7 @@ public class ObjectHelper : Events.Required, Events.Status, Events.Log {
 
 ## Unregister events delegate
 
-`UnregisterEventsDelegate`
+`UnregisterEventsDelegate` <span class="badge badge--info">Method</span>
 
 Unregisters an object from SDK events.
 
