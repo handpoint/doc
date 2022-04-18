@@ -3,8 +3,6 @@ sidebar_position: 2
 id: javascriptreleasenotes
 ---
 
-
-
 # Release Notes
 
 :::tip
