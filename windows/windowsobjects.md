@@ -8,7 +8,7 @@ id: windowobjects
 
 ## Transaction Result Object{#14}
 
-`TransactionResult`
+`TransactionResult` <span class="badge badge--info">Object</span>
 
 An object holding information about the result of a transaction.
 
@@ -16,7 +16,7 @@ An object holding information about the result of a transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `aid`<br />*String*    | 		Application Identifier of the card (EMV tag 9F06)|
+| `aid`<br />*String*    | 		EMV Application Identifier of the card (EMV tag 9F06)|
 | `arc`<br />*String*    | 		EMV Authorisation Response Code (EMV tag 8A)|
 | `authorisationCode`<br />*String*    | 		Acquirer response code|
 | `balance`<br />*BigInteger*     | 		Balance available on the card|
@@ -29,19 +29,19 @@ An object holding information about the result of a transaction.
 | `currency`<br />[*Currency*](#1)      | 		The currency used for the transaction|
 | `customerReceipt`<br />*String*    | 		A URL containing the customer receipt in HTML format|
 | `customerReference`<br />*String*    | 		If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
-| `deviceStatus`<br />[*DeviceStatus*](#24)     | 		Status of the device|
-| `dueAmount`<br />*String*    | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid|
-| `efttimestamp`<br />*Date*     | 			Time of the transaction|
+| `deviceStatus`<br />[*DeviceStatus*](#24)     | 		Status of the payment terminal|
+| `dueAmount`<br />*String*    | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`<br />*Date*     | 			Time of the transaction (based on the date and time of the payment terminal)|
 | `efttransactionID`<br />*String*    | 		Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`<br />*String*    | 		Detailed reason for the transaction error|
 | `expiryDateMMYY`<br />*String*    | 		Expiry date of the card used for the operation|
 | `finStatus`<br />[*FinancialStatus*](#25)     | 		The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"|
-| `iad`<br />*String*    | 		Issuer Application Data (EMV tag 9F10)|
+| `iad`<br />*String*    | 		EMV Issuer Application Data (EMV tag 9F10)|
 | `issuerResponseCode`<br />*String*    | 		Response code from the card issuer|
 | `maskedCardNumber`<br />*String*    | 		Masked card number of the card used for the operation|
 | `merchantAddress`<br />*String*    | 		Merchant Address|
 | `merchantName`<br />*String*    | 		Merchant Name|
-| `merchantName`<br />*String*    | 		A URL containing the customer receipt in HTML format|
+| `merchantReceipt`<br />*String*    | 		A URL containing the merchant receipt in HTML format|
 | `mid`<br />*String*    | 		Merchant Identifier|
 | `originalEFTTransactionID`<br />*String*    | 		In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed|
 | `paymentScenario`<br />[*PaymentScenario*](#26)     | 		Indicates the card entry mode|
@@ -56,8 +56,8 @@ An object holding information about the result of a transaction.
 | `tipPercentage`<br />*double*     | 		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `totalAmount`<br />*BigInteger*     | 		The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality|
 | `transactionID`<br />*String*    | 		The transaction id is a terminal internal counter incremented for each transaction|
-| `tsi`<br />*String*    | 		Transaction Status Information (EMV tag 9B)|
-| `tvr`<br />*String*    | 		Transaction Verification Results (EMV tag 95)|
+| `tsi`<br />*String*    | 		EMV Transaction Status Information (EMV tag 9B)|
+| `tvr`<br />*String*    | 		EMV Transaction Verification Results (EMV tag 95)|
 | `type`<br />[*TransactionType*](#28)     | 		The type of transaction initiated, for example "SALE"|
 | `unMaskedPan`<br />*String*    | 		Unmasked PAN, only received if the card is a non-payment card (loyalty)|
 | `verificationMethod`<br />[*VerificationMethod*](#29)     | 		cardholder verification method, for example "PIN"|
@@ -126,16 +126,16 @@ An object holding information about the result of a transaction.
 
 ## Handpoint Credentials{#30}
 
-`HandpointCredentials`
+`HandpointCredentials` <span class="badge badge--info">Object</span>
 
-A class containing information related to the Actor credentials: Shared secret (always required) and Cloud API Key (ony required when using CLOUD connection method).
+A class containing information related to the user credentials.
 
 **Properties**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `SharedSecret`<br />*String*    | 		`String` the value of the Shared secret|
-| `CloudApiKey`<br />*String*    | 		`String` the value of the merchant Cloud Api Key, just required when using CLOUD connection method|
+| `SharedSecret`<br />*String*    | 		`String` the value of the shared secret (provided by Handpoint), only required when using BLUETOOTH as connection method. If using CLOUD this value can be any non-null string.|
+| `CloudApiKey`<br />*String*    | 		`String` the value of the merchant Cloud Api Key (provided by Handpoint), only required when using CLOUD as connection method.|
 
 **Code example**
 
@@ -143,22 +143,22 @@ A class containing information related to the Actor credentials: Shared secret (
 {
 	string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
 	new HandpointCredentials(sharedSecret);
-	//We've even set a default shared secret!
+	//We've set a default shared secret!
 }
 	
 {
 	string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
 	string apikey = "This-Is-The-Merchant-Api-Key";
 	new HandpointCredentials(sharedSecret, apikey);
-	//We've even set a default shared secret and the merchant Api Key!
+	//We've set a default shared secret and the merchant Api Key!
 }
 ```
 
 ## Handpoint API (Hapi) factory
 
-`HapiFactory`
+`HapiFactory` <span class="badge badge--info">Object</span>
 
-A factory to provide a unified entrypoint and to simplify the way to instantiate the Hapi object.
+A factory to provide a unified entrypoint and to simplify the way to instantiate the Hapi (SDK) object.
 
 **Methods**
 
@@ -168,12 +168,12 @@ getAsyncInterface( Events.Required requiredListener , HandpointCredentials handp
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `requiredListener` <span class="badge badge--primary">Required</span><br />*Events.Required*     | 		A listener object to report the required events.|
-| `handpointCredentials` <span class="badge badge--primary">Required</span><br />[*HandpointCredentials*](#30)     | 		Object containing the actor's Ssk or Ssk and Api Key for CLOUD connections.|
+| `handpointCredentials` <span class="badge badge--primary">Required</span><br />[*HandpointCredentials*](#30)     | 		Object containing the user's shared secret and/or Cloud Api Key.|
 
 **Code example**
 
 ```csharp
-//InitApi for Datecs devices
+//InitApi for HiLite payment terminals
 public void InitApi()
 {
 	string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
@@ -181,7 +181,7 @@ public void InitApi()
 	//The api is now initialized. Yay! we've even set a default shared secret
 }
 
-//InitApi for Cloud devices
+//InitApi for Cloud payment terminals (PAX/Telpo)
 public void InitApi()
 {
 	string sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
@@ -193,16 +193,17 @@ public void InitApi()
 
 ## Transaction Type{#28}
 
-`TransactionType`
+`TransactionType` <span class="badge badge--info">Enum</span>
 
 An enum representing different types of transactions.
 
 **Possible values**
-`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `SALE_AND_TOKENIZE_CARD` `REVERSAL` `UPDATE` `HOST_INIT` `PRINT_RECEIPT` `CARD_PAN`
+
+`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `SALE_AND_TOKENIZE_CARD` `REVERSAL` `UPDATE` `HOST_INIT` `PRINT_RECEIPT` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE` `MOTO_REFUND` `MOTO_REVERSAL`
 
 ## Connection Method{#12}
 
-`ConnectionMethod`
+`ConnectionMethod` <span class="badge badge--info">Enum</span>
 
 An enum representing different types of connection methods.
 
@@ -230,31 +231,32 @@ public enum ConnectionMethod
 
 ## Device{#2}
 
-`Device`
+`Device` <span class="badge badge--info">Object</span>
 
-An object to store the information about the device we're working with.
+An object to store the information about the payment terminal in use.
 
 **Methods**
 
 **Constructor**
+
 Device( String name , String address , String port , ConnectionMethod [*connectionMethod*](#12) , String sharedSecret , int timeout );
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `name` <span class="badge badge--primary">Required</span><br />*String*    |A name to identify the device|
+| `name` <span class="badge badge--primary">Required</span><br />*String*    |A name to identify the payment terminal|
 | `address` <span class="badge badge--primary">Required</span><br />*String*    | 		The address of the device you wish to connect to. E.g.: "08:00:69:02:01:FC" for bluetooth or "9822032398-PAXA920" for CLOUD (composition of serial number and model of the target device) .|
 | `port` <span class="badge badge--primary">Required</span><br />*String*    | 		The port to connect to.|
-| `connectionMethod` <span class="badge badge--primary">Required</span><br />[*ConnectionMethod*](#12)     | 		Enumerated type to specify the type of connection with the device. E.g: Bluetooth, Cloud, Serial, etc...|
-| `sharedSecret`<br />*String*    | 		This is used if you want this specific device to use the specified sharedSecret instead of the default one proviced in the initialization.|
-| `timeout`<br />*int*     | 		The amount of miliseconds to consider the connection has timed out. If not set, the default timeout is 15 seconds.|
+| `connectionMethod` <span class="badge badge--primary">Required</span><br />[*ConnectionMethod*](#12)     | 		The type of connection with the device. E.g: Bluetooth, Cloud, Serial, etc.|
+| `sharedSecret`<br />*String*    | 		This parameter can be used to change the default shared secret for the payment terminal|
+| `timeout`<br />*int*     | 		The number of miliseconds after which the connection is considered timed out|
 
 **Code example**
 
 ```csharp
-//Create and init a new Datecs Device
+//Create and init a new HiLite payment terminal
 Device dev = new Device("CardReader7", "08:00:69:02:01:FC", "1", ConnectionMethod.BLUETOOTH);
 
-//Create and init a new PAX/Telpo Device
+//Create and init a new PAX/Telpo payment terminal
 Device dev = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
 // The address is the composition of the serial number and model ot the target device.
 //Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
@@ -263,14 +265,14 @@ Device dev = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMetho
 
 | Property      | Description |
 | ----------- | ----------- |
-| `Id`<br />*String*    |	An unique identifier of the device.|
+| `Id`<br />*String*    |	A unique identifier for the device.|
 
 
 ## Connection Status{#18}
 
-`ConnectionStatus`
+`ConnectionStatus` <span class="badge badge--info">Enum</span>
 
-A list of statuses given to a connection
+A list of statuses given to a connection.
 
 **Possible values**
 
@@ -278,11 +280,9 @@ A list of statuses given to a connection
 
 ## Currency{#1}
 
-`Currency`
+`Currency` <span class="badge badge--info">Enum</span>
 
-An enum of most currencies in the world.
-
-Contains the ISO name, ISO number and the name of the currency. Additionally contains information about how many decimals the currency uses.
+An enum of currencies.
 
 **Possible values**
 
@@ -290,37 +290,35 @@ Contains the ISO name, ISO number and the name of the currency. Additionally con
 
 ## Signature Request{#17}
 
-`SignatureRequest`
+`SignatureRequest` <span class="badge badge--info">Object</span>
 
-A class containing information about a signature request/signature verification.
+A class containing information about a signature request or verification.
 
 **Properties**
 
 |Property|	Description|
 | ----------- | ----------- |
-|Timeout<br />*String*	|`int` the value of the timeout in seconds.|
-|MerchantReceipt<br />*String*|`String` the merchant receipt as html.|
+|Timeout<br />*Int*	|The value of the timeout in seconds.|
+|MerchantReceipt<br />*Html*| The merchant receipt as html.|
 
 ## Card Scheme Name{#23}
 
-`CardSchemeName`
+`CardSchemeName` <span class="badge badge--info">Enum</span>
 
-A string representing different card brands.
+An enum representing different card brands.
 
 **Possible values**
 
-`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay`
+`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
 ## Device Parameter{#8}
 
 
-`DeviceParameter`
+`DeviceParameter` <span class="badge badge--info">Enum</span>
 
 An enum describing all the available commands to send to a device.
 
-When used a legal value is expected with the command
-
-*Possible values*
+**Possible values**
 
 `BluetoothName` `BluetoothPass` `SystemTimeout` `ScreenTimeout` `SignatureTimeout` 
 `Language`
@@ -328,7 +326,7 @@ When used a legal value is expected with the command
 ## Device Status{#24}
 
 
-`DeviceStatus`
+`DeviceStatus` <span class="badge badge--info">Enum</span>
 
 A class that holds the device status.
 
@@ -337,19 +335,19 @@ A class that holds the device status.
 |Property	|Description|
 | ----------- | ----------- |
 |`SerialNumber`<br />*String*	|Gets the serial number of the device|
-|`BatteryStatus`<br />*String*|String	Gets the battery status in percentages of a device.|
-|`BatterymV`<br />*String*	|String	Gets the battery milli volts of a device.|
-|`BatteryChargingt`<br />*String*|String	Gets the battery charging status of a device.|
-|`ExternalPower`<br />*String*	|String	Gets the status of an external power of a device.|
-|`ApplicationName`<br />*String*|String	Gets the application name used on a device.|
-|`ApplicationVersion`<br />*String*|String	Gets the applicadevicetion version number used on a device.|
+|`BatteryStatus`<br />*String*|	Gets the battery status in percentages of the device.|
+|`BatterymV`<br />*String*	|	Gets the battery milli volts of the device.|
+|`BatteryChargingt`<br />*String*| Gets the battery charging status of the device.|
+|`ExternalPower`<br />*String*	|	Gets the status of an external power source for the device.|
+|`ApplicationName`<br />*String*|	Gets the application name used by the device.|
+|`ApplicationVersion`<br />*String*| Gets the application version number used by the device.|
 
-## Terminal Type
+## Terminal Parameters
 
 
-`TerminalType`
+`TerminalType` <span class="badge badge--info">Enum</span>
 
-An enum describing all the supported terminal types.
+An enum describing parameters supported by the payment terminal.
 
 **Possible values**
 
@@ -360,9 +358,9 @@ An enum describing all the supported terminal types.
 ## Financial Status{#25}
 
 
-`FinancialStatus`
+`FinancialStatus` <span class="badge badge--info">Enum</span>
 
-An enum representing different statuses of a finalized transaction
+An enum representing different final statuses of a transaction.
 
 **Possible values**
 
@@ -371,7 +369,7 @@ An enum representing different statuses of a finalized transaction
 ## Optional Transaction Parameters{#3}
 
 
-`OptionalParameters`
+`OptionalParameters` <span class="badge badge--info">Object</span>
 
 A class containing optional transaction parameters now supported by the device.
 
@@ -381,15 +379,15 @@ A class containing optional transaction parameters now supported by the device.
 |Property|	Description|
 | ----------- | ----------- |
 |`Budget`<br />*String*	|	**Budget is only available for sale transactions**.<br /> A` String` representing the key for a budget number.A budget number can be used to split up an amout over a period of months. The value has to be a `String` of 2 digits representing the number of months to split the transaction to. Example: "03" or "24".|
-|`CustomerReference`<br />*String*|**String	CustomerReference is available for all transactions.**<br />A ` String` representing the key for a customer reference.A customer reference can be used for an internal marking system. The value is sent as a `String` of a maximum 25 characters and received back when the transaction has been processed. Example: "C.nr. 212311".|
+|`CustomerReference`<br />*String*|**String	CustomerReference is available for all transactions.**<br />A ` String` representing the key for a customer reference.A customer reference can be used for an internal marking system. The value is sent as a `String` of a maximum 36 characters and received back when the transaction has been processed. Example: "C.nr. 212311".|
 
 
 ## Log Level{#9}
 
 
-`LogLevel`
+`LogLevel` <span class="badge badge--info">Enum</span>
 
-An enum describing the different levels of logging used in the hapi and used in the device.
+An enum describing the different levels of logging used in the SDK and the payment terminal.
 
 **Possible values**
 
@@ -398,7 +396,7 @@ An enum describing the different levels of logging used in the hapi and used in 
 
 ## Status Info {#statusInfo}
 
-`statusInfo`
+`statusInfo` <span class="badge badge--info">Object</span>
 
 A class containing information about the status of the transaction.
 
@@ -407,17 +405,17 @@ A class containing information about the status of the transaction.
 
 |Property	|Description|
 | ----------- | ----------- |
-|`CancelAllowed`<br />*bool*	|A `bool` representing if the card reader will accept a cancel request|
+|`CancelAllowed`<br />*bool*	|A `bool` allowing the user to know if the payment terminal will accept a cancel request.|
 |`status`<br />[*Status*](#status) |A `Status` enum representing the status of the transaction.|
 |`message`<br />*String* |A `String` containing the status message of the transaction.|
-|`DeviceStatus`<br />[*DeviceStatus*](#24)	|A `DeviceStatus` object containing information about the device.|
+|`DeviceStatus`<br />[*DeviceStatus*](#24)	|A `DeviceStatus` object containing information about the payment terminal.|
 
 ## Verification Method{#29}
 
 
-`VerificationMethod`
+`VerificationMethod` <span class="badge badge--info">Enum</span>
 
-An enum representing different verification methods used in the transaction.
+An enum representing different cardholder verification methods.
 
 ** Possible values **
 
@@ -427,9 +425,9 @@ An enum representing different verification methods used in the transaction.
 
 ## Payment Scenario{#26}
 
-`PaymentScenario`
+`PaymentScenario` <span class="badge badge--info">Enum</span>
 
-An enum representing different types of scenario.
+An enum representing different types of payment scenarios.
 
 ** Possible values **
 
@@ -437,17 +435,17 @@ An enum representing different types of scenario.
 
 ## Status
 
-`status`
+`status` <span class="badge badge--info">Enum</span>
 
 An enum containing information about the status of the transaction.
 
 ** Possible values **
 
-`Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` 	`SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` `ResponseAuthTimeout` `ResponsePaymentTimeout` `IccCardSwiped` `RemoveCard`  `ScannerIsNotSupported` `ScannerEvent` `BatteryTooLow` `AccountTypeSelection` `BtIsNotSupported` `PaymentCodeSelection` `PartialApproval` `AmountDueValidation` `InvalidUrl` `WaitingCustomerReceipt` `PrintingMerchantReceipt` `PrintingCustomerReceipt` `UpdateStarted` `UpdateFinished` `UpdateFailed` `UpdateProgress` `WaitingHostPostSend` `WaitingHostPostReceive` `Rebooting` `PrinterOutOfPaper` `ErrorConnectingToPrinter` `CardTapped` `ReceiptPrintSuccess` `InvalidPinLength` `OfflinePinAttempt` `OfflinePinLastAttempt` `ProcessingSignature` `CardRemoved` `TipEntered` `CardLanguagePreference` `AutomaticPrintingStarted` `CancelOperationNotAllowed` `UpdateSoftwareStarted` `UpdateSoftwareFinished` `UpdateSoftwareFailed` `UpdateSoftwareProgress` `InstallSoftwareStarted` `InstallSoftwareFinished` `InstallSoftwareFailed` `InstallSoftwareProgress` `UpdateConfigStarted` `UpdateConfigFinished` `UpdateConfigFailed` `UpdateConfigProgress` `InitialisationComplete
+`Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` 	`SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` `ResponseAuthTimeout` `ResponsePaymentTimeout` `IccCardSwiped` `RemoveCard`  `ScannerIsNotSupported` `ScannerEvent` `BatteryTooLow` `AccountTypeSelection` `BtIsNotSupported` `PaymentCodeSelection` `PartialApproval` `AmountDueValidation` `InvalidUrl` `WaitingCustomerReceipt` `PrintingMerchantReceipt` `PrintingCustomerReceipt` `UpdateStarted` `UpdateFinished` `UpdateFailed` `UpdateProgress` `WaitingHostPostSend` `WaitingHostPostReceive` `Rebooting` `PrinterOutOfPaper` `ErrorConnectingToPrinter` `CardTapped` `ReceiptPrintSuccess` `InvalidPinLength` `OfflinePinAttempt` `OfflinePinLastAttempt` `ProcessingSignature` `CardRemoved` `TipEntered` `CardLanguagePreference` `AutomaticPrintingStarted` `CancelOperationNotAllowed` `UpdateSoftwareStarted` `UpdateSoftwareFinished` `UpdateSoftwareFailed` `UpdateSoftwareProgress` `InstallSoftwareStarted` `InstallSoftwareFinished` `InstallSoftwareFailed` `InstallSoftwareProgress` `UpdateConfigStarted` `UpdateConfigFinished` `UpdateConfigFailed` `UpdateConfigProgress` `InitialisationComplete` 
 
 ## Tender Type{#27}
 
-`TenderType`
+`TenderType` <span class="badge badge--info">Enum</span>
 
 An enum representing different tender types.
 
@@ -455,20 +453,9 @@ An enum representing different tender types.
 
 `NOT_SET` `CREDIT` `DEBIT`
 
-
-## Card Entry Type
-
-`CardEntryType`
-
-An enum representing different card entry types.
-
-** Possible values **
-
-`UNDEFINED` `MSR` `ICC` `CNP`
-
 ## Card Entry Type{#22}
 
-`CardEntryType`
+`CardEntryType` <span class="badge badge--info">Enum</span>
 
 An enum representing different card entry types.
 
@@ -480,7 +467,7 @@ An enum representing different card entry types.
 ## Hapi Manager
 
 
-`HapiManager`
+`HapiManager` <span class="badge badge--info">Object</span>
 
 A static class containing information about the current status of the SDK
 
@@ -489,12 +476,12 @@ A static class containing information about the current status of the SDK
 
 |Property	|Description|
 | ----------- | ----------- |
-|`DefaultSharedSecret`<br />*String*	|Gets the default shared secret is use in the SDK.|
-|`LogLevel`<br />[*LogLevel*](#9) |Gets the current log level of the SDK and card reader.|
-|`inTransaction`<br />*bool* |Checks whether the SDK is in transaction or not. True if the SDK is in transaction, false otherwise. This might return a true if there is a communication error between the SDK and card reader but the transaction has been completed on the card reader.|
+|`DefaultSharedSecret`<br />*String*	|Gets the default shared secret used in the SDK.|
+|`LogLevel`<br />[*LogLevel*](#9) |Gets the current log level of the SDK and payment terminal.|
+|`inTransaction`<br />*bool* |Checks whether the SDK is in transaction or not. True if the SDK is in transaction, false otherwise. This might return a true if there is a communication error between the SDK and payment terminal but the transaction has been completed on the card reader.|
 |`SdkVersion`<br />*String*	|Gets the current Sdk version.|
-|`IsTransactionResultPending`<br />*boolean*	|In the case of a communication failure between the device and the API a [*Transaction Result*](#14) might have not been delivered to the API. This function checks if there is a pending [*Transaction Result*](#14). This field is only updated when connecting to a device. If this function returns true the [*Transaction Result*](#14) (which includes the receipt) can be fetched with hapi.GetPendingTransactionResult();. This function serves the same functionality as the event PendingTransactionResult(Device device), so every time that event is invoked, HapiManager.IsTransactionResultPending() is true until the result is fetched.|
-|`Settings.AutoRecoverTransactionResult`<br />*boolean*	|In the case of a communication failure between the device and the API a [*Transaction Result*](#14) might have not been delivered to the API. This property can be set to true or false. If set to true, the SDK will automatically fetch the pending [*Transaction Result*](#14) when detected and return it via **[*TransactionResultReady*](#11)**. The function PendingTransactionResult is never invoked if this property is set to true. If set to false PendingTransactionResult will be called when a TransactionResult is pending.|
+|`IsTransactionResultPending`<br />*boolean*	|In case of a communication failure between the device and the API a [*Transaction Result*](#14) might not be delivered to the API. This function checks if there is a pending [*Transaction Result*](#14). This field is only updated when connecting to a device. If this function returns true the [*Transaction Result*](#14) (which includes the receipt) can be fetched with hapi.GetPendingTransactionResult();. This function serves the same functionality as the event PendingTransactionResult(Device device), so every time that event is invoked, HapiManager.IsTransactionResultPending() is true until the result is fetched.|
+|`Settings.AutoRecoverTransactionResult`<br />*boolean*	|In case of a communication failure between the device and the API a [*Transaction Result*](#14) might not be delivered to the API. This property can be set to true or false. If set to true, the SDK will automatically fetch the pending [*Transaction Result*](#14) when detected and return it via [*TransactionResultReady*](#11). The function PendingTransactionResult is never invoked if this property is set to true. If set to false PendingTransactionResult will be called when a TransactionResult is pending.|
 
 **Code example**
 
