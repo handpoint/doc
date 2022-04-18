@@ -10,7 +10,6 @@ id: windowsintroduction
   <div class="card card-background" >
     <div class="card__header">
       <h3>Windows SDK</h3>
-      <p>version 3.1.4</p>
     </div>
     <div class="card__body">
       <a href="https://www.nuget.org/packages/HandpointSDK/">
@@ -18,7 +17,10 @@ id: windowsintroduction
 </a>
     </div>
     <div class="card__footer">
-      <a class="button button--primary" href="https://www.nuget.org/packages/HandpointSDK/" >Get the SDK!</a>
+      <p><a class="button button--primary" href="https://www.nuget.org/packages/HandpointSDK/" >Get the latest Windows SDK!</a></p>
+      <p>If you are integrating your software with a <b>PAX debug terminal</b> you will need to use the <b>x.x.x-beta</b> version of the SDK.</p>
+      <p>If you are integrating your software with a <b>PAX production terminal</b> you will need to use the <b>x.x.x</b> version of the SDK.</p>
+      <p>If you are integrating your software with an <b>HiLite terminal</b> you will need to to use the <b>x.x.x</b> version of the SDK.</p>
     </div>
   </div>
 </div>
@@ -36,7 +38,6 @@ Created for humans, coders, geeks, no need of dark and complex knowledge of the 
 We take care of the PCI side so you don't have to spend months becoming compliant.
 The Handpoint card reader encrypts all sensitive cardholder data so your app does not have to deal with it.
 
-
 **Working with the SDK**
 
 The Handpoint Windows SDK is compatible with .NET Framework Version 4.6.1.
@@ -48,6 +49,3 @@ If you have a DEBUG device [(How to identify DEBUG devices)](https://handpoint.a
 4. Follow the getting started guide, to get you up and running or dive into the documentation.
 
 If you have any questions, do not hesitate to [contact us](mailto:support@handpoint.com).
-
-
-
