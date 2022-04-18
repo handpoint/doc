@@ -527,7 +527,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 `Events.SignatureRequired` <span class="badge badge--info">Interface</span>
 
-The SignatureRequired interface must be implemented in order to receive an event when a card requires a signature as a verification method. This interface is only required for an Hi5 or Hilite integration, PAX and Telpo terminals automatically prompt for signature capture on the terminal.
+The SignatureRequired interface must be implemented in order to receive an event when a card requires a signature as a verification method. This interface is only required for an Hilite integration, PAX and Telpo terminals automatically prompt for signature capture on the terminal.
 
 **Methods**
 

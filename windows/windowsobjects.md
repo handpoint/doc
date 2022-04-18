@@ -396,7 +396,7 @@ An enum describing the different levels of logging used in the hapi and used in 
 `None` `Info` `Full` `Debug`
 
 
-## Status Info
+## Status Info {#statusInfo}
 
 `statusInfo`
 
