@@ -6,35 +6,9 @@ id: javascriptobjects
 
 # Objects
 
-## Merchant Auth{#17}
-
-`MerchantAuth`
-
-Object used to store merchant authentication. This object can be empty, it allows a transaction to be funded to a specific merchant account other than the default one (linked to the API key). It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `Credential`  <br />[*Credential[]*](#28)   | Array of credentials.|
-
-**Code example**
-
-```json
-{
-   "merchantAuth": [{
-       "acquirer": "ACQ_DUMMY",
-       "mid": "1111",
-       "tid": "2222",
-       "mcc": "3333",
-       "externalId": "4444"
-       }]
-}
-```
-
 ## Transaction Result Object{#18}
 
-`TransactionResult`
+`TransactionResult` <span class="badge badge--info">Object</span>
 
 An object holding information about the result of a transaction.
 
@@ -82,8 +56,8 @@ An object holding information about the result of a transaction.
 | `tipPercentage`  <br />*Double	*   | If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `totalAmount`  <br />*BigInteger	*   | The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality|
 | `transactionID`  <br />*String	*   | The transaction id is a terminal internal counter incremented for each transaction|
-| `tsi`  <br />*String	*   | Transaction Status Information (EMV tag 9B)|
-| `tvr`  <br />*String	*   | Transaction Verification Results (EMV tag 95)|
+| `tsi`  <br />*String	*   | EMV Transaction Status Information (EMV tag 9B)|
+| `tvr`  <br />*String	*   | EMV Transaction Verification Results (EMV tag 95)|
 | `type`  <br />[*TransactionType*](#36)   | 	The type of transaction initiated, for example "SALE"|
 | `unMaskedPan`  <br />*String	*   | Unmasked PAN, only received if the card is a non-payment card (loyalty)|
 | `verificationMethod`  <br />[*VerificationMethod*](#37)   | cardholder verification method, for example "PIN"|
@@ -153,10 +127,35 @@ An object holding information about the result of a transaction.
   "cardHolderName": "cardholder name"
 }
 ```
+## Balance
+
+`Balance` <span class="badge badge--info">Object</span>
+
+Balance available on the card.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `amount`  <br />*Integer*   | The balance amount.|
+| `currency`  <br />*Currency*   | The balance currency.|
+| `positive`  <br />*Boolean*   | Marks if the balance is positive.|
+| `negative`  <br />*Boolean*   | Marks if the balance is negative.|
+
+**Code example**
+
+```json
+"balance": {
+    "amount": 1000,
+    "currency": "EUR",
+    "negative": false,
+    "positive": true
+  }
+```	
 
 ## Bypass Options{#19}
 
-`BypassOptions`
+`BypassOptions` <span class="badge badge--info">Object</span>
 
 Configuration to enable/disable signature or pin bypass.
 
@@ -180,10 +179,19 @@ Configuration to enable/disable signature or pin bypass.
 
 ## Device{#20}
 
-`Device`
+`Device` <span class="badge badge--info">Object</span>
 
-An object to store the information about the payment terminal you are working with. ALL values are **REQUIRED**
+An object to store information about the payment terminal in use. ALL values are **REQUIRED**.
 
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `merchant_id_alpha`  <span class="badge badge--primary">Required</span>  <br />*String*   | Merchant unique identifier associated with the payment terminal.|
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.|
+| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Device shared secret key to authenticate financial operations.|
+| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal type.|
+| `device_name` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal name composed of two parts "serial_number - terminal_type"|
 
 **Code example**
 
@@ -197,29 +205,19 @@ An object to store the information about the payment terminal you are working wi
 }
 ```
 
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `merchant_id_alpha`  <span class="badge badge--primary">Required</span>  <br />*String*   | Merchant unique identifier to which the device is associated|
-| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Device serial number|
-| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Device shared secret key to authorize the operations.|
-| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Device type|
-| `device_name` <span class="badge badge--primary">Required</span> <br />*String*   | Device name composed with serial_number - terminal_type|
-
 ## Acquirer{#21}
 
-`Acquirer`
+`Acquirer` <span class="badge badge--info">Enum</span>
 
-An enum representingbthe supported acquirers for merchant authentication
+An enum representing the supported acquirers for merchant authentication
 
 `AMEX` `BORGUN` `EVO` `OMNIPAY` `POSTBRIDGE` `INTERAC` `TSYS` `VANTIV` `SANDBOX`
 
 ## Transaction Status{#22}
 
-`TransactionStatus`
+`TransactionStatus` <span class="badge badge--info">Object</span>
 
-A class that holds the device status. This is the object that will be recieved in the financial operation callback functions
+A class which holds the payment terminal status. This object is received in the financial operation callback.
 
 
 **Properties**
@@ -227,165 +225,15 @@ A class that holds the device status. This is the object that will be recieved i
 | Property      | Description |
 | ----------- | ----------- |
 | `deviceStatus`  <br />[*Device Status*](#27)   | OPTIONAL - The status of the payment terminal.|
-| `isCancelAllowed`  <br />*boolean*   | Defines is a transaction can be cancelled or not.|
+| `isCancelAllowed`  <br />*boolean*   | Defines if the transaction can be cancelled or not.|
 | `message`  <br />*String*   | Human readable status message.|
 | `status`  <br />[*status*](#38)  | An enum containing information about the status of the transaction.|
 
-## Sale Options{#23}
-
-`SaleOptions`
-
-An object to store all the customisation options for an operation. This object can be empty if no options are required.
-
-**Code example**
-
-```json
-{
-    "customerReference": "MyCustomReference",
-    "tipConfiguration": {
-        "baseAmount": "100",
-        "skipEnabled": true,
-        "enterAmountEnabled": true,
-        "tipPercentages": [
-            1,
-            2,
-            3,
-            5
-        ]
-    },
-    "bypassOptions": {
-        "signatureBypass": true,
-        "pinBypass": true
-    },
-    "merchantAuth": [
-        {
-            "acquirer": "ACQUIRER",
-            "mid": "11111",
-            "tid": "22222",
-            "mcc": "33333"
-        }
-    ],
-}
-```	
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction|
-| `TipConfiguration`  <br />[*TipConfiguration*](#39) |
-| `bypassOptions`  <br />[*BypassOptions*](#19) |  
-| `merchantAuth`  <br />[*MerchantAuth*](#17)   |
-
-## Refund Options{#24}
-
-`RefundOptions`
-
-An object to store all the customisation options for a refund. This object can be empty if no options are required.
-
-**Code example**
-
-```json
-{
-    "customerReference": "MyCustomReference",
-    "tipConfiguration": {
-        "baseAmount": "100",
-        "skipEnabled": true,
-        "enterAmountEnabled": true,
-        "tipPercentages": [
-            1,
-            2,
-            3,
-            5
-        ]
-    },
-    "bypassOptions": {
-        "signatureBypass": true,
-        "pinBypass": true
-    },
-    "merchantAuth": [
-        {
-            "acquirer": "ACQUIRER",
-            "mid": "11111",
-            "tid": "22222",
-            "mcc": "33333"
-        }
-    ],
-}
-```	
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction|
-| `bypassOptions`  <br />[*BypassOptions*](#19) |
-| `merchantAuth`  <br />[*MerchantAuth*](#17) |
-
-## Merchant Auth Options{#25}
-
-`MerchantAuthOptions`
-
-An object to store merchant authentication options for regular operations.
-
-**Code example**
-
-```json
-{
-    "customerReference": "MyCustomReference",
-    "merchantAuth": [
-        {
-            "acquirer": "ACQUIRER",
-            "mid": "11111",
-            "tid": "22222",
-            "mcc": "33333"
-        }
-    ],
-}
-```	
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `customerReference`  <br />*String* |
-| `merchantAuth`  <br />[*MerchantAuth*](#17) |
-
-
-## Balance
-
-`Balance`
-
-Balance available on the card
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `amount`  <br />*Integer*   | The amount balance|
-| `currency`  <br />*Currency*   | The balance currency|
-| `positive`  <br />*Boolean*   | Marks if the balance is positive|
-| `negative`  <br />*Boolean*   | Marks if the balance is negative|
-
-**Code example**
-
-```json
-"balance": {
-    "amount": 1000,
-    "currency": "EUR",
-    "negative": false,
-    "positive": true
-  }
-```	
-
-
 ## Options{#26}
 
-`Options`
+`Options` <span class="badge badge--info">Object</span>
 
 An object to store all the customisation options for an operation. This object can be empty if no options are required.
-
-
 
 **Properties**
 
@@ -401,18 +249,155 @@ An object to store all the customisation options for an operation. This object c
 }
 ```	
 
+
+## Sale Options{#23}
+
+`SaleOptions` <span class="badge badge--info">Object</span>
+
+An object to store the customization options for a sale operation. This object can be empty if no options are required.
+
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `amount`  <br />*Integer*   | The amount balance|
-| `currency`  <br />*Currency*   | The balance currency|
-| `positive`  <br />*Boolean*   | Marks if the balance is positive|
-| `negative`  <br />*Boolean*   | Marks if the balance is negative|
+| `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction.|
+| `TipConfiguration`  <br />[*TipConfiguration*](#39) | Configuration for the tipping menu of the payment terminal.|
+| `bypassOptions`  <br />[*BypassOptions*](#19) |  Configuration required to bypass the pin or signature verification methods.|
+| `merchantAuth`  <br />[*MerchantAuth*](#17)   | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
+
+**Code example**
+
+```json
+{
+    "customerReference": "MyCustomReference",
+    "tipConfiguration": {
+        "baseAmount": "100",
+        "skipEnabled": true,
+        "enterAmountEnabled": true,
+        "tipPercentages": [
+            1,
+            2,
+            3,
+            5
+        ]
+    },
+    "bypassOptions": {
+        "signatureBypass": true,
+        "pinBypass": true
+    },
+    "merchantAuth": [
+        {
+            "acquirer": "ACQUIRER",
+            "mid": "11111",
+            "tid": "22222",
+            "mcc": "33333"
+        }
+    ],
+}
+```	
+
+## Refund Options{#24}
+
+`RefundOptions` <span class="badge badge--info">Object</span>
+
+An object to store the customization options for a refund. This object can be empty if no options are required.
+
+**Code example**
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction.|
+| `bypassOptions`  <br />[*BypassOptions*](#19) | Configuration required to bypass the pin or signature verification methods.|
+| `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
+
+```json
+{
+    "customerReference": "MyCustomReference",
+    "tipConfiguration": {
+        "baseAmount": "100",
+        "skipEnabled": true,
+        "enterAmountEnabled": true,
+        "tipPercentages": [
+            1,
+            2,
+            3,
+            5
+        ]
+    },
+    "bypassOptions": {
+        "signatureBypass": true,
+        "pinBypass": true
+    },
+    "merchantAuth": [
+        {
+            "acquirer": "ACQUIRER",
+            "mid": "11111",
+            "tid": "22222",
+            "mcc": "33333"
+        }
+    ],
+}
+```	
+
+## Merchant Auth Options{#25}
+
+`MerchantAuthOptions` <span class="badge badge--info">Object</span>
+
+An object to store merchant authentication options for regular operations.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `customerReference`  <br />*String* | An arbitrary string to use as your own identifier for a transaction.|
+| `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
+
+**Code example**
+
+```json
+{
+    "customerReference": "MyCustomReference",
+    "merchantAuth": [
+        {
+            "acquirer": "ACQUIRER",
+            "mid": "11111",
+            "tid": "22222",
+            "mcc": "33333"
+        }
+    ],
+}
+```	
+## Merchant Auth{#17}
+
+`MerchantAuth` <span class="badge badge--info">Object</span>
+
+An object used to store merchant authentication. This object can be empty, it allows a transaction to be funded to a specific merchant account other than the default one (linked to the API key). It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `Credential`  <br />[*Credential[]*](#28)   | Array of credentials.|
+
+**Code example**
+
+```json
+{
+   "merchantAuth": [{
+       "acquirer": "ACQ_DUMMY",
+       "mid": "1111",
+       "tid": "2222",
+       "mcc": "3333",
+       "externalId": "4444"
+       }]
+}
+```
 
 ## Merchant Auth Credential{#28}
 
-`Credential`
+`Credential` <span class="badge badge--info">Object</span>
 
 An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merchant authentication.
 
@@ -420,11 +405,11 @@ An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merc
 
 | Property      | Description |
 | ----------- | ----------- |
-| `acquirer`  <br />[*Acquirer*](#21)   | If present, it links this credential to the specified acquirer. Required if more than one credential is provided.|
+| `acquirer`  <br />[*Acquirer*](#21)   | If present, it links the credential to a specific acquirer. Only required if more than one credential is provided.|
 | `mid`  <br />*String*   | For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
-| `tid`  <br />*String*   | 	For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
+| `tid`  <br />*String*   | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
 | `mcc`  <br />*String*   | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
-| `ExternalId`  <br />*String*   | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials|
+| `ExternalId`  <br />*String*   | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials.|
 
 
 **Code example**
@@ -444,9 +429,9 @@ An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merc
 
 ## Financial Status{#33}
 
-`FinancialStatus`
+`FinancialStatus` <span class="badge badge--info">Enum</span>
 
-An enum representing different statuses of a finalized transaction
+An enum representing different statuses for a completed transaction.
 
 **Possible values**
 
@@ -454,23 +439,23 @@ An enum representing different statuses of a finalized transaction
 
 ## Device Status{#27}
 
-`DeviceStatus`
+`DeviceStatus` <span class="badge badge--info">Object</span>
 
-A class that holds the device status.
+A class which holds the payment terminal status.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `SerialNumber`  <br />*String	*   | The serial number of the device|
-| `BatteryStatus`  <br />*String	*   | The battery status in percentages of a device|
-| `BatterymV`  <br />*String	*   | The battery milli volts of a device|
-| `BatteryCharging`  <br />*String	*   | 	The battery charging status of a device|
-| `ExternalPower`  <br />*String	*   | The status of an external power of a device|
-| `ApplicationName`  <br />*String	*   | The application name used on a device|
-| `ApplicationVersion`  <br />*String	*   | The application version number used on a device|
-| `bluetoothName`  <br />*String	*   | The bluetooth interface name used on a device|
-| `statusMessage`  <br />*String	*   | Device human readable status message|
+| `SerialNumber`  <br />*String	*   | The serial number of the payment terminal.|
+| `BatteryStatus`  <br />*String	*   | The battery status in percentages of the payment terminal.|
+| `BatterymV`  <br />*String	*   | The battery millivolts of the payment terminal.|
+| `BatteryCharging`  <br />*String	*   | 	The battery charging status of the payment terminal.|
+| `ExternalPower`  <br />*String	*   | The external power status of the payment terminal.|
+| `ApplicationName`  <br />*String	*   | The application name used by the payment terminal.|
+| `ApplicationVersion`  <br />*String	*   | The application version number used by the payment terminal.|
+| `bluetoothName`  <br />*String	*   | The bluetooth interface name used by the payment terminal.|
+| `statusMessage`  <br />*String	*   |  Status message of the payment terminal.|
 
 **Code example**
 
@@ -490,11 +475,9 @@ A class that holds the device status.
 
 ## Currency{#31}
 
-`Currency`
+`Currency` <span class="badge badge--info">Enum</span>
 
-An enum of most currencies in the world.
-
-Contains the ISO name, ISO number and the name of the currency. Additionally contains information about how many decimals the currency uses.
+An enum of currencies.
 
 **Possible values**
 
@@ -502,7 +485,7 @@ Contains the ISO name, ISO number and the name of the currency. Additionally con
 
 ## Card Entry Type{#29}
 
-`CardEntryType`
+`CardEntryType` <span class="badge badge--info">Enum</span>
 
 An enum representing different card entry types.
 
@@ -512,19 +495,19 @@ An enum representing different card entry types.
 
 ## Card Scheme Name{#30}
 
-`CardSchemeName`
+`CardSchemeName` <span class="badge badge--info">Enum</span>
 
-A string representing different card brands.
+An enum representing different card brands.
 
 **Possible values**
 
-`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay`
+`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
 ## Verification Method{#37}
 
-`VerificationMethod`
+`VerificationMethod` <span class="badge badge--info">Enum</span>
 
-An enum representing different verification methods used in the transaction.
+An enum representing different cardholder verification methods.
 
 **Possible values**
 
@@ -532,9 +515,9 @@ An enum representing different verification methods used in the transaction.
 
 ## Payment Scenario{#34}
 
-`PaymentScenario`
+`PaymentScenario` <span class="badge badge--info">Enum</span>
 
-An enum representing different types of scenario.
+An enum representing different types of payment scenario.
 
 **Possible values**
 
@@ -542,7 +525,7 @@ An enum representing different types of scenario.
 
 ## Status Info
 
-`statusInfo`
+`statusInfo` <span class="badge badge--info">Object</span>
 
 A class containing information about the status of the transaction.
 
@@ -550,15 +533,15 @@ A class containing information about the status of the transaction.
 
 | Property      | Description |
 | ----------- | ----------- |
-| `cancelAllowed`  <br />*bool*   | A `boolean` letting the integrator know if the terminal will accept a stop transaction request.|
-| `status`  <br />[*status*](#38)  | A Status enum representing the status of the transaction.|
-| `message`  <br />*String*   | A String containing the status message of the transaction.|
+| `cancelAllowed`  <br />*bool*   | A `boolean` allowing the user to know if the payment terminal will accept a cancel request.|
+| `status`  <br />[*status*](#38)  | A `status` enum representing the status of the transaction.|
+| `message`  <br />*String*   | A `string` containing the status message of the transaction.|
 | `deviceStatus`  <br />[*Device Status*](#27)   | A `DeviceStatus` object containing information about the payment terminal.|
 
 
 ## Status{#38}
 
-`status`
+`status` <span class="badge badge--info">Enum</span>
 
 An enum containing information about the status of a transaction.
 
@@ -568,7 +551,7 @@ An enum containing information about the status of a transaction.
 
 ## Tender Type{#35}
 
-`TenderType`
+`TenderType` <span class="badge badge--info">Enum</span>
 
 An enum representing different tender types.
 
@@ -578,7 +561,9 @@ An enum representing different tender types.
 
 ## Tip Configuration{#39}
 
-`TipConfiguration`
+`TipConfiguration` <span class="badge badge--info">Object</span>
+
+An object holding information about the configuration of the tipping menu for the payment terminal. When a tipping configuration is sent to the payment terminal, the card reader will prompt the cardholder with a tipping menu at the time of the transaction with the parameters that have been sent. 
 
 **Properties**
 
@@ -605,10 +590,10 @@ An enum representing different tender types.
 
 ## Transaction Type{#36}
 
-`TransactionType`
+`TransactionType` <span class="badge badge--info">Enum</span>
 
 An enum representing different types of transactions.
 
 **Possible values**
 
-`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE` `MOTO_REFUND` `MOTO_REVERSAL`
+`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE` `MOTO_REFUND` `MOTO_REVERSAL` `SALE_AND_TOKENIZE_CARD` `UPDATE` `PRINT_RECEIPT` 
