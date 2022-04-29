@@ -19,8 +19,7 @@ module.exports = {
       logo: {
         alt: 'My Site Logo',
         src: 'img/handpoint-logo-hvitt.svg',
-        width: 90
-
+        width: 75
       },
       items: [
         {
@@ -28,6 +27,10 @@ module.exports = {
           href: 'https://status.handpoint.com',
           position: 'right',
           'aria-label': 'Status Page',
+        },
+        {
+          to: 'cpdocs',
+          label: 'Getting Started',
         },
         {
           type: 'docsVersionDropdown',
@@ -84,10 +87,18 @@ module.exports = {
       style: 'light',
       links: [
         {
-          title: 'Docs Legacy',
+          title: 'Docs',
           items: [
             {
-              label: 'Docs',
+              label: 'Card Present Docs',
+              to: 'cpdocs',
+            },
+            {
+              label: 'Ecommerce Docs',
+              href: 'https://www.handpoint.com/docs/device/Basics/',
+            },
+            {
+              label: 'Legacy Docs',
               href: 'https://www.handpoint.com/docs/device/Basics/',
             },
           ],
