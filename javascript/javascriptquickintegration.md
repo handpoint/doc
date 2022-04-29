@@ -1,21 +1,25 @@
 ---
-sidebar_position: 7
+sidebar_position: 4
 id: javascriptquickintegration
 ---
 
 
 
-# Quick Integration Test
+# Integration Guide
 
-This js script sample shows how you can integrate your solution with Handpoint JavaScript SDK to perform a product sale in three quick and simple SDK calls:
+:::tip
+Pre-requisite: request your test credentials (API key) and test payment terminal from Handpoint. 
+:::
 
-1) Request your test configuration (apiKey and deviceName constants) from Handpoint and set them in your web application
+The following example shows how you can integrate your web application with the Handpoint javascript SDK to perform a sale transaction in four easy steps:
 
-2) Download handpoint.js from this [link](https://hpoint-cr-binaries-prod.s3.amazonaws.com/cloud/sdk/wrappers/js/6.0.0/handpoint-6.0.0.js)
+1) Download the [handpoint.js](javascriptintroduction.md#javascriptIntro) SDK.
 
-3) In the same directory, copy both handpoint.js and the code below in an html file
+2) In the same directory, copy both handpoint.js and the code below in an html file.
 
-4) Open the html file in the browser and see test transactions immediately
+3) In the code below, replace the variable apiKey with your test api key and replace the variable deviceName with the concatenation of your terminal serial number and model, for example 0821032395-PAXA920. If your payment terminal shows the debug watermark on the screen when it is on, then keep the variable environmentIsDevelopment to true otherwise change it to false. 
+
+4)Open the html file in the browser and see the test transaction immediately.
 
 **SIMPLE, FAST, and EASY**
 
@@ -58,7 +62,7 @@ This js script sample shows how you can integrate your solution with Handpoint J
                       //document.writeln('Successful disconnection from device [' + deviceName + ']<br />')
                     }
                   ).catch(
-                    error => console.log('Disconnection to device [' + deviceName + '] Failed -> ' + JSON.stringify(error))
+                    error => console.log('Disconnection from device [' + deviceName + '] Failed -> ' + JSON.stringify(error))
                   );
                 }
               ).catch(
@@ -77,3 +81,12 @@ This js script sample shows how you can integrate your solution with Handpoint J
 
 </html>
 ```
+
+:::tip
+Maintain the connection with the terminal at all times:
+- To be able to recover a transaction result through the callback passed in the [*init*](javascriptmethods.md#1) method, the point of sale and the terminal **MUST** be connected and online. For that reason, we recommend to connect to the target terminal and maintain the connection alive at all times instead of connecting and disconnecting for every transaction.
+- Using the same connection, the user may perform as many transactions as desired. The SDK is in charge of maintaining the secure channel between the point of sale and the terminal. No connection and disconnection between transactions is required. The silent connected periods will provide the possibility for the device to deliver any pending transaction result in case of a network issue.
+
+How Transaction Recovery Works:
+- The terminal has a transaction recovery loop to automatically send back the pending [*Transaction Result*](javascriptobjects.md#18) to the Point of sale in case it becomes unreachable (network issue or other). For the first 100 seconds after a transaction is completed, a background thread will attempt to deliver the result every 5 seconds. If the point of sale is still unreachable after the first 100 seconds, the retry loop turns into an exponential increment to the power of 2 (8s-16s-32s etc…). The recovery loop is reinitialized every time the Handpoint application is restarted or anytime the startRecovery method is used.
+:::
