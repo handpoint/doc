@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 7
 id: restobjects
 ---
 
@@ -319,7 +319,7 @@ An enum representing the supported acquirers for merchant authentication.
 `AMEX` `BORGUN` `EVO` `OMNIPAY` `POSTBRIDGE` `INTERAC` `TSYS` `VANTIV` `SANDBOX`
 
 
-## Device
+## Device {#deviceObject}
 
 `Device`
 

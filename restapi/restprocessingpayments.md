@@ -1,13 +1,11 @@
 ---
-sidebar_position: 7
+sidebar_position: 3
 id: restprocessingpayments
 ---
 
-# Processing Payments Simulation
+# Trigger Amounts 
 
-Test transactions are conducted against a test server which is designed to simulate the behavior of an acquiring bank without moving any funds. As with every Handpoint terminal, sensitive card data is fully encrypted.
-
-Use trigger amounts to generate some specific responses from our server:
+Your test payments are sent against a test server on the Handpoint side which simulates the behavior of an acquiring bank. Funds are not moved and sensitive data from the card is fully encrypted. You can use trigger amounts to generate some specific responses from our servers:
 
 **Sale amounts**
 
@@ -18,7 +16,3 @@ Use trigger amounts to generate some specific responses from our server:
 | 37.93      | Issuer response code = 04 (Pick up card)       |
 | 37.57      | Request is partially approved        |
 | 37.68      | Request timeout       |
-
-
-Any other values will behave as normal authorized operations.
-

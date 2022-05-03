@@ -1,11 +1,11 @@
 ---
-sidebar_position: 8
+sidebar_position: 6
 id: restendpoints
 ---
 
 
 
-# Endpoints
+# REST API Endpoints
 
 
 ## /initialize
@@ -14,7 +14,7 @@ id: restendpoints
 
 `Initialize`
 
-Initializes the REST API client and returns the list of payment terminals associated with the merchant account
+Initializes the REST API client and returns the list of payment terminals associated with the merchant account. We recommend that you display the list of available payment terminals to the merchant in your software. Each API key is unique per merchant and needs to be configurable in your backend. 
 
 
 **Parameters**
@@ -22,7 +22,7 @@ Initializes the REST API client and returns the list of payment terminals associ
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>    <br />*String*  | Request Header used to identify the merchant       |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>    <br />*String*  | Api key used to authenticate the merchant.     |
 
 
 Returns
@@ -30,7 +30,7 @@ Returns
 
 | Devices      |
 | ----------- |
-| List of Device objects     |
+| List of [Device](restobjects.md#deviceObject) object.     |
 
 
 **Code Example**
@@ -38,10 +38,12 @@ Returns
 
 ```shell
 Operation executed using CLI tool CURL:
+
 REQUEST:
   curl -X GET \
    -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
-   "https://cloud.handpoint.com/initialize"
+   "https://cloud.handpoint.com/initialize" (production)
+   "https://cloud.handpoint.io/initialize" (development)
 
 RESPONSE:
  Code 200 -> Body:
@@ -66,7 +68,7 @@ RESPONSE:
 
 `Transactions`
 
-POST endpoint used to execute a financial operation
+POST endpoint used to execute a financial operation. The transaction type to be executed (sale, refund etc.) is defined in the `operation` field of the request body. 
 
 
 **Parameters**

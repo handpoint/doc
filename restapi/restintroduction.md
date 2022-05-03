@@ -10,19 +10,19 @@ Complete your integration in just three steps: Initiate the interface, choose th
 
 ## API Overview
 
-When integrating to the Handpoint REST API, there are 2 possible transaction flows in order to get back the transaction result from the payment terminal to your application: 
+When integrating with the Handpoint REST API, there are 2 possible transaction flows in order to get back the transaction result from the payment terminal to your application: 
 
 1. **Run a server to receive the transaction result**. In this scenario you will need to specify a callback URL in the transaction request. At the end of the transaction, the payment terminal will send back the transaction result to the specified callback URL. 
 
-2. **Query an endpoint provided by Handpoint**. In this scenario a transaction result id is delivered immediately to your application as a response to the transaction request. A specific API endpoint then needs to be queried with the transaction result id in order to get the transaction result when the financial operation is finished on the payment terminal. 
+2. **Query an endpoint provided by Handpoint**. In this scenario a transaction result id is delivered immediately to your application as a response to the transaction request. In order to retrieve the transaction result, a specific API endpoint needs to be queried with the transaction id once the financial operation is completed on the payment terminal. 
 
 ## Transaction flow   
 
 :::tip
 
-1. Pre-requisite: request your test credentials (API key) and test payment terminal from Handpoint. 
+1. Pre-requisite: request your test credentials (API key) and a payment terminal from Handpoint. 
 
-2. ensure you are targeting the correct environment. If your payment terminal is a **debug** terminal then the development environment (.io) needs to be targeted. If your payment terminal is a **demo** terminal or a **production** terminal then the production environment (.com) needs to be targeted. Demo terminals are production terminals linked to a mock acquirer so funds are not moved. To check if you should be using the production or the development environment you can refer to this guide: ["How do I know what type of card reader I have?"](https://hndpt.co/39utmzi)
+2. ensure you are targeting the correct environment. If your payment terminal is a **debug** terminal then the development environment (.io) needs to be targeted. If your payment terminal is a **demo** terminal or a **production** terminal then the production environment (.com) needs to be targeted. Demo terminals are production terminals linked to a mock acquirer so **funds are not moved**. To check if you should be using the production or the development environment you can refer to this guide: ["How do I know what type of card reader I have?"](https://hndpt.co/39utmzi)
 
   **For production terminals the endpoint to target is:** https://cloud.handpoint.com/
 
@@ -32,15 +32,15 @@ When integrating to the Handpoint REST API, there are 2 possible transaction flo
 
 The following flow shows the interactions between your application and the Handpoint REST API:
 
-**1)** Send a POST [transaction request](restobjects.md#transaction-request-object) to the REST API.
+**1)** Initialize your interface with the API key and receive the list of payment terminals available to perform a financial operation. Each API key is unique per merchant and needs to be configurable in your backend. Select a payment terminal and send a POST [transaction request](restobjects.md#transaction-request-object) to the REST API.
 
-**2)** The API will validate the request body and, if it is correct, will respond back to your software with the response code 202 ("Accepted”) to confirm that the data has been correctly forwarded to the payment terminal.
+**2)** The API will validate the request body and will immediately respond back to your software with the response code 202 ("Accepted”) to confirm that the data has been correctly forwarded to the payment terminal. Depending on your request body, a transactionResultId might be returned by the Handpoint API at this step (see 4.2 below).
 
-**3)** The validated [transaction request](restobjects.md#transaction-request-object) object is forwarded to the payment terminal and the transaction starts.
+**3)** The validated transaction request object is forwarded to the payment terminal and the transaction starts.
 
-**4.1)** In case the original [transaction request](restobjects.md#transaction-request-object) contains a callbackUrl and token, the [transaction result](restobjects.md#transaction-result-object) will be sent back from the payment terminal to your software by using the callbackUrl. The terminal will be authenticated against your endpoint by setting the authentication token of the [transaction request](restobjects.md#transaction-request-object) in the custom header ( "AUTH-TOKEN"). All 2XXs http response codes from the callbackUrl are considered as valid by the payment terminal to acknowledge of a successful delivery of the transaction result. **See figure 4.1 below**. 
+**4.1) If the original transaction request contains a callbackUrl and token** , the [transaction result](restobjects.md#transaction-result-object) will be sent back from the payment terminal to your software by using the callbackUrl. The token is a unique value generated by your software, it will be echoed in the custom HTTP header called AUTH-TOKEN of the transaction result sent by the terminal to your server. We recommend to use the token in order to authenticate the messages hitting your endpoint. The terminal expects a response back from your server when you receive the transaction result, 2XXs http response codes from the callbackUrl are considered as valid by the payment terminal to acknowledge a successful delivery of the transaction result. **See figure 4.1 below**. 
 
- **4.2)** In case the original [transaction request](restobjects.md#transaction-request-object) does not contain a callbackUrl and token, the [transaction result](restobjects.md#transaction-result-object) is sent back from the terminal to Handpoint's REST-API. The transaction result can then be retrieved from the endpoint GET https://cloud.handpoint.[com//io]/transaction-result/{transactionResultId} where the transactionResultId (also called cloud transaction identifier) is found in the immediate answer from the initial transaction request POST to the REST-API (see step 2). **See figure 4.2 below**. 
+ **4.2) If the original transaction request does not contain a callbackUrl and token** , the [transaction result](restobjects.md#transaction-result-object) is sent back from the terminal to Handpoint's REST-API. The transaction result can then be retrieved from the endpoint GET https://cloud.handpoint.[com//io]/transaction-result/{transactionResultId} where the transactionResultId (also called cloud transaction identifier) is found in the immediate answer from the initial transaction request POST to the REST-API (see step 2). **See figure 4.2 below**. 
 
 
 
