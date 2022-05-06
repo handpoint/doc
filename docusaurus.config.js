@@ -235,7 +235,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'restapi',
-        includeCurrentVersion: true,
+        includeCurrentVersion: false,
         path: 'restapi',
         routeBasePath: 'restapi',
         sidebarPath: require.resolve('./sidebarsIos.js'),
