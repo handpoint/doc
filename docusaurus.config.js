@@ -260,7 +260,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'express',
-        includeCurrentVersion: false,
+        includeCurrentVersion: true,
         path: 'express',
         routeBasePath: 'express',
         sidebarPath: require.resolve('./sidebarsIos.js'),
