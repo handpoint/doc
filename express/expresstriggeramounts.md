@@ -3,10 +3,9 @@ sidebar_position: 2
 id: triggeramounts
 ---
 
-# Trigger Amounts
+# Trigger Amounts 
 
-Your test payments are sent against a test server on the Handpoint side which simulates the behavior of an acquiring bank. Funds are not moved and sensitive data from the card is fully encrypted. You can use trigger amounts to generate some specific responses from our server:
-
+Your test payments are sent against a test server on the Handpoint side which simulates the behavior of an acquiring bank. Funds are not moved and sensitive data from the card is fully encrypted. You can use trigger amounts to generate some specific responses from our servers:
 
 **Sale amounts**
 
