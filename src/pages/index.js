@@ -26,7 +26,7 @@ function Header() {
       <br></br>
       <h2 style={{
         color: 'white'
-      }} >Docs</h2>
+      }} >Global Payments-Powered Growth for SaaS</h2>
     </div>
   );
 }
