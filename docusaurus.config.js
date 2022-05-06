@@ -4,7 +4,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Handpoint',
-  tagline: 'Card payments. Made simple',
+  tagline: 'Global Payments-Powered Growth for SaaS',
   url: 'https://www.handpoint.com',
   baseUrl: '/doc/',
   onBrokenLinks: 'throw',

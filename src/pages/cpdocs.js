@@ -21,229 +21,31 @@ function Hello() {
       <Header />
       <main>
         <div class="step1">
-
-          {/* style={{
-            display: 'block',
-            justifyContent: 'center',
-            
-            fontSize: '15px',
-            marginTop: '25px',
-            width: '80%',
-            marginLeft:'50px'
-           
-
-           }}> */}
-
-          <h2>Step 1. Choose your SDK</h2>
+          <h2>Meet Handpoint Terminals</h2>
           <br></br>
-          <h3>High level features supported by the SDKs:</h3>
-          <p>
-            The Handpoint SDKs provide you with several functions to communicate with the payment terminals:
-            <br></br>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Sale operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    It starts a purchase transaction on the payment terminal. In its
-                    simplest form
-                    you only have to pass the transaction amount and currency as parameters.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-
-                <div class="card__header" >
-                  <h4>Sale and tokenize operation</h4>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    A sale operation which also returns a card token
-                    (not available for all acquirers, please check with Handpoint to know if tokenization is
-                    supported for your acquirer of choice)
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header">
-                  <h4>Tokenize operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Returns a card token representing the PAN of the card (not available for
-                    all acquirers,
-                    please check with Handpoint to know if tokenization is supported for your
-                    acquirer of choice)
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Refund operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    It starts a refund transaction on the payment terminal. This
-                    operation moves
-                    funds from the merchant account to the cardholder's payment card.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Sale reversal operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Allows the merchant to reverse a previously approved sale
-                    operation.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Refund reversal operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Allows the merchant to reverse a previously approved
-                    refund
-                    operation.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Card PAN operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    A cardPan request will return the full PAN of the card being swiped, dipped or tapped.
-                    Only the PANs of whitelisted card ranges will be returned by the Handpoint systems.
-                    This operation is mostly used to be able to process funds or points from loyalty card.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Update operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Allows the merchant to search for the latest software updates on the terminal.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Print receipt operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    This method sends the merchant or customer receipt to the terminal for printing. The printer can print any HTML data passed as parameter.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Ping operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    This operation will ping the terminal to confirm if it is online.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <br></br>
-
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h4>Stop current transaction operation</h4>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Operation used to stop the current transaction. The transaction can only be stopped at specific stages of a payment processing, for example a transaction can not be stopped when the card is being read but can be stopped when waiting for the cardholder to initially insert a card.
-                  </p>
-                </div>
-              </div>
-
-            </div>
-            <br></br>
-
-          </p>
-          <p>
-            Status messages are sent back to the SDK throughout the transaction process so you can customize the checkout experience. At the end of the transaction, the result and receipts of the transaction are sent back to your application in a JSON format.
-            No cardholder data is transmitted to your POS so you can be kept out of scope of the PCI data security standard.
-          </p>
-          <br />
-          <h3>Payment terminals supported by SDK:</h3>
-        </div>
-        <div >
-          <div>
+          <TableTerminals />
+          <br></br>
+          <h2>High Level Features</h2>
+          <br></br>
+          <HighLevelFeatures />
+          <br></br>
+           <h3>Payment terminals supported by SDK:</h3>
+          <Step1table />
+          <br></br>
+          <div class="step1">
+            <h2>Step 2. Check your terminal specs:</h2>
+            <h3>Terminal full specifications:</h3>
           </div>
+          <br></br>
+          <div class="step1">
+            <h3>Communication types:</h3>
+          </div>
+          <Step2tablecomms />
+          <br></br>
+          <Step3 />
+          <Github />
+          <Helpandsupport />
         </div>
-        <Step1table />
-        <br></br>
-        <div class="step1">
-          <h2>Step 2. Check your terminal specs:</h2>
-          <h3>Terminal full specifications:</h3>
-        </div>
-        <Step2tableterminals />
-        <br></br>
-        <div class="step1">
-          <h3>Communication types:</h3>
-        </div>
-        <Step2tablecomms />
-        <br></br>
-        <Step3 />
-        <Github />
-
-        <Helpandsupport />
       </main>
     </Layout>
   );
@@ -276,7 +78,7 @@ function Header() {
 
       <h2 style={{
         color: 'white'
-      }} >Card payments. Made simple</h2>
+      }} >Integrate in-person payments with your software</h2>
     
 
     </div>
@@ -450,13 +252,13 @@ function Step1table() {
 }
 
 
-function Step2tableterminals() {
+function TableTerminals() {
   return (
 
     <div class="container">
 
       <div class="row">
-        <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
               <b><a href="https://handpoint.com/specs/hilite/">HiLite</a></b>
@@ -470,7 +272,7 @@ function Step2tableterminals() {
             </div>
           </div>
         </div></div>
-        <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
               <b><a href="https://handpoint.com/specs/hipro/">HiPro</a></b>
@@ -483,24 +285,10 @@ function Step2tableterminals() {
             </div>
           </div>
         </div></div>
-        <div class="col col--4"><div class="card-demo" style={{ fontSize: '13px' }}>
-          <div class="card shadow--md ">
-            <div class="card__header">
-              <b><a href="https://handpoint.com/specs/hi5/">Hi5</a></b>
-            </div>
-            <div class="card__body" align="center">
-              <a href="https://handpoint.com/specs/hi5/"><img style={{ height: '80px' }}
-                src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Hi5-large-crop.png?h=300&amp;w=200"
-                alt="">
-              </img></a>
-            </div>
-          </div>
-        </div></div>
       </div>
       <br></br>
-
       <div class="row">
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
               <b><a href="https://handpoint.com/specs/paxa920/">PAX A920</a></b>
@@ -513,7 +301,7 @@ function Step2tableterminals() {
             </div>
           </div>
         </div></div>
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
               <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920 PRO</a></b>
@@ -526,7 +314,10 @@ function Step2tableterminals() {
             </div>
           </div>
         </div></div>
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+      </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
               <b><a href="https://handpoint.com/specs/paxa80/">PAX A80</a></b>
@@ -539,7 +330,7 @@ function Step2tableterminals() {
             </div>
           </div>
         </div></div>
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header">
               <b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b>
@@ -553,12 +344,9 @@ function Step2tableterminals() {
           </div>
         </div></div>
       </div>
-
       <br></br>
-
-
       <div class="row">
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
               <b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b>
@@ -572,7 +360,7 @@ function Step2tableterminals() {
           </div>
         </div>
         </div>
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
               <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a></b>
@@ -584,9 +372,11 @@ function Step2tableterminals() {
               </img></a>
             </div>
           </div>
-        </div>
-        </div>
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        </div></div>
+      </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
               <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77</a></b>
@@ -600,7 +390,7 @@ function Step2tableterminals() {
           </div>
         </div>
         </div>
-        <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <div class="card__header" >
               <b><a href="https://handpoint.com/specs/TPS900/">TELPO TPS 900</a></b>
@@ -613,8 +403,8 @@ function Step2tableterminals() {
             </div>
           </div>
         </div>
-        </div></div>
-
+        </div>
+      </div>
     </div>
     // </TableContainer>
 
@@ -1344,8 +1134,189 @@ function Github() {
 
 }
 
+function HighLevelFeatures() {
+  return (
+<div>
+  <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h3>Sale</h3>
+          </div>
+          <div class="card__body">
+            <p>
+            Sends a sale transaction to the payment terminal. This is the most basic operation, in its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h3>Sale & Tokenize</h3>
+          </div>
+          <div class="card__body" >
+            <p>
+              A sale operation which also returns a card token. Tokens keep your software out of PCI scope and can be used for tracking customer behavior
+              ,keep a card on file as well as initiating recurring payments. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br></br>
+    <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h4>Tokenize Only</h4>
+          </div>
+          <div class="card__body">
+            <p>
+             Returns a card token without withdrawing funds from the card. This functionality is useful for all kinds of custom scenarios, 
+             for example when a card needs to be kept on file but no funds should be charged. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h4>Sale and tokenize operation</h4>
+          </div>
+          <div class="card__body" >
+            <p>
+              A sale operation which also returns a card token
+              (not available for all acquirers, please check with Handpoint to know if tokenization is
+              supported for your acquirer of choice)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br></br>
+    <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h4>Sale operation</h4>
+          </div>
+          <div class="card__body">
+            <p>
+              It starts a purchase transaction on the payment terminal. In its
+              simplest form
+              you only have to pass the transaction amount and currency as parameters.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h4>Sale and tokenize operation</h4>
+          </div>
+          <div class="card__body" >
+            <p>
+              A sale operation which also returns a card token
+              (not available for all acquirers, please check with Handpoint to know if tokenization is
+              supported for your acquirer of choice)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br></br>
+    <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h4>Sale operation</h4>
+          </div>
+          <div class="card__body">
+            <p>
+              It starts a purchase transaction on the payment terminal. In its
+              simplest form
+              you only have to pass the transaction amount and currency as parameters.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h4>Sale and tokenize operation</h4>
+          </div>
+          <div class="card__body" >
+            <p>
+              A sale operation which also returns a card token
+              (not available for all acquirers, please check with Handpoint to know if tokenization is
+              supported for your acquirer of choice)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br></br>
+    <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h4>Sale operation</h4>
+          </div>
+          <div class="card__body">
+            <p>
+              It starts a purchase transaction on the payment terminal. In its
+              simplest form
+              you only have to pass the transaction amount and currency as parameters.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h4>Sale and tokenize operation</h4>
+          </div>
+          <div class="card__body" >
+            <p>
+              A sale operation which also returns a card token
+              (not available for all acquirers, please check with Handpoint to know if tokenization is
+              supported for your acquirer of choice)
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
+  
+  );
 
-
+}
 
 function Helpandsupport() {
   return (
