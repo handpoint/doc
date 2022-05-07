@@ -376,21 +376,6 @@ An enum representing different card entry types.
 
 `UNDEFINED` `MSR` `ICC` `CNP` 
 
-**Code example**
-
-````json
-{
-    "acquirer": "ACQ_DUMMY",
-    "mid": "1111",
-    "tid": "2222",
-    "mcc": "3333"
-}
-
-{
-    "externalId": "4444"
-}
-````
-
 
 ## Verification Method{#verificationMethod}
 
@@ -419,6 +404,22 @@ An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merc
 | `tid`    <br />*String* | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
 | `mcc`   <br />*String*  | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
 | `ExternalId`   <br />*String*  | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials|
+
+**Code example**
+
+````json
+{
+    "acquirer": "ACQ_DUMMY",
+    "mid": "1111",
+    "tid": "2222",
+    "mcc": "3333"
+}
+
+{
+    "externalId": "4444"
+}
+````
+
 
 ## Balance
 
