@@ -291,6 +291,22 @@ function IntegrationPaths() {
           </div>
         </div>
       </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Standalone</b>
+              </h3>
+              <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without having to carry out any integration.
+              When used as a standalone, the merchant can simply type in an amount and start a transaction. Standalone terminals are not integrated to your software but if you plan on doing an integration
+              they can be switched from standalone to cloud integrated by the switch of a button as soon as you are ready to go Live.</p>
+              <div align="center">
+                <img class="card-image" src="img/standalone.png" alt="standalone terminal"></img>
+              </div>
+          </div>
+        </div>
+      </div>
     </div>
     // </TableContainer>
 
