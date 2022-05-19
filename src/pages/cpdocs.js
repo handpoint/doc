@@ -21,10 +21,6 @@ function Hello() {
       <Header />
       <main>
         <div class="step1">
-          <h2>Handpoint Terminals</h2>
-          <br></br>
-          <TableTerminals />
-          <br></br>
           <h2>Integration Paths</h2>
           <br></br>
           <IntegrationPaths />
@@ -32,6 +28,10 @@ function Hello() {
           <h2>High Level Features</h2>
           <br></br>
           <HighLevelFeatures />
+          <br></br>
+          <h2>Handpoint Terminals</h2>
+          <br></br>
+          <TableTerminals />
           <br></br>
            <h3>Payment terminals supported by SDK:</h3>
           <Step1table />
@@ -284,7 +284,8 @@ function IntegrationPaths() {
                 <b>Native Integration</b>
               </h3>
               <p class="card__body">The Handpoint native integration allows you to run your own Android application on the payment terminal. Your application embeds the Handpoint
-              Android SDK in order to process payments. This all-in-one solution puts you in control of the checkout experience and does not require any separate application for payment processing.</p>
+              Android SDK in order to process payments. This all-in-one solution puts you in control of the checkout experience and does not require any separate application for payment processing.
+              Card data is never sent unmasked to your application so you can be kept out of PCI scope.</p>
               <div align="center">
                 <img class="card-image" src="img/native-integration.png" alt="native integration"></img>
               </div>
@@ -298,11 +299,16 @@ function IntegrationPaths() {
               <h3 class="card__header">
                 <b>Standalone</b>
               </h3>
-              <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without having to carry out any integration.
-              When used as a standalone, the merchant can simply type in an amount and start a transaction. Standalone terminals are not integrated to your software but if you plan on doing an integration
-              they can be switched from standalone to cloud integrated by the switch of a button as soon as you are ready to go Live.</p>
+              <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without being connected to a point of sale software.
+              When the card reader is used in standalone mode, the merchant can simply type in an amount and start processing payments. 
+              The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end of day reports and manual entry of card data for over the phone orders.</p>
               <div align="center">
                 <img class="card-image" src="img/standalone.png" alt="standalone terminal"></img>
+              </div>
+              <p class="card__body">Standalone terminals are not integrated to your software. However, they can be switched from standalone to cloud integrated by the flip
+               of a button. You can therefore start shipping standalone terminals to your merchants and when your integration is ready upgrade the terminals to start accepting cloud payments.</p>
+              <div align="center">
+                <img class="card-image" src="img/integrated-mode.png" alt="integrated mode"></img>
               </div>
           </div>
         </div>
