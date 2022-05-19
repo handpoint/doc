@@ -25,6 +25,10 @@ function Hello() {
           <br></br>
           <TableTerminals />
           <br></br>
+          <h2>Integration Paths</h2>
+          <br></br>
+          <IntegrationPaths />
+          <br></br>
           <h2>High Level Features</h2>
           <br></br>
           <HighLevelFeatures />
@@ -251,6 +255,47 @@ function Step1table() {
 
 }
 
+
+function IntegrationPaths() {
+  return (
+
+    <div class="container">
+      <div class="row">
+        <div class="col" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Cloud Integration</b>
+              </h3>
+              <p class="card__body">The Handpoint cloud payments solution allows your point of sale to easily communicate with
+                the payment terminal via the internet (cellular or wifi). Only an API key is required to start sending sales to the card reader and get back the transaction result to your software when the operation is completed.
+                No other configuration is required, the terminals are android based making the interface familiar to the merchant. 
+                The merchant only needs to connect the terminal to Wifi and open the payment application to be able to start taking payments. Card data is never sent unmasked to your software so you can be kept out of PCI scope.</p>
+              <div align="center">
+                <img class="card-image" src="img/cloud-integration.png" alt="cloud integration"></img>
+              </div>
+          </div>
+        </div>
+      </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Native Integration</b>
+              </h3>
+              <p class="card__body">The Handpoint native integration allows you to run your own Android application on the payment terminal. Your application embeds the Handpoint
+              Android SDK in order to process payments. This all-in-one solution puts you in control of the checkout experience and does not require any separate application for payment processing.</p>
+              <div align="center">
+                <img class="card-image" src="img/native-integration.png" alt="native integration"></img>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    // </TableContainer>
+
+  );
+}
 
 function TableTerminals() {
   return (
