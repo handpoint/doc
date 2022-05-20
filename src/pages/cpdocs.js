@@ -25,6 +25,10 @@ function Hello() {
           <br></br>
           <IntegrationPaths />
           <br></br>
+          <h2>Cobranding</h2>
+          <br></br>
+          <Cobranding />
+          <br></br>
           <h2>High Level Features</h2>
           <br></br>
           <HighLevelFeatures />
@@ -313,12 +317,51 @@ function IntegrationPaths() {
           </div>
         </div>
       </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Bluetooth Integration</b>
+              </h3>
+              <p class="card__body">The Handpoint bluetooth integration allows you to integrate your point of sale with the Handpoint HiLite terminal.
+              The HiLite is portable and the preferred payment terminal for small merchants in a mobile environment.</p>
+              <div align="center">
+                <img class="card-image" src="img/hilite-integration.png" alt="HiLite integration"></img>
+              </div>
+          </div>
+        </div>
+      </div>
     </div>
     // </TableContainer>
 
   );
 }
 
+function Cobranding() {
+  return (
+
+    <div class="container">
+      <div class="row">
+        <div class="col" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Brand the app as your own!</b>
+              </h3>
+              <p class="card__body">Handpoint has an intuitive, simple-to-use yet powerful payment application that enables any merchant (from pop-ups to big retailers) to accept payments instantly and securely.
+               As a way to provide the same seamless experience to our partners’ customers, the app can be customized to include the partner’s logo, colors and custom links. 
+               Thus, offer the same simple user experience with some of their own branding. Here is the <a href="https://handpoint.atlassian.net/wiki/spaces/PD/pages/3294986356/Partner+Guide+Cobranding+-+Theme+guide+for+the+Handpoint+app" target="_blank">guide</a> to theme the Handpoint payment application,
+               logos and color schemes can be emailed to support@handpoint.com.</p>
+              <div align="center">
+              <img src="img/cobranding-extended.gif" alt="cobranding gif"></img>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  );
+}
 function TableTerminals() {
   return (
 
@@ -328,10 +371,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header" >
-              <b><a href="https://handpoint.com/specs/hilite/">HiLite</a></b>
+              <b><a href="http://datecs.co.uk/product/bluepad-50/" target="_blank">HiLite</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://handpoint.com/specs/hilite/"><img style={{ height: '150px' }}
+              <a href="http://datecs.co.uk/product/bluepad-50/" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
                 alt=""
               >
@@ -342,10 +385,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header">
-              <b><a href="https://handpoint.com/specs/hipro/">HiPro</a></b>
+              <b><a href="http://datecs.co.uk/product/bluepad-500/" target="_blank">HiPro</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://handpoint.com/specs/hipro/"><img style={{ height: '150px' }}
+              <a href="http://datecs.co.uk/product/bluepad-500/" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
                 alt="">
               </img></a>
@@ -358,10 +401,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header" >
-              <b><a href="https://handpoint.com/specs/paxa920/">PAX A920</a></b>
+              <b><a href="https://www.paxtechnology.com/a920" target="_blank">PAX A920</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://handpoint.com/specs/paxa920/"><img style={{ height: '150px' }}
+              <a href="https://www.paxtechnology.com/a920" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
                 alt="">
               </img></a>
@@ -371,10 +414,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header">
-              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920 PRO</a></b>
+              <b><a href="https://www.paxtechnology.com/a920pro" target="_blank">PAX A920 PRO</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf"><img style={{ height: '150px' }}
+              <a href="https://www.paxtechnology.com/a920pro" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
                 alt="">
               </img></a>
@@ -387,10 +430,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header">
-              <b><a href="https://handpoint.com/specs/paxa80/">PAX A80</a></b>
+              <b><a href="https://www.paxtechnology.com/a80" target="_blank">PAX A80</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://handpoint.com/specs/paxa80/"><img style={{ height: '150px' }}
+              <a href="https://www.paxtechnology.com/a80" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Pax_A80.png"
                 alt="">
               </img></a>
@@ -400,10 +443,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header">
-              <b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b>
+              <b><a href="https://www.paxtechnology.com/a35" target="_blank">PAX A35</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf"><img style={{ height: '150px' }}
+              <a href="https://www.paxtechnology.com/a35" target="_blank"><img style={{ height: '150px' }}
                 src="https://user-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/92236_330021.png"
                 alt="">
               </img></a>
@@ -416,10 +459,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header" >
-              <b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b>
+              <b><a href="https://www.paxtechnology.com/a50" target="_blank">PAX A50</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf"><img style={{ height: '150px' }}
+              <a href="https://www.paxtechnology.com/a50" target="_blank"><img style={{ height: '150px' }}
                 src="https://i.ibb.co/LZvJ5hx/main-photo-min.png"
                 alt="">
               </img></a>
@@ -430,10 +473,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header" >
-              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a></b>
+              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf" target="_blank">PAX A60</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf"><img style={{ height: '150px' }}
+              <a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A60.png"
                 alt="">
               </img></a>
@@ -446,10 +489,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header" >
-              <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77</a></b>
+              <b><a href="https://www.paxtechnology.com/a77" target="_blank">PAX A77</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf"><img style={{ height: '150px' }}
+              <a href="https://www.paxtechnology.com/a77" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A77.png"
                 alt="">
               </img></a>
@@ -460,10 +503,10 @@ function TableTerminals() {
         <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
           <div class="card shadow--md ">
             <h3 class="card__header" >
-              <b><a href="https://handpoint.com/specs/TPS900/">TELPO TPS 900</a></b>
+              <b><a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank">TELPO TPS 900</a></b>
             </h3>
             <div class="card__body" align="center">
-              <a href="https://handpoint.com/specs/TPS900/"><img style={{ height: '150px' }}
+              <a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank"><img style={{ height: '150px' }}
                 src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
                 alt="">
               </img></a>
