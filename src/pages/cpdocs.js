@@ -271,9 +271,8 @@ function IntegrationPaths() {
                 <b>Cloud Integration</b>
               </h3>
               <p class="card__body">The Handpoint cloud payments solution allows your point of sale to easily communicate with
-                the payment terminal via the internet (cellular or wifi). Only an API key is required to start sending sales to the card reader and get back the transaction result to your software when the operation is completed.
-                No other configuration is required, the terminals are android based making the interface familiar to the merchant. 
-                The merchant only needs to connect the terminal to Wifi and open the payment application to be able to start taking payments. Card data is never sent unmasked to your software so you can be kept out of PCI scope.</p>
+                 payment terminals via the internet (cellular or wifi). Only an API key is required to start sending sales to the card reader and get back the transaction result to your software when the operation is completed.
+                No other configuration is required, the merchant only needs to connect the terminal to Wifi and open the payment application to be able to start taking payments. Card data is never sent unmasked to your software so you can be kept out of PCI scope.</p>
               <div align="center">
                 <img class="card-image" src="img/cloud-integration.png" alt="cloud integration"></img>
               </div>
@@ -305,12 +304,13 @@ function IntegrationPaths() {
               </h3>
               <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without being connected to a point of sale software.
               When the card reader is used in standalone mode, the merchant can simply type in an amount and start processing payments. 
-              The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end of day reports and manual entry of card data for over the phone orders.</p>
+              The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end-of-day reports and manual card entry for over the phone transactions.</p>
               <div align="center">
                 <img class="card-image" src="img/standalone.png" alt="standalone terminal"></img>
               </div>
-              <p class="card__body">Standalone terminals are not integrated to your software. However, they can be switched from standalone to cloud integrated by the flip
-               of a button. You can therefore start shipping standalone terminals to your merchants and when your integration is ready upgrade the terminals to start accepting cloud payments.</p>
+              <p class="card__body">Standalone terminals are not integrated to your software. However, they can be turned from standalone to cloud integrated by the flip
+               of a switch. You can therefore start shipping standalone terminals to your merchants and when your integration is ready, upgrade the terminals to start accepting cloud payments.
+               Standalone mode can also be used as a fallback method for the merchant to continue processing payments even if the point of sale is down.</p>
               <div align="center">
                 <img class="card-image" src="img/integrated-mode.png" alt="integrated mode"></img>
               </div>
@@ -324,16 +324,32 @@ function IntegrationPaths() {
               <h3 class="card__header">
                 <b>Bluetooth Integration</b>
               </h3>
-              <p class="card__body">The Handpoint bluetooth integration allows you to integrate your point of sale with the Handpoint HiLite terminal.
-              The HiLite is portable and the preferred payment terminal for small merchants in a mobile environment.</p>
+              <p class="card__body">The Handpoint bluetooth integration allows your point of sale to easily communicate with the Handpoint HiLite terminal.
+              The HiLite is Handpoint's ultra portable card reader for small and/or highly mobile merchants. With the HiLite, merchants can start accepting 
+              payments on the go!</p>
               <div align="center">
                 <img class="card-image" src="img/hilite-integration.png" alt="HiLite integration"></img>
               </div>
           </div>
         </div>
       </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Lightning Integration</b>
+              </h3>
+              <p class="card__body">The Handpoint HiPro is an all-in-one payment terminal compatible with iOS devices. The lightning port is used for the communication
+              between the iOS phone or ipod and the payment terminal. This is the perfect line buster for busy retail environments. With its integrated scanner It can also be used to
+              scan barcodes and manage inventory as well as taking payments on the spot, directly in the store aisles.</p>
+              <div align="center">
+                <img class="card-image" src="img/hipro-integration.png" alt="HiPro integration"></img>
+              </div>
+          </div>
+        </div>
+      </div>
     </div>
-    // </TableContainer>
 
   );
 }

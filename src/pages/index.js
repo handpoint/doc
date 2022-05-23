@@ -53,12 +53,12 @@ function Options() {
             <div class="card-demo" style={{ fontSize: '14px' }}>
               <div class="card shadow--md ">
                 <div class="card__header" >
-                  <b><p>Terminal</p></b>
+                  <b><p>In-person payments</p></b>
                 </div>
                 <div class="card__body" align="center">
 
                   <div><img src="img/cppayment.png" alt="Flowers in Chania"></img></div>
-                  <a class="button button--primary" href="cpdocs" >Integrate your software with payment terminals!</a>
+                  <a class="button button--primary" href="cpdocs" >Integrate your software with payment terminals</a>
                 </div>
               </div>
 
@@ -69,12 +69,12 @@ function Options() {
             <div class="card-demo" style={{ fontSize: '14px' }}>
               <div class="card shadow--md ">
                 <div class="card__header" >
-                  <b><p>Ecommerce</p></b>
+                  <b><p>Online payments</p></b>
                 </div>
                 <div class="card__body" align="center">
 
                   <div><img src="img/cnppayment.png" alt="Flowers in Chania"></img></div>
-                  <a class="button button--primary" href="cpdocs" >Integrate online payments into your software!</a>
+                  <a class="button button--primary" href="cpdocs" >Integrate eCommerce payments into your software</a>
                 </div>
               </div>
             </div>
@@ -88,7 +88,7 @@ function Options() {
                 <div class="card__body" align="center">
 
                   <div><img src="img/feedapi.png" alt="Txn Feed API"></img></div>
-                  <a class="button button--primary" href="https://www.handpoint.com/docs/txnfeedapi/" >Build in-depth transaction reporting for your software!</a>
+                  <a class="button button--primary" href="https://www.handpoint.com/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
                 </div>
               </div>
 
