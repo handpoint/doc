@@ -14,7 +14,7 @@ import Stack from '@mui/material/Stack';
 import { height } from '@mui/system';
 
 
-function Hello() {
+function CpDocs() {
   return (
 
     <Layout title="Handpoint Doc">
@@ -29,6 +29,10 @@ function Hello() {
           <br></br>
           <Cobranding />
           <br></br>
+          <h2>Geographies & Card Brands</h2>
+          <br></br>
+          <GeographiesAndCardBrands />
+          <br></br>
           <h2>High Level Features</h2>
           <br></br>
           <HighLevelFeatures />
@@ -37,18 +41,13 @@ function Hello() {
           <br></br>
           <TableTerminals />
           <br></br>
-           <h3>Payment terminals supported by SDK:</h3>
-          <Step1table />
+           <h2>Payment Terminals Supported by SDK/API</h2>
+           <br></br>
+          <SdkTerminalTable />
           <br></br>
-          <div class="step1">
-            <h2>Step 2. Check your terminal specs:</h2>
-            <h3>Terminal full specifications:</h3>
-          </div>
+          <h2>Payment terminals Communication Types</h2>
           <br></br>
-          <div class="step1">
-            <h3>Communication types:</h3>
-          </div>
-          <Step2tablecomms />
+          <CommunicationTypesTable />
           <br></br>
           <Step3 />
           <Github />
@@ -59,7 +58,7 @@ function Hello() {
   );
 }
 
-export default Hello;
+export default CpDocs;
 
 
 function Header() {
@@ -97,7 +96,7 @@ function Header() {
 }
 
 
-function Step1table() {
+function SdkTerminalTable() {
   return (
     <div>
       <TableContainer>
@@ -118,7 +117,7 @@ function Step1table() {
           </TableHead>
           <TableBody>
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/hilite/">HiLite</a></b></TableCell>
+              <TableCell align="center"><b>HiLite</b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
@@ -130,7 +129,7 @@ function Step1table() {
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/hipro/">HiPro</a></b></TableCell>
+              <TableCell align="center"><b>HiPro</b></TableCell>
               <TableCell align="center">-</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">-</TableCell>
@@ -142,32 +141,7 @@ function Step1table() {
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/hi5/">Hi5</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/paxa920/">PAX A920</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920 PRO</a></b></TableCell>
+              <TableCell align="center"><b>PAX Android Terminals</b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">-</TableCell>
               <TableCell align="center">✅</TableCell>
@@ -179,67 +153,7 @@ function Step1table() {
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/paxa80/">PAX A80</a></b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/TPS900/">Telpo TPS900</a></b></TableCell>
+              <TableCell align="center"><b>Telpo TPS900</b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">-</TableCell>
               <TableCell align="center">✅</TableCell>
@@ -362,14 +276,14 @@ function Cobranding() {
         <div class="col" >
           <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
-                <b>Brand the app as your own!</b>
+                <b>Brand the Payment Application as Your Own</b>
               </h3>
               <p class="card__body">Handpoint has an intuitive, simple-to-use yet powerful payment application that enables any merchant (from pop-ups to big retailers) to accept payments instantly and securely.
-               As a way to provide the same seamless experience to our partners’ customers, the app can be customized to include the partner’s logo, colors and custom links. 
-               Thus, offer the same simple user experience with some of their own branding. Here is the <a href="https://handpoint.atlassian.net/wiki/spaces/PD/pages/3294986356/Partner+Guide+Cobranding+-+Theme+guide+for+the+Handpoint+app" target="_blank">guide</a> to theme the Handpoint payment application,
+               As a way to provide the same seamless experience to our partners’ customers, the app can be customized to include your logo, colors and custom links. 
+               Thus, offer the same simple user experience with some of your own branding. Here is the <a href="https://handpoint.atlassian.net/wiki/spaces/PD/pages/3294986356/Partner+Guide+Cobranding+-+Theme+guide+for+the+Handpoint+app" target="_blank">guide</a> to theme the Handpoint payment application,
                logos and color schemes can be emailed to support@handpoint.com.</p>
               <div align="center">
-              <img src="img/cobranding-extended.gif" alt="cobranding gif"></img>
+              <img class="card-image" src="img/cobranding-extended.gif" alt="cobranding gif"></img>
               </div>
           </div>
         </div>
@@ -378,6 +292,34 @@ function Cobranding() {
 
   );
 }
+
+function GeographiesAndCardBrands() {
+  return (
+
+    <div class="container">
+      <div class="row">
+        <div class="col" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>A Global Solution</b>
+              </h3>
+              <p class="card__body">Handpoint currently supports all major card brands and is able to process in-person transactions on three continents: Europe, America and Africa. Each country has its own local rules about payment processing 
+              so don't hesitate to contact us in order to know if we can help you with your processing needs. </p>
+              <div align="center">
+              <img class="card-image" src="img/geographies.png" alt="Handpoint world map"></img>
+              </div>
+              <div align="center">
+              <img class="card-image" src="img/card-brand-logos.png" alt="Card brand logos"></img>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  );
+}
+
+
 function TableTerminals() {
   return (
 
@@ -537,7 +479,7 @@ function TableTerminals() {
   );
 }
 
-function Step2tablecomms() {
+function CommunicationTypesTable() {
   return (
     <div>
       <TableContainer >
@@ -1439,7 +1381,7 @@ function HighLevelFeatures() {
       <div class="card-demo" style={{ fontSize: '13px' }}>
         <div class="card shadow--md ">
           <div class="card__header">
-            <h3>On reader Tipping</h3>
+            <h3>On Reader Tipping</h3>
           </div>
           <div class="card__body">
             <p>
@@ -1455,12 +1397,80 @@ function HighLevelFeatures() {
       <div class="card-demo" style={{ fontSize: '13px' }}>
         <div class="card shadow--md " >
           <div class="card__header" >
-            <h3>pin / signature bypass</h3>
+            <h3>Pin / Signature Bypass</h3>
           </div>
           <div class="card__body" >
             <p>
              Pin bypass can be enabled to allow disabled or visually impaired cardholders to skip the PIN entry step. 
              Signature bypass can be enabled to prevent the terminal from asking the cardholder to sign on the digital screen. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ <br></br>
+ <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h3>Kiosk Mode</h3>
+          </div>
+          <div class="card__body">
+            <p>
+            The payment application can be set in kiosk mode to prevent navigation between the different menus of the terminal. 
+            In order to get out of kiosk mode a password is required from the merchant. This merchant password is defined during onboarding the first time the payment application is launched. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h3>Automatic Printing Modes</h3>
+          </div>
+          <div class="card__body" >
+            <p>
+             The payment terminal can automatically print merchant and/or customer receipts by changing a configuration parameter in the settings of the application. With this easy solution
+             you can rely on Handpoint to print receipts instead of integrating to the print receipt function.   
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ <br></br>
+ <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h3>Debit Filter</h3>
+          </div>
+          <div class="card__body">
+            <p>
+            For some types of merchants (e.g gambling categories) it is important to only be able to accept debit cards. 
+            Therefore, Handpoint offers to their partners the possibility to filter and decline specific card types based on custom rules. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h3>Remote Debugging</h3>
+          </div>
+          <div class="card__body" >
+            <p>
+             Android based terminals allow you to remotely log into the terminals to help troubleshoot any issues that may arise on merchant location. From fetching logs remotely to 
+             taking full control over the terminal we give you tools to make the merchant experience as smooth as possible. 
             </p>
           </div>
         </div>
@@ -1489,13 +1499,47 @@ function HighLevelFeatures() {
       <div class="card-demo" style={{ fontSize: '13px' }}>
         <div class="card shadow--md " >
           <div class="card__header" >
-            <h3>Remote encryption key injection</h3>
+            <h3>Remote Encryption Key Injection</h3>
           </div>
           <div class="card__body" >
             <p>
             Payment terminals are secure devices and it is required to inject the terminal with an encryption key to protect the card number and PIN during a transaction.
             Most terminal distributors inject keys manually via cable before shipping devices to the merchant. With the Handpoint solution the encryption key can be downloaded 
             over the air which improves the overall setup experience. 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br></br>
+  <div class="row">
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md ">
+          <div class="card__header">
+            <h3>End-of-day report</h3>
+          </div>
+          <div class="card__body">
+            <p>
+            A transaction report can be printed with the list of transactions that happened during a specific period.
+            The report shows the transaction split by card brands and transaction types (sales, refunds and reversals). 
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <br></br>
+    <div class="col col--6">
+      <div class="card-demo" style={{ fontSize: '13px' }}>
+        <div class="card shadow--md " >
+          <div class="card__header" >
+            <h3>Multi Language Support</h3>
+          </div>
+          <div class="card__body" >
+            <p>
+            The Handpoint payment application and SDK messages are available in multiple languages. Thanks to the Handpoint modular architecture it is also very easy to add a new language
+            if currently not supported by simply translating a couple of files. 
             </p>
           </div>
         </div>
