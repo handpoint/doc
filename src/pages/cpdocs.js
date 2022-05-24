@@ -641,7 +641,7 @@ function OrderDevKit() {
         <div class="col col--12" >
           <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
-                <b>Technical Integration lifecycle</b>
+                <b>Technical Integration Lifecycle</b>
               </h3>
               <p class="card__body">Please contact <a target="_blank" href="mailto:sales@handpoint.com">sales@handpoint.com</a> to kickstart an integration process and order a development card reader. 
               Once the integration starts you will get a dedicated slack channel with the Handpoint developers to address any issues that might arise. 
