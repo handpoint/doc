@@ -170,6 +170,9 @@ module.exports = {
     },
     hideableSidebar: true,
   },
+  themes:[ 
+    ['@easyops-cn/docusaurus-search-local',{indexBlog:false,
+      docsRouteBasePath:['android','ios','windows','javascript','restapi','express']}]],
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -198,13 +201,12 @@ module.exports = {
     ],
   ],
   plugins: [
-    require.resolve('docusaurus-lunr-search', {
+    // require.resolve('docusaurus-lunr-search', {
 
 
 
-    })
-
-    , [
+    // }),
+     [
       '@docusaurus/plugin-content-docs',
       {
         id: 'ios',
