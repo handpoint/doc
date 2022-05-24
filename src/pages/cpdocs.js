@@ -20,10 +20,14 @@ function CpDocs() {
     <Layout title="Handpoint Doc">
       <Header />
       <main>
-        <div class="step1">
+        <div class="gettingStarted">
           <h2>Integration Paths</h2>
           <br></br>
           <IntegrationPaths />
+          <br></br>
+          <h2>Standalone Options</h2>
+          <br></br>
+          <Standalone />
           <br></br>
           <h2>Cobranding</h2>
           <br></br>
@@ -45,11 +49,18 @@ function CpDocs() {
            <br></br>
           <SdkTerminalTable />
           <br></br>
-          <h2>Payment terminals Communication Types</h2>
+          <h2>Payment Terminals Communication Types</h2>
           <br></br>
           <CommunicationTypesTable />
           <br></br>
-          <Step3 />
+          <h2>Order a Development Kit</h2>
+          <br></br>
+          <OrderDevKit />
+          <br></br>
+          <h2>Start Your Integration</h2>
+          <br></br>
+          <StartYourIntegration />
+          <br></br>
           <Github />
           <Helpandsupport />
         </div>
@@ -112,7 +123,7 @@ function SdkTerminalTable() {
               <TableCell align="center"><b><Link to="/express/expressintroduction"> Express SDK</Link></b></TableCell>
               <TableCell align="center"><b><Link to="/javascript/javascriptintroduction"> JavaScript SDK</Link></b></TableCell>
               <TableCell align="center"><b><Link to="/restapi/restintroduction"> REST API</Link></b></TableCell>
-              <TableCell align="center"><b><Link href="https://github.com/thescruba/xamarin-handpoint-bindings"> Xamarin SDK</Link></b></TableCell>
+              <TableCell align="center"><b><Link href="https://github.com/thescruba/xamarin-handpoint-bindings"> Xamarin SDK</Link></b><br></br>Community SDK not officially maintained by Handpoint</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -122,31 +133,31 @@ function SdkTerminalTable() {
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center">✅ </TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>HiPro</b></TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX Android Terminals</b></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
@@ -155,10 +166,10 @@ function SdkTerminalTable() {
             <TableRow>
               <TableCell align="center"><b>Telpo TPS900</b></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
@@ -188,7 +199,7 @@ function IntegrationPaths() {
                  payment terminals via the internet (cellular or wifi). Only an API key is required to start sending sales to the card reader and get back the transaction result to your software when the operation is completed.
                 No other configuration is required, the merchant only needs to connect the terminal to Wifi and open the payment application to be able to start taking payments. Card data is never sent unmasked to your software so you can be kept out of PCI scope.</p>
               <div align="center">
-                <img class="card-image" src="img/cloud-integration.png" alt="cloud integration"></img>
+                <img class="card-image-larger" src="img/cloud-integration.png" alt="cloud integration"></img>
               </div>
           </div>
         </div>
@@ -205,28 +216,6 @@ function IntegrationPaths() {
               Card data is never sent unmasked to your application so you can be kept out of PCI scope.</p>
               <div align="center">
                 <img class="card-image" src="img/native-integration.png" alt="native integration"></img>
-              </div>
-          </div>
-        </div>
-      </div>
-      <br></br>
-      <div class="row">
-        <div class="col col--12" >
-          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
-              <h3 class="card__header">
-                <b>Standalone</b>
-              </h3>
-              <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without being connected to a point of sale software.
-              When the card reader is used in standalone mode, the merchant can simply type in an amount and start processing payments. 
-              The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end-of-day reports and manual card entry for over the phone transactions.</p>
-              <div align="center">
-                <img class="card-image" src="img/standalone.png" alt="standalone terminal"></img>
-              </div>
-              <p class="card__body">Standalone terminals are not integrated to your software. However, they can be turned from standalone to cloud integrated by the flip
-               of a switch. You can therefore start shipping standalone terminals to your merchants and when your integration is ready, upgrade the terminals to start accepting cloud payments.
-               Standalone mode can also be used as a fallback method for the merchant to continue processing payments even if the point of sale is down.</p>
-              <div align="center">
-                <img class="card-image" src="img/integrated-mode.png" alt="integrated mode"></img>
               </div>
           </div>
         </div>
@@ -259,6 +248,51 @@ function IntegrationPaths() {
               scan barcodes and manage inventory as well as taking payments on the spot, directly in the store aisles.</p>
               <div align="center">
                 <img class="card-image" src="img/hipro-integration.png" alt="HiPro integration"></img>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  );
+}
+
+function Standalone() {
+  return (
+
+    <div class="container">
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Standalone smartPOS application</b>
+              </h3>
+              <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without being connected to a point of sale software.
+              When the card reader is used in standalone mode, the merchant can simply type in an amount and start processing payments. 
+              The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end-of-day reports and manual card entry for over the phone transactions.</p>
+              <div align="center">
+                <img class="card-image-larger" src="img/standalone.png" alt="standalone terminal"></img>
+              </div>
+              <p class="card__body">Standalone terminals are not integrated to your software. However, they can be turned from standalone to cloud integrated by the flip
+               of a switch. You can therefore start shipping standalone terminals to your merchants and when your integration is ready, upgrade the terminals to start accepting cloud payments.
+               Standalone mode can also be used as a fallback method for the merchant to continue processing payments even if the point of sale is down.</p>
+              <div align="center">
+                <img class="card-image" src="img/integrated-mode.png" alt="integrated mode"></img>
+              </div>
+          </div>
+        </div>
+      </div>
+      <br></br>
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>standalone mPOS application</b>
+              </h3>
+              <p class="card__body">The Handpoint mPOS application is available on the <a href="https://play.google.com/store/apps/details?id=com.handpoint.hipos" target="_blank">Google Play Store</a> and <a href="https://apps.apple.com/us/app/handpoint/id1450546788" target="_blank">Apple App Store</a>. 
+              The mPOS application is connected via bluetooth with the HiLite payment terminal and offers the same powerful yet simple functionalities as the standalone smartPOS application. It is a perfect solution for occasional merchants needing to accept payments on the move.</p>
+              <div align="center">
+                <img class="card-image" src="img/mposapp.png" alt="mPOS payments application"></img>
               </div>
           </div>
         </div>
@@ -490,110 +524,101 @@ function CommunicationTypesTable() {
               <TableCell align="center" ><b>Lightning</b></TableCell>
               <TableCell align="center"><b>Bluetooth</b></TableCell>
               <TableCell align="center"><b>Ethernet</b></TableCell>
-              <TableCell align="center"><b>Mobile Network</b>	</TableCell>
+              <TableCell align="center"><b>Cellular</b>	</TableCell>
               <TableCell align="center"><b>Wifi</b></TableCell>
 
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow sx={{ height: 40 }}>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/hilite/">HiLite</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"><b>HiLite</b></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
 
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/hipro/">HiPro</a></b></TableCell>
+              <TableCell align="center"><b>HiPro</b></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/hi5/">Hi5</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"><b>PAX A920</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(2G)</TableCell>
-              <TableCell align="center">-</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/paxa920/">PAX A920</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920 PRO</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
+              <TableCell align="center"><b>PAX A920 PRO</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/7a3eda34-43f2-4a70-ba3d-19f5328011cf/A35_EN_20210129.pdf">PAX A35</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"><b>PAX A35</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b><a href="https://uploads.strikinglycdn.com/files/3e131f4b-daec-42e1-802c-8e2329794ace/A50_EN_20200522.pdf">PAX A50</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX A60</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
+              <TableCell align="center"><b>PAX A50</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX A77</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
+              <TableCell align="center"><b>PAX A60</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/paxa80/">PAX A80</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
+              <TableCell align="center"><b>PAX A77</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅(4G/LTE)</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b><a href="https://handpoint.com/specs/TPS900/">Telpo TPS900</a></b></TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">-</TableCell>
-              <TableCell align="center">✅(4G)</TableCell>
+              <TableCell align="center"><b>PAX A80</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>Telpo TPS900</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
 
@@ -605,6 +630,31 @@ function CommunicationTypesTable() {
 
   );
 
+}
+
+function OrderDevKit() {
+  return (
+
+    <div class="container">
+      <div class="row">
+        <div class="col col--12" >
+          <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
+              <h3 class="card__header">
+                <b>Technical Integration lifecycle</b>
+              </h3>
+              <p class="card__body">Please contact <a target="_blank" href="mailto:sales@handpoint.com">sales@handpoint.com</a> to kickstart an integration process and order a development card reader. 
+              Once the integration starts you will get a dedicated slack channel with the Handpoint developers to address any issues that might arise. 
+             Once the integration is ready, the Handpoint team will certify the solution by running a set of standard tests to make sure the integration is robust and ready for Go Live.
+             The Handpoint team will then closely follow the first pilot merchants to make sure that the solution is ready to scale. </p>
+              <div align="center">
+                <img class="card-image-larger" src="img/technical-integration-lifecycle.png" alt="Technical integration lifecycle"></img>
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  );
 }
 
 
@@ -973,14 +1023,10 @@ function Step3tablefeatures() {
 }
 
 
-function Step3() {
+function StartYourIntegration() {
   return (
 
     <div>
-      <div class="step1">
-        <h2>Step 3. Start your integration!</h2>
-      </div>
-
       <div class="container">
         <div class="row">
           <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
@@ -1187,8 +1233,8 @@ function Github() {
         paddingTop: '25px',
         paddingBottom: '50px'
       }}>
-      <p>You can also look at some getting-started sample apps, our SDKs and other fun stuff on the
-        <a href="https://www.github.com/handpoint"> Handpoint GitHub</a> site
+      <p>You can also take a look at some sample apps, SDKs and other fun stuff on the
+        <a href="https://www.github.com/handpoint"> Handpoint GitHub</a> workspace
       </p>
       <a href="https://www.github.com/handpoint">
         <img src="https://handpoint.imgix.net/GitHub_Logo.png?w=200" class="img-responsive center-block"></img>
@@ -1573,16 +1619,16 @@ function Helpandsupport() {
         need assistance
         integrating,
         or are unsure where to go from here, our developer support team is here to help. </p>
-      <a class="button button--secondary button--lg" href="mailto:support@handpoint.com">Contact Us</a>
+      <a class="button button--secondary button--lg" target="_blank" href="mailto:support@handpoint.com">Contact Us</a>
 
       <br></br>
       <br></br>
       <br></br>
 
-      <p>Take a look at our <a href="http://status.handpoint.com/">Handpoint Status Page</a>, this is where you will be able to monitor the uptime of the Handpoint systems. </p>
+      <p>Take a look at our <a href="http://status.handpoint.com/" target="_blank">Handpoint Status Page</a>, this is where you will be able to monitor the uptime of the Handpoint systems. </p>
 
 
-      <p>Do not miss any news, subscribe to our 📬 <a href="https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e">Handpoint Newsletter!</a> </p>
+      <p>Do not miss any news, subscribe to our 📬 <a href="https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e" target="_blank">Handpoint Newsletter!</a> </p>
     </div>
 
   );

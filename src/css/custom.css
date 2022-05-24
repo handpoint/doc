@@ -144,7 +144,7 @@ color: white;
   
 }
 
-.step1 {  
+.gettingStarted {  
   display: block;
   justify-content: center;
   font-size: 15px;
@@ -155,13 +155,21 @@ color: white;
 
 .card-image{
 
-  max-width:50%;
-  max-height:50%;
+  max-width:45%;
+  max-height:auto;
 
 }
 
+.card-image-larger{
+
+  max-width:65%;
+  max-height:auto;
+
+}
+
+
 @media only screen and (max-width: 600px) {
-  .step1 {
+  .gettingStarted {
     display: block;
     justify-content: center;
     font-size: 15px;
