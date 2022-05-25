@@ -60,7 +60,7 @@ Handpoint.sale('1000', 'USD', saleOptions, function (stat) {
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Response**|A financial response object.|
+| **Sale Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 
@@ -117,7 +117,7 @@ Handpoint.saleAndTokenization('1000', 'USD', saleOptions, CallbackFunction(stat)
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale and Tokenization Response**|A financial response object.|
+| **Sale and Tokenization Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 ## Transaction Recovery{#6}
@@ -186,7 +186,7 @@ Handpoint.saleReversal('1000', 'USD', 'OriginalSaleGUID', saleReversalOptions, C
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Reversal Response**|A financial response object.|
+| **Sale Reversal Response**|A[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 ## Refund{#9}
@@ -235,7 +235,7 @@ Handpoint.refund('1000', 'USD', 'OriginalSaleGUID' ,refundOptions, CallbackFunct
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Refund Response**|A financial response object.|
+| **Refund Response**|A[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 ## Refund Reversal{#10}
@@ -277,7 +277,7 @@ Handpoint.refundReversal('1000', 'USD', 'OriginalRefundGUID', refundReversalOpti
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Refund Reversal Response**|A financial response object.|
+| **Refund Reversal Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 ## MoTo Sale
@@ -311,7 +311,7 @@ Handpoint.moToSale('1000', 'USD', saleOptions, function (stat) {
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Response**|A financial response object.|
+| **Sale Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 
@@ -348,7 +348,7 @@ Handpoint.moToRefund('1000', 'USD', '00000000-0000-0000-0000-000000000000' ,refu
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Refund Response**|A financial response object.|
+| **Refund Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 ## MoTo Reversal
@@ -379,7 +379,7 @@ Handpoint.moToReversal('00000000-0000-0000-0000-000000000000', moToReversalOptio
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Reversal Response**|A financial response object.|
+| **Sale Reversal Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 
@@ -411,7 +411,7 @@ Handpoint.tokenizeCard(options, CallbackFunction(stat){...});
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Tokenize Card Response**|A financial response object.|
+| **Tokenize Card Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
 ## Card Pan{#12}
@@ -442,6 +442,6 @@ Handpoint.tokenizeCard(options, CallbackFunction(stat){...});
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Card Pan Response**|A financial response object.|
+| **Card Pan Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 

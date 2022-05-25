@@ -15,6 +15,12 @@ id: androidobjects
 
 An object holding information about the result of a transaction.
 
+:::tip
+`signatureUrl`: In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.
+
+`customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
+:::
+
  **Properties**
 
 | Parameter      | Description |
@@ -51,7 +57,7 @@ An object holding information about the result of a transaction.
 | `recoveredTransaction` <br />*Boolean*    | 		This flag is set to true if the transaction result is sent through the transaction recovery logic (network or communication failure), false otherwise.|
 | `requestedAmount` <br />*BigInteger*    | 		The requested amount is the transaction amount sent to the terminal.|
 | `rrn`  <br />*String*   | 		Retrieval Reference Number, unique number assigned by the acquirer.|
-| `signatureUrl` <br />*String*    | 		If a digital signature is required, this is the URL containing the image of the captured signature.|
+| `signatureUrl` <br />*String*    | 		If a digital signature is required, this is the URL containing the image of the captured signature. In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.|
 | `statusMessage` <br />*String*    | 		The status of the transaction, for example "Waiting for pin".|
 | `tenderType`   <br />[*TenderType*](#36)  | 		Transaction tender type (credit / debit).|
 | `tid`  <br />*String*   | 		Terminal Identifier.|
