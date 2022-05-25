@@ -81,7 +81,7 @@ function Header() {
 
     <div
       style={{
-        backgroundColor: ' #34495e',
+        backgroundColor: ' #25365D',
         textAlign: 'center',
         display: 'block',
         height: '250px',

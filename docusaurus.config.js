@@ -88,16 +88,12 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Card Present Docs',
+              label: 'In-Person Payments Docs',
               to: 'cpdocs',
             },
             {
-              label: 'Ecommerce Docs',
-              href: 'https://www.handpoint.com/docs/device/Basics/',
-            },
-            {
-              label: 'Legacy Docs',
-              href: 'https://www.handpoint.com/docs/device/Basics/',
+              label: 'Online Payments Docs',
+              href: '/',
             },
           ],
         },
