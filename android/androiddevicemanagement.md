@@ -188,10 +188,13 @@ api.deleteDeviceConfig();
 
 `printReceipt` <span class="badge badge--info">Method</span>
 
-Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html.
+Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes as well as passing directly a URL to the printReceipt function. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html.
+
+:::tip
+Receipts received in the terminal transaction result can either be a URL **OR** an HTML formatted receipt. The format can be changed by updating the `getReceiptsAsURLs` boolean when initializing the SDK [*Settings*](androidobjects.md#settings). Note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. 
+:::
 
 **Parameters**
-
 
 | Parameter      | Notes |
 | ----------- | ----------- |
