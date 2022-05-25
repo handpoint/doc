@@ -127,7 +127,11 @@ For production terminals:
     </dependency>
 ```
 
-
+:::tip
+If using AndroidX you will need to switch the following flags to true:<br></br> 
+android.enableJetifier=true<br></br> 
+android.useAndroidX=true
+:::
 
 **3. Create a Java class**
 
