@@ -21,6 +21,7 @@ function CpDocs() {
       <Header />
       <main>
         <div class="gettingStarted">
+          <InfoTabs/>
           <h2>Integration Paths</h2>
           <br></br>
           <IntegrationPaths />
@@ -72,6 +73,21 @@ function CpDocs() {
 
 export default CpDocs;
 
+function InfoTabs() {
+  return (
+<ul class="pills pills--block">
+  <li class="pills__item pills__item--active">Integration Paths</li>
+  <li class="pills__item pills__item--active">Standalone Options</li>
+  <li class="pills__item pills__item--active">Cobranding</li>
+  <li class="pills__item pills__item--active">Geographies & Card Brands</li>
+  <li class="pills__item pills__item--active">High Level Features</li>
+  <li class="pills__item pills__item--active">Handpoint Terminals</li>
+  <li class="pills__item pills__item--active">Order a Development Kit</li>
+  <li class="pills__item pills__item--active">Start your Integration</li>
+  
+</ul>
+  );
+}
 
 function Header() {
   // Import result is the URL of your image

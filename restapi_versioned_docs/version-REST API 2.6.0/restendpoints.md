@@ -261,7 +261,7 @@ RESPONSE:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| Transaction Result    | The [Transaction Result](restobjects.md#transaction-result-object) is delivered to the callback Url from the [Transaction Request](restobjects.md#transaction-request-object).    |
+| [Transaction Result](restobjects.md#transaction-result-object)    | The [Transaction Result](restobjects.md#transaction-result-object) is delivered to the callback URL from the [Transaction Request](restobjects.md#transaction-request-object).    |
 
 
 

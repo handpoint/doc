@@ -9,6 +9,22 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import { useColorMode } from '@docusaurus/theme-common';
 
 
+function HandpointLink() {
+  return (
+    <div style={{
+      backgroundColor: ' #25365D',
+      padding: '5px',
+      justifyContent: 'left',
+        alignItems: 'left',
+    }}><a href="https://www.handpoint.com/"><img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="100px" /></a>
+    <p style={{
+        color: 'white'
+      }}><i>&lt;Documentation Website/&gt;</i></p></div>
+  );
+}
+
+
+
 function Header() {
   return (
     <div
@@ -16,10 +32,10 @@ function Header() {
         backgroundColor: ' #25365D',
         textAlign: 'center',
         display: 'block',
-        height: '250px',
+        height: '220px',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '80px',
+        padding: '50px',
         width: '100%'
       }}>
       <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" />
@@ -103,12 +119,12 @@ function Options() {
   );
 }
 
-function Example() {
-  // Declare a new state variable, which we'll call "count"
+function Main() {
   const [count, setCount] = useState(0);
 
   return (
     <div>
+      <HandpointLink/>
       <Header></Header>
       <Options></Options>
       <LayoutProviders>
@@ -118,4 +134,4 @@ function Example() {
   );
 }
 
-export default Example;
+export default Main;

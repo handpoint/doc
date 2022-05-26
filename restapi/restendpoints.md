@@ -265,9 +265,9 @@ RESPONSE:
 
  **Returns**
 
-| Transaction Result      | 
-| ----------- |
-| The transaction result is delivered to the callback Url specified in the transaction request.   |
+| Parameter      | Notes |
+| ----------- | ----------- |
+| [Transaction Result](restobjects.md#transaction-result-object)    | The [Transaction Result](restobjects.md#transaction-result-object) is delivered to the callback URL from the [Transaction Request](restobjects.md#transaction-request-object).    |
 
 
 
