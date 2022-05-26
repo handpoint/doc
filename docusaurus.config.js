@@ -101,7 +101,7 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Handpoint',
+              label: 'Handpoint Website',
               href: 'https://www.handpoint.com',
             },
             {

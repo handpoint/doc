@@ -107,7 +107,7 @@ function Header() {
         width: '100%'
       }}>
 
-      <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" />
+      <a href="/doc"><img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px"/></a>
 
       <br></br>
 

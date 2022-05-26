@@ -11,15 +11,12 @@ import { useColorMode } from '@docusaurus/theme-common';
 
 function HandpointLink() {
   return (
-    <div style={{
-      backgroundColor: ' #25365D',
-      padding: '5px',
-      justifyContent: 'left',
-        alignItems: 'left',
-    }}><a href="https://www.handpoint.com/"><img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="100px" /></a>
-    <p style={{
-        color: 'white'
-      }}><i>&lt;Documentation Website/&gt;</i></p></div>
+     <div style={{
+        backgroundColor: ' #25365D',
+        color: 'white',
+        padding: '10px',
+        textAlign:'center',
+      }}><b>Developer Center</b></div>
   );
 }
 
@@ -38,7 +35,7 @@ function Header() {
         padding: '50px',
         width: '100%'
       }}>
-      <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" />
+      <a href="https://www.handpoint.com/" target='_blank'><img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px"/></a>
       <br></br>
       <h2 style={{
         color: 'white'
