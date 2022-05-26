@@ -17,7 +17,7 @@ import { height } from '@mui/system';
 function CpDocs() {
   return (
 
-    <Layout title="Handpoint Doc">
+    <Layout title="Getting Started">
       <Header />
       <main>
         <div class="gettingStarted">
