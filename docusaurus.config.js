@@ -67,13 +67,9 @@ module.exports = {
         {
 
           href: 'https://github.com/thescruba/xamarin-handpoint-bindings',
-          label: 'Xamarin SDK',
+          label: 'Xamarin Plugin',
 
         },
-        // {
-        //   href: 'https://www.handpoint.com/docs/txnfeedapi/',
-        //   label: 'TXN Feed API',
-        // },
         {
 
           href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',

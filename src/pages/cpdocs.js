@@ -131,11 +131,11 @@ function SdkTerminalTable() {
               </TableCell>
               <TableCell align="center"><b><Link to="/ios/iosintroduction"> iOS SDK</Link></b></TableCell>
               <TableCell align="center"><b><Link to="/windows/windowsintroduction"> Windows SDK</Link></b></TableCell>
-              <TableCell align="center"><b><Link href="https://www.npmjs.com/package/cordova-plugin-handpoint"> Cordova SDK</Link></b></TableCell>
+              <TableCell align="center"><b><Link href="https://www.npmjs.com/package/cordova-plugin-handpoint"> Cordova Plugin</Link></b></TableCell>
               <TableCell align="center"><b><Link to="/express/expressintroduction"> Express SDK</Link></b></TableCell>
               <TableCell align="center"><b><Link to="/javascript/javascriptintroduction"> JavaScript SDK</Link></b></TableCell>
               <TableCell align="center"><b><Link to="/restapi/restintroduction"> REST API</Link></b></TableCell>
-              <TableCell align="center"><b><Link href="https://github.com/thescruba/xamarin-handpoint-bindings"> Xamarin SDK</Link></b><br></br>Community SDK not officially maintained by Handpoint</TableCell>
+              <TableCell align="center"><b><Link href="https://github.com/thescruba/xamarin-handpoint-bindings"> Xamarin Plugin</Link></b><br></br>Community SDK not officially maintained by Handpoint</TableCell>
             </TableRow>
           </TableHead>
 
@@ -1167,7 +1167,7 @@ function StartYourIntegration() {
             <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
               <div class="card shadow--md ">
                 <div class="card__header" align="center" >
-                  <h4>Xamarin SDK (Community)</h4>
+                  <h4>Xamarin Plugin (Community)</h4>
                 </div>
                 <div class="card__body" align="center">
                   <a href="https://github.com/thescruba/xamarin-handpoint-bindings">
@@ -1179,7 +1179,7 @@ function StartYourIntegration() {
                   <Link
                     className="button button--secondary button--lg"
                     href="https://github.com/thescruba/xamarin-handpoint-bindings">
-                    View the SDK
+                    View the Plugin
                   </Link>
                 </div>
               </div>
@@ -1221,7 +1221,7 @@ function StartYourIntegration() {
                   <Link
                     className="button button--secondary button--lg"
                     href="https://www.npmjs.com/package/cordova-plugin-handpoint">
-                    View the SDK
+                    View the Plugin
                   </Link>
                 </div>
               </div>
