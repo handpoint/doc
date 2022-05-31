@@ -14,9 +14,10 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 6.7.2
 
 **Fixes**:
-- `requestedAmount` fix
-- Cloud sync when assigning device from one merchant to another (SSK)
-- Retry token and config download if missing for MoTo trasnactions
+- MOTO: Retry token and configuration download if missing for MoTo transactions
+- CLOUD: device status moving terminals between merchants.
+- CLOUD: REST-API transaction result delivery.
+- `requestedAmount` field in Transaction Result correctly populated.
 
 
 ## 6.7.0
@@ -38,7 +39,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 **Fixes**:
 - SCA scenarios on PAX A80
 - CLOUD: receipt printing
-- Deadman mechanism for not completed trx. App dies in the middle of a trx, will be auto cancelled in the restart.
+- Deadman mechanism for not completed trx. App dies in the middle of a trx, will be auto cancelled in the restart
 
 ## 6.6.3
 
