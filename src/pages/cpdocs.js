@@ -675,372 +675,6 @@ function OrderDevKit() {
 }
 
 
-
-function Step3tableprocessor() {
-  return (
-    <table style={{
-      width: '70%',
-      textAlign: 'center',
-      height: '30%'
-    }}>
-      <thead>
-        <tr>
-          <th class="text-center"></th>
-          <th class="text-center">TSYS<br></br>(US & CN)</th>
-          <th class="text-center">Worldpay<br></br>(US)</th>
-          <th class="text-center">EVO<br></br>(US & EU)</th>
-          <th class="text-center">Borgun<br></br>(EU)</th>
-          <th class="text-center">Lloyds<br></br>(EU)</th>
-          <th class="text-center">eMerchantPay<br></br>(EU)</th>
-          <th class="text-center">Paystrax<br></br>(EU)</th>
-          <th class="text-center">SureSwipe<br></br>(SAf)</th>
-          <th class="text-center">NRT Technology<br></br>(CN)</th>
-          <th class="text-center">Paysafe<br></br>(US, CN & EU)</th>
-          <th class="text-center">OmniPay<br></br>(EU)</th>
-          <th class="text-center">Amex Direct<br></br>All Regions</th>
-        </tr>
-      </thead>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://handpoint.com/specs/hilite/">HiLite</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://handpoint.com/specs/hipro/">HiPro</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://handpoint.com/specs/hi5/">Hi5</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://handpoint.com/specs/paxa920/">PAX A920</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab"
-            href="https://www.pax.us/wp-content/uploads/2021/06/A920-Pro-Data-Sheet_May2021.pdf">PAX A920
-            Pro</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf">PAX
-            A60</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://www.pax.us/wp-content/uploads/2021/06/A77-Data-Sheet_May2021.pdf">PAX
-            A77</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://handpoint.com/specs/paxa80/">PAX A80</a>
-        </th>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" >
-          <a target="_tab" href="https://handpoint.com/specs/TPS900/">Telpo TPS900</a>
-        </th>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-      </tr>
-    </table>
-
-  );
-}
-
-
-function Step3tablefeatures() {
-  return (
-
-    <table >
-      <thead>
-        <tr>
-          <th class="text-center"></th>
-          <th class="text-center">TSYS<br></br>(US & CN)</th>
-          <th class="text-center">Worldpay<br></br>(US)</th>
-          <th class="text-center">EVO<br></br>(US & EU)</th>
-          <th class="text-center">Borgun<br></br>(EU)</th>
-          <th class="text-center">Lloyds<br></br>(EU)</th>
-          <th class="text-center">eMerchantPay<br></br>(EU)</th>
-          <th class="text-center">Paystrax<br></br>(EU)</th>
-          <th class="text-center">SureSwipe<br></br>(South Africa)</th>
-          <th class="text-center">NRT Technology<br></br>(CN)</th>
-          <th class="text-center">Paysafe<br></br>(US, CN & EU)</th>
-          <th class="text-center">OmniPay<br></br>(EU)</th>
-          <th class="text-center">Amex Direct<br></br>All Regions</th>
-        </tr>
-      </thead>
-      <tr>
-        <th class="text-center" scope="row"> Card brands supported </th>
-        <td class="text-center">Mastercard<br></br>VISA<br></br>Discover<br></br> Amex<br></br>Diners<br></br> JCB</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br>Discover<br></br> Amex</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br>Discover (US only)<br></br> Amex (US only)</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br>Diners<br></br> JCB<br></br> Amex (IS only)</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br>Diners<br></br> JCB<br></br> Amex</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br> Amex</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br> Amex</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br> Amex</td>
-        <td class="text-center">INTERAC</td>
-        <td class="text-center">Mastercard<br></br>VISA<br></br> Discover<br></br> Amex<br></br>INTERAC</td>
-        <td class="text-center">Mastercard<br></br>VISA</td>
-        <td class="text-center">Amex</td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">EMV<br></br>(Chip & PIN or Chip & Sign)</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">Magnetic stripe</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">Contactless</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"> (EU
-          only) </td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">Apple/Android Pay</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"> (EU
-          only) </td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">In-line tipping</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">Tip adjustment</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">Tokenization with sale </th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">Tokenization only</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-      </tr>
-      <tr>
-        <th class="text-center" scope="row">EBT (US specific)</th>
-        <td class="text-center"></td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-        <td class="text-center"></td>
-        <td class="text-center">-</td>
-        <td class="text-center">-</td>
-      </tr>
-    </table>
-
-  );
-}
-
-
 function StartYourIntegration() {
   return (
     <Element name="startYourIntegrationElement">
@@ -1232,7 +866,6 @@ function StartYourIntegration() {
       </div>
     </Element>
   );
-
 }
 
 
@@ -1257,13 +890,8 @@ function Github() {
       <a href="https://www.github.com/handpoint">
         <img src="https://handpoint.imgix.net/GitHub_Logo.png?w=200" class="img-responsive center-block"></img>
       </a>
-
-
     </div>
-
-
   );
-
 }
 
 function HighLevelFeatures() {
@@ -1627,8 +1255,6 @@ function Helpandsupport() {
         textAlign: 'center',
         fontSize: '18px',
         marginTop: '25px',
-
-
         marginBottom: '25px',
         paddingTop: '25px',
         paddingBottom: '10px'
@@ -1639,14 +1265,10 @@ function Helpandsupport() {
         integrating,
         or are unsure where to go from here, our developer support team is here to help. </p>
       <a class="button button--secondary button--lg" target="_blank" href="mailto:support@handpoint.com">Contact Us</a>
-
       <br></br>
       <br></br>
       <br></br>
-
       <p>Take a look at our <a href="http://status.handpoint.com/" target="_blank">Handpoint Status Page</a>, this is where you will be able to monitor the uptime of the Handpoint systems. </p>
-
-
       <p>Do not miss any news, subscribe to our 📬 <a href="https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e" target="_blank">Handpoint Newsletter!</a> </p>
     </div>
 
@@ -1687,6 +1309,5 @@ function TermsConditions() {
         </div>
       </div>
     </div>
-
   );
 }

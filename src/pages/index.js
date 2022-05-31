@@ -20,8 +20,6 @@ function HandpointLink() {
   );
 }
 
-
-
 function Header() {
   return (
     <div
@@ -70,7 +68,7 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/cppayment.png" alt="Flowers in Chania"></img></div>
+                  <div><img src="img/cppayment.png" alt="In-person payments"></img></div>
                   <a class="button button--primary" href="cpdocs" >Integrate your software with payment terminals</a>
                 </div>
               </div>
@@ -86,7 +84,7 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/cnppayment.png" alt="Flowers in Chania"></img></div>
+                  <div><img src="img/cnppayment.png" alt="Online payments"></img></div>
                   <a class="button button--primary" href="cpdocs" >Integrate eCommerce payments into your software</a>
                 </div>
               </div>
@@ -100,7 +98,7 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/feedapi.png" alt="Txn Feed API"></img></div>
+                  <div><img src="img/feedapi.png" alt="Transaction Analytics"></img></div>
                   <a class="button button--primary" href="https://www.handpoint.com/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
                 </div>
               </div>
@@ -125,7 +123,7 @@ function Main() {
       <Header></Header>
       <Options></Options>
       <LayoutProviders>
-        <Footer></Footer>
+      <Footer></Footer>
       </LayoutProviders>
     </div>
   );
