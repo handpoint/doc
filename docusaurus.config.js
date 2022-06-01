@@ -6,7 +6,7 @@ module.exports = {
   title: 'Handpoint',
   tagline: 'Global Payments-Powered Growth for SaaS',
   url: 'https://www.handpoint.com',
-  baseUrl: '/doc/',
+  baseUrl: '/in-person-payments/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
