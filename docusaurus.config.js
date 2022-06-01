@@ -171,7 +171,7 @@ module.exports = {
       {
         googleAnalytics: {
           trackingID: 'UA-1295190-6',
-          anonymizeIP: true,
+          anonymizeIP: false,
         },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
