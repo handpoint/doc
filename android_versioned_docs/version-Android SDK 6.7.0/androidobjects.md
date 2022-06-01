@@ -15,6 +15,12 @@ id: androidobjects
 
 An object holding information about the result of a transaction.
 
+:::tip
+`signatureUrl`: In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.
+
+`customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
+:::
+
  **Properties**
 
 | Parameter      | Description |
@@ -30,7 +36,7 @@ An object holding information about the result of a transaction.
 | `cardToken`   <br />*String*  | 		Token representing the PAN of the card.|
 | `chipTransactionReport` <br />*String*    | 		Full report of the card EMV parameters.|
 | `currency`   <br />[*Currency*](#13)  | 		The currency used for the transaction.|
-| `customerReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format.|
+| `customerReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format.  Note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
 | `customerReference`  <br />*String*   | 		If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field.|
 | `deviceStatus`  <br />[*DeviceStatus*](#33)   | 		Status of the device.|
 | `dueAmount`    <br />*String* | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid.|
@@ -44,14 +50,14 @@ An object holding information about the result of a transaction.
 | `maskedCardNumber`  <br />*String*   | 		Masked card number of the card used for the operation.|
 | `merchantAddress`  <br />*String*   | 		Merchant Address.|
 | `merchantName`  <br />*String*   | 		Merchant Name.|
-| `merchantReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format.|
+| `merchantReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format. Note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.|
 | `mid`  <br />*String*   | 		Merchant Identifier.|
 | `originalEFTTransactionID` <br />*String*    | 		In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed.|
 | `paymentScenario`   <br />[*PaymentScenario*](#35)  | 		Indicates the card entry mode.|
 | `recoveredTransaction` <br />*Boolean*    | 		This flag is set to true if the transaction result is sent through the transaction recovery logic (network or communication failure), false otherwise.|
 | `requestedAmount` <br />*BigInteger*    | 		The requested amount is the transaction amount sent to the terminal.|
 | `rrn`  <br />*String*   | 		Retrieval Reference Number, unique number assigned by the acquirer.|
-| `signatureUrl` <br />*String*    | 		If a digital signature is required, this is the URL containing the image of the captured signature.|
+| `signatureUrl` <br />*String*    | 		If a digital signature is required, this is the URL containing the image of the captured signature. In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.|
 | `statusMessage` <br />*String*    | 		The status of the transaction, for example "Waiting for pin".|
 | `tenderType`   <br />[*TenderType*](#36)  | 		Transaction tender type (credit / debit).|
 | `tid`  <br />*String*   | 		Terminal Identifier.|
@@ -849,7 +855,7 @@ options.setTipConfiguration(config);
 options.setTipConfiguration(new TipConfiguration(AMOUNT));
 ```
 
-## Settings
+## Settings {#settings}
 
 `Settings` <span class="badge badge--info">Object</span>
 
@@ -878,7 +884,7 @@ A class containing information about a signature verification.
 | Parameter      | Description |
 | ----------- | ----------- |
 | `timeout`  <br />*int*      | 			`int` the value of the timeout in seconds.|
-| `MerchantReceipt` <br/> *String*    | 		`String` the merchant receipt as html.|
+| `MerchantReceipt` <br/> *String*    | 		`String` the merchant receipt as html. Note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
 
 ## Status {#45}
 

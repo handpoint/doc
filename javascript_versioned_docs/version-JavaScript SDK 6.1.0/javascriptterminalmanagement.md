@@ -135,7 +135,11 @@ Handpoint.stopCurrentTransaction();
 
 `PrintReceipt` <span class="badge badge--info">Method</span>
 
-Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html.
+Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes as well as passing directly a URL to the printReceipt function. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html.
+
+:::tip
+The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. 
+:::
 
 **Parameters**
 

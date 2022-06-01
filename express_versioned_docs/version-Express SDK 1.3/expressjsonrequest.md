@@ -1,5 +1,5 @@
 ---
-sidebar_position: 8
+sidebar_position: 5
 id: expressjsonrequest
 ---
 
@@ -9,8 +9,8 @@ id: expressjsonrequest
 
 | Name      | Type | Description |
 | ----------- | ----------- | ----------- |
-| action      | object       | <span class="badge badge--primary">Required</span> Contains the transaction type and relevant parameters|
-| client     | object        | <span class="badge badge--primary">Required</span> Contains information specific to the client setup |
+| action      | object       | <span class="badge badge--primary">Required</span> Contains the transaction type and relevant parameters.|
+| client     | object        | <span class="badge badge--primary">Required</span> Contains information specific to the client setup. |
 
 <br></br>
 
@@ -18,9 +18,9 @@ id: expressjsonrequest
 
 | Name      | Type | Description |
 | ----------- | ----------- | ----------- |
-| type      | string       | <span class="badge badge--primary">Required</span> The type of transaction you intend to perform, currently supported types are "sale", "refund", "saleReversal", "refundReversal", "saleAndTokenizeCard", "enableScanner"|
+| type      | string       | <span class="badge badge--primary">Required</span> The type of transaction you intend to perform, currently supported types are "sale", "refund", "saleReversal", "refundReversal", "saleAndTokenizeCard" and "enableScanner".|
 | parameters     | object        | <span class="badge badge--primary">Required</span> An object containing the keys an values with the parameters required for this transaction. |
-| extraParameters     | object        | <span class="badge badge--primary">Required</span> Contains a custom set of keys and values passed that will go to the gateway and will be delivered back in the response. Useful for tracking the transactions, merchants, etc... |
+| extraParameters     | object        | <span class="badge badge--primary">Required</span> Contains a custom set of keys and values that are sent to the Handpoint gateway and will be delivered back in the response. Useful for tracking the transactions, merchants, etc.|
 
 <br></br>
 
@@ -38,7 +38,7 @@ id: expressjsonrequest
 
 | Name      | Type | Description |
 | ----------- | ----------- | ----------- |
-| multiScan      | boolean       | <span class="badge badge--secondary">Optional</span> True if you want the scanner to stay on to capture multiple codes. False to shut off after the first succesful scan, timeout or cancel. Default is False.|
+| multiScan      | boolean       | <span class="badge badge--secondary">Optional</span> True if you want the scanner to stay on to capture multiple codes. False to turn off the scanner after the first succesful scan, timeout or cancel. Default is False.|
 | autoScan     | boolean        | <span class="badge badge--secondary">Optional</span> True if you want the scanner to function automatically without the press of a button. Default is False. |
 | resultsGrouped     | boolean        | <span class="badge badge--secondary">Optional</span> True if you want the results of the scan to come all grouped when the scanner is turned off. Otherwise the device will send an event per each code scanned. Default is True.|
 | timeout     | integer        | <span class="badge badge--secondary">Optional</span> The amount of seconds after which the scanner, if left idle, turns itself off. Default is 0.|
@@ -50,6 +50,6 @@ id: expressjsonrequest
 | Name      | Type | Description |
 | ----------- | ----------- | ----------- |
 | clientId      | string       | Arbitrary identification of the client. Your APP_ID or just an unique identifier of your web client.|
-| ssk     | string        | Shared Secret Key to activate the card reader. |
-| autoReturn     | boolean        | <span class="badge badge--primary">Required</span> If true, Express client automatically gets hidden/switches back to your app following a short timeout after the transaction completes. Otherwise, the merchant must tap the Back button to return to your app.|
-| autoReturnTimeout     | integer        | Number of seconds to wait before switching back to your app if autoReturn is true. The default value is 10|
+| ssk     | string        | Shared Secret Key to activate the payment terminal. |
+| autoReturn     | boolean        | <span class="badge badge--primary">Required</span> If true, the Express client automatically gets hidden/switches back to your app following a short timeout after the transaction completes. Otherwise, the merchant must tap the back button to return to your app.|
+| autoReturnTimeout     | integer        | Number of seconds to wait before switching back to your app if autoReturn is true. The default value is 10.|

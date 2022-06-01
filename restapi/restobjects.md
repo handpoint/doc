@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 7
 id: restobjects
 ---
 
@@ -9,14 +9,15 @@ id: restobjects
 
 ## Operation Type
 
-`OperationType`
+`OperationType` <span class="badge badge--info">Enum</span>
 
-An enum representing different types of transactions.
+
+An enum representing different types of operations.
 
 
 Possible Values:
 
-`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction`
+`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal`
 
 
 
@@ -27,85 +28,95 @@ Possible Values:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `sale`   <br />*String*  | A sale initiates a payment operation to the card reader     |
-| `refund` <br />*String*    | A refund operation moves funds from the merchant account to the cardholder´s credit card. For Interac (Canadian Debit Network), refunds can only be processed until Interac closes the batch of transactions at night  |
-| `refundReversal` <br />*String*    | A refund reversal, also called refund VOID allows the merchant to reverse a previous refund operation. This operation reverts (if possible) a specific refund identified with a transaction id    |
-| `saleReversal`  <br />*String*   | A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id     |
-| `saleAndTokenizeCard`  <br />*String*   | A sale operation which also returns a card token (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)     |
-| `tokenizeCard`  <br />*String*   | Returns a card token (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)     |
-| `printReceipt`  <br />*String*   | This method sends the merchant or customer receipt to the terminal for printing. The format of the HTML data, passed to the method or stored in the url, must follow this format: [Html Print Format](https://handpoint.atlassian.net/wiki/spaces/PD/pages/1409875969/Html+Print+Format)     |
+| `sale`   <br />*String*  | Sends a sale transaction to the payment terminal. This is the most basic operation used to withdraw funds from the cardholder's bank account. |
+| `refund` <br />*String*    | Sends a refund transaction to the payment terminal. This operation moves funds from the merchant account to the cardholder´s credit card. For Interac (Canadian Debit Network), refunds can only be processed until Interac closes the batch of transactions at night. |
+| `refundReversal` <br />*String*    | A refund reversal, also called refund VOID, allows the merchant to reverse a previous refund operation. This operation reverts (if possible) a specific refund identified with a transaction id. |
+| `saleReversal`  <br />*String*   | A sale reversal, also called sale VOID allows the merchant to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id. |
+| `saleAndTokenizeCard`  <br />*String*   | A sale operation which also returns a card token. This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice.  |
+| `tokenizeCard`  <br />*String*   | Returns a card token (representing the card number). This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice.   |
+| `printReceipt`  <br />*String*   | Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes as well as passing directly a URL to the printReceipt function. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html. The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
 | `update` <br />*String*    | The update operation checks for new software or configuration updates and initiates a download if required.    |
-| `cardPan` <br />*String*    | A cardPan request will return the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card ranges will be returned by the Handpoint systems. This operation is mostly used to be able to process funds or points from loyalty cards.     |
-| `pingDevice` <br />*String*    | This operation will ping the terminal to confirm if it is online.     |
-| `stopCurrentTransaction` <br />*String*    | Operation used to stop the current transaction. The transaction can only be stopped at specific stages of a payment processing, for example a transaction can not be stopped when the card is being read but can be stopped when waiting for the cardholder to initially insert a card.     |
+| `cardPan` <br />*String*    | A cardPan request will return the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card ranges will be returned by the Handpoint systems. This operation is mostly used to be able to process funds or points from loyalty cards.    |
+| `pingDevice` <br />*String*    | This operation will ping the terminal to confirm if it is online.   |
+| `stopCurrentTransaction` <br />*String*    | Operation used to stop the current transaction. The transaction can only be stopped at specific stages of payment processing, for example a transaction can not be stopped when the card is being read but can be stopped when waiting for the cardholder to initially insert a card.   |
+| `moToSale` <br />*String*    | Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.  |
+| `moToRefund` <br />*String*    | A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.  |
+| `moToReversal` <br />*String*    | A MOTO reversal, also called VOID allows the user to reverse a previous MOTO sale/refund operation. This operation reverts (if possible) a specific operation identified with a transaction id. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission. MOTO Reversal is a type of card-not-present (CNP) transaction used to reverse a previous MOTO Sale or MOTO Refund. |
 
+## Financial Status{#financialStatus}
 
-## Financial Status
+`Financial Status` <span class="badge badge--info">Enum</span>
 
-`Financial Status`:
+An enum representing different statuses of a completed transaction.
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`
 
 
 ## Transaction Result Object
 
-`TransactionResult`
-
-An object holding information about the result of a transaction.
+`TransactionResult` <span class="badge badge--info">Object</span>
 
 
 An object holding information about the result of a transaction.
+
+:::tip
+`signatureUrl`: In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.
+
+`customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
+:::
+
+**Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `aid`  <br />*String*   | Application Identifier of the card (EMV tag 9F06)       |
-| `arc` <br />*String*  | EMV Authorisation Response Code (EMV tag 8A)        |
-| `authorisationCode` <br />*String*     | Acquirer response code       |
-| `balance`<br />[*Balance*](#balance)  | Balance available on the card        |
-| `budgetNumber`  <br />*String*    | Used to split payments over a period of months       |
-| `cardEntryType` <br /> [*CardEntryType*](#card-entry-type)   | Method used by the terminal to read the card        |
-| `cardLanguagePreference` <br />*String*| Preferred language of the card (EMV tag 5F2D)       |
-| `cardSchemeName` <br />[*CardSchemeName*](#card-scheme-name)  | The brand of the card        |
-| `cardToken`   <br />*String*   | Token representing the PAN of the card       |
-| `chipTransactionReport` <br />*String*  | Full report of the card EMV parameters        |
-| `currency`  <br />[*Currency*](#currency)    | The currency used for the transaction       |
-| `customerReceipt` <br />*String*  | A URL containing the customer receipt in HTML format        |
-| `customerReference`  <br />*String*    | If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field       |
-| `deviceStatus`  <br />[*DeviceStatus*](#device-status) | Status of the device        |
-| `dueAmount`    <br />*String*  | In case of a partial approval for the transaction, this field contains the amount which remains to be paid       |
-| `efttimestamp` <br />*Date*  | Time of the transaction        |
-| `efttransactionID`   <br />*String*    | Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.       |
-| `errorMessage`  <br />*String*  | Detailed reason for the transaction error        |
-| `expiryDateMMYY` <br />*String*  | Expiry date of the card used for the operation        |
-| `finStatus`  <br />[*FinancialStatus*](#financial-status)  | The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"        |
-| `iad`  <br />*String*  | Issuer Application Data (EMV tag 9F10)        |
-| `issuerResponseCode`  <br />*String*   | Response code from the card issuer        |
-| `maskedCardNumber`  <br />*String*   | Masked card number of the card used for the operation |
-| `merchantAddress`  <br />*String*   | Merchant Address        |
-| `merchantName`  <br />*String*   | Merchant Name        |
-| `merchantReceipt`  <br />*String*   | A URL containing the customer receipt in HTML format        |
-| `mid`  <br />*String*   | Merchant Identifier       |
-| `originalEFTTransactionID`  <br />*String*   | In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed       |
-| `paymentScenario`  <br />[*PaymentScenario*](#payment-scenario)   | Indicates the card entry mode     |
-| `recoveredTransaction`  <br />*boolean*   | This flag is set to true if the transaction result is sent through the transaction recovery logic explained in the Recovey Section, false otherwise       |
-| `requestedAmount`  <br />*BigInteger*   | The requested amount is the transaction amount sent to the terminal     |
-| `rrn`  <br />*String*   | Retrieval Reference Number, unique number assigned by the acquirer       |
-| `signatureUrl`  <br />*String*   | If a digital signature is required, this is the URL containing the image of the captured signature       |
-| `statusMessage`  <br />*String*   | The status of the transaction, for example "Waiting for pin"       |
-| `tenderType`  <br />[*TenderType*](#tender-type)   |Transaction tender type (credit / debit)       |
-| `tid`  <br />*String*   | MerchTerminalant Identifier       |
-| `tipAmount`  <br />*BigInteger*   | Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)       |
-| `tipPercentage`  <br />*double*   | If tipping is enabled, this field will return the tip percentage added on top of the base amount       |
-| `totalAmount`  <br />*BigInteger*   | The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality       |
-| `transactionID`  <br />*String*   | The transaction id is a terminal internal counter incremented for each transaction       |
-| `tsi`  <br />*String*   | Transaction Status Information (EMV tag 9B)       |
-| `tvr`  <br />*String*   | Transaction Verification Results (EMV tag 95)       |
-| `type`  <br />[*TransactionType*](#transaction-type)   | The type of transaction initiated, for example "SALE"       |
-| `unMaskedPan`  <br />*String*   | Unmasked PAN, only received if the card is a non-payment card (loyalty)      |
-| `verificationMethod`  <br />[*VerificationMethod*](#verification-method)   | cardholder verification method, for example "PIN"     |
-| `multiLanguageStatusMessages`  <br />*Map*   | Containing the status message in a human readable format for all the supported locales.      |
-| `multiLanguageErrorMessages`  <br />*Map*   | Containing the error message in a human readable format for all the supported locales.      |
-| `cardHolderName`  <br />*String*   | Name of the cardholder     |
+| `aid`  <br />*String	*   | EMV Application Identifier of the card (EMV tag 9F06)|
+| `arc`  <br />*String	*   | EMV Authorisation Response Code (EMV tag 8A)|
+| `authorisationCode`  <br />*String	*   | Acquirer response code|
+| `balance`  <br />[*Balance*](#balance)    | Balance available on the card|
+| `budgetNumber`  <br />*String	*   | Used to split payments over a period of months|
+| `cardEntryType`  <br />[*CardEntryType*](#cardEntryType)   | Method used by the terminal to read the card|
+| `cardLanguagePreference`  <br />*String	*   | Preferred language of the card (EMV tag 5F2D)|
+| `cardSchemeName`  <br />[*CardSchemeName*](#cardSchemeName)   | The brand of the card|
+| `cardToken`  <br />*String	*   | Token representing the PAN of the card|
+| `chipTransactionReport`  <br />*String	*   | 	Full report of the card EMV parameters|
+| `currency`  <br />[*Currency*](#currency)   | The currency used for the transaction|
+| `customerReceipt`  <br />*String	*   | 	The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.|
+| `customerReference`  <br />*String	*   | If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
+| `deviceStatus`  <br />[*DeviceStatus*](#deviceStatus)  | Status of the payment terminal|
+| `dueAmount`  <br />*String	*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`  <br />*Date	*   | Time of the transaction (based on the date and time of the payment terminal)|
+| `efttransactionID`  <br />*String	*   | Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
+| `errorMessage`  <br />*String	*   | Detailed reason for the transaction error|
+| `expiryDateMMYY`  <br />*String	*   | Expiry date of the card used for the operation|
+| `finStatus`  <br />[*FinancialStatus*](#financialStatus)   | The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"|
+| `iad`  <br />*String	*   |EMV Issuer Application Data (EMV tag 9F10)|
+| `issuerResponseCode`  <br />*String	*   | Response code from the card issuer|
+| `maskedCardNumber`  <br />*String	*   | Masked card number of the card used for the operation|
+| `merchantAddress`  <br />*String	*   | Merchant Address|
+| `merchantName`  <br />*String	*   | Merchant Name|
+| `merchantReceipt`  <br />*String	*   | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.|
+| `mid`  <br />*String	*   | Merchant Identifier|
+| `originalEFTTransactionID`  <br />*String	*   | In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed|
+| `paymentScenario`  <br />[*PaymentScenario*](#paymentScenario)   | Indicates the card entry mode|
+| `recoveredTransaction`  <br />*Boolean	*   | This flag is set to true if the transaction result is sent through the transaction recovery logic explained in the Recovey Section, false otherwise|
+| `requestedAmount`  <br />*BigInteger	*   | The requested amount is the transaction amount sent to the terminal|
+| `rrn`  <br />*String	*   | Retrieval Reference Number, unique number assigned by the acquirer|
+| `signatureUrl`  <br />*String	*   | If a digital signature is required, this is the URL containing the image of the captured signature. In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.|
+| `statusMessage`  <br />*String	*   | The status of the transaction, for example "Waiting for pin"|
+| `tenderType`  <br />[*TenderType*](#tenderType)   | Transaction tender type (credit / debit)|
+| `tid`  <br />*String	*   | Terminal Identifier|
+| `tipAmount`  <br />*BigInteger	*   | Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `tipPercentage`  <br />*Double	*   | If tipping is enabled, this field will return the tip percentage added on top of the base amount|
+| `totalAmount`  <br />*BigInteger	*   | The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality|
+| `transactionID`  <br />*String	*   | The transaction id is a terminal internal counter incremented for each transaction|
+| `tsi`  <br />*String	*   | EMV Transaction Status Information (EMV tag 9B)|
+| `tvr`  <br />*String	*   | EMV Transaction Verification Results (EMV tag 95)|
+| `type`  <br />[*TransactionType*](#transactionType)   | 	The type of transaction initiated, for example "SALE"|
+| `unMaskedPan`  <br />*String	*   | Unmasked PAN, only received if the card is a non-payment card (loyalty)|
+| `verificationMethod`  <br />[*VerificationMethod*](#verificationMethod)   | cardholder verification method, for example "PIN"|
+| `multiLanguageStatusMessages`  <br />*Map	*   | `map` containing the status message in a human readable format for all the supported locales.|
+| `multiLanguageErrorMessages`  <br />*Map	*   | `map` containing the error message in a human readable format for all the supported locales.|
+| `cardHolderName`  <br />*String	*   | Name of the cardholder|
 
 **Code example**
 
@@ -172,29 +183,30 @@ An object holding information about the result of a transaction.
 ````
 
 
-## Transaction Request Object
+## Transaction Request Object {#transactionRequest}
 
-`TransactionRequest`
+`TransactionRequest` <span class="badge badge--info">Object</span>
 
-An object to store the information about the payment terminal in use
+
+An object to store information about the request sent to the payment terminal.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `operation` <span class="badge badge--primary">Required</span>  <br />[*OperationTypesDescription*](#operation-types-description)   | The type of transaction to be performed.   |
-| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Device serial number.     |
-| `terminal_type` <span class="badge badge--primary">Required</span>  <br />*String*    | Device type.      |
-| `callbackUrl`<br />*String*   | if used, url the terminal will use to send the Transaction Result. All 2XXs http response codes from the callbackUrl are valid to notify the terminal of a successful delivery of the result. If the callbackUrl is not present, the device will send back the transaction result to Handpoint's REST-API and results can be retrieved using the Transaction Result Retrieval endpoint       |
-| `token` <span class="badge badge--primary">Required</span>  <br />*String*    | Token used to authenticate the terminal and transaction when serving the Transaction Result through the callbackUrl . The token will be injected in the Request Header with key value 'AUTH-TOKEN'. **REQUIRED** when the callbackUrl is present.       |
-| `customerReference` <br />*String*   | Transaction identifier provided by the integrator. The customerReference sent in TransactionRequests objects is echoed in the TransactionResults        |
-| `amount` <span class="badge badge--primary">Required</span> <br />*String* | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 EUR). **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.    |
-| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](#currency)   | The currency of the transaction. **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.        |
-| `originalTransactionId`  <span class="badge badge--primary">Required</span>  <br />*String*   | The transaction id of the original transaction to reverse. **REQUIRED** for operations: refundReversal, saleReversal and LINKED refunds.       |
-| `receipt` <span class="badge badge--primary">Required</span> <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt.        |
+| `operation` <span class="badge badge--primary">Required</span>  <br />[*OperationTypesDescription*](#operation-types-description)   | The type of operation to be performed.   |
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.     |
+| `terminal_type` <span class="badge badge--primary">Required</span>  <br />*String*    | Type of terminal.  |
+| `callbackUrl`<br />*String*   | If used,this is the url the payment terminal will use to send the Transaction Result once the operation is complete. All 2XXs http response codes from the callbackUrl (your server) are valid to notify the terminal of a successful delivery of the result. If the callbackUrl is not present, the device will send back the transaction result to Handpoint's REST-API and results can be retrieved using the Transaction Result Retrieval endpoint.     |
+| `token`  <br />*String*    | If used, the token is a unique value per operation generated by your software and used to authenticate the transaction result sent through the callbackUrl against your server. The token will be injected in the request header with key value 'AUTH-TOKEN'. **REQUIRED** when the callbackUrl is present.       |
+| `customerReference` <br />*String*   | Transaction identifier provided by your software. The customerReference sent in the TransactionRequest object is echoed in the TransactionResult. In case the transaction outcome is unknown (network issue or other) and for some unknown reason your software did not receive any result. The customerReference can be used to query the Handpoint Transaction API and check if a specific transaction was approved or not: https://www.handpoint.com/docs/txnfeedapi/#api-Transactions-getTxnByCustomerReference. |
+| `amount` <br />*String* | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.    |
+| `currency`  <br />[*Currency*](#currency)   | The currency of the transaction. **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.        |
+| `originalTransactionId`  <br />*String*   | The transaction id of the original operation to be reversed. Only required to reverse or refund a transaction. **REQUIRED** for operations: refundReversal, saleReversal and LINKED refunds.       |
+| `receipt` <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt. The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
 | `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
-| `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations        |
-| `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal. This object allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.      |
+| `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations.        |
+| `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
 
 **Code example**
 
@@ -262,7 +274,8 @@ An object to store the information about the payment terminal in use
 ## Bypass Options
 
 
-`BypassOptions`
+`BypassOptions` <span class="badge badge--info">Object</span>
+
 
 Configuration to enable/disable signature or pin bypass.
 
@@ -284,9 +297,9 @@ Configuration to enable/disable signature or pin bypass.
 
 ## Merchant Auth
 
-`MerchantAuth`
+`MerchantAuth` <span class="badge badge--info">Object</span>
 
-Object used to store merchant authentication. This object is optional, it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
+An object used to store merchant authentication parameters. This object is optional, it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
 
 
 
@@ -310,7 +323,8 @@ Object used to store merchant authentication. This object is optional, it allows
 
 ## Acquirer
 
-`Acquirer`
+`Acquirer` <span class="badge badge--info">Enum</span>
+
 
 An enum representing the supported acquirers for merchant authentication.
 
@@ -319,20 +333,21 @@ An enum representing the supported acquirers for merchant authentication.
 `AMEX` `BORGUN` `EVO` `OMNIPAY` `POSTBRIDGE` `INTERAC` `TSYS` `VANTIV` `SANDBOX`
 
 
-## Device
+## Device {#deviceObject}
 
-`Device`
+`Device` <span class="badge badge--info">Object</span>
 
-An object to store the information about the payment terminal you are working with. ALL values are **REQUIRED**
+
+An object to store information about the payment terminal in use. ALL values are **REQUIRED**.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `merchant_id_alpha` <span class="badge badge--primary">Required</span> <br />*String*    | Merchant unique identifier to which the device is associated|
-| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Device serial number|
-| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Merchant shared secret key, unique id for the merchant|
-| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Device type|
+| `merchant_id_alpha` <span class="badge badge--primary">Required</span> <br />*String*    | Merchant unique identifier associated with the payment terminal.|
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.|
+| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal shared secret key to authenticate financial operations.|
+| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal name composed of two parts "serial_number - terminal_type".|
 
 **Code example**
 
@@ -347,11 +362,9 @@ An object to store the information about the payment terminal you are working wi
 
 ## Currency
 
-`Currency`
+`Currency` <span class="badge badge--info">Enum</span>
 
-An enum of most currencies in the world.
-
-Contains the ISO name, ISO number and the name of the currency. Additionally contains information about how many decimals the currency uses.
+An enum of currencies. 
 
 **Possible values**
 
@@ -359,16 +372,44 @@ Contains the ISO name, ISO number and the name of the currency. Additionally con
 
 
 
-## Card Entry Type
+## Card Entry Type{#cardEntryType}
 
-`CardEntryType`
-
+`CardEntryType` <span class="badge badge--info">Enum</span>
+ 
 An enum representing different card entry types.
-
 
 **Possible values**
 
 `UNDEFINED` `MSR` `ICC` `CNP` 
+
+
+## Verification Method{#verificationMethod}
+
+
+`VerificationMethod` <span class="badge badge--info">Enum</span>
+
+An enum representing the possible verification methods used during the transaction.
+
+Possible values:
+
+`UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
+
+
+## Merchant Auth Credential
+
+`Credential` <span class="badge badge--info">Object</span>
+
+An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merchant authentication.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `acquirer`  <br />[*Acquirer*](#acquirer)   | If present, it links this credential to the specified acquirer. Only required if more than one credential is provided.|
+| `mid`  <br />*String*   | For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
+| `tid`    <br />*String* | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
+| `mcc`   <br />*String*  | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
+| `ExternalId`   <br />*String*  | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials|
 
 **Code example**
 
@@ -386,39 +427,12 @@ An enum representing different card entry types.
 ````
 
 
-## Verification Method
-
-
-`VerificationMethod`
-
-An enum representing the possible verification methods used during the transaction.
-
-Possible values:
-
-`UNDEFINED`
-`SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
-
-
-## Merchant Auth Credential
-
-`Credential`
-An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merchant authentication.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `acquirer`  <br />[*Acquirer*](#acquirer)   | If present, it links this credential to the specified acquirer. **Required** if more than one credential is provided.|
-| `mid`  <br />*String*   | For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
-| `tid`    <br />*String* | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
-| `mcc`   <br />*String*  | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
-| `ExternalId`   <br />*String*  | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials|
-
 ## Balance
 
-`Balance`
+`Balance` <span class="badge badge--info">Object</span>
 
-Balance available on the card
+
+Balance available on the card.
 
 
 **Properties**
@@ -441,26 +455,27 @@ Balance available on the card
   }
 ````
 
-## Device Status
+## Device Status{#deviceStatus}
 
-`DeviceStatus`
+`DeviceStatus` <span class="badge badge--info">Object</span>
 
-A class that holds the device status.
+
+A class which holds the payment terminal status.
 
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `SerialNumber`  <br />*String*   | The serial number of the device.|
-| `BatteryStatus`  <br />*String*   | The battery status in percentages of a device.|
-| `BatterymV`  <br />*String*   | The battery milli volts of a device.|
-| `BatteryCharging`  <br />*String*   | The battery charging status of a device.|
-| `ExternalPower` <br />*String*    | The status of an external power of a device|
-| `ApplicationName`   <br />*String*  | The application name used on a device|
-| `ApplicationVersion` <br />*String*    | The application version number used on a device|
-| `bluetoothName`  <br />*String*   | The bluetooth interface name used on a device|
-| `statusMessage`  <br />*String*   | Device human readable status message|
+| `SerialNumber`  <br />*String*   | The serial number of the payment terminal.|
+| `BatteryStatus`  <br />*String*   | The battery status in percentages of the payment terminal.|
+| `BatterymV`  <br />*String*   | The battery milli volts of the payment terminal.|
+| `BatteryCharging`  <br />*String*   | The battery charging status of the payment terminal.|
+| `ExternalPower` <br />*String*    | The status of the external power of the payment terminal.|
+| `ApplicationName`   <br />*String*  | The application name used on the payment terminal.|
+| `ApplicationVersion` <br />*String*    | The application version number used on the payment terminal.|
+| `bluetoothName`  <br />*String*   | The bluetooth interface name used on the payment terminal.|
+| `statusMessage`  <br />*String*   | Device human readable status message.|
 
 
 **Code example**
@@ -479,11 +494,11 @@ A class that holds the device status.
 }
 ````
 
-## Card Scheme Name
+## Card Scheme Name {#cardSchemeName}
 
-`CardSchemeName`
+`CardSchemeName` <span class="badge badge--info">Enum</span>
 
-A string representing different card brands.
+An enum representing different card brands.
 
 **Possible values**
 
@@ -491,31 +506,33 @@ A string representing different card brands.
 
 
 
-## Transaction Type
+## Transaction Type{#transactionType}
 
-`TransactionType`
+`TransactionType` <span class="badge badge--info">Enum</span>
 
 An enum representing different types of transactions.
 
 **Possible values**
 
-`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN`
+`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE``MOTO_REFUND``MOTO_REVERSAL`
 
 
-## Payment Scenario
+## Payment Scenario{#paymentScenario}
 
 
-`PaymentScenario`
+`PaymentScenario` <span class="badge badge--info">Enum</span>
 
-An enum representing different types of scenario.
+
+An enum representing different types of payment scenario.
 
 **Possible values**
 
-`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE`
+`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
 
 ## Status Info
 
-`StatusInfo`
+`StatusInfo` <span class="badge badge--info">Object</span>
+
 
 A class containing information about the status of the transaction.
 
@@ -523,7 +540,7 @@ A class containing information about the status of the transaction.
 
 | Property      | Description |
 | ----------- | ----------- |
-| `cancelAllowed`  <br />*boolean*   | A `boolean` letting the integrator know if the terminal will accept a stop transaction request.)       |
+| `cancelAllowed`  <br />*boolean*   | A `boolean` Letting the integrator know if the terminal will accept a stop transaction request.)       |
 | `status` <br />[*Status*](#status)  | A `Status` enum representing the status of the transaction.       |
 | `message`  <br />*String*    | A `String` containing the status message of the transaction.       |
 | `deviceStatus` <br />[*DeviceStatus*](#device-status) | A `DeviceStatus` object containing information about the payment terminal.        |
@@ -531,21 +548,21 @@ A class containing information about the status of the transaction.
 
 ## Status
 
-`status`
+`status` <span class="badge badge--info">Enum</span>
+
 
 An enum containing information about the status of a transaction.
 
 **Possible values**
 
-`Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` `SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` ´ResponseAuthTimeout´ ´ResponsePaymentTimeout´ IccCardSwiped RemoveCard ScannerIsNotSupported ScannerEvent BatteryTooLow AccountTypeSelection BtIsNotSupported PaymentCodeSelection PartialApproval AmountDueValidation InvalidUrl WaitingCustomerReceipt PrintingMerchantReceipt PrintingCustomerReceipt UpdateStarted UpdateFinished UpdateFailed UpdateProgress WaitingHostPostSend WaitingHostPostReceive Rebooting PrinterOutOfPaper ErrorConnectingToPrinter CardTapped ReceiptPrintSuccess InvalidPinLength OfflinePinAttempt OfflinePinLastAttempt ProcessingSignature CardRemoved TipEntered CardLanguagePreference AutomaticPrintingStarted CancelOperationNotAllowed UpdateSoftwareStarted UpdateSoftwareFinished UpdateSoftwareFailed UpdateSoftwareProgress InstallSoftwareStarted InstallSoftwareFinished InstallSoftwareFailed InstallSoftwareProgress UpdateConfigStarted UpdateConfigFinished UpdateConfigFailed UpdateConfigProgress InitialisationComplete
+`Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` `SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` `ResponseAuthTimeout` `ResponsePaymentTimeout` `IccCardSwiped` `RemoveCard` `ScannerIsNotSupported` `ScannerEvent` `BatteryTooLow` `AccountTypeSelection` `BtIsNotSupported` `PaymentCodeSelection` `PartialApproval` `AmountDueValidation` `InvalidUrl` `WaitingCustomerReceipt` `PrintingMerchantReceipt` `PrintingCustomerReceipt` `UpdateStarted` `UpdateFinished` `UpdateFailed` `UpdateProgress` `WaitingHostPostSend` `WaitingHostPostReceive` `Rebooting` `PrinterOutOfPaper` `ErrorConnectingToPrinter` `CardTapped` `ReceiptPrintSuccess` `InvalidPinLength` `OfflinePinAttempt` `OfflinePinLastAttempt` `ProcessingSignature` `CardRemoved` `TipEntered` `CardLanguagePreference` `AutomaticPrintingStarted` `CancelOperationNotAllowed` `UpdateSoftwareStarted` `UpdateSoftwareFinished` `UpdateSoftwareFailed` `UpdateSoftwareProgress` `InstallSoftwareStarted` `InstallSoftwareFinished` `InstallSoftwareFailed` `InstallSoftwareProgress` `UpdateConfigStarted` `UpdateConfigFinished` `UpdateConfigFailed` `UpdateConfigProgress` `InitialisationComplete`
 
 
 
 ## Tip Configuration
 
-`TipConfiguration`
+`TipConfiguration` <span class="badge badge--info">Object</span>
 
-Properties
 
 | Property      | Description |
 | ----------- | ----------- |
@@ -570,9 +587,10 @@ Properties
 
 ````
 
-## Tender Type
+## Tender Type{#tenderType}
 
-`TenderType`
+`TenderType` <span class="badge badge--info">Enum</span>
+
 
 An enum representing different tender types.
 

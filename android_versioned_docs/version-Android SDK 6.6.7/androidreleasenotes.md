@@ -11,6 +11,11 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 6.6.7
+**Fixes**:
+- SCA scenarios on PAX A80
+- CLOUD: receipt printing
+- Deadman mechanism for not completed trx. App dies in the middle of a trx, will be auto cancelled in the restart.
 
 ## 6.6.0
 

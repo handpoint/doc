@@ -1,5 +1,5 @@
 ---
-sidebar_position: 9
+sidebar_position: 6
 id: expressjsonresponse
 ---
 
@@ -73,7 +73,7 @@ The response will be packed and added to your callbackUrl in the following forma
 | Name      | Type | Description |
 | ----------- | ----------- | ----------- |
 | appVersion      | string       | A string representation of the client version.|
-| systemInfo     | object        | An object containing info about the Express client |
+| systemInfo     | object        | An object containing info about the Express client. |
 | protocolVersion     | string        | A string representation of the Express protocol version used in this request. |
 
 **SystemInfo fields**

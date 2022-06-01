@@ -4,9 +4,9 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: 'Handpoint',
-  tagline: 'Card payments. Made simple',
-  url: 'https://www.handpoint.com',
-  baseUrl: '/doc/',
+  tagline: 'Global Payments-Powered Growth for SaaS',
+  url: 'https://developer.handpoint.io',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
@@ -24,12 +24,12 @@ module.exports = {
       items: [
         {
           className: 'navbar-statuspage-icon',
-          href: 'https://status.handpoint.com',
+          href: 'https://status.handpoint.io',
           position: 'right',
           'aria-label': 'Status Page',
         },
         {
-          to: 'cpdocs',
+          to: '/',
           label: 'Getting Started',
         },
         {
@@ -67,13 +67,9 @@ module.exports = {
         {
 
           href: 'https://github.com/thescruba/xamarin-handpoint-bindings',
-          label: 'Xamarin SDK',
+          label: 'Xamarin Plugin',
 
         },
-        // {
-        //   href: 'https://www.handpoint.com/docs/txnfeedapi/',
-        //   label: 'TXN Feed API',
-        // },
         {
 
           href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',
@@ -88,16 +84,12 @@ module.exports = {
           title: 'Docs',
           items: [
             {
-              label: 'Card Present Docs',
-              to: 'cpdocs',
+              label: 'In-Person Payments Docs',
+              to: '/cpdocs/index.html',
             },
             {
-              label: 'Ecommerce Docs',
-              href: 'https://www.handpoint.com/docs/device/Basics/',
-            },
-            {
-              label: 'Legacy Docs',
-              href: 'https://www.handpoint.com/docs/device/Basics/',
+              label: 'Online Payments Docs',
+              href: 'https://developer-ecomm.handpoint.io/cnpdocs/index.html',
             },
           ],
         },
@@ -105,8 +97,8 @@ module.exports = {
           title: 'Community',
           items: [
             {
-              label: 'Handpoint',
-              href: 'https://www.handpoint.com',
+              label: 'Handpoint Website',
+              href: 'https://www.handpoint.io',
             },
             {
               label: 'LinkedIn',
@@ -138,7 +130,7 @@ module.exports = {
           items: [
             {
               label: 'Handpoint Status Page',
-              href: 'https://status.handpoint.com',
+              href: 'https://status.handpoint.io',
             },
             {
               label: 'FAQ',
@@ -159,7 +151,7 @@ module.exports = {
       logo: {
         alt: 'Handpoint Logo',
         src: 'https://handpoint.imgix.net/handpoint-logo-w.png?w=150',
-        href: 'https://www.handpoint.com'
+        href: 'https://www.handpoint.io'
       },
       copyright: `Copyright © ${new Date().getFullYear()} Handpoint`,
     },
@@ -170,13 +162,16 @@ module.exports = {
     },
     hideableSidebar: true,
   },
+  themes:[ 
+    ['@easyops-cn/docusaurus-search-local',{indexBlog:false,
+      docsRouteBasePath:['android','ios','windows','javascript','restapi','express']}]],
   presets: [
     [
       '@docusaurus/preset-classic',
       {
         googleAnalytics: {
           trackingID: 'UA-1295190-6',
-          anonymizeIP: true,
+          anonymizeIP: false,
         },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
@@ -198,13 +193,12 @@ module.exports = {
     ],
   ],
   plugins: [
-    require.resolve('docusaurus-lunr-search', {
+    // require.resolve('docusaurus-lunr-search', {
 
 
 
-    })
-
-    , [
+    // }),
+     [
       '@docusaurus/plugin-content-docs',
       {
         id: 'ios',
@@ -235,7 +229,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'restapi',
-        includeCurrentVersion: true,
+        includeCurrentVersion: false,
         path: 'restapi',
         routeBasePath: 'restapi',
         sidebarPath: require.resolve('./sidebarsIos.js'),

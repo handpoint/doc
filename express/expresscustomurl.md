@@ -1,18 +1,18 @@
 ---
-sidebar_position: 7
+sidebar_position: 4
 id: expresscustomurl
 ---
 
 # Custom URL
 
 
-To initiate an Express client transaction from your web or app, you open a URL with the following format: `handpoint://express/v1/?data=<url_encoded_data>` 
+To initiate an Express client transaction from your application, you have to open a URL with the following format: `handpoint://express/v1/?data=<url_encoded_data>` 
 
 * For web apps, you can open this URL just as you would any other URL on a webpage.
 * For native iOS apps, you use the openURL: method of UIApplication.
-The query parameter in the URL, data, is a percent-encoded JSON object that contains the information Express client needs to process the transaction request.
+The query parameter in the URL, data, is a percent-encoded JSON object that contains information the Express client needs to process the transaction request.
 
-For example, a valid unencoded JSON object looks like this (replace CLIENT_ID with your application's ID, and SHARED_SECRET_KEY with the device activation key you receive from our support team): If you're opening this URL from a native app, you can use your own app's custom scheme as a callback: `"myapp-url-scheme://payment-complete"`
+For example, a valid unencoded JSON object looks like this (replace CLIENT_ID with your application's ID, and SHARED_SECRET_KEY with the device activation key you received from the Handpoint support team): If you're opening this URL from a native app, you can use your own app custom scheme as a callback: `"myapp-url-scheme://payment-complete"`
 
 ```json
 {

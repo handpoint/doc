@@ -9,24 +9,35 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 import { useColorMode } from '@docusaurus/theme-common';
 
 
+function HandpointLink() {
+  return (
+     <div style={{
+        backgroundColor: ' #25365D',
+        color: 'white',
+        padding: '10px',
+        textAlign:'center',
+      }}><b>Developer Center</b></div>
+  );
+}
+
 function Header() {
   return (
     <div
       style={{
-        backgroundColor: ' #34495e',
+        backgroundColor: ' #25365D',
         textAlign: 'center',
         display: 'block',
-        height: '250px',
+        height: '220px',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '80px',
+        padding: '50px',
         width: '100%'
       }}>
-      <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" />
+      <a href="https://www.handpoint.io/" target='_blank'><img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px"/></a>
       <br></br>
       <h2 style={{
         color: 'white'
-      }} >Docs</h2>
+      }} >Global Payments-Powered Growth for SaaS</h2>
     </div>
   );
 }
@@ -44,7 +55,7 @@ function Options() {
         padding: '20px',
         width: '100%'
       }}>
-      {/* <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /> */}
+      {/* <img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /> */}
       <br></br>
 
       <div class="card__footer">
@@ -53,12 +64,12 @@ function Options() {
             <div class="card-demo" style={{ fontSize: '14px' }}>
               <div class="card shadow--md ">
                 <div class="card__header" >
-                  <b><p>Terminal</p></b>
+                  <b><p>In-person payments</p></b>
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/cppayment.png" alt="Flowers in Chania"></img></div>
-                  <a class="button button--primary" href="cpdocs" >Integrate your software with payment terminals!</a>
+                  <div><img src="/img/cppayment.png" alt="In-person payments"></img></div>
+                  <a class="button button--primary" href="cpdocs/index.html" >Integrate your software with payment terminals</a>
                 </div>
               </div>
 
@@ -69,12 +80,12 @@ function Options() {
             <div class="card-demo" style={{ fontSize: '14px' }}>
               <div class="card shadow--md ">
                 <div class="card__header" >
-                  <b><p>Ecommerce</p></b>
+                  <b><p>Online payments</p></b>
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/cnppayment.png" alt="Flowers in Chania"></img></div>
-                  <a class="button button--primary" href="cpdocs" >Integrate online payments into your software!</a>
+                  <div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
+                  <a class="button button--primary" href="https://developer-ecomm.handpoint.io/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
                 </div>
               </div>
             </div>
@@ -87,8 +98,8 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/feedapi.png" alt="Txn Feed API"></img></div>
-                  <a class="button button--primary" href="https://www.handpoint.com/docs/txnfeedapi/" >Build in-depth transaction reporting for your software!</a>
+                  <div><img src="/img/feedapi.png" alt="Transaction Analytics"></img></div>
+                  <a class="button button--primary" href="https://www.handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
                 </div>
               </div>
 
@@ -103,19 +114,19 @@ function Options() {
   );
 }
 
-function Example() {
-  // Declare a new state variable, which we'll call "count"
+function Main() {
   const [count, setCount] = useState(0);
 
   return (
     <div>
+      <HandpointLink/>
       <Header></Header>
       <Options></Options>
       <LayoutProviders>
-        <Footer></Footer>
+      <Footer></Footer>
       </LayoutProviders>
     </div>
   );
 }
 
-export default Example;
+export default Main;

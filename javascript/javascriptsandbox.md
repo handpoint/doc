@@ -6,7 +6,7 @@ id: javascriptsandbox
 
 # Handpoint Sandbox
 
-Get started today with the Handpoint sandbox today and test payment transactions right in your browser. The sandbox is available here: http://www.handpoint.com/lab/cloudpos. **A payment terminal is required to start testing.**
+Get started today with the Handpoint sandbox and test payment transactions right in your browser. The sandbox is available here: http://www.handpoint.com/lab/cloudpos. **A payment terminal is required to start testing.**
 
 
 This is the initial setup screen:

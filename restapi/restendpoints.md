@@ -1,11 +1,11 @@
 ---
-sidebar_position: 8
+sidebar_position: 6
 id: restendpoints
 ---
 
 
 
-# Endpoints
+# REST API Endpoints
 
 
 ## /initialize
@@ -14,7 +14,7 @@ id: restendpoints
 
 `Initialize`
 
-Initializes the REST API client and returns the list of payment terminals associated with the merchant account
+Initializes the REST API client and returns the list of payment terminals associated with the merchant account. We recommend that you display the list of available payment terminals to the merchant in your software. Each API key is unique per merchant and needs to be configurable in your backend. 
 
 
 **Parameters**
@@ -22,7 +22,7 @@ Initializes the REST API client and returns the list of payment terminals associ
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>    <br />*String*  | Request Header used to identify the merchant       |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>    <br />*String*  | Api key used to authenticate the merchant.     |
 
 
 Returns
@@ -30,7 +30,7 @@ Returns
 
 | Devices      |
 | ----------- |
-| List of Device objects     |
+| List of [Device](restobjects.md#deviceObject) object.     |
 
 
 **Code Example**
@@ -38,10 +38,12 @@ Returns
 
 ```shell
 Operation executed using CLI tool CURL:
+
 REQUEST:
   curl -X GET \
    -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
-   "https://cloud.handpoint.com/initialize"
+   "https://cloud.handpoint.com/initialize" (production)
+   "https://cloud.handpoint.io/initialize" (development)
 
 RESPONSE:
  Code 200 -> Body:
@@ -66,7 +68,7 @@ RESPONSE:
 
 `Transactions`
 
-POST endpoint used to execute a financial operation
+POST endpoint used to send a financial operation to the payment terminal. The transaction type to be executed (sale, refund etc.) is defined in the `operation` field of the request body. 
 
 
 **Parameters**
@@ -74,8 +76,8 @@ POST endpoint used to execute a financial operation
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*    | Request Header used to identify the merchant       |
-| `Request Body: Transaction Request` <span class="badge badge--primary">Required</span>  <br />*TransactionRequest*    | Object containing the transaction information  |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*    | Api key used to authenticate the merchant.      |
+| `Request Body: Transaction Request` <span class="badge badge--primary">Required</span>  <br />[TransactionRequest](restobjects.md#transactionRequest)    | Object containing the transaction request information.  |
 
 
 **Returns**
@@ -83,10 +85,10 @@ POST endpoint used to execute a financial operation
 
 | Response      | Response Code |
 | ----------- | ----------- |
-| **Transaction Accepted** | Response code 202 is received if the transaction has been successfully sent to the terminal.       |
-| **BadRequest DeviceIsBusy Error** | Response code 400 with error 1001. Wait until the end of the current transaction to be able to execute the next operation      |
-| **BadRequest DeviceNotResponding Error** | Response code 400 with error 1002. The device is not responding, verify the device is online and retry in a few seconds.      |
-| **BadRequest CancelOperationNotAllowed Error** | Response code 400 with error 1003. Operation type stopCurrentTransaction cannot be executed because the terminal is processing the transaction and it can not be stopped.  |
+| **Transaction Accepted** | The response code 202 is received from the API if the transaction was successfully sent to the payment terminal.       |
+| **BadRequest DeviceIsBusy Error** | The response code 400 with error 1001 is received from the API if the payment terminal is already processing a transaction.  |
+| **BadRequest DeviceNotResponding Error** | The response code 400 with error 1002 is received from the API if the payment terminal is offline.     |
+| **BadRequest CancelOperationNotAllowed Error** | The response code 400 with error 1003 is received from the API if the stopCurrentTransaction operation cannot be executed. A transaction can only be cancelled at specific steps of the transaction, while waiting for the card to be inserted or on PIN screen. |
 
 **Code Example**
 
@@ -117,7 +119,8 @@ Transaction Request with callbackUrl and token
          "callbackUrl":"https://url.where.the.result.is.served.com",
          "token":"123456789"
           }' \\  
-   "https://cloud.handpoint.com/transactions"
+   "https://cloud.handpoint.com/transactions" (production)
+   "https://cloud.handpoint.io/transactions" (development)
 
 RESPONSES:
   Code 202
@@ -151,15 +154,14 @@ Transaction Request with callbackUrl and token
 
 `TransactionResultRetrieval`
 
-GET endpoint used to retrieve transaction results. **IMPORTANT** Feature only compatible with Handpoint App v3.3.0 and above.
+GET endpoint used to retrieve transaction results from the payment terminal. In case you do not provide a callbackURL and token in the transaction request, the terminal will post the transaction result to an Handpoint internal API which can be queried in order for your software to fetch the transaction result. If you are running a server to receive results and pass a callback URL and token as part of the transaction request you do not need to query this endpoint.  
 
 **Parameters**
 
-
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Request Header used to identify the merchant       |
-| `Path parameter: transactionResultId` <span class="badge badge--primary">Required</span>   <br />*String*    | Custom transaction result Id provided in the response when a Transaction was triggered without callbackUrl.  |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant.       |
+| `Path parameter: transactionResultId` <span class="badge badge--primary">Required</span>   <br />*String*    | The transactionResultId is a unique transaction id delivered immediately as a response to your transaction request. It can be used to query for a transaction result. |
 
 
 **Returns**
@@ -167,9 +169,9 @@ GET endpoint used to retrieve transaction results. **IMPORTANT** Feature only co
 
 | Response      | Response Code |
 | ----------- | ----------- |
-| **No Content** | Response code 204. transactionResultId found in the database but there is no transaction result associated yet. This status will be retrieved while the transaction is ongoing and the transaction result has not been delivered yet.     |
-| **OK** | Response code 200 + Transaction Result. transactionResultId found in the database and the associated Transaction Result object      |
-| **Not Found** | Response code 404. transactionResultId NOT found in the database      |
+| **No Content** | Response code 204. The transactionResultId was found in the database but there is no transaction result associated yet. This status will be retrieved while the transaction is ongoing and the transaction result has not been delivered yet.     |
+| **OK** | Response code 200 + Transaction Result. The transactionResultId was found in the database and the associated Transaction Result object is delivered.      |
+| **Not Found** | Response code 404. The transactionResultId was not found in the database.      |
 
 
 **Code Example**
@@ -179,7 +181,8 @@ Operation executed using CLI tool CURL:
 REQUEST:
     curl -X GET \\
       -H"ApiKeyCLoud: MeRcHaNt-ApIkEy" \\
-      "https://cloud.handpoint.com/transaction-result/0821032398-1628774190395"
+      "https://cloud.handpoint.com/transaction-result/0821032398-1628774190395" (production)
+      "https://cloud.handpoint.io/transaction-result/0821032398-1628774190395" (development)
 
 RESPONSE:
 {
@@ -242,7 +245,11 @@ RESPONSE:
 }
 ```
 
+:::tip
+`signatureUrl`: In case the signature can not be updated to the Handpoint servers and an URL is not generated, the terminal will send back the image binary in base64 format to your software. It is important to be able to support both the URL and the image binary format.
 
+`customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
+:::
 
 ## Transaction Result Recovery
 
@@ -254,15 +261,13 @@ RESPONSE:
  For the first 100 seconds after a transaction is completed, a background thread will attempt to deliver the result every 5 seconds. If the server is still unreachable after the first 100 seconds, the retry loop turns into an exponential increment to the power of 2 (8s-16s-32s etc…).
  The recovery loop is reinitialized every time the Handpoint application is restarted or the startRecovery method is triggered. The Transaction Result received through the transaction recovery loop will have the **recoveredTransaction** field set to **true**.
 
- All 2XXs http response codes from the callbackUrl are valid to notify the device of a successful delivery of the result.
+ All 2XXs http response codes from the callbackUrl are valid to notify the payment terminal of a successful delivery of the result.
 
  **Returns**
 
- Transaction Result
-
-| Transaction Result      | 
-| ----------- |
-| The Transaction Result is delivered to the callback Url from the Transaction Request.   |
+| Parameter      | Notes |
+| ----------- | ----------- |
+| [Transaction Result](restobjects.md#transaction-result-object)    | The [Transaction Result](restobjects.md#transaction-result-object) is delivered to the callback URL from the [Transaction Request](restobjects.md#transaction-request-object).    |
 
 
 

@@ -11,6 +11,36 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 6.7.2
+
+**Fixes**:
+- MOTO: Retry token and configuration download if missing for MoTo transactions
+- CLOUD: device status moving terminals between merchants.
+- CLOUD: REST-API transaction result delivery.
+- `requestedAmount` field in Transaction Result correctly populated.
+
+
+## 6.7.0
+
+**Features**
+- A35 support added
+- Swedish language support
+- Field customerReference added to TransactionResult
+
+**Fixes**:
+- Cloud client shows "Unable to process your request" while the request reach the device
+- Contactless card tokenization fixed
+- CVM fixed in receipts for MOTO transactions
+- Amount fields are now populated in case of FAILURE and DECLINE
+- Interact/AMEX certification fixes
+- Fix minor issues and app crashes
+
+## 6.6.7
+**Fixes**:
+- SCA scenarios on PAX A80
+- CLOUD: receipt printing
+- Deadman mechanism for not completed trx. App dies in the middle of a trx, will be auto cancelled in the restart
+
 ## 6.6.3
 
 **Fixes**:
