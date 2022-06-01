@@ -33,7 +33,7 @@ function Header() {
         padding: '50px',
         width: '100%'
       }}>
-      <a href="https://www.handpoint.com/" target='_blank'><img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px"/></a>
+      <a href="https://www.handpoint.com/" target='_blank'><img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px"/></a>
       <br></br>
       <h2 style={{
         color: 'white'
@@ -55,7 +55,7 @@ function Options() {
         padding: '20px',
         width: '100%'
       }}>
-      {/* <img src="img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /> */}
+      {/* <img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /> */}
       <br></br>
 
       <div class="card__footer">
@@ -68,8 +68,8 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/cppayment.png" alt="In-person payments"></img></div>
-                  <a class="button button--primary" href="cpdocs" >Integrate your software with payment terminals</a>
+                  <div><img src="/img/cppayment.png" alt="In-person payments"></img></div>
+                  <a class="button button--primary" href="cpdocs/index.html" >Integrate your software with payment terminals</a>
                 </div>
               </div>
 
@@ -84,8 +84,8 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/cnppayment.png" alt="Online payments"></img></div>
-                  <a class="button button--primary" href="cpdocs" >Integrate eCommerce payments into your software</a>
+                  <div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
+                  <a class="button button--primary" href="cpdocs/index.html" >Integrate eCommerce payments into your software</a>
                 </div>
               </div>
             </div>
@@ -98,7 +98,7 @@ function Options() {
                 </div>
                 <div class="card__body" align="center">
 
-                  <div><img src="img/feedapi.png" alt="Transaction Analytics"></img></div>
+                  <div><img src="/img/feedapi.png" alt="Transaction Analytics"></img></div>
                   <a class="button button--primary" href="https://www.handpoint.com/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
                 </div>
               </div>

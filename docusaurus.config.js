@@ -5,8 +5,8 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
   title: 'Handpoint',
   tagline: 'Global Payments-Powered Growth for SaaS',
-  url: 'https://www.handpoint.com',
-  baseUrl: '/in-person-payments/',
+  url: 'https://developer.handpoint.io',
+  baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
@@ -29,7 +29,7 @@ module.exports = {
           'aria-label': 'Status Page',
         },
         {
-          to: 'cpdocs',
+          to: '/',
           label: 'Getting Started',
         },
         {
@@ -85,11 +85,11 @@ module.exports = {
           items: [
             {
               label: 'In-Person Payments Docs',
-              to: 'cpdocs',
+              to: '/cpdocs/index.html',
             },
             {
               label: 'Online Payments Docs',
-              href: '/',
+              href: 'https://developer.ecomm.handpoint.io/cnpdocs/index.html',
             },
           ],
         },
