@@ -160,7 +160,11 @@ module.exports = {
       darkTheme: darkCodeTheme,
       additionalLanguages: ['java', 'groovy', 'csharp'],
     },
-    hideableSidebar: true,
+    docs: {
+      sidebar: {
+        hideable: true,
+      },
+    },
   },
   themes:[ 
     ['@easyops-cn/docusaurus-search-local',{indexBlog:false,
