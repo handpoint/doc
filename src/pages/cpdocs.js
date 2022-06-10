@@ -202,7 +202,8 @@ function IntegrationPaths() {
     <Element name="integrationsElement">
       <div class="container">
         <div class="row">
-          <div class="col" >
+          <div class="col col--12" >
+          <div class="integrationOptions">
             <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
                 <b>Cloud Integration</b>
@@ -214,11 +215,13 @@ function IntegrationPaths() {
                 <img class="card-image-larger" src="/img/cloud-integration.png" alt="cloud integration"></img>
               </div>
             </div>
+            </div>
           </div>
         </div>
         <br></br>
         <div class="row">
           <div class="col col--12" >
+          <div class="integrationOptions">
             <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
                 <b>Native Integration</b>
@@ -230,11 +233,13 @@ function IntegrationPaths() {
                 <img class="card-image" src="/img/native-integration.png" alt="native integration"></img>
               </div>
             </div>
+            </div>
           </div>
         </div>
         <br></br>
         <div class="row">
           <div class="col col--12" >
+          <div class="integrationOptions">
             <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
                 <b>Bluetooth Integration</b>
@@ -246,11 +251,13 @@ function IntegrationPaths() {
                 <img class="card-image" src="/img/hilite-integration.png" alt="HiLite integration"></img>
               </div>
             </div>
+            </div>
           </div>
         </div>
         <br></br>
         <div class="row">
           <div class="col col--12" >
+          <div class="integrationOptions">
             <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
                 <b>Lightning Integration</b>
@@ -261,6 +268,7 @@ function IntegrationPaths() {
               <div align="center">
                 <img class="card-image" src="/img/hipro-integration.png" alt="HiPro integration"></img>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -275,6 +283,7 @@ function Standalone() {
       <div class="container">
         <div class="row">
           <div class="col col--12" >
+          <div class="integrationOptions">
             <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
                 <b>Standalone smartPOS application</b>
@@ -292,11 +301,13 @@ function Standalone() {
                 <img class="card-image" src="/img/integrated-mode.png" alt="integrated mode"></img>
               </div>
             </div>
+            </div>
           </div>
         </div>
         <br></br>
         <div class="row">
           <div class="col col--12" >
+          <div class="integrationOptions">
             <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
               <h3 class="card__header">
                 <b>standalone mPOS application</b>
@@ -306,6 +317,7 @@ function Standalone() {
               <div align="center">
                 <img class="card-image" src="/img/mposapp.png" alt="mPOS payments application"></img>
               </div>
+            </div>
             </div>
           </div>
         </div>
@@ -373,151 +385,183 @@ function TableTerminals() {
     <div class="container">
       <Element name="tableTerminalsElement">
         <div class="row">
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header" >
-                <b><a href="http://datecs.co.uk/product/bluepad-50/" target="_blank">HiLite</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="http://datecs.co.uk/product/bluepad-50/" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
-                  alt=""
-                >
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="http://datecs.co.uk/product/bluepad-50/" target="_blank">HiLite</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="http://datecs.co.uk/product/bluepad-50/" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
+                      alt=""
+                    >
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div></div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header">
+                    <b><a href="http://datecs.co.uk/product/bluepad-500/" target="_blank">HiPro</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="http://datecs.co.uk/product/bluepad-500/" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
             </div>
-          </div></div>
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header">
-                <b><a href="http://datecs.co.uk/product/bluepad-500/" target="_blank">HiPro</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="http://datecs.co.uk/product/bluepad-500/" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
-                  alt="">
-                </img></a>
-              </div>
-            </div>
-          </div></div>
+          </div>
         </div>
         <br></br>
         <div class="row">
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header" >
-                <b><a href="https://www.paxtechnology.com/a920" target="_blank">PAX A920</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.paxtechnology.com/a920" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
-                  alt="">
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a920" target="_blank">PAX A920</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a920" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div></div>
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header">
-                <b><a href="https://www.paxtechnology.com/a920pro" target="_blank">PAX A920 PRO</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.paxtechnology.com/a920pro" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
-                  alt="">
-                </img></a>
+            </div></div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header">
+                    <b><a href="https://www.paxtechnology.com/a920pro" target="_blank">PAX A920 PRO</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a920pro" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/SmartPOS_clean.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div></div>
+            </div></div>
         </div>
         <br></br>
         <div class="row">
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header">
-                <b><a href="https://www.paxtechnology.com/a80" target="_blank">PAX A80</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.paxtechnology.com/a80" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Pax_A80.png"
-                  alt="">
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header">
+                    <b><a href="https://www.paxtechnology.com/a80" target="_blank">PAX A80</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a80" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/Pax_A80.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div></div>
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header">
-                <b><a href="https://www.paxtechnology.com/a35" target="_blank">PAX A35</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.paxtechnology.com/a35" target="_blank"><img style={{ height: '150px' }}
-                  src="https://user-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/92236_330021.png"
-                  alt="">
-                </img></a>
+            </div></div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header">
+                    <b><a href="https://www.paxtechnology.com/a35" target="_blank">PAX A35</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a35" target="_blank"><img style={{ height: '150px' }}
+                      src="https://user-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/92236_330021.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div></div>
+            </div></div>
         </div>
         <br></br>
         <div class="row">
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header" >
-                <b><a href="https://www.paxtechnology.com/a50" target="_blank">PAX A50</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.paxtechnology.com/a50" target="_blank"><img style={{ height: '150px' }}
-                  src="https://i.ibb.co/LZvJ5hx/main-photo-min.png"
-                  alt="">
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a50" target="_blank">PAX A50</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a50" target="_blank"><img style={{ height: '150px' }}
+                      src="https://i.ibb.co/LZvJ5hx/main-photo-min.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          </div>
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header" >
-                <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf" target="_blank">PAX A60</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A60.png"
-                  alt="">
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf" target="_blank">PAX A60</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.pax.us/wp-content/uploads/2021/06/A60-Data-Sheet_May2021.pdf" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A60.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
             </div>
-          </div></div>
+          </div>
         </div>
         <br></br>
         <div class="row">
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header" >
-                <b><a href="https://www.paxtechnology.com/a77" target="_blank">PAX A77</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.paxtechnology.com/a77" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A77.png"
-                  alt="">
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a77" target="_blank">PAX A77</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a77" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/PAX_A77.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          </div>
-          <div class="col col--6"><div class="card-demo" style={{ fontSize: '13px' }}>
-            <div class="card shadow--md ">
-              <h3 class="card__header" >
-                <b><a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank">TELPO TPS 900</a></b>
-              </h3>
-              <div class="card__body" align="center">
-                <a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank"><img style={{ height: '150px' }}
-                  src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
-                  alt="">
-                </img></a>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank">TELPO TPS 900</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank"><img style={{ height: '150px' }}
+                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
           </div>
         </div>
       </Element>
@@ -681,185 +725,210 @@ function StartYourIntegration() {
       <div>
         <div class="container">
           <div class="row">
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center" >
-                  <h3>Android</h3>
-                </div>
-                <div class="card__body" align="center">
-                  <Link
-                    to="/android/androidintroduction">
-                    <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
-                  </Link>
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center" >
+                      <h3>Android</h3>
+                    </div>
+                    <div class="card__body" align="center">
+                      <Link
+                        to="/android/androidintroduction">
+                        <img src="https://handpoint.imgix.net/ballicons/small/android.png"></img>
+                      </Link>
 
 
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    to="/android/androidintroduction">
-                    View the SDK
-                  </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        to="/android/androidintroduction">
+                        View the SDK
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center" >
-                  <h3>iOS</h3>
-                </div>
-                <div class="card__body" align="center">
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center" >
+                      <h3>iOS</h3>
+                    </div>
+                    <div class="card__body" align="center">
 
-                  <Link
-                    to="/ios/iosintroduction">
-                    <img src="https://handpoint.imgix.net/ballicons/small/ios-devices.png"></img>
-                  </Link>
+                      <Link
+                        to="/ios/iosintroduction">
+                        <img src="https://handpoint.imgix.net/ballicons/small/ios-devices.png"></img>
+                      </Link>
 
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    to="/ios/iosintroduction">
-                    View the SDK
-                  </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        to="/ios/iosintroduction">
+                        View the SDK
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center" >
-                  <h3>Windows .NET</h3>
-                </div>
-                <div class="card__body" align="center">
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center" >
+                      <h3>Windows .NET</h3>
+                    </div>
+                    <div class="card__body" align="center">
 
-                  <Link
-                    to="/windows/windowsintroduction">
-                    <img src="https://handpoint.imgix.net/ballicons/small/macbook.png"></img>
-                  </Link>
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    to="/windows/windowsintroduction">
-                    View the SDK
-                  </Link>
+                      <Link
+                        to="/windows/windowsintroduction">
+                        <img src="https://handpoint.imgix.net/ballicons/small/macbook.png"></img>
+                      </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        to="/windows/windowsintroduction">
+                        View the SDK
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center">
-                  <h3>JavaScript</h3>
-                </div>
-                <div class="card__body" align="center">
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center">
+                      <h3>JavaScript</h3>
+                    </div>
+                    <div class="card__body" align="center">
 
-                  <Link
-                    to="/javascript/javascriptintroduction">
-                    <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"></img>
-                  </Link>
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    to="/javascript/javascriptintroduction">
-                    View the SDK
-                  </Link>
+                      <Link
+                        to="/javascript/javascriptintroduction">
+                        <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"></img>
+                      </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        to="/javascript/javascriptintroduction">
+                        View the SDK
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            </div></div>
+          </div>
         </div>
 
         <br></br>
         <div class="container">
           <div class="row">
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center" >
-                  <h3>REST API</h3>
-                </div>
-                <div class="card__body" align="center">
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center" >
+                      <h3>REST API</h3>
+                    </div>
+                    <div class="card__body" align="center">
 
-                  <Link
-                    to="/restapi/restintroduction">
-                    <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
-                  </Link>
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    to="/restapi/restintroduction">
-                    View the API
-                  </Link>
+                      <Link
+                        to="/restapi/restintroduction">
+                        <img src="https://handpoint.imgix.net/ballicons/small/satellite.png"></img>
+                      </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        to="/restapi/restintroduction">
+                        View the API
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center" >
-                  <h4>Xamarin Plugin (Community)</h4>
-                </div>
-                <div class="card__body" align="center">
-                  <a href="https://github.com/thescruba/xamarin-handpoint-bindings">
-                    <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
-                  </a>
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center" >
+                      <h4>Xamarin Plugin (Community)</h4>
+                    </div>
+                    <div class="card__body" align="center">
+                      <a href="https://github.com/thescruba/xamarin-handpoint-bindings">
+                        <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
+                      </a>
 
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    href="https://github.com/thescruba/xamarin-handpoint-bindings">
-                    View the Plugin
-                  </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        href="https://github.com/thescruba/xamarin-handpoint-bindings">
+                        View the Plugin
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center" >
-                  <h3>Express</h3>
-                </div>
-                <div class="card__body" align="center">
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center" >
+                      <h3>Express</h3>
+                    </div>
+                    <div class="card__body" align="center">
 
-                  <Link
-                    to="/express/expressintroduction">
-                    <img src="https://handpoint.imgix.net/ballicons/small/browser.png"></img>
-                  </Link>
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    to="/express/expressintroduction">
-                    View the SDK
-                  </Link>
-                </div>
-              </div>
-            </div>
-            </div>
-            <div class="col col--3"><div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" align="center">
-                  <h3>Cordova Plugin</h3>
-                </div>
-                <div class="card__body" align="center">
-                  <a href="https://www.npmjs.com/package/cordova-plugin-handpoint">
-                    <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
-                  </a>
-                </div>
-                <div class="card__footer" align="center">
-                  <Link
-                    className="button button--secondary button--lg"
-                    href="https://www.npmjs.com/package/cordova-plugin-handpoint">
-                    View the Plugin
-                  </Link>
+                      <Link
+                        to="/express/expressintroduction">
+                        <img src="https://handpoint.imgix.net/ballicons/small/browser.png"></img>
+                      </Link>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        to="/express/expressintroduction">
+                        View the SDK
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            <div class="col col--3">
+              <div class="integrationOptions">
+                <div class="card-demo" style={{ fontSize: '13px' }}>
+                  <div class="card shadow--md ">
+                    <div class="card__header" align="center">
+                      <h3>Cordova Plugin</h3>
+                    </div>
+                    <div class="card__body" align="center">
+                      <a href="https://www.npmjs.com/package/cordova-plugin-handpoint">
+                        <img src="https://handpoint.imgix.net/ballicons/small/open-box.png"></img>
+                      </a>
+                    </div>
+                    <div class="card__footer" align="center">
+                      <Link
+                        className="button button--secondary button--lg"
+                        href="https://www.npmjs.com/package/cordova-plugin-handpoint">
+                        View the Plugin
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div></div>
         </div>
         <br></br>
@@ -900,32 +969,36 @@ function HighLevelFeatures() {
       <div class="container">
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Sale</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Sends a sale transaction to the payment terminal. This is the most basic operation,
-                    in its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Sale</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      Sends a sale transaction to the payment terminal. This is the most basic operation,
+                      in its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Sale & Tokenize</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    A sale operation which also returns a card token. Tokens keep your software out of PCI scope and can be used for tracking customer behavior
-                    ,keep a card on file as well as initiating recurring payments.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Sale & Tokenize</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      A sale operation which also returns a card token. Tokens keep your software out of PCI scope and can be used for tracking customer behavior
+                      ,keep a card on file as well as initiating recurring payments.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -934,32 +1007,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Tokenize Only</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Returns a card token without withdrawing funds from the card. This functionality is useful for all kinds of custom scenarios,
-                    for example when a card needs to be kept on file but no funds should be charged.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Tokenize Only</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      Returns a card token without withdrawing funds from the card. This functionality is useful for all kinds of custom scenarios,
+                      for example when a card needs to be kept on file but no funds should be charged.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Get Card Number</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    This function returns the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card
-                    ranges will be returned by the Handpoint systems. This operation is most often used to be able to process funds or points from loyalty cards.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Get Card Number</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      This function returns the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card
+                      ranges will be returned by the Handpoint systems. This operation is most often used to be able to process funds or points from loyalty cards.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -968,32 +1045,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Refund</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Sends a refund operation to the payment terminal. This transaction type moves funds from the merchant account to the cardholder´s card.
-                    in its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Refund</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      Sends a refund operation to the payment terminal. This transaction type moves funds from the merchant account to the cardholder´s card.
+                      in its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Reversal / Void</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    A reversal operation allows the merchant to reverse a previous sale or refund operation. A reversal is different from a refund,
-                    it does not require a card to be inserted and can only be completed until the acquirer settles the batch of transactions at night.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Reversal / Void</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      A reversal operation allows the merchant to reverse a previous sale or refund operation. A reversal is different from a refund,
+                      it does not require a card to be inserted and can only be completed until the acquirer settles the batch of transactions at night.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1002,33 +1083,37 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Manual Card Entry / MOTO</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    MOTO (Mail Order / Telephone Order) also called manual card entry is a type of transaction used by merchants to get services paid via telephone, mail, fax, or internet communication.
-                    Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card
-                    to be charged.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Manual Card Entry / MOTO</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      MOTO (Mail Order / Telephone Order) also called manual card entry is a type of transaction used by merchants to get services paid via telephone, mail, fax, or internet communication.
+                      Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card
+                      to be charged.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Print Receipt</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    Several terminals provided by Handpoint have an integrated printer which can be used to print any HTML formatted receipt, including printing images, bitmaps or barcodes.
-                    The printer can also be used prior to taking a payment, for example it can be used to print the itemized receipt provided by your software.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Print Receipt</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      Several terminals provided by Handpoint have an integrated printer which can be used to print any HTML formatted receipt, including printing images, bitmaps or barcodes.
+                      The printer can also be used prior to taking a payment, for example it can be used to print the itemized receipt provided by your software.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1037,32 +1122,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Stop Current Transaction</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    This function allows the merchant to stop a transaction after it was sent to the payment terminal. This is very useful in case the amount to be charged is incorrect
-                    and the merchant needs to send another transaction request to the card reader.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Stop Current Transaction</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      This function allows the merchant to stop a transaction after it was sent to the payment terminal. This is very useful in case the amount to be charged is incorrect
+                      and the merchant needs to send another transaction request to the card reader.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Transaction Routing to Multiple Merchant Accounts</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    This operation allows your software to fund separate merchant accounts from a single terminal.
-                    It is particularly useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Transaction Routing to Multiple Merchant Accounts</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      This operation allows your software to fund separate merchant accounts from a single terminal.
+                      It is particularly useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1071,32 +1160,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>On Reader Tipping</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    With on-reader tipping, you can display suggested tip amounts on the reader before the customer presents their payment method.
-                    The reader shows the customer suggestions based on the tipping option that you set up.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>On Reader Tipping</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      With on-reader tipping, you can display suggested tip amounts on the reader before the customer presents their payment method.
+                      The reader shows the customer suggestions based on the tipping option that you set up.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Pin / Signature Bypass</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    Pin bypass can be enabled to allow disabled or visually impaired cardholders to skip the PIN entry step.
-                    Signature bypass can be enabled to prevent the terminal from asking the cardholder to sign on the digital screen.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Pin / Signature Bypass</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      Pin bypass can be enabled to allow disabled or visually impaired cardholders to skip the PIN entry step.
+                      Signature bypass can be enabled to prevent the terminal from asking the cardholder to sign on the digital screen.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1105,32 +1198,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Kiosk Mode</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    The payment application can be set in kiosk mode to prevent navigation between the different menus of the terminal.
-                    In order to get out of kiosk mode a password is required from the merchant. This merchant password is defined during onboarding the first time the payment application is launched.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Kiosk Mode</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      The payment application can be set in kiosk mode to prevent navigation between the different menus of the terminal.
+                      In order to get out of kiosk mode a password is required from the merchant. This merchant password is defined during onboarding the first time the payment application is launched.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Automatic Printing Modes</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    The payment terminal can automatically print merchant and/or customer receipts by changing a configuration parameter in the settings of the application. With this easy solution
-                    you can rely on Handpoint to print receipts instead of integrating to the print receipt function.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Automatic Printing Modes</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      The payment terminal can automatically print merchant and/or customer receipts by changing a configuration parameter in the settings of the application. With this easy solution
+                      you can rely on Handpoint to print receipts instead of integrating to the print receipt function.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1139,32 +1236,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Debit Filter</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    For some types of merchants (e.g gambling categories) it is important to only be able to accept debit cards.
-                    Therefore, Handpoint offers to their partners the possibility to filter and decline specific card types based on custom rules.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Debit Filter</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      For some types of merchants (e.g gambling categories) it is important to only be able to accept debit cards.
+                      Therefore, Handpoint offers to their partners the possibility to filter and decline specific card types based on custom rules.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Remote Debugging</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    Android based terminals allow you to remotely log into the terminals to help troubleshoot any issues that may arise on merchant location. From fetching logs remotely to
-                    taking full control over the terminal we give you tools to make the merchant experience as smooth as possible.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Remote Debugging</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      Android based terminals allow you to remotely log into the terminals to help troubleshoot any issues that may arise on merchant location. From fetching logs remotely to
+                      taking full control over the terminal we give you tools to make the merchant experience as smooth as possible.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1173,33 +1274,37 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>Remote Software Updates</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    Software updates can be pushed automatically to the payment terminals. If you are using the Handpoint payment application or building your own application on top of the Handpoint Android SDK
-                    you can easily manage distribution of new updates to payment terminals in the field.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Remote Software Updates</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      Software updates can be pushed automatically to the payment terminals. If you are using the Handpoint payment application or building your own application on top of the Handpoint Android SDK
+                      you can easily manage distribution of new updates to payment terminals in the field.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Remote Encryption Key Injection</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    Payment terminals are secure devices and it is required to inject the terminal with an encryption key to protect the card number and PIN during a transaction.
-                    Most terminal distributors inject keys manually via cable before shipping devices to the merchant. With the Handpoint solution the encryption key can be downloaded
-                    over the air which improves the overall setup experience.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Remote Encryption Key Injection</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      Payment terminals are secure devices and it is required to inject the terminal with an encryption key to protect the card number and PIN during a transaction.
+                      Most terminal distributors inject keys manually via cable before shipping devices to the merchant. With the Handpoint solution the encryption key can be downloaded
+                      over the air which improves the overall setup experience.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1208,32 +1313,36 @@ function HighLevelFeatures() {
         <br></br>
         <div class="row">
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header">
-                  <h3>End-of-day report</h3>
-                </div>
-                <div class="card__body">
-                  <p>
-                    A transaction report can be printed with the list of transactions that happened during a specific period.
-                    The report shows the transaction split by card brands and transaction types (sales, refunds and reversals).
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>End-of-day report</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      A transaction report can be printed with the list of transactions that happened during a specific period.
+                      The report shows the transaction split by card brands and transaction types (sales, refunds and reversals).
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
           <br></br>
           <div class="col col--6">
-            <div class="card-demo" style={{ fontSize: '13px' }}>
-              <div class="card shadow--md " >
-                <div class="card__header" >
-                  <h3>Multi Language Support</h3>
-                </div>
-                <div class="card__body" >
-                  <p>
-                    The Handpoint payment application and SDK messages are available in multiple languages. Thanks to the Handpoint modular architecture it is also very easy to add a new language
-                    if currently not supported by simply translating a couple of files.
-                  </p>
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
+                    <h3>Multi Language Support</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      The Handpoint payment application and SDK messages are available in multiple languages. Thanks to the Handpoint modular architecture it is also very easy to add a new language
+                      if currently not supported by simply translating a couple of files.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

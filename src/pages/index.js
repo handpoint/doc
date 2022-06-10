@@ -11,12 +11,12 @@ import { useColorMode } from '@docusaurus/theme-common';
 
 function HandpointLink() {
   return (
-     <div style={{
-        backgroundColor: ' #25365D',
-        color: 'white',
-        padding: '10px',
-        textAlign:'center',
-      }}><b>Developer Center</b></div>
+    <div style={{
+      backgroundColor: ' #25365D',
+      color: 'white',
+      padding: '10px',
+      textAlign: 'center',
+    }}><b>Developer Center</b></div>
   );
 }
 
@@ -33,7 +33,7 @@ function Header() {
         padding: '50px',
         width: '100%'
       }}>
-      <a href="https://www.handpoint.io/" target='_blank'><img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px"/></a>
+      <a href="https://www.handpoint.io/" target='_blank'><img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /></a>
       <br></br>
       <h2 style={{
         color: 'white'
@@ -60,49 +60,51 @@ function Options() {
 
       <div class="card__footer">
         <div class="row">
+
           <div class="col col--4">
-            <div class="card-demo" style={{ fontSize: '14px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" >
-                  <b><p>In-person payments</p></b>
-                </div>
-                <div class="card__body" align="center">
-
-                  <div><img src="/img/cppayment.png" alt="In-person payments"></img></div>
-                  <a class="button button--primary" href="cpdocs/index.html" >Integrate your software with payment terminals</a>
-                </div>
-              </div>
-
-            </div>
-          </div>
-          
-          <div class="col col--4">
-            <div class="card-demo" style={{ fontSize: '14px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" >
-                  <b><p>Online payments</p></b>
-                </div>
-                <div class="card__body" align="center">
-
-                  <div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
-                  <a class="button button--primary" href="https://developer-ecomm.handpoint.io/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
+            <div class="handpointOptions">
+              <div class="card-demo" style={{ fontSize: '14px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header" >
+                    <b><p>In-person payments</p></b>
+                  </div>
+                  <div class="card__body" align="center">
+                    <div><img src="/img/cppayment.png" alt="In-person payments"></img></div>
+                    <a class="button button--primary" href="cpdocs/index.html" >Integrate your software with payment terminals</a>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col col--4">
-            <div class="card-demo" style={{ fontSize: '14px' }}>
-              <div class="card shadow--md ">
-                <div class="card__header" >
-                  <b><p>Transaction Analytics</p></b>
-                </div>
-                <div class="card__body" align="center">
 
-                  <div><img src="/img/feedapi.png" alt="Transaction Analytics"></img></div>
-                  <a class="button button--primary" href="https://www.handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
+          <div class="col col--4">
+            <div class="handpointOptions">
+              <div class="card-demo" style={{ fontSize: '14px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header" >
+                    <b><p>Online payments</p></b>
+                  </div>
+                  <div class="card__body" align="center">
+                    <div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
+                    <a class="button button--primary" href="https://developer-ecomm.handpoint.io/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
+                  </div>
                 </div>
               </div>
-
+            </div>
+          </div>
+          <div class="col col--4">
+            <div class="handpointOptions">
+              <div class="card-demo" style={{ fontSize: '14px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header" >
+                    <b><p>Transaction Analytics</p></b>
+                  </div>
+                  <div class="card__body" align="center">
+                    <div><img src="/img/feedapi.png" alt="Transaction Analytics"></img></div>
+                    <a class="button button--primary" href="https://www.handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -119,11 +121,11 @@ function Main() {
 
   return (
     <div>
-      <HandpointLink/>
+      <HandpointLink />
       <Header></Header>
       <Options></Options>
       <LayoutProviders>
-      <Footer></Footer>
+        <Footer></Footer>
       </LayoutProviders>
     </div>
   );
