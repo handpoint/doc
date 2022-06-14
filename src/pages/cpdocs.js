@@ -212,7 +212,7 @@ function IntegrationPaths() {
                 payment terminals via the internet (cellular or wifi). Only an API key is required to start sending sales to the card reader and get back the transaction result to your software when the operation is completed.
                 No other configuration is required, the merchant only needs to connect the terminal to Wifi and open the payment application to be able to start taking payments. Card data is never sent unmasked to your software so you can be kept out of PCI scope.</p>
               <div align="center">
-                <img class="card-image-larger" src="/img/cloud-integration.png" alt="cloud integration"></img>
+                <img class="card-image-larger imagesSize" src="/img/cloud-integration.png" alt="cloud integration"></img>
               </div>
             </div>
             </div>
@@ -230,7 +230,7 @@ function IntegrationPaths() {
                 Android SDK in order to process payments. This all-in-one solution puts you in control of the checkout experience and does not require any separate application for payment processing.
                 Card data is never sent unmasked to your application so you can be kept out of PCI scope.</p>
               <div align="center">
-                <img class="card-image" src="/img/native-integration.png" alt="native integration"></img>
+                <img class="card-image imagesSize" src="/img/native-integration.png" alt="native integration"></img>
               </div>
             </div>
             </div>
@@ -248,7 +248,7 @@ function IntegrationPaths() {
                 The HiLite is Handpoint's ultra portable card reader for small and/or highly mobile merchants. With the HiLite, merchants can start accepting
                 payments on the go!</p>
               <div align="center">
-                <img class="card-image" src="/img/hilite-integration.png" alt="HiLite integration"></img>
+                <img class="card-image imagesSize" src="/img/hilite-integration.png" alt="HiLite integration"></img>
               </div>
             </div>
             </div>
@@ -266,7 +266,7 @@ function IntegrationPaths() {
                 between the iOS phone or ipod and the payment terminal. This is the perfect line buster for busy retail environments. With its integrated scanner It can also be used to
                 scan barcodes and manage inventory as well as taking payments on the spot, directly in the store aisles.</p>
               <div align="center">
-                <img class="card-image" src="/img/hipro-integration.png" alt="HiPro integration"></img>
+                <img class="card-image imagesSize" src="/img/hipro-integration.png" alt="HiPro integration"></img>
               </div>
             </div>
             </div>
@@ -292,13 +292,13 @@ function Standalone() {
                 When the card reader is used in standalone mode, the merchant can simply type in an amount and start processing payments.
                 The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end-of-day reports and manual card entry for over the phone transactions.</p>
               <div align="center">
-                <img class="card-image-larger" src="/img/standalone.png" alt="standalone terminal"></img>
+                <img class="card-image-larger imagesSize" src="/img/standalone.png" alt="standalone terminal"></img>
               </div>
               <p class="card__body">Standalone terminals are not integrated to your software. However, they can be turned from standalone to cloud integrated by the flip
                 of a switch. You can therefore start shipping standalone terminals to your merchants and when your integration is ready, upgrade the terminals to start accepting cloud payments.
                 Standalone mode can also be used as a fallback method for the merchant to continue processing payments even if the point of sale is down.</p>
               <div align="center">
-                <img class="card-image" src="/img/integrated-mode.png" alt="integrated mode"></img>
+                <img class="card-image imagesSize" src="/img/integrated-mode.png" alt="integrated mode"></img>
               </div>
             </div>
             </div>
@@ -315,7 +315,7 @@ function Standalone() {
               <p class="card__body">The Handpoint mPOS application is available on the <a href="https://play.google.com/store/apps/details?id=com.handpoint.hipos" target="_blank">Google Play Store</a> and <a href="https://apps.apple.com/us/app/handpoint/id1450546788" target="_blank">Apple App Store</a>.
                 The mPOS application is connected via bluetooth with the HiLite payment terminal and offers the same powerful yet simple functionalities as the standalone smartPOS application. It is a perfect solution for occasional merchants needing to accept payments on the move.</p>
               <div align="center">
-                <img class="card-image" src="/img/mposapp.png" alt="mPOS payments application"></img>
+                <img class="card-image imagesSize" src="/img/mposapp.png" alt="mPOS payments application"></img>
               </div>
             </div>
             </div>
@@ -364,10 +364,10 @@ function GeographiesAndCardBrands() {
               <p class="card__body">Handpoint currently supports all major card brands and is able to process in-person transactions on three continents: Europe, America and Africa. Each country has its own local rules about payment processing
                 so don't hesitate to contact us in order to know if we can help you with your processing needs. </p>
               <div align="center">
-                <img class="card-image" src="/img/geographies.png" alt="Handpoint world map"></img>
+                <img class="card-image imagesSize" src="/img/geographies.png" alt="Handpoint world map"></img>
               </div>
               <div align="center">
-                <img class="card-image" src="/img/card-brand-logos.png" alt="Card brand logos"></img>
+                <img class="card-image imagesSize" src="/img/card-brand-logos.png" alt="Card brand logos"></img>
               </div>
             </div>
           </div>

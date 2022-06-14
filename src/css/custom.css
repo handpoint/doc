@@ -220,3 +220,10 @@ color: white;
     
   }
 }
+
+@media screen and (max-width: 996px) {
+  .imagesSize {
+    max-width: 100%;
+    height: auto;
+  }
+}
