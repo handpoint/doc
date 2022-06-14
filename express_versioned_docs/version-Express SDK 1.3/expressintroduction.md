@@ -21,7 +21,7 @@ The Windows Express app is portable, no installation is required, just download 
 
 Get the Express apps! <br />  ![Express logo](/img/icon-express.png)  |  Get the SDK! <br />  ![Cloud logo](/img/cloud.png)
 :-------------------------:|:-------------------------:
- [![iOS download](./assets/apple-store.png)](https://itunes.apple.com/us/app/express-handpoint/id1324085213?mt=8) <br />[![Android download](./assets/play-store.png)](https://play.google.com/store/apps/details?id=com.handpoint.express)<br />[![Windows download](./assets/windows-store.png)](https://www.handpoint.com/downloads/express/windows/Express.exe)|  [![Javascript SDK download](/img/Javascriptsdk.png)](https://handpoint.com/express/js/hapiexpress.js)
+ [![iOS download](./assets/apple-store.png)](https://itunes.apple.com/us/app/express-handpoint/id1324085213?mt=8) <br />[![Android download](./assets/play-store.png)](https://play.google.com/store/apps/details?id=com.handpoint.express)<br />[![Windows download](./assets/windows-store.png)](/files/Express.exe)|  [![Javascript SDK download](/img/Javascriptsdk.png)](/files/hapiexpress.js.zip)
 
 ## Data Flow
 

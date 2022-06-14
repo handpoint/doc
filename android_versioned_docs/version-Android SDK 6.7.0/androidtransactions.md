@@ -547,6 +547,10 @@ Invoked when the terminal finishes processing the transaction.
 
 `cardPan` <span class="badge badge--info">Method</span>
 
+:::warning
+This transaction type will ONLY work on PAX/Telpo devices. On HiLite payment terminals it is not available.
+:::
+
 A cardPan request will return the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card ranges will be returned by the Handpoint systems. This operation is mostly used to be able to process funds or points from loyalty cards.
 
 **Parameters**
