@@ -52,7 +52,7 @@ function Options() {
         height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '20px',
+        padding: '10px',
         width: '100%'
       }}>
       {/* <img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /> */}
@@ -70,7 +70,7 @@ function Options() {
                   </div>
                   <div class="card__body" align="center">
                     <div><img src="/img/cppayment.png" alt="In-person payments"></img></div>
-                    <a class="button button--primary" href="cpdocs/index.html" >Integrate your software with payment terminals</a>
+                    <a class="button button--primary indexButtons" href="cpdocs/index.html">Integrate your software with payment terminals</a>
                   </div>
                 </div>
               </div>
@@ -86,7 +86,7 @@ function Options() {
                   </div>
                   <div class="card__body" align="center">
                     <div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
-                    <a class="button button--primary" href="https://developer-ecomm.handpoint.io/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
+                    <a class="button button--primary indexButtons" href="https://developer-ecomm.handpoint.io/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
                   </div>
                 </div>
               </div>
@@ -101,7 +101,7 @@ function Options() {
                   </div>
                   <div class="card__body" align="center">
                     <div><img src="/img/feedapi.png" alt="Transaction Analytics"></img></div>
-                    <a class="button button--primary" href="https://www.handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
+                    <a class="button button--primary indexButtons" href="https://www.handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
                   </div>
                 </div>
               </div>
