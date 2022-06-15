@@ -101,7 +101,7 @@ function Options() {
                   </div>
                   <div class="card__body" align="center">
                     <div><img src="/img/feedapi.png" alt="Transaction Analytics"></img></div>
-                    <a class="button button--primary indexButtons" href="https://www.handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
+                    <a class="button button--primary indexButtons" href="https://handpoint.io/docs/txnfeedapi/" >Build in-depth transaction reporting for your software</a>
                   </div>
                 </div>
               </div>
