@@ -708,7 +708,7 @@ function OrderDevKit() {
                 Once the integration is ready, the Handpoint team will certify the solution by running a set of standard tests to make sure the integration is robust and ready for Go Live.
                 The Handpoint team will then closely follow the first pilot merchants to make sure the solution is ready to scale. </p>
               <div align="center">
-                <img class="card-image-larger" src="/img/technical-integration-lifecycle.png" alt="Technical integration lifecycle"></img>
+                <img class="card-image-larger imagesSize" src="/img/technical-integration-lifecycle.png" alt="Technical integration lifecycle"></img>
               </div>
             </div>
           </div>

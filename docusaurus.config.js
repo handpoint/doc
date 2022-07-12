@@ -167,7 +167,11 @@ module.exports = {
     },
   },
   themes:[ 
-    ['@easyops-cn/docusaurus-search-local',{indexBlog:false,
+    ['@easyops-cn/docusaurus-search-local',
+     {indexBlog:false, 
+      indexPages:false,
+      indexDocs:true,
+      docsDir:['android','ios','windows','javascript','restapi','express'],
       docsRouteBasePath:['android','ios','windows','javascript','restapi','express']}]],
   presets: [
     [
