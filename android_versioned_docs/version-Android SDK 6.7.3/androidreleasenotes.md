@@ -11,21 +11,6 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
-## 6.7.4
-
-- `customerReference` correctly populated when card is removed in the middle of a transaction
-- MOTO: Correct handling of expired access and refresh tokens
-- CLOUD: Channel connection/subscription handling
-
-## 6.7.3
-
-**Fixes**:
-- MOTO: Linked Refund only with GUID.
-- Correctly populated transaction result the `originalEFTTransactionID` on Linked Refunds.
-- Correctly populated on transaction result amounts on "Already reversed" operations.
-- Crashes identified in the field.
-
-
 ## 6.7.2
 
 **Fixes**:
