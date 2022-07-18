@@ -372,16 +372,17 @@ An enum representing different final statuses of a transaction.
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED`
 
-Description of the different `Financial Status`:
+Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any Financial Status other than the following financial status (`AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`) will be `UNDEFINED`. |
+| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`. |
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
-| `DECLINED` <br/>   | The transaction has been declined, probably the acquirer has declined the transaction. |
-| `PROCESSED`  <br/>   | The `printReceipt` operation has gone correctly. Consider this value as "successful". |
-| `FAILED`  <br/>   | Status generated due to a network error or a card that can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
-| `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used.   |
+| `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
+| `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
+| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
+| `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
+| `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is **only**  applicable to the United States market. |
 
 
 ## Optional Transaction Parameters{#3}
