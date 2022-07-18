@@ -372,6 +372,18 @@ An enum representing different final statuses of a transaction.
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED`
 
+Description of the different `Financial Status`:
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `UNDEFINED`   <br/>  | Any Financial Status other than the following financial status (`AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`) will be `UNDEFINED`. |
+| `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
+| `DECLINED` <br/>   | The transaction has been declined, probably the acquirer has declined the transaction. |
+| `PROCESSED`  <br/>   | The `printReceipt` operation has gone correctly. Consider this value as "successful". |
+| `FAILED`  <br/>   | Status generated due to a network error or a card that can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
+| `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used.   |
+
+
 ## Optional Transaction Parameters{#3}
 
 

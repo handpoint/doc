@@ -443,6 +443,19 @@ An enum representing different statuses for a completed transaction.
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`
 
+Description of the different `Financial Status`:
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `UNDEFINED`   <br/>  | Any Financial Status other than the following financial status (`AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`) will be `UNDEFINED`. |
+| `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
+| `DECLINED` <br/>   | The transaction has been declined, probably the acquirer has declined the transaction. |
+| `PROCESSED`  <br/>   | The `printReceipt` operation has gone correctly. Consider this value as "successful". |
+| `FAILED`  <br/>   | Status generated due to a network error or a card that can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
+| `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used.   |
+| `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is applicable **only** to the United States market. |
+
+
 ## Device Status{#27}
 
 `DeviceStatus` <span class="badge badge--info">Object</span>
