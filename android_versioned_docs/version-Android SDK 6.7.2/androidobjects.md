@@ -241,7 +241,7 @@ A string representing different card brands.
 
 An enum representing different connection methods with the payment terminal.
 
-Currently `BLUETOOTH`, `SIMULATOR`, `CLOUD` and `ANDROID_PAYMENT` are supported types.
+Currently `BLUETOOTH` and `ANDROID_PAYMENT` are supported types.
 
 **Possible values**
 
@@ -250,7 +250,7 @@ Currently `BLUETOOTH`, `SIMULATOR`, `CLOUD` and `ANDROID_PAYMENT` are supported 
 **Code example**
 
 ```java
-//Currently BLUETOOTH, SIMULATOR, CLOUD and ANDROID_PAYMENT are the only ConnectionMethod available.
+//Currently BLUETOOTH and ANDROID_PAYMENT are the only ConnectionMethod available.
 public enum ConnectionMethod {
 	USB,
 	SERIAL,
@@ -269,6 +269,8 @@ public enum ConnectionMethod {
 `ConnectionStatus` <span class="badge badge--info">Enum</span>
 
 A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enabled).
+
+**Note**: Currently `CLOUD` mode is not supported.
 
 
 **Possible values**
