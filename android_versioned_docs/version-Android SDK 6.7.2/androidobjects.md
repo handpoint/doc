@@ -400,13 +400,6 @@ A class containing the credentials used to communicate with the payment terminal
 	HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
 	//We've even set a default shared secret!
 }
-
-{
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	string apikey = "This-Is-The-Merchant-Api-Key";
-	HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret, apikey);
-	//We've even set a default shared secret and the merchant Api Key!
-}
 ```
 
 ## Handpoint API (Hapi) Factory
