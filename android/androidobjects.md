@@ -298,7 +298,7 @@ Device( String name , String address , String port , ConnectionMethod connection
 | `name` <span class="badge badge--primary">Required</span> <br />*String*     | 		A name to identify the device|
 | `address` <span class="badge badge--primary">Required</span> <br />*String*    | 		The address of the device you wish to connect to. E.g.: "08:00:69:02:01:FC" for bluetooth or just an identifier if your application is running directly on a PAX or Telpo device (ConnectionMethod.ANDROID_PAYMENT).|
 | `port` <span class="badge badge--primary">Required</span> <br />*String*     | 		The port to connect to (optional).|
-| `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod *](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth, Cloud, Serial, etc...|
+| `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod *](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth|
 | `sharedSecret`  <br />*String*  | 		Replaces the default shared secret proviced in the initialization step.|
 | `timeout`  <br />*int*  | 		The number of miliseconds until a connection is considered timed out. If not set, the default timeout is 15 seconds.|
 
@@ -439,15 +439,6 @@ public void InitApi()
 	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
 	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
 	//The api is now initialized. Yay! we've even set a default shared secret
-}
-
-//InitApi for Cloud devices
-public void InitApi()
-{
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	String apikey = "This-Is-The-Merchant-Api-Key";
-	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
-	//The api is now initialized. Yay! we've even set a default shared secret and the merchant Api Key!
 }
 ```
 
