@@ -3,10 +3,6 @@ sidebar_position: 9
 id: androidobjects
 ---
 
-
-
-
-
 # Objects
 
 ## Transaction Result{#25} 
@@ -233,7 +229,7 @@ A string representing different card brands.
 
 **Possible values**
 
-`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay`
+`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
 ## Connection Method{#20}
 
@@ -241,25 +237,17 @@ A string representing different card brands.
 
 An enum representing different connection methods with the payment terminal.
 
-Currently `BLUETOOTH`, `SIMULATOR`, `CLOUD` and `ANDROID_PAYMENT` are supported types.
-
 **Possible values**
 
-`USB` `SERIAL` `BLUETOOTH` `CLOUD` `ANDROID_PAYMENT` `HTTPS` `WIFI` `ETHERNET` `SIMULATOR`
+`BLUETOOTH` `ANDROID_PAYMENT`
 
 **Code example**
 
 ```java
-//Currently BLUETOOTH, SIMULATOR, CLOUD and ANDROID_PAYMENT are the only ConnectionMethod available.
+//Currently BLUETOOTH and ANDROID_PAYMENT are the only connection methods available.
 public enum ConnectionMethod {
-	USB,
-	SERIAL,
+
 	BLUETOOTH,
-	HTTPS,
-	WIFI,
-	ETHERNET,
-	SIMULATOR,
-	CLOUD,
 	ANDROID_PAYMENT
 }
 ```
@@ -268,8 +256,7 @@ public enum ConnectionMethod {
 
 `ConnectionStatus` <span class="badge badge--info">Enum</span>
 
-A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enabled).
-
+A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enabled) and can be safely ignored for Android native integrations.
 
 **Possible values**
 
@@ -304,9 +291,9 @@ Device( String name , String address , String port , ConnectionMethod connection
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `name` <span class="badge badge--primary">Required</span> <br />*String*     | 		A name to identify the device|
-| `address` <span class="badge badge--primary">Required</span> <br />*String*    | 		The address of the device you wish to connect to. E.g.: "08:00:69:02:01:FC" for bluetooth, "9822032398-PAXA920" for CLOUD (composition of serial number and model of the target device) or just an identifier if your application is running directly on a PAX or Telpo device (ConnectionMethod.ANDROID_PAYMENT).|
+| `address` <span class="badge badge--primary">Required</span> <br />*String*    | 		The address of the device you wish to connect to. E.g.: "08:00:69:02:01:FC" for bluetooth, or just an identifier if your application is running directly on a PAX or Telpo device (ConnectionMethod.ANDROID_PAYMENT).|
 | `port` <span class="badge badge--primary">Required</span> <br />*String*     | 		The port to connect to (optional).|
-| `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod *](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth, Cloud, Serial, etc...|
+| `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod *](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth|
 | `sharedSecret`  <br />*String*  | 		Replaces the default shared secret proviced in the initialization step.|
 | `timeout`  <br />*int*  | 		The number of miliseconds until a connection is considered timed out. If not set, the default timeout is 15 seconds.|
 
@@ -323,11 +310,6 @@ Device( String name , String address , String port , ConnectionMethod connection
 ```java
 //Create and init a new Datecs Device
 Device dev = new Device("CardReader7", "08:00:69:02:01:FC", "1", ConnectionMethod.BLUETOOTH);
-
-//Create and init a new PAX/Telpo Device for a CLOUD connection
-Device dev = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
-// The address is the composition of the serial number and model ot the target device.
-//Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
 
 //Create and init a new PAX/Telpo Device for a ANDROID_PAYMENT connection
 Device dev = new Device("LocalPaxOrTelpo", "LocalHost", "", ConnectionMethod.ANDROID_PAYMENT);
@@ -401,14 +383,13 @@ Description of the different financial statuses:
 
 `HandpointCredentials` <span class="badge badge--info">Object</span>
 
-A class containing the credentials used to communicate with the payment terminal, the shared secret (always required) and Cloud API Key (ony required when using CLOUD connection method).
+A class containing the credentials used to communicate with the payment terminal, essentially the shared secret (always required).
 
 **Properties**
 
 | Parameter      | Description |
 | ----------- | ----------- |
 | `sharedSecret`  <br />*String*     | 			`String` the value of the Shared secret.|
-| `CloudApiKey`   <br />*String*   | 		`String` the value of the merchant Cloud API Key, only required when using CLOUD connection method|
 
 
 **Code example**
@@ -418,13 +399,6 @@ A class containing the credentials used to communicate with the payment terminal
 	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
 	HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
 	//We've even set a default shared secret!
-}
-
-{
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	string apikey = "This-Is-The-Merchant-Api-Key";
-	HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret, apikey);
-	//We've even set a default shared secret and the merchant Api Key!
 }
 ```
 
@@ -443,7 +417,7 @@ getAsyncInterface( Events.Required requiredListener , Context context , Handpoin
 | ----------- | ----------- |
 | `requiredListener` <span class="badge badge--primary">Required</span> <br />[*Events.Required*](androideventlisteners.md#42)     | 			A listener object to report the required events.|
 | `context` <span class="badge badge--primary">Required</span>   <br />*Context*   | 		The Android context.|
-| `handpointCredentials` <span class="badge badge--primary">Required</span> <br />[*HandpointCredentials*](#43)    | 		An object containing the actor's shared secret key or shared secret key AND Api Key for CLOUD connections.|
+| `handpointCredentials` <span class="badge badge--primary">Required</span> <br />[*HandpointCredentials*](#43)    | 		An object containing the actor's shared secret key.|
 
 
 **Code example**
@@ -455,15 +429,6 @@ public void InitApi()
 	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
 	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
 	//The api is now initialized. Yay! we've even set a default shared secret
-}
-
-//InitApi for Cloud devices
-public void InitApi()
-{
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	String apikey = "This-Is-The-Merchant-Api-Key";
-	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
-	//The api is now initialized. Yay! we've even set a default shared secret and the merchant Api Key!
 }
 ```
 

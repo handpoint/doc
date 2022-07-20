@@ -500,7 +500,7 @@ A string representing different card brands.
 
 **Possible values**
 
-`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay`
+`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
 
 
