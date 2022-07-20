@@ -3,10 +3,6 @@ sidebar_position: 9
 id: androidobjects
 ---
 
-
-
-
-
 # Objects
 
 ## Transaction Result{#25} 
@@ -441,6 +437,7 @@ public void InitApi()
 	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
 	//The api is now initialized. Yay! we've even set a default shared secret
 }
+```
 
 ## Hapi Manager
 
