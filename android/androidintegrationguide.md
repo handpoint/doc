@@ -379,6 +379,21 @@ allprojects {   //Handpoint Staging/Development SDK
 }
 ```
 
+:::tip
+During the build process, a DEX error may appear.
+
+To be able to build, we recommend adding the following lines to the `gradle.properties` file:
+
+```groovy
+org.gradle.jvmargs = -Xmx4096m -XX:MaxPermSize=4096m -XX:+HeapDumpOnOutOfMemoryError
+org.gradle.daemon = true
+org.gradle.parallel = true
+org.gradle.configureondemand = true
+````
+
+:::
+
+
 **3. Create a Java class**
 
 Create a new java class called HandpointDelegate.java and include com.handpoint.api.* as a dependency:
