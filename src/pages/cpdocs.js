@@ -97,9 +97,8 @@ function InfoTabs() {
 function Header() {
 
   return (
-    <div
+    <div class="headerBackground"
       style={{
-        backgroundColor: ' #25365D',
         textAlign: 'center',
         display: 'block',
         height: '250px',
@@ -108,10 +107,10 @@ function Header() {
         padding: '80px',
         width: '100%'
       }}>
-      <a href="/"><img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /></a>
+      <a href="/"><img src="https://handpoint.com/wp-content/uploads/2022/05/Logo.svg" alt="Logo" width="260px" /></a>
       <br></br>
       <h2 style={{
-        color: 'white'
+        color: '#25365d'
       }} >Integrate in-person payments with your software</h2>
     </div>
   );
