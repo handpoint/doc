@@ -22,9 +22,8 @@ function HandpointLink() {
 
 function Header() {
   return (
-    <div
+    <div class="headerBackground"
       style={{
-        backgroundColor: ' #25365D',
         textAlign: 'center',
         display: 'block',
         height: '220px',
@@ -33,10 +32,10 @@ function Header() {
         padding: '50px',
         width: '100%'
       }}>
-      <a href="https://www.handpoint.io/" target='_blank'><img src="/img/handpoint-logo-hvitt.svg" alt="Logo" width="260px" /></a>
+      <a href="https://www.handpoint.io/" target='_blank'><img src="https://handpoint.com/wp-content/uploads/2022/05/Logo.svg" alt="Logo" width="260px" /></a>
       <br></br>
       <h2 style={{
-        color: 'white'
+        color: '#25365d'
       }} >Global Payments-Powered Growth for SaaS</h2>
     </div>
   );
