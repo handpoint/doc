@@ -112,7 +112,7 @@ function Main() {
 
   return (
   <div>
-    <div class="headerBackground">
+    <div class="handpointBackground">
       <Header></Header>
       <Options></Options>
     </div>

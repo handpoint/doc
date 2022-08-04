@@ -18,10 +18,14 @@ import { Button, Element, Events, animateScroll as scroll, scrollSpy, scroller }
 
 function CpDocs() {
   return (
-    <Layout title="Getting Started">
-      <Header />
+    
+    <Layout title="Getting Started" >
+      
       <main>
-        <div class="gettingStarted">
+          <div class="handpointBackground">
+          <Header />
+          `</div>
+          <div class="gettingStarted">
           <InfoTabs />
           <h2>Integration Paths</h2>
           <br></br>
@@ -63,11 +67,15 @@ function CpDocs() {
           <br></br>
           <StartYourIntegration />
           <br></br>
+          </div>
           <Github />
+          <div class="gettingStarted">
           <Helpandsupport />
           <TermsConditions />
-        </div>
+          </div>
+
       </main>
+  
     </Layout>
   );
 }
@@ -97,7 +105,7 @@ function InfoTabs() {
 function Header() {
 
   return (
-    <div class="headerBackground"
+    <div
       style={{
         textAlign: 'center',
         display: 'block',
