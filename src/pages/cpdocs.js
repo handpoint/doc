@@ -24,7 +24,7 @@ function CpDocs() {
       <main>
           <div class="handpointBackground">
           <Header />
-          `</div>
+          </div>
           <div class="gettingStarted">
           <InfoTabs />
           <h2>Integration Paths</h2>

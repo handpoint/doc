@@ -144,6 +144,15 @@ color: white;
   
 }
 
+.padding--lg {
+  padding: 2rem !important;
+}
+.space {
+  width: 10px;
+  height: auto;
+  display: inline-block;
+}
+
 .gettingStarted {  
   display: block;
   justify-content: center;
