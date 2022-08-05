@@ -102,6 +102,17 @@ For debug terminals (Nexus):
  In the `gradle.build` (app module) add the following packaging options:
 
   ```groovy
+android {
+    defaultConfig {
+        minSdkVersion 22 //Required to support all PAX & Telpo models
+        targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
+        multiDexEnabled true
+        ndk {
+            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+        }
+    }
+
     packagingOptions {
         pickFirst '**/*.so'
         exclude 'META-INF/*'
@@ -111,6 +122,7 @@ For debug terminals (Nexus):
         exclude 'AndroidManifest.xml'
         exclude '**/animator/*.xml'
     }
+ }
   ```
 
 ### Maven Settings
