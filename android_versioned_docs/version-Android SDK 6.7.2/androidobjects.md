@@ -370,7 +370,7 @@ Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`. |
+| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`.  UNDEFINED means that the SDK couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved. |
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
