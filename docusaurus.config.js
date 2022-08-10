@@ -5,7 +5,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 module.exports = {
   title: 'Handpoint',
   tagline: 'Global Payments-Powered Growth for SaaS',
-  url: 'https://developer.handpoint.io',
+  url: 'https://developer.handpoint.com',
   baseUrl: '/',
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -24,7 +24,7 @@ module.exports = {
       items: [
         {
           className: 'navbar-statuspage-icon',
-          href: 'https://status.handpoint.io',
+          href: 'https://status.handpoint.com',
           position: 'right',
           'aria-label': 'Status Page',
         },
@@ -98,7 +98,7 @@ module.exports = {
           items: [
             {
               label: 'Handpoint Website',
-              href: 'https://www.handpoint.io',
+              href: 'https://www.handpoint.com',
             },
             {
               label: 'LinkedIn',
@@ -130,7 +130,7 @@ module.exports = {
           items: [
             {
               label: 'Handpoint Status Page',
-              href: 'https://status.handpoint.io',
+              href: 'https://status.handpoint.com',
             },
             {
               label: 'FAQ',
@@ -151,7 +151,7 @@ module.exports = {
       logo: {
         alt: 'Handpoint Logo',
         src: 'https://handpoint.imgix.net/handpoint-logo-w.png?w=150',
-        href: 'https://www.handpoint.io'
+        href: 'https://www.handpoint.com'
       },
       copyright: `Copyright © ${new Date().getFullYear()} Handpoint`,
     },
