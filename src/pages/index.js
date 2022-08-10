@@ -76,7 +76,7 @@ function Options() {
                   </div>
                   <div class="card__body" align="center">
                     <div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
-                    <a class="button button--primary indexButtons" href="https://developer-ecomm.handpoint.io/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
+                    <a class="button button--primary indexButtons" href="https://developer-ecomm.handpoint.com/cnpdocs/index.html" >Integrate eCommerce payments into your software</a>
                   </div>
                 </div>
               </div>

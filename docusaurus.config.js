@@ -89,7 +89,7 @@ module.exports = {
             },
             {
               label: 'Online Payments Docs',
-              href: 'https://developer-ecomm.handpoint.io/cnpdocs/index.html',
+              href: 'https://developer-ecomm.handpoint.com/cnpdocs/index.html',
             },
           ],
         },
