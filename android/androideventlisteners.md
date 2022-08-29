@@ -38,11 +38,11 @@ An interface which needs to be implemented and added as a listener to get events
 
 **Methods**
 
-`deviceCapabilities( List supportedCardBrands );` 
+`supportedCardBrands( List<CardBrands> cardBrandsList );` 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `supportedCardBrands` <span class="badge badge--primary">Required</span> <br />*List*  | A list containing the supported card brands|
+| `cardBrandsList` <span class="badge badge--primary">Required</span> <br />*List `<CardBrands>`*  | A list containing the supported card brands|
 
 <br></br>
 
@@ -58,7 +58,7 @@ An interface which needs to be implemented and added as a listener to get events
 public final class EventHandler implements Events.CardBrandDisplay {
 
 	@Override
-	public void deviceCapabilities(List supportedCardBrands) {
+	public void supportedCardBrands(List cardBrandsList) {
 		// Get supported card brands 
 	}
 
