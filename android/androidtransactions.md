@@ -3,15 +3,15 @@ sidebar_position: 5
 id: androidtransactions
 ---
 
-# Transaction Types
+# Transactions
 
 
 
-## Sale{#2} 
+## Sale{#2}
 
-`Sale` <span class="badge badge--info">Method</span>
+`Sale`
 
-A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the **amount** and **currency**.
+A sale initiates a payment operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
 
 
 **Parameters**
@@ -70,9 +70,9 @@ Invoked when the terminal finishes processing the transaction.
 
 ## Sale And Tokenize Card{#3}
 
-`saleAndTokenizeCard` <span class="badge badge--info">Method</span>
+`saleAndTokenizeCard`
 
-A [sale](#2) operation which also returns a card token. This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice.
+A [sale](#2) operation which also returns a card token. (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)
 
 **Parameters**
 
@@ -90,7 +90,7 @@ A [sale](#2) operation which also returns a card token. This functionality is no
 api.saleAndTokenizeCard(new BigInteger("1000"),Currency.GBP);
 
 //Initiate a sale for 10.00 in Great British Pounds with tipping configuration
-//This feature is not available for HiLite devices
+//This feature is not available for HiLite & Hi5 devices
 TipConfiguration tipConfiguration = new TipConfiguration();
 tipConfiguration.setTipPercentages(Arrays.asList(5, 10, 15, 20));
 tipConfiguration.setAmount(new BigInteger("1000"));
@@ -129,9 +129,9 @@ Invoked when the terminal finishes processing the transaction.
 
 
 
-## Sale Reversal
+## Sale Reversal{#4}
 
-`saleReversal` <span class="badge badge--info">Method</span>
+`saleReversal`
 
 A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. This operation reverts (if possible) a specific sale identified with a transaction id. In its simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with extra parameters. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission.
 
@@ -143,7 +143,7 @@ A sale reversal, also called sale VOID allows the user to reverse a previous sal
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Id of the original sale transaction|
-| `options` <br />[*MerchantAuthOptions*](androidobjects.md#MerchantAuthOptions)     | An object to store all the customization options for the transaction.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for a sale.|
 
 **Code example**
 
@@ -178,7 +178,7 @@ Invoked when the terminal finishes processing the transaction.
 
 ## Refund{#5}
 
-`refund` <span class="badge badge--info">Method</span>
+`refund`
 
 A refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts a map with extra parameters. Note that a card is required to be swiped, dipped or tapped for this operation. For Interac (Canadian Debit Network), refunds can only be processed until Interac closes the batch of transactions at night.
 
@@ -190,7 +190,7 @@ A refund operation moves funds from the merchant account to the cardholder´s cr
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `originalTransactionID` <br />*String*     | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
-| `options` <br />[*RefundOptions*](androidobjects.md#6)     | An object to store all the customization options for a refund.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for a refund.|
 
 **Code example**
 
@@ -223,9 +223,9 @@ Invoked when the terminal finishes processing the transaction
 | `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
 
-## Refund reversal
+## Refund reversal{#6}
 
-`refundReversal` <span class="badge badge--info">Method</span>
+`refundReversal`
 
 A refund reversal, also called refund VOID allows the merchant to reverse a previous refund operation. This operation reverts (if possible) a specific refund identified with a transaction id. In it's simplest form you only have to pass the amount, currency and originalTransactionID but it also accepts a map with extra parameters. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission.
 
@@ -237,7 +237,7 @@ A refund reversal, also called refund VOID allows the merchant to reverse a prev
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | transaction id of the original refund|
-| `options` <br />[*MerchantAuthOptions*](androidobjects.md#MerchantAuthOptions)    | An object to store all the customization options for the transaction.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for the transaction.|
 
 **Code example**
 
@@ -270,13 +270,12 @@ Invoked when the terminal finishes processing the transaction.
 | `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
 
-## MoTo Sale
+## MoTo Sale{#7}
 
-`MoToSale` <span class="badge badge--info">Method</span>
+`MoToSale`
 
 Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.
 
-Calling this operation will trigger the MOTO input form on the payment terminal, the MOTO form requires the merchant to enter the card number, expiry date and check value (CVV) of the card before processing the transaction. 
 
 **Parameters**
 
@@ -300,7 +299,7 @@ api.motoSale(new BigInteger("1000"), Currency.EUR, options);
 
 [**currentTransactionStatus**](androideventlisteners.md#14)
 
-Invoked during a transaction, it fetches statuses coming from the sdk (ex : 'processing').
+Invoked during a transaction,  it fetches statuses coming from the sdk (ex : 'processing').
 
 ***
 
@@ -317,13 +316,11 @@ Invoked when the terminal finishes processing the transaction.
 
 
 
-## MoTo Refund
+## MoTo Refund{#8}
 
-`moToRefund` <span class="badge badge--info">Method</span>
+`moToRefund`
 
-A Mail Order/Telephone Order (MOTO) refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.
-
-Calling this operation will trigger the MOTO input form on the payment terminal, the MOTO form requires the merchant to enter the card number, expiry date and check value (CVV) of the card before processing the transaction. 
+A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.
 
 
 **Parameters**
@@ -333,7 +330,7 @@ Calling this operation will trigger the MOTO input form on the payment terminal,
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `originalTransactionId` <br />*String*    | If present, it links the refund with a previous sale. It effectively limits the maximum amount which can be refunded to the amount of the previous sale.|
+| `originalTransactionId` <br />*String*    | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
 | `options` <br />[*MoToOptions*](androidobjects.md#moto-options)     | An object to store optional parameters for a MoTo refund.|
 
 **Code example**
@@ -364,9 +361,9 @@ Invoked when the terminal finishes processing the transaction.
 | `Boolean`| `True` if the operation was successfully sent to the gateway.|
 
 
-## MoTo Reversal
+## MoTo Reversal{#9}
 
-`moToReversal` <span class="badge badge--info">Method</span>
+`moToReversal`
 
 A MOTO reversal, also called VOID allows the user to reverse a previous sale/refund operation. This operation reverts (if possible) a specific operation identified with a transaction id. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission. MOTO Reversal is a type of card-not-present (CNP) transaction used to reverse a previous MOTO Sale or MOTO Refund.
 
@@ -409,9 +406,9 @@ Invoked when the terminal finishes processing the transaction.
 
 ## Signature result
 
-`signatureResult` <span class="badge badge--info">Method</span>
+`signatureResult`
 
-A signatureRequired event is invoked during a transaction when a signature verification is required, for example when a payment is done with a swiped or chip and signature card. The merchant is required to ask the cardholder for signature and approve (or decline) the transaction. signatureResult tells the payment terminal if the signature was approved by passing the value true in the method. To decline a signature event then false should be passed to the payment terminal. Note that this event is only required for an HiLite integration and can be safely ignored for a PAX or Telpo integration.
+A signatureRequired event is invoked during a transaction when a signature verification is required (f.ex when a payment is done with a swiped or chip and sign card). The merchant is required to ask the cardholder for signature and approve (or decline) the signature. signatureResult tells the card reader if the signature was approved by passing the value true in the method. To decline a signature event then false should be passed to the card reader. Note that this event is only required for an HiLite or Hi5 integration and can be safely ignored for a PAX or Telpo integration.
 
 **Parameters**
 
@@ -452,10 +449,10 @@ Invoked when the terminal finishes processing the transaction.
 
 ## Tip Adjustment
 
-`TipAdjustment` <span class="badge badge--info">Method</span>
+`TipAdjustment`
 
 A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day.
-Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV. This functionality is limited to HiLite terminals.
+Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
 
 Dependencies:
 The code example provided depends on RxJava, take a look a their documentation to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then AsyncTask, provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
@@ -494,7 +491,6 @@ Observable.fromCallable(new Callable() {
 
 **Returns**
 
-[**FinancialStatus**](androidobjects.md#34)
 
 Result of the tip adjustment transaction, it returns a FinancialStatus, the possible values are :
 
@@ -504,18 +500,18 @@ Result of the tip adjustment transaction, it returns a FinancialStatus, the poss
 
 If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
 
-## Tokenize Card
+## Tokenize Card{#12}
 
-`tokenizeCard` <span class="badge badge--info">Method</span>
+`tokenizeCard`
 
-Returns a card token (representing the card number). This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice. 
+Returns a card token (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `options` <br />[*Options*](androidobjects.md#7)     | An object to store all the customization options for the transaction.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for the transaction.|
 
 **Code example**
 
@@ -543,13 +539,9 @@ Invoked when the terminal finishes processing the transaction.
 | `Boolean`| `True` if the operation was successfully sent to the terminal.|
 
 
-## Card PAN
+## Card PAN{#13}
 
-`cardPan` <span class="badge badge--info">Method</span>
-
-:::warning
-This transaction type will ONLY work on PAX/Telpo devices. On HiLite payment terminals it is not available.
-:::
+`cardPan`
 
 A cardPan request will return the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card ranges will be returned by the Handpoint systems. This operation is mostly used to be able to process funds or points from loyalty cards.
 
@@ -558,7 +550,7 @@ A cardPan request will return the full PAN of the card being swiped, dipped or t
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `options` <br />[*Options*](androidobjects.md#7)     | An object to store all the customization options for the transaction.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for the transaction.|
 
 **Code example**
 
