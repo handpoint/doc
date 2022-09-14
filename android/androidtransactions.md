@@ -65,7 +65,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## Sale And Tokenize Card{#3}
@@ -125,7 +125,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 
@@ -173,7 +173,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## Refund{#5}
@@ -220,7 +220,7 @@ Invoked when the terminal finishes processing the transaction
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## Refund reversal{#6}
@@ -267,7 +267,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## MoTo Sale{#7}
@@ -312,7 +312,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the gateway.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 
@@ -358,7 +358,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the gateway.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## MoTo Reversal{#9}
@@ -401,7 +401,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the gateway.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## Signature result
@@ -443,7 +443,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+|*[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 
@@ -536,7 +536,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
 
 
 ## Card PAN{#13}
@@ -575,4 +575,4 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the terminal.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|

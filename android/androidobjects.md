@@ -646,6 +646,22 @@ options.setChannel(MoToChannel.MO);
 options.setChannel(MoToChannel.TO);
 ```
 
+
+## Operation Start Result
+
+`OperationStartResult` <span class="badge badge--info">Object</span>
+
+Object that contains information about the operation performed.
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `operationStarted` <br />*boolean*     | 		|
+| `transactionReference` <br />*String*    |    |
+| `errorMessage` <br />*String*    | 	Detailed reason for the transaction error.	|
+
+
 ## Optional Transaction Parameters
 
 `OptionalParameters` <span class="badge badge--info">Object</span>
