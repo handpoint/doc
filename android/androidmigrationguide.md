@@ -5,10 +5,42 @@ id: androidmigrationguide
 
 # Migration from 6.X to 7.X{#1}
 The new version 7 of our SDK introduces the next changes: 
-- The [operations described below](androidmigrationguide.md#2), return the OperationStartResult object instead of a boolean
-- The new duplicate check service is enabled by default. To disable it, please check this [section](androidmigrationguide.md#3) 
+- Removed **required** interface and created [3 kind of interfaces in function of the integration](androidmigrationguide.md#2)
+- The [operations described below](androidmigrationguide.md#3), return the OperationStartResult object instead of a boolean
+- The new duplicate check service is enabled by default. To disable it, please check this [section](androidmigrationguide.md#4) 
 
-## 1. OperationStartResult class is returned now on Hapi Operations{#2}
+## 1. New integration interfaces
+
+For an easier integration with our SDK, we have created 3 interfaces, which have each of the mandatory events to be implemented correctly:
+- **MposRequired**: for Bluetooth integrations
+- **SmartposRequired**: Android Native Integration
+- **PosRequired**: For integrations that include both
+
+The changes required in each of the scenarios are described below.
+
+### Bluetooth Integration
+
+
+<details>
+	<summary>Java</summary>
+
+
+	The changes in this integration should be as follows, depending on the language used
+	
+	from:
+
+	```java
+	
+	```	
+
+</details>
+
+
+
+
+
+
+## 2. OperationStartResult class is returned now on Hapi Operations{#3}
 
 With the aim of improving the information on our customers' transactions, now, Hapi object returns this class instead of a boolean. The methods that are affected by this change, and that should be modified for a correct implementation are the following:
 
@@ -24,7 +56,7 @@ With the aim of improving the information on our customers' transactions, now, H
 - [CardPan](androidtransactions.md#13)
 
 
-## 2. Disable duplicate check service{#3}
+## 3. Disable duplicate check service{#4}
 
 To disable it, set the checkDuplicate field to false for the corresponding operations, as in the following example: 
 
