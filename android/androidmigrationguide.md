@@ -3,6 +3,9 @@ sidebar_position: 3
 id: androidmigrationguide
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Migration from 6.X to 7.X{#1}
 The new version 7 of our SDK introduces the next changes: 
 - Removed **required** interface and created [3 kind of interfaces in function of the integration](androidmigrationguide.md#2)
@@ -20,24 +23,169 @@ The changes required in each of the scenarios are described below.
 
 ### Bluetooth Integration
 
+#### Older Implementation
+<Tabs>
+<TabItem value="Java">
 
-<details>
-	<summary>Java</summary>
+```java
+public class HandpointDelegate implements 
+	Events.Required, 
+	Events.ConnectionStatusChanged, 
+	Events.CurrentTransactionStatus,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady {
+```
+
+</TabItem>
+
+<TabItem value="Kotlin">
+
+```java
+class KotlinClient: Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
+```
+
+</TabItem>
+</Tabs>
+
+#### Current Implementation
+<Tabs>
+<TabItem value="Java">
+
+```java
+public class JavaClient implements
+	Events.MposRequired,
+	Events.CurrentTransactionStatus,
+	Events.ConnectionStatusChanged,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady
+```
+
+</TabItem>
+
+<TabItem value="Kotlin">
+
+```java
+class KotlinClient: Events.MposRequired {
+```
+
+</TabItem>
+</Tabs>
+
+### Android Native Integration
+
+#### Older Implementation
+<Tabs>
+<TabItem value="Java">
+
+```java
+public class HandpointDelegate implements 
+	Events.Required,
+	Events.CurrentTransactionStatus,
+	Events.ConnectionStatusChanged,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady {
+```
+
+</TabItem>
+
+<TabItem value="Kotlin">
+
+```java
+class KotlinClient: 
+	Events.Required, 
+	Events.ConnectionStatusChanged, 
+	Events.CurrentTransact {
+```
+
+</TabItem>
+</Tabs>
+
+#### Current Implementation
+<Tabs>
+<TabItem value="Java">
+
+```java
+public class HandpointDelegate implements 
+	Events.SmartposRequired,
+	Events.CurrentTransactionStatus,
+	Events.ConnectionStatusChanged,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady {
+```
+
+</TabItem>
+
+<TabItem value="Kotlin">
+
+```java
+class KotlinClient: Events.SmartposRequired {
+```
+
+</TabItem>
+</Tabs>
 
 
-	The changes in this integration should be as follows, depending on the language used
-	
-	from:
+### Bluetooth and Android Native Integration
 
-	```java
-	
-	```	
+#### Older Implementation
+<Tabs>
+<TabItem value="Java">
 
-</details>
+```java
+public class HandpointDelegate implements 
+	Events.Required, 
+	Events.ConnectionStatusChanged, 
+	Events.CurrentTransactionStatus,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady {
+```
 
+</TabItem>
 
+<TabItem value="Kotlin">
 
+```java
+class KotlinClient: Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
+```
 
+</TabItem>
+</Tabs>
+
+#### Current Implementation
+<Tabs>
+<TabItem value="Java">
+
+```java
+public class JavaClient implements
+	Events.PosRequired,
+	Events.CurrentTransactionStatus,
+	Events.ConnectionStatusChanged,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady
+```
+
+</TabItem>
+
+<TabItem value="Kotlin">
+
+```java
+class KotlinClient: Events.PosRequired {
+```
+
+</TabItem>
+</Tabs>
 
 
 ## 2. OperationStartResult class is returned now on Hapi Operations{#3}
