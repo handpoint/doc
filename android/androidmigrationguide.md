@@ -11,6 +11,7 @@ The new version 7.X of our Android SDK introduces the next changes:
 - Removed the **Required** Interface and created [3 new Interfaces](androidmigrationguide.md#1-new-integration-interfaces) for a simpler and smoother integration.
 - The [operations described below](androidmigrationguide.md#3), return the [OperationStartResult](androidobjects.md#operation-start-result) object instead of a `boolean`.
 - The new Duplicate Check service is enabled by default. To disable it, please check this [section](androidmigrationguide.md#4).
+- `deviceCapabilities` event of CardBrandDisplay Interface has been renamed. 
 
 ## 1. New integration Interfaces
 
@@ -206,7 +207,7 @@ With the aim of improving the information on our customers' transactions, now, H
 
 ## 3. Disable Duplicate Check service{#4}
 
-To disable the Duplicate Check service, set the `checkDuplicate` field to false for the corresponding operations, as in the following example: 
+By default our Duplicate Check service is enabled. To disable the Duplicate Check service, set the `checkDuplicate` field to false for the corresponding operations, as in the following example: 
 
 ```java
 public void pay(BigInteger amount, Currency currency) {
@@ -218,3 +219,9 @@ public void pay(BigInteger amount, Currency currency) {
 This step applies for the followings operations: 
 - [Sale](androidtransactions.md#2) and [Sale and Tokenize](androidtransactions.md#3)
 - [Refund](androidtransactions.md#5)
+
+## 4. Renamed event deviceCapabilities of CardBrandDisplay Interface
+
+Changed the name of the event `deviceCapabilities` of CardBrandDisplay Interface. Now `deviceCapabilities` is called `supportedCardBrands`.
+
+Check [here](androideventlisteners.md#cardBrandDisplay) all the necessary information.

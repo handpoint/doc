@@ -657,8 +657,8 @@ Object that contains information about the operation performed.
 
 | Parameter      | Description |
 | ----------- | ----------- |
-| `operationStarted` <br />*boolean*     | 		|
-| `transactionReference` <br />*String*    |    |
+| `operationStarted` <br />*boolean*     | 	`true` The operation has started.	|
+| `transactionReference` <br />*String*    |  Identification of the operation throughout its life cycle.  |
 | `errorMessage` <br />*String*    | 	Detailed reason for the transaction error.	|
 
 
