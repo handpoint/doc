@@ -10,8 +10,7 @@ import TabItem from '@theme/TabItem';
 The new version 7.X of our Android SDK introduces the next changes: 
 - Removed the **Required** Interface and created [3 new Interfaces](androidmigrationguide.md#1-new-integration-interfaces) for a simpler and smoother integration.
 - The [operations described below](androidmigrationguide.md#3), return the [OperationStartResult](androidobjects.md#operation-start-result) object instead of a `boolean`.
-- The new Duplicate Check service is enabled by default. To disable it, please check this [section](androidmigrationguide.md#4).
-- `deviceCapabilities` event of CardBrandDisplay Interface has been renamed. 
+- The new Duplicate Check service **is enabled by default**. To disable it, please check this [section](androidmigrationguide.md#4).
 
 ## 1. New integration Interfaces
 
