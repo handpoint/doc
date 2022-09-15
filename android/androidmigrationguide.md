@@ -64,9 +64,7 @@ public class HandpointDelegate implements
 	Events.SmartposRequired,
 	Events.CurrentTransactionStatus,
 	Events.ConnectionStatusChanged,
-	Events.SignatureRequired,
 	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
 	Events.TransactionResultReady {
 ```
 
