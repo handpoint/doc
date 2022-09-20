@@ -11,8 +11,8 @@ module.exports = {
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
   organizationName: 'handpoint', // Usually your GitHub org/user name.
-  projectName: 'doc', // Usually your repo name.
-  deploymentBranch: 'gh-pages',
+  projectName: 'handpoint.github.io', // Usually your repo name.
+  deploymentBranch: 'main',
   themeConfig: {
     navbar: {
       style: 'dark',
