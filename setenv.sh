@@ -2,7 +2,7 @@
 if [[ $1 == 'prod' ]]
 then
   sed -i 's/handpoint.io/handpoint.com/g' docusaurus.config.js
-  sed -i "s/url: 'https://developer.handpoint.io'/url: 'https://developer.handpoint.io'/g" docusaurus.config.js
+  sed -i "s/url: 'https://developer.handpoint.io'/url: 'https://developer.handpoint.com'/g" docusaurus.config.js
   sed -i 's/includeCurrentVersion: true/includeCurrentVersion: false/g' docusaurus.config.js
   sed -i "s/organizationName: 'handpoint'/organizationName: 'handpoint'/g" docusaurus.config.js
   sed -i "s/projectName: 'handpoint.github.io'/projectName: 'handpoint.github.io'/g" docusaurus.config.js
