@@ -115,7 +115,7 @@ function Header() {
         padding: '80px',
         width: '100%'
       }}>
-      <a href="/"><img src="/img/Logo.svg" alt="Logo" width="260px" /></a>
+      <a href="/"><img src="/img/logo-header.svg" alt="Logo" width="260px" /></a>
       <br></br>
       <h2 style={{
         color: '#25365d'
