@@ -7,8 +7,8 @@ module.exports = {
   tagline: 'Global Payments-Powered Growth for SaaS',
   url: 'https://developer.handpoint.com',
   baseUrl: '/',
-  onBrokenLinks: 'warn',
-  onBrokenMarkdownLinks: 'warn',
+  onBrokenLinks: 'throw',
+  onBrokenMarkdownLinks: 'throw',
   favicon: '/img/favicon.png',
   organizationName: 'handpoint', // Usually your GitHub org/user name.
   projectName: 'handpoint.github.io', // Usually your repo name.
