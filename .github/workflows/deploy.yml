@@ -55,4 +55,8 @@ jobs:
           fi
           cat docusaurus.config.js
           yarn install --frozen-lockfile
+<<<<<<< HEAD
           yarn deploy
+=======
+          yarn deploy
+>>>>>>> dev
