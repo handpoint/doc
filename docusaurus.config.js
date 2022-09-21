@@ -7,7 +7,7 @@ module.exports = {
   tagline: 'Global Payments-Powered Growth for SaaS',
   url: 'https://developer.handpoint.com',
   baseUrl: '/',
-  onBrokenLinks: 'warn',
+  onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: '/img/favicon.png',
   organizationName: 'handpoint', // Usually your GitHub org/user name.
@@ -210,7 +210,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'ios',
-        includeCurrentVersion: false,
+        includeCurrentVersion: false, // dev: Change to true
         path: 'ios',
         routeBasePath: 'ios',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -224,7 +224,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'javascript',
-        includeCurrentVersion: false,
+        includeCurrentVersion: false, // dev: Change to true
         path: 'javascript',
         routeBasePath: 'javascript',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -237,7 +237,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'restapi',
-        includeCurrentVersion: false,
+        includeCurrentVersion: false, // dev: Change to true
         path: 'restapi',
         routeBasePath: 'restapi',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -250,7 +250,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'windows',
-        includeCurrentVersion: false,
+        includeCurrentVersion: false, // dev: Change to true
         path: 'windows',
         routeBasePath: 'windows',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -262,7 +262,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'express',
-        includeCurrentVersion: false,
+        includeCurrentVersion: false, // dev: Change to true
         path: 'express',
         routeBasePath: 'express',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -274,7 +274,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'android',
-        includeCurrentVersion: false,
+        includeCurrentVersion: false, // dev: Change to true
         path: './android',
         routeBasePath: 'android',
         sidebarPath: require.resolve('./sidebarsAndroid.js'),
