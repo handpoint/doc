@@ -24,7 +24,7 @@ function Header() {
         padding: '50px',
         width: '100%'
       }}>
-      <a href="https://www.handpoint.com/" target='_blank'><img src="/img/logo-header" alt="Logo" width="260px" /></a>
+      <a href="https://www.handpoint.com/" target='_blank'><img src="/img/logo-header.svg" alt="Logo" width="260px" /></a>
       <br></br>
       <h2 style={{
         color: '#25365d'
