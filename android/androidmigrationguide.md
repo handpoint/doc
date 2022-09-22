@@ -3,225 +3,119 @@ sidebar_position: 3
 id: androidmigrationguide
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 
-# Migration from 6.X to 7.X{#1}
-The new version 7.X of our Android SDK introduces the next changes: 
-- Removed the **Required** Interface and created [3 new Interfaces](androidmigrationguide.md#1-new-integration-interfaces) for a simpler and smoother integration.
-- The [operations described below](androidmigrationguide.md#3), return the [OperationStartResult](androidobjects.md#operation-start-result) object instead of a `boolean`.
-- The new Duplicate Check service **is enabled by default**. To disable it, please check this [section](androidmigrationguide.md#4).
-- `deviceCapabilities` event of CardBrandDisplay Interface has been renamed. 
-
-## 1. New integration Interfaces
-
-For an easier integration with our SDK, we have created 3 interfaces, which have each of the mandatory events to be implemented correctly:
-
-- **SmartposRequired**: Android Native Integration (PAX/Telpo)
-- **MposRequired**: for Bluetooth integrations (HiLite)
-- **PosRequired**: For integrations that include both
-
-The changes required in each of the scenarios are described below.
+# Migration from 5.X{#1}
 
 
+Version 6.0.0 introduces a well defined, typed, way of passing extra values, options, parameters or flags to the financial transactions.
 
-### Android Native Integration
+We have unified all the extra and optional parameters in an Options object. Different operations have different options.
 
-#### Older Implementation (Android SDK 6.X)
-<Tabs>
-<TabItem value="Java">
+**1. For a [Sale](androidtransactions.md#2) or [Sale and Tokenize](androidtransactions.md#3) operation, please see [SaleOptions](androidobjects.md#4)**
+
+If you use a customer reference:
 
 ```java
-public class HandpointDelegate implements 
-	Events.Required,
-	Events.CurrentTransactionStatus,
-	Events.ConnectionStatusChanged,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady {
+options.setCustomerReference("Your customer reference");
 ```
 
-</TabItem>
-
-<TabItem value="Kotlin">
+If you need Multi MID / Custom merchant Authentication:
 
 ```java
-class KotlinClient: 
-	Events.Required, 
-	Events.ConnectionStatusChanged, 
-	Events.CurrentTransact {
+	MerchantAuth auth = new MerchantAuth();
+	Credential credential = new Credential();
+	//Optionally
+	credential.setAcquirer(YOUR_ACQUIRER);
+	//Optionally
+	credential.setMerchantId(mid);
+	//Optionally
+	credential.setTerminalId(tid);
+	//Add as many credentials as Acquirers your merchant have agreements with
+	auth.add(credential);
+	options.setMerchantAuth(auth);
 ```
 
-</TabItem>
-</Tabs>
-
-#### Current Implementation (Android SDK 7.X)
-<Tabs>
-<TabItem value="Java">
+If you need to enable pin bypass:
 
 ```java
-public class HandpointDelegate implements 
-	Events.SmartposRequired,
-	Events.CurrentTransactionStatus,
-	Events.ConnectionStatusChanged,
-	Events.EndOfTransaction,
-	Events.TransactionResultReady {
+options.setPinBypass(true);
 ```
-
-</TabItem>
-
-<TabItem value="Kotlin">
+If you want to specify the budget period **Only available for SureSwipe**:
 
 ```java
-class KotlinClient: Events.SmartposRequired {
+options.setBudgetNumber(YOUR_BUDGET_NUMBER);
 ```
 
-</TabItem>
-</Tabs>
-
-### Bluetooth Integration
-
-#### Older Implementation (Android SDK 6.X)
-<Tabs>
-<TabItem value="Java">
+If you want to specify tip options **Only available for PAX and Telpo terminals**:
 
 ```java
-public class HandpointDelegate implements 
-	Events.Required, 
-	Events.ConnectionStatusChanged, 
-	Events.CurrentTransactionStatus,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady {
+TipConfiguration config = new TipConfiguration();
+	//Optionally
+	config.setHeaderName(HEADER);
+	//Optionally
+	config.setFooter(FOOTER);
+	//Optionally
+	config.setEnterAmountEnabled(true);
+	//Optionally
+	config.setSkipEnabled(true);
+	//Optionally
+	config.setTipPercentages(percentages);
+
+	options.setTipConfiguration(config);
 ```
 
-</TabItem>
-
-<TabItem value="Kotlin">
+Alternatively, you can set the tip amount directly:
 
 ```java
-class KotlinClient: Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
+	options.setTipConfiguration(new TipConfiguration(AMOUNT));
 ```
 
-</TabItem>
-</Tabs>
-
-#### Current Implementation (Android SDK 7.X)
-<Tabs>
-<TabItem value="Java">
+Finally:
 
 ```java
-public class JavaClient implements
-	Events.MposRequired,
-	Events.CurrentTransactionStatus,
-	Events.ConnectionStatusChanged,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady
+api.sale(amount, currency, options);
 ```
 
-</TabItem>
+**2. Similar to SaleOptions, but with less possible parameters, for a [Refund](androidtransactions.md#5) operation, please see [RefundOptions](androidobjects.md#6)**
 
-<TabItem value="Kotlin">
+If you use a customer reference:
 
 ```java
-class KotlinClient: Events.MposRequired {
+options.setCustomerReference("Your customer reference");
 ```
 
-</TabItem>
-</Tabs>
-
-### Bluetooth and Android Native Integration
-
-#### Older Implementation (Android SDK 6.X)
-<Tabs>
-<TabItem value="Java">
+If you need Multi MID / Custom merchant Authentication:
 
 ```java
-public class HandpointDelegate implements 
-	Events.Required, 
-	Events.ConnectionStatusChanged, 
-	Events.CurrentTransactionStatus,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady {
+	MerchantAuth auth = new MerchantAuth();
+	Credential credential = new Credential();
+	//Optionally
+	credential.setAcquirer(YOUR_ACQUIRER);
+	//Optionally
+	credential.setMerchantId(mid);
+	//Optionally
+	credential.setTerminalId(tid);
+	//Add as many credentials as Acquirers your merchant have agreements with
+	auth.add(credential);
+	options.setMerchantAuth(auth);
 ```
 
-</TabItem>
-
-<TabItem value="Kotlin">
+If you need to enable pin bypass:
 
 ```java
-class KotlinClient: Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
+options.setPinBypass(true);
 ```
 
-</TabItem>
-</Tabs>
-
-#### Current Implementation (Android SDK 7.X)
-<Tabs>
-<TabItem value="Java">
+Finally:
 
 ```java
-public class JavaClient implements
-	Events.PosRequired,
-	Events.CurrentTransactionStatus,
-	Events.ConnectionStatusChanged,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady
+	api.refund(amount, currency, options);
 ```
 
-</TabItem>
+**3. For the rest of operations, please see [Options](androidobjects.md#7)**
 
-<TabItem value="Kotlin">
+If you use a customer reference:
 
 ```java
-class KotlinClient: Events.PosRequired {
+options.setCustomerReference("Your customer reference");
 ```
-
-</TabItem>
-</Tabs>
-
-
-## 2. [OperationStartResult](androidobjects.md#operation-start-result) class is returned now on Hapi Operations{#3}
-
-With the aim of improving the information on our customers' transactions, now, Hapi object returns this class instead of a boolean. The methods that are affected by this change, and that should be modified for a correct implementation are the following:
-
-- [Sale](androidtransactions.md#2)
-- [Sale and Tokenize](androidtransactions.md#3)
-- [SaleReversal](androidtransactions.md#4)
-- [Refund](androidtransactions.md#5)
-- [RefundReversal](androidtransactions.md#6)
-- [MotoSale](androidtransactions.md#7)
-- [MotoRefund](androidtransactions.md#8)
-- [MotoReversal](androidtransactions.md#9)
-- [TokenizeCard](androidtransactions.md#12)
-- [CardPan](androidtransactions.md#13)
-
-
-## 3. Disable Duplicate Check service{#4}
-
-By default our Duplicate Check service is enabled. To disable the Duplicate Check service, set the `checkDuplicate` field to false for the corresponding operations, as in the following example: 
-
-```java
-public void pay(BigInteger amount, Currency currency) {
-	SaleOptions saleOptions = new SaleOptions();
-	saleOptions.setCheckDuplicates(false);
-	this.api.sale(amount, currency, saleOptions);
-}
-```
-This step applies for the followings operations: 
-- [Sale](androidtransactions.md#2) and [Sale and Tokenize](androidtransactions.md#3)
-- [Refund](androidtransactions.md#5)
-
-## 4. Renamed event deviceCapabilities of CardBrandDisplay Interface
-
-Changed the name of the event `deviceCapabilities` of CardBrandDisplay Interface. Now `deviceCapabilities` is called `supportedCardBrands`.
-
-Check [here](androideventlisteners.md#cardBrandDisplay) all the necessary information.
