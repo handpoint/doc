@@ -6,7 +6,7 @@ id: windowstransactions
 
 # Transaction Types
 
-:::warning
+:::caution
 Since [**Windows SDK 3.3.0**](windowsreleasenotes#330) the Duplicate Check service it will be **enabled by default** when Handpoint Payments app **v4.0.0.** or higher is used. (Handpoint **Android SDK 7.0.0** or higher).
 :::
 

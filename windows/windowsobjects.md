@@ -398,8 +398,9 @@ A class containing optional transaction parameters now supported by the device.
 
 |Property|	Description|
 | ----------- | ----------- |
-|`Budget`<br />*String*	|	**Budget is only available for sale transactions**.<br /> A` String` representing the key for a budget number.A budget number can be used to split up an amout over a period of months. The value has to be a `String` of 2 digits representing the number of months to split the transaction to. Example: "03" or "24".|
+|`Budget`<br />*String*	|	**Budget is only available for sale transactions**.<br /> A` String` representing the key for a budget number.A budget number can be used to split up an amount over a period of months. The value has to be a `String` of 2 digits representing the number of months to split the transaction to. Example: "03" or "24".|
 |`CustomerReference`<br />*String*|**String	CustomerReference is available for all transactions.**<br />A ` String` representing the key for a customer reference.A customer reference can be used for an internal marking system. The value is sent as a `String` of a maximum 36 characters and received back when the transaction has been processed. Example: "C.nr. 212311".|
+|`DuplicateCheck`<br />*String*|**String	DuplicateCheck is available for all transactions.**<br />The Duplicate Check service is enabled by default. If you want to disable it,  you must use the `String` "0" Example: ```options.Add(XmlTag.DuplicateCheck.Tag(), "0");```|
 
 
 ## Log Level{#9}
