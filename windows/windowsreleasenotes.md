@@ -9,6 +9,17 @@ id: windowsreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 3.3.0
+**Features:**
+- The new Duplicate Check service it will be **enabled by default** when Handpoint Payments app **v4.0.0.** or higher is used. (Handpoint **Android SDK 7.0.0** or higher).
+
+Here is an example of how to disable it:
+```csharp
+Dictionary <string, string> options = new Dictionary<string, string>();
+options.Add(XmlTag.DuplicateCheck.Tag(), "0");
+hapi.Sale(amount, currency, options);
+```
+
 
 ## 3.2.5
 **Fixes:**
