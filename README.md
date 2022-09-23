@@ -80,3 +80,4 @@ Every time we want to integrate changes from a feature branch to the `dev` branc
 If you are writing documentation for a new version, you have to follow the steps in the section [Generate a new SDK version](#generate-a-new-sdk-version) before merging to `main` branch.
 
 Once the changes are tested in the staging environment, another PR has to be created to merge the changes from `dev` branch to `main` branch. This PR will be reviewed by two team members and merged to `main` branch. This will trigger a deployment to the production environment (It can take up to 5 minutes to be deployed).
+
