@@ -6,6 +6,10 @@ id: windowstransactions
 
 # Transaction Types
 
+:::warning
+Since [**Windows SDK 3.3.0**](windowsreleasenotes#330) the Duplicate Check service it will be **enabled by default** when Handpoint Payments app **v4.0.0.** or higher is used. (Handpoint **Android SDK 7.0.0** or higher).
+:::
+
 ## Sale
 
 `Sale` <span class="badge badge--info">Method</span>
@@ -28,10 +32,10 @@ A sale initiates a transaction with the payment terminal. In it's simplest form 
 this.Hapi.Sale(new BigInteger("1000"), Currency.EUR);
 
 // With options
-Dictionary dic = new Dictionary();
-dic.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
 
-this.Hapi.Sale(new BigInteger("1000"), Currency.EUR, dic);
+this.Hapi.Sale(new BigInteger("1000"), Currency.EUR, map);
 ```
 
 #### Events invoked
