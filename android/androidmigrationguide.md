@@ -207,6 +207,8 @@ With the aim of improving the information on our customers' transactions, now, H
 
 ## 3. Disable Duplicate Check service{#4}
 
+**This service is only available on Smartpos Integrations.**
+
 By default our Duplicate Check service is enabled. To disable the Duplicate Check service, set the `checkDuplicate` field to false for the corresponding operations, as in the following example: 
 
 ```java
