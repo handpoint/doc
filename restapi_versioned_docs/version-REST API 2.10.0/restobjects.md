@@ -221,7 +221,7 @@ An object to store information about the request sent to the payment terminal.
 | `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
 | `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations.        |
 | `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
-| `duplicate_check`   <br />*Boolean*   |Flag to enable or explicitly disable the duplicate transansaction verification in the payments flow.       |
+| `duplicate_check`   <br />*Boolean*   |Flag to disable the duplicate check payments flow (enabled - true if not otherwise specified).       |
 
 **Code example**
 
@@ -254,7 +254,7 @@ An object to store information about the request sent to the payment terminal.
               "mcc": "3333",
               "externalId": "4444"
            }],
-        "duplicate_check": true
+        "duplicate_check": false
 }
 
 // Result will be served back to Handpoint's REST-API
@@ -283,7 +283,7 @@ An object to store information about the request sent to the payment terminal.
               "mcc": "3333",
               "externalId": "4444"
            }],
-        "duplicate_check": true
+        "duplicate_check": false
 }
 ````
 

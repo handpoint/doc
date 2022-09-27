@@ -267,7 +267,7 @@ An object to store the customization options for a sale operation. This object c
 | Property      | Description |
 | ----------- | ----------- |
 | `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction.|
-| `duplicate_check`  <br />*Boolean*   | Flag to select the duplicate check payments flow.|
+| `duplicate_check`  <br />*Boolean*   | Flag to disable the duplicate check payments flow (enabled - true if not otherwise specified).|
 | `TipConfiguration`  <br />[*TipConfiguration*](#39) | Configuration for the tipping menu of the payment terminal.|
 | `bypassOptions`  <br />[*BypassOptions*](#19) |  Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17)   | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
@@ -317,7 +317,7 @@ An object to store the customization options for a refund. This object can be em
 | Property      | Description |
 | ----------- | ----------- |
 | `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction.|
-| `duplicate_check`  <br />*Boolean*   | Flag to select the duplicate check payments flow.|
+| `duplicate_check`  <br />*Boolean*   | Flag to disable the duplicate check payments flow (enabled - true if not otherwise specified).
 | `bypassOptions`  <br />[*BypassOptions*](#19) | Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
 
