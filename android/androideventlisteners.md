@@ -30,6 +30,104 @@ An interface which needs to be implemented and added as a listener to receive ba
 [`Required`](#42) [`Log`](#log) [`Status`](#status) [`PendingResults`](#pendingResults) [`ReportResult`](#reportResult) 
 
 
+## SmartposRequired
+
+`Events.SmartposRequired` <span class="badge badge--info">Interface</span>
+
+You must provide a class implementing this interface when initializing the SDK for a smartPOS terminal (PAX/Telpo).
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.SmartposRequired {
+
+	@Override
+    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	 @Override
+    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	@Override
+	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
+	@Override
+	public void transactionResultReady(TransactionResult transactionResult, Device device) { ... }
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
+**Events**
+
+ [`ConnectionStatusChanged`](#connectionStatusChanged)[`CurrentTransactionStatus`](#14)[`EndOfTransaction`](#16) [`PendingResults`](#pendingResults)
+
+
+## MposRequired
+
+`Events.MposRequired` <span class="badge badge--info">Interface</span>
+
+You must provide a class implementing this interface when initializing the SDK for an mPOS terminal (HiLite).
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.MposRequired {
+    @Override
+    public void deviceDiscoveryFinished(List devices) { ... }
+	@Override
+    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	 @Override
+    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	@Override
+    public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
+	@Override
+	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
+	@Override
+	public void transactionResultReady(TransactionResult transactionResult, Device device) { ... }
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
+**Events**
+
+ [`ConnectionStatusChanged`](#connectionStatusChanged)[`CurrentTransactionStatus`](#14)[`EndOfTransaction`](#16) [`PendingResults`](#pendingResults) [`DeviceDiscoveryFinished`](#deviceDiscoveryFinished) [`SignatureRequired`](#15) 
+
+## PosRequired
+
+`Events.PosRequired` <span class="badge badge--info">Interface</span>
+
+You must provide a class implementing this interface when initializing the SDK when supporting both mPOS and SmartPOS terminals (PAX/Telpo & HiLite).
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.MposRequired {
+    @Override
+    public void deviceDiscoveryFinished(List devices) { ... }
+	@Override
+    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	 @Override
+    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	@Override
+    public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
+	@Override
+	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
+	@Override
+	public void transactionResultReady(TransactionResult transactionResult, Device device) { ... }
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
+**Events**
+
+ [`ConnectionStatusChanged`](#connectionStatusChanged)[`CurrentTransactionStatus`](#14)[`EndOfTransaction`](#16) [`PendingResults`](#pendingResults) [`DeviceDiscoveryFinished`](#deviceDiscoveryFinished) [`SignatureRequired`](#15) 
+
+
 ## Card Brand Display{#cardBrandDisplay}
 
 `Events.CardBrandDisplay` <span class="badge badge--info">Interface</span>

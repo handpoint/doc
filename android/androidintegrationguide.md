@@ -167,7 +167,7 @@ import java.util.List;
 
 //Check all the events available in the Events interface.
 //If you want to subscribe to more events, just add to the list of implemented interfaces.
-public class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
+public class HandpointDelegate implements Events.SmartposRequired {
 
     private Hapi api;
 
@@ -194,11 +194,6 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
             //Connection Status connected
 
         }
-    }
-
-    @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
-        // This event can be safely ignored for a PAX/Telpo integration
     }
 
     public OperationStartResult pay() {
@@ -259,13 +254,6 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
             // Let's launch a payment
             pay();
         }
-    }
-
-    @Override
-    public void signatureRequired(SignatureRequest signatureRequest, Device device) {
-        // This event can be safely ignored for a PAX/Telpo integration
-        // The complete signature capture process is already handled in the sdk, a dialog will prompt the user for a signature if required.
-        // If a signature was entered, it should be printed on the receipts.
     }
 
     @Override
@@ -424,7 +412,7 @@ import java.util.List;
 
 //Check all the events available in the Events interface.
 //If you want to subscribe to more events, just add to the list of implemented interfaces.
-public class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {
+public class HandpointDelegate implements Events.MposRequired {
 
     private Hapi api;
 

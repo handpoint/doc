@@ -3,7 +3,7 @@ sidebar_position: 5
 id: androidtransactions
 ---
 
-# Transactions
+# Transaction Types
 
 
 
@@ -65,7 +65,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Sale And Tokenize Card{#3}
@@ -125,7 +125,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 
@@ -173,7 +173,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Refund{#5}
@@ -220,7 +220,7 @@ Invoked when the terminal finishes processing the transaction
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Refund reversal{#6}
@@ -267,7 +267,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## MoTo Sale{#7}
@@ -312,7 +312,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 
@@ -358,7 +358,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## MoTo Reversal{#9}
@@ -401,7 +401,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Signature result
@@ -443,7 +443,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-|*[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+|*[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 
@@ -536,7 +536,7 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Card PAN{#13}
@@ -575,4 +575,4 @@ Invoked when the terminal finishes processing the transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object that contains information about the operation performed.|
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
