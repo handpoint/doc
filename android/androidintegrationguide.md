@@ -201,13 +201,13 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
         // This event can be safely ignored for a PAX/Telpo integration
     }
 
-    public boolean pay() {
+    public OperationStartResult pay() {
         return this.api.sale(new BigInteger("1000"), Currency.GBP);
         // Let´s start our first payment of 10 pounds
         // Use the currency of the country in which you will be deploying terminals
     }
 
-    public boolean payWithOptions() {
+    public OperationStartResult payWithOptions() {
         SaleOptions options = new SaleOptions();
 
         // Adding tipping
@@ -493,7 +493,7 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
         }
     }
 
-    public boolean pay() {
+    public OperationStartResult pay() {
         return this.api.sale(new BigInteger("1000"), Currency.GBP);
         // Let´s start our first payment of 10 pounds
     }
