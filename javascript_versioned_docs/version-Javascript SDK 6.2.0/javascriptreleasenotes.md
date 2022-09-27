@@ -13,7 +13,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 6.2.0
 
 **Features**:
-- New "Duplicate check" flag which enables the duplicate payments checking transaction flow.
+- New "Duplicate check" flag to explicitly disable the duplicate check payments flow. If the flag is not present (or if it is true), this flow is enabled by default.
 
 ## 6.1.0
 
