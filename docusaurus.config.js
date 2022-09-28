@@ -274,7 +274,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'android',
-        includeCurrentVersion: true, // dev: Change to true
+        includeCurrentVersion: false, // dev: Change to true
         path: './android',
         routeBasePath: 'android',
         sidebarPath: require.resolve('./sidebarsAndroid.js'),
