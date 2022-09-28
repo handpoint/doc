@@ -81,7 +81,7 @@ You must provide a class implementing this interface when initializing the SDK w
 **Code example**
 
 ```java
-public final class EventHandler implements Events.MposRequired {
+public final class EventHandler implements Events.PosRequired {
     @Override
     public void deviceDiscoveryFinished(List devices) { ... }
 	@Override
