@@ -84,7 +84,7 @@ The following example shows how you can integrate your web application with the 
 
 :::tip
 Maintain the connection with the terminal at all times:
-- To be able to recover a transaction result through the callback passed in the [*init*](javascriptmethods.md#1) method, the point of sale and the terminal **MUST** be connected and online. For that reason, we recommend to connect to the target terminal and maintain the connection alive at all times instead of connecting and disconnecting for every transaction.
+- To be able to recover a transaction result through the callback passed in the [*init*](javascriptterminalmanagement.md#1) method, the point of sale and the terminal **MUST** be connected and online. For that reason, we recommend to connect to the target terminal and maintain the connection alive at all times instead of connecting and disconnecting for every transaction.
 - Using the same connection, the user may perform as many transactions as desired. The SDK is in charge of maintaining the secure channel between the point of sale and the terminal. No connection and disconnection between transactions is required. The silent connected periods will provide the possibility for the device to deliver any pending transaction result in case of a network issue.
 
 How Transaction Recovery Works:

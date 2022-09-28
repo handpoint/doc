@@ -11,7 +11,14 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 ## 2.10.0
 **Features:**
-- New "Duplicate check" flag to explicitly disable the duplicate check payments flow. If the flag is not present (or if it is true), this flow is enabled by default.
+
+We are introducing a new feature called duplicate payment check. Looking back at our data we have seen that when a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are now flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the 2nd charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.
+
+The duplicate payment check feature will be **enabled by default** when the Handpoint Payments app **v4.0.0.** or higher is used. V2.10.0 of the REST API only allows you to disable the duplicate payment check feature if you wish to not support it.
+
+The new `duplicate_check` parameter is available under the [Transaction Request Object](restobjects.md#transactionRequest). 
+
+
 
 ## 2.7.1
 **Features:**
