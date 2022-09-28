@@ -167,7 +167,7 @@ import java.util.List;
 
 //Check all the events available in the Events interface.
 //If you want to subscribe to more events, just add to the list of implemented interfaces.
-public class HandpointDelegate implements Events.SmartposRequired {
+public class HandpointDelegate implements Events.SmartposRequired, Events.CurrentTransactionStatus, Events.ConnectionStatusChanged, Events.EndOfTransaction, Events.TransactionResultReady {
 
     private Hapi api;
 
@@ -412,7 +412,7 @@ import java.util.List;
 
 //Check all the events available in the Events interface.
 //If you want to subscribe to more events, just add to the list of implemented interfaces.
-public class HandpointDelegate implements Events.MposRequired {
+public class HandpointDelegate implements Events.MposRequired, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus, Events.SignatureRequired, Events.EndOfTransaction, Events.DeviceDiscoveryFinished, Events.TransactionResultReady {
 
     private Hapi api;
 

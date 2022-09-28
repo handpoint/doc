@@ -63,9 +63,7 @@ public class HandpointDelegate implements
 	Events.Required,
 	Events.CurrentTransactionStatus,
 	Events.ConnectionStatusChanged,
-	Events.SignatureRequired,
 	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
 	Events.TransactionResultReady {
 ```
 
@@ -77,11 +75,7 @@ public class HandpointDelegate implements
 class KotlinClient: 
 	Events.Required,
     Events.CurrentTransactionStatus,
-    Events.ConnectionStatusChanged,
-    Events.SignatureRequired,
-    Events.EndOfTransaction,
-    Events.DeviceDiscoveryFinished,
-    Events.TransactionResultReady {
+    Events.ConnectionStatusChanged {
 ```
 
 </TabItem>
@@ -93,7 +87,11 @@ class KotlinClient:
 
 ```java
 public class HandpointDelegate implements
-    Events.SmartposRequired {
+    Events.SmartposRequired,
+    Events.CurrentTransactionStatus,
+    Events.ConnectionStatusChanged,
+    Events.EndOfTransaction,
+    Events.TransactionResultReady {
 ```
 
 </TabItem>
@@ -132,11 +130,7 @@ public class HandpointDelegate implements
 class KotlinClient: 
     Events.Required, 
 	Events.ConnectionStatusChanged, 
-	Events.CurrentTransactionStatus,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady {
+	Events.CurrentTransactionStatus {
 ```
 
 </TabItem>
@@ -148,7 +142,13 @@ class KotlinClient:
 
 ```java
 public class JavaClient implements
-	Events.MposRequired {
+	Events.MposRequired,
+	Events.ConnectionStatusChanged, 
+    Events.CurrentTransactionStatus,
+    Events.SignatureRequired,
+    Events.EndOfTransaction,
+    Events.DeviceDiscoveryFinished,
+    Events.TransactionResultReady {
 ```
 
 </TabItem>
@@ -187,11 +187,7 @@ public class HandpointDelegate implements
 class KotlinClient: 
     Events.Required, 
 	Events.ConnectionStatusChanged, 
-	Events.CurrentTransactionStatus,
-	Events.SignatureRequired,
-	Events.EndOfTransaction,
-	Events.DeviceDiscoveryFinished,
-	Events.TransactionResultReady {
+	Events.CurrentTransactionStatus {
 ```
 
 </TabItem>
@@ -203,7 +199,13 @@ class KotlinClient:
 
 ```java
 public class JavaClient implements
-	Events.PosRequired {
+	Events.PosRequired,
+	Events.ConnectionStatusChanged, 
+	Events.CurrentTransactionStatus,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady  {
 ```
 
 </TabItem>

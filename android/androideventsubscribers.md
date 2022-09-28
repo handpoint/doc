@@ -21,7 +21,7 @@ Registers a delegate for the SDK events.
 **Code example**
 
 ```java
-public class ObjectHelper implements Events.Required, Events.Status, Events.Log, Events.PendingResults, Events.TransactionStarted {
+public class ObjectHelper implements Events.SmartposRequired, Events.Status, Events.Log, Events.TransactionStarted,  Events.CurrentTransactionStatus, Events.ConnectionStatusChanged, Events.EndOfTransaction, Events.TransactionResultReady {
 	...
 	private void setEventsHandler() {
 		// Register this class as listener for events
@@ -55,7 +55,7 @@ Unregisters an object from SDK events.
 **Code example**
 
 ```java
-public class ObjectHelper implements Events.Required, Events.Status, Events.Log, Events.PendingResults, Events.TransactionStarted {
+public class ObjectHelper implements Events.SmartposRequired, Events.Status, Events.Log, Events.TransactionStarted,  Events.CurrentTransactionStatus, Events.ConnectionStatusChanged, Events.EndOfTransaction, Events.TransactionResultReady {
 	...
 	private void unsubscribeEventsDelegate() {
 	// Stop receiving events

@@ -8,28 +8,6 @@ id: androideventlisteners
 
 # Events Listeners
 
-## All
-
-`Events.All` <span class="badge badge--info">Interface</span>
-
-An interface which needs to be implemented and added as a listener to receive all available events.
-
-**Extends**
-
-[`Required`](#42) [`Log`](#log) [`Status`](#status) [`PendingResults`](#pendingResults) [`ReportResult`](#reportResult) [`PrinterEvents`](#printerEvents) [`TransactionStarted`](#transactionStarted) [`MessageHandling`](#messageHandling) [`PhysicalKeyboardEvent`](#physicalKeyboardEvent) [`CardBrandDisplay`](#cardBrandDisplay)
-
-
-## Basic
-
-`Events.Basic` <span class="badge badge--info">Interface</span>
-
-An interface which needs to be implemented and added as a listener to receive basic events.
-
-**Extends**
-
-[`Required`](#42) [`Log`](#log) [`Status`](#status) [`PendingResults`](#pendingResults) [`ReportResult`](#reportResult) 
-
-
 ## SmartposRequired
 
 `Events.SmartposRequired` <span class="badge badge--info">Interface</span>
@@ -584,32 +562,6 @@ public final class EventHandler implements Events.ReportResult {
 
 	@Override
 	public void reportResult(TypeOfResult type, String report, DeviceStatus status, Device device) { ... }
-
-}
-
-// Remember to register the instance of this EventHandler:
-this.api.registerEventsDelegate(eventHandlerInstance);
-```
-
-## Required{#42}
-
-`Events.Required` <span class="badge badge--info">Interface</span>
-
-You must provide a class implementing this interface when initializing the SDK.
-
-**Code example**
-
-```java
-public final class EventHandler implements Events.Required {
-
-	@Override
-	public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
-	@Override
-	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
-	@Override
-	public void deviceDiscoveryFinished(List devices) { ... }
-	@Override
-	public void transactionResultReady(TransactionResult transactionResult, Device device) { ... }
 
 }
 
