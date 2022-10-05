@@ -13,7 +13,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 ## 7.0.0
  
-- Removed the `Events.Required` interface and divided it into [3 different interfaces](androidmigrationguide.md#1-new-integration-interfaces)
+- Removed the `Events.Required` interface and divided it into [3 different interfaces](androidmigrationguide.md#1-new-interfaces)
 - All [financial operations](androidmigrationguide.md#3) will now be returning an [OperationStartResult](androidobjects.md#operation-start-result) object instead of a boolean to indicate that the operation was successfully sent to the payment terminal.
 - Introducing a new feature called **duplicate payment check**. 
 - The `deviceCapabilities` event has been renamed to `supportedCardBrands`
