@@ -200,6 +200,11 @@ module.exports = {
       },
     ],
   ],
+  scripts: [
+    // String format.
+    'https:////js-eu1.hs-scripts.com/25846579.js',
+    
+  ],
   plugins: [
     // require.resolve('docusaurus-lunr-search', {
 
