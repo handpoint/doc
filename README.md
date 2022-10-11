@@ -1,59 +1,34 @@
 # Handpoint Documentation Website
 
-This documentation website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
-
-## Installation
-
-Docusaurus is essentially a set of npm packages.
-To be able to build the documentation framework locally we need to have [Node.js](https://nodejs.org/en/download/) version 14.13 or above.
-
-It is also recommended, but not mandatory, to use [yarm](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable).
+This is the source code for the [Handpoint Documentation website](https://developer.handpoint.com/). The site is built using [Docusaurus 2](https://docusaurus.io/).
 
 ## Local Development
+
+### Requirements
+
+Docusaurus is essentially a set of npm packages. If you want to build the site locally, you will need to have [Node.js](https://nodejs.org/en/) version 18 or above installed.
+
+You'll also have to install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable).
+
+### Installation
+
+To install the dependencies, run:
+
+```bash
+yarn install
+```
+
+### Build and Run the Site locally
 
 In the root folder we must execute the following commands:
 
 ```console
-npm run start
-```
-or 
-```console
 yarn start
 ```
+
 This command starts a local development server and opens up a browser window (by default localhost:3000). Most changes are reflected live without having to restart the server.
 
-## Build
-Docusaurus is a modern static website generator so we need to build the website into a directory of static contents and put it on a web server so that it can be viewed. To build the website:
-
-```console
-npm run build
-```
-or
-
-```console
-yarn build
-```
-**The search function will only work when this `build` command has been executed**
-
-When the build is done, you can to test your build locally using:
-
-```console
-npm run serve
-```
-
-
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-## Deployment
-
-```console
-GIT_USER=<Your GitHub username> USE_SSH=true yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
-
-
-## Generate a new SDK version
+## <a name="generate-a-new-sdk-version"></a> Generate a new SDK version
 Generate a new SDK version will autogenerate a folder with the docs that are currently in the selected folder.
 
 Command to create a new version of Android SDK (e.g. version 6.8.0)
@@ -67,30 +42,42 @@ Automatically, it will create the new folder for this version (version-Android S
 
 **To see it published you have to stop docusaurus and start it again**
 
+## Deployment
 
-## See a preview version before publishing
-It is possible to see the result of a preview version before publishing it.
-This version will appear with the name of `Next`.
+The deployment is done automatically with Github Actions. The workflow is defined in `.github/workflows/deploy.yml`:
 
+- Every time a PR is merged to `dev` branch, changes are deployed to https://developer.handpoint.io
+- Every time a PR is merged to `main` branch, changes are deployed to https://developer.handpoint.com
 
-To do this, in the file `docusaurus.config.js` we must change the value of the boolean property `includeCurrentVersion` to `true`.
+The property `includeCurrentVersion` in `docusaurus.config.js` is set to `true` for `dev` branch and `true` for `main` branch. This is done to avoid having unfinished releases in the production website. 
 
-The `includeCurrentVersion` property is located within the plugin `plugin-content-docs` of each module or SDK.
+**IMPORTANT**: If you are about to release the doc for a new version, make sure you follow the steps in the section [Generate a new SDK version](#generate-a-new-sdk-version) before merging to `main` branch.
 
-Example for Android case
+More info about this CI/CD pipeline can be found [here](https://handpoint.atlassian.net/wiki/spaces/DP/pages/3598450735/Documentation+Site).
 
-```
-[
-  '@docusaurus/plugin-content-docs',
-      {
-        id: 'android',
-        includeCurrentVersion: true,
-        path: './android',
-        routeBasePath: 'android',
-        sidebarPath: require.resolve('./sidebarsAndroid.js'),
-        sidebarCollapsed: false
-      },
-],
-```
+## CI/CD
 
-**Docusaurus will most likely need to be restarted for these changes to take effect.**
+The documentation site consists of two [docusaurus](https://docusaurus.io/) instances:
+
+- [Card present documentation](https://developer.handpoint.com/)
+- [Card not present documentation](https://developer-ecomm.handpoint.com/)
+
+The documentation site follows [Gitflow strategy](https://docs.google.com/document/d/1nRKUXhPKga-UJ-UxXKYdssa9rKlyClNRfxM6J4fw11s/edit#heading=h.wy5fcj5rh5j6). The `main` branch is the production branch and the `dev` branch is the development/staging branch. 
+
+The `dev` branch is deployed to:
+
+- [https://developer.handpoint.io](https://developer.handpoint.io) 
+- [https://developer-ecomm.handpoint.io](https://developer-ecomm.handpoint.io) 
+
+and the `main` branch is deployed to:
+ 
+- [https://developer.handpoint.com](https://developer.handpoint.com) 
+- [https://developer-ecomm.handpoint.com](https://developer-ecomm.handpoint.com) 
+
+Documentation changes can be developed locally and tested in the staging environment before being released to production.
+Every time we want to integrate changes from a feature branch to the `dev` branch, we have to create a PR. The PR will be reviewed by one of the team members and merged to `dev` branch. This will trigger a deployment to the staging environment (It can take up to 5 minutes to be deployed). 
+
+If you are writing documentation for a new version, you have to follow the steps in the section [Generate a new SDK version](#generate-a-new-sdk-version) before merging to `main` branch.
+
+Once the changes are tested in the staging environment, another PR has to be created to merge the changes from `dev` branch to `main` branch. This PR will be reviewed by two team members and merged to `main` branch. This will trigger a deployment to the production environment (It can take up to 5 minutes to be deployed).
+
