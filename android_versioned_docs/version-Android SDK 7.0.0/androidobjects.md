@@ -375,9 +375,7 @@ Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`. UNDEFINED means that the SDK couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved.  
-12:06
-From 7.1.0 we won't cancel transactions anymore and will use getTxnStatus to return the actual status of the transaction ( |
+| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`. UNDEFINED means that the SDK couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved. From Android SDK `7.1.0` we won't cancel transactions anymore and will use `getTxnStatus` to return the actual status of the transaction |
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
