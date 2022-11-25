@@ -70,7 +70,6 @@ Invoked when the terminal finishes processing the transaction.
 
 ## Sale And Tokenize Card{#3}
 
-`saleAndTokenizeCard`
 
 A [sale](#2) operation which also returns a card token. (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)
 
