@@ -26,8 +26,12 @@ id: androidintroduction
 
 <br></br>
 
+:::caution
+**Handpoint recommends use the Android SDK 7.0.1 or higher.**
+:::
+
 :::tip
-If you are currently using 5.x of the Android SDK, take a look at the [migration guide](androidmigrationguide.md) to 6.x
+If you are currently using 6.x of the Android SDK, take a look at the [migration guide](androidmigrationguide.md) to 7.x
 :::
 
 

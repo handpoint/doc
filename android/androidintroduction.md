@@ -27,7 +27,7 @@ id: androidintroduction
 <br></br>
 
 :::tip
-If you are currently using 5.x of the Android SDK, take a look at the [migration guide](androidmigrationguide.md) to 6.x
+If you are currently using 6.x of the Android SDK, take a look at the [migration guide](androidmigrationguide.md) to 7.x
 :::
 
 

@@ -29,11 +29,11 @@ A sale initiates a payment operation to the card reader. In it's simplest form y
 //Initiate a sale for 10.00 in Great British Pounds
 api.sale(new BigInteger("1000"),Currency.GBP);
 
-//Initiate a sale for 10.00 in Great British Pounds with tipping configuration
+//Initiate a sale for 10.00 in Great British Pounds with a tipping configuration
 //This feature is only available for PAX and Telpo devices
 TipConfiguration tipConfiguration = new TipConfiguration();
 tipConfiguration.setTipPercentages(Arrays.asList(5, 10, 15, 20));
-tipConfiguration.setAmount(new BigInteger("1000"));
+tipConfiguration.setTipAmount(new BigInteger("1000"));
 tipConfiguration.setBaseAmount(new BigInteger("1000"));
 tipConfiguration.setEnterAmountEnabled(true);
 tipConfiguration.setFooter("Thank you");
@@ -87,21 +87,23 @@ A [sale](#2) operation which also returns a card token. (not available for all a
 
 ```java
 //Initiate a sale for 10.00 in Great British Pounds
-api.saleAndTokenizeCard(new BigInteger("1000"),Currency.GBP);
+SaleOptions options = new SaleAndTokenizeOptions();
+api.sale(new BigInteger("1000"),Currency.GBP, options);
 
-//Initiate a sale for 10.00 in Great British Pounds with tipping configuration
-//This feature is not available for HiLite & Hi5 devices
+//Initiate a sale for 10.00 in Great British Pounds with a tipping configuration
+//This feature is only available for PAX and Telpo devices
 TipConfiguration tipConfiguration = new TipConfiguration();
 tipConfiguration.setTipPercentages(Arrays.asList(5, 10, 15, 20));
-tipConfiguration.setAmount(new BigInteger("1000"));
+tipConfiguration.setTipAmount(new BigInteger("1000"));
 tipConfiguration.setBaseAmount(new BigInteger("1000"));
 tipConfiguration.setEnterAmountEnabled(true);
 tipConfiguration.setFooter("Thank you");
 tipConfiguration.setSkipEnabled(true);
 SaleOptions options = new SaleOptions();
 options.setTipConfiguration(tipConfiguration);
+options.toSaleAndTokenizeOptions();
 
-api.saleAndTokenizeCard(new BigInteger("1000"),Currency.GBP,options);
+api.sale(new BigInteger("1000"),Currency.GBP,options);
 ```
 
 **Events invoked**
