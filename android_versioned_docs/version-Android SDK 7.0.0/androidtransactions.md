@@ -80,7 +80,7 @@ A [sale](#2) operation which also returns a card token. (not available for all a
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for a sale.|
+| `options` <br />[*SaleAndTokenizeOptions*](androidobjects.md#sale-and-tokenize-options)     | An object to store all the customization options for a sale.|
 
 **Code example**
 
