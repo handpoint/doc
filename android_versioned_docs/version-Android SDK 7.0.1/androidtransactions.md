@@ -82,6 +82,7 @@ A [sale](#2) operation which also returns a card token. (not available for all a
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `options` <br />[*SaleAndTokenizeOptions*](androidobjects.md#sale-and-tokenize-options)     | An object to store all the customization options for a sale.|
 
+
 **Code example**
 
 ```java

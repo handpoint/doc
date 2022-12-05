@@ -530,9 +530,11 @@ Credential credential = new Credential();
 //Optionally
 credential.setAcquirer(YOUR_ACQUIRER);
 //Optionally
+
 credential.setMid(mid);
 //Optionally
 credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 ```
@@ -602,6 +604,7 @@ credential.setAcquirer(YOUR_ACQUIRER);
 credential.setMid(mid);
 //Optionally
 credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
@@ -757,6 +760,7 @@ credential.setAcquirer(YOUR_ACQUIRER);
 credential.setMid(mid);
 //Optionally
 credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
@@ -826,9 +830,11 @@ Credential credential = new Credential();
 //Optionally
 credential.setAcquirer(YOUR_ACQUIRER);
 //Optionally
+
 credential.setMid(mid);
 //Optionally
 credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
@@ -926,6 +932,7 @@ options.setTipConfiguration(config);
 //Alternatively, you can set the tip amount directly
 options.setTipConfiguration(new TipConfiguration(AMOUNT));
 ```
+
 
 
 ## Settings {#settings}

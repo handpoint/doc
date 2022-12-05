@@ -256,6 +256,7 @@ You can disable the duplicate check functionality for the following financial op
 
 ## 4. The `deviceCapabilities` event has been renamed to `supportedCardBrands`
 
+
  Check out the [card brand display](androideventlisteners.md#cardBrandDisplay) object.
 
  ## 5. The `saleAndTokenize` method has been removed. Since Android SDK 7.0.0, a `saleAndTokenizeOptions` object needs to be passed in 'options' parameter of financial operations methods like `sale`
