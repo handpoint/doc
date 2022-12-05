@@ -13,7 +13,7 @@ The new version 7.X.X of our Android SDK introduces the following changes:
 	- The MAIN reason why we are now returning an object is because we want to give you access to the `transactionReference` field inside the `OperationStartResult` object. The `transactionReference` field is a unique identifier for the transaction that you will receive immediately after sending the transaction request to the terminal. If for any reason you do not receive the `TransactionResult` object at the end of the transaction you will now be able to use the `transactionReference` to directly query our Gateway and know instantly if the transaction for which you do not know the outcome was approved or declined.
 3. We are introducing a new feature called **duplicate payment check**. Looking back at our data we have seen that when a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are now flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the 2nd charge, this menu is pushed by our SDK and will automatically be displayed on top of your own UI when required. We are only prompting the duplicate menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature will be **enabled by default** in the Android sdk 7.0.0 and can be disabled by passing a false value as part of the sale options [`saleOptions.setCheckDuplicates(false);`](androidmigrationguide.md#4).
 4. The `deviceCapabilities` event has been renamed to `supportedCardBrands`.
-5. The [`saleAndTokenize`](androidtransactions#3) method has been removed. Since Android SDK 7.0.0, a `saleAndTokenizeOptions` object needs to be passed as a parameter of a `sale` method.
+5. The [`saleAndTokenize`](androidtransactions#3) method has been removed. Since Android SDK 7.0.0, a `saleAndTokenizeOptions` object needs to be passed in 'options' parameter of financial operations methods like `sale`.
 
 ## 1. New Interfaces
 
@@ -258,6 +258,6 @@ You can disable the duplicate check functionality for the following financial op
 
  Check out the [card brand display](androideventlisteners.md#cardBrandDisplay) object.
 
-## 5. The `saleAndTokenize` method has been removed. Now, a `saleAndTokenizeOptions` object needs to be passed as a parameter of a `sale` method
+## 5. The `saleAndTokenize` method has been removed. Since Android SDK 7.0.0, a `saleAndTokenizeOptions` object needs to be passed in 'options' parameter of financial operations methods like `sale`
 
 Check out the [Sale and Tokenize Card](androidtransactions.md#3) section.
