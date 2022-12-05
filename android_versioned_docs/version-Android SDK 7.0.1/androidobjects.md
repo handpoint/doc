@@ -530,9 +530,11 @@ Credential credential = new Credential();
 //Optionally
 credential.setAcquirer(YOUR_ACQUIRER);
 //Optionally
-credential.setMerchantId(mid);
+
+credential.setMid(mid);
 //Optionally
-credential.setTerminalId(tid);
+credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 ```
@@ -561,9 +563,9 @@ Credential credential1 = new Credential();
 //Optionally
 credential1.setAcquirer(YOUR_ACQUIRER);
 //Optionally
-credential1.setMerchantId(mid);
+credential1.setMid(mid);
 //Optionally
-credential1.setTerminalId(tid);
+credential1.setTid(tid);
 //Optionally
 credential1.setMcc(mcc);
 
@@ -599,9 +601,10 @@ Credential credential = new Credential();
 //Optionally
 credential.setAcquirer(YOUR_ACQUIRER);
 //Optionally
-credential.setMerchantId(mid);
+credential.setMid(mid);
 //Optionally
-credential.setTerminalId(tid);
+credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
@@ -754,9 +757,10 @@ Credential credential = new Credential();
 //Optionally
 credential.setAcquirer(YOUR_ACQUIRER);
 //Optionally
-credential.setMerchantId(mid);
+credential.setMid(mid);
 //Optionally
-credential.setTerminalId(tid);
+credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
@@ -826,9 +830,11 @@ Credential credential = new Credential();
 //Optionally
 credential.setAcquirer(YOUR_ACQUIRER);
 //Optionally
-credential.setMerchantId(mid);
+
+credential.setMid(mid);
 //Optionally
-credential.setTerminalId(tid);
+credential.setTid(tid);
+
 //Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
 auth.add(credential);
 options.setMerchantAuth(auth);
@@ -860,6 +866,74 @@ options.setTipConfiguration(config);
 //Alternatively, you can set the tip amount directly
 options.setTipConfiguration(new TipConfiguration(AMOUNT));
 ```
+
+
+## Sale and Tokenize Options
+
+`SaleAndTokenizeOptions` <span class="badge badge--info">Object</span>
+
+An object to store all the customization options for a sale and tokenize options.
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `BudgetNumber`   <br />*String*  | 		The budget number can be used to split payments over a period of months.|
+| `CustomerReference`  <br />*String*   | 		An arbitrary string to use as your own identifier for a transaction|
+| `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
+| `PinBypass`   <br />*Boolean* | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
+| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
+| `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
+
+**Code example**
+
+```java
+SaleAndTokenizeOptions options = new SaleAndTokenizeOptions();
+
+//If you use a customer reference
+options.setCustomerReference("Your customer reference");
+
+//If you need Multi MID / Custom merchant Authentication
+MerchantAuth auth = new MerchantAuth();
+Credential credential = new Credential();
+//Optionally
+credential.setAcquirer(YOUR_ACQUIRER);
+//Optionally
+credential.setMid(mid);
+//Optionally
+credential.setTid(tid);
+//Add as many credentials as acquirers your merchant supports (for example OMNIPAY/AMEX). 
+auth.add(credential);
+options.setMerchantAuth(auth);
+
+//If you need to enable pin bypass
+options.setPinBypass(true);
+
+//If you need to disable the duplicate payment check service
+options.setCheckDuplicates(false);
+
+//If you want to specify the budget period
+//Only available for SureSwipe
+options.setBudgetNumber(YOUR_BUDGET_NUMBER);
+
+//If you want to specify tip options
+//Only available for PAX and Telpo terminals.
+TipConfiguration config = new TipConfiguration();
+//Optionally
+config.setHeaderName(HEADER);
+//Optionally
+config.setFooter(FOOTER);
+//Optionally
+config.setEnterAmountEnabled(true);
+//Optionally
+config.setSkipEnabled(true);
+config.setTipPercentages(percentages);
+options.setTipConfiguration(config);
+
+//Alternatively, you can set the tip amount directly
+options.setTipConfiguration(new TipConfiguration(AMOUNT));
+```
+
+
 
 ## Settings {#settings}
 
