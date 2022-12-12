@@ -70,6 +70,7 @@ Invoked when the terminal finishes processing the transaction.
 
 ## Sale And Tokenize Card{#3}
 
+
 A [sale](#2) operation which also returns a card token. (not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice)
 
 **Parameters**
@@ -81,6 +82,7 @@ A [sale](#2) operation which also returns a card token. (not available for all a
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `options` <br />[*SaleAndTokenizeOptions*](androidobjects.md#sale-and-tokenize-options)     | An object to store all the customization options for a sale.|
 
+
 **Code example**
 
 ```java
@@ -88,10 +90,8 @@ A [sale](#2) operation which also returns a card token. (not available for all a
 SaleOptions options = new SaleAndTokenizeOptions();
 api.sale(new BigInteger("1000"),Currency.GBP, options);
 
-
 //Initiate a sale for 10.00 in Great British Pounds with a tipping configuration
 //This feature is only available for PAX and Telpo devices
-
 TipConfiguration tipConfiguration = new TipConfiguration();
 tipConfiguration.setTipPercentages(Arrays.asList(5, 10, 15, 20));
 tipConfiguration.setTipAmount(new BigInteger("1000"));
@@ -315,7 +315,6 @@ Invoked when the terminal finishes processing the transaction.
 | Parameter      | Notes |
 | ----------- | ----------- |
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
-
 
 
 
