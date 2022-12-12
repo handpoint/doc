@@ -29,6 +29,7 @@ A sale initiates a payment operation to the card reader. In it's simplest form y
 //Initiate a sale for 10.00 in Great British Pounds
 api.sale(new BigInteger("1000"),Currency.GBP);
 
+
 //Initiate a sale for 10.00 in Great British Pounds with a tipping configuration
 //This feature is not available for HiLite devices
 TipConfiguration tipConfiguration = new TipConfiguration();

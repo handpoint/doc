@@ -15,7 +15,6 @@ The new version 7.X.X of our Android SDK introduces the following changes:
 4. The `deviceCapabilities` event has been renamed to `supportedCardBrands`.
 5. The [`saleAndTokenize`](androidtransactions#3) method has been removed. Since Android SDK 7.0.0, a `saleAndTokenizeOptions` object needs to be passed in 'options' parameter of financial operations methods like `sale`.
 
-
 ## 1. New Interfaces
 
 For an easier integration with our SDK we removed the `Events.Required` interface and divided it into 3 different interfaces:
@@ -263,3 +262,4 @@ You can disable the duplicate check functionality for the following financial op
 ## 5. The `saleAndTokenize` method has been removed. Since Android SDK 7.0.0, a `saleAndTokenizeOptions` object needs to be passed in 'options' parameter of financial operations methods like `sale`
 
 Check out the [Sale and Tokenize Card](androidtransactions.md#3) section.
+
