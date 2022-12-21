@@ -993,7 +993,7 @@ An enum of the SDK supported languages.
 
 **Possible values**
 
-`en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT`
+`en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO`
 
 ## Tender Type{#36}
 
