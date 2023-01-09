@@ -614,3 +614,22 @@ An enum representing different tender types.
 Possible values
 
 `NOT_SET` `CREDIT` `DEBIT`
+
+## Tip Adjustment
+
+`TipAdjustment` <span class="badge badge--info">Object</span>
+
+
+| Property      | Description |
+| ----------- | ----------- |
+| `amount`  <br />*Biginteger*   | Amount of the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).      |
+| `currency` <br />*String*  |The currency of the tip      |
+
+**Code example**
+
+````json
+{
+    "currency": "EUR",
+    "amount": 1000
+}
+````
