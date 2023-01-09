@@ -251,6 +251,61 @@ RESPONSE:
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
 
+## /transaction-result/{guid}/tip-adjustment
+
+
+`TipAdjustment`
+
+POST endpoint used to execute a tip adjustment operation. 
+
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant.|
+| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid of the transaction to be adjusted. |
+| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the amount and currency of the tip adjustment.  |
+
+**Returns**
+
+
+| Response      | Response Code |
+| ----------- | ----------- |
+| **OK** | Response code 200.      |
+| **BadRequest** | Response code 400.      |
+
+
+**Code Example**
+
+```shell
+Operation executed using CLI tool CURL:
+REQUEST:
+    curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da784-8b57-11ed-9891-ebe2a88ff071/tip-adjustment' (production)\
+    curl --location --request POST 'https://cloud.handpoint.io/transactions/ff6da784-8b57-11ed-9891-ebe2a88ff071/tip-adjustment' (development)\
+          --header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+              "currency": "EUR",
+              "amount": 1000
+          }'
+
+RESPONSE code 200:
+{
+    "statusMessage": "tip adjusted"
+}
+
+Error example response (using wrong currency):
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": "Wrong currency [EU]"
+    }
+}
+```
+
 ## Transaction Result Recovery
 
 
