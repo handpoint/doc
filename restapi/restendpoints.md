@@ -256,13 +256,16 @@ RESPONSE:
 
 `TipAdjustment`
 
-POST endpoint used to execute a tip adjustment over an already executed transaction referenced by guid
+POST endpoint used to execute a tip adjustment operation. 
+
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant.       |
-| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid to identify the transaction over which the adjustment is going to be executed.       |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant.|
+| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid of the transaction to be adjusted. |
 | `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the amount and currency of the tip adjustment.  |
 
 **Returns**
