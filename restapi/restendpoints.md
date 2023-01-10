@@ -251,7 +251,7 @@ RESPONSE:
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
 
-## /transaction-result/{guid}/tip-adjustment
+## /transactions/{guid}/tip-adjustment
 
 
 `TipAdjustment`
@@ -287,8 +287,7 @@ REQUEST:
           --header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
           --header 'Content-Type: application/json' \
           --data-raw '{
-              "currency": "EUR",
-              "amount": 1000
+              "amount": 5.25
           }'
 
 RESPONSE code 200:
@@ -296,12 +295,12 @@ RESPONSE code 200:
     "statusMessage": "tip adjusted"
 }
 
-Error example response (using wrong currency):
+Error example response (using invalid guid):
 {
     "error": {
         "statusCode": 400,
         "name": "BadRequestError",
-        "message": "Wrong currency [EU]"
+        "message": "Invalid guid [fake-guid]"
     }
 }
 ```
