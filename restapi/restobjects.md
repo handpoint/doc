@@ -622,14 +622,16 @@ Possible values
 
 | Property      | Description |
 | ----------- | ----------- |
-| `amount`  <br />*Biginteger*   | Amount of the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).      |
-| `currency` <br />*String*  |The currency of the tip      |
+| `amount`  <br />*Biginteger*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
 
 **Code example**
 
 ````json
 {
-    "currency": "EUR",
-    "amount": 1000
+    "amount": 10.25
+}
+
+{
+    "amount": 20
 }
 ````

@@ -251,14 +251,16 @@ RESPONSE:
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
 
-## /transaction-result/{guid}/tip-adjustment
+## /transactions/{guid}/tip-adjustment
 
 
 `TipAdjustment`
 
 POST endpoint used to execute a tip adjustment operation. 
 
-A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV. 
+
+Note: If two tip adjustments are sent for the same original transaction, only the second one will be taken into account. Each new tip adjustment will override the previous one. A tip adjustment will be rejected if the original transaction has already been batched out by the acquirer.
 
 **Parameters**
 
@@ -287,8 +289,7 @@ REQUEST:
           --header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
           --header 'Content-Type: application/json' \
           --data-raw '{
-              "currency": "EUR",
-              "amount": 1000
+              "amount": 5.25
           }'
 
 RESPONSE code 200:
@@ -296,12 +297,12 @@ RESPONSE code 200:
     "statusMessage": "tip adjusted"
 }
 
-Error example response (using wrong currency):
+Error example response (using invalid guid):
 {
     "error": {
         "statusCode": 400,
         "name": "BadRequestError",
-        "message": "Wrong currency [EU]"
+        "message": "Invalid guid [fake-guid]"
     }
 }
 ```
