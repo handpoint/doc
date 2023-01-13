@@ -29,7 +29,7 @@ The following flow shows the interactions between your application and the Handp
 
 :::caution
 
-**4.2)** **IMPORTANT** Feature only compatible with Handpoint App v3.3.0 and above. In case the original [transaction request](restobjects.md#transaction-request-object) does not ontain a callbackUrl and token, the [transaction result](restobjects.md#transaction-result-object) is sent back from the terminal to Handpoint's REST-API. The result can then be retrieved from the endpoint GET https://cloud.handpoint.[com//io]/transaction-result/{transactionResultId} where the transactionResultId (also called cloud transaction identifier) is found in the answer from the initial POST[1] to the REST-API (see step **2**)).
+**4.2)** **IMPORTANT** Feature only compatible with Handpoint App v3.3.0 and above. In case the original [transaction request](restobjects.md#transaction-request-object) does not ontain a callbackUrl and token, the [transaction result](restobjects.md#transaction-result-object) is sent back from the terminal to Handpoint's REST-API. The result can then be retrieved from the endpoint GET [transaction-result/{transactionResultId}](restendpoints#transaction-resulttransactionresultid) where the transactionResultId (also called cloud transaction identifier) is found in the answer from the initial POST[1] to the REST-API (see step **2**)).
 
 :::
 
