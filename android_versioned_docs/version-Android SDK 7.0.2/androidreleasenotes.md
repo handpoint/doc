@@ -13,7 +13,6 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 
 ## 7.0.2
-
 **Features**:
 - Norwegian and Italian language support.
 
