@@ -10,6 +10,11 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 :::
 
 
+## 6.2.1
+
+**Fixes**:
+- Reconnection management
+
 ## 6.2.0
 
 **Features**:
