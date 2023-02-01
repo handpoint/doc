@@ -38,8 +38,12 @@ tipConfiguration.setBaseAmount(new BigInteger("1000"));
 tipConfiguration.setEnterAmountEnabled(true);
 tipConfiguration.setFooter("Thank you");
 tipConfiguration.setSkipEnabled(true);
+// Metadata
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+
 SaleOptions options = new SaleOptions();
 options.setTipConfiguration(tipConfiguration);
+options.setMetadata(metadata);
 
 api.sale(new BigInteger("1000"),Currency.GBP, options);
 ```
