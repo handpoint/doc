@@ -1103,7 +1103,7 @@ An enum representing different verification methods used in the transaction.
 
 `Metadata` <span class="badge badge--info">Object</span>
 
-An object to store metadata.
+An object to store metadata. This field can be used to pass custom data to the Handpoint gateway, it will be echoed back in the transaction result. This field will also be part of the transaction response if querying the Handpoint transaction reporting API. 
 
 **Properties**
 
