@@ -34,6 +34,7 @@ this.Hapi.Sale(new BigInteger("1000"), Currency.EUR);
 // With options
 Dictionary map = new Dictionary();
 map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.Metadata1.Tag(), "Data 1");
 
 this.Hapi.Sale(new BigInteger("1000"), Currency.EUR, map);
 ```

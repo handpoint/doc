@@ -48,6 +48,7 @@ An object holding information about the result of a transaction.
 | `merchantAddress`  <br />*String	*   | Merchant Address|
 | `merchantName`  <br />*String	*   | Merchant Name|
 | `merchantReceipt`  <br />*String	*   | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats |
+| `metadata`  <br />[*Metadata*](#metadata)   | If metadata was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `mid`  <br />*String	*   | Merchant Identifier|
 | `originalEFTTransactionID`  <br />*String	*   | In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed|
 | `paymentScenario`  <br />[*PaymentScenario*](#34)   | Indicates the card entry mode|
@@ -109,6 +110,13 @@ An object holding information about the result of a transaction.
   "merchantAddress": "Plaza Soledad Torres Acosta 1 28013 Madrid",
   "merchantName": "Hago la cama",
   "merchantReceipt": "https://s3.[...]/merchantReceipt.html",
+  "metadata": {
+    "metadata1":"data 1",
+    "metadata2":"data 2",
+    "metadata3":"data 3",
+    "metadata4":"data 4",
+    "metadata5":"data 5",
+  },
   "mid": "",
   "originalEFTTransactionID": "",
   "paymentScenario": "CHIPCONTACTLESS",
@@ -246,12 +254,20 @@ An object to store all the customisation options for an operation. This object c
 | Property      | Description |
 | ----------- | ----------- |
 | `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
 
 **Code example**
 
 ```json
 {
-    "customerReference": "MyCustomReference"    
+    "customerReference": "MyCustomReference",
+    "metadata": {
+        "metadata1": "data1",
+        "metadata2": "data2",
+        "metadata3": "data3",
+        "metadata4": "data4",
+        "metadata5": "data5"
+    }    
 }
 ```	
 
@@ -271,6 +287,7 @@ An object to store the customization options for a sale operation. This object c
 | `TipConfiguration`  <br />[*TipConfiguration*](#39) | Configuration for the tipping menu of the payment terminal.|
 | `bypassOptions`  <br />[*BypassOptions*](#19) |  Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17)   | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
 
 **Code example**
 
@@ -301,6 +318,13 @@ An object to store the customization options for a sale operation. This object c
             "mcc": "33333"
         }
     ],
+    "metadata": {
+        "metadata1": "data1",
+        "metadata2": "data2",
+        "metadata3": "data3",
+        "metadata4": "data4",
+        "metadata5": "data5"
+    }
 }
 ```	
 
@@ -320,6 +344,9 @@ An object to store the customization options for a refund. This object can be em
 | `duplicate_check`  <br />*Boolean*   | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `bypassOptions`  <br />[*BypassOptions*](#19) | Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
+
+**Code example**
 
 ```json
 {
@@ -348,6 +375,13 @@ An object to store the customization options for a refund. This object can be em
             "mcc": "33333"
         }
     ],
+    "metadata": {
+        "metadata1": "data1",
+        "metadata2": "data2",
+        "metadata3": "data3",
+        "metadata4": "data4",
+        "metadata5": "data5"
+    }
 }
 ```	
 
@@ -621,3 +655,33 @@ An enum representing different types of transactions.
 **Possible values**
 
 `UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE` `MOTO_REFUND` `MOTO_REVERSAL` `SALE_AND_TOKENIZE_CARD` `UPDATE` `PRINT_RECEIPT` 
+
+## Metadata{#metadata}
+
+`Metadata` <span class="badge badge--info">Object</span>
+
+An object to store metadata.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+
+**Code example**
+
+```json
+{
+    "metadata": {
+        "metadata1": "data1",
+        "metadata2": "data2",
+        "metadata3": "data3",
+        "metadata4": "data4",
+        "metadata5": "data5"
+    }
+}
+```	

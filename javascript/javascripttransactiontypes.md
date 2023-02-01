@@ -49,6 +49,13 @@ var saleOptions = {
             mcc: "33333"
         }
     ],
+    metadata: {
+        metadata1: "data1",
+        metadata2: "data2",
+        metadata3: "data3",
+        metadata4: "data4",
+        metadata5: "data5"
+    }  
 }
 
 Handpoint.sale('1000', 'USD', saleOptions, function (stat) {

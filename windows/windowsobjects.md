@@ -48,6 +48,7 @@ An object holding information about the result of a transaction.
 | `merchantAddress`<br />*String*    | 		Merchant Address|
 | `merchantName`<br />*String*    | 		Merchant Name|
 | `merchantReceipt`<br />*String*    | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats |
+| `metadata`  <br />[*Metadata*](#metadata)   | If metadata[1-5] was provided as an optional parameter in the transaction request it is echoed unaltered in this object|
 | `mid`<br />*String*    | 		Merchant Identifier|
 | `originalEFTTransactionID`<br />*String*    | 		In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed|
 | `paymentScenario`<br />[*PaymentScenario*](#26)     | 		Indicates the card entry mode|
@@ -106,6 +107,13 @@ An object holding information about the result of a transaction.
   "merchantAddress": "Plaza Soledad Torres Acosta 1 28013 Madrid",
   "merchantName": "Hago la cama",
   "merchantReceipt": "https://s3.[...]/merchantReceipt.html",
+  "metadata": {
+      "metadata1": "Data 1",
+      "metadata2": "",
+      "metadata3": "",
+      "metadata4": "",
+      "metadata5": ""
+  },
   "mid": "",
   "originalEFTTransactionID": "",
   "paymentScenario": "CHIPCONTACTLESS",
@@ -401,6 +409,11 @@ A class containing optional transaction parameters now supported by the device.
 |`Budget`<br />*String*	|	**Budget is only available for sale transactions**.<br /> A` String` representing the key for a budget number.A budget number can be used to split up an amount over a period of months. The value has to be a `String` of 2 digits representing the number of months to split the transaction to. Example: "03" or "24".|
 |`CustomerReference`<br />*String*|**String	CustomerReference is available for all transactions.**<br />A ` String` representing the key for a customer reference.A customer reference can be used for an internal marking system. The value is sent as a `String` of a maximum 36 characters and received back when the transaction has been processed. Example: "C.nr. 212311".|
 |`DuplicateCheck`<br />*String*| Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The	DuplicateCheck functionality is available for the following transactions:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The Duplicate Check service is **enabled by default**, if you want to disable it, you must use the `String` "0", for example: ```options.Add(XmlTag.DuplicateCheck.Tag(), "0");```|
+| `Metadata1`  <br />*String*|**String	Metadata1 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata1.Tag(), "Data 1");```|
+| `Metadata2`  <br />*String*|**String	Metadata2 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata2.Tag(), "Data 2");```|
+| `Metadata3`  <br />*String*|**String	Metadata3 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata3.Tag(), "Data 3");```|
+| `Metadata4`  <br />*String*|**String	Metadata4 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata4.Tag(), "Data 4");```|
+| `Metadata5`  <br />*String*|**String	Metadata5 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata5.Tag(), "Data 5");```|
 
 
 ## Log Level{#9}
@@ -512,3 +525,33 @@ bool inTransaction = HapiManager.InTransaction(SomeConnectedDevice);
 //Check the current logLevel
 LogLevel level = HapiManager.GetLogLevel();
 ```
+
+## Metadata{#metadata}
+
+`Metadata` <span class="badge badge--info">Object</span>
+
+Object used to echo metadata1-5, in the transaction result, if it was set as an optional parameter in the transaction request .
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `Metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `Metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `Metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `Metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `Metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+
+**Code example**
+
+```json
+{
+    "metadata": {
+        "metadata1": "data1",
+        "metadata2": "data2",
+        "metadata3": "data3",
+        "metadata4": "data4",
+        "metadata5": "data5"
+    }
+}
+```	

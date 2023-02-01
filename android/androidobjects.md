@@ -51,6 +51,7 @@ An object holding information about the result of a transaction.
 | `merchantAddress`  <br />*String*   | 		Merchant Address.|
 | `merchantName`  <br />*String*   | 		Merchant Name.|
 | `merchantReceipt` <br />*String*    | 		A URL containing the customer receipt in HTML format. Note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
+| `metadata`  <br />[*Metadata*](#metadata)   | If metadata was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `mid`  <br />*String*   | 		Merchant Identifier.|
 | `originalEFTTransactionID` <br />*String*    | 		In case the transaction type is a reversal, this field will contain the identifier of the original transaction being reversed.|
 | `paymentScenario`   <br />[*PaymentScenario*](#35)  | 		Indicates the card entry mode.|
@@ -114,6 +115,13 @@ An object holding information about the result of a transaction.
   "merchantAddress": "Plaza Soledad Torres Acosta 1 28013 Madrid",
   "merchantName": "Hago la cama",
   "merchantReceipt": "https://s3.[...]/merchantReceipt.html",
+  "metadata": {
+    "metadata1":"data 1",
+    "metadata2":"data 2",
+    "metadata3":"data 3",
+    "metadata4":"data 4",
+    "metadata5":"data 5",
+  },
   "mid": "",
   "originalEFTTransactionID": "",
   "paymentScenario": "CHIPCONTACTLESS",
@@ -684,6 +692,7 @@ An object to store customer reference options for regular operations.
 | Parameter      | Description |
 | ----------- | ----------- |
 | `CustomerReference`  <br />*String*   | 		An arbitrary string to use as your own identifier for a transaction|
+| `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
 
 **Code example**
 
@@ -692,6 +701,10 @@ Options options = new Options();
 
 //If you use a customer reference
 options.setCustomerReference("Your customer reference");
+
+// Metadata
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+options.setMetadata(metadata);
 ```
 
 ## Payment Scenario{#35}
@@ -739,6 +752,7 @@ An object to store all the customization options for a refund.
 | `PinBypass`   <br />*Boolean*    | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
 | `SignatureBypass`  <br />*Boolean*   | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
+| `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
 
 **Code example**
 
@@ -766,6 +780,10 @@ options.setPinBypass(true);
 
 //If you need to disable the duplicate payment check service
 options.setCheckDuplicates(false);
+
+// Metadata
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+options.setMetadata(metadata);
 ```
 
 ## Report Configuration{#19}
@@ -811,6 +829,7 @@ An object to store all the customization options for a sale.
 | `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
+| `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
 
 **Code example**
 
@@ -859,6 +878,10 @@ options.setTipConfiguration(config);
 
 //Alternatively, you can set the tip amount directly
 options.setTipConfiguration(new TipConfiguration(AMOUNT));
+
+// Metadata
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+options.setMetadata(metadata);
 ```
 
 ## Sale and Tokenize Options
@@ -1075,3 +1098,34 @@ An enum representing different verification methods used in the transaction.
 **Possible values**
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
+
+## Metadata{#metadata}
+
+`Metadata` <span class="badge badge--info">Object</span>
+
+An object to store metadata.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+
+**Code example**
+
+```java
+// Option 1
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+
+// Option 2
+Metadata metadata = new Metadata();
+metadata.setMetadata1("Data 1");
+metadata.setMetadata2("Data 2");
+metadata.setMetadata3("Data 3");
+metadata.setMetadata4("Data 4");
+metadata.setMetadata5("Data 5");
+```	
