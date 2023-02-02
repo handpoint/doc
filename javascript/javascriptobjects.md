@@ -254,7 +254,7 @@ An object to store all the customisation options for an operation. This object c
 | Property      | Description |
 | ----------- | ----------- |
 | `customerReference`  <br />*String*   | An arbitrary string to use as your own identifier for a transaction|
-| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 
 **Code example**
 
@@ -287,7 +287,7 @@ An object to store the customization options for a sale operation. This object c
 | `TipConfiguration`  <br />[*TipConfiguration*](#39) | Configuration for the tipping menu of the payment terminal.|
 | `bypassOptions`  <br />[*BypassOptions*](#19) |  Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17)   | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
-| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 
 **Code example**
 
@@ -344,7 +344,7 @@ An object to store the customization options for a refund. This object can be em
 | `duplicate_check`  <br />*Boolean*   | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `bypassOptions`  <br />[*BypassOptions*](#19) | Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
-| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result.|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 
 **Code example**
 
@@ -666,11 +666,11 @@ An object to store metadata.
 
 | Property      | Description |
 | ----------- | ----------- |
-| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
-| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
-| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
-| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
-| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters|
+| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 
 **Code example**
 
