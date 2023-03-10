@@ -119,7 +119,7 @@ android {
                             //to add android:exported="true" or android:exported="false" in your activities
         multiDexEnabled true
         ndk {
-            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+            abiFilters  "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
         }
     }
 
@@ -143,7 +143,7 @@ For production terminals:
     <dependency>
       <groupId>com.handpoint.api</groupId>
       <artifactId>sdk</artifactId>
-      <version>[6.0.0,7.0.0)</version>
+      <version>[7.0.2,)</version>
       <type>aar</type>
     </dependency>
 ```
