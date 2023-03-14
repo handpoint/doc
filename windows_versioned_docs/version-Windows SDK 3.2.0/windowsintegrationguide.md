@@ -94,7 +94,7 @@ namespace GettingStartedApp
             api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret));
         }
 
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        public void deviceDiscoveryFinished(List<Device> devices)
         {
             // Here you get a list of Bluetooth payment terminals paired with your computer
         }
@@ -105,7 +105,7 @@ namespace GettingStartedApp
           // Useful information can be accessed through this object like the transaction ID, the amount, etc.
         }
 
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        public void ConnectionStatusChanged(ConnectionStatus status, Device device)
         {
             // The ConnectionStatus object holds details about the status regarding the connection to the target device.
         }
@@ -144,7 +144,7 @@ public void DiscoverDevices()
     // You can also search for USB and Serial as a connection method
 }
 
-public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+public void deviceDiscoveryFinished(List<Device> devices)
 {
     foreach (Device device in devices)
     {
@@ -225,7 +225,7 @@ namespace GettingStartedApp
             api.SearchDevices(ConnectionMethod.BLUETOOTH);
         }
 
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        public void deviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
@@ -256,7 +256,7 @@ namespace GettingStartedApp
             api.Disconnect();
         }
 
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        public void ConnectionStatusChanged(ConnectionStatus status, Device device)
         {
             Console.WriteLine("*** ConnectionStatus *** " + status);
         }
@@ -410,7 +410,7 @@ namespace GettingStartedApp
 Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
 
 ```csharp
-public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+public void ConnectionStatusChanged(ConnectionStatus status, Device device)
 {
     Console.WriteLine("*** ConnectionStatus *** " + status);
     if (status == ConnectionStatus.Connected)
@@ -541,7 +541,7 @@ namespace GettingStartedApp
             api.Disconnect();
         }
 
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        public void ConnectionStatusChanged(ConnectionStatus status, Device device)
         {
             Console.WriteLine("*** ConnectionStatus *** " + status);
             if (status == ConnectionStatus.Connected)
@@ -560,7 +560,7 @@ namespace GettingStartedApp
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
 
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        public void deviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
@@ -765,7 +765,7 @@ namespace GettingStartedApp
             api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
         }
 
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        public void deviceDiscoveryFinished(List<Device> devices)
         {
           // here you get a list of payment terminals associated with the api key.
         }
@@ -776,7 +776,7 @@ namespace GettingStartedApp
           // Useful information can be accessed through this object like the transaction ID, the amount, etc.
         }
 
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        public void ConnectionStatusChanged(ConnectionStatus status, Device device)
         {
             // The ConnectionStatus object holds details about the status regarding the connection to the target device.
         }
@@ -811,7 +811,7 @@ public void DiscoverDevices()
     api.SearchDevices(ConnectionMethod.CLOUD);
 }
 
-public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+public void deviceDiscoveryFinished(List<Device> devices)
 {
     foreach (Device device in devices)
     {
@@ -898,7 +898,7 @@ namespace GettingStartedApp
             api.SearchDevices(ConnectionMethod.CLOUD);
         }
 
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        public void deviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
@@ -929,7 +929,7 @@ namespace GettingStartedApp
             api.Disconnect();
         }
 
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        public void ConnectionStatusChanged(ConnectionStatus status, Device device)
         {
             Console.WriteLine("*** ConnectionStatus *** " + status);
         }
@@ -1081,7 +1081,7 @@ namespace GettingStartedApp
 Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
 
 ```csharp
-public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+public void ConnectionStatusChanged(ConnectionStatus status, Device device)
 {
     Console.WriteLine("*** ConnectionStatus *** " + status);
     if (status == ConnectionStatus.Connected)
@@ -1215,7 +1215,7 @@ namespace GettingStartedApp
             api.Disconnect();
         }
 
-        public void **[*ConnectionStatusChanged*](#7)**(ConnectionStatus status, Device device)
+        public void ConnectionStatusChanged(ConnectionStatus status, Device device)
         {
             Console.WriteLine("***ConnectionStatus*** " + status);
             if (status == ConnectionStatus.Connected)
@@ -1234,7 +1234,7 @@ namespace GettingStartedApp
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
 
-        public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+        public void deviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
@@ -1476,7 +1476,7 @@ Create a new C# class called MyClass and include com.handpoint.api as a dependen
                 // It prevents other people to connect to your card reader
             }
 
-            public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+            public void deviceDiscoveryFinished(List<Device> devices)
             {
                 // Only needed when using a payment terminal
                 //here you get a list of Bluetooth payment terminals paired with your PC
@@ -1562,7 +1562,7 @@ Let´s add 4 methods to MyClass in order to represent the 4 cases above :
                 // It prevents other people to connect to your card reader.
             }
 
-            public void **[*deviceDiscoveryFinished*](#13)**(List <Device> devices)
+            public void deviceDiscoveryFinished(List <Device> devices)
             {
                  // Only needed when using a payment terminal
                  //Here you get a list of Bluetooth payment terminals paired with your PC
@@ -1813,7 +1813,7 @@ Here is how MyClass.cs and Form1.cs must eventually look like :
                 // It prevents other people to connect to your card reader.
             }
 
-            public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+            public void deviceDiscoveryFinished(List<Device> devices)
             {
                 // Only needed when using a payment terminal
                 //Here you get a list of Bluetooth payment terminals paired with your PC

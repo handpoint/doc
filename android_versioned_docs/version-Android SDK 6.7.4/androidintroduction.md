@@ -56,7 +56,7 @@ The latest version is compiled with java **1.8**
 
 ### Gradle Settings
 
-For production terminals (Maven):
+#### For production terminals (Maven):
 ```groovy
  //Handpoint Production SDK (Production terminals)
  implementation 'com.handpoint.api:sdk:6.x.x'
@@ -73,12 +73,12 @@ In the `gradle.build` (Top-level build file) for production terminals (Maven):
         }
   ```
 
-For debug terminals (Nexus):  
+#### For debug terminals (Nexus) [Only applies to PAX/Telpo devices]:  
 ```groovy 
  //Handpoint Staging/Development SDK (Debug terminals)
  implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
 ```
-   In the `gradle.build` (Top-level build file) for debug terminals (Nexus):
+   In the `gradle.build` (Top-level build file) for debug terminals (Nexus) [Only applies to PAX/Telpo devices]:
 
   ```groovy
         allprojects {   //Handpoint Staging/Development SDK (Debug terminals)

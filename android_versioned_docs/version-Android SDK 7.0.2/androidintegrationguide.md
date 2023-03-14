@@ -30,10 +30,27 @@ Please, start an operation (sale,refund etc.) ONLY if you have received the **In
 
 **1. Modify the AndroidManifest.xml**
 
-We **strongly** recommend you add the following to your main **`<activity>`**:
+We **strongly** recommend you add the following to your `AndroidManifest.xml`:
 
-```groovy
-android:launchMode="singleTask"
+- Inside the tag **`<application>`** -> `android:extractNativeLibs:"true"`
+
+```xml
+<application
+    android:extractNativeLibs:"true"
+    ...
+    ...
+    ...>    
+</application>   
+```
+
+- Inside the tag **`<activity>`** -> `android:launchMode="singleTask"`:
+
+```xml
+<activity android:name=".MainActivity"
+    android:launchMode="singleTask">
+    ...
+    ...
+</activity>    
 ```
 
 **2. SDK distribution** 
@@ -52,7 +69,9 @@ The latest version is compiled with java **1.8**
 For production terminals (Maven):
 ```groovy
  //Handpoint Production SDK (Production terminals)
- implementation 'com.handpoint.api:sdk:6.x.x'
+
+implementation 'com.handpoint.api:sdk:7.x.x'
+
 ```
 In the `gradle.build` (Top-level build file) for production terminals (Maven):
 
@@ -69,7 +88,8 @@ In the `gradle.build` (Top-level build file) for production terminals (Maven):
 For debug terminals (Nexus):  
 ```groovy 
  //Handpoint Staging/Development SDK (Debug terminals)
- implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+ implementation 'com.handpoint.api:sdk:7.x.x-RC.x-SNAPSHOT'
+
 ```
    In the `gradle.build` (Top-level build file) for debug terminals (Nexus):
 
@@ -102,7 +122,7 @@ android {
                             //to add android:exported="true" or android:exported="false" in your activities
         multiDexEnabled true
         ndk {
-            abiFilters "armeabi", "armeabi-v7a", "x86", "mips"
+            abiFilters  "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
         }
     }
 
@@ -126,7 +146,7 @@ For production terminals:
     <dependency>
       <groupId>com.handpoint.api</groupId>
       <artifactId>sdk</artifactId>
-      <version>[6.0.0,7.0.0)</version>
+      <version>[7.0.2,)</version>
       <type>aar</type>
     </dependency>
 ```
@@ -198,7 +218,7 @@ public class HandpointDelegate implements Events.SmartposRequired, Events.Curren
 
     public OperationStartResult pay() {
         return this.api.sale(new BigInteger("1000"), Currency.GBP);
-        // Let´s start our first payment of 10 pounds
+        // Let´s start our first payment of 10.00 pounds
         // Use the currency of the country in which you will be deploying terminals
     }
 
@@ -245,6 +265,8 @@ public class HandpointDelegate implements Events.SmartposRequired, Events.Curren
         options.setBudgetNumber("YOUR_BUDGET_NUMBER");
 
         return this.api.sale(new BigInteger("1000"),Currency.GBP, options);
+        // Let´s start our first payment of 10.00 pounds
+        // Use the currency of the country in which you will be deploying terminals
     }
 
     @Override
@@ -302,10 +324,27 @@ Please, start an operation (sale,refund etc.) ONLY if you have received the **In
 
 **1. Modify the AndroidManifest.xml**
 
-We **strongly** recommend you add the following to your main **`<activity>`**:
+We **strongly** recommend you add the following to your `AndroidManifest.xml`:
 
-```groovy
-android:launchMode="singleTask"
+- Inside the tag **`<application>`** -> `android:extractNativeLibs:"true"`
+
+```xml
+<application
+    android:extractNativeLibs:"true"
+    ...
+    ...
+    ...>    
+</application>   
+```
+
+- Inside the tag **`<activity>`** -> `android:launchMode="singleTask"`:
+
+```xml
+<activity android:name=".MainActivity"
+    android:launchMode="singleTask">
+    ...
+    ...
+</activity>    
 ```
 
 **2.1 In the gradle.build (app module)** 
@@ -313,7 +352,7 @@ android:launchMode="singleTask"
 ```groovy
 android {
 	defaultConfig {
-		minSdkVersion 22 //Required to support all PAX & Telpo models
+		minSdkVersion 22 //Required to support all devices
 		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
                             //to add android:exported="true" or android:exported="false" in your activities
 		multiDexEnabled true
@@ -334,10 +373,7 @@ android {
 dependencies {
 
     //Handpoint Production SDK (Production devices)
-    implementation 'com.handpoint.api:sdk:6.x.x'
-    
-    //Handpoint Staging/Development SDK (Debug devices)
-    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'
+    implementation 'com.handpoint.api:sdk:7.x.x'
 }
 ```
 
@@ -345,28 +381,11 @@ dependencies {
 **2.2 In the gradle.build (Top-level build file)** 
 
 ```groovy
-allprojects {     //Handpoint Production SDK
+allprojects {    
     repositories {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
-    }
-}
-```
-
-```groovy
-allprojects {   //Handpoint Staging/Development SDK
-    repositories {
-        google()
-        mavenCentral()
-        maven {
-            name = "Handpoint Nexus"
-            url = uri("urlProvided")
-            credentials {
-                username = 'usernameProvided'
-                password = 'passwordProvided'
-            }
-        }
     }
 }
 ```
@@ -483,7 +502,8 @@ public class HandpointDelegate implements Events.MposRequired, Events.Connection
 
     public OperationStartResult pay() {
         return this.api.sale(new BigInteger("1000"), Currency.GBP);
-        // Let´s start our first payment of 10 pounds
+        // Let´s start our first payment of 10.00 pounds
+        // Use the currency of the country in which you will be deploying terminals
     }
 
     @Override
