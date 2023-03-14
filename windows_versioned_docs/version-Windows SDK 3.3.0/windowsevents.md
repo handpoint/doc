@@ -219,7 +219,7 @@ public void PendingTransactionResult(Device device){
 
 `TransactionResultReady` <span class="badge badge--info">Method</span>
 
-In case of a communication failure between the device and your application a TransactionResult might have not been delivered to the SDJ. This event will be invoked after using hapi.GetPendingTransaction();. When there is no pending transaction the TransactionResult will contain default/error fields and no receipts. This event is called if HapiManager.Settings.AutoRecoverTransactionResult is set to true.
+In case of a communication failure between the device and your application a TransactionResult might have not been delivered to the SDK. This event will be invoked after using hapi.GetPendingTransaction();. When there is no pending transaction the TransactionResult will contain default/error fields and no receipts. This event is called if HapiManager.Settings.AutoRecoverTransactionResult is set to true.
 
 #### Parameters
 

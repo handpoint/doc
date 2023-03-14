@@ -9,6 +9,19 @@ id: restreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 2.13.0
+
+**Features:**
+
+We are introducing a new feature called [**Transaction Metadata**](restobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
+
+The Transaction Metadata feature will be available when the Handpoint Payments app **v4.1.0** or higher is used.
+
+***Please note**: Transactions will be available in TXN Feed API only if the request has reached the gateway.
+
+**Fixes:**
+
+- Parsing errors from the gateway (Tip Adjustment).
 
 ## 2.12.0
 **Features:**
