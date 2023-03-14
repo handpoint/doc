@@ -43,7 +43,6 @@ Created for humans, coders, geeks, no need of a dark and complex knowledge of th
 
 We take care of PCI compliance so you can be kept out of PCI scope. The Handpoint terminals encrypt all sensitive cardholder data so your app does not have to deal with it.
 
-
 ### SDK distribution 
 
 The Handpoint Android SDK is available on Maven central as well as the Handpoint internal Nexus server. Maven central contains the **production builds** while Nexus contains **development snapshots** of the SDK.
@@ -104,7 +103,8 @@ In the `gradle.build` (Top-level build file) for production terminals (Maven):
  //Handpoint Staging/Development SDK (Debug terminals) 
  implementation 'com.handpoint.api:sdk:7.x.x-RC.x-SNAPSHOT'
 ```
-   In the `gradle.build` (Top-level build file) for debug terminals (Nexus) [Only applies to PAX/Telpo devices]:
+
+In the `gradle.build` (Top-level build file) for debug terminals (Nexus) [Only applies to PAX/Telpo devices]:
 
   ```groovy
         allprojects {   //Handpoint Staging/Development SDK (Debug terminals)

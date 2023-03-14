@@ -24,6 +24,11 @@ The Transaction Metadata feature will be available when the Handpoint Payments a
 **Fixes**:
 - Reconnection management.
 
+## 6.2.1
+
+**Fixes**:
+- Reconnection management.
+
 ## 6.2.0
 
 **Features**:
