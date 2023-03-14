@@ -12,6 +12,22 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 :::
 
 
+## 7.1001.0
+**Features**:
+
+ We are introducing a new feature called [**Transaction Metadata**](androidobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
+
+The Transaction Metadata feature will be available when the Handpoint Android SDK **v7.1001.0** or higher is used. 
+
+***Please note**: Transactions will be available in TXN Feed API only if the request has reached the gateway.
+
+- German language support.
+- Support for PAX A800 devices.
+
+**Fixes**:
+- Bug related to automatic printing.
+- Log improvements.
+
 ## 7.0.2
 
 **Features**:
