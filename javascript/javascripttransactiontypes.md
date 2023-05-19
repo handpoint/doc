@@ -68,6 +68,7 @@ Handpoint.sale('1000', 'USD', saleOptions, function (stat) {
 | Parameter      | Notes |
 | ----------- | ----------- |
 | **Sale Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| **Sale Response**|[*transaction Reference Object*](javascriptobjects.md#18)|
 
 
 

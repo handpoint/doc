@@ -685,3 +685,15 @@ An object to store metadata.
     }
 }
 ```	
+
+## Transaction Reference
+
+`transactionReference` <span class="badge badge--info">Object</span>
+
+The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `transactionReference`  <br />*String* | The `transactionReference` of the transaction to query|
