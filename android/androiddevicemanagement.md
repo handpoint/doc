@@ -369,7 +369,7 @@ The merchant should be notified about the update process.
 
 ## Get Transaction Status
 
-`getTransactionStatus`
+`getTransactionStatus` <span class="badge badge--info">Method</span>
 
 The getTransactionStatus method is a convenient way to retrieve the current status of a transaction based on its unique reference. It accepts a `transactionReference` as a parameter and returns the current status of the transaction.
 
@@ -379,7 +379,7 @@ The method accesses a transaction tracking system or database to obtain real-tim
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*[OperationStartResult](androidobjects.md#operation-start-result)*   | The reference of the transaction to query. |
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The reference of the transaction to query. |
 
 **Code example**
 
@@ -400,4 +400,4 @@ Invoked when the result of the getTransactionStatus request is available.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[TransactionResult](androidobjects.md#25)*| An object holding information about the result of a transaction.|
+|  `Boolean`| `true` if the operation was successfully.|
