@@ -106,7 +106,8 @@ Transaction Request without callbackUrl and token
          "currency":"EUR",
          "terminal_type":"PAXA920",
          "serial_number":"1547854757",
-         "customerReference":"op15248"
+         "customerReference":"op15248",
+         "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
           }' \\
 Transaction Request with callbackUrl and token
      -d '{
@@ -117,7 +118,8 @@ Transaction Request with callbackUrl and token
          "serial_number":"1547854757",
          "customerReference":"op15248",
          "callbackUrl":"https://url.where.the.result.is.served.com",
-         "token":"123456789"
+         "token":"123456789",
+         "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
           }' \\  
    "https://cloud.handpoint.com/transactions" (production)
    "https://cloud.handpoint.io/transactions" (development)

@@ -58,17 +58,19 @@ var saleOptions = {
     }  
 }
 
-Handpoint.sale('1000', 'USD', saleOptions, function (stat) {
+let operationStartedResult = handpoint.sale('1000', 'USD', saleOptions, function (stat) {
   console.log('Transaction status received -> '+ stat.message) 
 });
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
-| **Sale Response**|[*transaction Reference Object*](javascriptobjects.md#18)|
+| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the [transaction result](javascriptobjects.md#18) object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 
@@ -118,14 +120,19 @@ var saleOptions = {
     ],
 }
 
-Handpoint.saleAndTokenization('1000', 'USD', saleOptions, CallbackFunction(stat){...});
+let operationStartedResult = handpoint.saleAndTokenization('1000', 'USD', saleOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
+});
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale and Tokenization Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the [transaction result](javascriptobjects.md#18) object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Transaction Recovery{#6}
@@ -310,16 +317,19 @@ var saleOptions = {
         customerReference: "MyCustomReference",
     }
 
-Handpoint.moToSale('1000', 'USD', saleOptions, function (stat) {
-  console.log('Transaction Status received -> '+ stat.message) 
+let operationStartedResult = handpoint.moToSale('1000', 'USD', saleOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
 });
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the [transaction result](javascriptobjects.md#18) object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 

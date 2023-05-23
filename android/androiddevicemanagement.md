@@ -379,7 +379,7 @@ The method accesses a transaction tracking system or database to obtain real-tim
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The reference of the transaction to query. |
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The reference of the transaction to query ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))). |
 
 **Code example**
 

@@ -686,14 +686,17 @@ An object to store metadata.
 }
 ```	
 
-## Transaction Reference
 
-`transactionReference` <span class="badge badge--info">Object</span>
 
-The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.
+## Operation Started Result
+
+`OperationStartResult` <span class="badge badge--info">Object</span>
+
+Object containing information about the financial operation being performed.
 
 **Properties**
 
-| Property      | Description |
+| Parameter      | Description |
 | ----------- | ----------- |
-| `transactionReference`  <br />*String* | The `transactionReference` of the transaction to query|
+| `transactionReference` <br />*String*    |  The `transactionReference` **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction. A linked refund or a reversal will **not** return a `transactionReference` because the transaction reference for those types of transactions is the same as the one received for the original financial operation. `transactionReference` is populated from **v7.0.0** of the JavaScript SDK.|
+| `transactionResult` <br />*String*    | 	Promise that will resolve/reject with [Transaction Result](javascriptobjects.md#18) object.	|
