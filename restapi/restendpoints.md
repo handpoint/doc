@@ -106,7 +106,8 @@ Transaction Request without callbackUrl and token
          "currency":"EUR",
          "terminal_type":"PAXA920",
          "serial_number":"1547854757",
-         "customerReference":"op15248"
+         "customerReference":"op15248",
+         "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
           }' \\
 Transaction Request with callbackUrl and token
      -d '{
@@ -117,7 +118,8 @@ Transaction Request with callbackUrl and token
          "serial_number":"1547854757",
          "customerReference":"op15248",
          "callbackUrl":"https://url.where.the.result.is.served.com",
-         "token":"123456789"
+         "token":"123456789",
+         "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
           }' \\  
    "https://cloud.handpoint.com/transactions" (production)
    "https://cloud.handpoint.io/transactions" (development)
@@ -127,12 +129,14 @@ RESPONSES:
 Transaction Request without callbackUrl
     {
       "transactionResultId": "0821032398-1628774190395",
-      "statusMessage": "Operation Accepted"
+      "statusMessage": "Operation Accepted",
+      "transactionReference":"00000000-0000-0000-0000-000000000000"
     }
  
 Transaction Request with callbackUrl and token
     {
-      "statusMessage": "Operation Accepted"
+      "statusMessage": "Operation Accepted",
+      "transactionReference":"00000000-0000-0000-0000-000000000000"
     }
 
   Code 400 Ex:DeviceIsBusy
@@ -326,4 +330,82 @@ Error example response (using invalid guid):
 | [Transaction Result](restobjects.md#transaction-result-object)    | The [Transaction Result](restobjects.md#transaction-result-object) is delivered to the callback URL from the [Transaction Request](restobjects.md#transaction-request-object).    |
 
 
+
+## /transactions/{transactionReference}/status
+
+The /transactions/{transactionReference}/status endpoint is a RESTful API endpoint designed to retrieve the current status of a transaction based on its unique reference. It accepts the transaction reference as a path parameter and returns the current status of the transaction in the response. To use this endpoint, you would make an HTTP GET request to the specified endpoint URL, replacing {transactionReference} with the actual transaction reference you want to query.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant.       |
+| `Path parameter: transactionReference` <span class="badge badge--primary">Required</span>   <br />*String*    | The `transactionReference` is a unique transaction id delivered immediately as a response to your transaction request. It can be used to query for a transaction status. |
+
+**Returns**
+
+| Response      | Response Code |
+| ----------- | ----------- |
+| **OK** | Response code **200** + [Transaction Result](restobjects.md#transaction-result-object). The `transactionReference` was found in the database and the associated [Transaction Result](restobjects.md#transaction-result-object) object is delivered.      |
+| **Not Found** | Response code **404**. The `transactionReference` was not found in the database.      |
+
+**Code Example**
+
+```shell
+Operation executed using CLI tool CURL:
+REQUEST:
+    curl -X GET \\
+      -H"ApiKeyCLoud: MeRcHaNt-ApIkEy" \\
+      "https://cloud.handpoint.com/transactions/3e665342-a95b-49c1-b6fe-b3f102305a76/status" (production)
+      "https://cloud.handpoint.io/transactions/3e665342-a95b-49c1-b6fe-b3f102305a76/status" (development)
+
+RESPONSE:
+{
+    "aid": "A0000000031010",
+    "arc": "00",
+    "iad": "06011103A00000",
+    "tsi": "0000",
+    "tvr": "0000000000",
+    "cardEntryType": "ICC",
+    "cardLanguagePreference": "",
+    "currency": "USD",
+    "type": "SALE",
+    "tipAmount": 0,
+    "totalAmount": 100,
+    "requestedAmount": 100,
+    "dueAmount": 0,
+    "tipPercentage": 0,
+    "efttimestamp": "20230511110113006",
+    "originalEFTTransactionID": "",
+    "paymentScenario": "CHIPCONTACTLESS",
+    "verificationMethod": "UNDEFINED",
+    "authorisationCode": "123456",
+    "cardSchemeName": "Visa",
+    "cardToken": "",
+    "maskedCardNumber": "************5733",
+    "cardTypeId": "",
+    "customerReference": "",
+    "efttransactionID": "66d94f20-efda-11ed-929c-47fffda5f9b5",
+    "transactionID": "66d94f20-efda-11ed-929c-47fffda5f9b5",
+    "errorMessage": "",
+    "expiryDateMMYY": "0924",
+    "issuerResponseCode": "00",
+    "rrn": "0000511573740",
+    "tenderType": "CREDIT",
+    "unMaskedPan": "",
+    "merchantAddress": "Navalaosa 48770 Madrid",
+    "merchantName": "Hago la cama 2",
+    "mid": "",
+    "cardHolderName": "",
+    "chipTransactionReport": "",
+    "customerReceipt": "",
+    "merchantReceipt": "",
+    "signatureUrl": "",
+    "statusMessage": "",
+    "tid": "",
+    "transactionReference": "3e665342-a95b-49c1-b6fe-b3f102305a76",
+    "transactionOrigin": "",
+    "finStatus": "AUTHORISED"
+}
+```
 

@@ -132,6 +132,7 @@ An object holding information about the result of a transaction.
 | `multiLanguageStatusMessages`  <br />*Map	*   | `map` containing the status message in a human readable format for all the supported locales.|
 | `multiLanguageErrorMessages`  <br />*Map	*   | `map` containing the error message in a human readable format for all the supported locales.|
 | `cardHolderName`  <br />*String	*   | Name of the cardholder|
+| `transactionReference`  <br />*String*   | The `transactionReference` of the transaction to query|
 
 **Code example**
 
@@ -199,7 +200,8 @@ An object holding information about the result of a transaction.
   "requestedAmount": 100,
   "tipPercentage": 0,
   "recoveredTransaction": false,
-  "cardHolderName": "Mr/Mrs card holder full name"
+  "cardHolderName": "Mr/Mrs card holder full name",
+  "transactionReference": "3e665342-a95b-49c1-b6fe-b3f102305a76"
 }
 
 ````
@@ -231,6 +233,7 @@ An object to store information about the request sent to the payment terminal.
 | `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
 | `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `transactionReference`  <br />*String*   | The `transactionReference` of the transaction to query ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))).|
 
 **Code example**
 
@@ -245,6 +248,7 @@ An object to store information about the request sent to the payment terminal.
        "customerReference": "storeSale12548",
        "callbackUrl": "https://result.com",
        "token": "123456789",
+       "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
        "tipConfiguration": {
               "baseAmount": "2000",
               "tipPercentages": [5,10,15,20,25],
@@ -281,6 +285,7 @@ An object to store information about the request sent to the payment terminal.
        "terminal_type": "PAXA920",
        "serial_number": "1547854757",
        "customerReference": "storeSale12548",
+       "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
        "tipConfiguration": {
               "baseAmount": "2000",
               "tipPercentages": [5,10,15,20,25],

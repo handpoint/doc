@@ -358,3 +358,37 @@ Invoked when the status of the connection with the payment terminal changes.
 | Parameter      | Notes |
 | ----------- | ----------- |
 | **None**| No information is returned.|
+
+## Get Transaction Status
+
+`GetTransactionStatus` <span class="badge badge--info">Method</span>
+
+The getTransactionStatus method is a convenient way to retrieve the current status of a transaction based on its unique reference. It accepts a `transactionReference` as a parameter and returns the current status of the transaction.
+
+The method accesses a transaction tracking system or database to obtain real-time information about the specified transaction. It retrieves the relevant details associated with the provided reference, such as the transaction ID, timestamp, sender, recipient, amount, and other pertinent information.
+
+#### Parameters
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` of the transaction to query ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))). |
+
+**Code example**
+
+```csharp
+//Gets the current status of a transaction 
+this.Hapi.GetTransactionStatus("00000000-0000-0000-0000-000000000000");
+```
+
+#### Events invoked
+
+**[*transactionResultReady*](windowsevents.md#11)**
+
+Invoked when the result of the getTransactionStatus request is available.
+****
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Boolean`| Returns `true` or `false` if status has been requested|

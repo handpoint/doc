@@ -218,3 +218,38 @@ Handpoint.update(CallbackFunction(stat){...});
 | ----------- | ----------- |
 | **Update Response**|A financial response object.|
 
+
+
+## Get Transaction Status{#17}
+
+`getTransactionStatus` <span class="badge badge--info">Method</span>
+
+The getTransactionStatus method is a convenient way to retrieve the current status of a transaction based on its unique reference. It accepts a `transactionReference` as a parameter and returns the current status of the transaction.
+
+The method accesses a transaction tracking system or database to obtain real-time information about the specified transaction. It retrieves the relevant details associated with the provided reference, such as the transaction ID, timestamp, sender, recipient, amount, and other pertinent information.
+
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `transactionReference` <span class="badge badge--primary">Required</span>   <br />*string*   | The `transactionReference` of the transaction to query.|
+
+**Code example**
+
+```javascript
+Handpoint.getTransactionStatus(transactionReference).then(
+    transactionResult => {
+        console.log('Transaction Result -> ' + JSON.stringify(transactionResult))
+    }
+).catch(
+    errorStatus => console.log('ERROR in getTransactionStatus -> ' + JSON.stringify(errorStatus))
+);
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Transaction Status**| The status of the requested transaction.|

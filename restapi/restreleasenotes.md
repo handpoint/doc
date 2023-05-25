@@ -9,6 +9,16 @@ id: restreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 2.14.0
+**Features:**
+
+We are excited to announce the launch of a new feature: [**Get Transaction Status**](restendpoints.md#transactionstransactionreferencestatus). This new [endpoint](restendpoints.md#transactionstransactionreferencestatus), allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise.
+
+***Please note**: When a transaction is started from the REST API, a `transactionReference` field is needed in the body of the [request](restobjects.md#transactionRequest). This field is a unique identifier ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) for the transaction resource that you want to create or update. It helps to ensure consistency and avoid conflicts between concurrent requests.
+
+This feature is available for all supported payment methods and currencies. We hope you find this feature useful and convenient. Please let us know if you have any feedback or questions.
+
+
 ## 2.13.0
 
 **Features:**

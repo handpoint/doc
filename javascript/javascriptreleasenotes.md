@@ -9,6 +9,11 @@ id: javascriptreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 7.0.0
+**Features**:
+
+We are excited to announce the launch of a new feature: [**Get Transaction Status**](javascriptterminalmanagement.md#get-transaction-status). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](javascriptobjects.md#transaction-reference) obtained when a new transaction has been started. This feature is available for all supported payment methods and currencies. We hope you find this feature useful and convenient. Please let us know if you have any feedback or questions
+
 ## 6.3.0
 
 **Features**:

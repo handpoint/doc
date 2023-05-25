@@ -561,3 +561,4 @@ This event is invoked when the transaction is completed, it contains the transac
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+

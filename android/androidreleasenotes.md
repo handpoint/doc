@@ -12,6 +12,10 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 :::
 
 
+## 7.1002.0
+**Features**:
+
+We are excited to announce the launch of a new feature: [**Get Transaction Status**](androiddevicemanagement.md#get-transaction-status). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](androidobjects.md#operation-start-result) obtained when a new transaction has been started. This feature is available for all supported payment methods and currencies. We hope you find this feature useful and convenient. Please let us know if you have any feedback or questions
 
 ## 7.1001.0
 **Features**:
