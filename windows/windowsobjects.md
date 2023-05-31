@@ -378,7 +378,7 @@ An enum representing different final statuses of a transaction.
 
 **Possible values**
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED`
+`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `UNKNOWN` `IN_PROGRESS` `UNKNOWN` `IN_PROGRESS`
 
  Description of the different financial statuses:
 
@@ -391,6 +391,8 @@ An enum representing different final statuses of a transaction.
 | `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
 | `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is **only**  applicable to the United States market. |
+| `UNKNOWN`  <br/>   | The `transactionReference` of this transaction is NOT registered in the gateway. The status of the transaction could change in the near future. |
+| `IN_PROGRESS`  <br/>   | The `transactionReference` of this transaction is known by the gateway. Please check the status of the transaction again as it is in the process of status change. |
 
 
 

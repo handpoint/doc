@@ -335,19 +335,21 @@ Error example response (using invalid guid):
 
 The /transactions/{transactionReference}/status endpoint is a RESTful API endpoint designed to retrieve the current status of a transaction based on its unique reference. It accepts the transaction reference as a path parameter and returns the current status of the transaction in the response. To use this endpoint, you would make an HTTP GET request to the specified endpoint URL, replacing {transactionReference} with the actual transaction reference you want to query.
 
+![getTrxStatusEndpoint](/img/getTransactionStatusEndpoint.drawio.png) 
+
 **Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant.       |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   *String*     | Api key used to authenticate the merchant.       |
 | `Path parameter: transactionReference` <span class="badge badge--primary">Required</span>   <br />*String*    | The `transactionReference` is a unique transaction id delivered immediately as a response to your transaction request. It can be used to query for a transaction status. |
 
 **Returns**
 
 | Response      | Response Code |
 | ----------- | ----------- |
-| **OK** | Response code **200** + [Transaction Result](restobjects.md#transaction-result-object). The `transactionReference` was found in the database and the associated [Transaction Result](restobjects.md#transaction-result-object) object is delivered.      |
-| **Not Found** | Response code **404**. The `transactionReference` was not found in the database.      |
+| **OK** | Response code **200** + [Transaction Result](restobjects.md#transaction-result-object). Here we have two possible scenarios:<br />  - The `transactionReference` was found in the database and the associated [Transaction Result](restobjects.md#transaction-result-object) object is delivered. Consulting the [finStatus](restobjects.md#financialStatus) field we can know the status of the transaction at the time of the query. <br /> - The `transactionReference` was not found in the database. The Gateway has no record of that `transactionReference` (although it might change in the near future). The [finStatus](restobjects.md#financialStatus) received in this case will be UNKNOWN|
+| **Forbidden** | Response code **403**. Authentication was unsuccessful. Please check the API Key used.      |
 
 **Code Example**
 

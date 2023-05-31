@@ -10,9 +10,13 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 :::
 
 ## 7.0.0
-**Features**:
+**BREAKING CHANGE:**
 
-We are excited to announce the launch of a new feature: [**Get Transaction Status**](javascriptterminalmanagement.md#get-transaction-status). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](javascriptobjects.md#transaction-reference) obtained when a new transaction has been started. This feature is available for all supported payment methods and currencies. We hope you find this feature useful and convenient. Please let us know if you have any feedback or questions
+We are excited to announce the launch of a new feature: [**Get Transaction Status**](javascriptterminalmanagement.md#17). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](javascriptobjects.md#transaction-reference) obtained when a new transaction has been started. 
+
+When starting a new transaction (Sale, Refund,... ) the `OperationStartResult` object will contain two attributes:
+- `transactionReference`: This universally unique identifier (UUID v4) will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.
+- `transactionResult`: Promise that will resolve/reject with [Transaction Result](javascriptobjects.md#18) object.
 
 ## 6.3.0
 

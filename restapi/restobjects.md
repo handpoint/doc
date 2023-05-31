@@ -49,7 +49,7 @@ Possible Values:
 
 An enum representing different statuses of a completed transaction.
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL`
+`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `UNKNOWN` `IN_PROGRESS`
 
 Description of the different financial statuses:
 
@@ -58,10 +58,13 @@ Description of the different financial statuses:
 | `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`.  UNDEFINED means that the API couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved. |
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
+| `REFUNDED` <br/>   | The transaction has been refunded by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
 | `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
 | `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is **only**  applicable to the United States market. |
+| `UNKNOWN`  <br/>   | The `transactionReference` of this transaction is NOT registered in the gateway. The status of the transaction could change in the near future. |
+| `IN_PROGRESS`  <br/>   | The`transactionReference` of this transaction is known by the gateway. Please check the status of the transaction again as it is in the process of status change.|
 
 
 
