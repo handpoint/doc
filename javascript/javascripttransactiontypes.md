@@ -70,7 +70,7 @@ let result = await operationStartedResult.transactionResult
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the [transaction result](javascriptobjects.md#18) object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 
@@ -132,7 +132,7 @@ let result = await operationStartedResult.transactionResult
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the [transaction result](javascriptobjects.md#18) object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+|  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 ## Transaction Recovery{#6}
@@ -194,14 +194,17 @@ var saleReversalOptions = {
     ],
 }
 
-Handpoint.saleReversal('1000', 'USD', 'OriginalSaleGUID', saleReversalOptions, CallbackFunction(stat){...});
+let operationStartedResult = handpoint.saleReversal('1000', 'USD', 'OriginalSaleGUID', saleReversalOptions, CallbackFunction(stat){...});
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Reversal Response**|A[*Transaction Result Object*](javascriptobjects.md#18)|
+|  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 ## Refund{#9}
@@ -240,17 +243,20 @@ var refundOptions = {
     ],
 }
 
-Handpoint.refund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
+let operationStartedResult = handpoint.refund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
 
 // Linked Refund
-Handpoint.refund('1000', 'USD', 'OriginalSaleGUID' ,refundOptions, CallbackFunction(stat){...});
+handpoint.refund('1000', 'USD', 'OriginalSaleGUID' ,refundOptions, CallbackFunction(stat){...});
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Refund Response**|A[*Transaction Result Object*](javascriptobjects.md#18)|
+|  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 ## Refund Reversal{#10}
@@ -285,14 +291,17 @@ var refundReversalOptions = {
     ],
 }
 
-Handpoint.refundReversal('1000', 'USD', 'OriginalRefundGUID', refundReversalOptions, CallbackFunction(stat){...});
+let operationStartedResult = handpoint.refundReversal('1000', 'USD', 'OriginalRefundGUID', refundReversalOptions, CallbackFunction(stat){...});
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Refund Reversal Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 ## MoTo Sale
@@ -329,7 +338,7 @@ let result = await operationStartedResult.transactionResult
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the [transaction result](javascriptobjects.md#18) object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+|  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 
@@ -356,7 +365,7 @@ var refundOptions = {
     customerReference: "MyCustomReference"
 }
 
-Handpoint.moToRefund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
+let operationStartedResult = handpoint.moToRefund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
 
 // Linked Refund
 Handpoint.moToRefund('1000', 'USD', '00000000-0000-0000-0000-000000000000' ,refundOptions, CallbackFunction(stat){...});
@@ -366,7 +375,7 @@ Handpoint.moToRefund('1000', 'USD', '00000000-0000-0000-0000-000000000000' ,refu
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Refund Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 ## MoTo Reversal
@@ -390,14 +399,14 @@ var moToReversalOptions = {
     customerReference: "MyCustomReference"
 }
 
-Handpoint.moToReversal('00000000-0000-0000-0000-000000000000', moToReversalOptions, CallbackFunction(stat){...});
+let operationStartedResult = handpoint.moToReversal('00000000-0000-0000-0000-000000000000', moToReversalOptions, CallbackFunction(stat){...});
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Sale Reversal Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+|  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
 

@@ -229,7 +229,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'javascript',
-        includeCurrentVersion: true, // dev: Change to true
+        includeCurrentVersion: false, // dev: Change to true
         path: 'javascript',
         routeBasePath: 'javascript',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -242,7 +242,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'restapi',
-        includeCurrentVersion: true, // dev: Change to true
+        includeCurrentVersion: false, // dev: Change to true
         path: 'restapi',
         routeBasePath: 'restapi',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -255,7 +255,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'windows',
-        includeCurrentVersion: true, // dev: Change to true
+        includeCurrentVersion: false, // dev: Change to true
         path: 'windows',
         routeBasePath: 'windows',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -279,7 +279,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'android',
-        includeCurrentVersion: true, // dev: Change to true
+        includeCurrentVersion: false, // dev: Change to true
         path: './android',
         routeBasePath: 'android',
         sidebarPath: require.resolve('./sidebarsAndroid.js'),
