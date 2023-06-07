@@ -367,7 +367,7 @@ The merchant should be notified about the update process.
 | ----------- | ----------- |
 | `Boolean`| `True` if the operation was successfully sent to device.|
 
-## Get Transaction Status
+## Get Transaction Status{#getTransactionStatus}
 
 `getTransactionStatus` <span class="badge badge--info">Method</span>
 
