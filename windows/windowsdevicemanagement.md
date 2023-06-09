@@ -361,17 +361,16 @@ Invoked when the status of the connection with the payment terminal changes.
 
 ## Get Transaction Status
 
-`GetTransactionStatus` <span class="badge badge--info">Method</span>
+`getTransactionStatus` <span class="badge badge--info">Method</span>
 
-The getTransactionStatus method is a convenient way to retrieve the current status of a transaction based on its unique reference. It accepts a `transactionReference` as a parameter and returns the current status of the transaction.
+If for any reasons you do not know if a transaction was approved or declined then this method will allow you to retrieve the status of the transaction from the Handpoint gateway. The `getTransactionStatus` method is a convenient way to retrieve the current status of a transaction based on its unique reference. This method accepts a `transactionReference` as a parameter and returns the current status of the transaction. The `transactionReference` is returned at the start of a transaction, as part of the [Operation Start Result](windowsobjects.md#OperationStartResult) object.
 
-The method accesses a transaction tracking system or database to obtain real-time information about the specified transaction. It retrieves the relevant details associated with the provided reference, such as the transaction ID, timestamp, sender, recipient, amount, and other pertinent information.
 
-#### Parameters
+**Parameters**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` of the transaction to query ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))). |
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) is returned at the start of a transaction, as part of the [Operation Start Result](windowsobjects.md#OperationStartResult) object.|
 
 **Code example**
 

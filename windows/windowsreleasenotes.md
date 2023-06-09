@@ -10,15 +10,18 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 :::
 
 ## 4.0.0
-**Features**
 
-We are excited to announce the launch of a new feature: [**Get Transaction Status**](windowsdevicemanagement.md#get-transaction-status). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](windowsobjects.md#operation-start-result) obtained when a new transaction has been started. This feature is available for all supported payment methods and currencies. We hope you find this feature useful and convenient. Please let us know if you have any feedback or questions.
+**BREAKING CHANGE:**
+
+We are introducing a new feature called [Get Transaction Status](windowsdevicemanagement.md#get-transaction-status). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](windowsobjects.md#OperationStartResult) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
+
+All financial operations will now be returning an [OperationStartResult](windowsobjects.md#OperationStartResult) object instead of a boolean to indicate that the operation was successfully sent to the payment terminal:
+The `transactionReference` field is a unique identifier for the transaction that you will receive immediately after sending the transaction request to the terminal. If for any reason you do not receive the [TransactionResult](windowsobjects.md#14) object at the end of the transaction you will now be able to use the `transactionReference` to directly query our Gateway and know instantly if the transaction for which you do not know the outcome was approved or declined.
 
 ## 3.4.0
-
 **Features**
 
-We are introducing a new feature called [**Transaction Metadata**](windowsobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
+We are introducing a new feature called [Transaction Metadata](windowsobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
 
 The Transaction Metadata feature will be available when the Handpoint Payments app **v4.1.0** or higher is used. 
 

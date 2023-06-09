@@ -12,9 +12,11 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 2.14.0
 **Features:**
 
-We are excited to announce the launch of a new feature: [**Get Transaction Status**](restendpoints.md#transactionstransactionreferencestatus). This new [endpoint](restendpoints.md#transactionstransactionreferencestatus), allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise.
+We are introducing a new feature called [Get Transaction Status](restendpoints.md#transactionstransactionreferencestatus). This new [endpoint](restendpoints.md#transactionstransactionreferencestatus) allows you to query the Handpoint Gateway for the status of a transaction at any given time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
 
-***Please note**: When a transaction is started from the REST API, a `transactionReference` field is needed in the body of the [request](restobjects.md#transactionRequest) to be able to check the status of the transaction later. The value must be a unique identifier ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) for the transaction that you want to start. It helps to ensure consistency and avoid conflicts between concurrent requests.
+When a financial operation is started from the REST API, you need to provide a `transactionReference` in the body of the transaction [request](restobjects.md#transactionRequest). This `transactionReference` can then be used to query the status of a transaction (using the [transaction status](restendpoints.md#transactionstransactionreferencestatus) endpoint) if you are not receiving the result from the terminal in a timely fashion. The `transactionReference` must be a unique identifier ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))).
+
+Example request/response to the transaction status endpoint:
 
 ![SaleWithGetTrxStatusExample](/img/RestAPIexample.png) 
 

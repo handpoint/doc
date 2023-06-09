@@ -12,11 +12,11 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.0.0
 **BREAKING CHANGE:**
 
-We are excited to announce the launch of a new feature: [**Get Transaction Status**](javascriptterminalmanagement.md#17). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](javascriptobjects.md#transaction-reference) obtained when a new transaction has been started. 
+We are introducing a new feature called [**Get Transaction Status**](javascriptterminalmanagement.md#17). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [**transaction reference**](javascriptobjects.md#transaction-reference) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
 
-When starting a new transaction (Sale, Refund,... ) the `OperationStartResult` object will contain two attributes:
-- `transactionReference`: This universally unique identifier (UUID v4) will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.
-- `transactionResult`: Promise that will resolve/reject with [Transaction Result](javascriptobjects.md#18) object.
+When starting a new financial operation (sale,refund etc.) the `OperationStartResult` object will contain two new attributes:
+- `transactionReference`: This universally unique identifier (UUID v4) will allow you to query the Handpoint gateway directly to know the outcome of the transaction. This feature is to be used in case there is a connection issue or any other problem preventing the terminal from delivering the end of transaction to your software.
+- `transactionResult`: Promise that will resolve/reject with the [Transaction Result](javascriptobjects.md#18) object.
 
 ## 6.3.0
 
