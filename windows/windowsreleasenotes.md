@@ -10,9 +10,13 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 :::
 
 ## 4.0.0
-**Features**
+
+**BREAKING CHANGE:**
 
 We are introducing a new feature called [Get Transaction Status](windowsdevicemanagement.md#get-transaction-status). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](windowsobjects.md#OperationStartResult) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
+
+All financial operations will now be returning an [OperationStartResult](windowsobjects.md#OperationStartResult) object instead of a boolean to indicate that the operation was successfully sent to the payment terminal:
+The `transactionReference` field is a unique identifier for the transaction that you will receive immediately after sending the transaction request to the terminal. If for any reason you do not receive the [TransactionResult](windowsobjects.md#14) object at the end of the transaction you will now be able to use the `transactionReference` to directly query our Gateway and know instantly if the transaction for which you do not know the outcome was approved or declined.
 
 ## 3.4.0
 **Features**

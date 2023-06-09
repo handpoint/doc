@@ -378,8 +378,8 @@ If for any reasons you do not know if a transaction was approved or declined the
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) is returned at the start of a transaction, as part of the [Operation Start Result](androidobjects.md#OperationStartResult) object.
- |
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) is returned at the start of a transaction, as part of the [Operation Start Result](androidobjects.md#OperationStartResult) object.|
+ 
 
 **Code example**
 

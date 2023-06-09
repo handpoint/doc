@@ -119,8 +119,8 @@ An object holding information about the result of a transaction.
 | `customerReceipt`  <br />*String	*   | 	A URL containing the customer receipt in HTML format|
 | `customerReference`  <br />*String	*   | If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `deviceStatus`  <br />[*DeviceStatus*](#27)  | Status of the device|
-| `dueAmount`  <br />*String	*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid|
-| `efttimestamp`  <br />*String	*   | Time of the transaction|
+| `dueAmount`  <br />*BigString*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid|
+| `efttimestamp`  <br />*BigString*   | Time of the transaction|
 | `efttransactionID`  <br />*String	*   | Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`  <br />*String	*   | Detailed reason for the transaction error|
 | `expiryDateMMYY`  <br />*String	*   | Expiry date of the card used for the operation|
