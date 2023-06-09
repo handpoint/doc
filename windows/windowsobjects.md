@@ -384,15 +384,15 @@ An enum representing different final statuses of a transaction.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`.  UNDEFINED means that the SDK couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved. |
-| `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
+| `UNDEFINED`   <br/>  | Any financial status other than the below mentioned financial statuses will be `UNDEFINED`. It means that the terminal couldn't get a response from the Handpoint gateway and therefore does not know the outcome of the transaction. This status is **VERY RARE** because the terminal has a retry mechanism that will attempt to get the transaction status several times from the gateway (up to 90s) before returning `UNDEFINED`. When you receive this status, you can use the [get transaction status](windowsdevicemanagement.md#get-transaction-status) method to directly query the Handpoint gateway and know if the transaction was approved or declined.|
+| `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
-| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
+| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`. This means the operation was unsuccessful and the transaction has not been charged.   |
 | `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
-| `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is **only**  applicable to the United States market. |
-| `UNKNOWN`  <br/>   | The `transactionReference` of this transaction is NOT registered in the gateway. The status of the transaction could change in the near future. |
-| `IN_PROGRESS`  <br/>   | The `transactionReference` of this transaction is known by the gateway. Please check the status of the transaction again as it is in the process of status change. |
+| `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
+| `UNKNOWN` (NOT FOUND) <br/>   | The `UNKNOWN` (NOT FOUND) status can be returned as a response to the  [get transaction status](windowsdevicemanagement.md#get-transaction-status) method. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNKNOWN` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.|
+| `IN_PROGRESS`  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](windowsdevicemanagement.md#get-transaction-status) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 
 
 

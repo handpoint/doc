@@ -12,7 +12,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.0.0
 **BREAKING CHANGE:**
 
-We are introducing a new feature called [**Get Transaction Status**](javascriptterminalmanagement.md#17). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [**transaction reference**](javascriptobjects.md#transaction-reference) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
+We are introducing a new feature called [Get Transaction Status](javascriptterminalmanagement.md#17). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](javascriptobjects.md#transaction-reference) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
 
 When starting a new financial operation (sale,refund etc.) the `OperationStartResult` object will contain two new attributes:
 - `transactionReference`: This universally unique identifier (UUID v4) will allow you to query the Handpoint gateway directly to know the outcome of the transaction. This feature is to be used in case there is a connection issue or any other problem preventing the terminal from delivering the end of transaction to your software.
@@ -22,7 +22,7 @@ When starting a new financial operation (sale,refund etc.) the `OperationStartRe
 
 **Features**:
 
-We are introducing a new feature called [**Transaction Metadata**](javascriptobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
+We are introducing a new feature called [Transaction Metadata](javascriptobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
 
 The Transaction Metadata feature will be available when the Handpoint Payments app **v4.1.0** or higher is used.
 
