@@ -365,6 +365,11 @@ Invoked when the status of the connection with the payment terminal changes.
 
 If for any reasons you do not know if a transaction was approved or declined then this method will allow you to retrieve the status of the transaction from the Handpoint gateway. The `getTransactionStatus` method is a convenient way to retrieve the current status of a transaction based on its unique reference. This method accepts a `transactionReference` as a parameter and returns the current status of the transaction. The `transactionReference` is returned at the start of a transaction, as part of the [Operation Start Result](windowsobjects.md#OperationStartResult) object.
 
+The main [*FinancialStatus*](windowsobjects.md#25) that can be returned as a response to this method are the following ones: 
+- AUTHORISED - Transaction was successful 
+- DECLINED - Transaction was declined 
+- UNKNOWN (NOT FOUND) -  The transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNKNOWN` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.
+- IN_PROGRESS - The transaction has been received by the gateway but the outcome is not known yet, try again after a few seconds. 
 
 **Parameters**
 
