@@ -371,7 +371,6 @@ The main [*FinancialStatus*](windowsobjects.md#25) that can be returned as a res
 - UNKNOWN (NOT FOUND) -  The transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNKNOWN` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.
 - IN_PROGRESS - The transaction has been received by the gateway but the outcome is not known yet, try again after a few seconds. 
 
-
 **Parameters**
 
 | Parameter      | Notes |
