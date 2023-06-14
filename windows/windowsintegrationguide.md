@@ -178,15 +178,24 @@ public void DirectConnect()
 **6. Add a method to take payments**
 
 ```csharp
-public bool Pay()
+public OperationStartResult Pay()
 {
     return api.Sale(new BigInteger(1000), Currency.EUR);
     // Let´s start our first transaction for 10 euros
     // The amount should always be in the minor unit of the currency
 }
 ```
-   
-**7. Add a method to disconnect from the card reader**
+
+**7. Add a method to get the transactions status**
+
+```csharp
+public TransactionResult GetTransactionStatus(String transactionReference)
+{
+    return api.GetTransactionStatus(transactionReference);
+}
+```
+
+**8. Add a method to disconnect from the card reader**
 
 ```csharp
 public void Disconnect()
@@ -195,7 +204,7 @@ public void Disconnect()
 }
 ```
 
-**8. Eventually, MyClass.cs must look like this after implementing all the necessary methods :**
+**9. Eventually, MyClass.cs must look like this after implementing all the necessary methods :**
 
 ```csharp
 using System;
@@ -248,9 +257,16 @@ namespace GettingStartedApp
             api.Connect(device);
         }
 
-        public bool Pay()
+        public OperationStartResult Pay()
         {
             return api.Sale(new BigInteger(1000), Currency.EUR);
+            // Let´s start our first transaction for 10 euros
+            // The amount should always be in the minor unit of the currency
+        }
+
+        public TransactionResult GetTransactionStatus(String transactionReference)
+        {
+            return api.GetTransactionStatus(transactionReference);
         }
 
         public void Disconnect()
@@ -291,14 +307,16 @@ namespace GettingStartedApp
 **1. Create buttons and labels**
 - Go to your user interface (usually Form1.cs[Design])
 - Select View > Toolbox
-- In the toolbox, under “Common Controls” drag and drop 3 button items to the user interface
+- In the toolbox, under “Common Controls” drag and drop 4 button items to the user interface
 - Select "button1" > Right-Click > Properties
 - Change the attribute "Name" from "button1" to "PayButton"
 - Change the attribute "text" from "button1" to "Pay Now"
-- Change the attribute "Name" from "button2" to "ConnectButton"
-- Change the attribute "text" from "button2" to "Connect To Card reader"
-- Change the attribute "Name" from "button3" to "DisconnectButton"
-- Change the attribute "text" from "button3" to "Disconnect From Card Reader"
+- Change the attribute "Name" from "button2" to "GetTransactionStatusButton"
+- Change the attribute "text" from "button2" to "Get Transaction Status"
+- Change the attribute "Name" from "button3" to "ConnectButton"
+- Change the attribute "text" from "button3" to "Connect To Card reader"
+- Change the attribute "Name" from "button4" to "DisconnectButton"
+- Change the attribute "text" from "button4" to "Disconnect From Card Reader"
 - Select View > Toolbox > Common Controls > Label
 - Change the attribute "Name" from "label1" to "ConnectionLabel"
 - Change the attribute "text" from "label1" to "Disconnected"
@@ -342,7 +360,7 @@ class MyClass : Events.Required, Events.Status
 ```
  
 **2. Referencing Myclass in Form1.cs and link methods to the user interface**
-Go to Form1.cs[Design] and double click on the button "Pay Now". By Double Clicking on it you created a method called PayButton_Click. Create a new instance of MyClass called "my" in Form1.cs then, inside the new method PayButton_Click call the Pay() method from MyClass.
+Go to Form1.cs[Design] and double click on the button "Pay Now". By Double Clicking on it you created a method called PayButton_Click. Do the same with the button "Get Transaction Status". Create a new instance of MyClass called "my" in Form1.cs then, inside the new method PayButton_Click call the Pay() method from MyClass.
 
 ```csharp
 using System;
@@ -362,6 +380,12 @@ namespace GettingStartedApp
         private void PayButton_Click(object sender, EventArgs e)
         {
             my.Pay();
+        }
+
+        private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+        {
+            //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+            my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
         }
     }
 }
@@ -388,6 +412,12 @@ namespace GettingStartedApp
         private void PayButton_Click(object sender, EventArgs e)
         {
             my.Pay();
+        }
+
+        private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+        {
+            //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+            my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
         }
 
         private void ConnectButton_Click(object sender, EventArgs e)
@@ -534,9 +564,14 @@ namespace GettingStartedApp
             api.Connect(device);
         }
 
-        public bool Pay()
+        public OperationStartResult Pay()
         {
             return api.Sale(new BigInteger(1000), Currency.EUR);
+        }
+
+        public TransactionResult GetTransactionStatus(String transactionReference)
+        {
+            return api.GetTransactionStatus(transactionReference);
         }
 
         public void Disconnect()
@@ -619,6 +654,12 @@ namespace GettingStartedApp
             {
                 my.Pay();
             }
+
+            private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+            {
+                //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+                my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
+            }
     
             private void ConnectButton_Click(object sender, EventArgs e)
             {
@@ -681,7 +722,8 @@ Run the program by clicking the "play" button :
 1. Click on "Connect To Card Reader", this can take a little bit of time (10 sec max) due to the fact that we are looking for all the devices around before connecting to a specific one
 2. Click "Pay Now"
 3. Follow the instructions on the card reader
-4. When the transaction is finished, the receipts should be displayed in the webBrowsers
+4. When the transaction is finished, the receipts should be displayed in the webBrowsers.
+5. Click "Get Transaction Status", you will get the transaction Status from the used transactionReference
 5. Click on "Disconnect From Card Reader" to stop the connection with the card reader
 
 ## Bluetooth (HiLite) {#WinHiLiteIntegration}
@@ -1052,6 +1094,11 @@ namespace GettingStartedApp
         private void PayButton_Click(object sender, EventArgs e)
         {
             my.Pay();
+        }
+        private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+        {
+            //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+            my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
         }
     }
 }

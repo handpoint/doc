@@ -375,7 +375,7 @@ The main [*FinancialStatus*](windowsobjects.md#25) that can be returned as a res
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) is returned at the start of a transaction, as part of the [Operation Start Result](windowsobjects.md#OperationStartResult) object.|
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) is returned at the start of a transaction, as part of the [OperationStartResult](windowsobjects.md#OperationStartResult) object.|
 
 **Code example**
 
@@ -384,15 +384,8 @@ The main [*FinancialStatus*](windowsobjects.md#25) that can be returned as a res
 this.Hapi.GetTransactionStatus("00000000-0000-0000-0000-000000000000");
 ```
 
-#### Events invoked
-
-**[*transactionResultReady*](windowsevents.md#11)**
-
-Invoked when the result of the getTransactionStatus request is available.
-****
-
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| Returns `true` or `false` if status has been requested|
+| [TransactionResult](windowsobjects.md#14)| An object holding information about the result of a transaction.|

@@ -60,7 +60,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 
@@ -106,7 +106,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Sale Reversal
@@ -152,7 +152,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Refund
@@ -197,7 +197,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 
@@ -245,7 +245,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 ## MoTo Sale
 
@@ -289,7 +289,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the gateway|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## MoTo Refund 
@@ -330,7 +330,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the gateway|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## MoTo Reversal
@@ -367,7 +367,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the gateway|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 ## Print Receipt
 
@@ -527,7 +527,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `Boolean`| `true` if the operation was successfully sent to the payment terminal|
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 

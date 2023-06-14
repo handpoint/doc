@@ -266,6 +266,13 @@ public class HandpointDelegate implements Events.SmartposRequired, Events.Curren
         // Use the currency of the country in which you will be deploying terminals
     }
 
+    public boolean getTrxStatus() {
+        //Allows you to know the status of a transaction by providing the transactionReference.
+        //The transactionReference must be a unique identifier (UUID v4).
+        //We will receive the result of this operation in transactionResultReady event
+        return api.getTransactionStatus("00000000-0000-0000-0000-000000000000");
+    }
+
     @Override
     public void currentTransactionStatus(StatusInfo statusInfo, Device device) {
         if (statusInfo.getStatus() == StatusInfo.Status.InitialisationComplete) {
@@ -285,7 +292,7 @@ public class HandpointDelegate implements Events.SmartposRequired, Events.Curren
     public void transactionResultReady(TransactionResult transactionResult, Device device) {
         // Pending TransactionResult objects will be received through this event if the EndOfTransaction
         // event was not delivered during the transaction, for example because of a network issue
-        // For this sample app we are not going to implement this event
+        // Here we are also going to receive a TransactionResult object after making a query to getTransactionStatus
     }
 
     public void disconnect(){

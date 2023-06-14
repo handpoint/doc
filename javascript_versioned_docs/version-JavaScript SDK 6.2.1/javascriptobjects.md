@@ -36,8 +36,8 @@ An object holding information about the result of a transaction.
 | `customerReceipt`  <br />*String	*   | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats |
 | `customerReference`  <br />*String	*   | If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `deviceStatus`  <br />[*DeviceStatus*](#27)  | Status of the payment terminal|
-| `dueAmount`  <br />*BigString*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
-| `efttimestamp`  <br />*BigString*   | Time of the transaction (based on the date and time of the payment terminal)|
+| `dueAmount`  <br />*Number*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`  <br />*Date (Unix epoch)*   | Time of the transaction (based on the date and time of the payment terminal)|
 | `efttransactionID`  <br />*String	*   | Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`  <br />*String	*   | Detailed reason for the transaction error|
 | `expiryDateMMYY`  <br />*String	*   | Expiry date of the card used for the operation|
