@@ -5,6 +5,6 @@ id: restapidownloads
 
 # POSTMAN Collection
 
-Below is a Postman collection to get started with the REST API integration. In this collection you will find examples of different operations such as initialize, ping device, sale, sale and tokenize, sale reversal, sale with partial approval, refund, refund reversal, print receipt, tokenize card and update terminal.
+Below is a Postman collection to get started with the REST API integration. In this collection you will find examples of different [operations](restobjects.md#operation-types-description) such as initialize, ping device, sale, MOTO sale, sale and tokenize, sale reversal, sale with partial approval, refund, linked refund, refund reversal, print receipt(Bitmap and custom receipt), tokenize card, update terminal, tip-adjustment, [GetTransactionResult](restendpoints.md#transaction-resulttransactionresultid) and [GetTransactionStatus](restendpoints.md#transactionstransactionreferencestatus).
 
-[Download this Postman Collection](/files/HandpointRESTAPI2023.postman_collection.json.zip)
+[Download this Postman Collection](/files/RESTAPI.postman_collection.json.zip)

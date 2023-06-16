@@ -17,9 +17,11 @@ The following example shows how you can integrate your web application with the 
 
 2) In the same directory, copy both handpoint.js and the code below in an html file.
 
-3) In the code below, replace the variable apiKey with your test api key and replace the variable deviceName with the concatenation of your terminal serial number and model, for example 0821032395-PAXA920. If your payment terminal shows the debug watermark on the screen when it is on, then keep the variable environmentIsDevelopment to true otherwise change it to false. 
+3) In the code below, replace the variable apiKey with your test api key and replace the variable deviceName with the concatenation of your terminal serial number and model, for example **0821032395-PAXA920**. 
 
-4)Open the html file in the browser and see the test transaction immediately.
+  Note: If your payment terminal shows the debug watermark on the screen when it is on, then keep the variable `environmentIsDevelopment` to true otherwise change it to false. 
+
+4) Open the HTML file in the browser and see the test transaction immediately.
 
 **SIMPLE, FAST, and EASY**
 
@@ -34,52 +36,70 @@ The following example shows how you can integrate your web application with the 
 
 <body>
   <script>
-      var hp = new Handpoint()
+    (async function () {
+      var hp = new Handpoint();
       //************* Test configuration *************//
-      var apiKey = 'YourApiKey';
-      var deviceName = '082245-Device';
+      var apiKey = 'Your-API-KEY';
+      var deviceName = '0821032395-PAXA920';
       var environmentIsDevelopment = true;
       //*********************************************//
-      hp.init(apiKey, environmentIsDevelopment, (pendingEoT) => {
-        console.log('Recovered Transaction -> ' + JSON.stringify(pendingEoT));
-      }).then(
-        response1 => {
-          console.log('Successful initialization')
-          //document.writeln('Successful initialization<br />')
-          hp.connect(deviceName).then(
-            response2 => {
-              console.log('Successful Connection to device [' + deviceName + ']');
-              //document.writeln('Successful Connection to device [' + deviceName + ']<br />')
-              console.log('Executing sale');
-              //document.writeln('Executing sale<br />')
-              hp.sale('10', 'EUR').then(
-                response3 => {
-                  console.log('Successful sale');
-                  //document.writeln('Successful sale<br />');
-                  hp.disconnect(deviceName).then(
-                    response3 => {
-                      console.log('Successful disconnection from device [' + deviceName + ']')
-                      //document.writeln('Successful disconnection from device [' + deviceName + ']<br />')
-                    }
-                  ).catch(
-                    error => console.log('Disconnection from device [' + deviceName + '] Failed -> ' + JSON.stringify(error))
-                  );
-                }
-              ).catch(
-                error => console.log('Sale Failed -> ' + JSON.stringify(error))
-              );
-            }
-          ).catch(
-            error => console.log('Connection to device [' + deviceName + '] Failed -> ' + JSON.stringify(error))
-          );
+
+      //An object to store the customization options for a sale operation. This object can be empty if no options are required.
+      var options = {
+        duplicate_check: false,
+        metadata: {
+          metadata1: "",
+          metadata2: "",
+          metadata3: "",
+          metadata4: "",
+          metadata5: "",
+        },
+      };
+
+      let result; // Declare the result variable
+
+      try {
+        // Initialize Handpoint SDK
+        await hp.init(apiKey, environmentIsDevelopment, (pendingEoT) => {
+          console.log('Recovered Transaction -> ' + JSON.stringify(pendingEoT));
+        });
+        console.log('Successful initialization');
+
+        // Connect to the Handpoint device
+        await hp.connect(deviceName);
+        console.log('Successful Connection to device [' + deviceName + ']');
+        console.log('Executing sale');
+
+        try {
+          // Perform the sale operation
+          let operationStartedResult = await hp.sale('1234', 'EUR', options);
+          console.log('Successful sale');
+          var transactionReference = operationStartedResult.transactionReference;
+          console.log('Transaction Result -> ' + JSON.stringify(operationStartedResult));
+          console.log('transactionReference [' + operationStartedResult.transactionReference + ']');
+          result = await operationStartedResult.transactionResult; // Assign the transactionResult to result
+        } catch (error) {
+          console.log('Sale Failed -> ' + JSON.stringify(error));
+        }
+      } catch (error) {
+        console.log('Initialization Failed -> ' + JSON.stringify(error));
+      }
+
+      // Retrieve transaction status
+      hp.getTransactionStatus(result.transactionReference).then(
+        transactionResult => {
+          console.log('Transaction Result -> ' + JSON.stringify(transactionResult))
         }
       ).catch(
-        error => console.log('Initialization Failed -> ' + JSON.stringify(error))
+        errorStatus => console.log('ERROR in getTransactionStatus -> ' + JSON.stringify(errorStatus))
       );
+
+    })();
   </script>
 </body>
 
 </html>
+
 ```
 
 :::tip

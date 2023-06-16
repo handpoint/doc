@@ -146,9 +146,9 @@ public void deviceDiscoveryFinished(List<Device> devices)
     {
         if (device.Name != null)
         {
-            if (device.Name.Equals("9822032398-PAXA920"))
+            if (device.Name.Equals("0821032395-PAXA920"))
             // Put the name of your device, it is the composition of: serial number - device model.
-            // Example for a PAX A920 device: serial_number - model -> 9822032398-PAXA920
+            // Example for a PAX A920 device: serial_number - model -> 0821032395-PAXA920
             {
                 this.myDevice = device;
               //We'll remember the device for this session, it is nice if you would do that too
@@ -166,11 +166,11 @@ Instead of discovering terminals you can also connect directly to one of them:
 ```csharp
 public void DirectConnect()
 {
-    Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+    Device device = new Device("CloudDevice", "0821032395-PAXA920", "", ConnectionMethod.CLOUD);
     // new Device("name", "address", "port (optional)", ConnectionMethod);
     // The address always has to be written in UPPER CASE
     // It is the composition of the serial number and model ot the payment terminal.
-    // Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
+    // Example for a PAX A920 device: serial_number - model  -> 0821032395-PAXA920
     api.Connect(device);
 }
 ```
@@ -187,6 +187,8 @@ public OperationStartResult Pay()
 ```
 
 **7. Add a method to get the transactions status**
+
+This functionality is only available for SmartPos devices (PAX).
 
 ```csharp
 public TransactionResult GetTransactionStatus(String transactionReference)
@@ -242,7 +244,7 @@ namespace GettingStartedApp
             {
                 if (device.Name != null)
                 {
-                    if (device.Name.Equals("9822032398-PAXA920"))
+                    if (device.Name.Equals("0821032395-PAXA920"))
                     {
                         this.myDevice = device;
                         api.Connect(this.myDevice);
@@ -253,7 +255,7 @@ namespace GettingStartedApp
 
         public void DirectConnect()
         {
-            Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+            Device device = new Device("CloudDevice", "0821032395-PAXA920", "", ConnectionMethod.CLOUD);
             api.Connect(device);
         }
 
@@ -566,6 +568,8 @@ namespace GettingStartedApp
 
         public OperationStartResult Pay()
         {
+            //A new sale operation will generate a transactionReference that can be used
+            //to check the status of the transaction (GetTransactionStatus)
             return api.Sale(new BigInteger(1000), Currency.EUR);
         }
 

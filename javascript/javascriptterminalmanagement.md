@@ -228,10 +228,11 @@ If for any reasons you do not know if a transaction was approved or declined the
 
 
 The main [*FinancialStatus*](javascriptobjects.md#33) that can be returned as a response to this method are the following ones: 
-- AUTHORISED - Transaction was successful 
-- DECLINED - Transaction was declined 
-- UNKNOWN (NOT FOUND) -  The transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNKNOWN` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.
-- IN_PROGRESS - The transaction has been received by the gateway but the outcome is not known yet, try again after a few seconds. 
+- AUTHORISED - Transaction was successful. 
+- DECLINED - Transaction was declined. 
+- UNDEFINED (NOT FOUND) -  The transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.
+- IN_PROGRESS - The transaction has been received by the gateway but the outcome is not known yet, try again after a few seconds.
+- REFUNDED - Transaction was refunded. 
 
 
 **Parameters**

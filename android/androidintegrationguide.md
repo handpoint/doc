@@ -156,7 +156,7 @@ android.useAndroidX=true
 
 **3. Create a Java class**
 
-Create a new java class called HandpointDelegate.java and include com.handpoint.api.* as a dependency:
+Create a new java class called `HandpointDelegate.java` and include `com.handpoint.api.*` as a dependency:
 
 ```java
 package com.yourpackage.name;
@@ -269,8 +269,9 @@ public class HandpointDelegate implements Events.SmartposRequired, Events.Curren
     public boolean getTrxStatus() {
         //Allows you to know the status of a transaction by providing the transactionReference.
         //The transactionReference must be a unique identifier (UUID v4).
-        //We will receive the result of this operation in transactionResultReady event
+        //This functionality is only available for SmartPos devices (PAX)
         return api.getTransactionStatus("00000000-0000-0000-0000-000000000000");
+        //You will receive the TransactionResult object of this operation in transactionResultReady event
     }
 
     @Override
@@ -411,7 +412,7 @@ org.gradle.configureondemand = true
 
 **3. Create a Java class**
 
-Create a new java class called HandpointDelegate.java and include com.handpoint.api.* as a dependency:
+Create a new java class called `HandpointDelegate.java` and include `com.handpoint.api.*` as a dependency:
 
 ```java
 package com.yourpackage.name;
