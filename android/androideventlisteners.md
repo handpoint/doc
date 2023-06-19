@@ -671,11 +671,11 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 Implement this interface in order to receive an event when a transaction is started through the Cloud API channel.
 
-**IMPORTANT NOTE**: This interface is only available for cloud-enabled devices. See [DeviceCapabilitiesReady](#deviceCapabilitiesReady) interface.
+**IMPORTANT NOTE**: This interface is **only** available for cloud-enabled devices. See [DeviceCapabilitiesReady](#deviceCapabilitiesReady) interface.
 
 **Methods**
 
-`transactionStarted( TransactionType transactionType , BigInteger amount , Currency currency );`
+`transactionStarted( TransactionType transactionType , BigInteger amount , Currency currency );` 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
@@ -683,13 +683,31 @@ Implement this interface in order to receive an event when a transaction is star
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | 		Amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | 		Currency of the transaction started|
 
+ <br></br>
+
+`transactionStarted( TransactionType transactionType , BigInteger amount , Currency currency, String transactionReference );` 
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `transactionType` <span class="badge badge--primary">Required</span> <br />[*TransactionType*](androidobjects.md#31)    | 		Type of transaction started|
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | 		Amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | 		Currency of the transaction started|
+| `transactionReference` <span class="badge badge--primary">Required</span> <br />*String*   | 	The transaction reference of the started transaction|
+
 **Code example**
 
 ```java
 public final class EventHandler implements Events.TransactionStarted {
 
+	//If the transactionReference has NOT been included in the request
 	@Override
 public void transactionStarted(TransactionType type, BigInteger amount, Currency currency) {
+		// Notify the app user transaction has been started ...
+	}
+
+	//If the transactionReference has been included in the request
+	@Override
+public void transactionStarted(TransactionType type, BigInteger amount, Currency currency, String transactionReference) {
 		// Notify the app user transaction has been started ...
 	}
 

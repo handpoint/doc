@@ -292,8 +292,8 @@ public class HandpointDelegate implements Events.SmartposRequired, Events.Curren
     @Override
     public void transactionResultReady(TransactionResult transactionResult, Device device) {
         // Pending TransactionResult objects will be received through this event if the EndOfTransaction
-        // event was not delivered during the transaction, for example because of a network issue
-        // Here we are also going to receive a TransactionResult object after making a query to getTransactionStatus
+        // event was not delivered during the transaction, for example because of a network issue.
+        // Here you are also going to receive a TransactionResult object after making a query to getTransactionStatus
     }
 
     public void disconnect(){
