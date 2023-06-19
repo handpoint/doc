@@ -242,7 +242,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'restapi',
-        includeCurrentVersion: false, // dev: Change to true
+        includeCurrentVersion: true, // dev: Change to true
         path: 'restapi',
         routeBasePath: 'restapi',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -279,7 +279,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'android',
-        includeCurrentVersion: false, // dev: Change to true
+        includeCurrentVersion: true, // dev: Change to true
         path: './android',
         routeBasePath: 'android',
         sidebarPath: require.resolve('./sidebarsAndroid.js'),

@@ -584,3 +584,184 @@ Invoked when the terminal finishes processing the transaction.
 | ----------- | ----------- |
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
+
+
+## Pre-Auth
+
+`preAuthorization`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
+| `preauthOptions` <br />[*MerchantAuthOptions*](androidobjects.md#MerchantAuthOptions)      | An object to store merchant authentication options for pre-auth operations.|
+
+**Code example**
+
+```java
+//Initiate a pre-auth for 1.00 in Great British Pounds
+MerchantAuthOptions preauthOptions = new MerchantAuthOptions();
+preauthOptions.setCustomerReference("CustomerReference");
+
+api.preAuthorization(new BigInteger("100"),Currency.GBP, preauthOptions);
+```
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
+
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+## Pre-Auth Increase
+
+`preAuthorizationIncrease`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*     | Currency of the charge|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Currency of the charge|
+| `preauthOptions` <br />[*Options*](androidobjects.md#7)      | An object to store merchant authentication options for pre-auth operations.|
+
+**Code example**
+
+```java
+//Initiate a pre-auth increase for 1.00 in Great British Pounds
+Options preauthOptions = new Options();
+preauthOptions.setCustomerReference("CustomerReference");
+
+api.preAuthorizationIncrease(new BigInteger("100"),Currency.GBP, preauthOptions);
+```
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
+
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Pre-Auth Capture
+
+`preAuthorizationCapture`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*    | Currency of the charge|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Currency of the charge|
+| `preauthOptions` <br />[*Options*](androidobjects.md#7)      | An object to store merchant authentication options for pre-auth operations.|
+
+**Code example**
+
+```java
+//Initiate a pre-auth capture for 1.00 in Great British Pounds
+Options preauthOptions = new Options();
+preauthOptions.setCustomerReference("CustomerReference");
+
+api.preAuthorizationCapture(new BigInteger("1000"),Currency.GBP, preauthOptions);
+```
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+## Pre-Auth Reversal
+
+`preAuthorizationReversal`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
+| `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
+
+**Code example**
+
+```java
+//Initiate a pre-auth reversal
+api.preAuthorizationReversal("00000000-0000-0000-0000-000000000000");
+
+Options preauthOptions = new Options();
+preauthOptions.setCustomerReference("CustomerReference");
+
+api.preAuthorizationReversal("00000000-0000-0000-0000-000000000000", preauthOptions);
+```
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
