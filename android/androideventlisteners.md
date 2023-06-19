@@ -675,15 +675,6 @@ Implement this interface in order to receive an event when a transaction is star
 
 **Methods**
 
-`transactionStarted( TransactionType transactionType , BigInteger amount , Currency currency );` 
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `transactionType` <span class="badge badge--primary">Required</span> <br />[*TransactionType*](androidobjects.md#31)    | 		Type of transaction started|
-| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | 		Amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | 		Currency of the transaction started|
-
- <br></br>
 
 `transactionStarted( TransactionType transactionType , BigInteger amount , Currency currency, String transactionReference );` 
 
@@ -692,25 +683,18 @@ Implement this interface in order to receive an event when a transaction is star
 | `transactionType` <span class="badge badge--primary">Required</span> <br />[*TransactionType*](androidobjects.md#31)    | 		Type of transaction started|
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | 		Amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | 		Currency of the transaction started|
-| `transactionReference` <span class="badge badge--primary">Required</span> <br />*String*   | 	The transaction reference of the started transaction|
+| `transactionReference` <span class="badge badge--primary">Required</span> <br />*String*   | 	The transaction reference of the started transaction. `transactionReference` will be empty if the operation has not been started with one, or if it is an operation to which it does not apply (a tokenization, for example)|
 
 **Code example**
 
 ```java
 public final class EventHandler implements Events.TransactionStarted {
 
-	//If the transactionReference has NOT been included in the request
-	@Override
-public void transactionStarted(TransactionType type, BigInteger amount, Currency currency) {
-		// Notify the app user transaction has been started ...
-	}
-
-	//If the transactionReference has been included in the request
+	//If the transactionReference has NOT been included in the request, it will be empty.
 	@Override
 public void transactionStarted(TransactionType type, BigInteger amount, Currency currency, String transactionReference) {
 		// Notify the app user transaction has been started ...
 	}
-
 }
 
 // Remember to register the instance of this EventHandler:

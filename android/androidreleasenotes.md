@@ -15,7 +15,9 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.1002.0
 **Features**:
 
-We are introducing a new feature called [Get Transaction Status](androiddevicemanagement.md#getTransactionStatus). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](androidobjects.md#OperationStartResult) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
+We are introducing a new feature called [Get Transaction Status](androiddevicemanagement.md#getTransactionStatus). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](androidobjects.md#OperationStartResult) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies.
+
+- Cloud integrations: A new parameter called `transactionReference` has been added to the [transactionStarted](androideventlisteners.md#transactionStarted) method. This means that when implementing this method in a class, you need to update the method signature to include the new parameter.
 
 ## 7.1001.0
 **Features**:

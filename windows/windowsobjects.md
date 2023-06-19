@@ -59,8 +59,8 @@ An object holding information about the result of a transaction.
 | `statusMessage`<br />*String*    | 		The status of the transaction, for example "Waiting for pin"|
 | `tenderType`<br />[*TenderType*](#27)     | 		Transaction tender type (credit / debit)|
 | `tid`<br />*String*    | 		Terminal Identifier|
-| `tipAmount`<br />*BigInteger*     | 		Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `tipPercentage`<br />*double*     | 		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
+| `gratuityAmount`<br />*BigInteger*     | 		Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `gratuityPercentage`<br />*double*     | 		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `totalAmount`<br />*BigInteger*     | 		The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality|
 | `transactionID`<br />*String*    | 		The transaction id is a terminal internal counter incremented for each transaction|
 | `tsi`<br />*String*    | 		EMV Transaction Status Information (EMV tag 9B)|
@@ -122,7 +122,7 @@ An object holding information about the result of a transaction.
   "statusMessage": "Approved or completed successfully",
   "tenderType": "CREDIT",
   "tid": "ACQUIRER_TID",
-  "tipAmount": 0,
+  "gratuityAmount": 0,
   "totalAmount": 100,
   "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
   "tsi": "0000",
@@ -133,7 +133,7 @@ An object holding information about the result of a transaction.
   "efttimestamp": 1615374961000,
   "efttransactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
   "requestedAmount": 100,
-  "tipPercentage": 0,
+  "gratuityPercentage": 0,
   "recoveredTransaction": false
 }
 ```
