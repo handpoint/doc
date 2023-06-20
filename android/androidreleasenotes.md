@@ -20,12 +20,14 @@ We are introducing a new transaction type called [Pre-Authorization](androidtran
 ## 7.1002.0
 **Features**:
 
-We are excited to announce the launch of a new feature: [**Get Transaction Status**](androiddevicemanagement.md#get-transaction-status). This feature allows the integrator to obtain the status of a transaction by providing a transaction reference. You can use this feature to track the progress of your payments, refunds, or transfers, and to troubleshoot any issues that may arise. To use this feature, use a [transaction reference](androidobjects.md#operation-start-result) obtained when a new transaction has been started. This feature is available for all supported payment methods and currencies. We hope you find this feature useful and convenient. Please let us know if you have any feedback or questions
+We are introducing a new feature called [Get Transaction Status](androiddevicemanagement.md#getTransactionStatus). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](androidobjects.md#OperationStartResult) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies.
+
+- Cloud integrations: A new parameter called `transactionReference` has been added to the [transactionStarted](androideventlisteners.md#transactionStarted) method. This means that when implementing this method in a class, you need to update the method signature to include the new parameter.
 
 ## 7.1001.0
 **Features**:
 
- We are introducing a new feature called [**Transaction Metadata**](androidobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
+ We are introducing a new feature called [Transaction Metadata](androidobjects.md#metadata). This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****
 
 The Transaction Metadata feature will be available when the Handpoint Android SDK **v7.1001.0** or higher is used. 
 

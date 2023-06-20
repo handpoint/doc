@@ -50,22 +50,24 @@ Possible Values:
 
 An enum representing different statuses of a completed transaction.
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `UNKNOWN` `IN_PROGRESS`
+`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED`
 
 Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`.  UNDEFINED means that the API couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved. |
-| `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
+
+| `UNDEFINED` (NOT FOUND) *  <br/>  |The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged..|
+| `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
-| `REFUNDED` <br/>   | The transaction has been refunded by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
-| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
+| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`. This means the operation was unsuccessful and the transaction has not been charged.   |
 | `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
-| `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is **only**  applicable to the United States market. |
-| `UNKNOWN`  <br/>   | The `transactionReference` of this transaction is NOT registered in the gateway. The status of the transaction could change in the near future. |
-| `IN_PROGRESS`  <br/>   | The`transactionReference` of this transaction is known by the gateway. Please check the status of the transaction again as it is in the process of status change.|
+| `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
+| `IN_PROGRESS` *  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
+| `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method. The original transaction (sale) has been refunded. |
+
+\* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method.
 
 
 
@@ -101,8 +103,8 @@ An object holding information about the result of a transaction.
 | `customerReceipt`  <br />*String	*   | 	The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.|
 | `customerReference`  <br />*String	*   | If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `deviceStatus`  <br />[*DeviceStatus*](#deviceStatus)  | Status of the payment terminal|
-| `dueAmount`  <br />*String	*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
-| `efttimestamp`  <br />*Date	*   | Time of the transaction (based on the date and time of the payment terminal)|
+| `dueAmount`  <br />*BigInteger	*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`  <br />*BigInteger	*   | Time of the transaction (based on the date and time of the payment terminal)|
 | `efttransactionID`  <br />*String	*   | Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`  <br />*String	*   | Detailed reason for the transaction error|
 | `expiryDateMMYY`  <br />*String	*   | Expiry date of the card used for the operation|
@@ -136,7 +138,7 @@ An object holding information about the result of a transaction.
 | `multiLanguageStatusMessages`  <br />*Map	*   | `map` containing the status message in a human readable format for all the supported locales.|
 | `multiLanguageErrorMessages`  <br />*Map	*   | `map` containing the error message in a human readable format for all the supported locales.|
 | `cardHolderName`  <br />*String	*   | Name of the cardholder|
-| `transactionReference`  <br />*String*   | The `transactionReference` of the transaction to query|
+| `transactionReference`  <br />*String*   | The unique UUID associated with the transaction, it can be used to query the [get transaction status](restendpoints.md#transactionstransactionreferencestatus)  endpoint.|
 
 **Code example**
 
@@ -237,7 +239,7 @@ An object to store information about the request sent to the payment terminal.
 | `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
 | `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `transactionReference`  <br />*String*   | The `transactionReference` of the transaction to query ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))).|
+| `transactionReference`  <br />*String*   | The `transactionReference` is a unique ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) that you need to generate and add to every transaction request. In case something goes wrong and you do not receive a transaction result from the terminal, you will be able to query the Handpoint gateway directly with this id by using the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) endpoint.|
 
 **Code example**
 

@@ -229,7 +229,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'javascript',
-        includeCurrentVersion: false, // dev: Change to true
+        includeCurrentVersion: true, // dev: Change to true
         path: 'javascript',
         routeBasePath: 'javascript',
         sidebarPath: require.resolve('./sidebarsIos.js'),
@@ -255,7 +255,7 @@ module.exports = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'windows',
-        includeCurrentVersion: false, // dev: Change to true
+        includeCurrentVersion: true, // dev: Change to true
         path: 'windows',
         routeBasePath: 'windows',
         sidebarPath: require.resolve('./sidebarsIos.js'),
