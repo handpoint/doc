@@ -36,8 +36,8 @@ An object holding information about the result of a transaction.
 | `customerReceipt`  <br />*String	*   | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats |
 | `customerReference`  <br />*String	*   | If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `deviceStatus`  <br />[*DeviceStatus*](#27)  | Status of the payment terminal|
-| `dueAmount`  <br />*BigString*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
-| `efttimestamp`  <br />*BigString*   | Time of the transaction (based on the date and time of the payment terminal)|
+| `dueAmount`  <br />*Number*   | In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`  <br />*Date (Unix epoch)*   | Time of the transaction (based on the date and time of the payment terminal) |
 | `efttransactionID`  <br />*String	*   | Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`  <br />*String	*   | Detailed reason for the transaction error|
 | `expiryDateMMYY`  <br />*String	*   | Expiry date of the card used for the operation|
@@ -479,21 +479,24 @@ An enum representing different statuses for a completed transaction.
 
 **Possible values**
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `UNKNOWN` `IN_PROGRESS`
+`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED`
 
 Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any financial status other than the below mentioned financial statuses will be `UNDEFINED`. It means that the terminal couldn't get a response from the Handpoint gateway and therefore does not know the outcome of the transaction. This status is **VERY RARE** because the terminal has a retry mechanism that will attempt to get the transaction status several times from the gateway (up to 90s) before returning `UNDEFINED`. When you receive this status, you can use the [get transaction status](javascriptterminalmanagement.md#17) method to directly query the Handpoint gateway and know if the transaction was approved or declined.|
+| `UNDEFINED` (NOT FOUND)  <br/>  | Any financial status other than the below mentioned financial statuses will be `UNDEFINED`. The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](javascriptterminalmanagement.md#17) method. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.|
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
 | `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`. This means the operation was unsuccessful and the transaction has not been charged.   |
 | `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
-| `UNKNOWN` (NOT FOUND) <br/>   | The `UNKNOWN` (NOT FOUND) status can be returned as a response to the  [get transaction status](javascriptterminalmanagement.md#17) method. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNKNOWN` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.|
-| `IN_PROGRESS`  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](javascriptterminalmanagement.md#17) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
+| `IN_PROGRESS` * <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](javascriptterminalmanagement.md#17) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
+| `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](javascriptterminalmanagement.md#17) method. The original transaction (sale) has been refunded. |
+
+\* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](javascriptterminalmanagement.md#17) method.
+
 
 
 
