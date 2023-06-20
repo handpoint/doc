@@ -501,7 +501,6 @@ Description of the different financial statuses:
 
 
 
-
 ## Device Status{#27}
 
 `DeviceStatus` <span class="badge badge--info">Object</span>
