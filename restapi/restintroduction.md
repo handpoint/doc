@@ -24,9 +24,9 @@ When integrating with the Handpoint REST API, there are 2 possible transaction f
 
 2. ensure you are targeting the correct environment. If your payment terminal is a **debug** terminal then the development environment (.io) needs to be targeted. If your payment terminal is a **demo** terminal or a **production** terminal then the production environment (.com) needs to be targeted. Demo terminals are production terminals linked to a mock acquirer so **funds are not moved**. To check if you should be using the production or the development environment you can refer to this guide: ["How do I know what type of card reader I have?"](https://hndpt.co/39utmzi)
 
-  **For production terminals the endpoint to target is:** https://cloud.handpoint.com/
+  **For production terminals the endpoint to target is:** https://transactions.handpoint.com/
 
-  **For debug terminals the endpoint to target is:** https://cloud.handpoint.io/
+  **For debug terminals the endpoint to target is:** https://transactions.handpoint.io/
 
 :::
 

@@ -333,7 +333,7 @@ Error example response (using invalid guid):
 
 ## /transactions/{transactionReference}/status
 
-The /transactions/{transactionReference}/status endpoint is a RESTful API endpoint designed to retrieve the current status of a transaction based on its unique reference. It accepts the transaction reference as a path parameter and returns the current status of the transaction in the response. The `transactionReference` is a unique value that you need to generate and pass in the original [ transaction request](restobjects.md#transactionRequest).
+The `https://transactions.handpoint.com/transactions/{transactionReference}/status` endpoint is a RESTful API endpoint designed to retrieve the current status of a transaction based on its unique reference. It accepts the transaction reference as a path parameter and returns the current status of the transaction in the response. The `transactionReference` is a unique value that you need to generate and pass in the original [ transaction request](restobjects.md#transactionRequest).
 
 The main transaction result [*FinancialStatus*](restobjects.md#financialStatus) that can be returned as a response to this method are the following ones: 
 - AUTHORISED - Transaction was successful.
@@ -356,6 +356,7 @@ The main transaction result [*FinancialStatus*](restobjects.md#financialStatus) 
 | Response      | Response Code |
 | ----------- | ----------- |
 | **OK** | Response code **200** + [Transaction Result](restobjects.md#transaction-result-object). <br /><br /> There are two possible outcomes:<br /> - The `transactionReference` was found in the database and the associated [Transaction Result](restobjects.md#transaction-result-object) object is delivered. By checking the [financial status](restobjects.md#financialStatus) field you will be able to know the status of the transaction at the time of the query. <br /> - The `transactionReference` was not found in the Handpoint gateway. The [financial status](restobjects.md#financialStatus) received in this case will be `UNDEFINED` (NOT FOUND)|
+| **Unauthorized** | Response code **401**. The client request has not been completed because it lacks valid authentication credentials for the requested resource. Please check your API Key is correct for this `transactionReference`.     |
 | **Forbidden** | Response code **403**. Authentication was unsuccessful. Please check your API Key is valid.      |
 
 **Code Example**
@@ -365,8 +366,8 @@ Operation executed using CLI tool CURL:
 REQUEST:
     curl -X GET \\
       -H"ApiKeyCLoud: MeRcHaNt-ApIkEy" \\
-      "https://cloud.handpoint.com/transactions/3e665342-a95b-49c1-b6fe-b3f102305a76/status" (production)
-      "https://cloud.handpoint.io/transactions/3e665342-a95b-49c1-b6fe-b3f102305a76/status" (development)
+      "https://transactions.handpoint.com/transactions/3e665342-a95b-49c1-b6fe-b3f102305a76/status" (production)
+      "https://transactions.handpoint.io/transactions/3e665342-a95b-49c1-b6fe-b3f102305a76/status" (development)
 
 RESPONSE:
 {
