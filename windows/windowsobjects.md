@@ -42,8 +42,8 @@ An object holding information about the result of a transaction.
 | `errorMessage`<br />*String*    | 		Detailed reason for the transaction error|
 | `expiryDateMMYY`<br />*String*    | 		Expiry date of the card used for the operation|
 | `finStatus`<br />[*FinancialStatus*](#25)     | 		The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"|
-| `gratuityAmount` :triangular_flag_on_post: <br /> *BigInteger*     | 	<span class="badge badge--warning"> This field will be deprecated in future versions, please use the **tipAmount** field </span><br />	Gratuity (tip) amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `gratuityPercentage` :triangular_flag_on_post:<br />*double*     | <span class="badge badge--warning"> This field will be deprecated in future versions, please use the **tipPercentage** field </span><br />		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
+| `gratuityAmount` :triangular_flag_on_post: <br /> *BigInteger*     | 	<span class="badge badge--warning"> This field will be deprecated in Windows SDK 5.0.0 version, please use the **tipAmount** field </span><br />	Gratuity (tip) amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `gratuityPercentage` :triangular_flag_on_post:<br />*double*     | <span class="badge badge--warning"> This field will be deprecated in Windows SDK 5.0.0 version, please use the **tipPercentage** field </span><br />		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `iad`<br />*String*    | 		EMV Issuer Application Data (EMV tag 9F10)|
 | `issuerResponseCode`<br />*String*    | 		Response code from the card issuer|
 | `maskedCardNumber`<br />*String*    | 		Masked card number of the card used for the operation|
