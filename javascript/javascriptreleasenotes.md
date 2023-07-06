@@ -12,7 +12,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.0.0
 **BREAKING CHANGE:**
 
-We are introducing a new feature called [Get Transaction Status](javascriptterminalmanagement.md#17). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](javascriptobjects.md#transaction-reference) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
+We are introducing a new feature called [Get Transaction Status](javascriptterminalmanagement.md#17). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](javascriptobjects.md#operation-start-result) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies. 
 
 
 When starting a new financial operation (sale, refund etc.) the `OperationStartResult` object will contain two new attributes:
