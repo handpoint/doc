@@ -147,8 +147,8 @@ public void DeviceDiscoveryFinished(List<Device> devices)
         if (device.Name != null)
         {
             if (device.Name.Equals("CloudDevice"))
-            // Put the name of your device, it is the composition of: serial number - device model.
-            // Example for a PAX A920 device: serial_number - model -> 0821032395-PAXA920
+            // Put the name of your device
+
             {
                 this.myDevice = device;
               //We'll remember the device for this session, it is nice if you would do that too
