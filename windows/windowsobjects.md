@@ -36,12 +36,14 @@ An object holding information about the result of a transaction.
 | `customerReceipt`<br />*String*    | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats |
 | `customerReference`<br />*String*    | 		If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `deviceStatus`<br />[*DeviceStatus*](#24)     | 		Status of the payment terminal|
-| `dueAmount`<br />*String*    | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
-| `efttimestamp`<br />*Date*     | 			Time of the transaction (based on the date and time of the payment terminal)|
+| `dueAmount`<br />*BigString*    | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`<br />*BigString*     | 			Time of the transaction (based on the date and time of the payment terminal)|
 | `efttransactionID`<br />*String*    | 		Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`<br />*String*    | 		Detailed reason for the transaction error|
 | `expiryDateMMYY`<br />*String*    | 		Expiry date of the card used for the operation|
 | `finStatus`<br />[*FinancialStatus*](#25)     | 		The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"|
+| `gratuityAmount` :triangular_flag_on_post: <br /> *BigInteger*     | 	<span class="badge badge--warning"> This field will be deprecated in Windows SDK 5.0.0 version, please use the **tipAmount** field </span><br />	Gratuity (tip) amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `gratuityPercentage` :triangular_flag_on_post:<br />*double*     | <span class="badge badge--warning"> This field will be deprecated in Windows SDK 5.0.0 version, please use the **tipPercentage** field </span><br />		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `iad`<br />*String*    | 		EMV Issuer Application Data (EMV tag 9F10)|
 | `issuerResponseCode`<br />*String*    | 		Response code from the card issuer|
 | `maskedCardNumber`<br />*String*    | 		Masked card number of the card used for the operation|
@@ -59,8 +61,8 @@ An object holding information about the result of a transaction.
 | `statusMessage`<br />*String*    | 		The status of the transaction, for example "Waiting for pin"|
 | `tenderType`<br />[*TenderType*](#27)     | 		Transaction tender type (credit / debit)|
 | `tid`<br />*String*    | 		Terminal Identifier|
-| `tipAmount`<br />*BigInteger*     | 		Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `tipPercentage`<br />*double*     | 		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
+| `tipAmount` <br /> *BigInteger*     | 	Tip amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `tipPercentage` <br />*double*     | If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `totalAmount`<br />*BigInteger*     | 		The total amount is the amount the card was charged for. It is possible that the total amount is not the same as the requested amount since an additional fee can be added, with the customer's approval, via the tipping functionality|
 | `transactionID`<br />*String*    | 		The transaction id is a terminal internal counter incremented for each transaction|
 | `tsi`<br />*String*    | 		EMV Transaction Status Information (EMV tag 9B)|
@@ -122,7 +124,7 @@ An object holding information about the result of a transaction.
   "statusMessage": "Approved or completed successfully",
   "tenderType": "CREDIT",
   "tid": "ACQUIRER_TID",
-  "tipAmount": 0,
+  "gratuityAmount": 0,
   "totalAmount": 100,
   "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
   "tsi": "0000",
@@ -133,7 +135,7 @@ An object holding information about the result of a transaction.
   "efttimestamp": 1615374961000,
   "efttransactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
   "requestedAmount": 100,
-  "tipPercentage": 0,
+  "gratuityPercentage": 0,
   "recoveredTransaction": false
 }
 ```
@@ -378,19 +380,24 @@ An enum representing different final statuses of a transaction.
 
 **Possible values**
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED`
+`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED`
 
  Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED`   <br/>  | Any Financial Status other than the below mentioned financial statuses will be `UNDEFINED`.  UNDEFINED means that the SDK couldn't get a response from the Gateway. An automatic cancellation service will try to cancel the transaction in case it was approved. |
-| `AUTHORISED` <br/>    | The transaction (Sale, Refund,...) has been authorised. Consider this value as "successful". |
+| `UNDEFINED` (NOT FOUND)  <br/>  | Any financial status other than the below mentioned financial statuses will be `UNDEFINED`. The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](windowsdevicemanagement.md#get-transaction-status) method. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.|
+| `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
-| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`.  |
+| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`. This means the operation was unsuccessful and the transaction has not been charged.   |
 | `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
-| `PARTIAL_APPROVAL`  <br/>   | A partial approval is the ability to partially authorize a transaction if the cardholder does not have the funds to cover the entire cost on their card. The merchant can obtain the remainder of the purchase amount in another form of payment. `PARTIAL_APPROVAL` is **only**  applicable to the United States market. |
+| `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
+| `IN_PROGRESS` * <br/>   |  The `IN_PROGRESS` status can be returned as a response to the [get transaction status](windowsdevicemanagement.md#get-transaction-status) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
+| `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](windowsdevicemanagement.md#get-transaction-status) method. The original transaction (sale) has been refunded. |
+
+\* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](windowsdevicemanagement.md#get-transaction-status) method.
+
 
 
 
@@ -465,7 +472,7 @@ An enum representing different types of payment scenarios.
 
 ** Possible values **
 
-`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE`
+`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
 
 ## Status
 
@@ -555,3 +562,15 @@ Object used to echo metadata1-5, in the transaction result, if it was set as an 
     }
 }
 ```	
+
+## Operation Start Result{#OperationStartResult}
+
+`OperationStartResult` <span class="badge badge--info">Object</span>
+
+Object containing information about the financial operation being performed.
+
+|Property	|Description|
+| ----------- | ----------- |
+|`OperationStarted`<br />*Boolean*	| `true` if the operation has started. `false` otherwise.|
+|`TransactionReference`<br />*String*|The `transactionReference` must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction. A linked refund or a reversal will not return a `transactionReference` because the transaction reference for those types of transactions is the same as the one received for the original financial operation.|
+|`ErrorMessage`<br />*String* |Detailed reason for the transaction error.|

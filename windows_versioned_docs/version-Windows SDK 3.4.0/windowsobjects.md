@@ -36,12 +36,14 @@ An object holding information about the result of a transaction.
 | `customerReceipt`<br />*String*    | The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats |
 | `customerReference`<br />*String*    | 		If a customerReference was provided as an optional parameter in the transaction request it is echoed unaltered in this field|
 | `deviceStatus`<br />[*DeviceStatus*](#24)     | 		Status of the payment terminal|
-| `dueAmount`<br />*String*    | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
-| `efttimestamp`<br />*Date*     | 			Time of the transaction (based on the date and time of the payment terminal)|
+| `dueAmount`<br />*BigString*    | 		In case of a partial approval for the transaction, this field contains the amount which remains to be paid. Partial approval support is only required by the card brands in the United States|
+| `efttimestamp`<br />*BigString*     | 			Time of the transaction (based on the date and time of the payment terminal)|
 | `efttransactionID`<br />*String*    | 		Handpoint unique identifier for a transaction, this id is the one to be used for a transaction to be reversed.|
 | `errorMessage`<br />*String*    | 		Detailed reason for the transaction error|
 | `expiryDateMMYY`<br />*String*    | 		Expiry date of the card used for the operation|
 | `finStatus`<br />[*FinancialStatus*](#25)     | 		The financial status contains the outcome of the transaction. For example "AUTHORISED" or "DECLINED"|
+| `gratuityAmount` :triangular_flag_on_post: <br /> *BigInteger*     | 	<span class="badge badge--warning"> This field will be deprecated in future versions, please use the **tipAmount** field </span><br />	Gratuity (tip) amount, if any, in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `gratuityPercentage` :triangular_flag_on_post:<br />*double*     | <span class="badge badge--warning"> This field will be deprecated in future versions, please use the **tipPercentage** field </span><br />		If tipping is enabled, this field will return the tip percentage added on top of the base amount|
 | `iad`<br />*String*    | 		EMV Issuer Application Data (EMV tag 9F10)|
 | `issuerResponseCode`<br />*String*    | 		Response code from the card issuer|
 | `maskedCardNumber`<br />*String*    | 		Masked card number of the card used for the operation|
@@ -465,7 +467,7 @@ An enum representing different types of payment scenarios.
 
 ** Possible values **
 
-`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE`
+`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
 
 ## Status
 

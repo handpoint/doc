@@ -254,7 +254,7 @@ Sets the SDK Locale (language). It is used to set the SDK language as well as th
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `locale` <span class="badge badge--primary">Required</span>  <br />[*SupportedLocales*](androidobjects.md#23)    | The locale to be set. Supported locales are: SupportedLocales.en_CA, SupportedLocales.en_UK, SupportedLocales.en_US, SupportedLocales.hr_HR, SupportedLocales.is_IS, SupportedLocales.fr_FR, SupportedLocales.pt_PT, SupportedLocales.it_IT, SupportedLocales.no_NO.|
+| `locale` <span class="badge badge--primary">Required</span>  <br />[*SupportedLocales*](androidobjects.md#23)    | The locale to be set. Supported locales are: SupportedLocales.en_CA, SupportedLocales.en_UK, SupportedLocales.en_US, SupportedLocales.hr_HR, SupportedLocales.is_IS, SupportedLocales.fr_FR, SupportedLocales.pt_PT, SupportedLocales.it_IT, SupportedLocales.no_NO, SupportedLocales.de_DE, SupportedLocales.sl_SL|
 
 
  **Code example**
@@ -366,3 +366,49 @@ The merchant should be notified about the update process.
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `Boolean`| `True` if the operation was successfully sent to device.|
+
+## Get Transaction Status{#getTransactionStatus}
+
+`getTransactionStatus` <span class="badge badge--info">Method</span>
+
+**This functionality is only available for SmartPos devices (PAX).**
+
+If for any reasons you do not know if a transaction was approved or declined then this method will allow you to retrieve the status of the transaction from the Handpoint gateway. The `getTransactionStatus` method is a convenient way to retrieve the current status of a transaction based on its unique reference. This method accepts a `transactionReference` as a parameter and returns the current status of the transaction. The `transactionReference` is returned at the start of a transaction, as part of the [Operation Start Result](androidobjects.md#OperationStartResult) object.
+
+The main [*FinancialStatus*](androidobjects.md#34) that can be returned as a response to this method are the following ones:
+
+- AUTHORISED - Transaction was successful. 
+- DECLINED - Transaction was declined. 
+- UNDEFINED (NOT FOUND) -  The transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.
+- IN_PROGRESS - The transaction has been received by the gateway but the outcome is not known yet, try again after a few seconds.
+- REFUNDED - Transaction was refunded. 
+
+
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `transactionReference` <span class="badge badge--primary">Required</span>  <br />*String*   | The `transactionReference` ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) is returned at the start of a transaction, as part of the [Operation Start Result](androidobjects.md#OperationStartResult) object.|
+ 
+
+**Code example**
+
+```java
+//Gets the current status of a transaction 
+api.getTransactionStatus("00000000-0000-0000-0000-000000000000");
+```
+
+**Events invoked**
+
+[**transactionResultReady**](androideventlisteners.md#transactionResultReady)
+
+Invoked when the result of the getTransactionStatus request is available.
+***
+
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+|  `Boolean`| `true` if the operation was successfully.|

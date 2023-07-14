@@ -94,7 +94,7 @@ namespace GettingStartedApp
             api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
         }
 
-        public void deviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List<Device> devices)
         {
           // here you get a list of payment terminals associated with the api key.
         }
@@ -140,15 +140,15 @@ public void DiscoverDevices()
     api.SearchDevices(ConnectionMethod.CLOUD);
 }
 
-public void deviceDiscoveryFinished(List<Device> devices)
+public void DeviceDiscoveryFinished(List<Device> devices)
 {
     foreach (Device device in devices)
     {
         if (device.Name != null)
         {
-            if (device.Name.Equals("9822032398-PAXA920"))
-            // Put the name of your device, it is the composition of: serial number - device model.
-            // Example for a PAX A920 device: serial_number - model -> 9822032398-PAXA920
+            if (device.Name.Equals("CloudDevice"))
+            // Put the name of your device
+            
             {
                 this.myDevice = device;
               //We'll remember the device for this session, it is nice if you would do that too
@@ -166,11 +166,11 @@ Instead of discovering terminals you can also connect directly to one of them:
 ```csharp
 public void DirectConnect()
 {
-    Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+    Device device = new Device("CloudDevice", "0821032395-PAXA920", "", ConnectionMethod.CLOUD);
     // new Device("name", "address", "port (optional)", ConnectionMethod);
     // The address always has to be written in UPPER CASE
     // It is the composition of the serial number and model ot the payment terminal.
-    // Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
+    // Example for a PAX A920 device: serial_number - model  -> 0821032395-PAXA920
     api.Connect(device);
 }
 ```
@@ -178,15 +178,26 @@ public void DirectConnect()
 **6. Add a method to take payments**
 
 ```csharp
-public bool Pay()
+public OperationStartResult Pay()
 {
     return api.Sale(new BigInteger(1000), Currency.EUR);
     // Let´s start our first transaction for 10 euros
     // The amount should always be in the minor unit of the currency
 }
 ```
-   
-**7. Add a method to disconnect from the card reader**
+
+**7. Add a method to get the transactions status**
+
+This functionality is only available for SmartPos devices (PAX).
+
+```csharp
+public TransactionResult GetTransactionStatus(String transactionReference)
+{
+    return api.GetTransactionStatus(transactionReference);
+}
+```
+
+**8. Add a method to disconnect from the card reader**
 
 ```csharp
 public void Disconnect()
@@ -195,7 +206,7 @@ public void Disconnect()
 }
 ```
 
-**8. Eventually, MyClass.cs must look like this after implementing all the necessary methods :**
+**9. Eventually, MyClass.cs must look like this after implementing all the necessary methods :**
 
 ```csharp
 using System;
@@ -227,13 +238,13 @@ namespace GettingStartedApp
             api.SearchDevices(ConnectionMethod.CLOUD);
         }
 
-        public void deviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
                 if (device.Name != null)
                 {
-                    if (device.Name.Equals("9822032398-PAXA920"))
+                    if (device.Name.Equals("CloudDevice"))
                     {
                         this.myDevice = device;
                         api.Connect(this.myDevice);
@@ -244,13 +255,20 @@ namespace GettingStartedApp
 
         public void DirectConnect()
         {
-            Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+            Device device = new Device("CloudDevice", "0821032395-PAXA920", "", ConnectionMethod.CLOUD);
             api.Connect(device);
         }
 
-        public bool Pay()
+        public OperationStartResult Pay()
         {
             return api.Sale(new BigInteger(1000), Currency.EUR);
+            // Let´s start our first transaction for 10 euros
+            // The amount should always be in the minor unit of the currency
+        }
+
+        public TransactionResult GetTransactionStatus(String transactionReference)
+        {
+            return api.GetTransactionStatus(transactionReference);
         }
 
         public void Disconnect()
@@ -291,14 +309,16 @@ namespace GettingStartedApp
 **1. Create buttons and labels**
 - Go to your user interface (usually Form1.cs[Design])
 - Select View > Toolbox
-- In the toolbox, under “Common Controls” drag and drop 3 button items to the user interface
+- In the toolbox, under “Common Controls” drag and drop 4 button items to the user interface
 - Select "button1" > Right-Click > Properties
 - Change the attribute "Name" from "button1" to "PayButton"
 - Change the attribute "text" from "button1" to "Pay Now"
-- Change the attribute "Name" from "button2" to "ConnectButton"
-- Change the attribute "text" from "button2" to "Connect To Card reader"
-- Change the attribute "Name" from "button3" to "DisconnectButton"
-- Change the attribute "text" from "button3" to "Disconnect From Card Reader"
+- Change the attribute "Name" from "button2" to "GetTransactionStatusButton"
+- Change the attribute "text" from "button2" to "Get Transaction Status"
+- Change the attribute "Name" from "button3" to "ConnectButton"
+- Change the attribute "text" from "button3" to "Connect To Card reader"
+- Change the attribute "Name" from "button4" to "DisconnectButton"
+- Change the attribute "text" from "button4" to "Disconnect From Card Reader"
 - Select View > Toolbox > Common Controls > Label
 - Change the attribute "Name" from "label1" to "ConnectionLabel"
 - Change the attribute "text" from "label1" to "Disconnected"
@@ -342,7 +362,7 @@ class MyClass : Events.Required, Events.Status
 ```
  
 **2. Referencing Myclass in Form1.cs and link methods to the user interface**
-Go to Form1.cs[Design] and double click on the button "Pay Now". By Double Clicking on it you created a method called PayButton_Click. Create a new instance of MyClass called "my" in Form1.cs then, inside the new method PayButton_Click call the Pay() method from MyClass.
+Go to Form1.cs[Design] and double click on the button "Pay Now". By Double Clicking on it you created a method called PayButton_Click. Do the same with the button "Get Transaction Status". Create a new instance of MyClass called "my" in Form1.cs then, inside the new method PayButton_Click call the Pay() method from MyClass.
 
 ```csharp
 using System;
@@ -362,6 +382,12 @@ namespace GettingStartedApp
         private void PayButton_Click(object sender, EventArgs e)
         {
             my.Pay();
+        }
+
+        private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+        {
+            //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+            my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
         }
     }
 }
@@ -388,6 +414,12 @@ namespace GettingStartedApp
         private void PayButton_Click(object sender, EventArgs e)
         {
             my.Pay();
+        }
+
+        private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+        {
+            //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+            my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
         }
 
         private void ConnectButton_Click(object sender, EventArgs e)
@@ -534,9 +566,16 @@ namespace GettingStartedApp
             api.Connect(device);
         }
 
-        public bool Pay()
+        public OperationStartResult Pay()
         {
+            //A new sale operation will generate a transactionReference that can be used
+            //to check the status of the transaction (GetTransactionStatus)
             return api.Sale(new BigInteger(1000), Currency.EUR);
+        }
+
+        public TransactionResult GetTransactionStatus(String transactionReference)
+        {
+            return api.GetTransactionStatus(transactionReference);
         }
 
         public void Disconnect()
@@ -563,13 +602,13 @@ namespace GettingStartedApp
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
 
-        public void deviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
                 if (device.Name != null)
                 {
-                    if (device.Name.Equals("0821032398-PAXA920"))
+                    if (device.Name.Equals("CloudDevice"))
                     {
                         this.myDevice = device;
                         api.Connect(this.myDevice);
@@ -618,6 +657,12 @@ namespace GettingStartedApp
             private void PayButton_Click(object sender, EventArgs e)
             {
                 my.Pay();
+            }
+
+            private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+            {
+                //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+                my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
             }
     
             private void ConnectButton_Click(object sender, EventArgs e)
@@ -681,7 +726,8 @@ Run the program by clicking the "play" button :
 1. Click on "Connect To Card Reader", this can take a little bit of time (10 sec max) due to the fact that we are looking for all the devices around before connecting to a specific one
 2. Click "Pay Now"
 3. Follow the instructions on the card reader
-4. When the transaction is finished, the receipts should be displayed in the webBrowsers
+4. When the transaction is finished, the receipts should be displayed in the webBrowsers.
+5. Click "Get Transaction Status", you will get the transaction Status from the used transactionReference
 5. Click on "Disconnect From Card Reader" to stop the connection with the card reader
 
 ## Bluetooth (HiLite) {#WinHiLiteIntegration}
@@ -784,7 +830,7 @@ namespace GettingStartedApp
             api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret));
         }
 
-        public void deviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List<Device> devices)
         {
             // Here you get a list of Bluetooth payment terminals paired with your computer
         }
@@ -834,7 +880,7 @@ public void DiscoverDevices()
     // You can also search for USB and Serial as a connection method
 }
 
-public void deviceDiscoveryFinished(List<Device> devices)
+public void DeviceDiscoveryFinished(List<Device> devices)
 {
     foreach (Device device in devices)
     {
@@ -915,7 +961,7 @@ namespace GettingStartedApp
             api.SearchDevices(ConnectionMethod.BLUETOOTH);
         }
 
-        public void deviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
@@ -1052,6 +1098,11 @@ namespace GettingStartedApp
         private void PayButton_Click(object sender, EventArgs e)
         {
             my.Pay();
+        }
+        private void GetTransactionStatusButton_Click(object sender, EventArgs e)
+        {
+            //Use a transactionReference from your own transactions. 91ff1ed2-beee-44ca-96f9-9acec74dc659 is a test transactionReference
+            my.GetTransactionStatus("91ff1ed2-beee-44ca-96f9-9acec74dc659");
         }
     }
 }
@@ -1249,8 +1300,7 @@ namespace GettingStartedApp
             //Let's log also the status during the transaction
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
-
-        public void deviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
             {
@@ -1492,7 +1542,7 @@ Create a new C# class called MyClass and include com.handpoint.api as a dependen
                 // It prevents other people to connect to your card reader
             }
 
-            public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+            public void DeviceDiscoveryFinished(List<Device> devices)
             {
                 // Only needed when using a payment terminal
                 //here you get a list of Bluetooth payment terminals paired with your PC
@@ -1578,7 +1628,7 @@ Let´s add 4 methods to MyClass in order to represent the 4 cases above :
                 // It prevents other people to connect to your card reader.
             }
 
-            public void **[*deviceDiscoveryFinished*](#13)**(List <Device> devices)
+            public void DeviceDiscoveryFinished(List <Device> devices)
             {
                  // Only needed when using a payment terminal
                  //Here you get a list of Bluetooth payment terminals paired with your PC
@@ -1829,7 +1879,7 @@ Here is how MyClass.cs and Form1.cs must eventually look like :
                 // It prevents other people to connect to your card reader.
             }
 
-            public void deviceDiscoveryFinished(List<Device> devices)
+            public void DeviceDiscoveryFinished(List<Device> devices)
             {
                 // Only needed when using a payment terminal
                 //Here you get a list of Bluetooth payment terminals paired with your PC
