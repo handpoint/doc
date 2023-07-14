@@ -706,3 +706,4 @@ Object containing information about the financial operation being performed.
 | ----------- | ----------- |
 | `transactionReference` <br />*String*    |  The `transactionReference` **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction. A linked refund or a reversal will **not** return a `transactionReference` because the transaction reference for those types of transactions is the same as the one received for the original financial operation.|
 | `transactionResult` <br />*String*    | 	Promise that will resolve/reject with [Transaction Result](javascriptobjects.md#18) object.	|
+

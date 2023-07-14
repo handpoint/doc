@@ -148,7 +148,6 @@ public void DeviceDiscoveryFinished(List<Device> devices)
         {
             if (device.Name.Equals("CloudDevice"))
             // Put the name of your device
-            
             {
                 this.myDevice = device;
               //We'll remember the device for this session, it is nice if you would do that too

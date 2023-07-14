@@ -1300,7 +1300,6 @@ namespace GettingStartedApp
             //Let's log also the status during the transaction
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
-
         public void DeviceDiscoveryFinished(List<Device> devices)
         {
             foreach (Device device in devices)
