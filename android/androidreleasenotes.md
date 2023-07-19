@@ -11,6 +11,11 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 7.1003.0
+**Features**:
+
+We are introducing a new transaction type called [Pre-Authorization](androidtransactions.md#pre-auth). The pre-authorization feature refers to a process where a certain amount of funds is temporarily reserved or held from a customer's account before the actual payment transaction takes place. During the pre-authorization period the funds are reserved but not yet transferred from the cardholder's account to the merchant.
+
 
 ## 7.1002.0
 **Features**:

@@ -721,6 +721,7 @@ An enum representing different types of scenario.
 
 `UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
 
+
 ## PAX A80 Keys{#28}
 
 `PaxA80Keys` <span class="badge badge--info">String</span>

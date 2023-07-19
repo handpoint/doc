@@ -603,6 +603,7 @@ namespace GettingStartedApp
         }
 
         public void DeviceDiscoveryFinished(List<Device> devices)
+
         {
             foreach (Device device in devices)
             {

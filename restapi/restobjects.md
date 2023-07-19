@@ -17,7 +17,7 @@ An enum representing different types of operations.
 
 Possible Values:
 
-`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal`
+`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal` `preAuthorization` `preAuthorizationIncrease` `preAuthorizationCapture` `preAuthorizationReversal`
 
 
 
@@ -42,6 +42,10 @@ Possible Values:
 | `moToSale` <br />*String*    | Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.  |
 | `moToRefund` <br />*String*    | A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.  |
 | `moToReversal` <br />*String*    | A MOTO reversal, also called VOID allows the user to reverse a previous MOTO sale/refund operation. This operation reverts (if possible) a specific operation identified with a transaction id. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission. MOTO Reversal is a type of card-not-present (CNP) transaction used to reverse a previous MOTO Sale or MOTO Refund. |
+| `preAuthorization` <br />*String*    | Sends a pre-authorization transaction to the payment terminal. A pre-authorization charge is a temporary hold placed on a customer’s payment card. It’s used to verify that the account is valid and has sufficient funds to cover a pending transaction. |
+| `preAuthorizationIncrease` <br />*String*    | It allows you to increase or decrease the initially pre-authorised amount before you capture it. |
+| `preAuthorizationCapture` <br />*String*    | Captures a pre-authorized credit card payment. |
+| `preAuthorizationReversal` <br />*String*    | Allows the merchant to reverse a previous pre-auth operation. |
 
 ## Financial Status{#financialStatus}
 
@@ -55,7 +59,6 @@ Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-
 | `UNDEFINED` (NOT FOUND) *  <br/>  |The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged..|
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |

@@ -245,6 +245,7 @@ namespace GettingStartedApp
                 if (device.Name != null)
                 {
                     if (device.Name.Equals("CloudDevice"))
+
                     {
                         this.myDevice = device;
                         api.Connect(this.myDevice);
