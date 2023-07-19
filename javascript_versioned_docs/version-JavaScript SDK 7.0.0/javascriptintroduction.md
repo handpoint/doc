@@ -13,12 +13,12 @@ id: javascriptintroduction
       <h3>JavaScript SDK</h3>
     </div>
     <div class="card__body">
-      <a href="https://hpoint-cr-binaries-prod.s3.amazonaws.com/cloud/sdk/wrappers/js/6.3.0/handpoint-6.3.0.js">
+      <a href="https://hpoint-cr-binaries-prod.s3.amazonaws.com/cloud/sdk/wrappers/js/7.0.0/handpoint-7.0.0.js">
   <img src="https://handpoint.imgix.net/ballicons/small/cloud.png"/> 
 </a>
     </div>
     <div class="card__footer">
-      <a class="button button--primary" href="https://hpoint-cr-binaries-prod.s3.amazonaws.com/cloud/sdk/wrappers/js/6.3.0/handpoint-6.3.0.js" >Get the latest JavaScript SDK!</a>
+      <a class="button button--primary" href="https://hpoint-cr-binaries-prod.s3.amazonaws.com/cloud/sdk/wrappers/js/7.0.0/handpoint-7.0.0.js" >Get the latest JavaScript SDK!</a>
     </div>
   </div>
 </div>

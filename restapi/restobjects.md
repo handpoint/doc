@@ -59,7 +59,7 @@ Description of the different financial statuses:
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `UNDEFINED` (NOT FOUND) *  <br/>  |The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.|
+| `UNDEFINED` (NOT FOUND) *  <br/>  |The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged..|
 | `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
 | `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
 | `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|

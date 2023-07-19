@@ -586,6 +586,7 @@ Invoked when the terminal finishes processing the transaction.
 
 
 
+
 ## Pre-Auth
 
 `preAuthorization`
@@ -629,6 +630,7 @@ Invoked when the terminal finishes processing the transaction.
 | Parameter      | Notes |
 | ----------- | ----------- |
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
 
 ## Pre-Auth Increase
 

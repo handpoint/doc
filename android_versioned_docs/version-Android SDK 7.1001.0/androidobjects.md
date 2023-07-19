@@ -269,7 +269,8 @@ public enum ConnectionMethod {
 
 `ConnectionStatus` <span class="badge badge--info">Enum</span>
 
-A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for devices linked to merchants with CLOUD Api key (CLOUD mode enabled) and can be safely ignored for Android native integrations.
+A list of connection statuses. Note: the events starting with Cloud[...] are exclusively for 
+ices linked to merchants with CLOUD Api key (CLOUD mode enabled) and can be safely ignored for Android native integrations.
 
 **Possible values**
 
@@ -715,7 +716,7 @@ An enum representing different types of scenario.
 
 **Possible values**
 
-`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE`
+`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
 
 ## PAX A80 Keys{#28}
 

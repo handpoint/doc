@@ -88,7 +88,7 @@ The following example shows how you can integrate your web application with the 
       // Retrieve transaction status
       hp.getTransactionStatus(result.transactionReference).then(
         transactionResult => {
-          console.log('Transaction Result -> ' + JSON.stringify(transactionResult))
+          console.log('Transaction Result (from getTransactionStatus) -> ' + JSON.stringify(transactionResult))
         }
       ).catch(
         errorStatus => console.log('ERROR in getTransactionStatus -> ' + JSON.stringify(errorStatus))
