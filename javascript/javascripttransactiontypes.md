@@ -472,3 +472,113 @@ Handpoint.tokenizeCard(options, CallbackFunction(stat){...});
 | **Card Pan Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
 
 
+## Pre-Auth
+
+
+`preAuthorization`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the pre-auth|
+| `saleOptions` <br />[*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a sale. This object can be empty if no options are required.|
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+handleTransactionPromise(hp.preAuthorization(amount, currency, generateOptions(), handpointCommonCallBack));
+```
+
+## Pre-Auth Increase
+
+`preAuthorizationIncrease`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*     | Currency of the charge|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Currency of the charge|
+| `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+handleTransactionPromise(hp.preAuthorizationIncrease(amount, currency, preAuthGuid.val(), generateOptions(), handpointCommonCallBack));
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Pre-Auth Capture
+
+`preAuthorizationCapture`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the charge|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Currency of the charge|
+| `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+handleTransactionPromise(hp.preAuthorizationIncrease(amount, currency, preAuthGuid.val(), generateOptions(), handpointCommonCallBack));
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+## Pre-Auth Reversal
+
+`preAuthorizationReversal`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
+| `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+handleTransactionPromise(hp.preAuthorizationReversal(preAuthGuid.val(), generateOptions(), handpointCommonCallBack));
+```
+
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
