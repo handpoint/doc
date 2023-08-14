@@ -606,6 +606,9 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 
 ```java
 //Initiate a pre-auth for 1.00 in Great British Pounds
+api.preAuthorization(new BigInteger("100"),Currency.GBP);
+
+//With Options
 MerchantAuthOptions preauthOptions = new MerchantAuthOptions();
 preauthOptions.setCustomerReference("CustomerReference");
 
@@ -636,17 +639,17 @@ Invoked when the terminal finishes processing the transaction.
 
 `preAuthorizationIncrease`
 
-A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+This operation allows to increase the amount of a previously performed pre-auth operation.
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to increase the pre-auth in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `tipAmount`  <br />*BigInteger*     | Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Transaction ID of the original pre-auth operation|
 | `preauthOptions` <br />[*Options*](androidobjects.md#7)      | An object to store merchant authentication options for pre-auth operations.|
 
 **Code example**
@@ -656,7 +659,7 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 Options preauthOptions = new Options();
 preauthOptions.setCustomerReference("CustomerReference");
 
-api.preAuthorizationIncrease(new BigInteger("100"),Currency.GBP, preauthOptions);
+api.preAuthorizationIncrease(new BigInteger("1000"),Currency.GBP,new BigInteger("100"),"00000000-0000-0000-0000-000000000000", preauthOptions);
 ```
 
 **Events invoked**
@@ -683,7 +686,7 @@ Invoked when the terminal finishes processing the transaction.
 
 `preAuthorizationCapture`
 
-A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+Capture a pre-authorized transaction.
 
 **Parameters**
 
@@ -692,8 +695,8 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `tipAmount`  <br />*BigInteger*    | Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*    | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Transaction id of the original pre-auth transaction|
 | `preauthOptions` <br />[*Options*](androidobjects.md#7)      | An object to store merchant authentication options for pre-auth operations.|
 
 **Code example**
@@ -703,7 +706,7 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 Options preauthOptions = new Options();
 preauthOptions.setCustomerReference("CustomerReference");
 
-api.preAuthorizationCapture(new BigInteger("1000"),Currency.GBP, preauthOptions);
+api.preAuthorizationCapture(new BigInteger("1000"),Currency.GBP,new BigInteger("100"),"00000000-0000-0000-0000-000000000000", preauthOptions);
 ```
 
 **Events invoked**
@@ -728,15 +731,15 @@ Invoked when the terminal finishes processing the transaction.
 
 `preAuthorizationReversal`
 
-A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
-| `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original pre-auth transaction|
+| `preauthOptions` <br />[*Options*](androidobjects.md#7)     | An object to store merchant authentication options for pre-auth operations.|
 
 **Code example**
 
@@ -747,6 +750,7 @@ api.preAuthorizationReversal("00000000-0000-0000-0000-000000000000");
 Options preauthOptions = new Options();
 preauthOptions.setCustomerReference("CustomerReference");
 
+//Initiate a pre-auth reversal with options
 api.preAuthorizationReversal("00000000-0000-0000-0000-000000000000", preauthOptions);
 ```
 

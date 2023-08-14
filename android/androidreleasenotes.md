@@ -16,6 +16,8 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 We are introducing a new transaction type called [Pre-Authorization](androidtransactions.md#pre-auth). The pre-authorization feature refers to a process where a certain amount of funds is temporarily reserved or held from a customer's account before the actual payment transaction takes place. During the pre-authorization period the funds are reserved but not yet transferred from the cardholder's account to the merchant.
 
+Also take a look at our [Pre-Auth Increase](androidtransactions.md#pre-auth-increase), [Pre-Auth Capture](androidtransactions.md#pre-auth-capture) and [Pre-Auth Reversal](androidtransactions.md#pre-auth-reversal) operations.
+
 
 ## 7.1002.0
 **Features**:
@@ -23,6 +25,8 @@ We are introducing a new transaction type called [Pre-Authorization](androidtran
 We are introducing a new feature called [Get Transaction Status](androiddevicemanagement.md#getTransactionStatus). This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the [transaction reference](androidobjects.md#OperationStartResult) returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies.
 
 - Cloud integrations: A new parameter called `transactionReference` has been added to the [transactionStarted](androideventlisteners.md#transactionStarted) method. This means that when implementing this method in a class, you need to update the method signature to include the new parameter.
+
+Added Estonian language 🇪🇪
 
 ## 7.1001.0
 **Features**:

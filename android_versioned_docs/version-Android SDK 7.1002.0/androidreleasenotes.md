@@ -19,6 +19,8 @@ We are introducing a new feature called [Get Transaction Status](androiddevicema
 
 - Cloud integrations: A new parameter called `transactionReference` has been added to the [transactionStarted](androideventlisteners.md#transactionStarted) method. This means that when implementing this method in a class, you need to update the method signature to include the new parameter.
 
+Added Estonian language 🇪🇪
+
 ## 7.1001.0
 **Features**:
 

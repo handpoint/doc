@@ -409,6 +409,33 @@ let operationStartedResult = handpoint.moToReversal('00000000-0000-0000-0000-000
 |  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
+## Tip Adjustment 
+
+`TipAdjustment`
+
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `tipAmount` <span class="badge badge--primary">Required</span> <br />*BigInteger*   |Tip amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
+
+**Code example**
+
+```javascript
+handpoint.tipAdjustment('100', '00000000-0000-0000-0000-000000000000') {
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Status Message**| `Tip adjusted` message for OK <br/> `ERROR`  message for NOK|
+
+
 
 ## Tokenize Card{#11}
 
@@ -486,13 +513,17 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the pre-auth|
-| `saleOptions` <br />[*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a sale. This object can be empty if no options are required.|
+| `preauthOptions` <br />[*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a pre-auth. This object can be empty if no options are required.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
 
 ```javascript
-handleTransactionPromise(hp.preAuthorization(amount, currency, generateOptions(), handpointCommonCallBack));
+// Perform the PreAuth operation
+let operationStartedResult = handpoint.preAuthorization('1234', 'EUR', preauthOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
+});
+
 ```
 
 ## Pre-Auth Increase
@@ -508,15 +539,18 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the charge|
-| `tipAmount`  <br />*BigInteger*     | Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*     | Tip amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Transaction ID of the original pre-auth operation|
 | `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
 
 ```javascript
-handleTransactionPromise(hp.preAuthorizationIncrease(amount, currency, preAuthGuid.val(), generateOptions(), handpointCommonCallBack));
+// Perform the PreAuth Increase operation
+let operationStartedResult = handpoint.preAuthorizationIncrease('1234', 'EUR','100','00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
+});
 ```
 
 **Returns**
@@ -538,15 +572,18 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the charge|
-| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Currency of the charge|
+| `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the pre-auth|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Transaction ID of the original pre-auth operation|
 | `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
 
 ```javascript
-handleTransactionPromise(hp.preAuthorizationIncrease(amount, currency, preAuthGuid.val(), generateOptions(), handpointCommonCallBack));
+// Perform the PreAuth Capture operation
+let operationStartedResult = handpoint.preAuthorizationCapture('1234', 'EUR','100','00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
+});
 ```
 
 **Returns**
@@ -566,14 +603,17 @@ A pre-auth initiates a pre-authorization operation to the card reader. In it's s
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original pre-auth transaction|
 | `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
 
 ```javascript
-handleTransactionPromise(hp.preAuthorizationReversal(preAuthGuid.val(), generateOptions(), handpointCommonCallBack));
+// Perform the PreAuth Reversal operation
+let operationStartedResult = handpoint.preAuthorizationReversal('00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
+});
 ```
 
 

@@ -9,6 +9,14 @@ id: restreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+
+## 2.15.0
+**Features:**
+
+We are introducing a new transaction type called Pre-Authorization. The pre-authorization feature refers to a process where a certain amount of funds is temporarily reserved or held from a customer's account before the actual payment transaction takes place. During the pre-authorization period the funds are reserved but not yet transferred from the cardholder's account to the merchant.
+
+Also take a look at our Pre-Auth Increase, Pre-Auth Capture and Pre-Auth Reversal operations. In the [POSTMAN Collection](restapidownloads) section you will find sample code for each of these operations.
+
 ## 2.14.0
 **Features:**
 
