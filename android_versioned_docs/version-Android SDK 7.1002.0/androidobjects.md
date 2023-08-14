@@ -1023,6 +1023,7 @@ An enum of the SDK supported languages.
 
 `en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO` `de_DE` `sl_SL` `et_EE`
 
+
 ## Tender Type{#36}
 
 `TenderType` <span class="badge badge--info">Enum</span>
