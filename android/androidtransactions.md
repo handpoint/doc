@@ -714,6 +714,20 @@ A pre-authorized transaction can be captured to actually debit the cardholder's 
 | 5813 | Drinking Places, Bars, Taverns, Cocktail Lounges, Nightclubs, Discotheques | Same day | 20% |
 | 4121 | Taxicabs and Limousines (Card-Absent Environment only) | Same day | 20% |
 
+**MASTERCARD rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 30 days | 20% |
+| 5814 | Fast Food Restaurants | 30 days | 20% |
+
+**Maestro rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 7 days | 20% |
+| 5814 | Fast Food Restaurants | 7 days | 20% |
+
 
 **Parameters**
 
@@ -759,6 +773,7 @@ Invoked when the terminal finishes processing the transaction.
 `preAuthorizationReversal`
 
 A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
+A pre-authorized transaction can be partially or fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
 
 **Parameters**
 
