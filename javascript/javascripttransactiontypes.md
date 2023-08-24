@@ -413,7 +413,7 @@ let operationStartedResult = handpoint.moToReversal('00000000-0000-0000-0000-000
 
 `TipAdjustment`
 
-A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+A tip adjustment operation allows merchants to adjust the tip amount of a sale or a pre-auth capture transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and WORLDPAY/VANTIV.
 
 **Parameters**
 
@@ -506,12 +506,14 @@ Handpoint.tokenizeCard(options, CallbackFunction(stat){...});
 
 A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
 
+A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront.
+
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the pre-auth|
 | `preauthOptions` <br />[*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a pre-auth. This object can be empty if no options are required.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
@@ -531,13 +533,14 @@ let operationStartedResult = handpoint.preAuthorization('1234', 'EUR', preauthOp
 `preAuthorizationIncrease`
 
 A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A pre-authorized transaction can be increased, for example if a tab was opened and the consumer is adding new orders going above the initial pre-authorized amount.
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the charge|
 | `tipAmount`  <br />*BigInteger*     | Tip amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Transaction ID of the original pre-auth operation|
