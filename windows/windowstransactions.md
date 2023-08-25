@@ -562,3 +562,251 @@ This event is invoked when the transaction is completed, it contains the transac
 | ----------- | ----------- |
 | `Boolean`| `true` if the operation was successfully sent to the payment terminal|
 
+
+## Pre-Auth
+
+`preAuthorization`
+
+A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](windowsobjects.md#1)  | Currency of the charge|
+| `map` <br />*Map* | A map including [*optional transaction parameters.*](windowsobjects.md#3)|
+
+**Code example**
+
+```csharp
+// Basic
+this.Hapi.PreAuthorization(new BigInteger("1000"), Currency.EUR);
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.Metadata1.Tag(), "Data 1");
+
+this.Hapi.PreAuthorization(new BigInteger("1000"), Currency.EUR, map);
+```
+#### Events invoked
+
+**[*currentTransactionStatus*](windowsevents.md#4)**
+
+Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
+
+**[*signatureRequired*](windowsevents.md#5)**
+
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
+****
+
+**[*endOfTransaction*](windowsevents.md#6)**
+
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
+****
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Pre-Auth Increase
+
+`preAuthorizationIncrease`
+
+This operation allows the merchant to increase the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](windowsobjects.md#1) | Currency of the charge|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Transaction id of the original pre-auth transaction|
+| `map` <br />*Map* | A map including [*optional transaction parameters.*](windowsobjects.md#3)|
+
+
+**Code example**
+
+```csharp
+// Basic
+this.Hapi.PreAuthorizationIncrease(new BigInteger("1000"), Currency.EUR, ""00000000-0000-0000-0000-000000000000");
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.Metadata1.Tag(), "Data 1");
+
+this.Hapi.PreAuthorizationIncrease(new BigInteger("1000"), Currency.EUR, "00000000-0000-0000-0000-000000000000", map);
+```
+#### Events invoked
+
+**[*currentTransactionStatus*](windowsevents.md#4)**
+
+Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
+
+**[*signatureRequired*](windowsevents.md#5)**
+
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
+****
+
+**[*endOfTransaction*](windowsevents.md#6)**
+
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
+****
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Pre-Auth Capture
+
+`preAuthorizationCapture`
+
+A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank.
+
+**VISA rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 3501-3999, 7011 | Lodging | 31 days | 15% |
+| 3351-3500, 7512 | Car Rental | 31 days | 15% |
+| 4411 | Steamship and Cruise Lines | 31 days | 15% |
+| 7513 | Truck Rentals | 7 days | 15% |
+| 7033 | Trailer Parks and Campgrounds | 7 days | 15% |
+| 7519 | Motor Home and Recreational Vehicle Rentals | 7 days | 15% |
+| 5552 | Electric Vehicle Charging | 7 days | 15% |
+| 7523 | Parking and Garages | 7 days | 15% |
+| 7394 | Equipment, Tool, Furniture and Appliance Rental | 7 days | none |
+| 7999 | Recreation Services | 7 days | none |
+| 7996 | Amusement Parks, Carnivals, Circuses, Fortune Tellers | 7 days | none |
+| 5599 | Miscellaneous Automotive, Aircraft, and Farm Equipment Dealers | 7 days | none |
+| 4457 | Boat Rentals and Leasing | 7 days | none  |
+| 5571 | Motorcycle Shops and Dealers | 7 days  | none |
+| 4111 | Local and Suburban Commuter, Passenger Transportation, including Ferries | 7 days | 25 USD (or equivalent amount in local currency)  |
+| 4112 | Passenger Railways | 7 days | 25 USD (or equivalent amount in local currency) |
+| 4131 | Bus Lines | 7 days | 25 USD (or equivalent amount in local currency) |
+| 5812 | Eating Places and Restaurants | Same day | 20% |
+| 5813 | Drinking Places, Bars, Taverns, Cocktail Lounges, Nightclubs, Discotheques | Same day | 20% |
+| 4121 | Taxicabs and Limousines (Card-Absent Environment only) | Same day | 20% |
+
+**MASTERCARD rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 30 days | 20% |
+| 5814 | Fast Food Restaurants | 30 days | 20% |
+
+**Maestro rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 7 days | 20% |
+| 5814 | Fast Food Restaurants | 7 days | 20% |
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](windowsobjects.md#1) | Currency of the charge|
+| `tipAmount`  <br />*BigInteger*    | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Transaction id of the original pre-auth transaction|
+
+**Code example**
+
+```csharp
+// Basic
+this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, new BigInteger("100"),"00000000-0000-0000-0000-000000000000");
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.Metadata1.Tag(), "Data 1");
+
+this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, new BigInteger("100"),"00000000-0000-0000-0000-000000000000", map);
+```
+#### Events invoked
+
+**[*currentTransactionStatus*](windowsevents.md#4)**
+
+Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
+
+**[*signatureRequired*](windowsevents.md#5)**
+
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
+****
+
+**[*endOfTransaction*](windowsevents.md#6)**
+
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
+****
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+## Pre-Auth Reversal
+
+`preAuthorizationReversal`
+
+A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
+A pre-authorized transaction can be partially or fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
+| `map` <br />*Map* | A map including [*optional transaction parameters.*](windowsobjects.md#3)|
+
+**Code example**
+
+```csharp
+// Basic
+this.Hapi.PreAuthorizationReversal("00000000-0000-0000-0000-000000000000");
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.Metadata1.Tag(), "Data 1");
+
+this.Hapi.PreAuthorizationReversal("00000000-0000-0000-0000-000000000000", map);
+```
+#### Events invoked
+
+**[*currentTransactionStatus*](windowsevents.md#4)**
+
+Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+****
+
+**[*signatureRequired*](windowsevents.md#5)**
+
+This event is invoked if the card issuer requires the cardholder to sign the transaction receipt.
+****
+
+**[*endOfTransaction*](windowsevents.md#6)**
+
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
+****
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
