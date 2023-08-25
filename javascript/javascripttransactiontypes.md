@@ -532,8 +532,7 @@ let operationStartedResult = handpoint.preAuthorization('1234', 'EUR', preauthOp
 
 `preAuthorizationIncrease`
 
-A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
-A pre-authorized transaction can be increased, for example if a tab was opened and the consumer is adding new orders going above the initial pre-authorized amount.
+This operation allows the merchant to increase the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it.
 
 **Parameters**
 
@@ -567,14 +566,53 @@ let operationStartedResult = handpoint.preAuthorizationIncrease('1234', 'EUR','1
 
 `preAuthorizationCapture`
 
-A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank.
+
+**VISA rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 3501-3999, 7011 | Lodging | 31 days | 15% |
+| 3351-3500, 7512 | Car Rental | 31 days | 15% |
+| 4411 | Steamship and Cruise Lines | 31 days | 15% |
+| 7513 | Truck Rentals | 7 days | 15% |
+| 7033 | Trailer Parks and Campgrounds | 7 days | 15% |
+| 7519 | Motor Home and Recreational Vehicle Rentals | 7 days | 15% |
+| 5552 | Electric Vehicle Charging | 7 days | 15% |
+| 7523 | Parking and Garages | 7 days | 15% |
+| 7394 | Equipment, Tool, Furniture and Appliance Rental | 7 days | none |
+| 7999 | Recreation Services | 7 days | none |
+| 7996 | Amusement Parks, Carnivals, Circuses, Fortune Tellers | 7 days | none |
+| 5599 | Miscellaneous Automotive, Aircraft, and Farm Equipment Dealers | 7 days | none |
+| 4457 | Boat Rentals and Leasing | 7 days | none  |
+| 5571 | Motorcycle Shops and Dealers | 7 days  | none |
+| 4111 | Local and Suburban Commuter, Passenger Transportation, including Ferries | 7 days | 25 USD (or equivalent amount in local currency)  |
+| 4112 | Passenger Railways | 7 days | 25 USD (or equivalent amount in local currency) |
+| 4131 | Bus Lines | 7 days | 25 USD (or equivalent amount in local currency) |
+| 5812 | Eating Places and Restaurants | Same day | 20% |
+| 5813 | Drinking Places, Bars, Taverns, Cocktail Lounges, Nightclubs, Discotheques | Same day | 20% |
+| 4121 | Taxicabs and Limousines (Card-Absent Environment only) | Same day | 20% |
+
+**MASTERCARD rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 30 days | 20% |
+| 5814 | Fast Food Restaurants | 30 days | 20% |
+
+**Maestro rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 7 days | 20% |
+| 5814 | Fast Food Restaurants | 7 days | 20% |
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to pre-auth - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the pre-auth|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Transaction ID of the original pre-auth operation|
 | `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
@@ -599,7 +637,8 @@ let operationStartedResult = handpoint.preAuthorizationCapture('1234', 'EUR','10
 
 `preAuthorizationReversal`
 
-A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters.
+A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
+A pre-authorized transaction can be partially or fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
 
 **Parameters**
 
