@@ -413,7 +413,7 @@ let operationStartedResult = handpoint.moToReversal('00000000-0000-0000-0000-000
 
 `TipAdjustment`
 
-A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
+A tip adjustment operation allows merchants to adjust the tip amount of a sale or a pre-auth capture transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and WORLDPAY/VANTIV.
 
 **Parameters**
 
