@@ -656,6 +656,23 @@ options.setChannel(MoToChannel.MO);
 options.setChannel(MoToChannel.TO);
 ```
 
+## Operation DTO
+
+`OperationDto` <span class="badge badge--info">Object</span>
+
+Object containing information about the financial operation being performed.
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `sale` <br />[*Sale*](androidtransactions.md#2)     | 	A sale initiates a payment operation to the card reader	|
+| `refund` <br />[*Refund*](androidtransactions.md#5)    | 	A refund operation moves funds from the merchant account to the cardholder´s credit card.	|
+| `saleReversal` <br />[*Sale Reversal*](androidtransactions.md#4)    | 	A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. 	|
+| `refundReversal` <br />[*Refund Reversal*](androidtransactions.md#6)     | A refund reversal, also called refund VOID allows the merchant to reverse a previous refund operation.	|
+
+
+
 
 ## Operation Start Result {#OperationStartResult}
 

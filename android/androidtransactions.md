@@ -546,6 +546,60 @@ Invoked when the terminal finishes processing the transaction.
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
+## Tokenize And Modify
+
+`tokenizedOperation`
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
+| `operationDto` <span class="badge badge--primary">Required</span> <br />[*OperationDto*](androidobjects.md#operation-dto)     | Currency of the charge|
+| `options` <span class="badge badge--primary">Required</span><br />[*SaleOptions*](androidobjects.md#4)      | An object to store all the customization options for a sale.|
+
+```java
+// Adding metadata
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+
+SaleOptions options = new SaleOptions();
+options.setMetadata(metadata);
+
+//Tokenize a card and Sale operation
+api.tokenizeOperation(Currency.GBP,options);
+
+
+//Tokenize a card and Refund operation
+Metadata metadataRefund = new Metadata("This", "is", "a", "Refund", ":D");
+
+SaleOptions refundOptions = new SaleOptions();
+refundOptions.setMetadata(metadataRefund);
+OperationDto.Refund operation = new OperationDto.Refund(amount, currency, null, refundOptions);
+
+api.tokenizeOperation(Currency.GBP,operation,options);
+
+```
+
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
 ## Card PAN{#13}
 
 `cardPan`
