@@ -149,6 +149,33 @@ public final class EventHandler implements Events.CardBrandDisplay {
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
 
+## Card Tokenization
+
+`Events.CardTokenization` <span class="badge badge--info">Interface</span>
+
+Implement this interface in order to receive events about the card tokenization.
+
+**Methods**
+
+`cardTokenized( ResumeCallback callback, CardTokenizationData cardTokenizationData)`
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `callback` <span class="badge badge--primary">Required</span> <br /> *ResumeCallback*  | Lets the SDK continue the operation|
+| `cardTokenizationData` <span class="badge badge--primary">Required</span> <br />[*CardTokenizationData*](androidobjects.md#card-tokenization-data)   | Object with the tokenization data.|
+
+```java
+public final class EventHandler implements Events.CardTokenization {
+	
+	@Override 
+	public void cardTokenized(@NonNull ResumeCallback callback, @NonNull CardTokenizationData cardTokenizationData) { ... }
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
 ## Connection status changed{#connectionStatusChanged}
 
 `Events.ConnectionStatusChanged` <span class="badge badge--info">Interface</span>
@@ -178,6 +205,8 @@ public final class EventHandler implements Events.ConnectionStatusChanged {
 // Remember to register the instance of this EventHandler:
 this.api.registerEventsDelegate(eventHandlerInstance);
 ```
+
+
 
 ## Current transaction status{#14}
 
@@ -280,7 +309,7 @@ Implement this interface to receive an event when a transaction is complete.
 
 **Methods**
 
-`dendOfTransaction( TransactionResult result , Device device );`
+`endOfTransaction( TransactionResult result , Device device );`
 
 | Parameter      | Notes |
 | ----------- | ----------- |

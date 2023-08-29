@@ -545,7 +545,75 @@ Invoked when the terminal finishes processing the transaction.
 | ----------- | ----------- |
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
+## Tokenize And Modify
+`tokenizedOperation`
 
+A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and modify the amount before the transaction is sent for processing. This operation is very useful for loyalty scenarios, a unique token for the card is delivered to your application in the middle of the transaction so you can lookup in your own loyalty engine if the cardholder qualifies for a discount. If the cardholder does qualify for a discount then the amount of the transaction can be modified (decreased) before the transaction is sent for processing. 
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)| Currency of the charge|
+| `operationDto` <span class="badge badge--primary">Required</span> <br />[*OperationDto*](androidobjects.md#operation-dto)| An object containing information about the financial operation being performed after the initial tokenization, if not specified it will default to "sale"|
+| `options` <span class="badge badge--primary">Required</span><br />[*SaleOptions*](androidobjects.md#4) / [*RefundOptions*](androidobjects.md#6)| An object to store all the customization options for a sale or a refund.|
+
+```java 
+
+//Tokenize a card and modifies the amount of a sale operation. 
+//Performs a tokenization of the card and sends the token back to you through the Events.CardTokenized event.
+//Once you wish to continue the operation, execute the resume method of the object sent through the Events.CardTokenized event, along with the data for the financial operation you wish perform.
+//The financial operation will be executed and the result will be received through the Events.Required EndOfTransaction event.
+
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+
+SaleOptions options = new SaleOptions();
+options.setMetadata(metadata);
+
+api.tokenizedOperation(Currency.GBP,options);
+
+
+//Tokenizes a card and executes a Refund, Sale Reversal or Refund Reversal.
+//This operation executes the financial operation using the OperationDto parameter, in the example below a refund is processed.
+//The result of both the tokenization and refund operations will be received through the Events.Required EndOfTransaction event.
+
+Metadata metadataRefund = new Metadata("This", "is", "a", "Refund", ":D");
+
+RefundOptions refundOptions = new RefundOptions();
+refundOptions.setMetadata(metadataRefund);
+OperationDto.Refund operation = new OperationDto.Refund(amount, currency, null, refundOptions);
+
+api.tokenizedOperation(Currency.GBP,operation,options);
+```
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry').
+***
+
+
+[**cardTokenization**](androideventlisteners.md#card-tokenization)
+
+Invoked when the terminal finishes processing the transaction. 
+
+*Note*: It will only be invoked in the case of a Sale operation. Refund and Reversal operations will be received straight throught the Events.Required EndOfTransaction event.
+***
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+ 
 ## Card PAN{#13}
 
 `cardPan`
