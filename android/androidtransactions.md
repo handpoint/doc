@@ -572,7 +572,8 @@ options.setMetadata(metadata);
 api.tokenizedOperation(Currency.GBP,options);
 
 
-//Tokenize a card and execute another operation. //This operation executes the indicated operation, and at the the result of both operations will be 
+//Tokenize a card and execute another operation. 
+//This operation executes the indicated operation, and at the the result of both operations will be 
 //received through the Events.EndOfTransaction event.
 //Operations supported are Refund, Sale Reversal and Refund Reversal.
 Metadata metadataRefund = new Metadata("This", "is", "a", "Refund", ":D");
