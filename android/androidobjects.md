@@ -243,6 +243,22 @@ A string representing different card brands.
 
 `MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
+
+## Card Tokenization Data 
+
+`CardTokenizationData` <span class="badge badge--info">Object</span>
+
+An object representing the tokenized card.
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `token`   <br />*String* | Token obtained in the card tokenization process |
+| `expiryDate`<br />*String*| Expiration date |
+| `tenderType`<br />[*TenderType*](#36) | Represent the tender type |
+| `issuerCountryCode`   <br />*CountryCode* | The country code of the issuer [(ISO 3166-1)](https://en.wikipedia.org/wiki/ISO_3166-1) |
+
 ## Connection Method{#20}
 
 `ConnectionMethod` <span class="badge badge--info">Enum</span>
@@ -655,6 +671,21 @@ options.setTokenize(false);
 options.setChannel(MoToChannel.MO);
 options.setChannel(MoToChannel.TO);
 ```
+
+## Operation DTO
+
+`OperationDto` <span class="badge badge--info">Object</span>
+
+Object containing information about the financial operation being performed.
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `sale` <br />[*Sale*](androidtransactions.md#2)     | 	A sale initiates a payment operation to the card reader	|
+| `refund` <br />[*Refund*](androidtransactions.md#5)    | 	A refund operation moves funds from the merchant account to the cardholder´s credit card.	|
+| `saleReversal` <br />[*Sale Reversal*](androidtransactions.md#4)    | 	A sale reversal, also called sale VOID allows the user to reverse a previous sale operation. 	|
+| `refundReversal` <br />[*Refund Reversal*](androidtransactions.md#6)     | A refund reversal, also called refund VOID allows the merchant to reverse a previous refund operation.	|
 
 
 ## Operation Start Result {#OperationStartResult}
