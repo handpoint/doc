@@ -184,7 +184,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 `Events.CardTokenization` <span class="badge badge--info">Interface</span>
 
-Implement this interface in order to receive events about the card tokenization.
+Implement this interface in order to receive events about the card tokenization. 
 
 **Methods**
 
@@ -192,7 +192,7 @@ Implement this interface in order to receive events about the card tokenization.
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `callback` <span class="badge badge--primary">Required</span> <br /> *ResumeCallback*  | Lets the SDK continues the operation|
+| `callback` <span class="badge badge--primary">Required</span> <br /> *ResumeCallback*  | Lets the SDK continue the operation|
 | `cardTokenizationData` <span class="badge badge--primary">Required</span> <br />[*CardTokenizationData*](androidobjects.md#card-tokenization-data)   | Object with the tokenization data.|
 
 ```java
