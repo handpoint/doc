@@ -243,6 +243,23 @@ A string representing different card brands.
 
 `MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
+
+## Card Tokenization Data 
+
+`CardTokenizationData` <span class="badge badge--info">Object</span>
+
+An object representing the tokenized card.
+
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `token`   <br />*String* | Token obtained in the card tokenization process |
+| `expiryDate`<br />*String*| Expiration date |
+| `tenderType`<br />[*TenderType*](#36) | Represent the tender type |
+| `issuerCountryCode`   <br />*CountryCode* | The country code of the issuer [(ISO 3166-1)](https://en.wikipedia.org/wiki/ISO_3166-1) |
+
 ## Connection Method{#20}
 
 `ConnectionMethod` <span class="badge badge--info">Enum</span>
