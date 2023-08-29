@@ -248,16 +248,16 @@ A string representing different card brands.
 
 `CardTokenizationData` <span class="badge badge--info">Object</span>
 
-An object representing the tokenized card.
+An object representing the tokenized card. 
 
 **Properties**
 
 | Parameter      | Description |
 | ----------- | ----------- |
-| `token`   <br />*String* | Token obtained in the card tokenization process |
-| `expiryDate`<br />*String*| Expiration date |
-| `tenderType`<br />[*TenderType*](#36) | Represent the tender type |
-| `issuerCountryCode`   <br />*CountryCode* | The country code of the issuer [(ISO 3166-1)](https://en.wikipedia.org/wiki/ISO_3166-1) |
+| `token`   <br />*String* | Token representing the card number|
+| `expiryDate`<br />*String*| Expiration date of the card|
+| `tenderType`<br />[*TenderType*](#36) |ternder type of the card (credit/debit) |
+| `issuerCountryCode` <br />*CountryCode* | The country code of the issuer of the card [(ISO 3166-1)](https://en.wikipedia.org/wiki/ISO_3166-1) |
 
 ## Connection Method{#20}
 
