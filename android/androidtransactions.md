@@ -560,7 +560,6 @@ A tokenize and modify operation allows you to start a financial operation for an
 | `options` <span class="badge badge--primary">Required</span><br />[*SaleOptions*](androidobjects.md#4) / [*RefundOptions*](androidobjects.md#6)| An object to store all the customization options for a sale or a refund.|
 
 ```java 
-
 //Tokenize a card and modifies the amount of a sale operation. 
 //Performs a tokenization of the card and sends the token back to you through the Events.CardTokenized event.
 //Once you wish to continue the operation, execute the resume method of the object sent through the Events.CardTokenized event, along with the data for the financial operation you wish perform.
@@ -573,6 +572,20 @@ options.setMetadata(metadata);
 
 api.tokenizedOperation(Currency.GBP,options);
 
+// To get the token and integrate the payment flow with your loyalty engine, implement the Events.CardTokenization interface.
+class LoyaltyEngine : Events.CardTokenization {
+    
+    override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+        // Call the loyalty engine and apply discounts based on cardTokenizationData
+        val finalAmount: BigInteger = ... // Calculate the final amount with discounts
+        // Call resume to continue the sale operation
+        val sale = OperationDto.Sale(finalAmount, Currency.EUR, getSaleOptions())
+        // Resume the operation using the callback
+        callback.resume(sale)
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Tokenizes a card and executes a Refund, Sale Reversal or Refund Reversal.
 //This operation executes the financial operation using the OperationDto parameter, in the example below a refund is processed.
