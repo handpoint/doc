@@ -411,6 +411,50 @@ Invoked when the terminal finishes processing the transaction.
 | *[OperationStartResult](androidobjects.md#OperationStartResult)*| Object containing information about the financial operation started.|
 
 
+## MoTo Pre-Auth{#10}
+
+`motoPreauthorization`
+
+A MOTO pre-auth initiates a pre-authorization operation to the card reader. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront. 
+
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo sale.|
+
+**Code example**
+
+```java
+MoToOptions options = new MoToOptions();
+options.setCustomerReference("MoTo Sale Example");
+
+api.motoPreauthorization(new BigInteger("1000"), Currency.EUR, options);
+```
+
+**Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction,  it fetches statuses coming from the sdk (ex : 'processing').
+
+***
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction.
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#OperationStartResult)*| Object containing information about the financial operation started.|
+
 ## Signature result
 
 `signatureResult`
@@ -451,6 +495,7 @@ Invoked when the terminal finishes processing the transaction.
 | Parameter      | Notes |
 | ----------- | ----------- |
 |*[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
 
 
 
