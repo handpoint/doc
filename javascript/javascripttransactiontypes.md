@@ -409,6 +409,44 @@ let operationStartedResult = handpoint.moToReversal('00000000-0000-0000-0000-000
 |  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
 
 
+
+## MoTo Pre-Auth
+
+`moToPreAuthorization` <span class="badge badge--info">Method</span>
+
+A MOTO pre-auth initiates a pre-authorization operation to the card reader. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+| `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
+| `options`  <br />[*Options*](javascriptobjects.md#26)   | An object to store the customization options for a MOTO sale. This object can be empty if no options are required.|
+| `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+var saleOptions = { 
+        customerReference: "MyCustomReference",
+    }
+
+let operationStartedResult = handpoint.moToPreAuthorization('1000', 'USD', saleOptions, function (stat) {
+  console.log('Transaction status received -> '+ stat.message) 
+});
+
+let transactionReference = operationStartedResult.transactionReference
+let result = await operationStartedResult.transactionResult
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+|  *[OperationStartedResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Specifically the `transactionReference` and the `transactionResult` (promise).|
+
+
 ## Tip Adjustment 
 
 `TipAdjustment`
