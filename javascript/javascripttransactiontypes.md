@@ -579,7 +579,6 @@ This operation allows the merchant to increase the amount of a previously perfor
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />*Currency*     | Currency of the charge|
-| `tipAmount`  <br />*BigInteger*     | Tip amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*  | Transaction ID of the original pre-auth operation|
 | `preauthOptions` <br />*Options*     | An object to store merchant authentication options for pre-auth operations.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
@@ -588,7 +587,7 @@ This operation allows the merchant to increase the amount of a previously perfor
 
 ```javascript
 // Perform the PreAuth Increase operation
-let operationStartedResult = handpoint.preAuthorizationIncrease('1234', 'EUR','100','00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
+let operationStartedResult = handpoint.preAuthorizationIncrease('1234', 'EUR','00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
   console.log('Transaction status received -> '+ stat.message) 
 });
 ```
@@ -660,7 +659,7 @@ A pre-authorized transaction can be captured to actually debit the cardholder's 
 
 ```javascript
 // Perform the PreAuth Capture operation
-let operationStartedResult = handpoint.preAuthorizationCapture('1234', 'EUR','100','00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
+let operationStartedResult = handpoint.preAuthorizationCapture('1234', 'EUR','00000000-0000-0000-0000-000000000000', preauthOptions, function (stat) {
   console.log('Transaction status received -> '+ stat.message) 
 });
 ```
