@@ -452,7 +452,7 @@ Note: This functionality is only available for the restaurant industry in the Un
 #### Parameters
 
 | Parameter      | Notes |
-| ----------- | ----------- |(f.ex. 1000 is 10.00 GBP). |
+| ----------- | ----------- |
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br/>*String*     | Id of the original sale transaction (EFTTransactionID) |
 
 
