@@ -453,7 +453,6 @@ Note: This functionality is only available for the restaurant industry in the Un
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `tipAmount` <span class="badge badge--primary">Required</span> <br/>*BigInteger* | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). |
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br/>*String*     | Id of the original sale transaction (EFTTransactionID) |
 
 
@@ -721,21 +720,20 @@ A pre-authorized transaction can be captured to actually debit the cardholder's 
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to be pre-authorized - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](windowsobjects.md#1) | Currency of the charge|
-| `tipAmount`  <br />*BigInteger*    | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String* | Transaction id of the original pre-auth transaction|
 
 **Code example**
 
 ```csharp
 // Basic
-this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, new BigInteger("100"),"00000000-0000-0000-0000-000000000000");
+this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, "00000000-0000-0000-0000-000000000000");
 
 // With options
 Dictionary map = new Dictionary();
 map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
 map.Add(XmlTag.Metadata1.Tag(), "Data 1");
 
-this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, new BigInteger("100"),"00000000-0000-0000-0000-000000000000", map);
+this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, "00000000-0000-0000-0000-000000000000", map);
 ```
 #### Events invoked
 
