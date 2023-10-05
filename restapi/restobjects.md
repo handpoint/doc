@@ -17,7 +17,7 @@ An enum representing different types of operations.
 
 Possible Values:
 
-`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal` `preAuthorization` `preAuthorizationIncrease` `preAuthorizationCapture` `preAuthorizationReversal`
+`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal` `moToPreAuthorization` `preAuthorization` `preAuthorizationIncrease` `preAuthorizationCapture` `preAuthorizationReversal`
 
 
 
