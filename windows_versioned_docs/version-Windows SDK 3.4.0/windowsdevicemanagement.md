@@ -25,11 +25,11 @@ Configures the device as the preferred device and tries to connect to it. Everyt
 Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.Cloud);
 // The address is the composition of the serial number and model ot the target device.
 //Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
-api.UseDevice(device);
+api.Connect(device);
 
 //Connect to a BLUETOOTH device (HiLite)
 Device device = new Device("CardReader7", "08:00:69:02:01:FC", "1", ConnectionMethod.BLUETOOTH);
-api.UseDevice(device);
+api.Connect(device);
 ```
 
 #### Events invoked

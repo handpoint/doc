@@ -614,7 +614,7 @@ An enum containing information about the status of a transaction.
 
 | Property      | Description |
 | ----------- | ----------- |
-| `baseAmount`  <br />*Biginteger*   | Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.       |
+| `baseAmount`  <br />*String*   | Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.       |
 | `headerName` <br />*String*  | Name of the tipping menu appearing on the terminal. Default: Tip      |
 | `tipPercentages` <span class="badge badge--primary">Required</span> <br />*List*    | List of percentages used to calculate the tip amount.    |
 | `enterAmountEnabled` <br />*boolean* |Flag used to enable the cardholder to manually enter the tip amount. Default: true       |
@@ -625,14 +625,21 @@ An enum containing information about the status of a transaction.
 
 ````json
 {
-    "baseAmount": "2000",
-    "headerName": "",
-    "tipPercentages": [5,10,15,20,25],
-    "enterAmountEnabled": true,
-    "skipEnabled": false,
-    "footer": "Thank you!!! ;)"
-}
-
+    "tipConfiguration":{
+       "baseAmount":"2000",
+       "headerName":"",
+       "tipPercentages":[
+          5,
+          10,
+          15,
+          20,
+          25
+       ],
+       "enterAmountEnabled":true,
+       "skipEnabled":false,
+       "footer":"Thank you!!! ;)"
+    }
+ }
 ````
 
 ## Tender Type{#tenderType}
