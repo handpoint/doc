@@ -135,7 +135,7 @@ api.SaleReversal(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-0000
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
@@ -277,7 +277,7 @@ this.Hapi.MotoSale(new BigInteger("1000"), Currency.EUR, dic);
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-This event gets statuses from the payment SDK during the transaction, for example 'processing'.
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
@@ -303,7 +303,7 @@ A MOTO refund operation moves funds from the merchant account to the cardholderÂ
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
-| `currency` <span class="badge badge--primary">Required</span>v*Currency*     | Currency of the transaction.|
+| `currency` <span class="badge badge--primary">Required</span>*Currency*     | Currency of the transaction.|
 | `originalTransactionId`<br /> *String*     | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
 | `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3)|
 
@@ -318,7 +318,7 @@ this.Hapi.MotoRefund(new BigInteger(1000), Currency.EUR, "00000000-0000-0000-000
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-This event gets statuses from the payment SDK during the transaction, for example 'processing'.
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
@@ -355,7 +355,52 @@ this.Hapi.MotoReversal("00000000-0000-0000-0000-000000000000");
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-This event gets statuses from the payment SDK during the transaction, for example 'processing'.
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
+****
+
+**[*endOfTransaction*](windowsevents.md#6)**
+
+This event is invoked when the transaction is completed, it contains the transaction result and receipts. 
+****
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| [OperationStartResult](windowsobjects.md#OperationStartResult)| Object containing information about the financial operation started. Most specifically the transactionReference which must be saved on your end in case you do not get back the transaction result object at the end of the transaction. The transactionReference will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## MoTo Pre-Auth
+
+`moToPreAuthorization` <span class="badge badge--info">Method</span>
+
+A MOTO pre-auth initiates a pre-authorization operation to the card reader. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront.
+
+#### Parameters
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
+|`currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](windowsobjects.md#1)  | Currency of the charge|
+| `map` *Map*     | A map including optional transaction parameters|
+
+**Code example**
+
+```csharp
+this.Hapi.moToPreAuthorization(new BigInteger(1000), Currency.EUR);
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.Metadata1.Tag(), "Data 1");
+
+this.Hapi.moToPreAuthorization(new BigInteger(1000), Currency.EUR, map);
+```
+#### Events invoked
+
+**[*currentTransactionStatus*](windowsevents.md#4)**
+
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
@@ -426,7 +471,7 @@ public void SignatureRequired(SignatureRequest signatureRequest, Device device)
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)**
@@ -509,7 +554,7 @@ api.TokenizeCard();
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
@@ -547,7 +592,7 @@ this.Hapi.StopCurrentTransaction();
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*endOfTransaction*](windowsevents.md#6)** 
@@ -595,7 +640,7 @@ this.Hapi.PreAuthorization(new BigInteger("1000"), Currency.EUR, map);
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
@@ -649,7 +694,7 @@ this.Hapi.PreAuthorizationIncrease(new BigInteger("1000"), Currency.EUR, "000000
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
@@ -739,7 +784,7 @@ this.Hapi.PreAuthorizationCapture(new BigInteger("1000"), Currency.EUR, "0000000
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**
@@ -790,7 +835,7 @@ this.Hapi.PreAuthorizationReversal("00000000-0000-0000-0000-000000000000", map);
 
 **[*currentTransactionStatus*](windowsevents.md#4)**
 
-Invoked during a transaction, it fetches statuses coming from the card reader (ex : 'waiting for card' or 'waiting for PIN entry')
+This event gets statuses from the payment terminal during the transaction, for example: 'waiting for card' or 'waiting for PIN entry'.
 ****
 
 **[*signatureRequired*](windowsevents.md#5)**

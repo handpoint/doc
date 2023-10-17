@@ -1437,13 +1437,13 @@ At Handpoint we take care of securing every transaction so you don´t have to wo
 The SDK offers a method in which you will need to specify the card reader to be used:
 
 ```csharp
-hapi.useDevice(new Device("Name", "Port", "Address", ConnectionMethod.****))
+hapi.Connect(new Device("Name", "Port", "Address", ConnectionMethod.****))
 ```
 
 Simply set the ConnectionMethod to Simulator, i.e. ConnectionMethod.Simulator. The SDK does the rest. You don't need to search via bluetooth for surrounding card readers when using the simulator.
 
 ```csharp
-hapi.useDevice(new Device("Name", "Port", "Address", ConnectionMethod.Simulator))
+hapi.Connect(new Device("Name", "Port", "Address", ConnectionMethod.Simulator))
 ```
 
 ### Controlling responses
@@ -1576,7 +1576,7 @@ Create a new C# class called MyClass and include com.handpoint.api as a dependen
     public void Connect()
     {
         Device device = new Device("Name", "Address", "Port", ConnectionMethod.SIMULATOR);
-        api.UseDevice(device);
+        api.Connect(device);
     }
 ```
 
@@ -1640,7 +1640,7 @@ Let´s add 4 methods to MyClass in order to represent the 4 cases above :
             public void Connect()
             {
                 Device device = new Device("Name", "Address", "Port", ConnectionMethod.SIMULATOR);
-                api.UseDevice(device);
+                api.Connect(device);
             }
 
             public bool PayWithSignatureAuthorized()
@@ -1891,7 +1891,7 @@ Here is how MyClass.cs and Form1.cs must eventually look like :
             public void Connect()
             {
                 Device device = new Device("Name", "Address", "Port", ConnectionMethod.SIMULATOR);
-                api.UseDevice(device);
+                api.Connect(device);
             }
 
             public bool PayWithSignatureAuthorized()
