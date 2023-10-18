@@ -479,7 +479,7 @@ An enum representing different statuses for a completed transaction.
 
 **Possible values**
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED`
+`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
 
 Description of the different financial statuses:
 
@@ -494,6 +494,7 @@ Description of the different financial statuses:
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
 | `IN_PROGRESS` * <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](javascriptterminalmanagement.md#17) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 | `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](javascriptterminalmanagement.md#17) method. The original transaction (sale) has been refunded. |
+| `CAPTURED` <br/>   | The transaction has been captured. The capture could be partial, so that an amount that is less than the authorized amount or the full authorized amount. However, the captured amount can't be an amount greater than the authorized amount. |
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](javascriptterminalmanagement.md#17) method.
 
