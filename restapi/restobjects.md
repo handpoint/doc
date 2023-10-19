@@ -43,10 +43,90 @@ Possible Values:
 | `moToRefund` <br />*String*    | A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.  |
 | `moToReversal` <br />*String*    | A MOTO reversal, also called VOID allows the user to reverse a previous MOTO sale/refund operation. This operation reverts (if possible) a specific operation identified with a transaction id. Note that transactions can only be reversed within a 24 hours timeframe or until the daily batch of transactions has been sent for submission. MOTO Reversal is a type of card-not-present (CNP) transaction used to reverse a previous MOTO Sale or MOTO Refund. |
 | `moToPreAuthorization` <br />*String*    | A MOTO pre-authorization, sends a pre-authorization transaction to the payment terminal. A pre-authorization charge is a temporary hold placed on a customer’s payment card. It’s used to verify that the account is valid and has sufficient funds to cover a pending transaction. | 
-| `preAuthorization` <br />*String*    | Sends a pre-authorization transaction to the payment terminal. A pre-authorization charge is a temporary hold placed on a customer’s payment card. It’s used to verify that the account is valid and has sufficient funds to cover a pending transaction. |
-| `preAuthorizationIncrease` <br />*String*    | It allows you to increase or decrease the initially pre-authorised amount before you capture it. |
-| `preAuthorizationCapture` <br />*String*    | Captures a pre-authorized credit card payment. |
-| `preAuthorizationReversal` <br />*String*    | Allows the merchant to reverse a previous pre-auth operation. |
+| `preAuthorization` <br />*String*    | A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters. A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront. |
+| `preAuthorizationIncrease` <br />*String*    | This operation allows the merchant to increase the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it. |
+| `preAuthorizationCapture` <br />*String*    | A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank. Check out the [card brand rules](restobjects.md#pre-auth-capture-card-brand-rules). |
+| `preAuthorizationReversal` <br />*String*    | A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id. A pre-authorized transaction can be fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. <br/> <br /> A Pre-Auth reversal can be used to reverse a capture operation as well. When the preauthorization transaction is reversed, the withheld funds are released. But if it has been captured it cannot be reversed.<br /><br />When the capture is reverted, it returns to the previous state, that is, to preauthorization authorized and not captured ([CAPTURED](restobjects.md#financialStatus)  -> [AUTHORISED](restobjects.md#financialStatus)). But it cannot be reversed if the Settlement has already been done. |
+
+
+### Pre-Auth Capture Card Brand Rules
+
+Card schemes set specific rules around which businesses are able to use pre-auth transactions. Your eligibility is determined by your Merchant Category Code (MCC), together with the card scheme
+
+| Scheme | MCC |   
+| ----------- | ----------- | 
+| Mastercard | All MCCs except 5542 |
+| Visa | All MCCs except 5542 |
+| Discover | 3351-3441, 3501-3999, 4111, 4112, 4121, 4131, 4411, 4457, 5499, 5812, 5813, 7011, 7033, 7996, 7394, 7512, 7513, 7519, 7999 |
+
+**VISA rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 3501-3999, 7011 | Lodging | 31 days | 15% |
+| 3351-3500, 7512 | Car Rental | 31 days | 15% |
+| 4411 | Steamship and Cruise Lines | 31 days | 15% |
+| 7513 | Truck Rentals | 7 days | 15% |
+| 7033 | Trailer Parks and Campgrounds | 7 days | 15% |
+| 7519 | Motor Home and Recreational Vehicle Rentals | 7 days | 15% |
+| 5552 | Electric Vehicle Charging | 7 days | 15% |
+| 7523 | Parking and Garages | 7 days | 15% |
+| 7394 | Equipment, Tool, Furniture and Appliance Rental | 7 days | none |
+| 7999 | Recreation Services | 7 days | none |
+| 7996 | Amusement Parks, Carnivals, Circuses, Fortune Tellers | 7 days | none |
+| 5599 | Miscellaneous Automotive, Aircraft, and Farm Equipment Dealers | 7 days | none |
+| 4457 | Boat Rentals and Leasing | 7 days | none  |
+| 5571 | Motorcycle Shops and Dealers | 7 days  | none |
+| 4111 | Local and Suburban Commuter, Passenger Transportation, including Ferries | 7 days | 25 USD (or equivalent amount in local currency)  |
+| 4112 | Passenger Railways | 7 days | 25 USD (or equivalent amount in local currency) |
+| 4131 | Bus Lines | 7 days | 25 USD (or equivalent amount in local currency) |
+| 5812 | Eating Places and Restaurants | Same day | 20% |
+| 5813 | Drinking Places, Bars, Taverns, Cocktail Lounges, Nightclubs, Discotheques | Same day | 20% |
+| 4121 | Taxicabs and Limousines (Card-Absent Environment only) | Same day | 20% |
+
+**MASTERCARD rules**
+
+| MCC | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |
+| All MCCs | 30 days | 20% |
+
+**Maestro rules**
+
+| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |----------- |
+| 5812 | Eating Places and Restaurants | 7 days | 20% |
+| 5814 | Fast Food Restaurants | 7 days | 20% |
+
+
+**Discover rules**  
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| Car Rental, Hotel/Lodging MCCs | 30 days |
+| All MCCs except Car Rental and Hotel/Lodging  | 10 days |
+
+**Diners rules**  
+
+| MCC | Debit/credit | Authorization timeframe |
+| ----------- | ----------- | ----------- | 
+| Car Rental, Hotel/Lodging MCCs | All | 30 days |
+| All MCCs except Car Rental and Hotel/Lodging  | Credit | 30 days |
+| All MCCs except Car Rental and Hotel/Lodging  | Debit | 7 days |
+
+
+**JCB rules**
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| Hotel and Car rental | Time of stay/rental |
+| All MCCs except Hotel and Car rental | 1 year |
+
+
+**Carte Bancaires**
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| All MCCs | 13 days |
 
 ## Financial Status{#financialStatus}
 
@@ -54,7 +134,7 @@ Possible Values:
 
 An enum representing different statuses of a completed transaction.
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED`
+`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
 
 Description of the different financial statuses:
 
@@ -69,6 +149,7 @@ Description of the different financial statuses:
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
 | `IN_PROGRESS` *  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 | `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method. The original transaction (sale) has been refunded. |
+| `CAPTURED` <br/>   | The transaction has been captured. The capture could be partial, so that an amount that is less than the authorized amount or the full authorized amount. However, the captured amount can't be an amount greater than the authorized amount. |
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method.
 

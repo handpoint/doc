@@ -720,6 +720,15 @@ This event is invoked when the transaction is completed, it contains the transac
 
 A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank.
 
+
+Card schemes set specific rules around which businesses are able to use pre-auth transactions. Your eligibility is determined by your Merchant Category Code (MCC), together with the card scheme
+
+| Scheme | MCC |   
+| ----------- | ----------- | 
+| Mastercard | All MCCs except 5542 |
+| Visa | All MCCs except 5542 |
+| Discover | 3351-3441, 3501-3999, 4111, 4112, 4121, 4131, 4411, 4457, 5499, 5812, 5813, 7011, 7033, 7996, 7394, 7512, 7513, 7519, 7999 |
+
 **VISA rules**
 
 | MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
@@ -747,10 +756,9 @@ A pre-authorized transaction can be captured to actually debit the cardholder's 
 
 **MASTERCARD rules**
 
-| MCC | Segment | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
-| ----------- | ----------- | ----------- |----------- |
-| 5812 | Eating Places and Restaurants | 30 days | 20% |
-| 5814 | Fast Food Restaurants | 30 days | 20% |
+| MCC | Authorization timeframe | Amount tolerance (captured amount above pre-authorized amount) |  
+| ----------- | ----------- | ----------- |
+| All MCCs | 30 days | 20% |
 
 **Maestro rules**
 
@@ -758,6 +766,38 @@ A pre-authorized transaction can be captured to actually debit the cardholder's 
 | ----------- | ----------- | ----------- |----------- |
 | 5812 | Eating Places and Restaurants | 7 days | 20% |
 | 5814 | Fast Food Restaurants | 7 days | 20% |
+
+
+**Discover rules**  
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| Car Rental, Hotel/Lodging MCCs | 30 days |
+| All MCCs except Car Rental and Hotel/Lodging  | 10 days |
+
+**Diners rules**  
+
+| MCC | Debit/credit | Authorization timeframe |
+| ----------- | ----------- | ----------- | 
+| Car Rental, Hotel/Lodging MCCs | All | 30 days |
+| All MCCs except Car Rental and Hotel/Lodging  | Credit | 30 days |
+| All MCCs except Car Rental and Hotel/Lodging  | Debit | 7 days |
+
+
+**JCB rules**
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| Hotel and Car rental | Time of stay/rental |
+| All MCCs except Hotel and Car rental | 1 year |
+
+
+**Carte Bancaires**
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| All MCCs | 13 days |
+
 
 **Parameters**
 
@@ -808,14 +848,18 @@ This event is invoked when the transaction is completed, it contains the transac
 `preAuthorizationReversal`
 
 A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
-A pre-authorized transaction can be partially or fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
+A pre-authorized transaction can be fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
+
+A Pre-Auth reversal can be used to reverse a capture operation as well. When the preauthorization transaction is reversed, the withheld funds are released. But if it has been captured it cannot be reversed.
+
+When the capture is reverted, it returns to the previous state, that is, to preauthorization authorized and not captured ([CAPTURED](windowsobjects.md#25) -> [AUTHORISED](windowsobjects.md#25)). But it cannot be reversed if the Settlement has already been done.
 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original transaction|
+| `originalTransactionID` <span class="badge badge--primary">Required</span>  <br />*String*    |Transaction id of the original pre-auth or capture GUID transaction|
 | `map` <br />*Map* | A map including [*optional transaction parameters.*](windowsobjects.md#3)|
 
 **Code example**
