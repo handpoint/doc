@@ -46,18 +46,22 @@ Possible Values:
 | `preAuthorization` <br />*String*    | A pre-auth initiates a pre-authorization operation to the card reader. In it's simplest form you only have to pass the amount and currency but it also accepts tip configuration and a map with extra parameters. A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront. |
 | `preAuthorizationIncrease` <br />*String*    | This operation allows the merchant to increase the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it. |
 | `preAuthorizationCapture` <br />*String*    | A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank. Check out the [card brand rules](restobjects.md#pre-auth-capture-card-brand-rules). |
-| `preAuthorizationReversal` <br />*String*    | A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id. A pre-authorized transaction can be fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. <br/> <br /> A Pre-Auth reversal can be used to reverse a capture operation as well. When the preauthorization transaction is reversed, the withheld funds are released. But if it has been captured it cannot be reversed.<br /><br />When the capture is reverted, it returns to the previous state, that is, to preauthorization authorized and not captured ([CAPTURED](restobjects.md#financialStatus)  -> [AUTHORISED](restobjects.md#financialStatus)). But it cannot be reversed if the Settlement has already been done. |
+| `preAuthorizationReversal` <br />*String*    | A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id. A pre-authorized transaction can be fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. <br/> <br /> A Pre-Auth reversal can be used to reverse a capture operation as well. When the capture operation is reversed, the withheld funds are released. Reversing a capture operation can only be done before the funds are automatically settled at night. If a capture reversal is attempted after the funds have been moved, the operation will receive a decline.<br /><br />When the capture is reverted it returns to the previous state ([CAPTURED](restobjects.md#financialStatus)  -> [AUTHORISED](restobjects.md#financialStatus)).  |
 
 
 ### Pre-Auth Capture Card Brand Rules
 
-Card schemes set specific rules around which businesses are able to use pre-auth transactions. Your eligibility is determined by your Merchant Category Code (MCC), together with the card scheme
+Card schemes set specific rules around which businesses are able to use pre-auth transactions. Eligibility is determined based on the Merchant Category Code (MCC), together with the card scheme.
+
+Card schemes have their own set of rules on authorisation expiry. Capturing a transaction after the scheme expiry time increases the risk of a failed capture, and may also increase the interchange and/or scheme fees charged for the transaction. Card schemes can also expire an authorisation before or after the official scheme expiry period has been reached. You can often capture a payment successfully after an authorisation has expired. Depending on the card scheme, there can be a fee for late capture, and an increase in interchange fee. The risk of cardholder chargebacks increase as well.
+
 
 | Scheme | MCC |   
 | ----------- | ----------- | 
 | Mastercard | All MCCs except 5542 |
 | Visa | All MCCs except 5542 |
 | Discover | 3351-3441, 3501-3999, 4111, 4112, 4121, 4131, 4411, 4457, 5499, 5812, 5813, 7011, 7033, 7996, 7394, 7512, 7513, 7519, 7999 |
+| American Express | All MCCs except 5542 |
 
 **VISA rules**
 
@@ -97,6 +101,12 @@ Card schemes set specific rules around which businesses are able to use pre-auth
 | 5812 | Eating Places and Restaurants | 7 days | 20% |
 | 5814 | Fast Food Restaurants | 7 days | 20% |
 
+**AMEX rules** 
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| All MCCs | 7 days |
+Note: Pre-Auth with AMEX is only available in the United States/Canada with the processor TSYS.
 
 **Discover rules**  
 
@@ -122,11 +132,6 @@ Card schemes set specific rules around which businesses are able to use pre-auth
 | All MCCs except Hotel and Car rental | 1 year |
 
 
-**Carte Bancaires**
-
-| MCC | Authorization timeframe |
-| ----------- | ----------- | 
-| All MCCs | 13 days |
 
 ## Financial Status{#financialStatus}
 
@@ -149,7 +154,7 @@ Description of the different financial statuses:
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
 | `IN_PROGRESS` *  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 | `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method. The original transaction (sale) has been refunded. |
-| `CAPTURED` <br/>   | The transaction has been captured. The capture could be partial, so that an amount that is less than the authorized amount or the full authorized amount. However, the captured amount can't be an amount greater than the authorized amount. |
+| `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a `preAuthorizationCapture` message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status |
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method.
 
