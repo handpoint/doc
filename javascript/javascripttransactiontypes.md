@@ -606,13 +606,17 @@ let operationStartedResult = handpoint.preAuthorizationIncrease('1234', 'EUR','0
 A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank.
 
 
-Card schemes set specific rules around which businesses are able to use pre-auth transactions. Your eligibility is determined by your Merchant Category Code (MCC), together with the card scheme
+Card schemes set specific rules around which businesses are able to use pre-auth transactions. Eligibility is determined based on the Merchant Category Code (MCC), together with the card scheme.
+
+Card schemes have their own set of rules on authorisation expiry. Capturing a transaction after the scheme expiry time increases the risk of a failed capture, and may also increase the interchange and/or scheme fees charged for the transaction. Card schemes can also expire an authorisation before or after the official scheme expiry period has been reached. You can often capture a payment successfully after an authorisation has expired. Depending on the card scheme, there can be a fee for late capture, and an increase in interchange fee. The risk of cardholder chargebacks increase as well.
+
 
 | Scheme | MCC |   
 | ----------- | ----------- | 
 | Mastercard | All MCCs except 5542 |
 | Visa | All MCCs except 5542 |
 | Discover | 3351-3441, 3501-3999, 4111, 4112, 4121, 4131, 4411, 4457, 5499, 5812, 5813, 7011, 7033, 7996, 7394, 7512, 7513, 7519, 7999 |
+| American Express | All MCCs except 5542 |
 
 **VISA rules**
 
@@ -653,6 +657,14 @@ Card schemes set specific rules around which businesses are able to use pre-auth
 | 5814 | Fast Food Restaurants | 7 days | 20% |
 
 
+**AMEX rules** 
+
+| MCC | Authorization timeframe |
+| ----------- | ----------- | 
+| All MCCs | 7 days |
+Note: Pre-Auth with AMEX is only available in the United States/Canada with the processor TSYS.
+
+
 **Discover rules**  
 
 | MCC | Authorization timeframe |
@@ -677,11 +689,6 @@ Card schemes set specific rules around which businesses are able to use pre-auth
 | All MCCs except Hotel and Car rental | 1 year |
 
 
-**Carte Bancaires**
-
-| MCC | Authorization timeframe |
-| ----------- | ----------- | 
-| All MCCs | 13 days |
 
 
 **Parameters**
@@ -717,9 +724,7 @@ let operationStartedResult = handpoint.preAuthorizationCapture('1234', 'EUR','00
 A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
 A pre-authorized transaction can be fully released, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
 
-A Pre-Auth reversal can be used to reverse a capture operation as well. When the preauthorization transaction is reversed, the withheld funds are released. But if it has been captured it cannot be reversed.
-
-When the capture is reverted, it returns to the previous state, that is, to preauthorization authorized and not captured ([CAPTURED](javascriptobjects.md#33) -> [AUTHORISED](javascriptobjects.md#33)). But it cannot be reversed if the Settlement has already been done.
+A Pre-Auth reversal can be used to reverse a capture operation as well. When the capture operation is reversed, the withheld funds are released. Reversing a capture operation can only be done before the funds are automatically settled at night. If a capture reversal is attempted after the funds have been moved, the operation will receive a decline.<br /><br />When the capture is reverted it returns to the previous state ([CAPTURED](javascriptobjects.md#33) -> [AUTHORISED](javascriptobjects.md#33)).
 
 **Parameters**
 
