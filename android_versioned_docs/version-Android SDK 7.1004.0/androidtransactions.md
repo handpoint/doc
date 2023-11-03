@@ -769,6 +769,7 @@ This operation allows the merchant to increase/decrease the amount of a previous
 
 In the case of wanting to release part of a pre-auth, a increase with **negative** amount should be passed to the function.
 
+
 **Parameters**
 
 
