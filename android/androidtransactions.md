@@ -819,7 +819,7 @@ Invoked when the terminal finishes processing the transaction.
 
 A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank.
 
-**Please note that a pre-authorization can only be captured once. That is, it cannot be captured multiple times**. If for some reason, after a pre-authorization has been captured, it is necessary to capture more or less amount, the cardholder should return to the merchant and re-authorize.
+**Please note that a pre-authorization can only be captured ONCE, multiple partial captures are not allowed**. If for some reason, the pre-authorization was captured for an incorrect amount, you can attempt to reverse the capture (does not work with all acquirers). If the capture reversal was declined, the cardholder needs to come back into the store with his card to get refunded or re-authorize the transaction. Alternatively, the cardholder can give his card details over the phone to the merchant and a MOTO pre-auth or MOTO refund can be issued.  
 
 Card schemes set specific rules around which businesses are able to use pre-auth transactions. Eligibility is determined based on the Merchant Category Code (MCC), together with the card scheme.
 
