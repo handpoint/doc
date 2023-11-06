@@ -765,9 +765,7 @@ Invoked when the terminal finishes processing the transaction.
 
 `preAuthorizationIncrease`
 
-This operation allows the merchant to increase/decrease the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it.
-
-In the case of wanting to release part of a pre-auth, a increase with **negative** amount should be passed to the function.
+This operation allows the merchant to increase/decrease the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it. If the merchant wants to release part of a pre-auth, an increase with **negative** amount should be passed to the function.
 
 **Parameters**
 
