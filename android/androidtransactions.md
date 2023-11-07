@@ -950,9 +950,9 @@ Invoked when the terminal finishes processing the transaction.
 `preAuthorizationReversal`
 
 A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
-A pre-authorized reversal transaction **will released the whole pre-authorized amount**, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. For partial releases, please check the [Pre-Auth Increase/Decrease](androidtransactions.md#pre-auth-increasedecrease) operation.
+A pre-authorized reversal transaction **will release the whole pre-authorized amount**, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. For partial releases, please check the [Pre-Auth Increase/Decrease](androidtransactions.md#pre-auth-increasedecrease) operation.
 
-A Pre-Auth reversal can be used to reverse a capture operation as well. When the capture operation is reversed, **the whole withheld funds are released**. Reversing a capture operation can only be done before the funds are automatically settled at night. If a capture reversal is attempted after the funds have been moved, the operation will receive a decline.<br /><br />When the capture is reverted it returns to the previous state ([CAPTURED](androidobjects.md#34) -> [AUTHORISED](androidobjects.md#34)).
+A Pre-Auth reversal can be used to reverse a capture operation as well. A capture reversal transaction **will release all the funds withheld**. Reversing a capture operation can only be done before the funds are automatically settled at night, please note that not all acquirers support reversal of captured transactions. If a capture reversal is attempted after the funds have been moved, the operation will receive a decline.<br /><br />When the capture is reverted it returns to the previous state ([CAPTURED](androidobjects.md#34) -> [AUTHORISED](androidobjects.md#34)).
 
 **Parameters**
 
