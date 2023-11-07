@@ -664,9 +664,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 `preAuthorizationIncrease`
 
-This operation allows the merchant to increase/decrease the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it.
-
-In the case of wanting to release part of a pre-auth, a increase with **negative** amount should be passed to the function.
+This operation allows the merchant to increase/decrease the amount of a previously performed pre-auth operation. For example, if a tab was opened at a restaurant and the consumer is adding new orders going above the initial pre-authorized amount, it is required to increase the amount of the initial pre-authorization before capturing it. If the merchant wants to release part of a pre-auth, an increase with **negative** amount should be passed to the function.
 
 
 **Parameters**
@@ -726,7 +724,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 A pre-authorized transaction can be captured to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank.
 
-**Please note that a pre-authorization can only be captured once. That is, it cannot be captured multiple times**. If for some reason, after a pre-authorization has been captured, it is necessary to capture more or less amount, the cardholder should return to the merchant and re-authorize.
+**Please note that a pre-authorization can only be captured ONCE, multiple partial captures are not allowed**. If for some reason, the pre-authorization was captured for an incorrect amount, you can attempt to reverse the capture (does not work with all acquirers). If the capture reversal was declined, the cardholder needs to come back into the store with his card to get refunded or re-authorize the transaction. Alternatively, the cardholder can give his card details over the phone to the merchant and a MOTO pre-auth or MOTO refund can be issued.
 
 Card schemes set specific rules around which businesses are able to use pre-auth transactions. Eligibility is determined based on the Merchant Category Code (MCC), together with the card scheme.
 
@@ -862,7 +860,7 @@ This event is invoked when the transaction is completed, it contains the transac
 A Pre-Auth reversal allows the user to reverse a previous pre-auth operation. This operation reverts (if possible) a specific pre-auth identified with a transaction id.
 A pre-authorized reversal transaction **will released the whole pre-authorized amount**, for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. For partial releases, please check the [Pre-Auth Increase/Decrease](windowstransactions.md#pre-auth-increasedecrease) operation.
 
-A Pre-Auth reversal can be used to reverse a capture operation as well. When the capture operation is reversed, **the whole withheld funds are released**. Reversing a capture operation can only be done before the funds are automatically settled at night. If a capture reversal is attempted after the funds have been moved, the operation will receive a decline.<br /><br />When the capture is reverted it returns to the previous state ([CAPTURED](windowsobjects.md#25) -> [AUTHORISED](windowsobjects.md#25)).
+A Pre-Auth reversal can be used to reverse a capture operation as well. A capture reversal transaction **will release all the funds withheld**. Reversing a capture operation can only be done before the funds are automatically settled at night, please note that not all acquirers support reversal of captured transactions. If a capture reversal is attempted after the funds have been moved, the operation will receive a decline.<br /><br />When the capture is reverted it returns to the previous state ([CAPTURED](windowsobjects.md#25) -> [AUTHORISED](windowsobjects.md#25)).
 
 **Parameters**
 
