@@ -9,6 +9,20 @@ id: restreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+
+## 2.15.0
+**Features:**
+
+We are introducing a new transaction type called [Pre-Authorization](restobjects.md#operation-types-description). A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront. 
+
+A pre-authorized transaction can be increased or decreased (Pre-Auth Increase), for example if a tab was opened and the consumer is adding new orders going above the initial pre-authorized amount.  
+
+A pre-authorized transaction can be captured (Pre-Auth Capture) to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank. 
+
+A pre-authorized transaction can be fully released (Pre-Auth Reversal), for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
+
+In the [POSTMAN Collection](restapidownloads) section you will find sample code for each of these operations.
+
 ## 2.14.0
 **Features:**
 

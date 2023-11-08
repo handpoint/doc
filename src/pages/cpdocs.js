@@ -392,7 +392,7 @@ function TableTerminals() {
     <div class="container">
       <Element name="tableTerminalsElement">
         <div class="row">
-          <div class="col col--6">
+          <div class="col col--4">
             <div class="integrationOptions">
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
@@ -409,7 +409,23 @@ function TableTerminals() {
                 </div>
               </div>
             </div></div>
-          <div class="col col--6">
+          <div class="col col--4">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header">
+                    <b><a href="https://www.datecs.bg/en/products/321" target="_blank">HiLite Plus</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.datecs.bg/en/products/321" target="_blank">
+                      <img style={{ height: '150px' }} src="/img/HiPlus.png" alt="cloud integration">
+                      </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col col--4">
             <div class="integrationOptions">
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
@@ -461,6 +477,43 @@ function TableTerminals() {
                 </div>
               </div>
             </div></div>
+        </div>
+        <br></br>
+        <div class="row">
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a910s" target="_blank">PAX A910S</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a910s" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/570292_470056.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a920max" target="_blank">PAX A920 MAX</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a920max" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/931743_14792.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <br></br>
         <div class="row">
@@ -563,7 +616,82 @@ function TableTerminals() {
                   <div class="card__body" align="center">
                     <a href="https://www.telpo.com.cn/eft-pos/tps900-eft-pos.html" target="_blank"><img style={{ height: '150px' }}
                       src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/TPS900_zoom.png"
-                      alt=""> 
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br></br>
+        <div class="row">
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a800" target="_blank">PAX A800</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a800" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_1000,w_500,f_auto,q_auto/1402119/607551_816781.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a960" target="_blank">PAX A960</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a960" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/280458_904568.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br></br>
+        <div class="row">
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a6650" target="_blank">PAX A6650</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a6650" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/58024_957432.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/a8700" target="_blank">PAX A8700</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a8700" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/1402119/465764_82998.png"
+                      alt="">
                     </img></a>
                   </div>
                 </div>
@@ -610,7 +738,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"><b>Bluetooth</b></TableCell>
               <TableCell align="center"><b>Ethernet</b></TableCell>
               <TableCell align="center"><b>Cellular</b>	</TableCell>
-              <TableCell align="center"><b>Wifi</b></TableCell>
+              <TableCell align="center"><b>Wi-Fi</b></TableCell>
 
             </TableRow>
           </TableHead>
@@ -622,7 +750,15 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
+            </TableRow>
 
+            <TableRow sx={{ height: 40 }}>
+              <TableCell align="center"><b>HiLite Plus</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
@@ -632,6 +768,15 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A910S</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
             </TableRow>
 
             <TableRow>
@@ -646,6 +791,15 @@ function CommunicationTypesTable() {
 
             <TableRow>
               <TableCell align="center"><b>PAX A920 PRO</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A920 MAX</b></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
@@ -691,6 +845,51 @@ function CommunicationTypesTable() {
 
             <TableRow>
               <TableCell align="center"><b>PAX A80</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A800</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A960</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A6650</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A8700</b></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX IM30</b></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
@@ -1054,6 +1253,45 @@ function HighLevelFeatures() {
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md " >
                   <div class="card__header" >
+                    <h3>Tokenize & Modify</h3>
+                  </div>
+                  <div class="card__body" >
+                    <p>
+                      A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and
+                      modify the amount before the transaction is sent for processing.  This feature allows you to bring your own loyalty engine and apply for example an
+                      instant discount at the point of sale for loyal customers.  
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br></br>
+        <div class="row">
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>PreAuth / Capture</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      A pre-auth initiates a pre-authorization operation to the card reader.
+                      It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <br></br>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md " >
+                  <div class="card__header" >
                     <h3>Get Card Number</h3>
                   </div>
                   <div class="card__body" >
@@ -1079,7 +1317,7 @@ function HighLevelFeatures() {
                   <div class="card__body">
                     <p>
                       Sends a refund operation to the payment terminal. This transaction type moves funds from the merchant account to the cardholder´s card.
-                      in its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
+                      In its simplest form you only need to send the amount and currency to the payment terminal for the transaction to start.
                     </p>
                   </div>
                 </div>

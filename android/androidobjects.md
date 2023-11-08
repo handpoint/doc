@@ -243,6 +243,22 @@ A string representing different card brands.
 
 `MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
 
+
+## Card Tokenization Data 
+
+`CardTokenizationData` <span class="badge badge--info">Object</span>
+
+An object representing the tokenized card. 
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `token`   <br />*String* | Token representing the card number|
+| `expiryDate`<br />*String*| Expiration date of the card|
+| `tenderType`<br />[*TenderType*](#36) |ternder type of the card (credit/debit) |
+| `issuerCountryCode` <br />*CountryCode* | The country code of the issuer of the card [(ISO 3166-1)](https://en.wikipedia.org/wiki/ISO_3166-1) |
+
 ## Connection Method{#20}
 
 `ConnectionMethod` <span class="badge badge--info">Enum</span>
@@ -377,7 +393,8 @@ An enum representing different statuses of a finalized transaction
 
 **Possible values**
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED`
+`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
+
 
 Description of the different financial statuses:
 
@@ -392,6 +409,8 @@ Description of the different financial statuses:
 | `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
 | `IN_PROGRESS` * <br/>   | The `IN_PROGRESS` status can be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 | `REFUNDED` * <br/>   | The `REFUNDED` status can be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method. The original transaction (sale) has been refunded. |
+| `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a [preAuthorizationCapture](androidtransactions.md#pre-auth-capture) message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status. |
+
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method.
 
@@ -655,6 +674,22 @@ options.setTokenize(false);
 options.setChannel(MoToChannel.MO);
 options.setChannel(MoToChannel.TO);
 ```
+
+## Operation DTO
+
+`OperationDto` <span class="badge badge--info">Object</span>
+
+Object indicating which financial transaction type needs to be performed after tokenization of the card during a Tokenize and Modify operation. 
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `sale` <br />[*Sale*](androidtransactions.md#2) | A sale sends a payment request to the payment terminal.|
+| `refund` <br />[*Refund*](androidtransactions.md#5)    | A refund operation moves funds from the merchant account to the cardholder´s credit card.|
+| `saleReversal` <br />[*Sale Reversal*](androidtransactions.md#4)    | A sale reversal, also called sale VOID allows the user to reverse a previous sale operation.|
+| `refundReversal` <br />[*Refund Reversal*](androidtransactions.md#6) | A refund reversal, also called refund VOID allows the merchant to reverse a previous refund operation.|
+
 
 
 ## Operation Start Result {#OperationStartResult}
@@ -1020,7 +1055,9 @@ An enum of the SDK supported languages.
 
 **Possible values**
 
-`en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO` `de_DE` `sl_SL`
+`en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO` `de_DE` `sl_SL` `et_EE`
+
+
 
 ## Tender Type{#36}
 

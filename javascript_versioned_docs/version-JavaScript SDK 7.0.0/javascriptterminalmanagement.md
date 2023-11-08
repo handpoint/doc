@@ -259,3 +259,4 @@ Handpoint.getTransactionStatus(transactionReference).then(
 | Parameter      | Notes |
 | ----------- | ----------- |
 | **Transaction Status**| A [*Transaction Result*](javascriptobjects.md#18) object, indicating the status of the requested transaction.|
+

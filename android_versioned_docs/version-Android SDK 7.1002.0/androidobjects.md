@@ -721,6 +721,8 @@ An enum representing different types of scenario.
 
 `UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
 
+
+
 ## PAX A80 Keys{#28}
 
 `PaxA80Keys` <span class="badge badge--info">String</span>
@@ -1020,7 +1022,8 @@ An enum of the SDK supported languages.
 
 **Possible values**
 
-`en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO` `de_DE` `sl_SL`
+`en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO` `de_DE` `sl_SL` `et_EE`
+
 
 ## Tender Type{#36}
 

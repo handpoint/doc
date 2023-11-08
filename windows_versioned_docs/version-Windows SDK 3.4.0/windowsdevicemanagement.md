@@ -25,11 +25,11 @@ Configures the device as the preferred device and tries to connect to it. Everyt
 Device device = new Device("CloudDevice", "9822032398-PAXA920", "", ConnectionMethod.Cloud);
 // The address is the composition of the serial number and model ot the target device.
 //Example for a PAX A920 device: serial_number - model  -> 9822032398-PAXA920
-api.UseDevice(device);
+api.Connect(device);
 
 //Connect to a BLUETOOTH device (HiLite)
 Device device = new Device("CardReader7", "08:00:69:02:01:FC", "1", ConnectionMethod.BLUETOOTH);
-api.UseDevice(device);
+api.Connect(device);
 ```
 
 #### Events invoked
@@ -107,39 +107,6 @@ No events invoked.
 | ----------- | ----------- |
 | `Boolean`| `True` if the operation was successfully sent to the payment terminal.|
 
-
-## Set parameter
-
-`SetParameter` <span class="badge badge--info">Method</span>
-
-Allows developers to optionally change several internal parameters of the payment terminal. 
-
-#### Parameters
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `param` <span class="badge badge--primary">Required</span><br />[*DeviceParameter*](windowsobjects.md#8)     | 		The name of the parameter to change.|
-| `value` <span class="badge badge--primary">Required</span><br />*String*     | 		New value of the parameter.|
-| `device` <span class="badge badge--primary">Required</span><br />[*Device*](windowsobjects.md#2)     | 		This parameter specifies to the sdk which payment terminal should be used. If none is supplied the system will attempt to use a default device, if any.|
-
-**Code example**
-
-```csharp
-//Changes the bluetooth name of card reader
-api.SetParameter(DeviceParameter.BluetoothName, "OrangeCardReader");
-```
-
-#### Events invoked
-
-**None**
-
-No events are invoked.
-
-**Returns**
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Boolean`| `True` if the operation was successfully sent to the payment terminal.|
 
 
 ## Set logging level

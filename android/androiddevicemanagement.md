@@ -254,7 +254,9 @@ Sets the SDK Locale (language). It is used to set the SDK language as well as th
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `locale` <span class="badge badge--primary">Required</span>  <br />[*SupportedLocales*](androidobjects.md#23)    | The locale to be set. Supported locales are: SupportedLocales.en_CA, SupportedLocales.en_UK, SupportedLocales.en_US, SupportedLocales.hr_HR, SupportedLocales.is_IS, SupportedLocales.fr_FR, SupportedLocales.pt_PT, SupportedLocales.it_IT, SupportedLocales.no_NO, SupportedLocales.de_DE, SupportedLocales.sl_SL|
+| `locale` <span class="badge badge--primary">Required</span>  <br />[*SupportedLocales*](androidobjects.md#23)    | The locale to be set. Supported locales are: SupportedLocales.en_CA, SupportedLocales.en_UK, SupportedLocales.en_US, SupportedLocales.hr_HR, SupportedLocales.is_IS, SupportedLocales.fr_FR, SupportedLocales.pt_PT, SupportedLocales.it_IT, SupportedLocales.no_NO, SupportedLocales.de_DE, SupportedLocales.sl_SL, SupportedLocales.et_EE|
+
+
 
 
  **Code example**
