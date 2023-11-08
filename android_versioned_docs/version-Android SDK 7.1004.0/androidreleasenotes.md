@@ -22,8 +22,7 @@ A pre-authorized transaction can be captured ([Pre-Auth Capture](androidtransact
 
 A pre-authorized transaction can be fully released ([Pre-Auth Reversal](androidtransactions.md#pre-authcapture-reversal)), for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
 
-We are also introducing the [Tokenize And Modify](androidtransactions.md#tokenize-and-modify) operation. The Tokenize And Modify is a transaction operation that enables users to initiate a payment operation using a physical card (e.g., debit or credit card) and customize the transaction amount before it is sent for processing. This operation is designed to offer flexibility and security in managing financial transactions, especially in scenarios where the original transaction amount needs to be adjusted.
-
+We are also introducing the [Tokenize And Modify](androidtransactions.md#tokenize-and-modify) operation. A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and modify the amount before the transaction is sent for processing. This feature allows you to bring your own loyalty engine and apply for example an instant discount at the point of sale for loyal customers.  
 
 ## 7.1002.0
 **Features**:
