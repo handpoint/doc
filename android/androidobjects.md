@@ -395,6 +395,7 @@ An enum representing different statuses of a finalized transaction
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
 
+
 Description of the different financial statuses:
 
 | Parameter      | Notes |
@@ -409,6 +410,7 @@ Description of the different financial statuses:
 | `IN_PROGRESS` * <br/>   | The `IN_PROGRESS` status can be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 | `REFUNDED` * <br/>   | The `REFUNDED` status can be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method. The original transaction (sale) has been refunded. |
 | `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a [preAuthorizationCapture](androidtransactions.md#pre-auth-capture) message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status. |
+
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method.
 
@@ -687,6 +689,7 @@ Object indicating which financial transaction type needs to be performed after t
 | `refund` <br />[*Refund*](androidtransactions.md#5)    | A refund operation moves funds from the merchant account to the cardholder´s credit card.|
 | `saleReversal` <br />[*Sale Reversal*](androidtransactions.md#4)    | A sale reversal, also called sale VOID allows the user to reverse a previous sale operation.|
 | `refundReversal` <br />[*Refund Reversal*](androidtransactions.md#6) | A refund reversal, also called refund VOID allows the merchant to reverse a previous refund operation.|
+
 
 
 ## Operation Start Result {#OperationStartResult}
@@ -1053,6 +1056,7 @@ An enum of the SDK supported languages.
 **Possible values**
 
 `en_CA` `en_UK` `en_US` `es_ES` `hr_HR` `is_IS` `fr_FR` `pt_PT` `it_IT` `no_NO` `de_DE` `sl_SL` `et_EE`
+
 
 
 ## Tender Type{#36}

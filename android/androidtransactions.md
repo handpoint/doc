@@ -498,6 +498,7 @@ Invoked when the terminal finishes processing the transaction.
 
 
 
+
 ## Tip Adjustment
 
 `TipAdjustment`

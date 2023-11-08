@@ -481,6 +481,7 @@ An enum representing different statuses for a completed transaction.
 
 `UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
 
+
 Description of the different financial statuses:
 
 | Parameter      | Notes |

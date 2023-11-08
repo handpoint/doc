@@ -34,6 +34,7 @@ We are introducing a new feature called [Get Transaction Status](androiddevicema
 
 Added Estonian language 🇪🇪
 
+
 ## 7.1001.0
 **Features**:
 

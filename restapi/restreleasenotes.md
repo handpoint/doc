@@ -21,7 +21,7 @@ A pre-authorized transaction can be captured (Pre-Auth Capture) to actually debi
 
 A pre-authorized transaction can be fully released (Pre-Auth Reversal), for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged.
 
- In the [POSTMAN Collection](restapidownloads) section you will find sample code for each of these operations.
+In the [POSTMAN Collection](restapidownloads) section you will find sample code for each of these operations.
 
 ## 2.14.0
 **Features:**
