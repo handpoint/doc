@@ -1258,7 +1258,8 @@ function HighLevelFeatures() {
                   <div class="card__body" >
                     <p>
                       A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and
-                      modify the amount before the transaction is sent for processing.
+                      modify the amount before the transaction is sent for processing.  This feature allows you to bring your own loyalty engine and apply for example an
+                      instant discount at the point of sale for loyal customers.  
                     </p>
                   </div>
                 </div>
