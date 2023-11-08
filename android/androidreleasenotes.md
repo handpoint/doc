@@ -20,7 +20,9 @@ A pre-authorized transaction can be increased or decreased ([Pre-Auth Increase](
 
 A pre-authorized transaction can be captured ([Pre-Auth Capture](androidtransactions.md#pre-auth-capture)) to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank. 
 
-A pre-authorized transaction can be fully released ([Pre-Auth Reversal](androidtransactions.md#pre-authcapture-reversal)), for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged. 
+A pre-authorized transaction can be fully released ([Pre-Auth Reversal](androidtransactions.md#pre-authcapture-reversal)), for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged
+
+We are also introducing the [Tokenize And Modify](androidtransactions.md#tokenize-and-modify) operation. A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and modify the amount before the transaction is sent for processing. This feature allows you to bring your own loyalty engine and apply for example an instant discount at the point of sale for loyal customers.  
 
 
 ## 7.1002.0
