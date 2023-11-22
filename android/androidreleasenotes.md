@@ -11,6 +11,17 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 7.1005.0
+**Features**:
+
+We're excited to announce the latest update to our Android SDK (Version 7.1005.0), featuring comprehensive Money Remittance support to enhance your financial application's capabilities. In order to use this functionality, we provide the integrator with an object called [Money Remittance Options](androidobjects.md#money-remittance-options), which must be used in the operation.
+
+The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund. For Linked Refunds and Reversals, Money Remittance fields should be taken from the original Sale/MoTo/Refund when using the field `originalTransactionID`.
+
+To leverage the Money Remittance support in your Android app, simply update your SDK to the latest version (7.1005.0). Refer to the updated documentation for guidance on integrating and customizing the new features.
+
+***Please note**: Money Remittance is available for some acquirers and geographies. Please check with your Handpoint relationship manager about the availability of this functionality for your merchants.
+
 ## 7.1004.0
 **Features**:
 

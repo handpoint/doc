@@ -6,6 +6,306 @@ id: restobjects
 # Objects
 
 
+## Acquirer
+
+`Acquirer` <span class="badge badge--info">Enum</span>
+
+
+An enum representing the supported acquirers for merchant authentication.
+
+**Possible values**
+
+`AMEX` `BORGUN` `EVO` `OMNIPAY` `POSTBRIDGE` `INTERAC` `TSYS` `VANTIV` `SANDBOX`
+
+
+## Balance
+
+`Balance` <span class="badge badge--info">Object</span>
+
+
+Balance available on the card.
+
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `amount`   <br />*Integer*  | The balance|
+| `currency`  <br />*Currency*   | The balance currency|
+| `positive`  <br />*Boolean*   | Defines if the balance is positive|
+| `negative`  <br />*Boolean*   | Defines if the balance is negative|
+
+**Code example**
+
+````json
+"balance": {
+    "amount": 1000,
+    "currency": "EUR",
+    "negative": false,
+    "positive": true
+  }
+````
+
+## Bypass Options
+
+
+`BypassOptions` <span class="badge badge--info">Object</span>
+
+
+Configuration to enable/disable signature or pin bypass.
+
+| Property      | Description |
+| ----------- | ----------- |
+| `pinBypass`  <br />*Boolean*   | Enables/disables pin bypass. Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt.       |
+| `signatureBypass`  <br />*Boolean* | Enables/disables signature bypass. Whether the terminal prompts for a signature, depends on how you configure this parameter. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification.     |
+
+**Code example**
+
+````json
+{
+   "bypassOptions": {
+       "signatureBypass": true,
+       "pinBypass": true
+       }
+}
+````
+
+## Card Entry Type{#cardEntryType}
+
+`CardEntryType` <span class="badge badge--info">Enum</span>
+ 
+An enum representing different card entry types.
+
+**Possible values**
+
+`UNDEFINED` `MSR` `ICC` `CNP` 
+
+
+## Card Scheme Name {#cardSchemeName}
+
+`CardSchemeName` <span class="badge badge--info">Enum</span>
+
+An enum representing different card brands.
+
+**Possible values**
+
+`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
+
+
+## Currency
+
+`Currency` <span class="badge badge--info">Enum</span>
+
+An enum of currencies. 
+
+**Possible values**
+
+`AED` `AFN` `ALL` `AMD` `ANG` `AOA` `ARS` `AUD` `AWG` `AZN` `BAM` `BBD` `BDT` `BGN` `BHD` `BIF` `BMD` `BND` `BOB` `BOV` `BRL` `BSD` `BTN` `BWP` `BYR` `BZD` `CAD` `CDF` `CHF` `CLP` `CNY` `COP` `COU` `CRC` `CUC` `CUP` `CVE` `CZK` `DJF` `DKK` `DOP` `DZD` `EEK` `EGP` `ERN` `ETB` `EUR` `FJD` `FKP` `GBP` `GEL` `GHS` `GIP` `GMD` `GNF` `GTQ` `GYD` `HKD` `HNL` `HRK` `HTG` `HUF` `IDR` `ILS` `INR` `IQD` `IRR` `ISK` `JMD` `JOD` `JPY` `KES` `KGS` `KHR` `KMF` `KPW` `KRW` `KWD` `KYD` `KZT` `LAK` `LBP` `LKR` `LRD` `LSL` `LTL` `LVL` `LYD` `MAD` `MDL` `MKD` `MMK` `MNT` `MOP` `MUR` `MVR` `MWK` `MXN` `MXV` `MYR` `MZN` `NAD` `NGN` `NIO` `NOK` `NPR` `NZD` `OMR` `PAB` `PEN` `PGK` `PHP` `PKR` `PLN` `PYG` `QAR` `RON` `RSD` `RUB` `RWF` `SAR` `SBD` `SCR` `SDG` `SEK` `SGD` `SHP` `SLL` `SOS` `SRD` `STD` `SYP` `SZL` `THB` `TJS` `TMT` `TND` `TOP` `TRY` `TTD` `TWD` `TZS` `UAH` `UGX`      `VND` `VUV` `WST` `XAF` `XCD` `XOF` `XPF` `YER` `ZAR` `ZMK` `ZWL` `USD` `UZS` `VEF`
+
+
+## Device {#deviceObject}
+
+`Device` <span class="badge badge--info">Object</span>
+
+
+An object to store information about the payment terminal in use. ALL values are **REQUIRED**.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `merchant_id_alpha` <span class="badge badge--primary">Required</span> <br />*String*    | Merchant unique identifier associated with the payment terminal.|
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.|
+| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal shared secret key to authenticate financial operations.|
+| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal name composed of two parts "serial_number - terminal_type".|
+
+**Code example**
+
+````json
+{
+       "merchant_id_alpha": "Test_Merchant",
+       "serial_number": "614004878",
+       "ssk": "74817EA5C63437ADE7AA3A5401",
+       "terminal_type": "PAXA920"
+}
+````
+
+## Device Status{#deviceStatus}
+
+`DeviceStatus` <span class="badge badge--info">Object</span>
+
+
+A class which holds the payment terminal status.
+
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `SerialNumber`  <br />*String*   | The serial number of the payment terminal.|
+| `BatteryStatus`  <br />*String*   | The battery status in percentages of the payment terminal.|
+| `BatterymV`  <br />*String*   | The battery milli volts of the payment terminal.|
+| `BatteryCharging`  <br />*String*   | The battery charging status of the payment terminal.|
+| `ExternalPower` <br />*String*    | The status of the external power of the payment terminal.|
+| `ApplicationName`   <br />*String*  | The application name used on the payment terminal.|
+| `ApplicationVersion` <br />*String*    | The application version number used on the payment terminal.|
+| `bluetoothName`  <br />*String*   | The bluetooth interface name used on the payment terminal.|
+| `statusMessage`  <br />*String*   | Device human readable status message.|
+
+
+**Code example**
+
+````json
+{
+    "applicationName": "TestApp",
+    "applicationVersion": "20.1.0.1",
+    "batteryCharging": "Charging",
+    "batteryStatus": "100",
+    "batterymV": "4134",
+    "bluetoothName": "A920",
+    "externalPower": "USB",
+    "serialNumber": "0821032397",
+    "statusMessage": "Card reader time out"
+}
+````
+
+## Financial Status{#financialStatus}
+
+`Financial Status` <span class="badge badge--info">Enum</span>
+
+An enum representing different statuses of a completed transaction.
+
+`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
+
+Description of the different financial statuses:
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `UNDEFINED` (NOT FOUND) *  <br/>  |The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged..|
+| `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
+| `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
+| `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
+| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`. This means the operation was unsuccessful and the transaction has not been charged.   |
+| `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
+| `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
+| `IN_PROGRESS` *  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
+| `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method. The original transaction (sale) has been refunded. |
+| `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a `preAuthorizationCapture` message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status |
+
+\* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method.
+
+
+## Merchant Auth
+
+`MerchantAuth` <span class="badge badge--info">Object</span>
+
+An object used to store merchant authentication parameters. This object is optional, it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
+
+
+
+| Property      | Description |
+| ----------- | ----------- |
+| `Credential`  <br />[*Credential[]*](#merchant-auth-credential)  | Array of credentials|
+
+**Code example**
+
+````json
+{
+   "merchantAuth": [{
+       "acquirer": "ACQ_DUMMY",
+       "mid": "1111",
+       "tid": "2222",
+       "mcc": "3333",
+       "externalId": "4444"
+       }]
+}
+````
+
+## Merchant Auth Credential
+
+`Credential` <span class="badge badge--info">Object</span>
+
+An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merchant authentication.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `acquirer`  <br />[*Acquirer*](#acquirer)   | If present, it links this credential to the specified acquirer. Only required if more than one credential is provided.|
+| `mid`  <br />*String*   | For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
+| `tid`    <br />*String* | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
+| `mcc`   <br />*String*  | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
+| `ExternalId`   <br />*String*  | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials|
+
+**Code example**
+
+````json
+{
+    "acquirer": "ACQ_DUMMY",
+    "mid": "1111",
+    "tid": "2222",
+    "mcc": "3333"
+}
+
+{
+    "externalId": "4444"
+}
+````
+
+## Metadata{#metadata}
+
+`Metadata` <span class="badge badge--info">Object</span>
+
+An object to store metadata.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+
+**Code example**
+
+```json
+{
+    "metadata": {
+        "metadata1": "data1",
+        "metadata2": "data2",
+        "metadata3": "data3",
+        "metadata4": "data4",
+        "metadata5": "data5"
+    }
+}
+```	
+
+
+## Money Remittance Options
+
+`MoneyRemittanceOptions` <span class="badge badge--info">Object</span>
+
+An object representing options for a money remittance transaction. These options provide essential information for processing a money remittance, including the recipient's identity and location.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `fullName` <span class="badge badge--primary">Required</span>  <br />*String* | First and last name of the recipient of the money transfer. The field must be fulfilled using letters. (**a-Z, A-Z** only)|
+| `countryCode` <span class="badge badge--primary">Required</span> <br />*CountryCode* | Country code of the recipient ([ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3))|
+
+**Code example**
+
+```json
+{
+    "moneyRemittanceOptions":{
+            "fullName":"John Doe",
+            "countryCode":"USA"
+    }
+}
+```	
 
 ## Operation Type
 
@@ -132,33 +432,223 @@ Note: Pre-Auth with AMEX is only available in the United States/Canada with the 
 | All MCCs except Hotel and Car rental | 1 year |
 
 
+## Payment Scenario{#paymentScenario}
 
-## Financial Status{#financialStatus}
 
-`Financial Status` <span class="badge badge--info">Enum</span>
+`PaymentScenario` <span class="badge badge--info">Enum</span>
 
-An enum representing different statuses of a completed transaction.
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `REFUNDED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
+An enum representing different types of payment scenario.
 
-Description of the different financial statuses:
+**Possible values**
 
-| Parameter      | Notes |
+`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
+
+
+## Status
+
+`status` <span class="badge badge--info">Enum</span>
+
+
+An enum containing information about the status of a transaction.
+
+**Possible values**
+
+`Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` `SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` `ResponseAuthTimeout` `ResponsePaymentTimeout` `IccCardSwiped` `RemoveCard` `ScannerIsNotSupported` `ScannerEvent` `BatteryTooLow` `AccountTypeSelection` `BtIsNotSupported` `PaymentCodeSelection` `PartialApproval` `AmountDueValidation` `InvalidUrl` `WaitingCustomerReceipt` `PrintingMerchantReceipt` `PrintingCustomerReceipt` `UpdateStarted` `UpdateFinished` `UpdateFailed` `UpdateProgress` `WaitingHostPostSend` `WaitingHostPostReceive` `Rebooting` `PrinterOutOfPaper` `ErrorConnectingToPrinter` `CardTapped` `ReceiptPrintSuccess` `InvalidPinLength` `OfflinePinAttempt` `OfflinePinLastAttempt` `ProcessingSignature` `CardRemoved` `TipEntered` `CardLanguagePreference` `AutomaticPrintingStarted` `CancelOperationNotAllowed` `UpdateSoftwareStarted` `UpdateSoftwareFinished` `UpdateSoftwareFailed` `UpdateSoftwareProgress` `InstallSoftwareStarted` `InstallSoftwareFinished` `InstallSoftwareFailed` `InstallSoftwareProgress` `UpdateConfigStarted` `UpdateConfigFinished` `UpdateConfigFailed` `UpdateConfigProgress` `InitialisationComplete`
+
+
+## Status Info
+
+`StatusInfo` <span class="badge badge--info">Object</span>
+
+
+A class containing information about the status of the transaction.
+
+**Properties**
+
+| Property      | Description |
 | ----------- | ----------- |
-| `UNDEFINED` (NOT FOUND) *  <br/>  |The `UNDEFINED` (NOT FOUND) status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. This status means that the transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged..|
-| `AUTHORISED` <br/>    | The transaction (Sale, Refund etc.) has been authorised. Consider this value as "successful". |
-| `DECLINED` <br/>   | The transaction has been declined by the acquirer or issuer. |
-| `PROCESSED`  <br/>   | The `printReceipt` operation was successful.|
-| `FAILED`  <br/>   | Status generated due to a network error, a card which can not be read etc. As a general rule, errors are mapped to `FAILED`. This means the operation was unsuccessful and the transaction has not been charged.   |
-| `CANCELLED`  <br/>   | The transaction has been cancelled. For example if the `stopCurrentTransaction` operation has been used or the cancel button on the terminal has been pressed.   |
-| `PARTIAL_APPROVAL`  <br/>   | A partial approval is returned by the acquirer when funds have been partially authorized, for example if the cardholder does not have all the funds to cover the entire cost of the goods or services they are buying. The merchant can obtain the remainder of the purchase amount in another form of payment (cash, check or another card transaction for the remaining). `PARTIAL_APPROVAL` is **only** applicable to the United States market. |
-| `IN_PROGRESS` *  <br/>   |  The `IN_PROGRESS` status can be returned as a response to the  [get transaction status](restendpoints.md#transactionstransactionreferencestatus) request. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
-| `REFUNDED` * <br/>   |  The `REFUNDED` status can be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method. The original transaction (sale) has been refunded. |
-| `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a `preAuthorizationCapture` message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status |
-
-\* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) method.
+| `cancelAllowed`  <br />*boolean*   | A `boolean` Letting the integrator know if the terminal will accept a stop transaction request.)       |
+| `status` <br />[*Status*](#status)  | A `Status` enum representing the status of the transaction.       |
+| `message`  <br />*String*    | A `String` containing the status message of the transaction.       |
+| `deviceStatus` <br />[*DeviceStatus*](#device-status) | A `DeviceStatus` object containing information about the payment terminal.        |
 
 
+## Tender Type{#tenderType}
+
+`TenderType` <span class="badge badge--info">Enum</span>
+
+
+An enum representing different tender types.
+
+Possible values
+
+`NOT_SET` `CREDIT` `DEBIT`
+
+
+## Tip Adjustment
+
+`TipAdjustment` <span class="badge badge--info">Object</span>
+
+
+| Property      | Description |
+| ----------- | ----------- |
+| `amount`  <br />*Biginteger*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
+
+**Code example**
+
+````json
+{
+    "amount": 10.25
+}
+
+{
+    "amount": 20
+}
+````
+
+## Tip Configuration
+
+`TipConfiguration` <span class="badge badge--info">Object</span>
+
+
+| Property      | Description |
+| ----------- | ----------- |
+| `baseAmount`  <br />*String*   | Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.       |
+| `headerName` <br />*String*  | Name of the tipping menu appearing on the terminal. Default: Tip      |
+| `tipPercentages` <span class="badge badge--primary">Required</span> <br />*List*    | List of percentages used to calculate the tip amount.    |
+| `enterAmountEnabled` <br />*boolean* |Flag used to enable the cardholder to manually enter the tip amount. Default: true       |
+| `skipEnabled`   <br />*Boolean*   | Flag used to enable the cardholder to skip the tipping step. Default: true       |
+| `footer`  <br />*String*    | Footer note which will appear on the tipping menu. Default: Empty string       |
+
+**Code example**
+
+````json
+{
+    "tipConfiguration":{
+       "baseAmount":"2000",
+       "headerName":"",
+       "tipPercentages":[
+          5,
+          10,
+          15,
+          20,
+          25
+       ],
+       "enterAmountEnabled":true,
+       "skipEnabled":false,
+       "footer":"Thank you!!! ;)"
+    }
+ }
+````
+
+## Transaction Request Object {#transactionRequest}
+
+`TransactionRequest` <span class="badge badge--info">Object</span>
+
+
+An object to store information about the request sent to the payment terminal.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `operation` <span class="badge badge--primary">Required</span>  <br />[*OperationTypesDescription*](#operation-types-description)   | The type of operation to be performed.   |
+| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.     |
+| `terminal_type` <span class="badge badge--primary">Required</span>  <br />*String*    | Type of terminal.  |
+| `callbackUrl`<br />*String*   | If used,this is the url the payment terminal will use to send the Transaction Result once the operation is complete. All 2XXs http response codes from the callbackUrl (your server) are valid to notify the terminal of a successful delivery of the result. If the callbackUrl is not present, the device will send back the transaction result to Handpoint's REST-API and results can be retrieved using the Transaction Result Retrieval endpoint.     |
+| `token`  <br />*String*    | If used, the token is a unique value per operation generated by your software and used to authenticate the transaction result sent through the callbackUrl against your server. The token will be injected in the request header with key value 'AUTH-TOKEN'. **REQUIRED** when the callbackUrl is present.       |
+| `customerReference` <br />*String*   | Transaction identifier provided by your software. The customerReference sent in the TransactionRequest object is echoed in the TransactionResult. In case the transaction outcome is unknown (network issue or other) and for some unknown reason your software did not receive any result. The customerReference can be used to query the Handpoint Transaction API and check if a specific transaction was approved or not: https://txnfeedapi.handpoint.com/#api-Transactions-getTxnByCustomerReference. |
+| `amount` <br />*String* | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.    |
+| `currency`  <br />[*Currency*](#currency)   | The currency of the transaction. **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.        |
+| `originalTransactionId`  <br />*String*   | The transaction id of the original operation to be reversed. Only required to reverse or refund a transaction and for operations linked to a pre-authorisation. **REQUIRED** for operations: refundReversal, saleReversal, LINKED refunds, preAuthorizationIncrease, preAuthorizationCapture and preAuthorizationReversal.       |
+| `receipt` <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt. The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
+| `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
+| `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations.        |
+| `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
+| `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
+| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `transactionReference`  <br />*String*   | The `transactionReference` is a unique ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) that you need to generate and add to every transaction request. In case something goes wrong and you do not receive a transaction result from the terminal, you will be able to query the Handpoint gateway directly with this id by using the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) endpoint.|
+
+**Code example**
+
+````json
+// Result will be served to result.com
+{
+       "operation": "sale",
+       "amount": "10000",
+       "currency": "EUR",
+       "terminal_type": "PAXA920",
+       "serial_number": "1547854757",
+       "customerReference": "storeSale12548",
+       "callbackUrl": "https://result.com",
+       "token": "123456789",
+       "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+       "tipConfiguration": {
+              "baseAmount": "2000",
+              "tipPercentages": [5,10,15,20,25],
+              "enterAmountEnabled": true,
+              "skipEnabled": false,
+              "footer": "Thank you!!! ;)"
+           },
+       "bypassOptions": {
+              "signatureBypass": true,
+              "pinBypass": true
+           },
+       "merchantAuth": [{
+              "acquirer": "ACQ_DUMMY",
+              "mid": "1111",
+              "tid": "2222",
+              "mcc": "3333",
+              "externalId": "4444"
+           }],
+        "duplicate_check": true,
+        "metadata": {
+            "metadata1": "data1",
+            "metadata2": "data2",
+            "metadata3": "data3",
+            "metadata4": "data4",
+            "metadata5": "data5"
+        }   
+}
+
+// Result will be served back to Handpoint's REST-API
+{
+       "operation": "sale",
+       "amount": "10000",
+       "currency": "EUR",
+       "terminal_type": "PAXA920",
+       "serial_number": "1547854757",
+       "customerReference": "storeSale12548",
+       "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+       "tipConfiguration": {
+              "baseAmount": "2000",
+              "tipPercentages": [5,10,15,20,25],
+              "enterAmountEnabled": true,
+              "skipEnabled": false,
+              "footer": "Thank you!!! ;)"
+           },
+       "bypassOptions": {
+              "signatureBypass": true,
+              "pinBypass": true
+           },
+       "merchantAuth": [{
+              "acquirer": "ACQ_DUMMY",
+              "mid": "1111",
+              "tid": "2222",
+              "mcc": "3333",
+              "externalId": "4444"
+           }],
+        "duplicate_check": true,
+        "metadata": {
+            "metadata1": "data1",
+            "metadata2": "data2",
+            "metadata3": "data3",
+            "metadata4": "data4",
+            "metadata5": "data5"
+        }   
+}
+````
 
 
 ## Transaction Result Object
@@ -302,225 +792,16 @@ An object holding information about the result of a transaction.
 ````
 
 
-## Transaction Request Object {#transactionRequest}
+## Transaction Type{#transactionType}
 
-`TransactionRequest` <span class="badge badge--info">Object</span>
+`TransactionType` <span class="badge badge--info">Enum</span>
 
-
-An object to store information about the request sent to the payment terminal.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `operation` <span class="badge badge--primary">Required</span>  <br />[*OperationTypesDescription*](#operation-types-description)   | The type of operation to be performed.   |
-| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.     |
-| `terminal_type` <span class="badge badge--primary">Required</span>  <br />*String*    | Type of terminal.  |
-| `callbackUrl`<br />*String*   | If used,this is the url the payment terminal will use to send the Transaction Result once the operation is complete. All 2XXs http response codes from the callbackUrl (your server) are valid to notify the terminal of a successful delivery of the result. If the callbackUrl is not present, the device will send back the transaction result to Handpoint's REST-API and results can be retrieved using the Transaction Result Retrieval endpoint.     |
-| `token`  <br />*String*    | If used, the token is a unique value per operation generated by your software and used to authenticate the transaction result sent through the callbackUrl against your server. The token will be injected in the request header with key value 'AUTH-TOKEN'. **REQUIRED** when the callbackUrl is present.       |
-| `customerReference` <br />*String*   | Transaction identifier provided by your software. The customerReference sent in the TransactionRequest object is echoed in the TransactionResult. In case the transaction outcome is unknown (network issue or other) and for some unknown reason your software did not receive any result. The customerReference can be used to query the Handpoint Transaction API and check if a specific transaction was approved or not: https://txnfeedapi.handpoint.com/#api-Transactions-getTxnByCustomerReference. |
-| `amount` <br />*String* | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.    |
-| `currency`  <br />[*Currency*](#currency)   | The currency of the transaction. **REQUIRED** for operations: sale, refund, refundReversal, saleReversal and saleAndTokenizeCard.        |
-| `originalTransactionId`  <br />*String*   | The transaction id of the original operation to be reversed. Only required to reverse or refund a transaction and for operations linked to a pre-authorisation. **REQUIRED** for operations: refundReversal, saleReversal, LINKED refunds, preAuthorizationIncrease, preAuthorizationCapture and preAuthorizationReversal.       |
-| `receipt` <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt. The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
-| `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
-| `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations.        |
-| `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
-| `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
-| `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `transactionReference`  <br />*String*   | The `transactionReference` is a unique ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) that you need to generate and add to every transaction request. In case something goes wrong and you do not receive a transaction result from the terminal, you will be able to query the Handpoint gateway directly with this id by using the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) endpoint.|
-
-**Code example**
-
-````json
-// Result will be served to result.com
-{
-       "operation": "sale",
-       "amount": "10000",
-       "currency": "EUR",
-       "terminal_type": "PAXA920",
-       "serial_number": "1547854757",
-       "customerReference": "storeSale12548",
-       "callbackUrl": "https://result.com",
-       "token": "123456789",
-       "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
-       "tipConfiguration": {
-              "baseAmount": "2000",
-              "tipPercentages": [5,10,15,20,25],
-              "enterAmountEnabled": true,
-              "skipEnabled": false,
-              "footer": "Thank you!!! ;)"
-           },
-       "bypassOptions": {
-              "signatureBypass": true,
-              "pinBypass": true
-           },
-       "merchantAuth": [{
-              "acquirer": "ACQ_DUMMY",
-              "mid": "1111",
-              "tid": "2222",
-              "mcc": "3333",
-              "externalId": "4444"
-           }],
-        "duplicate_check": true,
-        "metadata": {
-            "metadata1": "data1",
-            "metadata2": "data2",
-            "metadata3": "data3",
-            "metadata4": "data4",
-            "metadata5": "data5"
-        }   
-}
-
-// Result will be served back to Handpoint's REST-API
-{
-       "operation": "sale",
-       "amount": "10000",
-       "currency": "EUR",
-       "terminal_type": "PAXA920",
-       "serial_number": "1547854757",
-       "customerReference": "storeSale12548",
-       "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
-       "tipConfiguration": {
-              "baseAmount": "2000",
-              "tipPercentages": [5,10,15,20,25],
-              "enterAmountEnabled": true,
-              "skipEnabled": false,
-              "footer": "Thank you!!! ;)"
-           },
-       "bypassOptions": {
-              "signatureBypass": true,
-              "pinBypass": true
-           },
-       "merchantAuth": [{
-              "acquirer": "ACQ_DUMMY",
-              "mid": "1111",
-              "tid": "2222",
-              "mcc": "3333",
-              "externalId": "4444"
-           }],
-        "duplicate_check": true,
-        "metadata": {
-            "metadata1": "data1",
-            "metadata2": "data2",
-            "metadata3": "data3",
-            "metadata4": "data4",
-            "metadata5": "data5"
-        }   
-}
-````
-
-
-## Bypass Options
-
-
-`BypassOptions` <span class="badge badge--info">Object</span>
-
-
-Configuration to enable/disable signature or pin bypass.
-
-| Property      | Description |
-| ----------- | ----------- |
-| `pinBypass`  <br />*Boolean*   | Enables/disables pin bypass. Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt.       |
-| `signatureBypass`  <br />*Boolean* | Enables/disables signature bypass. Whether the terminal prompts for a signature, depends on how you configure this parameter. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification.     |
-
-**Code example**
-
-````json
-{
-   "bypassOptions": {
-       "signatureBypass": true,
-       "pinBypass": true
-       }
-}
-````
-
-## Merchant Auth
-
-`MerchantAuth` <span class="badge badge--info">Object</span>
-
-An object used to store merchant authentication parameters. This object is optional, it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
-
-
-
-| Property      | Description |
-| ----------- | ----------- |
-| `Credential`  <br />[*Credential[]*](#merchant-auth-credential)  | Array of credentials|
-
-**Code example**
-
-````json
-{
-   "merchantAuth": [{
-       "acquirer": "ACQ_DUMMY",
-       "mid": "1111",
-       "tid": "2222",
-       "mcc": "3333",
-       "externalId": "4444"
-       }]
-}
-````
-
-## Acquirer
-
-`Acquirer` <span class="badge badge--info">Enum</span>
-
-
-An enum representing the supported acquirers for merchant authentication.
+An enum representing different types of transactions.
 
 **Possible values**
 
-`AMEX` `BORGUN` `EVO` `OMNIPAY` `POSTBRIDGE` `INTERAC` `TSYS` `VANTIV` `SANDBOX`
+`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE` `MOTO_REFUND` `MOTO_REVERSAL`
 
-
-## Device {#deviceObject}
-
-`Device` <span class="badge badge--info">Object</span>
-
-
-An object to store information about the payment terminal in use. ALL values are **REQUIRED**.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `merchant_id_alpha` <span class="badge badge--primary">Required</span> <br />*String*    | Merchant unique identifier associated with the payment terminal.|
-| `serial_number` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal serial number.|
-| `ssk` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal shared secret key to authenticate financial operations.|
-| `terminal_type` <span class="badge badge--primary">Required</span> <br />*String*   | Payment terminal name composed of two parts "serial_number - terminal_type".|
-
-**Code example**
-
-````json
-{
-       "merchant_id_alpha": "Test_Merchant",
-       "serial_number": "614004878",
-       "ssk": "74817EA5C63437ADE7AA3A5401",
-       "terminal_type": "PAXA920"
-}
-````
-
-## Currency
-
-`Currency` <span class="badge badge--info">Enum</span>
-
-An enum of currencies. 
-
-**Possible values**
-
-`AED` `AFN` `ALL` `AMD` `ANG` `AOA` `ARS` `AUD` `AWG` `AZN` `BAM` `BBD` `BDT` `BGN` `BHD` `BIF` `BMD` `BND` `BOB` `BOV` `BRL` `BSD` `BTN` `BWP` `BYR` `BZD` `CAD` `CDF` `CHF` `CLP` `CNY` `COP` `COU` `CRC` `CUC` `CUP` `CVE` `CZK` `DJF` `DKK` `DOP` `DZD` `EEK` `EGP` `ERN` `ETB` `EUR` `FJD` `FKP` `GBP` `GEL` `GHS` `GIP` `GMD` `GNF` `GTQ` `GYD` `HKD` `HNL` `HRK` `HTG` `HUF` `IDR` `ILS` `INR` `IQD` `IRR` `ISK` `JMD` `JOD` `JPY` `KES` `KGS` `KHR` `KMF` `KPW` `KRW` `KWD` `KYD` `KZT` `LAK` `LBP` `LKR` `LRD` `LSL` `LTL` `LVL` `LYD` `MAD` `MDL` `MKD` `MMK` `MNT` `MOP` `MUR` `MVR` `MWK` `MXN` `MXV` `MYR` `MZN` `NAD` `NGN` `NIO` `NOK` `NPR` `NZD` `OMR` `PAB` `PEN` `PGK` `PHP` `PKR` `PLN` `PYG` `QAR` `RON` `RSD` `RUB` `RWF` `SAR` `SBD` `SCR` `SDG` `SEK` `SGD` `SHP` `SLL` `SOS` `SRD` `STD` `SYP` `SZL` `THB` `TJS` `TMT` `TND` `TOP` `TRY` `TTD` `TWD` `TZS` `UAH` `UGX`      `VND` `VUV` `WST` `XAF` `XCD` `XOF` `XPF` `YER` `ZAR` `ZMK` `ZWL` `USD` `UZS` `VEF`
-
-
-
-## Card Entry Type{#cardEntryType}
-
-`CardEntryType` <span class="badge badge--info">Enum</span>
- 
-An enum representing different card entry types.
-
-**Possible values**
-
-`UNDEFINED` `MSR` `ICC` `CNP` 
 
 
 ## Verification Method{#verificationMethod}
@@ -535,263 +816,21 @@ Possible values:
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
 
 
-## Merchant Auth Credential
 
-`Credential` <span class="badge badge--info">Object</span>
 
-An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merchant authentication.
 
-**Properties**
 
-| Property      | Description |
-| ----------- | ----------- |
-| `acquirer`  <br />[*Acquirer*](#acquirer)   | If present, it links this credential to the specified acquirer. Only required if more than one credential is provided.|
-| `mid`  <br />*String*   | For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
-| `tid`    <br />*String* | For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
-| `mcc`   <br />*String*  | Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
-| `ExternalId`   <br />*String*  | For this transaction, the External Id will be used to lookup the credential of the merchant in the Handpoint backend and process the transaction accordingly. The External id replaces the need to pass MID/TID/MCC as credentials|
 
-**Code example**
 
-````json
-{
-    "acquirer": "ACQ_DUMMY",
-    "mid": "1111",
-    "tid": "2222",
-    "mcc": "3333"
-}
 
-{
-    "externalId": "4444"
-}
-````
 
 
-## Balance
 
-`Balance` <span class="badge badge--info">Object</span>
 
 
-Balance available on the card.
 
 
-**Properties**
 
-| Property      | Description |
-| ----------- | ----------- |
-| `amount`   <br />*Integer*  | The balance|
-| `currency`  <br />*Currency*   | The balance currency|
-| `positive`  <br />*Boolean*   | Defines if the balance is positive|
-| `negative`  <br />*Boolean*   | Defines if the balance is negative|
 
-**Code example**
 
-````json
-"balance": {
-    "amount": 1000,
-    "currency": "EUR",
-    "negative": false,
-    "positive": true
-  }
-````
 
-## Device Status{#deviceStatus}
-
-`DeviceStatus` <span class="badge badge--info">Object</span>
-
-
-A class which holds the payment terminal status.
-
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `SerialNumber`  <br />*String*   | The serial number of the payment terminal.|
-| `BatteryStatus`  <br />*String*   | The battery status in percentages of the payment terminal.|
-| `BatterymV`  <br />*String*   | The battery milli volts of the payment terminal.|
-| `BatteryCharging`  <br />*String*   | The battery charging status of the payment terminal.|
-| `ExternalPower` <br />*String*    | The status of the external power of the payment terminal.|
-| `ApplicationName`   <br />*String*  | The application name used on the payment terminal.|
-| `ApplicationVersion` <br />*String*    | The application version number used on the payment terminal.|
-| `bluetoothName`  <br />*String*   | The bluetooth interface name used on the payment terminal.|
-| `statusMessage`  <br />*String*   | Device human readable status message.|
-
-
-**Code example**
-
-````json
-{
-    "applicationName": "TestApp",
-    "applicationVersion": "20.1.0.1",
-    "batteryCharging": "Charging",
-    "batteryStatus": "100",
-    "batterymV": "4134",
-    "bluetoothName": "A920",
-    "externalPower": "USB",
-    "serialNumber": "0821032397",
-    "statusMessage": "Card reader time out"
-}
-````
-
-## Card Scheme Name {#cardSchemeName}
-
-`CardSchemeName` <span class="badge badge--info">Enum</span>
-
-An enum representing different card brands.
-
-**Possible values**
-
-`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
-
-
-
-## Transaction Type{#transactionType}
-
-`TransactionType` <span class="badge badge--info">Enum</span>
-
-An enum representing different types of transactions.
-
-**Possible values**
-
-`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `CARD_PAN` `CANCEL_TRX` `MOTO_SALE` `MOTO_REFUND` `MOTO_REVERSAL`
-
-
-## Payment Scenario{#paymentScenario}
-
-
-`PaymentScenario` <span class="badge badge--info">Enum</span>
-
-
-An enum representing different types of payment scenario.
-
-**Possible values**
-
-`UNKNOWN` `MAGSTRIPE` `MAGSTRIPECONTACTLESS` `CHIP` `CHIPCONTACTLESS` `CHIPFAILMAGSTRIPE` `MOTO`
-
-## Status Info
-
-`StatusInfo` <span class="badge badge--info">Object</span>
-
-
-A class containing information about the status of the transaction.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `cancelAllowed`  <br />*boolean*   | A `boolean` Letting the integrator know if the terminal will accept a stop transaction request.)       |
-| `status` <br />[*Status*](#status)  | A `Status` enum representing the status of the transaction.       |
-| `message`  <br />*String*    | A `String` containing the status message of the transaction.       |
-| `deviceStatus` <br />[*DeviceStatus*](#device-status) | A `DeviceStatus` object containing information about the payment terminal.        |
-
-
-## Status
-
-`status` <span class="badge badge--info">Enum</span>
-
-
-An enum containing information about the status of a transaction.
-
-**Possible values**
-
-`Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` `SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` `ResponseAuthTimeout` `ResponsePaymentTimeout` `IccCardSwiped` `RemoveCard` `ScannerIsNotSupported` `ScannerEvent` `BatteryTooLow` `AccountTypeSelection` `BtIsNotSupported` `PaymentCodeSelection` `PartialApproval` `AmountDueValidation` `InvalidUrl` `WaitingCustomerReceipt` `PrintingMerchantReceipt` `PrintingCustomerReceipt` `UpdateStarted` `UpdateFinished` `UpdateFailed` `UpdateProgress` `WaitingHostPostSend` `WaitingHostPostReceive` `Rebooting` `PrinterOutOfPaper` `ErrorConnectingToPrinter` `CardTapped` `ReceiptPrintSuccess` `InvalidPinLength` `OfflinePinAttempt` `OfflinePinLastAttempt` `ProcessingSignature` `CardRemoved` `TipEntered` `CardLanguagePreference` `AutomaticPrintingStarted` `CancelOperationNotAllowed` `UpdateSoftwareStarted` `UpdateSoftwareFinished` `UpdateSoftwareFailed` `UpdateSoftwareProgress` `InstallSoftwareStarted` `InstallSoftwareFinished` `InstallSoftwareFailed` `InstallSoftwareProgress` `UpdateConfigStarted` `UpdateConfigFinished` `UpdateConfigFailed` `UpdateConfigProgress` `InitialisationComplete`
-
-
-
-## Tip Configuration
-
-`TipConfiguration` <span class="badge badge--info">Object</span>
-
-
-| Property      | Description |
-| ----------- | ----------- |
-| `baseAmount`  <br />*String*   | Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.       |
-| `headerName` <br />*String*  | Name of the tipping menu appearing on the terminal. Default: Tip      |
-| `tipPercentages` <span class="badge badge--primary">Required</span> <br />*List*    | List of percentages used to calculate the tip amount.    |
-| `enterAmountEnabled` <br />*boolean* |Flag used to enable the cardholder to manually enter the tip amount. Default: true       |
-| `skipEnabled`   <br />*Boolean*   | Flag used to enable the cardholder to skip the tipping step. Default: true       |
-| `footer`  <br />*String*    | Footer note which will appear on the tipping menu. Default: Empty string       |
-
-**Code example**
-
-````json
-{
-    "tipConfiguration":{
-       "baseAmount":"2000",
-       "headerName":"",
-       "tipPercentages":[
-          5,
-          10,
-          15,
-          20,
-          25
-       ],
-       "enterAmountEnabled":true,
-       "skipEnabled":false,
-       "footer":"Thank you!!! ;)"
-    }
- }
-````
-
-## Tender Type{#tenderType}
-
-`TenderType` <span class="badge badge--info">Enum</span>
-
-
-An enum representing different tender types.
-
-Possible values
-
-`NOT_SET` `CREDIT` `DEBIT`
-
-## Tip Adjustment
-
-`TipAdjustment` <span class="badge badge--info">Object</span>
-
-
-| Property      | Description |
-| ----------- | ----------- |
-| `amount`  <br />*Biginteger*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
-
-**Code example**
-
-````json
-{
-    "amount": 10.25
-}
-
-{
-    "amount": 20
-}
-````
-
-## Metadata{#metadata}
-
-`Metadata` <span class="badge badge--info">Object</span>
-
-An object to store metadata.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-
-**Code example**
-
-```json
-{
-    "metadata": {
-        "metadata1": "data1",
-        "metadata2": "data2",
-        "metadata3": "data3",
-        "metadata4": "data4",
-        "metadata5": "data5"
-    }
-}
-```	
