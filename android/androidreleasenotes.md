@@ -14,7 +14,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.1005.0
 **Features**:
 
-We're excited to announce the latest update to our Android SDK (Version 7.1005.0), featuring support of Mastercard MoneySend fields for money remittance merchants. In order to use this functionality, we provide you with an object called [Money Remittance Options](androidobjects.md#money-remittance-options) which must be sent for all Mastercard transactions.
+We're excited to announce the latest update to our Android SDK, featuring support of Mastercard MoneySend fields for money remittance merchants. In order to use this functionality, we provide you with an object called [Money Remittance Options](androidobjects.md#money-remittance-options) which must be sent for all Mastercard transactions.
 
 The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund. For Linked Refunds and Reversals, Money Remittance fields should be taken from the original Sale/MoTo/Refund when using the field `originalTransactionID`.
 
