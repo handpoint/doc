@@ -306,13 +306,13 @@ Object used to echo metadata1-5, in the transaction result, if it was set as an 
 
 `MoneyRemitanceOptions` <span class="badge badge--info">Object</span>
 
-An object representing options for a money remittance transaction. These options provide essential information for processing a money remittance, including the recipient's identity and location.
+An object representing options for Mastercard money remittance transactions. The recipient's first and last name and the recipient's country code are mandatory for Mastercard transactions processed by merchants with category codes 4829 and 6540. VISA transactions do not require money remittance options to be sent.
 
 **Properties**
 
 | Property      | Description |
 | ----------- | ----------- |
-| `fullName`  <span class="badge badge--primary">Required</span><br />*String* | First and last name of the recipient of the money transfer. The field must be fulfilled using letters. (**a-Z, A-Z** only)|
+| `fullName`  <span class="badge badge--primary">Required</span><br />*String* | First and last name of the money transfer recipient. (**a-Z, A-Z** only)|
 | `countryCode` <span class="badge badge--primary">Required</span> <br />*CountryCode* | Country code of the recipient ([ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3))|
 
 
