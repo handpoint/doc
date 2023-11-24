@@ -638,6 +638,57 @@ auth.add(credential);
 options.setMerchantAuth(auth);
 ```
 
+## Metadata{#metadata}
+
+`Metadata` <span class="badge badge--info">Object</span>
+
+An object to store metadata. This field can be used to pass custom data to the Handpoint gateway, it will be echoed back in the transaction result. This field will also be part of the transaction response if querying the Handpoint transaction reporting API. 
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+
+**Code example**
+
+```java
+// Option 1
+Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
+
+// Option 2
+Metadata metadata = new Metadata();
+metadata.setMetadata1("Data 1");
+metadata.setMetadata2("Data 2");
+metadata.setMetadata3("Data 3");
+metadata.setMetadata4("Data 4");
+metadata.setMetadata5("Data 5");
+```	
+
+
+## Money Remittance Options
+
+`MoneyRemittanceOptions` <span class="badge badge--info">Object</span>
+
+An object representing options for Mastercard money remittance transactions. The recipient's first and last name and the recipient's country code are mandatory for Mastercard transactions processed by merchants with category codes 4829 and 6540. VISA transactions do not require money remittance options to be sent. 
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `fullName` <span class="badge badge--primary">Required</span> <br />*String*    | first and last name of the recipient of the funds|
+| `countryCode` <span class="badge badge--primary">Required</span> <br />*CountryCode*  | Country code of the recipient of the funds [(ISO 3166-1 alpha-3)](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)|
+
+**Code example**
+
+```java
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+```
+
 ## MoTo Channel
 
 `MoToChannel` <span class="badge badge--info">Enum</span>
@@ -1140,33 +1191,4 @@ An enum representing different verification methods used in the transaction.
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
 
-## Metadata{#metadata}
 
-`Metadata` <span class="badge badge--info">Object</span>
-
-An object to store metadata. This field can be used to pass custom data to the Handpoint gateway, it will be echoed back in the transaction result. This field will also be part of the transaction response if querying the Handpoint transaction reporting API. 
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `metadata1`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata2`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata3`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata4`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-| `metadata5`  <br />*String* | An arbitrary string containing any information/data. Max length 250 characters <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
-
-**Code example**
-
-```java
-// Option 1
-Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
-
-// Option 2
-Metadata metadata = new Metadata();
-metadata.setMetadata1("Data 1");
-metadata.setMetadata2("Data 2");
-metadata.setMetadata3("Data 3");
-metadata.setMetadata4("Data 4");
-metadata.setMetadata5("Data 5");
-```	
