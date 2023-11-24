@@ -674,7 +674,7 @@ metadata.setMetadata5("Data 5");
 
 `MoneyRemittanceOptions` <span class="badge badge--info">Object</span>
 
-An object representing options for Mastercard money remittance transactions. Including the recipient's first and last name and the recipient's country code is mandatory for Mastercard transactions processed by merchants with category codes 4829 and 6540. VISA transactions do not require money remittance options to be sent. 
+An object representing options for Mastercard money remittance transactions. The recipient's first and last name and the recipient's country code are mandatory for Mastercard transactions processed by merchants with category codes 4829 and 6540. VISA transactions do not require money remittance options to be sent. 
 
 **Properties**
 
