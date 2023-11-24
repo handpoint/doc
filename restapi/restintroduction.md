@@ -42,7 +42,7 @@ The following flow shows the interactions between your application and the Handp
 
 :::warning
 
-If you're going to use **4.1**, make sure to use a certificate whose certification authority is supported in the version of Android that your devices are using. We recommend test the integration before moving to production.
+If you're going to use **4.1**, make sure to use an ssl certificate whose certification authority is supported by the versions of Android running on the payment terminals (Android versions vary between Android 5 and Android 10 depending on the terminal model) 
 :::
 
  **4.2) If the original transaction request does not contain a callbackUrl and token** , the [transaction result](restobjects.md#transaction-result-object) is sent back from the terminal to Handpoint's REST-API. The transaction result can then be retrieved from the endpoint GET [transaction-result/{transactionResultId}](restendpoints#transaction-resulttransactionresultid) where the transactionResultId (also called cloud transaction identifier) is found in the immediate answer from the initial transaction request POST to the REST-API (see step 2). **See figure 4.2 below**. 
