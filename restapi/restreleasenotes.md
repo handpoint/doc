@@ -12,11 +12,11 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 2.16.0
 **Features:**
 
-We're excited to announce the latest update to our REST API (Version 2.16.0), featuring comprehensive Money Remittance support to enhance your financial integration's capabilities. In order to use this functionality, we provide the integrator with an object called [Money Remittance Options](restobjects.md#money-remittance-options), which must be used in the operation.
+We're excited to announce the latest update to our REST API, featuring support of Mastercard MoneySend fields for money remittance merchants. In order to use this functionality, we provide you with an object called [Money Remittance Options](restobjects.md#money-remittance-options), which must be used in the operation.
 
-The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund. For Linked Refunds and Reversals, Money Remittance fields should be taken from the original Sale/MoTo/Refund when using the field `originalTransactionId`.
+The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund. For Linked Refunds and Reversals, Money Remittance fields should be taken from the original Sale/MoTo/Refund when using the field `originalTransactionID`.
 
-***Please note**: Money Remittance is available for some acquirers and geographies. Please check with your Handpoint relationship manager about the availability of this functionality for your merchants.
+***Please note**: Money Remittance is available only for some acquirers and geographies. Please check with your Handpoint relationship manager about the availability of this functionality for your merchants.
 
 ## 2.15.0
 **Features:**
