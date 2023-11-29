@@ -6,7 +6,6 @@ id: windowobjects
 
 # Objects
 
-
 ## Card Entry Type{#22}
 
 `CardEntryType` <span class="badge badge--info">Enum</span>
@@ -67,7 +66,6 @@ An enum of currencies.
 `Device` <span class="badge badge--info">Object</span>
 
 An object to store the information about the payment terminal in use.
-
 
 **Constructor**
 
@@ -134,6 +132,7 @@ A class that holds the device status.
 |`ApplicationVersion`<br />*String*| Gets the application version number used by the device.|
 
 
+
 ## Financial Status{#25}
 
 
@@ -161,6 +160,7 @@ An enum representing different final statuses of a transaction.
 | `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a [preAuthorizationCapture](windowstransactions.md#pre-auth-capture) message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status |
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](windowsdevicemanagement.md#get-transaction-status) method.
+
 
 
 ## Handpoint API (Hapi) factory
@@ -300,6 +300,29 @@ Object used to echo metadata1-5, in the transaction result, if it was set as an 
     }
 }
 ```	
+
+
+## Money Remittance Options
+
+`MoneyRemitanceOptions` <span class="badge badge--info">Object</span>
+
+An object representing options for Mastercard money remittance transactions. The recipient's first and last name and the recipient's country code are mandatory for Mastercard transactions processed by merchants with category codes 4829 and 6540. VISA transactions do not require money remittance options to be sent.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `fullName`  <span class="badge badge--primary">Required</span><br />*String* | First and last name of the money transfer recipient. (**a-Z, A-Z** only)|
+| `countryCode` <span class="badge badge--primary">Required</span> <br />*CountryCode* | Country code of the recipient ([ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3))|
+
+
+```csharp
+Dictionary<string, string> map = new Dictionary<string, string>();
+
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
+```	
+
 
 ## Operation Start Result{#OperationStartResult}
 
@@ -586,4 +609,7 @@ An enum representing different cardholder verification methods.
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED`
  `MOBILE_PASS_CODE`
+
+
+
 
