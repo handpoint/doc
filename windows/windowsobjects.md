@@ -259,6 +259,7 @@ LogLevel level = HapiManager.GetLogLevel();
 ```
 
 
+
 ## Log Level{#9}
 
 

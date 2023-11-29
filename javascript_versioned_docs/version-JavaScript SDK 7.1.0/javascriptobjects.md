@@ -197,6 +197,7 @@ Description of the different financial statuses:
 
 An object used to store merchant authentication. This object can be empty, it allows a transaction to be funded to a specific merchant account other than the default one (linked to the API key). It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office.
 
+
 **Properties**
 
 | Property      | Description |
@@ -262,6 +263,7 @@ An object to store merchant authentication options for regular operations.
 | `customerReference`  <br />*String* | An arbitrary string to use as your own identifier for a transaction.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
 
+
 **Code example**
 
 ```json
@@ -307,6 +309,7 @@ An object to store metadata.
     }
 }
 ```	
+
 
 ## Operation Start Result
 
@@ -424,6 +427,7 @@ An object to store the customization options for a refund. This object can be em
 
 An object to store the customization options for a sale operation. This object can be empty if no options are required.
 
+
 **Properties**
 
 | Property      | Description |
@@ -434,6 +438,7 @@ An object to store the customization options for a sale operation. This object c
 | `bypassOptions`  <br />[*BypassOptions*](#19) |  Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17)   | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+
 
 **Code example**
 
@@ -491,6 +496,7 @@ An enum containing information about the status of a transaction.
 
 A class containing information about the status of the transaction.
 
+
 **Properties**
 
 | Property      | Description |
@@ -518,6 +524,7 @@ An enum representing different tender types.
 
 An object holding information about the configuration of the tipping menu for the payment terminal. When a tipping configuration is sent to the payment terminal, the card reader will prompt the cardholder with a tipping menu at the time of the transaction with the parameters that have been sent. 
 
+
 **Properties**
 
 | Property      | Description |
@@ -528,6 +535,7 @@ An object holding information about the configuration of the tipping menu for th
 | `enterAmountEnabled`  <br />*Boolean*   | Flag used to enable the cardholder to manually enter the tip amount. Default: true|
 | `skipEnabled`  <br />*Boolean*   | Flag used to enable the cardholder to skip the tipping step. Default: true|
 | `footer`  <br />*String*   | Footer note which will appear on the tipping menu. Default: Empty string|
+
 
 **Code example**
 
@@ -713,6 +721,5 @@ An enum representing different cardholder verification methods.
 **Possible values**
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
-
 
 

@@ -806,7 +806,6 @@ An enum representing different types of transactions.
 
 ## Verification Method{#verificationMethod}
 
-
 `VerificationMethod` <span class="badge badge--info">Enum</span>
 
 An enum representing the possible verification methods used during the transaction.
@@ -814,10 +813,6 @@ An enum representing the possible verification methods used during the transacti
 Possible values:
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
-
-
-
-
 
 
 

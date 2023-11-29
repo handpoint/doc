@@ -227,6 +227,7 @@ An object used to store merchant authentication parameters. This object is optio
 
 An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merchant authentication.
 
+
 **Properties**
 
 | Property      | Description |
@@ -471,6 +472,7 @@ Possible values
 | ----------- | ----------- |
 | `amount`  <br />*Biginteger*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
 
+
 **Code example**
 
 ````json
@@ -627,6 +629,7 @@ An object to store information about the request sent to the payment terminal.
 ````
 
 
+
 ## Transaction Result Object
 
 `TransactionResult` <span class="badge badge--info">Object</span>
@@ -639,6 +642,7 @@ An object holding information about the result of a transaction.
 
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
+
 
 **Properties**
 
@@ -790,23 +794,4 @@ An enum representing the possible verification methods used during the transacti
 Possible values:
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

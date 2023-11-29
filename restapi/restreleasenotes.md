@@ -18,6 +18,7 @@ The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reve
 
 ***Please note**: Money Remittance is available only for some acquirers and geographies. Please check with your Handpoint relationship manager about the availability of this functionality for your merchants.
 
+
 ## 2.15.0
 **Features:**
 

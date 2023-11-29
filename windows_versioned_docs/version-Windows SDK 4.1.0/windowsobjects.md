@@ -6,6 +6,7 @@ id: windowobjects
 
 # Objects
 
+
 ## Card Entry Type{#22}
 
 `CardEntryType` <span class="badge badge--info">Enum</span>
@@ -66,6 +67,7 @@ An enum of currencies.
 `Device` <span class="badge badge--info">Object</span>
 
 An object to store the information about the payment terminal in use.
+
 
 **Constructor**
 
@@ -132,7 +134,6 @@ A class that holds the device status.
 |`ApplicationVersion`<br />*String*| Gets the application version number used by the device.|
 
 
-
 ## Financial Status{#25}
 
 
@@ -160,7 +161,6 @@ An enum representing different final statuses of a transaction.
 | `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a [preAuthorizationCapture](windowstransactions.md#pre-auth-capture) message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status |
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](windowsdevicemanagement.md#get-transaction-status) method.
-
 
 
 ## Handpoint API (Hapi) factory
@@ -586,7 +586,4 @@ An enum representing different cardholder verification methods.
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED`
  `MOBILE_PASS_CODE`
-
-
-
 
