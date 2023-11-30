@@ -712,6 +712,7 @@ An object to store optional parameters for card not present (MoTo) transactions.
 | `CustomerReference` <br />*String*    | An arbitrary string to use as your own identifier for a transaction|
 | `Channel`  <br />[*MoToChannel*](#moto-channel)  | MO for Mail order - TO for Telephone order|
 | `Tokenize`  <br />*Boolean*  | Flag to activate tokenization of the operation, if this flag is set, a token representing the PAN of the card will be sent back by the Handpoint sytems|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 
 
@@ -724,6 +725,10 @@ options.setTokenize(true);
 options.setTokenize(false);
 options.setChannel(MoToChannel.MO);
 options.setChannel(MoToChannel.TO);
+
+//Adding Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
 ```
 
 ## Operation DTO
@@ -843,6 +848,7 @@ An object to store all the customization options for a refund.
 | `SignatureBypass`  <br />*Boolean*   | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 | `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 **Code example**
 
@@ -874,6 +880,10 @@ options.setCheckDuplicates(false);
 // Metadata
 Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
 options.setMetadata(metadata);
+
+//Adding Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+RefundOptions saleOptions = new RefundOptions(true, moneyRemittanceOptions);
 ```
 
 ## Report Configuration{#19}
@@ -920,6 +930,7 @@ An object to store all the customization options for a sale.
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 | `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 **Code example**
 
@@ -972,6 +983,10 @@ options.setTipConfiguration(new TipConfiguration(AMOUNT));
 // Metadata
 Metadata metadata = new Metadata("Data 1", "Data 2", "Data 3", "Data 4", "Data 5");
 options.setMetadata(metadata);
+
+//Adding Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+SaleOptions saleOptions = new SaleOptions(true,moneyRemittanceOptions);
 ```
 
 ## Sale and Tokenize Options
@@ -989,6 +1004,7 @@ An object to store all the customization options for a sale and tokenize options
 | `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 **Code example**
 
@@ -1037,6 +1053,10 @@ options.setTipConfiguration(config);
 
 //Alternatively, you can set the tip amount directly
 options.setTipConfiguration(new TipConfiguration(AMOUNT));
+
+//Adding Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+SaleAndTokenizeOptions saleAndTokenizeOptions= new SaleAndTokenizeOptions(moneyRemittanceOptions);
 ```
 
 

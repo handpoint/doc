@@ -20,7 +20,7 @@ A sale initiates a payment operation to the card reader. In it's simplest form y
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `options` <br />[*SaleOptions*](androidobjects.md#4)      | An object to store all the customization options for a sale.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)      | An object to store all the customization options for a sale  ([Tip Configuration](androidobjects.md#39), [Metadata](androidobjects.md#metadata), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
@@ -45,6 +45,11 @@ options.setTipConfiguration(tipConfiguration);
 options.setMetadata(metadata);
 
 api.sale(new BigInteger("1000"),Currency.GBP, options);
+
+//Initiate a sale for 10.00 USD using Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+SaleOptions saleOptions = new SaleOptions(true, moneyRemittanceOptions);
+api.sale(new BigInteger("1000"), Currency.USD, saleOptions);
 ```
 
 **Events invoked**
@@ -82,7 +87,7 @@ A [sale](#2) operation which also returns a card token. (not available for all a
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `options` <br />[*SaleAndTokenizeOptions*](androidobjects.md#sale-and-tokenize-options)     | An object to store all the customization options for a sale.|
+| `options` <br />[*SaleAndTokenizeOptions*](androidobjects.md#sale-and-tokenize-options)     | An object to store all the customization options for a sale ([Tip Configuration](androidobjects.md#39), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
@@ -107,6 +112,11 @@ options.setTipConfiguration(tipConfiguration);
 options.toSaleAndTokenizeOptions();
 
 api.sale(new BigInteger("1000"),Currency.GBP,options);
+
+//Initiate a sale for 10.00 USD using Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+SaleAndTokenizeOptions saleAndTokenizeOptions= new SaleAndTokenizeOptions(moneyRemittanceOptions);
+api.sale(new BigInteger("1000"), Currency.USD, saleAndTokenizeOptions);
 ```
 
 **Events invoked**
@@ -195,13 +205,18 @@ A refund operation moves funds from the merchant account to the cardholderÂ´s cr
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `originalTransactionID` <br />*String*     | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
-| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for a refund.|
+| `options` <br />[*SaleOptions*](androidobjects.md#4)     | An object to store all the customization options for a refund ([Metadata](androidobjects.md#metadata), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
 ```java
-//Initiate a refund for 10.00 in Great British Pounds
+////Initiate a refund for 10.00 in Great British Pounds (Linked Refund)
 api.refund(new BigInteger("1000"),Currency.GBP,"00000000-0000-0000-0000-000000000000");
+
+//Initiate a refund for 10.00 USD using Money Remitance options (Linked Refund)
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+RefundOptions refundOptions= new RefundOptions(true, moneyRemittanceOptions);
+api.refund(new BigInteger("1000"), Currency.GBP, "00000000-0000-0000-0000-000000000000", refundOptions);
 ```
 
 ** Events invoked**
@@ -289,15 +304,21 @@ Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
-| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo sale.|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo sale ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
 ```java
+//Initiate a MoTo sale for 10.00 in Great British Pounds
 MoToOptions options = new MoToOptions();
 options.setCustomerReference("MoTo Sale Example");
 
 api.motoSale(new BigInteger("1000"), Currency.EUR, options);
+
+//Initiate a MoTo sale for 10.00 USD using Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("Test Integration", CountryCode.USA);
+MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
+api.motoSale(new BigInteger("1000"), Currency.USD, moToOptions);
 ```
 
 **Events invoked**
@@ -337,7 +358,7 @@ A MOTO refund operation moves funds from the merchant account to the cardholderÂ
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*    | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
 | `originalTransactionId` <br />*String*    | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
-| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)     | An object to store optional parameters for a MoTo refund.|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)     | An object to store optional parameters for a MoTo refund ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
@@ -346,6 +367,11 @@ MoToOptions options = new MoToOptions();
 options.setCustomerReference("MoTo Refund Example");
 
 api.motoRefund(new BigInteger("1000"), Currency.EUR, "00000000-0000-0000-0000-000000000000",options);
+
+//Initiate a MoTo refund for 10.00 USD using Money Remitance options
+MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
+MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
+api.motoRefund(new BigInteger("1000"), Currency.USD,"00000000-0000-0000-0000-000000000000", moToOptions);
 ```
 **Events invoked**
 

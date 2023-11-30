@@ -569,6 +569,7 @@ An object to store information about the request sent to the payment terminal.
 | `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 | `transactionReference`  <br />*String*   | The `transactionReference` is a unique ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) that you need to generate and add to every transaction request. In case something goes wrong and you do not receive a transaction result from the terminal, you will be able to query the Handpoint gateway directly with this id by using the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) endpoint.|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](restobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions. The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund |
 
 **Code example**
 
@@ -609,7 +610,11 @@ An object to store information about the request sent to the payment terminal.
             "metadata3": "data3",
             "metadata4": "data4",
             "metadata5": "data5"
-        }   
+        },
+        "moneyRemittanceOptions":{
+            "fullName":"John Doe",
+            "countryCode":"USA"
+            } 
 }
 
 // Result will be served back to Handpoint's REST-API
@@ -646,7 +651,11 @@ An object to store information about the request sent to the payment terminal.
             "metadata3": "data3",
             "metadata4": "data4",
             "metadata5": "data5"
-        }   
+        },
+        "moneyRemittanceOptions":{
+            "fullName":"John Doe",
+            "countryCode":"USA"
+    }    
 }
 ````
 
