@@ -403,6 +403,7 @@ An object to store the customization options for a refund. This object can be em
 | `bypassOptions`  <br />[*BypassOptions*](#19) | Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17) | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](javascriptobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 **Code example**
 
@@ -439,6 +440,10 @@ An object to store the customization options for a refund. This object can be em
         "metadata3": "data3",
         "metadata4": "data4",
         "metadata5": "data5"
+    },
+    "moneyRemittanceOptions":{
+            "fullName":"John Doe",
+            "countryCode":"USA"
     }
 }
 ```	
@@ -459,6 +464,7 @@ An object to store the customization options for a sale operation. This object c
 | `bypassOptions`  <br />[*BypassOptions*](#19) |  Configuration required to bypass the pin or signature verification methods.|
 | `merchantAuth`  <br />[*MerchantAuth*](#17)   | Configuration required to fund a specific merchant account in a multi-mid scenario (one payment terminal funding multiple merchants).|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](javascriptobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 **Code example**
 
@@ -495,6 +501,10 @@ An object to store the customization options for a sale operation. This object c
         "metadata3": "data3",
         "metadata4": "data4",
         "metadata5": "data5"
+    },
+    "moneyRemittanceOptions":{
+            "fullName":"John Doe",
+            "countryCode":"USA"
     }
 }
 ```	

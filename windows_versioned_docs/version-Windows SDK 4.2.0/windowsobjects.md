@@ -356,6 +356,7 @@ A class containing optional transaction parameters now supported by the device.
 | `Metadata3`  <br />*String*|**String	Metadata3 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata3.Tag(), "Data 3");```. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 | `Metadata4`  <br />*String*|**String	Metadata4 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata4.Tag(), "Data 4");```. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 | `Metadata5`  <br />*String*|**String	Metadata5 is available for all transactions.**<br />A ` String` used to store any required data (max length 250 characters). This information will be echoed inside the Metadata object in the transaction result. Example: ```options.Add(XmlTag.Metadata5.Tag(), "Data 5");```. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
+| `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](windowsobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
 
 ## Payment Scenario{#26}
