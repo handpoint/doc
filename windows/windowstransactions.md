@@ -22,7 +22,7 @@ A sale initiates a transaction with the payment terminal. In it's simplest form 
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*    | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)     | 		Currency of the transaction.|
-| `map` <br />*Map*     | 		A map including [*optional transaction parameters.*](windowsobjects.md#3)|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowsobjects.md#3) (Customer reference, [Metadata](windowsobjects.md#metadata), [Money Remittance Options](windowsobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 
 
 **Code example**
@@ -35,6 +35,8 @@ this.Hapi.Sale(new BigInteger("1000"), Currency.EUR);
 Dictionary map = new Dictionary();
 map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
 map.Add(XmlTag.Metadata1.Tag(), "Data 1");
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
 
 this.Hapi.Sale(new BigInteger("1000"), Currency.EUR, map);
 ```
@@ -76,13 +78,21 @@ A sale operation which also returns a card token. This functionality is not avai
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the transaction.|
-| `map` <br />*Map*     | 		A map including [*optional transaction parameters.*](windowobjects#3)|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowsobjects.md#3) (Customer reference, [Metadata](windowsobjects.md#metadata), [Money Remittance Options](windowsobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 
 **Code example**
 
 ```csharp
 //Initiate a sale for 10.00 in Great British Pounds
 api.SaleAndTokenizeCard(new BigInteger("1000"),Currency.GBP);
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
+
+api.SaleAndTokenizeCard(new BigInteger("1000"), Currency.EUR, map);
 ```
 
 #### Events invoked
@@ -168,13 +178,22 @@ A refund operation moves funds from the merchant account to the cardholderÂ´s cr
 | `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | 		Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span><br />[*Currency*](windowsobjects.md#1)      | 		Currency of the transaction.|
 | `originalTransactionID`<br />*String*     | 		Id of the original sale transaction (EFTTransactionID)|
-| `map` <br />*Map*  | A map including [*optional transaction parameters.*](windowobjects#3)|
+| `map` <br />*Map*  | A map including [*optional transaction parameters.*](windowobjects#3) (Customer reference, [Metadata](windowsobjects.md#metadata), [Money Remittance Options](windowsobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 
 **Code example**
 
 ```csharp
 //Initiate a refund for 10.00 in Great British Pounds
 api.Refund(new BigInteger(1000),Currency.GBP,"00000000-0000-0000-0000-000000000000");
+
+
+// With options
+Dictionary map = new Dictionary();
+map.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
+
+api.Refund(new BigInteger("1000"), Currency.EUR, map);
 ```
 
 #### Events invoked
@@ -259,17 +278,19 @@ Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span><br />*Currency*     | Currency of the transaction.|
-| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3)|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3) (Customer reference, [Metadata](windowsobjects.md#metadata), [Money Remittance Options](windowsobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 
 **Code example**
 
 ```csharp
-// Basic
+// Basic MoTo Sale
 this.Hapi.MotoSale(new BigInteger("1000"), Currency.EUR);
 
 // With options
 Dictionary dic = new Dictionary();
 dic.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
 
 this.Hapi.MotoSale(new BigInteger("1000"), Currency.EUR, dic);
 ```
@@ -305,14 +326,24 @@ A MOTO refund operation moves funds from the merchant account to the cardholderÂ
 | `amount` <span class="badge badge--primary">Required</span><br />*BigInteger*     | Transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>*Currency*     | Currency of the transaction.|
 | `originalTransactionId`<br /> *String*     | If present it links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
-| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3)|
+| `map` <br />*Map*     | A map including [*optional transaction parameters.*](windowobjects#3) (Customer reference, [Metadata](windowsobjects.md#metadata), [Money Remittance Options](windowsobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 
 **Code example**
 
 ```csharp
+//Basic MoTo Refund
 this.Hapi.MotoRefund(new BigInteger(1000), Currency.EUR);
 
 this.Hapi.MotoRefund(new BigInteger(1000), Currency.EUR, "00000000-0000-0000-0000-000000000000");
+
+
+//With Options
+Dictionary dic = new Dictionary();
+dic.Add(XmlTag.CustomerReference.Tag(), "YourCustomerReference");
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
+
+this.Hapi.MotoRefund(new BigInteger("1000"), Currency.EUR, dic);
 ```
 #### Events invoked
 

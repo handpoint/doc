@@ -18,7 +18,7 @@ A sale initiates a transaction with the payment terminal. In its simplest form, 
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
-| `saleOptions` <br />[*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a sale. This object can be empty if no options are required.|
+| `saleOptions` <br />[*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a sale ([Tip Configuration](javascriptobjects.md#39), [Metadata](javascriptobjects.md#metadata), [Money Remittance Options](javascriptobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 | `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
@@ -55,6 +55,10 @@ var saleOptions = {
         metadata3: "data3",
         metadata4: "data4",
         metadata5: "data5"
+    },
+    moneyRemittanceOptions:{
+            fullName:"John Doe",
+            countryCode:"USA"
     }  
 }
 
@@ -87,7 +91,7 @@ A sale operation which also returns a card token. This functionality is not avai
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
-| `saleOptions` <span class="badge badge--primary">Required</span>   <br /> [*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a sale. This object can be empty if no options are required.|
+| `saleOptions` <span class="badge badge--primary">Required</span>   <br /> [*SaleOptions*](javascriptobjects.md#23)   | An object to store the customization options for a sale and tokenize ([Metadata](javascriptobjects.md#metadata), [Money Remittance Options](javascriptobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
@@ -118,6 +122,10 @@ var saleOptions = {
             mcc: "33333"
         }
     ],
+    moneyRemittanceOptions:{
+            fullName:"John Doe",
+            countryCode:"USA"
+    }  
 }
 
 let operationStartedResult = handpoint.saleAndTokenization('1000', 'USD', saleOptions, function (stat) {
@@ -221,7 +229,7 @@ A refund initiates a transaction with the payment terminal. This operation moves
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
 | `originalTransactionID` <br />*string*   | The transaction id of the original sale authorization.|
-| `refundOptions` <br />[*RefundOptions*](javascriptobjects.md#24)   | An object to store the customization options for a refund. This object can be empty if no options are required.|
+| `refundOptions` <br />[*RefundOptions*](javascriptobjects.md#24)   |  An object to store the customization options for a refund ([Metadata](javascriptobjects.md#metadata), [Money Remittance Options](javascriptobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
@@ -241,6 +249,10 @@ var refundOptions = {
             mcc: "33333"
         }
     ],
+    moneyRemittanceOptions:{
+            fullName:"John Doe",
+            countryCode:"USA"
+    }
 }
 
 let operationStartedResult = handpoint.refund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
@@ -316,7 +328,7 @@ Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP
 | ----------- | ----------- |
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
-| `options`  <br />[*Options*](javascriptobjects.md#26)   | An object to store the customization options for a MOTO sale. This object can be empty if no options are required.|
+| `saleOptions`  <br/>[*SaleOptions*](javascriptobjects.md#23)  | An object to store the customization options for a MOTO sale (Customer reference, [Money Remittance Options](javascriptobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
@@ -324,6 +336,10 @@ Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP
 ```javascript
 var saleOptions = { 
         customerReference: "MyCustomReference",
+        moneyRemittanceOptions:{
+            fullName:"John Doe",
+            countryCode:"USA"
+        }
     }
 
 let operationStartedResult = handpoint.moToSale('1000', 'USD', saleOptions, function (stat) {
@@ -355,14 +371,18 @@ A MOTO refund operation moves funds from the merchant account to the cardholderÂ
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
 | `originalTransactionID` <br />*string*   | If this field is populated, it links the refund with a previous sale and effectively limits the maximum amount refunded to that of the original transaction.|
-| `options`  <br />[*Options*](javascriptobjects.md#26)  | An object to store the customization options for a MOTO refund. This object can be empty if no options are required.|
+| `refundOptions` <br />[*RefundOptions*](javascriptobjects.md#24)   |  An object to store the customization options for a refund (Customer reference, [Money Remittance Options](javascriptobjects.md#money-remittance-options),...). This object can be empty if no options are required.|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
 
 ```javascript
 var refundOptions = {
-    customerReference: "MyCustomReference"
+    customerReference: "MyCustomReference",
+    moneyRemittanceOptions:{
+            fullName:"John Doe",
+            countryCode:"USA"
+        }
 }
 
 let operationStartedResult = handpoint.moToRefund('1000', 'USD', undefined ,refundOptions, CallbackFunction(stat){...});
