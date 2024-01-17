@@ -304,8 +304,8 @@ A refund operation moves funds from the merchant account to the cardholder's cre
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to charge - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the charge|
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to refund - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the refund|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
 | `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo sale ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
