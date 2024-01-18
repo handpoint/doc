@@ -897,8 +897,9 @@ An object to store all the configuration for a transactions report.
 | Parameter      | Description |
 | ----------- | ----------- |
 | `currency`  <br />[*Currency*](#13)   | 		The currency to filter the transactions|
-| `startDate` <br />*String*    | 		The start date in format 'YYYYMMDDHHmmss.|
-| `endDate`   <br />*String*  | 		The end date in format 'YYYYMMDDHHmmss.|
+| `startDate` <br />*String*    | 		The start date in format 'YYYYMMDDHHmmss'.|
+| `endDate`   <br />*String*  | 		The end date in format 'YYYYMMDDHHmmss'.|
+| `timeZone`   <br />*String*  | 		The time zone in format '+00:00'.|
 | `terminalSerialNumber`<br />*List*     | 		The serial number of the terminal to fetch the transactions from (if terminalSerialNumber is empty or null, the report will show all the transactions for this merchant).|
 
 **Code example**

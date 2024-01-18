@@ -247,6 +247,101 @@ Invoked when the terminal finishes processing the transaction
 | *[OperationStartResult](androidobjects.md#OperationStartResult)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
+## Automatic Refund
+
+`automaticRefund`
+
+A refund operation moves funds from the merchant account to the cardholder's credit card. This operation allows you to refund a card automatically without requiring the cardholder to dip/tap/swipe his card.  In its simplest form you only have to pass the Original Transaction ID (GUID) to this function. The amount to be refunded will be the same amount as the one of the original sale. 
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `originalTransactionID`  <span class="badge badge--primary">Required</span><br />*String*      | Links the automatic refund with a previous sale. The amount refunded will be the same as the one of the original transaction.|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo refund ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
+
+**Code example**
+
+```java
+//Initiate an automatic refund
+api.automaticRefund("00000000-0000-0000-0000-000000000000");
+
+//Initiate an automatic refund using MoTo Options
+MoToOptions moToOptions = new MoToOptions();
+moToOptions.setChannel(MoToChannel.TO);
+
+api.automaticRefund("00000000-0000-0000-0000-000000000000", moToOptions);
+```
+
+** Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#OperationStartResult)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Automatic Partial Refund
+
+`automaticRefund`
+
+A refund operation moves funds from the merchant account to the cardholder's credit card. This operation allows you to PARTIALLY refund a card automatically without requiring the cardholder to dip/tap/swipe his card.  In its simplest form you only have to pass the amount, currency and the Original Transaction ID (GUID). Note that the amount can not go above the amount of the original sale. If a refund is attempted for an amount higher than the one of the original sale, the transaction will be automatically declined. 
+
+
+**Parameters**
+
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to refund - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the refund|
+| `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo refund ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
+
+**Code example**
+
+```java
+//Initiate an automatic partial refund for 5.00 Great British Pounds
+api.automaticRefund(new BigInteger("500"),Currency.GBP,"00000000-0000-0000-0000-000000000000");
+
+//Initiate an automatic partial refund for 5.00 Great British Pounds using MoTo Options
+MoToOptions moToOptions = new MoToOptions();
+moToOptions.setChannel(MoToChannel.MO);
+
+api.automaticRefund(new BigInteger("500"),Currency.GBP,"00000000-0000-0000-0000-000000000000", moToOptions);
+```
+
+** Events invoked**
+
+[**currentTransactionStatus**](androideventlisteners.md#14)
+
+Invoked during a transaction, it fetches statuses coming from the terminal (ex : 'waiting for card' or 'waiting for PIN entry')
+***
+
+
+[**endOfTransaction**](androideventlisteners.md#16)
+
+Invoked when the terminal finishes processing the transaction
+***
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](androidobjects.md#OperationStartResult)*| Object containing information about the financial operation started. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
 ## Refund reversal{#6}
 
 `refundReversal`
