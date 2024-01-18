@@ -251,15 +251,14 @@ Invoked when the terminal finishes processing the transaction
 
 `automaticRefund`
 
-A refund operation moves funds from the merchant account to the cardholder's credit card. In it's simplest form you only have to pass Original Transaction ID (GUID). The amount to be refunded will be the same amount as the original sale. Note that a card is NOT required to be swiped, dipped or tapped for this operation.
-
+A refund operation moves funds from the merchant account to the cardholder's credit card. This operation allows you to refund a card automatically without requiring the cardholder to dip/tap/swipe his card.  In its simplest form you only have to pass the Original Transaction ID (GUID) to this function. The amount to be refunded will be the same amount as the one of the original sale. 
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `originalTransactionID`  <span class="badge badge--primary">Required</span><br />*String*      | Links the automatic refund with a previous sale. The amount refunded will be the same as the original transaction.|
-| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo sale ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
+| `originalTransactionID`  <span class="badge badge--primary">Required</span><br />*String*      | Links the automatic refund with a previous sale. The amount refunded will be the same as the one of the original transaction.|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo refund ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
@@ -297,7 +296,8 @@ Invoked when the terminal finishes processing the transaction
 
 `automaticRefund`
 
-A refund operation moves funds from the merchant account to the cardholder's credit card. In it's simplest form you only have to pass amount, currency and the Original Transaction ID (GUID). Note that a card is NOT required to be swiped, dipped or tapped for this operation.
+A refund operation moves funds from the merchant account to the cardholder's credit card. This operation allows you to PARTIALLY refund a card automatically without requiring the cardholder to dip/tap/swipe his card.  In its simplest form you only have to pass the amount, currency and the Original Transaction ID (GUID). Note that the amount can not go above the amount of the original sale. If a refund is attempted for an amount higher than the one of the original sale, the transaction will be automatically declined. 
+
 
 **Parameters**
 
@@ -307,7 +307,7 @@ A refund operation moves funds from the merchant account to the cardholder's cre
 | `amount` <span class="badge badge--primary">Required</span>  <br />*BigInteger*     | Amount of funds to refund - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](androidobjects.md#13)     | Currency of the refund|
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Links the refund with a previous sale. It effectively limits the maximum amount refunded to that of the original transaction.|
-| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo sale ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
+| `options` <br />[*MoToOptions*](androidobjects.md#moto-options)      | An object to store optional parameters for a MoTo refund ([MoTo Channel](androidobjects.md#moto-channel), [Money Remittance Options](androidobjects.md#money-remittance-options),...)|
 
 **Code example**
 
