@@ -155,7 +155,7 @@ Fetches your transactions report from a payment terminal. If you want to print t
 //Get the transactions report for device "12345", from 30th April 2021 at 00:00:00, to 30th April 2021 at 23:59:59, in eurs:
 List terminalSerialNumber = new ArrayList<>();
 terminalSerialNumber.add("12345");
-ReportConfiguration configuration = new ReportConfiguration("EUR", "20210430000000", "20210430235959", terminalSerialNumber);
+ReportConfiguration configuration = new ReportConfiguration("EUR", "20210430000000", "20210430235959", "+00:00", terminalSerialNumber);
 api.getTransactionsReport(configuration);
 ```
 
