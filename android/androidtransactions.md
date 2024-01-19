@@ -252,6 +252,7 @@ Invoked when the terminal finishes processing the transaction
 `automaticRefund`
 
 A refund operation moves funds from the merchant account to the cardholder's credit card. This operation allows you to refund a card automatically without requiring the cardholder to dip/tap/swipe his card.  In its simplest form you only have to pass the Original Transaction ID (GUID) to this function. The amount to be refunded will be the same amount as the one of the original sale. 
+
 **Parameters**
 
 

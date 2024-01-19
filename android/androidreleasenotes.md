@@ -11,6 +11,25 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 7.1004.2
+**Features**:
+
+Automatic Refunds. These new methods empowers users to seamlessly process refunds without the need for any physical card or card details.
+
+- [Automatic Refund](androidtransactions.md#automatic-refund), users can effortlessly initiate a refund transaction without requiring the cardholder to dip, tap, or swipe their card.  Users only need to pass the Original Transaction ID (GUID) to the Automatic Refund function. The system will automatically process the refund, and the refunded amount will mirror the original sale amount, simplifying the entire refund process.
+
+
+- [Automatic Partial Refunds](androidtransactions.md#automatic-partial-refund). This operation allows you to PARTIALLY refund a card automatically without requiring the cardholder to dip/tap/swipe his card. In its simplest form you only have to pass the amount, currency and the Original Transaction ID (GUID).
+
+
+ By eliminating the need for physical card involvement, Automatic Refund streamlines the refund process, saving time for both merchants and customers. This efficiency boost enhances overall transaction management, contributing to a more seamless and customer-centric experience.
+
+
+**Fixes**:
+
+- Inconsistency when formatting currencies using Slovenian as the locale.
+
+
 ## 7.1004.1
 **Features**:
 
