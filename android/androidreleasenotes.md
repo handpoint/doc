@@ -25,6 +25,10 @@ Automatic Refunds. These new methods empowers users to seamlessly process refund
  By eliminating the need for physical card involvement, Automatic Refund streamlines the refund process, saving time for both merchants and customers. This efficiency boost enhances overall transaction management, contributing to a more seamless and customer-centric experience.
 
 
+**Fixes**:
+
+- Inconsistency when formatting currencies using Slovenian as the locale.
+
 
 ## 7.1004.1
 **Features**:
