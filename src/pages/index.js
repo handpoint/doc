@@ -111,7 +111,7 @@ function Options() {
 									</div>
 									<div class="card__body" align="center">
 										<div><img src="/img/shop.png" alt="Merchant & Terminal management API"></img></div>
-										<a class="button button--primary indexButtons" href="https://txnfeedapi.handpoint.com/" ><b>Setup merchants & terminals from your software</b></a>
+										<a class="button button--primary indexButtons" href="https://tmsdoc.handpoint.com/" ><b>Setup merchants & terminals from your software</b></a>
 									</div>
 								</div>
 							</div>
