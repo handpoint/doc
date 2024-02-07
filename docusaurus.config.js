@@ -91,6 +91,14 @@ module.exports = {
               label: 'Online Payments Docs',
               href: 'https://developer-ecomm.handpoint.com/cnpdocs/index.html',
             },
+            {
+              label: 'Transaction Analytics API',
+              href: 'https://txnfeedapi.handpoint.com/',
+            },
+            {
+              label: 'Merchants & Terminals Management API',
+              href: 'https://tmsdoc.handpoint.com/',
+            },
           ],
         },
         {
