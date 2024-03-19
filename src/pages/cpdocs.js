@@ -414,7 +414,7 @@ function TableTerminals() {
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
                   <h3 class="card__header">
-                    <b><a href="https://www.datecs.bg/en/products/321" target="_blank">HiLite Plus</a></b>
+                    <b><a href="https://www.datecs.bg/en/products/321" target="_blank">BluePad 50+</a></b>
                   </h3>
                   <div class="card__body" align="center">
                     <a href="https://www.datecs.bg/en/products/321" target="_blank">
@@ -753,7 +753,7 @@ function CommunicationTypesTable() {
             </TableRow>
 
             <TableRow sx={{ height: 40 }}>
-              <TableCell align="center"><b>HiLite Plus</b></TableCell>
+              <TableCell align="center"><b>BluePad 50+</b></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
