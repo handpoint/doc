@@ -18,7 +18,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 - Enhanced Cloud Mode Performance: Cloud initialization will now be faster, leading to quicker overall transaction processing. Cloud transactions will benefit from these optimizations as well.
 
-:::info
+:::caution
 **Cloud Mode** users: There might be a short delay in accessing your receipt after a transaction is completed in Cloud Mode. While the transaction itself will process successfully, the receipt URL you receive might return a 404 error message for a few seconds after the transaction finishes.
 :::
 
