@@ -11,6 +11,17 @@ id: androidreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 7.1005.0
+**Features**:
+
+- Speed improvements: We're excited to announce the release of Handpoint Android SDK version **7.1005.0**, focused on delivering significant improvements in transaction processing speeds. This update empowers your app to handle transactions quicker and more efficiently, enhancing the overall user experience for your customers.
+
+- Enhanced Cloud Mode Performance: Cloud initialization will now be faster, leading to quicker overall transaction processing. Cloud transactions will benefit from these optimizations as well.
+
+:::caution
+**Cloud Mode** users: There might be a short delay in accessing your receipt after a transaction is completed in Cloud Mode. While the transaction itself will process successfully, the receipt URL you receive might return a 404 error message for a few seconds after the transaction finishes.
+:::
+
 ## 7.1004.2
 **Features**:
 
