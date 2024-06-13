@@ -739,6 +739,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"><b>Ethernet</b></TableCell>
               <TableCell align="center"><b>Cellular</b>	</TableCell>
               <TableCell align="center"><b>Wi-Fi</b></TableCell>
+              <TableCell align="center"><b>USB</b></TableCell>
 
             </TableRow>
           </TableHead>
@@ -750,13 +751,15 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow sx={{ height: 40 }}>
               <TableCell align="center"><b>BluePad 50+</b></TableCell>
               <TableCell align="center"></TableCell>
-              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
             </TableRow>
@@ -764,6 +767,7 @@ function CommunicationTypesTable() {
             <TableRow>
               <TableCell align="center"><b>HiPro</b></TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
@@ -777,6 +781,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -786,6 +791,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
 
@@ -796,6 +802,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -805,6 +812,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -814,6 +822,7 @@ function CommunicationTypesTable() {
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -823,6 +832,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -832,6 +842,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -841,6 +852,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -850,6 +862,7 @@ function CommunicationTypesTable() {
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -859,6 +872,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -868,6 +882,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -877,6 +892,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -886,6 +902,7 @@ function CommunicationTypesTable() {
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -895,6 +912,7 @@ function CommunicationTypesTable() {
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
@@ -904,6 +922,7 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
             </TableRow>
 
 
