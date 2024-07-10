@@ -265,19 +265,20 @@ An object representing the tokenized card.
 
 An enum representing different connection methods with the payment terminal.
 
-Currently `BLUETOOTH` and `ANDROID_PAYMENT` are the only supported types.
+Currently `BLUETOOTH`, `ANDROID_PAYMENT` and `USB` are the only supported types.
 
 **Possible values**
 
-`BLUETOOTH` `ANDROID_PAYMENT`
+`BLUETOOTH` `ANDROID_PAYMENT` `USB`
 
 **Code example**
 
 ```java
-//Currently BLUETOOTH and ANDROID_PAYMENT are the only connection methods available.
+//Currently BLUETOOTH, ANDROID_PAYMENT and USB are the only connection methods available.
 public enum ConnectionMethod {
-	BLUETOOTH,
-	ANDROID_PAYMENT
+  BLUETOOTH,
+  ANDROID_PAYMENT,
+  USB
 }
 ```
 
@@ -314,14 +315,14 @@ An object to store the information about the payment terminal in use.
 **Constructor**
 
 ```java
-Device( String name , String address , String port , ConnectionMethod connectionMethod , String sharedSecret , int timeout );
+Device(String name, String address, UsbDevice usbDevice, ConnectionMethod connectionMethod, String sharedSecret, int timeout);
 ```
 
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `name` <span class="badge badge--primary">Required</span> <br />*String*     | 		A name to identify the device|
 | `address` <span class="badge badge--primary">Required</span> <br />*String*    | 		The address of the device you wish to connect to. E.g.: "08:00:69:02:01:FC" for bluetooth or just an identifier if your application is running directly on a PAX or Telpo device (ConnectionMethod.ANDROID_PAYMENT).|
-| `port` <span class="badge badge--primary">Required</span> <br />*String*     | 		The port to connect to (optional).|
+| `usbDevice` <span class="badge badge--primary">Required</span> <br />*UsbDevice*     | 		Represents a concrete attached USB device.|
 | `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod *](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth|
 | `sharedSecret`  <br />*String*  | 		Replaces the default shared secret proviced in the initialization step.|
 | `timeout`  <br />*int*  | 		The number of miliseconds until a connection is considered timed out. If not set, the default timeout is 15 seconds.|
@@ -341,7 +342,7 @@ Device( String name , String address , String port , ConnectionMethod connection
 Device dev = new Device("CardReader7", "08:00:69:02:01:FC", "1", ConnectionMethod.BLUETOOTH);
 
 //Create and init a new PAX/Telpo Device for a ANDROID_PAYMENT connection
-Device dev = new Device("LocalPaxOrTelpo", "LocalHost", "", ConnectionMethod.ANDROID_PAYMENT);
+Device dev = new Device("LocalPaxOrTelpo", "LocalHost", "null", ConnectionMethod.ANDROID_PAYMENT);
 ```
 
 ## Device Capabilities{#24}

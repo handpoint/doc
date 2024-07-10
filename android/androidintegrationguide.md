@@ -11,6 +11,7 @@ id: androidintegrationguide
 
 1. **[Android Native (PAX/Telpo)](#8)**
 2. **[Bluetooth (HiLite)](#9)**
+3. **[USB (BluePad 50+)](#10)**
 
 ## Android Native Integration (PAX/Telpo) {#8}
 
@@ -558,6 +559,270 @@ public class HandpointDelegate implements Events.MposRequired, Events.Connection
 
 :::info
 **Note about reconnections:** By default, the SDK will automatically reconnect to the last known device when the connection is lost.If you want to change this behaviour set the property Settings.AutomaticReconnection in HapiManager to **false**.
+:::
+
+**We're done!**
+
+Sort of. With the above tutorial you've done a basic integration that can perform sale transactions.
+
+Explore the rest of the documentation to see more transaction types supported and possibilities.
+
+
+## USB Integration (BluePad 50+) {#10}
+
+This tutorial is guiding you through all the required steps to create a basic payment application for Android devices integrated with an BluePad 50+ payment terminal.
+
+The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting card payments.
+
+At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI security requirements.
+
+:::warning
+Please, start an operation (sale,refund etc.) ONLY if you have received the **InitialisationComplete** message from the **currentTransactionStatus** method
+:::
+
+
+
+**Let's start programming!**
+
+**1. Modify the AndroidManifest.xml**
+
+We **strongly** recommend you add the following to your `AndroidManifest.xml`:
+
+- Inside the tag **`<application>`** -> `android:extractNativeLibs:"true"`
+
+```xml
+<application
+    android:extractNativeLibs:"true"
+    ...
+    ...
+    ...>    
+</application>   
+```
+
+- Inside the tag **`<activity>`** -> `android:launchMode="singleTask"`:
+
+```xml
+<activity android:name=".MainActivity"
+    android:launchMode="singleTask">
+    ...
+    ...
+</activity>    
+```
+
+**2.1 In the gradle.build (app module)** 
+
+```groovy
+android {
+	defaultConfig {
+		minSdkVersion 22 //Required to support all PAX & Telpo models
+		targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need 
+                            //to add android:exported="true" or android:exported="false" in your activities
+		multiDexEnabled true
+	}
+
+    packagingOptions {
+        pickFirst '**/*.so'
+        exclude 'META-INF/*'
+        exclude '**/anim/*.xml'
+        exclude '**/layout/*.xml'
+        exclude 'resources.arsc'
+        exclude 'AndroidManifest.xml'
+        exclude '**/animator/*.xml'
+    }
+}
+````
+```groovy
+dependencies {
+
+    //Handpoint Production SDK (Production devices)
+    implementation 'com.handpoint.api:sdk:7.x.x'
+}
+```
+
+
+**2.2 In the gradle.build (Top-level build file)** 
+
+```groovy
+allprojects {     //Handpoint Production SDK
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+:::tip
+During the build process, a DEX error may appear.
+
+To be able to build, we recommend adding the following lines to the `gradle.properties` file:
+
+```groovy
+org.gradle.jvmargs = -Xmx4096m -XX:MaxPermSize=4096m -XX:+HeapDumpOnOutOfMemoryError
+org.gradle.daemon = true
+org.gradle.parallel = true
+org.gradle.configureondemand = true
+````
+:::
+
+
+**3. Create a Java class**
+
+Create a new java class called `HandpointDelegate.java` and include `com.handpoint.api.*` as a dependency:
+
+```java
+package com.yourpackage.name;
+
+import android.content.Context;
+
+import com.handpoint.api.HandpointCredentials;
+import com.handpoint.api.Hapi;
+import com.handpoint.api.HapiFactory;
+import com.handpoint.api.shared.ConnectionMethod;
+import com.handpoint.api.shared.ConnectionStatus;
+import com.handpoint.api.shared.Currency;
+import com.handpoint.api.shared.Device;
+import com.handpoint.api.shared.Events;
+import com.handpoint.api.shared.SignatureRequest;
+import com.handpoint.api.shared.StatusInfo;
+import com.handpoint.api.shared.TransactionResult;
+
+import java.math.BigInteger;
+import java.util.List;
+
+//Check all the events available in the Events interface.
+//If you want to subscribe to more events, just add to the list of implemented interfaces.
+public class HandpointDelegate implements Events.MposRequired, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus, Events.SignatureRequired, Events.EndOfTransaction, Events.DeviceDiscoveryFinished, Events.TransactionResultReady {
+
+    private Hapi api;
+
+
+    public HandpointDelegate(Context context) {
+        initApi(context);
+    }
+
+    public void initApi(Context context) {
+        String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+        HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
+        this.api = HapiFactory.getAsyncInterface(this, context, handpointCredentials);
+        // The api is now initialized. Yay! we've even set a shared secret!
+        // The shared secret is a unique string shared between the card reader and your mobile application
+        // It prevents other people to connect to your card reader
+        // You have to replace this default shared secret by the one sent by our support team
+        // The shared secret is unique per merchant (not per terminal)
+
+        //Now we need to find our device and connect to it
+        discoverDevices();
+    }
+
+    // Now  we need to connect to a device to start taking payments.
+    // Let's search for them:
+    public void discoverDevices() {
+
+        // OPTION 1 - Search for devices asynchronously
+        // For Bluetooth
+        this.api.searchDevices(ConnectionMethod.BLUETOOTH);
+        // Or, for USB
+        this.api.searchDevices(ConnectionMethod.USB);
+        // This triggers the asynchronous search for all the devices around that haven't been previously paired in the case of Bluetooth, 
+        // or which are connected via cable in the case of USB.
+
+        // OPTION 2 - Search for devices synchronously
+        // Alternatively, already paired devices can be searched in the case of Bluetooth:
+        List<Device> devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
+        // Or, already cable-connected devices can be searched in the case of USB:
+        List<Device> devices = this.api.getPairedDevices(ConnectionMethod.USB);
+        // And then:
+        selectDeviceAndConnect(devices);
+        // You'll receive the devices found through deviceDiscoveryFinished method.
+        // See: https://handpoint.com/docs/device/Android/#elem_eventsDeviceDiscoveryFinished
+    }
+
+    @Override
+    public void deviceDiscoveryFinished(List<Device> devices) {
+        selectDeviceAndConnect(devices);
+    }
+
+    private void selectDeviceAndConnect(List<Device> devices) {
+        for (Device device : devices) {
+            if (device.getName() != null) {
+                // All the devices here are datecs devices
+                if (/* Fill your logic here */) {
+                    this.api.connect(device);
+                    // Now take a look at connectionStatusChanged method
+                    break;
+                }
+            }
+        }
+    }
+
+    // Potentially, if you know the MAC address of the Bluetooth device you want to connect to, you can skip the search and do it this way. This is an uncommon use case though.
+    // This is not possible in the case of a USB connection, because a concrete UsbDevice object which represents the physically connected USB device is needed
+    public void connect() {
+        Device device = new Device("PP0513901435", "68:AA:D2:00:D5:27", null, ConnectionMethod.BLUETOOTH);
+        //The Address always has to be written in UPPER CASE
+        //new Device("name", "address", null, ConnectionMethod.BLUETOOTH);
+        this.api.connect(device);
+    }
+
+    @Override
+    public void connectionStatusChanged(ConnectionStatus status, Device device) {
+        if (status == ConnectionStatus.Connected) {
+            // Connected to device
+        }
+    }
+
+    public OperationStartResult pay() {
+        return this.api.sale(new BigInteger("1000"), Currency.GBP);
+        // Let´s start our first payment of 10.00 pounds
+        // Use the currency of the country in which you will be deploying terminals
+    }
+
+    @Override
+    public void currentTransactionStatus(StatusInfo statusInfo, Device device) {
+        if (statusInfo.getStatus() == StatusInfo.Status.InitialisationComplete) {
+            // The StatusInfo object holds the different transaction statuses like reading card, pin entry, etc.
+            // Let's launch a payment
+            pay();
+        }
+    }
+
+    @Override
+    public void signatureRequired(SignatureRequest signatureRequest, Device device) {
+        // You'll be notified here if a sale process needs a signature verification
+        // A signature verification is needed if the cardholder uses an MSR or a chip & signature card
+        // This method will not be invoked if a transaction is made with a Chip & PIN card
+        // At this step, you are supposed to display the merchant receipt to the cardholder on the android device
+        // The cardholder must have the possibility to accept or decline the transaction
+        // If the cardholder clicks on decline, the transaction is VOID
+        // If the cardholder clicks on accept he is then asked to sign electronically the receipt
+        this.api.signatureResult(true);
+        // This line means that the cardholder ALWAYS accepts to sign the receipt
+        // For this sample app we are not going to implement the whole signature process
+    }
+
+    @Override
+    public void endOfTransaction(TransactionResult transactionResult, Device device) {
+        // The object TransactionResult stores the different receipts
+        // Other information can be accessed through this object like the transaction ID, the amount...
+    }
+
+    @Override
+    public void transactionResultReady(TransactionResult transactionResult, Device device) {
+        // Pending TransactionResult objects will be received through this event if the EndOfTransaction
+        // event was not delivered during the transaction, for example because of a network issue.
+        // For this sample app we are not going to implement this event.
+    }
+
+    public void disconnect() {
+        this.api.disconnect();
+        //This disconnects the connection
+    }
+}
+```
+
+:::info
+**Note about reconnections:** By default, the SDK will automatically reconnect to the last known device when the connection is lost. If you want to change this behaviour set the property Settings.AutomaticReconnection in HapiManager to **false**.
 :::
 
 **We're done!**
