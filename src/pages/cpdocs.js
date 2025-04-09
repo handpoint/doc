@@ -1598,7 +1598,7 @@ function HighLevelFeatures() {
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
                   <div class="card__header">
-                    <h3>Tokenized payments operations</h3>
+                    <h3>Tokenized payments operations (only in PAX readers)</h3>
                   </div>
                   <div class="card__body">
                     <p>
