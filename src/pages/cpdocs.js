@@ -1591,6 +1591,26 @@ function HighLevelFeatures() {
             </div>
           </div>
         </div>
+        <br></br>
+        <div class="row">
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <div class="card__header">
+                    <h3>Tokenized payments operations</h3>
+                  </div>
+                  <div class="card__body">
+                    <p>
+                      Tokenized payments operations enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant. There are two main modes for how this works, depending on your integration needs: Standalone and Cloud.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <br></br>
       </div>
     </Element>
   );
