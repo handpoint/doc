@@ -1123,3 +1123,317 @@ Invoked when the terminal finishes processing the transaction.
 | Parameter      | Notes |
 | ----------- | ----------- |
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Tokenized Payments Operations
+
+### Standalone Sale
+
+** Overview **
+
+The **`tokenizedOperation`** functionality in the Handpoint Android SDK enables card tokenization followed by a sale transaction. It is executed through the `Hapi` Android interface.
+
+This operation consists of two stages:
+
+1. **Card Tokenization**: The SDK tokenizes the card and triggers the **`Events.CardTokenized` event**, providing the tokenized card details and control callbacks.
+2. **Sale Execution**: The integrator must invoke the `resume()` method from the callback object to proceed with the sale transaction. The outcome is returned through the **`Events.EndOfTransaction` event**.
+
+---
+
+** Method Signature **
+
+```kotlin
+/**
+ * Tokenized Operation on a specific device using regular parameters.
+ * This operation consists of two parts. The first part, performs a tokenization of the card,
+ * whose token is sent to the integrator through the Events.CardTokenized event.
+ * Once the integrator wishes to continue the operation,
+ * it must execute the resume method of the object sent through the event,
+ * with the data of the operation it wishes to perform.
+ * This operation will be executed and
+ * the result will be received through the Events.EndOfTransaction event.
+ * The operation supported is Sale.
+ *
+ * @param amount   The transaction amount.
+ * @param currency The currency to be used.
+ * @param options  An object containing configuration parameters for customer reference.
+ * @return True if the command was sent successfully to the device. False if sending failed.
+ */
+@JvmOverloads
+fun tokenizedOperation(amount: BigInteger, currency: Currency, options: Options = Options()): OperationStartResult
+```
+
+---
+
+** Events Flow **
+
+*** 1. `Events.CardTokenized` ***
+
+Triggered after the card is tokenized. Provides:
+
+- **`CardTokenizationData`**: Contains tokenized card information.
+- **`ResumeCallback`**: Allows the integrator to resume, cancel, or finish the operation.
+
+*** 2. `Events.EndOfTransaction` ***
+
+Triggered after the sale transaction is completed, returning the transaction result.
+
+---
+
+** cardTokenized Event Components **
+
+*** CardTokenizationData ***
+
+| Field                  | Type              | Description                                      |
+|-----------------------|-------------------|--------------------------------------------------|
+| `token`                | `String`          | Tokenized card value.                             |
+| `expiryDate`           | `String`          | Card's expiry date.                              |
+| `tenderType`           | `TenderType`      | Transaction type: `CREDIT`, `DEBIT`, or `NOT_SET`.|
+| `issuerCountryCode`    | `CountryCode`     | Country code of the issuer (defaults to `Unknown`).|
+| `cardBrand`            | `String`          | Brand of the card (e.g., Visa, MasterCard).       |
+| `languagePref`         | `String`          | Preferred language setting.                      |
+| `tipAmount`            | `BigInteger`      | Tip amount (defaults to `BigInteger.ZERO`).       |
+
+---
+
+*** ResumeCallback ***
+
+Interface responsible for managing the continuation or termination of the tokenization operation.
+
+| Method                                | Description                                                                                              | Exceptions                                                                                                                                              |
+|--------------------------------------|----------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `fun resume(operationDto: OperationDto)` | Continues the operation with a specified `OperationDto`. Only `Sale` operations are allowed.               | `ResumedOperation`, `CancelledOperation`, `TimeoutOperation`, `IllegalStateException`                                                                   |
+| `fun finishWithoutCardOperation()`   | Completes the operation without proceeding to a card transaction.                                         | `ResumedOperation`, `CancelledOperation`, `TimeoutOperation`, `IllegalStateException`                                                                   |
+| `fun cancel()`                       | Cancels the ongoing operation.                                                                           | `ResumedOperation`, `CancelledOperation`, `TimeoutOperation`, `IllegalStateException`                                                                   |
+
+> **Note:**  
+> Calling any method multiple times, after timeout, or after cancellation triggers exceptions.
+
+---
+
+*** Example Handling of `Events.CardTokenized` (Kotlin) ***
+
+```kotlin
+override fun onCardTokenized(
+    cardTokenizationData: CardTokenizationData,
+    resumeCallback: ResumeCallback
+) {
+    // Access tokenized card details
+    val token = cardTokenizationData.token
+    val cardBrand = cardTokenizationData.cardBrand
+    
+    // Decide next action: proceed with sale
+    resumeCallback.resume(
+        OperationDto.Sale(
+            amount = BigInteger.valueOf(2000),
+            currency = Currency.getInstance("USD"),
+            options = SaleOptions(/* configuration options */)
+        )
+    )
+}
+```
+
+---
+
+** OperationDto **
+
+A sealed class representing supported transaction types after tokenization.
+
+| Subclass                | Fields                                                                                                                                                        | Description                                               |
+|------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| `Sale`                 | `amount: BigInteger`, `currency: Currency`, `options: SaleOptions`                                                                                                | Initiates a sale transaction.                             |
+| `Refund`               | `amount: BigInteger`, `currency: Currency`, `originalTransactionID: String?`, `options: RefundOptions`                                                           | Initiates a refund transaction. *(Not allowed after tokenization)* |
+| `SaleReversal`         | `amount: BigInteger`, `currency: Currency`, `originalTransactionID: String`, `options: SaleReversalOptions`                                                      | Reverses a previous sale. *(Not allowed after tokenization)* |
+| `RefundReversal`       | `amount: BigInteger`, `currency: Currency`, `originalTransactionID: String`, `options: RefundReversalOptions`                                                    | Reverses a previous refund. *(Not allowed after tokenization)* |
+
+---
+
+** Behavior and Restrictions **
+
+- **Only `Sale` operations are allowed** when invoking `resume()` after receiving the `cardTokenized` event.
+  - Passing other operation types (`Refund`, `SaleReversal`, `RefundReversal`) will result in a transaction result with **`MessageType.FEATURE_NOT_SUPPORTED`**.
+
+- Proper exception handling is required when using the `ResumeCallback` methods.
+
+---
+
+** Exceptions **
+
+| Exception               | Description                                                                    |
+|------------------------|--------------------------------------------------------------------------------|
+| `ResumedOperation`      | Thrown if the operation was already resumed.                                   |
+| `CancelledOperation`    | Thrown if the operation was previously cancelled.                              |
+| `TimeoutOperation`      | Thrown if the operation timed out.                                             |
+| `IllegalStateException` | Thrown for any invalid operation state.                                        |
+
+---
+
+** Sequence Diagram **
+
+```mermaid
+sequenceDiagram
+    participant Integrator
+    participant SDK
+    participant Cardholder
+
+    Integrator ->> SDK: tokenizedOperation(amount, currency, options)
+    Cardholder ->> SDK: Presents Card
+    SDK ->> Integrator: Events.CardTokenized (CardTokenizationData + ResumeCallback)
+    Integrator ->> SDK: resume(SaleOperationDto)
+    alt Sale Operation
+        SDK ->> Card Network: Process Sale
+        SDK -->> Integrator: Events.EndOfTransaction (Result)
+    else Unsupported Operation
+        SDK -->> Integrator: MessageType.FEATURE_NOT_SUPPORTED
+    end
+```
+
+---
+
+** Summary **
+
+The **`tokenizedOperation`** method securely tokenizes card data and passes control to the integrator via the **`Events.CardTokenized` event**, delivering:
+
+1. **`CardTokenizationData`**: Contains the tokenized card details.
+2. **`ResumeCallback`**: Allows integrators to resume with a supported `Sale` operation, cancel, or finish without a transaction.
+
+The result of the operation is returned through the **`Events.EndOfTransaction` event**.
+
+> **Tip:** Always validate and handle exceptions when interacting with `ResumeCallback` to ensure smooth operation flow.
+
+---
+
+### Standalone Refund, Reversal and RefundReversal
+
+** Overview **
+
+The **`tokenizedOperation`** functionality in the Handpoint Android SDK allows the execution of a card tokenization followed immediately by a specified operation (such as SaleReversal, Refund, or RefundReversal). 
+
+In this version, the integrator provides the required operation as a parameter, and the SDK performs:
+
+1. Card Tokenization (with a REST API request to retrieve the card token).
+2. Execution of the operation passed by the integrator.
+
+The result of both actions is delivered through the **`Events.EndOfTransaction` event**.
+
+---
+
+** Method Signature **
+
+```kotlin
+/**
+ * Tokenized Operation on a specific device using regular parameters.
+ * This operation consists of the consecutive execution of two operations:
+ * Tokenization of the card and the operation passed by parameter by
+ * the integrator. The result of both operations will be received through
+ * the Events.EndOfTransaction event.
+ * The operations supported are: SaleReversal, Refund, RefundReversal
+ *
+ * @param currency  The currency to be used.
+ * @param operation The operation to be executed.
+ * @param options   An object containing configuration parameters for customer reference.
+ * @return True if the command was sent successfully to the device. False if the sending was not successful.
+ */
+fun tokenizedOperation(
+    currency: Currency,
+    operation: OperationDto,
+    options: Options = Options()
+): OperationStartResult
+```
+
+---
+
+** Events Flow **
+
+*** Events.EndOfTransaction ***
+
+Triggered after both card tokenization and the specified operation are executed. The integrator receives the final transaction result in this event.
+
+---
+
+** Supported Operations **
+
+This version of `tokenizedOperation` supports the following **OperationDto** types:
+
+| OperationDto Subclass    | Fields                                                                                                                                                        | Description                                               |
+|-------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------|
+| `Refund`                 | `amount: BigInteger`, `currency: Currency`, `originalTransactionID: String?`, `options: RefundOptions`                                                           | Initiates a refund transaction.                           |
+| `SaleReversal`           | `amount: BigInteger`, `currency: Currency`, `originalTransactionID: String`, `options: SaleReversalOptions`                                                      | Reverses a previous sale.                                 |
+| `RefundReversal`         | `amount: BigInteger`, `currency: Currency`, `originalTransactionID: String`, `options: RefundReversalOptions`                                                    | Reverses a previous refund.                               |
+
+> **Note:**  
+> `Sale` operation is **not supported** in this version of `tokenizedOperation`.
+
+---
+
+** Tokenization Process **
+
+Internally, the SDK performs a REST API call to retrieve the card token. Once retrieved, it immediately proceeds to execute the operation provided by the integrator.
+
+---
+
+*** Example Usage (Kotlin) ***
+
+```kotlin
+val refundOperation = OperationDto.Refund(
+    amount = BigInteger.valueOf(1500),
+    currency = Currency.getInstance("EUR"),
+    originalTransactionID = "TX123456",
+    options = RefundOptions(/* options */)
+)
+
+val result = hapi.tokenizedOperation(
+    currency = Currency.getInstance("EUR"),
+    operation = refundOperation,
+    options = Options(/* config */)
+)
+```
+
+---
+
+** Behavior and Restrictions **
+
+- The SDK will **automatically execute** both:
+  1. Tokenization (via REST API).
+  2. The provided operation (`Refund`, `SaleReversal`, or `RefundReversal`).
+
+- The integrator will receive the outcome via **`Events.EndOfTransaction`**.
+
+- Sale operations are **not allowed** in this mode.
+
+---
+
+** Exceptions **
+
+The method itself returns `false` if the command fails to send to the device. Other exceptions related to transaction processing will be communicated via the **`Events.EndOfTransaction`** event.
+
+---
+
+** Sequence Diagram **
+
+```mermaid
+sequenceDiagram
+    participant Integrator
+    participant SDK
+    participant Cardholder
+    participant REST API
+
+    Integrator ->> SDK: tokenizedOperation(currency, operation, options)
+    Cardholder ->> SDK: Presents Card
+    SDK ->> REST API: Request Card Token
+    REST API -->> SDK: Card Token
+    SDK ->> Card Network: Execute Provided Operation (Refund, SaleReversal, RefundReversal)
+    SDK -->> Integrator: Events.EndOfTransaction (Result)
+```
+
+---
+
+** Summary **
+
+The **`tokenizedOperation`** method allows integrators to provide a specific operation upfront (Refund, SaleReversal, RefundReversal). The SDK:
+
+1. Retrieves the card token via REST API.
+2. Immediately executes the operation.
+3. Returns the result via **`Events.EndOfTransaction`**.
+
+> **Tip:** Use this method when you want to perform tokenization and the operation in one streamlined flow, without intermediate decision points.
