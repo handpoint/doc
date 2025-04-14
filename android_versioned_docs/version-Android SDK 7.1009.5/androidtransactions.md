@@ -1125,11 +1125,11 @@ Invoked when the terminal finishes processing the transaction.
 | *[OperationStartResult](androidobjects.md#operation-start-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
-## Tokenized Payments Operations
+## Standalone Tokenized Payments Operations
+
+`standaloneTokenizedPaymentsOperations`
 
 ### Standalone Tokenized Sale
-
-`standaloneTokenizedSale`
 
 ** Overview **
 
@@ -1305,7 +1305,7 @@ The result of the operation is returned through the **`Events.EndOfTransaction` 
 
 ---
 
-### Standalone Refund, Reversal and RefundReversal
+### Standalone Tokenized Refund, Reversal and RefundReversal
 
 `standaloneTokenizedRefund`
 
@@ -1441,3 +1441,983 @@ The **`tokenizedOperation`** method allows integrators to provide a specific ope
 3. Returns the result via **`Events.EndOfTransaction`**.
 
 > **Tip:** Use this method when you want to perform tokenization and the operation in one streamlined flow, without intermediate decision points.
+
+---
+
+## Cloud Tokenized Payments Operations
+
+`cloudTokenizedPaymentsOperations`
+
+** Overview **
+
+In Cloud mode, integrators can control the Android SDK via one of our Cloud clients, which are our [REST API](/restapi/restintroduction), [JavaScript SDK](/javascript/javascriptintroduction) and [Windows SDK](/windows/windowsintroduction).
+
+There are two possible types of Cloud integrations:
+
+- **Integration with a callback URL**
+- **Integration with Polling**
+
+---
+
+**Integration with a callback URL**
+
+If a `callbackUrl` and a `token` are included in the request, the terminal sends a POST with the transaction result to the specified URL. The token will be included in the HTTP header as `AUTH-TOKEN` and can be used on the callback URL side to identify or authenticate the call.
+
+***Example:***
+
+*Request:*
+
+```bash
+curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
+-d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1034", "currency": "CAD", "tokenize": true, "callbackUrl": "https://results.example.com/callback", "token": "auth-token-1" }' \
+https://cloud.handpoint.io/transactions
+```
+*Response:*
+```json
+{"statusMessage":"Operation Accepted"}
+```
+
+*Callback:*
+
+The following is an example of the transaction result sent to the specified `callbackUrl`:
+```json
+{
+   "accountType": "",
+   "aid": "A0000000041010",
+   "arc": "0000",
+   "authorisationCode": "010119",
+   "balance": null,
+   "budgetNumber": "",
+   "cardEntryType": "ICC",
+   "cardHolderName": "",
+   "cardLanguagePreference": "",
+   "cardSchemeName": "VISA",
+   "cardToken": "535120cMXnuK6046",
+   "cardTypeId": "************6046",
+   "chipTransactionReport": "",
+   "currency": "CAD",
+   "customData": "...",
+   "customerReceipt": "https://receipts.handpoint.io/receipts/26059a10-c1fe-11ef-9cf2-8b8a2cdbabca/customer.html",
+   "customerReference": "",
+   "deviceStatus": {
+       "applicationName": "Atom",
+       "applicationVersion": "20.4.9.2-RC.5",
+       "batteryCharging": "Full",
+       "batteryStatus": "100",
+       "batterymV": "8154",
+       "bluetoothName": "PAXA910S",
+       "externalPower": "USB",
+       "serialNumber": "2840011114",
+       "statusMessage": ""
+   },
+   "dueAmount": 0,
+   "errorMessage": "",
+   "expiryDateMMYY": "0129",
+   "finStatus": "AUTHORISED",
+   "iad": "0210A04003240000000000000000000000FF",
+   "issuerResponseCode": "00",
+   "maskedCardNumber": "************6046",
+   "merchantAddress": "3200 Wonderland Rd. S. N6L 1A6 London",
+   "merchantName": "Mr Coffee",
+   "merchantReceipt": "https://receipts.handpoint.io/receipts/26059a10-c1fe-11ef-9cf2-8b8a2cdbabca/merchant.html",
+   "metadata": null,
+   "mid": "12S001",
+   "moneyRemittanceOptions": null,
+   "multiLanguageErrorMessages": {},
+   "multiLanguageStatusMessages": {
+       "en_CA": "Approved or completed successfully",
+       "fr_FR": "Transaction approuvée"
+   },
+   "originalEFTTransactionID": "",
+   "paymentScenario": "CHIPCONTACTLESS",
+   "requestedAmount": 524,
+   "rrn": "513815902180",
+   "signatureUrl": "",
+   "statusMessage": "Approved or completed successfully",
+   "tenderType": "CREDIT",
+   "tid": "123123",
+   "tipAmount": 0,
+   "totalAmount": 524,
+   "transactionID": "26059a10-c1fe-11ef-9cf2-8b8a2cdbabca",
+   "transactionOrigin": "CLOUD",
+   "transactionReference": "a45ff306-78f2-4d3b-970c-e47c8d9b9f83",
+   "tsi": "0000",
+   "tvr": "0000008001",
+   "type": "SALE",
+   "unMaskedPan": "",
+   "verificationMethod": "NOT_REQUIRED",
+   "efttimestamp": 1735048275000,
+   "efttransactionID": "26059a10-c1fe-11ef-9cf2-8b8a2cdbabca",
+   "tipPercentage": 0.0,
+   "recoveredTransaction": false
+}
+```
+
+**Integration using Polling**
+
+If the request does not include a `callbackUrl` and a `token`, then polling can be used to retrieve the transaction result from Handpoint's transaction-result endpoint.
+
+***Example:***
+
+*Request:*
+
+```bash
+curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
+-d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1034", "currency": "CAD", "tokenize": true }' \
+https://cloud.handpoint.io/transactions
+```
+
+*Response:*
+
+Using the `transactionResultId`, integrators can poll the transaction-result endpoint to retrieve the result:
+
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "2840011114-1735048331833"
+}
+```
+
+*Polling request:*
+
+```bash
+curl -i -X GET -H"ApiKeyCloud: A7ZX0F3-BBZ41XK-MWBXV06-254R6K8" -H"Content-Type: application/json" \
+https://cloud.handpoint.io/transaction-result/2840011114-1735048331833
+```
+
+*Possible responses from polling:*
+
+- 204: Transaction still in process.
+- 200: Transaction result is available.
+
+---
+
+**Enabling Loyalty Flows**
+
+To enable loyalty flows in the application, simply include the `tokenize` parameter with a value of **true** in the request. This will instruct the SDK to activate the tokenization flow for the specific payment operation.
+
+The loyalty information is embedded in the `customData` attribute of the transaction result. This data is encoded in *Base64* format, and the integrator is responsible for decoding this information.
+
+***Example:***
+
+*Request:*
+
+```bash
+curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
+-d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1034", "currency": "CAD", "tokenize": true }' \
+https://cloud.handpoint.io/transactions
+```
+
+*Transaction Result with Loyalty Data:*
+
+```json
+{"accountType":"","aid":"A0000000041010","arc":"0000","authorisationCode":"010119","balance":null,"budgetNumber":"","cardEntryType":"ICC","cardHolderName":"","cardLanguagePreference":"","cardSchemeName":"VISA","cardToken":"535120cMXnuK6046","cardTypeId":"************6046","chipTransactionReport":"","currency":"CAD","customData":"eyJmaXJzdF9uYW1lIjoiVHJhY3kiLCJjdXN0b21lcl9hY3Rpb24iOiJyZWRlZW0iLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOnRydWUsInBob25lX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1cGRhdGVkX3Bob25lX251bWJlciI6bnVsbCwiZGlzY291bnRfYW1vdW50Ijo1MTAsInRyYW5zYWN0aW9uX2Ftb3VudCI6MTAzNCwibG9nb191cmwiOiJodHRwczovL3N0b3JhZ2UuZ29vZ2xlYXBpcy5jb20vbG95YWx0eV9jbGllbnRfbG9nb3MvTXJfY29mZmVlX2xvZ28xNSUyMDElNDAyeC5wbmciLCJwb2ludF9iYWxhbmNlIjoxMDM0LCJwb2ludF9iYWxhbmNlX2Ftb3VudCI6MTAzLCJyZWRlbXB0aW9uX21pbmltdW1fcG9pbnRfYmFsYW5jZSI6NTAwMCwicmVkZW1wdGlvbl9taW5pbXVtX2JhbGFuY2VfYW1vdW50Ijo1MDAsInByb3Bvc2VkX2ZpbmFsX3RyYW5zYWN0aW9uX2Ftb3VudCI6NTI0LCJmaW5hbF90cmFuc2FjdGlvbl9hbW91bnQiOjAsInBheW1lbnRfdHJhbnNhY3Rpb25faWQiOiJXekV3TXpRc01DdzFNVEFzTlRFd01Dd2ljbVZrWldWdElpeG1ZV3h6WlN3aVUwRk1SU0lzTUN3aVZISmhZM2tpTEc1MWJHeGQiLCJ0aXBfYW1vdW50IjowLCJlbnJvbGxlZCI6ZmFsc2UsInJlZGVlbWVkIjpmYWxzZSwidGVybWluYWxfdHJhbnNhY3Rpb25fZ3VpZCI6IjRlZmFhZGMwLWMxZmUtMTFlZi1hYmJkLTQxNjMwMWZjNDU3NiIsInBvaW50c19lYXJuZWQiOjEwMzQsInBvaW50c19lYXJuZWRfYW1vdW50IjoxMDMsInBvaW50c19yZWRlZW1lZCI6NTEwMCwicG9pbnRzX3JlZGVlbWVkX2Ftb3VudCI6NTEwLCJ0b2tlbml6ZWRfY2FyZF9udW1iZXIiOiI1MzUxMjBjTVhudUs2MDQ2IiwiY3VycmVuY3kiOnsiY29kZSI6IkNBRCIsIm51bUNvZGUiOjEyNCwiZnJhY3Rpb25TaXplIjoyLCJuYW1lIjoiQ2FuYWRpYW4gZG9sbGFyIiwic3ltYm9sIjoiJCJ9LCJyZWZ1bmRfcGF5bWVudF90cmFuc2FjdGlvbl9pZCI6IiIsInJldmVyc2FsX3BheW1lbnRfdHJhbnNhY3Rpb25faWQiOiIiLCJyZWZ1bmRfYW1vdW50IjowLCJyZXZlcnNhbF9hbW91bnQiOjAsInBvaW50c19yZXN0b3JlZCI6MCwicG9pbnRzX3Jlc3RvcmVkX2Ftb3VudCI6MCwicG9pbnRzX3JlbW92ZWQiOjAsInBvaW50c19yZW1vdmVkX2Ftb3VudCI6MCwiaXNfcGhvbmVfbnVtYmVyX3VzZWQiOmZhbHNlLCJlcnJvciI6bnVsbCwiY29tcGxldGVkIjp0cnVlLCJmdWxsX3JlZGVlbSI6ZmFsc2V9","customerReceipt":"https://receipts.handpoint.io/receipts/4efaadc0-c1fe-11ef-abbd-416301fc4576/customer.html","customerReference":"","deviceStatus":{"applicationName":"Atom","applicationVersion":"20.4.9.2-RC.5","batteryCharging":"Full","batteryStatus":"100","batterymV":"8154","bluetoothName":"PAXA910S","externalPower":"USB","serialNumber":"2840011114","statusMessage":""},"dueAmount":0,"errorMessage":"","expiryDateMMYY":"0129","finStatus":"AUTHORISED","iad":"0210A04003240000000000000000000000FF","issuerResponseCode":"00","maskedCardNumber":"************6046","merchantAddress":"3200 Wonderland Rd. S. N6L 1A6 London","merchantName":"Mr Coffee","merchantReceipt":"https://receipts.handpoint.io/receipts/4efaadc0-c1fe-11ef-abbd-416301fc4576/merchant.html","metadata":null,"mid":"12S001","moneyRemittanceOptions":null,"multiLanguageErrorMessages":{},"multiLanguageStatusMessages":{"en_CA":"Approved or completed successfully","fr_FR":"Transaction approuvée"},"originalEFTTransactionID":"","paymentScenario":"CHIPCONTACTLESS","requestedAmount":1034,"rrn":"513815902180","signatureUrl":"","statusMessage":"Approved or completed successfully","tenderType":"CREDIT","tid":"123123","tipAmount":0,"totalAmount":1034,"transactionID":"4efaadc0-c1fe-11ef-abbd-416301fc4576","transactionOrigin":"CLOUD","transactionReference":"4acd1d85-3ebb-4a62-8ed3-bffc80cb5b50","tsi":"0000","tvr":"0000008001","type":"SALE","unMaskedPan":"","verificationMethod":"NOT_REQUIRED","efttimestamp":1735048344000,"efttransactionID":"4efaadc0-c1fe-11ef-abbd-416301fc4576","tipPercentage":0,"recoveredTransaction":false}
+```
+
+*Decoded `customData`:*
+```json
+{
+   "first_name": "Tracy",
+   "customer_action": "redeem",
+   "phone_number_verified": true,
+   "phone_number": "1234567890",
+   "updated_phone_number": null,
+   "discount_amount": 510,
+   "transaction_amount": 1034,
+   "logo_url": "https://storage.googleapis.com/loyalty_client_logos/Mr_coffee_logo15%201%402x.png",
+   "point_balance": 1034,
+   "point_balance_amount": 103,
+   "redemption_minimum_point_balance": 5000,
+   "redemption_minimum_balance_amount": 500,
+   "proposed_final_transaction_amount": 524,
+   "final_transaction_amount": 0,
+   "payment_transaction_id": "WzEwMzQsMCw1MTAsNTEwMCwicmVkZWVtIixmYWxzZSwiU0FMRSIsMCwiVHJhY3kiLG51bGxd",
+   "tip_amount": 0,
+   "enrolled": false,
+   "redeemed": false,
+   "terminal_transaction_guid": "4efaadc0-c1fe-11ef-abbd-416301fc4576",
+   "points_earned": 1034,
+   "points_earned_amount": 103,
+   "points_redeemed": 5100,
+   "points_redeemed_amount": 510,
+   "tokenized_card_number": "535120cMXnuK6046",
+   "currency": {
+       "code": "CAD",
+       "numCode": 124,
+       "fractionSize": 2,
+       "name": "Canadian dollar",
+       "symbol": "$"
+   },
+   "refund_payment_transaction_id": "",
+   "reversal_payment_transaction_id": "",
+   "refund_amount": 0,
+   "reversal_amount": 0,
+   "points_restored": 0,
+   "points_restored_amount": 0,
+   "points_removed": 0,
+   "points_removed_amount": 0,
+   "is_phone_number_used": false,
+   "error": null,
+   "completed": true,
+   "full_redeem": false
+}
+```
+
+---
+
+**Voiding a Loyalty Operation**
+
+To void or reverse an operation that includes loyalty, the refund operation must be used. The `efttransactionID` of the original transaction must be included in the `originalTransactionId` field of the request. Including the `tokenize` parameter with a value of **true** is also mandatory.
+
+The amount in the refund request must reflect the total amount of the transaction. This is necessary because it must be possible to distinguish between the money to refund (from the card payment) and the points (or equivalent) to reverse.
+
+For example, if the original transaction was 1034 (with 524 paid via card and the remaining 510 paid with loyalty points), the amount in the refund request should still be the full 1034. It will then be possible to identify and process the refund of 524 from the card payment and the reversal of 510 from the loyalty points.
+
+**Example:**
+
+*Request:*
+```bash
+curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
+-d '{"operation": "refund", "originalTransactionId": "b83e88b0-c221-11ef-abbd-416301fc4576", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1034", "currency": "CAD", "tokenize": true, "callbackUrl": "https://results.example.com/callback", "token": "token1" }' \
+https://cloud.handpoint.io/transactions
+```
+
+*Transaction Result with Loyalty Data:*
+
+```json
+{"accountType":"","aid":"A0000000041010","arc":"0000","authorisationCode":"010119","balance":null,"budgetNumber":"","cardEntryType":"ICC","cardHolderName":"","cardLanguagePreference":"","cardSchemeName":"VISA","cardToken":"535120cMXnuK6046","cardTypeId":"************6046","chipTransactionReport":"","currency":"CAD","customData":"eyJmaXJzdF9uYW1lIjoiVHJhY3kiLCJjdXN0b21lcl9hY3Rpb24iOiJyZWRlZW0iLCJwaG9uZV9udW1iZXJfdmVyaWZpZWQiOnRydWUsInBob25lX251bWJlciI6IjEyMzQ1Njc4OTAiLCJ1cGRhdGVkX3Bob25lX251bWJlciI6bnVsbCwiZGlzY291bnRfYW1vdW50Ijo1MTAsInRyYW5zYWN0aW9uX2Ftb3VudCI6MTAzNCwibG9nb191cmwiOiJodHRwczovL3N0b3JhZ2UuZ29vZ2xlYXBpcy5jb20vbG95YWx0eV9jbGllbnRfbG9nb3MvTXJfY29mZmVlX2xvZ28xNSUyMDElNDAyeC5wbmciLCJwb2ludF9iYWxhbmNlIjoxMDM0LCJwb2ludF9iYWxhbmNlX2Ftb3VudCI6MTAzLCJyZWRlbXB0aW9uX21pbmltdW1fcG9pbnRfYmFsYW5jZSI6NTAwMCwicmVkZW1wdGlvbl9taW5pbXVtX2JhbGFuY2VfYW1vdW50Ijo1MDAsInByb3Bvc2VkX2ZpbmFsX3RyYW5zYWN0aW9uX2Ftb3VudCI6NTI0LCJmaW5hbF90cmFuc2FjdGlvbl9hbW91bnQiOjAsInBheW1lbnRfdHJhbnNhY3Rpb25faWQiOiJXekV3TXpRc01DdzFNVEFzTlRFd01Dd2ljbVZrWldWdElpeG1ZV3h6WlN3aVUwRk1SU0lzTUN3aVZISmhZM2tpTEc1MWJHeGQiLCJ0aXBfYW1vdW50IjowLCJlbnJvbGxlZCI6ZmFsc2UsInJlZGVlbWVkIjpmYWxzZSwidGVybWluYWxfdHJhbnNhY3Rpb25fZ3VpZCI6IjRlZmFhZGMwLWMxZmUtMTFlZi1hYmJkLTQxNjMwMWZjNDU3NiIsInBvaW50c19lYXJuZWQiOjEwMzQsInBvaW50c19lYXJuZWRfYW1vdW50IjoxMDMsInBvaW50c19yZWRlZW1lZCI6NTEwMCwicG9pbnRzX3JlZGVlbWVkX2Ftb3VudCI6NTEwLCJ0b2tlbml6ZWRfY2FyZF9udW1iZXIiOiI1MzUxMjBjTVhudUs2MDQ2IiwiY3VycmVuY3kiOnsiY29kZSI6IkNBRCIsIm51bUNvZGUiOjEyNCwiZnJhY3Rpb25TaXplIjoyLCJuYW1lIjoiQ2FuYWRpYW4gZG9sbGFyIiwic3ltYm9sIjoiJCJ9LCJyZWZ1bmRfcGF5bWVudF90cmFuc2FjdGlvbl9pZCI6IiIsInJldmVyc2FsX3BheW1lbnRfdHJhbnNhY3Rpb25faWQiOiIiLCJyZWZ1bmRfYW1vdW50IjowLCJyZXZlcnNhbF9hbW91bnQiOjAsInBvaW50c19yZXN0b3JlZCI6MCwicG9pbnRzX3Jlc3RvcmVkX2Ftb3VudCI6MCwicG9pbnRzX3JlbW92ZWQiOjAsInBvaW50c19yZW1vdmVkX2Ftb3VudCI6MCwiaXNfcGhvbmVfbnVtYmVyX3VzZWQiOmZhbHNlLCJlcnJvciI6bnVsbCwiY29tcGxldGVkIjp0cnVlLCJmdWxsX3JlZGVlbSI6ZmFsc2V9","customerReceipt":"https://receipts.handpoint.io/receipts/4efaadc0-c1fe-11ef-abbd-416301fc4576/customer.html","customerReference":"","deviceStatus":{"applicationName":"Atom","applicationVersion":"20.4.9.2-RC.5","batteryCharging":"Full","batteryStatus":"100","batterymV":"8154","bluetoothName":"PAXA910S","externalPower":"USB","serialNumber":"2840011114","statusMessage":""},"dueAmount":0,"errorMessage":"","expiryDateMMYY":"0129","finStatus":"AUTHORISED","iad":"0210A04003240000000000000000000000FF","issuerResponseCode":"00","maskedCardNumber":"************6046","merchantAddress":"3200 Wonderland Rd. S. N6L 1A6 London","merchantName":"Mr Coffee","merchantReceipt":"https://receipts.handpoint.io/receipts/4efaadc0-c1fe-11ef-abbd-416301fc4576/merchant.html","metadata":null,"mid":"12S001","moneyRemittanceOptions":null,"multiLanguageErrorMessages":{},"multiLanguageStatusMessages":{"en_CA":"Approved or completed successfully","fr_FR":"Transaction approuvée"},"originalEFTTransactionID":"b83e88b0-c221-11ef-abbd-416301fc4576","paymentScenario":"CHIPCONTACTLESS","requestedAmount":1034,"rrn":"513815902180","signatureUrl":"","statusMessage":"Approved or completed successfully","tenderType":"CREDIT","tid":"123123","tipAmount":0,"totalAmount":1034,"transactionID":"4efaadc0-c1fe-11ef-abbd-416301fc4576","transactionOrigin":"CLOUD","transactionReference":"4acd1d85-3ebb-4a62-8ed3-bffc80cb5b50","tsi":"0000","tvr":"0000008001","type":"REFUND","unMaskedPan":"","verificationMethod":"NOT_REQUIRED","efttimestamp":1735048344000,"efttransactionID":"4efaadc0-c1fe-11ef-abbd-416301fc4576","tipPercentage":0,"recoveredTransaction":false}
+```
+
+*Decoded custom data:*
+
+```json
+{
+   "first_name": "Tracy",
+   "customer_action": "redeem",
+   "phone_number_verified": true,
+   "phone_number": "1234567890",
+   "updated_phone_number": null,
+   "discount_amount": 510,
+   "transaction_amount": 1034,
+   "logo_url": "https://storage.googleapis.com/loyalty_client_logos/Mr_coffee_logo15%201%402x.png",
+   "point_balance": 1034,
+   "point_balance_amount": 103,
+   "redemption_minimum_point_balance": 5000,
+   "redemption_minimum_balance_amount": 500,
+   "proposed_final_transaction_amount": 524,
+   "final_transaction_amount": 0,
+   "payment_transaction_id": "WzEwMzQsMCw1MTAsNTEwMCwicmVkZWVtIixmYWxzZSwiU0FMRSIsMCwiVHJhY3kiLG51bGxd",
+   "tip_amount": 0,
+   "enrolled": false,
+   "redeemed": false,
+   "terminal_transaction_guid": "4efaadc0-c1fe-11ef-abbd-416301fc4576",
+   "points_earned": 1034,
+   "points_earned_amount": 103,
+   "points_redeemed": 5100,
+   "points_redeemed_amount": 510,
+   "tokenized_card_number": "535120cMXnuK6046",
+   "currency": {
+       "code": "CAD",
+       "numCode": 124,
+       "fractionSize": 2,
+       "name": "Canadian dollar",
+       "symbol": "$"
+   },
+   "refund_payment_transaction_id": "",
+   "reversal_payment_transaction_id": "",
+   "refund_amount": 0,
+   "reversal_amount": 0,
+   "points_restored": 0,
+   "points_restored_amount": 0,
+   "points_removed": 0,
+   "points_removed_amount": 0,
+   "is_phone_number_used": false,
+   "error": null,
+   "completed": true,
+   "full_redeem": false
+}
+```
+
+---
+
+**Partial Refund operation**
+
+In a partial refund operation, when a customer wants to return only a portion of the total transaction amount, it is important to ensure that the refund includes both the monetary amount and the points used.
+
+The amount to be refunded in a partial operation must always be less than the original amount paid. 
+
+---
+
+**Full Redeem Operation**
+
+In a full redeem operation, the loyalty points are used to cover the entire amount of the transaction, meaning the amount to be paid is 0. This happens when the loyalty points apply a discount equal to the total transaction value, leaving no remaining balance to be paid via card or other means.
+
+To recreate a full redeem operation, we can use a magic amount of 1035. In this case, if the original transaction is for 1035, and the customer has enough loyalty points to cover the entire amount, the amount to be paid will be 0, as the full transaction is paid using loyalty points.
+
+***Full Redeem Sale***
+
+For example, if a customer is making a purchase of 1035, and their loyalty points cover the entire amount, the transaction will be completed with a 0 payment required from the customer. The total amount of 1035 is redeemed through loyalty points, and no card payment is necessary.
+
+*Example Request:*
+```bash
+curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
+-d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1035", "currency": "CAD", "tokenize": true, "callbackUrl": "https://results.example.com/callback", "token": "token1" }' \
+https://cloud.handpoint.io/transactions
+```
+
+***Refund or Reverse a Full Redeem Operation***
+
+When attempting to refund or reverse a full redeem operation, the amount to refund must still reflect the total amount of the transaction, which in this case is 1035, even though the amount to be paid was 0. Since the original payment was fully covered by loyalty points, no monetary refund is needed. However, the loyalty points used in the original transaction should be reversed and returned to the customer's account.
+
+In this situation, even though the amount paid was 0, the refund request must include the total original amount (e.g., 1035) to properly reverse the loyalty points.
+
+*Example Request:*
+```bash
+curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
+-d '{"operation": "refund", "originalTransactionId": "b83e88b0-c221-11ef-abbd-416301fc4576", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1035", "currency": "CAD", "tokenize": true, "callbackUrl": "https://results.example.com/callback", "token": "token1" }' \
+https://cloud.handpoint.io/transactions
+```
+
+---
+
+### Cloud Tokenized Sale
+
+**Overview**
+
+The **Cloud Tokenized Operation** enables remote-triggered financial operations, where a cloud-based system initiates a request to tokenize a card and perform a **Sale** transaction using the Handpoint SDK.
+
+This operation is initiated by sending a **`CloudFinancialRequest`** object. The SDK handles the following workflow:
+
+1. Parses and validates the `CloudFinancialRequest`.
+2. Tokenizes the card (if `isTokenize` is `true` and `operation` is `Sale`).
+3. Triggers the **`Events.CardTokenized`** event with token and callback.
+4. Proceeds with the Sale operation upon `resume()` call.
+5. Emits the final result via **`Events.EndOfTransaction`**.
+
+---
+
+**CloudFinancialRequest**
+
+**Description**
+
+A data object that represents the request payload for initiating cloud-based financial operations including tokenized sales.
+
+**Key Fields**
+
+| Field                    | Type                              | Description |
+|--------------------------|-----------------------------------|-------------|
+| `operation`              | `Operations`                      | Must be set to `Operations.Sale` for this flow. |
+| `isTokenize`             | `Boolean`                         | Must be set to `true` to trigger card tokenization. |
+| `amount`                 | `String?`                         | Transaction amount as string. |
+| `currency`               | `String?`                         | Currency code. |
+| `callbackUrl`            | `String?`                         | If present, indicates REST API request. |
+| `originalTransactionId` | `String`                          | Identifier of original transaction (if any). |
+| `uuid`                   | `String`                          | Event UUID, auto-formatted as 6-digit string. |
+| `transactionReference`   | `String`                          | Reference for idempotency; auto-generated if blank. |
+| `receipt`                | `String?`                         | Raw or URL-based receipt data. |
+| `metadata`               | `Metadata?`                       | Optional metadata for the operation. |
+| `merchantAuth`           | `MerchantAuth?`                   | Merchant authentication object. |
+| `duplicateCheck`         | `Boolean`                         | Enables duplicate request validation. |
+| `duplicateCheckEndpoint`| `String`                          | Optional custom endpoint for duplicate checks. |
+
+> **Note:** Other fields may be present but are not required for the tokenized Sale flow.
+
+---
+
+**Internal Behavior**
+
+- The SDK uses `getParsedAmount()` and `getParsedCurrency()` to convert string values into typed `BigInteger` and `Currency`.
+- If `callbackUrl` is present, the request is treated as a REST API request.
+- If `isTokenize` is `true` and `operation == Sale`, the card is tokenized, and the **`Events.CardTokenized`** event is emitted.
+- After receiving the `resume()` call, the SDK performs the Sale operation.
+
+---
+
+**Events Flow**
+
+1. `Events.CardTokenized`
+
+Emitted after card tokenization. Provides:
+- `CardTokenizationData`: Includes card token and card info.
+- `ResumeCallback`: To resume with the `Sale` operation.
+
+2. `Events.EndOfTransaction`
+
+Emitted after the sale is completed.
+
+---
+
+**Behavior and Restrictions**
+
+- The only supported operation for this flow is **Sale**.
+- Must set:
+  - `operation = Operations.Sale`
+  - `isTokenize = true`
+- Invoking `resume()` with any operation other than `Sale` will result in `MessageType.FEATURE_NOT_SUPPORTED`.
+
+---
+
+**Example CloudFinancialRequest JSON**
+
+```json
+{
+  "operation": "Sale",
+  "isTokenize": true,
+  "amount": "1000",
+  "currency": "EUR",
+  "transactionReference": "a1b2c3d4",
+  "callbackUrl": "https://merchant.com/callback"
+}
+```
+
+---
+
+**Example Kotlin Flow**
+
+```kotlin
+override fun onCardTokenized(
+    cardTokenizationData: CardTokenizationData,
+    resumeCallback: ResumeCallback
+) {
+    val sale = OperationDto.Sale(
+        amount = cardTokenizationData.tipAmount,
+        currency = Currency.getInstance("EUR"),
+        options = SaleOptions(/* additional config */)
+    )
+    resumeCallback.resume(sale)
+}
+```
+
+---
+
+**Sequence Diagram (Mermaid)**
+
+```mermaid
+sequenceDiagram
+    participant CloudService
+    participant SDK
+    participant Cardholder
+    participant REST API
+
+    CloudService ->> SDK: CloudFinancialRequest (operation=Sale, isTokenize=true)
+    Cardholder ->> SDK: Presents Card
+    SDK ->> REST API: Tokenize Card
+    REST API -->> SDK: Card Token
+    SDK ->> Integrator: Events.CardTokenized
+    Integrator ->> SDK: resume(Sale)
+    SDK ->> Card Network: Execute Sale
+    SDK -->> Integrator: Events.EndOfTransaction
+```
+
+---
+
+**Summary**
+
+The **Cloud Tokenized Operation** enables external services to initiate tokenized Sale transactions through a structured `CloudFinancialRequest`. The SDK handles card tokenization and executes the Sale transaction if the correct flags are set.
+
+> **Tip:** This is ideal for headless or server-triggered flows that require secure card tokenization and transaction execution in a single interaction.
+
+
+
+
+
+
+
+
+### Cloud Tokenized Sale Reversal
+
+**Overview**
+
+The **Sale Reversal Tokenized Operation** is a cloud-initiated process that tokenizes a card and performs a **Sale Reversal** transaction. This operation is triggered via a `CloudFinancialRequest` object and follows the same interaction pattern as other dependant tokenized operations.
+
+It is identified by:
+
+- `operation = Operations.SaleReversal`
+- `isTokenize = true`
+
+Upon receiving this request, the SDK emits the **`Events.DependantReversalReceived`** event. The integrator is then responsible for controlling the transaction flow using the `ResumeDependantOperationExecutor` interface.
+
+---
+
+**CloudFinancialRequest Configuration**
+
+**Required Fields**
+
+| Field            | Value                            | Description                                 |
+|------------------|----------------------------------|---------------------------------------------|
+| `operation`      | `Operations.SaleReversal`        | Identifies a Sale Reversal request.         |
+| `isTokenize`     | `true`                           | Triggers tokenization before the operation. |
+
+Other fields such as `originalTransactionId`, `currency`, `amount`, and `transactionReference` must also be set as needed.
+
+---
+
+**Event: `Events.DependantReversalReceived`**
+
+Emitted when the SDK receives a cloud request for a **Sale Reversal** with tokenization enabled. The integrator handles this event via the `DependantOperationEvent` interface:
+
+```kotlin
+interface DependantOperationEvent {
+    fun dependantRefundReceived(
+        amount: BigInteger,
+        currency: Currency,
+        originalTransactionId: String,
+        resumeDependantOperation: ResumeDependantOperation
+    )
+
+    fun dependantReversalReceived(
+        originalTransactionId: String,
+        resumeDependantOperation: ResumeDependantOperation
+    )
+}
+```
+
+---
+
+**Interface: ResumeDependantOperationExecutor**
+
+```kotlin
+interface ResumeDependantOperationExecutor {
+    fun executeDependantOperation(amount: BigInteger, currency: Currency, originalTransactionId: String)
+    fun finishWithoutCardOperation()
+    fun cancel()
+}
+```
+
+---
+
+**Implementation: ResumeDependantSaleReversalExecutorImpl**
+
+```kotlin
+class ResumeDependantSaleReversalExecutorImpl(
+    private val currency: Currency,
+    private val originalTransactionId: String,
+    private val options: InternalSaleReversalOptions,
+    private val delegate: Hapi
+): ResumeDependantOperationExecutor {
+
+    override fun executeDependantOperation(amount: BigInteger, currency: Currency, originalTransactionId: String) {
+        val refundOperationDto = OperationDto.SaleReversal(
+            amount,
+            currency,
+            originalTransactionId,
+            options
+        )
+        val result = delegate.tokenizedOperation(currency, refundOperationDto, options).operationStarted
+        if (!result) {
+            val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+            transactionResult.finStatus = FinancialStatus.FAILED
+            transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+            sendTransactionResult(transactionResult)
+        }
+    }
+
+    override fun finishWithoutCardOperation() {
+        val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+        transactionResult.finStatus = FinancialStatus.AUTHORISED
+        transactionResult.type = TransactionType.VOID_SALE
+        transactionResult.currency = currency
+        transactionResult.totalAmount = BigInteger.ZERO
+        transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+        transactionResult.transactionID = UUID.randomUUID().toString()
+        transactionResult.eFTTransactionID = transactionResult.transactionID
+        transactionResult.originalEFTTransactionID = originalTransactionId
+
+        InstancesManager.cardReader.isCardPresent = true
+        sendTransactionResult(transactionResult)
+    }
+
+    override fun cancel() {
+        val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+        transactionResult.finStatus = FinancialStatus.CANCELLED
+        transactionResult.type = TransactionType.VOID_SALE
+        transactionResult.currency = Currency.Unknown
+        transactionResult.totalAmount = BigInteger.ZERO
+        transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+        transactionResult.originalEFTTransactionID = originalTransactionId
+        sendTransactionResult(transactionResult)
+    }
+
+    internal fun sendTransactionResult(transactionResult: TransactionResult) {
+        TransactionResultHandler.transactionFinished(transactionResult)
+    }
+}
+```
+
+---
+
+**Behavior and Flow**
+
+| Method                          | Description |
+|----------------------------------|-------------|
+| `executeDependantOperation(...)` | Executes the `SaleReversal` operation after tokenization. |
+| `finishWithoutCardOperation()`   | Returns an `AUTHORISED` transaction result without financial movement. |
+| `cancel()`                       | Sends a `CANCELLED` transaction result indicating cancellation. |
+
+---
+
+**Sequence Diagram (Mermaid)**
+
+```mermaid
+sequenceDiagram
+    participant CloudService
+    participant SDK
+    participant Integrator
+
+    CloudService ->> SDK: CloudFinancialRequest (operation=SaleReversal, isTokenize=true)
+    SDK ->> Integrator: Events.DependantReversalReceived
+    alt executeDependantOperation
+        Integrator ->> SDK: executeDependantOperation()
+        SDK ->> Card Network: Execute SaleReversal
+        SDK -->> Integrator: Events.EndOfTransaction
+    else finishWithoutCardOperation
+        Integrator ->> SDK: finishWithoutCardOperation()
+        SDK -->> Integrator: Txn Result (Authorised, no money moved)
+    else cancel
+        Integrator ->> SDK: cancel()
+        SDK -->> Integrator: Txn Result (Cancelled)
+    end
+```
+
+---
+
+**Summary**
+
+The **Sale Reversal Tokenized Operation** is a secure, cloud-triggered flow for performing a **Sale Reversal** using a tokenized card. The operation is handled through the `DependantReversalReceived` event and executed with a `ResumeDependantOperationExecutor` implementation.
+
+> **Tip:** Use `finishWithoutCardOperation()` when the sale reversal is already completed outside the SDK but you want to report it as authorised for consistency.
+
+
+
+
+
+
+
+
+
+
+### Cloud Tokenized Refund
+
+**Overview**
+
+The **Refund Tokenized Operation** is a cloud-based flow that allows merchants to initiate a tokenized refund from a remote system. It uses the same `CloudFinancialRequest` object as other cloud operations.
+
+This operation is identified by:
+- `operation = Operations.Refund`
+- `isTokenize = true`
+
+Upon receiving the request, the SDK emits the **`Events.DependantRefundReceived`** event. The integrator must handle this event by using the **`ResumeDependantOperationExecutor`** interface to define the next step.
+
+---
+
+**CloudFinancialRequest Configuration**
+
+**Required Fields**
+
+| Field            | Value                        | Description                             |
+|------------------|------------------------------|-----------------------------------------|
+| `operation`      | `Operations.Refund`          | Indicates the refund operation.         |
+| `isTokenize`     | `true`                       | Enables card tokenization.              |
+
+Other standard fields such as `amount`, `currency`, `originalTransactionId`, and `transactionReference` should be populated according to the use case.
+
+---
+
+**Event: `Events.DependantRefundReceived`**
+
+Triggered when a tokenized refund request is received from the cloud. The integrator must respond using a `ResumeDependantOperationExecutor` implementation.
+
+---
+
+**Interface: ResumeDependantOperationExecutor**
+
+Defines the actions the integrator must take after receiving the refund request.
+
+```kotlin
+interface ResumeDependantOperationExecutor {
+
+    fun executeDependantOperation(
+        amount: BigInteger,
+        currency: Currency,
+        originalTransactionId: String
+    )
+
+    fun finishWithoutCardOperation()
+
+    fun cancel()
+}
+```
+
+---
+
+**Implementation: ResumeDependantRefundExecutorImpl**
+
+This implementation manages the refund operation execution and fallback flows.
+
+```kotlin
+class ResumeDependantRefundExecutorImpl(
+    private val currency: Currency,
+    private val options: InternalRefundOptions,
+    private val originalTransactionId: String,
+    private val delegate: Hapi
+) : ResumeDependantOperationExecutor {
+
+    override fun executeDependantOperation(amount: BigInteger, currency: Currency, originalTransactionId: String) {
+        val refundOperationDto = OperationDto.Refund(
+            amount,
+            currency,
+            originalTransactionId.ifBlank { null },
+            options
+        )
+        val result = delegate.tokenizedOperation(currency, refundOperationDto, options).operationStarted
+        if (!result) {
+            val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+            transactionResult.finStatus = FinancialStatus.FAILED
+            sendTransactionResult(transactionResult)
+        }
+    }
+
+    override fun finishWithoutCardOperation() {
+        val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+        transactionResult.originalEFTTransactionID = originalTransactionId
+        transactionResult.finStatus = FinancialStatus.AUTHORISED
+        transactionResult.type = TransactionType.REFUND
+        transactionResult.currency = currency
+        transactionResult.totalAmount = BigInteger.ZERO
+        transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+        transactionResult.transactionID = UUID.randomUUID().toString()
+        transactionResult.eFTTransactionID = transactionResult.transactionID
+        InstancesManager.cardReader.isCardPresent = true
+        sendTransactionResult(transactionResult)
+    }
+
+    override fun cancel() {
+        val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+        transactionResult.finStatus = FinancialStatus.CANCELLED
+        transactionResult.type = TransactionType.REFUND
+        transactionResult.currency = currency
+        transactionResult.totalAmount = BigInteger.ZERO
+        transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+        transactionResult.originalEFTTransactionID = originalTransactionId
+        sendTransactionResult(transactionResult)
+    }
+
+    internal fun sendTransactionResult(transactionResult: TransactionResult) {
+        TransactionResultHandler.transactionFinished(transactionResult)
+    }
+}
+```
+
+---
+
+**Behavior and Flow**
+
+| Method                          | Description |
+|----------------------------------|-------------|
+| `executeDependantOperation(...)` | Triggers the refund transaction using the provided amount, currency, and original transaction ID. |
+| `finishWithoutCardOperation()`   | Sends a transaction result with `AUTHORISED` status but **without processing a refund** — used when the refund was completed outside the SDK. |
+| `cancel()`                       | Sends a transaction result with `CANCELLED` status — used when the integrator cancels the operation. |
+
+---
+
+**Sequence Diagram (Mermaid)**
+
+```mermaid
+sequenceDiagram
+    participant CloudService
+    participant SDK
+    participant Integrator
+
+    CloudService ->> SDK: CloudFinancialRequest (operation=Refund, isTokenize=true)
+    SDK ->> Integrator: Events.DependantRefundReceived
+    alt executeDependantOperation
+        Integrator ->> SDK: executeDependantOperation()
+        SDK ->> Card Network: Execute Refund
+        SDK -->> Integrator: Events.EndOfTransaction
+    else finishWithoutCardOperation
+        Integrator ->> SDK: finishWithoutCardOperation()
+        SDK -->> Integrator: Txn Result (Authorised, no money moved)
+    else cancel
+        Integrator ->> SDK: cancel()
+        SDK -->> Integrator: Txn Result (Cancelled)
+    end
+```
+
+---
+
+**Summary**
+
+The **Refund Tokenized Operation** is a controlled cloud-based refund workflow that tokenizes the card and delegates control to the integrator for determining the refund outcome.
+
+- Triggered via `CloudFinancialRequest` with `operation = Refund` and `isTokenize = true`.
+- Uses the `ResumeDependantOperationExecutor` interface to define the refund behavior.
+- Provides flexibility to execute, authorize without refund, or cancel the transaction.
+
+> **Tip:** Use `finishWithoutCardOperation()` when refund logic is handled outside the SDK and you only need to notify the POS system.
+
+
+
+
+
+
+
+
+
+
+
+
+### Cloud Tokenized Refund Reversal
+
+**Overview**
+
+The **Refund Reversal Tokenized Operation** is a cloud-triggered operation that securely tokenizes a card and performs a **Refund Reversal**. This operation is initiated via a `CloudFinancialRequest` object with:
+
+- `operation = Operations.RefundReversal`
+- `isTokenize = true`
+
+After receiving the request, the SDK emits the **`Events.DependantReversalReceived`** event. The integrator must respond by using the **`ResumeDependantOperationExecutor`** interface to control how the operation proceeds.
+
+---
+
+**CloudFinancialRequest Configuration**
+
+**Required Fields**
+
+| Field            | Value                             | Description                                  |
+|------------------|-----------------------------------|----------------------------------------------|
+| `operation`      | `Operations.RefundReversal`       | Indicates the refund reversal operation.     |
+| `isTokenize`     | `true`                            | Enables card tokenization.                   |
+
+Other standard fields such as `amount`, `currency`, `originalTransactionId`, and `transactionReference` should also be included.
+
+---
+
+**Event: `Events.DependantReversalReceived`**
+
+This event is emitted after receiving a valid cloud request for a refund reversal. The integrator must implement `ResumeDependantOperationExecutor` to define the next action.
+
+---
+
+**Interface: ResumeDependantOperationExecutor**
+
+```kotlin
+interface ResumeDependantOperationExecutor {
+
+    fun executeDependantOperation(
+        amount: BigInteger,
+        currency: Currency,
+        originalTransactionId: String
+    )
+
+    fun finishWithoutCardOperation()
+
+    fun cancel()
+}
+```
+
+---
+
+**Implementation: ResumeDependantRefundReversalExecutorImpl**
+
+```kotlin
+class ResumeDependantRefundReversalExecutorImpl(
+    private val currency: Currency,
+    private val originalTransactionId: String,
+    private val options: InternalRefundReversalOptions,
+    private val delegate: Hapi
+): ResumeDependantOperationExecutor {
+
+    override fun executeDependantOperation(amount: BigInteger, currency: Currency, originalTransactionId: String) {
+        val refundOperationDto = OperationDto.RefundReversal(
+            amount,
+            currency,
+            originalTransactionId,
+            options
+        )
+        val result = delegate.tokenizedOperation(currency, refundOperationDto, options).operationStarted
+        if (!result) {
+            val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+            transactionResult.finStatus = FinancialStatus.FAILED
+            sendTransactionResult(transactionResult)
+        }
+    }
+
+    override fun finishWithoutCardOperation() {
+        val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+        transactionResult.finStatus = FinancialStatus.AUTHORISED
+        transactionResult.type = TransactionType.VOID_REFUND
+        transactionResult.currency = currency
+        transactionResult.totalAmount = BigInteger.ZERO
+        transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+        transactionResult.transactionID = UUID.randomUUID().toString()
+        transactionResult.eFTTransactionID = transactionResult.transactionID
+        transactionResult.originalEFTTransactionID = originalTransactionId
+
+        InstancesManager.cardReader.isCardPresent = true
+        sendTransactionResult(transactionResult)
+    }
+
+    override fun cancel() {
+        val transactionResult = InstancesManager.transactionData.generateTransactionResultWithoutResponse()
+        transactionResult.finStatus = FinancialStatus.CANCELLED
+        transactionResult.type = TransactionType.VOID_REFUND
+        transactionResult.currency = Currency.Unknown
+        transactionResult.totalAmount = BigInteger.ZERO
+        transactionResult.transactionOrigin = TransactionOrigin.CLOUD
+        transactionResult.originalEFTTransactionID = originalTransactionId
+        sendTransactionResult(transactionResult)
+    }
+
+    internal fun sendTransactionResult(transactionResult: TransactionResult) {
+        TransactionResultHandler.transactionFinished(transactionResult)
+    }
+}
+```
+
+---
+
+**Behavior and Flow**
+
+| Method                          | Description |
+|----------------------------------|-------------|
+| `executeDependantOperation(...)` | Launches the `RefundReversal` operation after tokenization. |
+| `finishWithoutCardOperation()`   | Sends an `AUTHORISED` transaction result without moving funds — used when reversal is handled externally. |
+| `cancel()`                       | Sends a `CANCELLED` result indicating the integrator aborted the operation. |
+
+---
+
+**Sequence Diagram (Mermaid)**
+
+```mermaid
+sequenceDiagram
+    participant CloudService
+    participant SDK
+    participant Integrator
+
+    CloudService ->> SDK: CloudFinancialRequest (operation=RefundReversal, isTokenize=true)
+    SDK ->> Integrator: Events.DependantReversalReceived
+    alt executeDependantOperation
+        Integrator ->> SDK: executeDependantOperation()
+        SDK ->> Card Network: Execute RefundReversal
+        SDK -->> Integrator: Events.EndOfTransaction
+    else finishWithoutCardOperation
+        Integrator ->> SDK: finishWithoutCardOperation()
+        SDK -->> Integrator: Txn Result (Authorised, no money moved)
+    else cancel
+        Integrator ->> SDK: cancel()
+        SDK -->> Integrator: Txn Result (Cancelled)
+    end
+```
+
+---
+
+**Summary**
+
+The **Refund Reversal Tokenized Operation** is a cloud-driven flow designed to securely tokenize a card and optionally reverse a refund. It follows the same interaction pattern as other dependant cloud operations, with three possible paths controlled by the integrator:
+
+- Execute the refund reversal.
+- Acknowledge the transaction without refund movement.
+- Cancel the operation entirely.
+
+> **Tip:** Use this operation in cloud or headless setups where refunds need to be securely reversed with authorization logging.
+

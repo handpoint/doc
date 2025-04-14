@@ -14,23 +14,26 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.1009.5
 **Features**:
 
-We're excited to announce the latest update to our Android SDK, featuring support of Tokenized Payments Operations. Tokenized Payments Operations enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant.
+We're excited to announce the latest update to our Android SDK, featuring support of ***Tokenized Payments Operations***, as well as supporting two new PAX card readers models: **IM25** and **A8900**.
 
-Thanks to our new Tokenize Payments Operations feature, integrators can now first tokenize card, and right after this, apply their own bussiness logic before resuming the operation to decide how the final operation will be according to customer's loyalty points, current discount policy, or whatever is their particular use case.
+**Tokenized Payments Operations** enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant.
 
-There are two main modes for how this works, depending on your integration needs: Standalone and Cloud.
+Thanks to our new Tokenize Payments Operations feature, integrators can now first tokenize card, and right after this, apply their own bussiness logic before resuming the operation to decide how the final operation will be according to customer's loyalty points, current discount policy, or some other particular use cases.
 
-- [Standalone Tokenized Sale Operation](androidtransactions.md#standalone-tokenized-sale) and [Standalone Tokenized Refund, Reversal and RefundReversal Operations](androidtransactions.md#standalone-tokenized-refund). In this mode, Android SDK integrators can directly use its methods to use them in the app they are building on top of it to implement their loyalty, subscriptions or related uses logic.
+There are two main modes for how this works, depending on integration needs: Standalone or Cloud.
 
+- [Standalone Tokenized Payments Operations](androidtransactions.md#standalone-tokenized-payments-operations). In this mode, Android SDK integrators can directly use the methods this SDK offers in the app they are building on top of it, to implement their loyalty, subscriptions or related uses logic.
 
-- [Cloud Tokenized Sale Operation](androidtransactions.md#cloud-tokenized-sale) and [Cloud Tokenized Refund, Reversal and RefundReversal Operations](androidtransactions.md#cloud-tokenized-refund). In this mode, integrators make use of our Tokenized Payments Operations via one of our Cloud clients, which can be REST API, JS SDK or Windows SDK.
-
-[TODO: explain the two modes further. Link Cloud clients in both ways.]
+- [Cloud Tokenized Payments Operations](androidtransactions.md#cloud-tokenized-payments-operations). In this mode, Tokenized Payments Operations methods and flows of the Android SDK are commanded via our Cloud clients, which can be either [REST API](/restapi/restintroduction), [JavaScript SDK](/javascript/javascriptintroduction) or [Windows SDK](/windows/windowsintroduction). This allows to execute all operations programmatically, offering seamless integration with their existing workflows.
 
 
 **Fixes**:
 
-- [TODO: fill this]
+- Several EMV certification issues have been addressed
+
+- Transaction Result was not being delivered in some cases. Now it is working properly in all use cases.
+
+- Refunds and Reversals didn't include the transactionReference field. This has been fixed.
 
 
 ## 7.1008.6
