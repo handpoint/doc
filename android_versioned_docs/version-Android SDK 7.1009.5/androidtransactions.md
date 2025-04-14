@@ -1669,7 +1669,7 @@ https://cloud.handpoint.io/transactions
 
 To void or reverse an operation that includes loyalty, the refund operation must be used. The `efttransactionID` of the original transaction must be included in the `originalTransactionId` field of the request. Including the `tokenize` parameter with a value of **true** is also mandatory.
 
-The amount in the refund request must reflect the total amount of the transaction. This is necessary because it must be possible to distinguish between the money to refund (from the card payment) and the points (or equivalent) to reverse.
+The `amount` in the refund request must reflect the total amount of the transaction. This is necessary because it must be possible to distinguish between the money to refund (from the card payment) and the points (or equivalent) to reverse.
 
 For example, if the original transaction was 1034 (with 524 paid via card and the remaining 510 paid with loyalty points), the amount in the refund request should still be the full 1034. It will then be possible to identify and process the refund of 524 from the card payment and the reversal of 510 from the loyalty points.
 
@@ -1752,7 +1752,7 @@ The amount to be refunded in a partial operation must always be less than the or
 
 In a full redeem operation, the loyalty points are used to cover the entire amount of the transaction, meaning the amount to be paid is 0. This happens when the loyalty points apply a discount equal to the total transaction value, leaving no remaining balance to be paid via card or other means.
 
-To recreate a full redeem operation, we can use a magic amount of 1035. In this case, if the original transaction is for 1035, and the customer has enough loyalty points to cover the entire amount, the amount to be paid will be 0, as the full transaction is paid using loyalty points.
+To recreate a full redeem operation, we can use a magic amount of 1035 ***(only in testing environment)***. In this case, if the original transaction is for 1035, and the customer has enough loyalty points to cover the entire amount, the amount to be paid will be 0, as the full transaction is paid using loyalty points.
 
 ***Full Redeem Sale***
 
@@ -1784,7 +1784,7 @@ https://cloud.handpoint.io/transactions
 
 **Overview**
 
-The **Cloud Tokenized Operation** enables remote-triggered financial operations, where a cloud-based system initiates a request to tokenize a card and perform a **Sale** transaction using the Handpoint SDK.
+The **Cloud Tokenized Operation** enables remote-triggered financial operations, where a cloud-based system initiates a request to tokenize a card and perform a **Sale** transaction using the Android SDK.
 
 This operation is initiated by sending a **`CloudFinancialRequest`** object. The SDK handles the following workflow:
 
@@ -1916,12 +1916,6 @@ sequenceDiagram
 The **Cloud Tokenized Operation** enables external services to initiate tokenized Sale transactions through a structured `CloudFinancialRequest`. The SDK handles card tokenization and executes the Sale transaction if the correct flags are set.
 
 > **Tip:** This is ideal for headless or server-triggered flows that require secure card tokenization and transaction execution in a single interaction.
-
-
-
-
-
-
 
 
 ### Cloud Tokenized Sale Reversal
@@ -2088,14 +2082,6 @@ The **Sale Reversal Tokenized Operation** is a secure, cloud-triggered flow for 
 > **Tip:** Use `finishWithoutCardOperation()` when the sale reversal is already completed outside the SDK but you want to report it as authorised for consistency.
 
 
-
-
-
-
-
-
-
-
 ### Cloud Tokenized Refund
 
 **Overview**
@@ -2256,16 +2242,6 @@ The **Refund Tokenized Operation** is a controlled cloud-based refund workflow t
 > **Tip:** Use `finishWithoutCardOperation()` when refund logic is handled outside the SDK and you only need to notify the POS system.
 
 
-
-
-
-
-
-
-
-
-
-
 ### Cloud Tokenized Refund Reversal
 
 **Overview**
@@ -2420,4 +2396,3 @@ The **Refund Reversal Tokenized Operation** is a cloud-driven flow designed to s
 - Cancel the operation entirely.
 
 > **Tip:** Use this operation in cloud or headless setups where refunds need to be securely reversed with authorization logging.
-
