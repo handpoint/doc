@@ -12,7 +12,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.2.2
 **Features:**
 
-A new `tokenize` parameter is available under [SaleOptions](javascriptobjects.md#23) and [RefundOptions](javascriptobjects.md#24).
+A new `tokenize` parameter is available under [SaleOptions](javascriptobjects.md#23) and [RefundOptions](javascriptobjects.md#24). See [Android SDK 7.1009.5](/android/androidreleasenotes#7.1009.5) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
 
 ## 7.2.0
 **Features:**
