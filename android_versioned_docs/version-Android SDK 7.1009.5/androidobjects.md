@@ -736,7 +736,7 @@ MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
 
 `OperationDto` <span class="badge badge--info">Object</span>
 
-Object indicating which financial transaction type needs to be performed after tokenization of the card during a Tokenize and Modify operation. 
+Object indicating which financial transaction type needs to be performed after tokenization of the card during a Tokenize Payment Operation. 
 
 **Properties**
 
