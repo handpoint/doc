@@ -1388,7 +1388,7 @@ If a `callbackUrl` and a `token` are included in the request, the terminal sends
 
 ```bash
 curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
--d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1034", "currency": "CAD", "tokenize": true, "callbackUrl": "https://results.example.com/callback", "token": "auth-token-1" }' \
+-d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011110", "amount": "1034", "currency": "EUR", "tokenize": true, "callbackUrl": "https://results.example.com/callback", "token": "auth-token-1" }' \
 https://cloud.handpoint.io/transactions
 ```
 *Response:*
@@ -1414,9 +1414,9 @@ The following is an example of the transaction result sent to the specified `cal
    "cardToken": "535120cMXnuK6046",
    "cardTypeId": "************6046",
    "chipTransactionReport": "",
-   "currency": "CAD",
+   "currency": "EUR",
    "customData": "...",
-   "customerReceipt": "https://receipts.handpoint.io/receipts/26059a10-c1fe-11ef-9cf2-8b8a2cdbabca/customer.html",
+   "customerReceipt": "https://receipts.handpoint.io/receipts/f6059a10-c1fe-11ef-9cf2-8b8a2cdbabca/customer.html",
    "customerReference": "",
    "deviceStatus": {
        "applicationName": "Atom",
@@ -1426,7 +1426,7 @@ The following is an example of the transaction result sent to the specified `cal
        "batterymV": "8154",
        "bluetoothName": "PAXA910S",
        "externalPower": "USB",
-       "serialNumber": "2840011114",
+       "serialNumber": "2840011110",
        "statusMessage": ""
    },
    "dueAmount": 0,
@@ -1436,9 +1436,9 @@ The following is an example of the transaction result sent to the specified `cal
    "iad": "0210A04003240000000000000000000000FF",
    "issuerResponseCode": "00",
    "maskedCardNumber": "************6046",
-   "merchantAddress": "3200 Wonderland Rd. S. N6L 1A6 London",
-   "merchantName": "Mr Coffee",
-   "merchantReceipt": "https://receipts.handpoint.io/receipts/26059a10-c1fe-11ef-9cf2-8b8a2cdbabca/merchant.html",
+   "merchantAddress": "Random Street, Some City",
+   "merchantName": "Random Merchant",
+   "merchantReceipt": "https://receipts.handpoint.io/receipts/f6059a10-c1fe-11ef-9cf2-8b8a2cdbabca/merchant.html",
    "metadata": null,
    "mid": "12S001",
    "moneyRemittanceOptions": null,
@@ -1457,16 +1457,16 @@ The following is an example of the transaction result sent to the specified `cal
    "tid": "123123",
    "tipAmount": 0,
    "totalAmount": 524,
-   "transactionID": "26059a10-c1fe-11ef-9cf2-8b8a2cdbabca",
+   "transactionID": "16059a10-c1fe-11ef-9cf2-8b8a2cdbabca",
    "transactionOrigin": "CLOUD",
-   "transactionReference": "a45ff306-78f2-4d3b-970c-e47c8d9b9f83",
+   "transactionReference": "b45ff306-78f2-4d3b-970c-e47c8d9b9f83",
    "tsi": "0000",
    "tvr": "0000008001",
    "type": "SALE",
    "unMaskedPan": "",
    "verificationMethod": "NOT_REQUIRED",
    "efttimestamp": 1735048275000,
-   "efttransactionID": "26059a10-c1fe-11ef-9cf2-8b8a2cdbabca",
+   "efttransactionID": "16059a10-c1fe-11ef-9cf2-8b8a2cdbabca",
    "tipPercentage": 0.0,
    "recoveredTransaction": false
 }
@@ -1482,7 +1482,7 @@ If the request does not include a `callbackUrl` and a `token`, then polling can 
 
 ```bash
 curl -X POST -H"ApiKeyCloud: XXXXXXX-KXDMZV1-HW8MXBG-XXXXXXX" -H"Content-Type: application/json" \
--d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011114", "amount": "1034", "currency": "CAD", "tokenize": true }' \
+-d '{"operation": "sale", "terminal_type":"PAXA910S", "serial_number": "2840011110", "amount": "1034", "currency": "EUR", "tokenize": true }' \
 https://cloud.handpoint.io/transactions
 ```
 
@@ -1493,15 +1493,15 @@ Using the `transactionResultId`, integrators can poll the transaction-result end
 ```json
 {
   "statusMessage": "Operation Accepted",
-  "transactionResultId": "2840011114-1735048331833"
+  "transactionResultId": "1840011114-1735048331833"
 }
 ```
 
 *Polling request:*
 
 ```bash
-curl -i -X GET -H"ApiKeyCloud: A7ZX0F3-BBZ41XK-MWBXV06-254R6K8" -H"Content-Type: application/json" \
-https://cloud.handpoint.io/transaction-result/2840011114-1735048331833
+curl -i -X GET -H"ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" -H"Content-Type: application/json" \
+https://cloud.handpoint.io/transaction-result/1840011114-1735048331833
 ```
 
 *Possible responses from polling:*
