@@ -15,7 +15,7 @@ An enum representing the supported acquirers for merchant authentication.
 
 **Possible values**
 
-`AMEX` `BORGUN` `EVO` `OMNIPAY` `POSTBRIDGE` `INTERAC` `TSYS` `VANTIV` `SANDBOX`
+`AMEX` `TEYA|BORGUN` `OMNIPAY` `POSTBRIDGE` `TNS` `TSYS` `VANTIV|WORLDPAY` `SANDBOX` `TILLED`
 
 
 ## Balance
@@ -317,7 +317,7 @@ An enum representing different types of operations.
 
 Possible Values:
 
-`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `update` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal` `moToPreAuthorization` `preAuthorization` `preAuthorizationIncrease` `preAuthorizationCapture` `preAuthorizationReversal`
+`sale` `refund` `refundReversal` `saleReversal` `saleAndTokenizeCard` `tokenizeCard` `printReceipt` `cardPan` `pingDevice` `stopCurrentTransaction` `moToSale` `moToRefund` `moToReversal` `moToPreAuthorization` `preAuthorization` `preAuthorizationIncrease` `preAuthorizationCapture` `preAuthorizationReversal`
 
 
 
@@ -335,9 +335,8 @@ Possible Values:
 | `saleAndTokenizeCard`  <br />*String*   | A sale operation which also returns a card token. This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice.  |
 | `tokenizeCard`  <br />*String*   | Returns a card token (representing the card number). This functionality is not available for all acquirers, please check with Handpoint to know if tokenization is supported for your acquirer of choice.   |
 | `printReceipt`  <br />*String*   | Print on demand functionality allowing the merchant to print any HTML formatted receipt. It is possible to print images or barcodes as well as passing directly a URL to the printReceipt function. A bitmap can also be printed, in order to do so it needs to be rendered as an image and inserted into the html. The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. **The format of the HTML data, stored in the URL or passed in the value of the `receipt` key, must follow this format: [HTML Print Format](https://handpoint.atlassian.net/wiki/spaces/PD/pages/1409875969/Html+Print+Format)** |
-| `update` <br />*String*    | The update operation checks for new software or configuration updates and initiates a download if required.    |
 | `cardPan` <br />*String*    | A cardPan request will return the full PAN of the card being swiped, dipped or tapped. Only the PANs of whitelisted card ranges will be returned by the Handpoint systems. This operation is mostly used to be able to process funds or points from loyalty cards.    |
-| `pingDevice` <br />*String*    | This operation will ping the terminal to confirm if it is online.   |
+| `pingDevice` <br />*String*    | This operation will ping the terminal to confirm if it is ready to process transactions. `returnDeviceInfo` can be se to `true` in the body parameters to return device information like App Version, Sdk Version, Firmware Version and Battery information |
 | `stopCurrentTransaction` <br />*String*    | Operation used to stop the current transaction. The transaction can only be stopped at specific stages of payment processing, for example a transaction can not be stopped when the card is being read but can be stopped when waiting for the cardholder to initially insert a card.   |
 | `moToSale` <br />*String*    | Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.  |
 | `moToRefund` <br />*String*    | A MOTO refund operation moves funds from the merchant account to the cardholder´s credit card. In it's simplest form you only have to pass the amount and currency but it also accepts the original transaction id. Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card to be charged. MOTO Refund is a type of card-not-present (CNP) transaction in which services are refunded via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase or refund.  |
@@ -822,19 +821,3 @@ An enum representing the possible verification methods used during the transacti
 Possible values:
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

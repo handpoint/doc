@@ -1191,24 +1191,7 @@ A sealed class representing supported transaction types after tokenization.
 
 ** Sequence Diagram **
 
-```mermaid
-sequenceDiagram
-    participant Integrator
-    participant SDK
-    participant Cardholder
-
-    Integrator ->> SDK: tokenizedOperation(amount, currency, options)
-    Cardholder ->> SDK: Presents Card
-    SDK ->> Integrator: Events.CardTokenized (CardTokenizationData + ResumeCallback)
-    Integrator ->> SDK: resume(SaleOperationDto)
-    alt Sale Operation
-        SDK ->> Card Network: Process Sale
-        SDK -->> Integrator: Events.EndOfTransaction (Result)
-    else Unsupported Operation
-        SDK -->> Integrator: MessageType.FEATURE_NOT_SUPPORTED
-    end
-```
-
+[![Standalone Tokenized SALE Sequence Diagram](/img/standalone_tokenized_SALE.png)](/img/standalone_tokenized_SALE.png)
 ---
 
 ** Summary **
@@ -1334,20 +1317,7 @@ The method itself returns `false` if the command fails to send to the device. Ot
 
 ** Sequence Diagram **
 
-```mermaid
-sequenceDiagram
-    participant Integrator
-    participant SDK
-    participant Cardholder
-    participant REST API
-
-    Integrator ->> SDK: tokenizedOperation(currency, operation, options)
-    Cardholder ->> SDK: Presents Card
-    SDK ->> REST API: Request Card Token
-    REST API -->> SDK: Card Token
-    SDK ->> Card Network: Execute Provided Operation (Refund, SaleReversal, RefundReversal)
-    SDK -->> Integrator: Events.EndOfTransaction (Result)
-```
+[![Standalone Tokenized Refund, Reversal and RefundReversal Sequence Diagram](/img/standalone_Tokenized_Refund_and_reversals.png)](/img/standalone_Tokenized_Refund_and_reversals.png)
 
 ---
 
@@ -1521,7 +1491,7 @@ The **Cloud Tokenized Operation** enables remote-triggered financial operations,
 This operation is initiated by sending a **`CloudFinancialRequest`** object. The SDK handles the following workflow:
 
 1. Parses and validates the `CloudFinancialRequest`.
-2. Tokenizes the card (if `isTokenize` is `true` and `operation` is `Sale`).
+2. Tokenizes the card (if `tokenize` is `true` and `operation` is `Sale`).
 3. Triggers the **`Events.CardTokenized`** event with token and callback.
 4. Proceeds with the Sale operation upon `resume()` call.
 5. Emits the final result via **`Events.EndOfTransaction`**.
@@ -1539,7 +1509,7 @@ A data object that represents the request payload for initiating cloud-based fin
 | Field                    | Type                              | Description |
 |--------------------------|-----------------------------------|-------------|
 | `operation`              | `Operations`                      | Must be set to `Operations.Sale` for this flow. |
-| `isTokenize`             | `Boolean`                         | Must be set to `true` to trigger card tokenization. |
+| `tokenize`             | `Boolean`                         | Must be set to `true` to trigger card tokenization. |
 | `amount`                 | `String?`                         | Transaction amount as string. |
 | `currency`               | `String?`                         | Currency code. |
 | `callbackUrl`            | `String?`                         | If present, indicates REST API request. |
@@ -1560,7 +1530,7 @@ A data object that represents the request payload for initiating cloud-based fin
 
 - The SDK uses `getParsedAmount()` and `getParsedCurrency()` to convert string values into typed `BigInteger` and `Currency`.
 - If `callbackUrl` is present, the request is treated as a REST API request.
-- If `isTokenize` is `true` and `operation == Sale`, the card is tokenized, and the **`Events.CardTokenized`** event is emitted.
+- If `tokenize` is `true` and `operation == Sale`, the card is tokenized, and the **`Events.CardTokenized`** event is emitted.
 - After receiving the `resume()` call, the SDK performs the Sale operation.
 
 ---
@@ -1584,7 +1554,7 @@ Emitted after the sale is completed.
 - The only supported operation for this flow is **Sale**.
 - Must set:
   - `operation = Operations.Sale`
-  - `isTokenize = true`
+  - `tokenize = true`
 - Invoking `resume()` with any operation other than `Sale` will result in `MessageType.FEATURE_NOT_SUPPORTED`.
 
 ---
@@ -1594,7 +1564,7 @@ Emitted after the sale is completed.
 ```json
 {
   "operation": "Sale",
-  "isTokenize": true,
+  "tokenize": true,
   "amount": "1000",
   "currency": "EUR",
   "transactionReference": "a1b2c3d4",
@@ -1622,24 +1592,9 @@ override fun onCardTokenized(
 
 ---
 
-**Sequence Diagram (Mermaid)**
+**Sequence Diagram**
 
-```mermaid
-sequenceDiagram
-    participant CloudService
-    participant SDK
-    participant Cardholder
-    participant REST API
-
-    CloudService ->> SDK: CloudFinancialRequest (operation=Sale, isTokenize=true)
-    Cardholder ->> SDK: Presents Card
-    SDK ->> REST API: Tokenize Card
-    REST API -->> SDK: Card Token
-    SDK ->> Integrator: Events.CardTokenized
-    Integrator ->> SDK: resume(Sale)
-    SDK ->> Card Network: Execute Sale
-    SDK -->> Integrator: Events.EndOfTransaction
-```
+[![Cloud Tokenized SALE](/img/cloud_tokenized_Sale.png)](/img/cloud_tokenized_Sale.png)
 
 ---
 
@@ -1659,7 +1614,7 @@ The **Sale Reversal Tokenized Operation** is a cloud-initiated process that toke
 It is identified by:
 
 - `operation = Operations.SaleReversal`
-- `isTokenize = true`
+- `tokenize = true`
 
 Upon receiving this request, the SDK emits the **`Events.DependantReversalReceived`** event. The integrator is then responsible for controlling the transaction flow using the `ResumeDependantOperationExecutor` interface.
 
@@ -1672,7 +1627,7 @@ Upon receiving this request, the SDK emits the **`Events.DependantReversalReceiv
 | Field            | Value                            | Description                                 |
 |------------------|----------------------------------|---------------------------------------------|
 | `operation`      | `Operations.SaleReversal`        | Identifies a Sale Reversal request.         |
-| `isTokenize`     | `true`                           | Triggers tokenization before the operation. |
+| `tokenize`     | `true`                           | Triggers tokenization before the operation. |
 
 Other fields such as `originalTransactionId`, `currency`, `amount`, and `transactionReference` must also be set as needed.
 
@@ -1782,29 +1737,9 @@ class ResumeDependantSaleReversalExecutorImpl(
 
 ---
 
-**Sequence Diagram (Mermaid)**
+**Sequence Diagram**
 
-```mermaid
-sequenceDiagram
-    participant CloudService
-    participant SDK
-    participant Integrator
-
-    CloudService ->> SDK: CloudFinancialRequest (operation=SaleReversal, isTokenize=true)
-    SDK ->> Integrator: Events.DependantReversalReceived
-    alt executeDependantOperation
-        Integrator ->> SDK: executeDependantOperation()
-        SDK ->> Card Network: Execute SaleReversal
-        SDK -->> Integrator: Events.EndOfTransaction
-    else finishWithoutCardOperation
-        Integrator ->> SDK: finishWithoutCardOperation()
-        SDK -->> Integrator: Txn Result (Authorised, no money moved)
-    else cancel
-        Integrator ->> SDK: cancel()
-        SDK -->> Integrator: Txn Result (Cancelled)
-    end
-```
-
+[![Standalone Tokenized Refund, Reversal and RefundReversal Sequence Diagram](/img/cloud_tokenized_SaleReversal.png)](/img/cloud_tokenized_SaleReversal.png)
 ---
 
 **Summary**
@@ -1822,7 +1757,7 @@ The **Refund Tokenized Operation** is a cloud-based flow that allows merchants t
 
 This operation is identified by:
 - `operation = Operations.Refund`
-- `isTokenize = true`
+- `tokenize = true`
 
 Upon receiving the request, the SDK emits the **`Events.DependantRefundReceived`** event. The integrator must handle this event by using the **`ResumeDependantOperationExecutor`** interface to define the next step.
 
@@ -1835,7 +1770,7 @@ Upon receiving the request, the SDK emits the **`Events.DependantRefundReceived`
 | Field            | Value                        | Description                             |
 |------------------|------------------------------|-----------------------------------------|
 | `operation`      | `Operations.Refund`          | Indicates the refund operation.         |
-| `isTokenize`     | `true`                       | Enables card tokenization.              |
+| `tokenize`     | `true`                       | Enables card tokenization.              |
 
 Other standard fields such as `amount`, `currency`, `originalTransactionId`, and `transactionReference` should be populated according to the use case.
 
@@ -1938,28 +1873,9 @@ class ResumeDependantRefundExecutorImpl(
 
 ---
 
-**Sequence Diagram (Mermaid)**
+**Sequence Diagram**
 
-```mermaid
-sequenceDiagram
-    participant CloudService
-    participant SDK
-    participant Integrator
-
-    CloudService ->> SDK: CloudFinancialRequest (operation=Refund, isTokenize=true)
-    SDK ->> Integrator: Events.DependantRefundReceived
-    alt executeDependantOperation
-        Integrator ->> SDK: executeDependantOperation()
-        SDK ->> Card Network: Execute Refund
-        SDK -->> Integrator: Events.EndOfTransaction
-    else finishWithoutCardOperation
-        Integrator ->> SDK: finishWithoutCardOperation()
-        SDK -->> Integrator: Txn Result (Authorised, no money moved)
-    else cancel
-        Integrator ->> SDK: cancel()
-        SDK -->> Integrator: Txn Result (Cancelled)
-    end
-```
+[![Cloud Tokenized Refund Sequence Diagram](/img/cloud_tokenized_Refund.png)](/img/cloud_tokenized_Refund.png)
 
 ---
 
@@ -1967,7 +1883,7 @@ sequenceDiagram
 
 The **Refund Tokenized Operation** is a controlled cloud-based refund workflow that tokenizes the card and delegates control to the integrator for determining the refund outcome.
 
-- Triggered via `CloudFinancialRequest` with `operation = Refund` and `isTokenize = true`.
+- Triggered via `CloudFinancialRequest` with `operation = Refund` and `tokenize = true`.
 - Uses the `ResumeDependantOperationExecutor` interface to define the refund behavior.
 - Provides flexibility to execute, authorize without refund, or cancel the transaction.
 
@@ -1981,7 +1897,7 @@ The **Refund Tokenized Operation** is a controlled cloud-based refund workflow t
 The **Refund Reversal Tokenized Operation** is a cloud-triggered operation that securely tokenizes a card and performs a **Refund Reversal**. This operation is initiated via a `CloudFinancialRequest` object with:
 
 - `operation = Operations.RefundReversal`
-- `isTokenize = true`
+- `tokenize = true`
 
 After receiving the request, the SDK emits the **`Events.DependantReversalReceived`** event. The integrator must respond by using the **`ResumeDependantOperationExecutor`** interface to control how the operation proceeds.
 
@@ -1994,7 +1910,7 @@ After receiving the request, the SDK emits the **`Events.DependantReversalReceiv
 | Field            | Value                             | Description                                  |
 |------------------|-----------------------------------|----------------------------------------------|
 | `operation`      | `Operations.RefundReversal`       | Indicates the refund reversal operation.     |
-| `isTokenize`     | `true`                            | Enables card tokenization.                   |
+| `tokenize`     | `true`                            | Enables card tokenization.                   |
 
 Other standard fields such as `amount`, `currency`, `originalTransactionId`, and `transactionReference` should also be included.
 
@@ -2094,28 +2010,9 @@ class ResumeDependantRefundReversalExecutorImpl(
 
 ---
 
-**Sequence Diagram (Mermaid)**
+**Sequence Diagram**
 
-```mermaid
-sequenceDiagram
-    participant CloudService
-    participant SDK
-    participant Integrator
-
-    CloudService ->> SDK: CloudFinancialRequest (operation=RefundReversal, isTokenize=true)
-    SDK ->> Integrator: Events.DependantReversalReceived
-    alt executeDependantOperation
-        Integrator ->> SDK: executeDependantOperation()
-        SDK ->> Card Network: Execute RefundReversal
-        SDK -->> Integrator: Events.EndOfTransaction
-    else finishWithoutCardOperation
-        Integrator ->> SDK: finishWithoutCardOperation()
-        SDK -->> Integrator: Txn Result (Authorised, no money moved)
-    else cancel
-        Integrator ->> SDK: cancel()
-        SDK -->> Integrator: Txn Result (Cancelled)
-    end
-```
+[![Cloud Tokenized Refund Reversal Sequence Diagram](/img/cloud_tokenized_refund_Reversal.png)](/img/cloud_tokenized_refund_Reversal.png)
 
 ---
 
