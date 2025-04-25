@@ -536,7 +536,7 @@ Common Response Codes
 :::caution
 For the Commands to work properly, the Handpoint Payment App needs to be set to **Integrated Mode.**<br />
 Otherwise the response might be a **202 Accepted**, but the command will **not** be executed by the App.<br />
-As a workaround you can use the [`pingDevice` operation](restobjects.md#operation-types-description)
+As a workaround you can use the [`pingDevice` operation](restobjects#operation-types-description)
 :::
 
 ### Set Unattended Mode
