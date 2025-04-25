@@ -26,8 +26,6 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.1006.0
 **Features**:
 
-- The "kiosk mode" command has been renamed to "unattended mode"
-
 - Now just "CARD" in shown in receipts when the card brand is not in the language library
 
 **Fixes**:

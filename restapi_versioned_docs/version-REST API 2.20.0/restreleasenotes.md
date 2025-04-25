@@ -9,6 +9,14 @@ id: restreleasenotes
 Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e) to our Handpoint Newsletter!
 :::
 
+## 2.20.0
+**Features:**
+
+Added a selector to the [{transactionReference}/status](restendpoints.md#transactionstransactionreferencestatusselector) endpoint which improves greatly on reporting
+
+Added "commands" 
+
+
 ## 2.17.0
 **Features:**
 
@@ -22,7 +30,7 @@ The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reve
 ## 2.15.0
 **Features:**
 
-We are introducing a new transaction type called [Pre-Authorization](restobjects.md#operation-types-description). A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront. 
+We are introducing a new transaction type called [Pre-Authorization](restobjects#operation-types-description). A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront. 
 
 A pre-authorized transaction can be increased or decreased (Pre-Auth Increase), for example if a tab was opened and the consumer is adding new orders going above the initial pre-authorized amount.  
 

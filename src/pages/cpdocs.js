@@ -653,7 +653,7 @@ function TableTerminals() {
           </div>
         </div>
         <br></br>
-        <div class="card-demo" align="center" style={{ fontSize: '13px' }}>
+
           
           <br></br>
         <div class="row">
@@ -693,7 +693,7 @@ function TableTerminals() {
           </div>
         </div>
 
-        </div>
+      
       </Element>
 
 

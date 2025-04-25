@@ -14,7 +14,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 ## 7.1009.5
 **Features**:
 
-We're excited to announce the latest update to our Android SDK, featuring support of ***Tokenized Payments Operations***, as well as supporting two new PAX card readers models: **IM25** and **A8900**. This new Tokenized Payments Operations feature is an expansion of our former Tokenize and Modify feature, fully replacing and complementing it.
+We're excited to announce the latest update to our Android SDK, featuring support of ***Tokenized Payments Operations***, as well as supporting a new PAX card readers model: **IM25**. This new Tokenized Payments Operations feature is an expansion of our former Tokenize and Modify feature, fully replacing and complementing it.
 
 **Tokenized Payments Operations** enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant.
 
@@ -98,8 +98,6 @@ There are two main modes for how this works, depending on integration needs: Sta
 
 ## 7.1006.0
 **Features**:
-
-- The "kiosk mode" command has been renamed to "unattended mode"
 
 - Now just "CARD" in shown in receipts when the card brand is not in the language library
 

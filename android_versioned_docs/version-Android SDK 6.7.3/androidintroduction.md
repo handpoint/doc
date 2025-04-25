@@ -14,12 +14,11 @@ id: androidintroduction
       <h3>Android SDK</h3>
     </div>
     <div class="card__body">
-      <a href="https://search.maven.org/artifact/com.handpoint.api/sdk/">
   <img src="https://handpoint.imgix.net/ballicons/small/android.png"/> 
-</a>
     </div>
     <div class="card__footer">
-      <a class="button button--primary" href="https://search.maven.org/artifact/com.handpoint.api/sdk/" >Get the latest Android SDK!</a>
+      Get our latest android SDK! Ask our support team to obtain access if you don't have already.<br />
+      In our <strong>Nexus Repository</strong> you will find both Development and Production <strong>SDK</strong> versions.
     </div>
   </div>
 </div>
