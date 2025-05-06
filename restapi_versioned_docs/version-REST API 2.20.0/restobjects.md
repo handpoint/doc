@@ -15,7 +15,7 @@ An enum representing the supported acquirers for merchant authentication.
 
 **Possible values**
 
-`AMEX` `TEYA|BORGUN` `OMNIPAY` `POSTBRIDGE` `TNS` `TSYS` `VANTIV|WORLDPAY` `SANDBOX` `TILLED`
+`AMEX` `BORGUN` `OMNIPAY` `POSTBRIDGE` `TSYS` `VANTIV` `SANDBOX`
 
 
 ## Balance
