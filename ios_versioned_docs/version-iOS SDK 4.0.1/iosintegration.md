@@ -60,7 +60,7 @@ This class defines the behavior of the app when discovery related events are rec
 2. Define a class that implements the **HeftStatusReportDelegate** protocol (it can be the same as above).
 This class defines the behavior of the app when connection and transaction related events are received from the SDK
 3. Get a reference to the HeftManager singleton and assign your HeftDiscoveryDelegate instance as delegate.
-4. Start the discovery process by calling the** startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders **function of the HeftManager.
+4. Start the discovery process by calling the **startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders **function of the HeftManager.
 5. Connect to a device by calling the **clientForDevice** function of the HeftManager.
 6. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked.
 7. From this point, start processing transactions and have fun!
@@ -151,7 +151,7 @@ When the discovery process is finished, the **didDiscoverFinished** function of 
 [self.heftClient saleWithAmount:100 currency:@"GBP" cardholder:YES];
 ````
    
-8. When a transaction has been initiated (f.ex saleWithAmount), the HeftClient alerts the HeftStatusReportDelegate object by invoking **responseStatus** during the process and **responceFinanceStatus** when the process has finished.
+8. When a transaction has been initiated (E.g saleWithAmount), the HeftClient alerts the HeftStatusReportDelegate object by invoking **responseStatus** during the process and **responceFinanceStatus** when the process has finished.
 
 ````objectivec
     - (void)responseStatus:(id<ResponseInfo>)info
