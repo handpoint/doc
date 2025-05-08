@@ -19,7 +19,7 @@ id: iosintegration
 
 ### If you're using the framework/Carthage:
 
-- ** HandpointSDK.h**: #import this header file into your classes.
+- **HandpointSDK.h**: #import this header file into your classes.
 - **HandpointSDK.framework**: The SDK library.
 
 The SDK also includes a simulator, a library configured to simulate a payment terminal - intended for early development of an user interface. To use it, just link the libheft.a file in the HeftSimulatorLibrary folder, instead of the actual SDK library.
@@ -55,19 +55,19 @@ The SDK also includes a simulator, a library configured to simulate a payment te
 
 Any application using the Handpoint SDK should follow these steps:
 
-1. Define a class that implements the** HeftDiscoveryDelegate **protocol.
+1. Define a class that implements the **HeftDiscoveryDelegate**protocol.
 This class defines the behavior of the app when discovery related events are received from the SDK.
 2. Define a class that implements the **HeftStatusReportDelegate** protocol (it can be the same as above).
 This class defines the behavior of the app when connection and transaction related events are received from the SDK
 3. Get a reference to the HeftManager singleton and assign your HeftDiscoveryDelegate instance as delegate.
-4. Start the discovery process by calling the **startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders **function of the HeftManager.
+4. Start the discovery process by calling the **startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders**function of the HeftManager.
 5. Connect to a device by calling the **clientForDevice** function of the HeftManager.
 6. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked.
 7. From this point, start processing transactions and have fun!
 
 ## Usage details
 
-1. Define a class that implements the ** HeftDiscoveryDelegate **protocol.
+1. Define a class that implements the **HeftDiscoveryDelegate**protocol.
 This class will define the behavior of the application when discovery related events are received from the SDK.
 
 ````objectivec
@@ -75,7 +75,7 @@ This class will define the behavior of the application when discovery related ev
     @implementation MyDiscoveryDelegate
 ````  
  
-2. Define a class that implements the** HeftStatusReportDelegate **protocol (it can be the same as above).
+2. Define a class that implements the **HeftStatusReportDelegate** protocol (it can be the same as above).
 This class will define the behavior of the application when connection and transaction related events are received from the SDK.
 
 ````objectivec
