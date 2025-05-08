@@ -6,10 +6,9 @@ id: iosintegration
 
 # Integration Guide
 
-**The SDK supports the following connection methods:** 
+**The SDK supports the following connection method:** 
 
-1. **[Bluetooth (HiLite)](#filesiniOSSDK)**
-2. **[Lightning (HiPro)](#filesiniOSSDK)**
+**[Bluetooth (HiLite)](#filesiniOSSDK)**
 
 ## Files in iOS SDK {#filesiniOSSDK}
 
@@ -61,11 +60,10 @@ This class defines the behavior of the app when discovery related events are rec
 2. Define a class that implements the **HeftStatusReportDelegate** protocol (it can be the same as above).
 This class defines the behavior of the app when connection and transaction related events are received from the SDK
 3. Get a reference to the HeftManager singleton and assign your HeftDiscoveryDelegate instance as delegate.
-4. If device is available through BT connection, start the discovery process by calling the** startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders **function of the HeftManager.
-5. If device is using a Lightning connector (HiPro devices), recover the device by directly calling the **connectedCardReaders** function of the HeftManager.
-6. Connect to a device by calling the **clientForDevice** function of the HeftManager.
-7. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked.
-8. From this point, start processing transactions and have fun!
+4. Start the discovery process by calling the** startDiscovery** function of the HeftManager and recover a list of the discovered devices by calling the **connectedCardReaders **function of the HeftManager.
+5. Connect to a device by calling the **clientForDevice** function of the HeftManager.
+6. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked.
+7. From this point, start processing transactions and have fun!
 
 ## Usage details
 
@@ -119,13 +117,7 @@ When the discovery process is finished, the **didDiscoverFinished** function of 
     }
 ````
    
-5. If device is using a Lightning connection (HiPro devices), skip the previous step and recover the device by directly calling the **connectedCardReaders** function of the HeftManager.
-
-````objectivec
-HeftRemoteDevice *lightningDevice = [[self.manager connectedCardReaders] firstObject];
-````
-   
-6. Connect to a device by calling the **clientForDevice** function of the HeftManager.
+5. Connect to a device by calling the **clientForDevice** function of the HeftManager.
 
 * Expected parameters of this function are:
 
@@ -144,7 +136,7 @@ HeftRemoteDevice *lightningDevice = [[self.manager connectedCardReaders] firstOb
 			delegate:myStatusReportDelegate];
 ````
   
-7. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked. Function receives as parameter a HeftClient object, whose reference must be stored since it is the communication bridge to the device we have connected to.
+6. If connection is successful, the **didConnect** function of the HeftStatusReportDelegate instance will be invoked. Function receives as parameter a HeftClient object, whose reference must be stored since it is the communication bridge to the device we have connected to.
 
 ```` objectivec
     - (void)didConnect:(id <HeftClient>)client
@@ -153,13 +145,13 @@ HeftRemoteDevice *lightningDevice = [[self.manager connectedCardReaders] firstOb
     }
 ````
    
-8. Once connected to the card reader, transactions can be started through the HeftClient object. For example, the next code starts a sale of 100 GBP:
+7. Once connected to the card reader, transactions can be started through the HeftClient object. For example, the next code starts a sale of 100 GBP:
 
 ````objectivec
 [self.heftClient saleWithAmount:100 currency:@"GBP" cardholder:YES];
 ````
    
-9. When a transaction has been initiated (f.ex saleWithAmount), the HeftClient alerts the HeftStatusReportDelegate object by invoking **responseStatus** during the process and **responceFinanceStatus** when the process has finished.
+8. When a transaction has been initiated (f.ex saleWithAmount), the HeftClient alerts the HeftStatusReportDelegate object by invoking **responseStatus** during the process and **responceFinanceStatus** when the process has finished.
 
 ````objectivec
     - (void)responseStatus:(id<ResponseInfo>)info
@@ -178,7 +170,7 @@ HeftRemoteDevice *lightningDevice = [[self.manager connectedCardReaders] firstOb
     }
 ````
 	
-10. In case you are using the **SDK simulator**, the behavior changes according to the amount of the transaction:
+9. In case you are using the **SDK simulator**, the behavior changes according to the amount of the transaction:
 
 | **Amount**      | **Behavior** |
 | ----------- | ----------- |
