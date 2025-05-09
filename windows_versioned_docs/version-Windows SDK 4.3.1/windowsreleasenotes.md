@@ -11,7 +11,7 @@ Do not miss any news from Handpoint releases. [Subscribe](https://handpoint.us6.
 
 ## 4.3.1
 **Features:**
-A new `tokenize` parameter is available under [Optional Transaction Parameters](windowsobjects.md#3). See [Android SDK 7.1009.5](/android/androidreleasenotes#7.1009.5) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
+A new `tokenize` parameter is available under [Optional Transaction Parameters](windowsobjects.md). See [Android SDK 7.1009.5](/android/androidreleasenotes#7.1009.5) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
 
 ## 4.2.0
 **Features:**
