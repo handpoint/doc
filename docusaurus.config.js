@@ -38,6 +38,10 @@ module.exports = {
         },
         {
           type: 'docsVersionDropdown',
+          docsPluginId: 'restapi',
+        },
+        {
+          type: 'docsVersionDropdown',
           docsPluginId: 'ios',
           activeBasePath: './ios_versioned_docs/'
         },
@@ -50,10 +54,7 @@ module.exports = {
           docsPluginId: 'javascript',
           activeBaseRegex: 'javascript_versioned_docs/'
         },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'restapi',
-        },
+        
         {
           type: 'docsVersionDropdown',
           docsPluginId: 'express',

@@ -19,7 +19,9 @@ id: androidintroduction
 </a>
     </div>
     <div class="card__footer">
-      <a class="button button--primary" href="https://search.maven.org/artifact/com.handpoint.api/sdk/" >Get the latest Android SDK!</a>
+      :::info
+      Get our latest android SDK! Ask our support team to obtain access if you don't have already<br />
+      :::
     </div>
   </div>
 </div>

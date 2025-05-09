@@ -55,7 +55,7 @@ function Options() {
 							<div class="card-demo">
 								<div class="card shadow--md">
 									<div class="card__header" style={{ color: '#25365d'}} >
-										<b><h4>In-person payments</h4></b>
+										<b><h4>In-person payments <br /></h4></b>
 									</div>
 									<div class="card__body" align="center">
 										<div><img src="/img/cppayment.png" alt="In-person payments"></img></div>
@@ -71,7 +71,7 @@ function Options() {
 							<div class="card-demo" >
 								<div class="card shadow--md">
 									<div class="card__header" style={{ color: '#25365d'}} >
-										<b><h4>Online payments</h4></b>
+										<b><h4>Online payments (Europe)</h4></b>
 									</div>
 									<div class="card__body" align="center">
 										<div><img src="/img/cnppayment.png" alt="Online payments"></img></div>
