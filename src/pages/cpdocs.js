@@ -160,18 +160,6 @@ function SdkTerminalTable() {
             </TableRow>
 
             <TableRow>
-              <TableCell align="center"><b>HiPro</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-            </TableRow>
-
-            <TableRow>
               <TableCell align="center"><b>PAX Android Terminals</b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
@@ -256,24 +244,6 @@ function IntegrationPaths() {
                   payments on the go!</p>
                 <div align="center">
                   <img class="card-image imagesSize" src="/img/hilite-integration.png" alt="HiLite integration"></img>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br></br>
-        <div class="row">
-          <div class="col col--12" >
-            <div class="integrationOptions">
-              <div class="card-demo card shadow--md" style={{ fontSize: '13px' }}>
-                <h3 class="card__header">
-                  <b>Lightning Integration</b>
-                </h3>
-                <p class="card__body">The Handpoint HiPro is an all-in-one payment terminal compatible with iOS devices. The lightning port is used for the communication
-                  between the iOS phone or ipod and the payment terminal. This is the perfect line buster for busy retail environments. With its integrated scanner It can also be used to
-                  scan barcodes and manage inventory as well as taking payments on the spot, directly in the store aisles.</p>
-                <div align="center">
-                  <img class="card-image imagesSize" src="/img/hipro-integration.png" alt="HiPro integration"></img>
                 </div>
               </div>
             </div>
@@ -392,7 +362,7 @@ function TableTerminals() {
     <div class="container">
       <Element name="tableTerminalsElement">
         <div class="row">
-          <div class="col col--4">
+          <div class="col col--6">
             <div class="integrationOptions">
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
@@ -409,7 +379,7 @@ function TableTerminals() {
                 </div>
               </div>
             </div></div>
-          <div class="col col--4">
+          <div class="col col--6">
             <div class="integrationOptions">
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
@@ -420,23 +390,6 @@ function TableTerminals() {
                     <a href="https://www.datecs.bg/en/products/321" target="_blank">
                       <img style={{ height: '150px' }} src="/img/HiPlus.png" alt="cloud integration">
                       </img></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col col--4">
-            <div class="integrationOptions">
-              <div class="card-demo" style={{ fontSize: '13px' }}>
-                <div class="card shadow--md ">
-                  <h3 class="card__header">
-                    <b><a href="http://datecs.co.uk/product/bluepad-500/" target="_blank">HiPro</a></b>
-                  </h3>
-                  <div class="card__body" align="center">
-                    <a href="http://datecs.co.uk/product/bluepad-500/" target="_blank"><img style={{ height: '150px' }}
-                      src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiPro_and_Sled.png"
-                      alt="">
-                    </img></a>
                   </div>
                 </div>
               </div>
@@ -700,20 +653,47 @@ function TableTerminals() {
           </div>
         </div>
         <br></br>
-        <div class="card-demo" align="center" style={{ fontSize: '13px' }}>
-          <div class="card shadow--md">
-            <h3 class="card__header" >
-              <b><a href="https://www.paxtechnology.com/im30" target="_blank">PAX IM30</a></b>
-            </h3>
-            <div class="card__body" align="center">
-              <a href="https://www.paxtechnology.com/im30" target="_blank"><img style={{ height: '150px' }}
-                src="https://desk.zoho.com/DocsDisplay?zgId=641915001&mode=inline&blockId=bfw51ab2e6707da48425ca70abd56259e9887"
-                alt="">
-              </img></a>
+
+          
+          <br></br>
+        <div class="row">
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/im25" target="_blank">PAX IM25</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/im25" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_1000,w_500,f_auto,q_auto/1402119/371589_243126.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" >
+                    <b><a href="https://www.paxtechnology.com/im30" target="_blank">PAX IM30</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/im30" target="_blank"><img style={{ height: '150px' }}
+                      src="https://desk.zoho.com/DocsDisplay?zgId=641915001&mode=inline&blockId=bfw51ab2e6707da48425ca70abd56259e9887"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+      
       </Element>
 
 
@@ -734,11 +714,10 @@ function CommunicationTypesTable() {
           <TableHead>
             <TableRow sx={{ maxHeight: 20 }}>
               <TableCell></TableCell>
-              <TableCell align="center" ><b>Lightning</b></TableCell>
-              <TableCell align="center"><b>Bluetooth</b></TableCell>
-              <TableCell align="center"><b>Ethernet</b></TableCell>
               <TableCell align="center"><b>Cellular</b>	</TableCell>
               <TableCell align="center"><b>Wi-Fi</b></TableCell>
+              <TableCell align="center"><b>Ethernet</b></TableCell>
+              <TableCell align="center"><b>Bluetooth</b></TableCell>
               <TableCell align="center"><b>USB</b></TableCell>
 
             </TableRow>
@@ -747,181 +726,163 @@ function CommunicationTypesTable() {
             <TableRow sx={{ height: 40 }}>
               <TableCell align="center"><b>HiLite</b></TableCell>
               <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow sx={{ height: 40 }}>
               <TableCell align="center"><b>BluePad 50+</b></TableCell>
-              <TableCell align="center"></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-            </TableRow>
-
-            <TableRow>
-              <TableCell align="center"><b>HiPro</b></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A910S</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A920</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
 
             <TableRow>
               <TableCell align="center"><b>PAX A920 PRO</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A920 MAX</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A35</b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A50</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A60</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A77</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A80</b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A800</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A960</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A6650</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX A8700</b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX IM25</b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>PAX IM30</b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
-              <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
             <TableRow>
               <TableCell align="center"><b>Telpo TPS900</b></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
-              <TableCell align="center"></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
               <TableCell align="center"></TableCell>
             </TableRow>
 
@@ -1272,13 +1233,12 @@ function HighLevelFeatures() {
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md " >
                   <div class="card__header" >
-                    <h3>Tokenize & Modify</h3>
+                    <h3>Tokenized Payments Operations (formerly Tokenize and Modify)</h3>
                   </div>
                   <div class="card__body" >
                     <p>
-                      A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and
-                      modify the amount before the transaction is sent for processing.  This feature allows you to bring your own loyalty engine and apply for example an
-                      instant discount at the point of sale for loyal customers.  
+                      Tokenized payments operations enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. 
+                      This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant. There are two main modes for how this works, depending on your integration needs: Standalone and Cloud.
                     </p>
                   </div>
                 </div>
@@ -1630,6 +1590,7 @@ function HighLevelFeatures() {
             </div>
           </div>
         </div>
+        <br></br>
       </div>
     </Element>
   );
