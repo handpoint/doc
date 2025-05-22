@@ -4,17 +4,78 @@ This is the source code for the [Handpoint Documentation website](https://develo
 
 ## Local Development
 
-### Requirements
+### Requirements
 
-Docusaurus is essentially a set of npm packages. If you want to build the site locally, you will need to have [Node.js](https://nodejs.org/en/) version 18 or above installed.
+To build the site locally, you will need to have the following installed:
+- [Node.js](https://nodejs.org/en/) version 18 or above
+- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
+- [Docusaurus](https://docusaurus.io/)
 
-You'll also have to install [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable).
+### Installing Node 18
 
-### Installation
+If you don't have Node 18 installed, you can use **Node Version Manager**, also known as [nvm](https://github.com/nvm-sh/nvm) to install it. Nvm is a bash script that allows you to manage multiple versions of Node.js on your machine. It is a great tool for developers who need to switch between different versions of Node.js for different projects.
 
-To install the dependencies, run:
+To install nvm, you can use the following command:
+
+```shell
+brew install nvm
+```
+
+Once installed, you should create NVM's working directory if it doesn't exist:
+
+```shell
+mkdir ~/.nvm
+```
+
+Additionally, add the following lines to your shell profile e.g. ~/.profile or ~/.zshrc:
 
 ```bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "/usr/local/opt/nvm/nvm.sh" ] && \. "/usr/local/opt/nvm/nvm.sh"  # This loads nvm
+[ -s "/usr/local/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/usr/local/opt/nvm/etc/bash_completion.d/nvm"  # This loads nvm bash_completion
+```
+
+After installing nvm, you can install Node 18 by running the following command:
+
+```shell
+nvm install 18
+```
+
+To verify it was installed correctly, you can check the version of Node.js by running:
+
+```shell
+node -v
+```
+
+Once Node 18 is installed, you can set it as the default version by running:
+
+```shell
+nvm alias default 18
+```
+
+### Installing NPM
+
+NPM (Node Package Manager) is included with Node.js, so you don't need to install it separately. However, if you want to update it to the latest version, you can run:
+
+```shell
+npm update -g npm
+```
+
+### Installing Yarn
+
+Yarn is a package manager used to manage dependencies in JavaScript projects. It is an alternative to npm and is known for its speed and reliability.
+
+To install Yarn, you can use the following command:
+
+```shell
+npm install --global yarn
+```
+
+### Install dependencies with Yarn
+
+To install the project dependencies, move to the root folder of the project and run:
+
+```shell
 yarn install
 ```
 
@@ -26,7 +87,37 @@ In the root folder we must execute the following commands:
 yarn start
 ```
 
-This command starts a local development server and opens up a browser window (by default localhost:3000). Most changes are reflected live without having to restart the server.
+This command starts a local development server and opens up a browser window (by default **localhost:3000**). Most changes are reflected live without having to restart the server.
+
+Closing the browser window or the tab will stop the server. You can also stop the server by pressing `Ctrl + C` in the terminal.
+
+## How the documentation is organized
+
+Documentation is mainly organized in folders, classified by every SDK type available for Handpoint integrators:
+
+- `android`: Android SDK
+- `express`: Express SDK
+- `ios`: iOS SDK
+- `javascript`: Javascript SDK
+- `restapi`: REST API
+- `windows`: Windows SDK
+
+Every one of the above folders is replicated in their own `versioned_docs` and `versioned_sidebars` folders. This is where the versioned documentation is stored.
+
+For example, the Android SDK version 6.7.0 related documentation can be found in two places:
+
+- `android_versioned_docs/version-Android SDK 6.7.0`: Documentation.
+- `android_versioned_sidebars/version-Android SDK 6.7.0-sidebars.json`: Sidebar configuration.
+
+Additionally to these folders, there are other folders that are used for the website:
+
+- `blog`: Blog entries.
+- `docs`: Documentation not directly related with SDKs (for example FAQs and introduction).
+- `src`: Source code for the website (CSS, search bar, etc).
+- `static`: Static files (images, etc).
+- `txnfeedapi`: Transaction feed API documentation.
+- `versioned_docs`: Versioned documentation of the tutorial.
+- `versioned_sidebars`: Versioned sidebar configuration of the tutorial.
 
 ## <a name="generate-a-new-sdk-version"></a> Generate a new SDK version
 Generate a new SDK version will autogenerate a folder with the docs that are currently in the selected folder.
