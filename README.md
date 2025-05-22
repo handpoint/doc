@@ -8,8 +8,8 @@ This is the source code for the [Handpoint Documentation website](https://develo
 
 To build the site locally, you will need to have the following installed:
 - [Node.js](https://nodejs.org/en/) version 18 or above
-- [yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
-- [Docusaurus](https://docusaurus.io/), which is essentially a set of npm packages.
+- [Yarn](https://classic.yarnpkg.com/lang/en/docs/install/#mac-stable)
+- [Docusaurus](https://docusaurus.io/)
 
 ### Installing Node 18
 
