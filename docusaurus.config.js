@@ -205,7 +205,7 @@ module.exports = {
         indexBlog: false,
         indexPages: false,
         indexDocs: true,
-        docsPluginId: ['android', 'ios', 'windows', 'javascript', 'restapi', 'express'],
+        docsRouteBasePath: ['android', 'ios', 'windows', 'javascript', 'restapi', 'express'],
       },
     ],
     [
