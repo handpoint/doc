@@ -60,19 +60,14 @@ module.exports = {
           docsPluginId: 'express',
         },
         {
-
           href: 'https://www.npmjs.com/package/cordova-plugin-handpoint',
           label: 'Cordova Plugin',
-
         },
         {
-
           href: 'https://github.com/thescruba/xamarin-handpoint-bindings',
           label: 'Xamarin Plugin',
-
         },
         {
-
           href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',
           label: 'FAQ',
         },
@@ -126,12 +121,10 @@ module.exports = {
               label: 'Get it on Google Play',
               href: 'https://play.google.com/store/apps/details?id=com.handpoint.hipos&hl=en&gl=US&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1',
             },
-
             {
               label: 'Download on the App Store',
               href: 'https://apps.apple.com/us/app/handpoint/id1450546788?itsct=apps_box_link&itscg=30200',
             },
-
           ],
         },
         {
@@ -149,7 +142,6 @@ module.exports = {
               label: 'Subscribe to the Handpoint Newsletter',
               href: 'https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e',
             },
-
             {
               label: 'GitHub',
               href: 'https://github.com/handpoint',
@@ -175,13 +167,6 @@ module.exports = {
       },
     },
   },
-  themes:[ 
-    ['@easyops-cn/docusaurus-search-local',
-     {indexBlog:false, 
-      indexPages:false,
-      indexDocs:true,
-      docsDir:['android','ios','windows','javascript','restapi','express'],
-      docsRouteBasePath:['android','ios','windows','javascript','restapi','express']}]],
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -212,15 +197,18 @@ module.exports = {
   scripts: [
     // String format.
     'https:////js-eu1.hs-scripts.com/25846579.js',
-    
   ],
   plugins: [
-    // require.resolve('docusaurus-lunr-search', {
-
-
-
-    // }),
-     [
+    [
+      require.resolve('@easyops-cn/docusaurus-search-local'),
+      {
+        indexBlog: false,
+        indexPages: false,
+        indexDocs: true,
+        docsPluginId: ['android', 'ios', 'windows', 'javascript', 'restapi', 'express'],
+      },
+    ],
+    [
       '@docusaurus/plugin-content-docs',
       {
         id: 'ios',
@@ -231,8 +219,6 @@ module.exports = {
         sidebarCollapsed: false
         // ... other options
       },
-
-
     ],
     [
       '@docusaurus/plugin-content-docs',
@@ -245,7 +231,6 @@ module.exports = {
         sidebarCollapsed: false
         // ... other options
       },
-
     ],
     [
       '@docusaurus/plugin-content-docs',
@@ -258,7 +243,6 @@ module.exports = {
         sidebarCollapsed: false
         // ... other options
       },
-
     ],
     [
       '@docusaurus/plugin-content-docs',
@@ -293,11 +277,8 @@ module.exports = {
         routeBasePath: 'android',
         sidebarPath: require.resolve('./sidebarsAndroid.js'),
         sidebarCollapsed: false
-
         // ... other options
       },
-
     ],
   ]
-
 };

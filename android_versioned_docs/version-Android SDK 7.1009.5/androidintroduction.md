@@ -44,11 +44,13 @@ We take care of PCI compliance so you can be kept out of PCI scope. The Handpoin
 
 ### SDK distribution 
 
-The Handpoint Android SDK is available on Maven central as well as the Handpoint internal Nexus server. Maven central contains the **production builds** while Nexus contains **development snapshots** of the SDK.
-- If you are integrating your software with a **PAX debug terminal** you will need to get the SDK from **Nexus**. 
-- If you are integrating your software with a **PAX production terminal** you will need to get the SDK from **Maven Central**. 
-- If you are integrating your software with an HiLite terminal you will need to get the SDK from **Maven Central**. 
+The Handpoint Android SDK is available on the Handpoint internal Nexus server; which contains both the **production builds** and the **development snapshots** of the SDK.<br/>
+Access to the Handpoint Internal Nexus server will be provided by our Integration Support team. 
+:::caution
+**The credentials to Handpoint Internal Nexus server will be individual and not meant to be shared with others**.
+:::
 
+<br/><br/>
 
 The Handpoint Android SDK is compatible with Android version 5.1.1 [(API level 22)](https://developer.android.com/about/versions/lollipop/android-5.1) and up.
 The latest version is compiled with java **1.8**
@@ -82,22 +84,11 @@ We **strongly** recommend you add the following to your `AndroidManifest.xml`:
 
 ### Gradle Settings
 
-#### For production terminals (Maven):
+#### For production terminals (Nexus):
 ```groovy
  //Handpoint Production SDK (Production terminals)
  implementation 'com.handpoint.api:sdk:7.x.x'
 ```
-In the `gradle.build` (Top-level build file) for production terminals (Maven):
-
-  ```groovy
-        allprojects {     //Handpoint Production SDK (Production terminals)
-          repositories {
-             google()
-             mavenCentral()
-             maven { url 'https://jitpack.io' }
-              }
-        }
-  ```
 
 #### For debug terminals (Nexus) [Only applies to PAX/Telpo devices]:  
 ```groovy 
@@ -151,7 +142,7 @@ android {
  }
   ```
 
-### Maven Settings
+### Nexus Settings
 
 For production terminals: 
 
@@ -159,7 +150,7 @@ For production terminals:
     <dependency>
       <groupId>com.handpoint.api</groupId>
       <artifactId>sdk</artifactId>
-      <version>[7.1001.0,)</version>
+      <version>[7.1009.5,)</version>
       <type>aar</type>
     </dependency>
 ```
