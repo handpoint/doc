@@ -159,16 +159,16 @@ Commands:
 ## <a name="generate-a-new-sdk-version"></a> Generate a new SDK version
 Generate a new SDK version will autogenerate a folder with the docs that are currently in the selected folder.
 
-Command to create a new version of Android SDK (e.g. version 6.8.0)
+Command to create a new version of Android SDK (e.g. version 7.1009.5)
 
 ```console
-npm run docusaurus docs:version:android "Android SDK 6.8.0"
+npm run docusaurus docs:version:android "Android SDK 7.1009.5"
 ```
 
-`android` represents the folder where Android docs are. `"Android SDK 6.8.0"` is the name of the new version, it will appear as is on the documentation website
-Automatically, it will create the new folder for this version (version-Android SDK 6.8.0) in `android_versioned_docs`. 
+`android` represents the folder where Android docs are. `"Android SDK 7.1009.5"` is the name of the new version, it will appear as is on the documentation website
+Automatically, it will create the new folder for this version (version-Android SDK 7.1009.5) in `android_versioned_docs`. 
 
-**To see it published you have to stop docusaurus and start it again**
+**To see it published you will have to restart docusaurus.**
 
 ## Deployment
 
