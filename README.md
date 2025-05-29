@@ -119,6 +119,43 @@ Additionally to these folders, there are other folders that are used for the web
 - `versioned_docs`: Versioned documentation of the tutorial.
 - `versioned_sidebars`: Versioned sidebar configuration of the tutorial.
 
+## How to use Docusaurus with NPM
+
+Docusaurus is a static site generator that allows you to create documentation websites easily. It uses React and Markdown to create a fast and customizable documentation site.
+
+To run docusaurus, just run the following command in the root folder of the project:
+
+```console
+npm run docusaurus <command>
+```
+
+### Docusaurus commands and options
+
+```console
+Usage:  <command> [options]
+
+Options:
+  -V, --version                                            output the version number
+  -h, --help                                               display help for command
+
+Commands:
+  build [options] [siteDir]                                Build website.
+  swizzle [options] [themeName] [componentName] [siteDir]  Wraps or ejects the original theme files into website folder for customization.
+  deploy [options] [siteDir]                               Deploy website to GitHub pages.
+  start [options] [siteDir]                                Start the development server.
+  serve [options] [siteDir]                                Serve website locally.
+  clear [siteDir]                                          Remove build artifacts.
+  write-translations [options] [siteDir]                   Extract required translations of your site.
+  write-heading-ids [options] [siteDir] [files...]         Generate heading ids in Markdown content.
+  docs:version <version>                                   Tag a new docs version
+  docs:version:ios <version>                               Tag a new docs version (ios)
+  docs:version:javascript <version>                        Tag a new docs version (javascript)
+  docs:version:restapi <version>                           Tag a new docs version (restapi)
+  docs:version:windows <version>                           Tag a new docs version (windows)
+  docs:version:express <version>                           Tag a new docs version (express)
+  docs:version:android <version>                           Tag a new docs version (android)
+```
+
 ## <a name="generate-a-new-sdk-version"></a> Generate a new SDK version
 Generate a new SDK version will autogenerate a folder with the docs that are currently in the selected folder.
 
