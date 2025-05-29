@@ -123,7 +123,7 @@ Additionally to these folders, there are other folders that are used for the web
 
 Docusaurus is a static site generator that allows you to create documentation websites easily. It uses React and Markdown to create a fast and customizable documentation site.
 
-To run docusaurus, just run the following command in the root folder of the project:
+To use Docusaurus, just run the following command in the root folder of the project:
 
 ```console
 npm run docusaurus <command>
