@@ -267,7 +267,7 @@ function Standalone() {
                 </h3>
                 <p class="card__body">Handpoint offers a basic standalone application allowing your merchants to take payments without being connected to a point of sale software.
                   When the card reader is used in standalone mode, the merchant can simply type in an amount and start processing payments.
-                  The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end-of-day reports and manual card entry for over the phone transactions.</p>
+                  The Handpoint standalone application offers a full set of functionalities, from powerful analytics, to end-of-day reports and MoTo (Mail Order Telephone Order).</p>
                 <div align="center">
                   <img class="card-image-larger imagesSize" src="/img/standalone.png" alt="standalone terminal"></img>
                 </div>
@@ -372,8 +372,7 @@ function TableTerminals() {
                   <div class="card__body" align="center">
                     <a href="http://datecs.co.uk/product/bluepad-50/" target="_blank"><img style={{ height: '150px' }}
                       src="https://handpoint.imgix.net/Website%20refresh%20photos/product-images/HiLite_big.jpg?fit=crop&crop=focalpoint&fp-y=.53&h=750&w=600&fp-z=4.5&fp-x=.5"
-                      alt=""
-                    >
+                      alt="">
                     </img></a>
                   </div>
                 </div>
@@ -653,9 +652,6 @@ function TableTerminals() {
           </div>
         </div>
         <br></br>
-
-          
-          <br></br>
         <div class="row">
           <div class="col col--6">
             <div class="integrationOptions">
@@ -692,8 +688,26 @@ function TableTerminals() {
             </div>
           </div>
         </div>
-
-      
+        <br></br>
+        <div class="row">
+          <div class="col col--12">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" align="center">
+                    <b><a href="https://www.paxtechnology.com/a8900" target="_blank">PAX A8900 (Full Touch Screen)</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a8900" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_3000,w_2000,f_auto,q_auto/1402119/404900_191355.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </Element>
 
 
@@ -1329,11 +1343,11 @@ function HighLevelFeatures() {
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
                   <div class="card__header">
-                    <h3>Manual Card Entry / MOTO</h3>
+                    <h3>MOTO</h3>
                   </div>
                   <div class="card__body">
                     <p>
-                      MOTO (Mail Order / Telephone Order) also called manual card entry is a type of transaction used by merchants to get services paid via telephone, mail, fax, or internet communication.
+                      MOTO (Mail Order / Telephone Order) is a type of transaction used by merchants to get services paid via telephone, mail, fax, or internet communication.
                       Triggering this function will prompt a card input form on the terminal for the merchant to enter the card number, expiry date and CVV of the card
                       to be charged.
                     </p>
