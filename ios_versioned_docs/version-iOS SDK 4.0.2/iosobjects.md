@@ -53,7 +53,7 @@ The HeftManager is used for discovering and connecting to devices as well as cre
 
 `HeftClient` <span class="badge badge--info">Object</span>
 
-High level interface for the API. HeftClient handles the communication between your application and the payment terminal. The HeftClient object also stores information about the payment terminal in the mpedInfo dictionary. Device Log operations are also implemented in HeftClient. To create a new HeftClient object the clientForDevice method is called from an instance of the HeftManager. Transaction and log requests (and the acceptSignature response) are done by calling HeftClient methods with the relevant input. The library reports the status of the requests by calling delegates of the HeftStatusReportDelegate protocol.
+High level interface for the API. HeftClient handles the communication between your application and the payment terminal. The HeftClient object also stores information about the payment terminal in the mpedInfo dictionary. To create a new HeftClient object the clientForDevice method is called from an instance of the HeftManager. Transaction requests (and the acceptSignature response) are done by calling HeftClient methods with the relevant input. The library reports the status of the requests by calling delegates of the HeftStatusReportDelegate protocol.
 
 **Properties**
 
@@ -189,21 +189,6 @@ High level interface for the API. HeftClient handles the communication between y
 - (BOOL)financeInit;
 ***
 
-[**logSetLevel**](iosdevicemanagement.md#33)
-
-- (BOOL)logSetLevel:(eLogLevel)level;
-***
-
-[**logReset**](iosdevicemanagement.md#35)
-
-- (BOOL)logReset;
-***
-
-[**logGetInfo**](iosdevicemanagement.md#34)
-
-- (BOOL)logGetInfo;
-***
-
 [**acceptSignature**](iostransactions.md#7)
 
 - (void)acceptSignature:(BOOL)flag;
@@ -280,11 +265,6 @@ Notifications sent by the SDK on various events - connected to device, request s
 - (void)responseFinanceStatus:(id-FinanceResponseInfo)info;
 ***
 
-[**responseLogInfo**](iosevents.md#43)
-
-- (void)responseLogInfo:(id-LogInfo)info;
-***
-
 [**requestSignature**](iosevents.md#17)
 
 - (void)requestSignature:(NSString*)receipt;
@@ -342,7 +322,7 @@ A FinanceResponseInfo is passed to the responseFinanceStatus delegate at the end
 | Property      | Description |
 | ----------- | ----------- |
 | `financialResult`  <br />*NSInteger* | A numerical representation of a financial status result. <br />EFT_FINANC_STATUS_UNDEFINED	0x00<br />EFT_FINANC_STATUS_TRANS_APPROVED 0x01 <br />EFT_FINANC_STATUS_TRANS_DECLINED 0x02 <br />EFT_FINANC_STATUS_TRANS_PROCESSED 0x03 <br />EFT_FINANC_STATUS_TRANS_NOT_PROCESSED	0x04 <br />EFT_FINANC_STATUS_TRANS_CANCELLED 0x05|
-| `isRestarting`  <br />*BOOL* | Indicates whether the card reader is about to restart or not (usually triggered after a software update is received).If a restart is imminent then you have 2 seconds to start fetching the logs (before the card reader restarts). After fetching the logs you should disconnect from the card reader and wait for it to be visible again.|
+| `isRestarting`  <br />*BOOL* | Indicates whether the card reader is about to restart or not (usually triggered after a software update is received).If a restart is imminent then you should disconnect from the card reader and wait for it to be visible again.|
 | `authorisedAmount`  <br />*NSInteger* | Amount in the smallest unit of the currency - For example 1000 in case the CurrencyCode is "0826" (GBP) corresponds to 10.00 pounds.|
 | `transactionId`  <br />*NSString* | The id of the current transaction.|
 | `customerReceipt`  <br />*NSString* | Customer receipt in html format.|
@@ -403,30 +383,6 @@ This object contains information about the scanner operation.
 | `status`  <br />[*Status as NSString*](#45) | Financial transaction status.|
 | `xml`  <br />[*XML as NSDictionary*](#46) |  XML details from the payment terminal.|
 
-## LogInfo{#28}	
-
-`LogInfo` <span class="badge badge--info">Object</span>
-
-A LogInfo object is passed to the ResponseLogInfo delegate when logs have been downloaded from the payment terminal.
-
-**Properties**
-
-| Property      | Description |
-| ----------- | ----------- |
-| `statusCode`  <br />*int* | A numerical representation of the status.|
-| `status`  <br />[*Status as NSString*](#45) | Financial transaction status.|
-| `xml`  <br />[*XML as NSDictionary*](#46) | XML details from the payment terminal.|
-| `log`  <br />*NSString* | String containing the logging information.|
-
-## eLogLevel{#13}	
-
-`eLogLevel` <span class="badge badge--info">Enum</span>
-
-An enum describing the different levels of logging used in the SDK and in the payment terminal.
-
-**Possible values**
-
-`eLogNone` `eLogError` `eLogInfo` `eLogFull` `eLogDebug`
 
 ## Transaction Details{#46}	
 
@@ -710,19 +666,18 @@ All values are in hex in the following table.
 | Status ID	      | Value 	|		StatusMessage| 	Details	|
 | ----------- | ----------- |----------- | ----------- |
 | EFT_SUCCESS   | 0001| One of the following: "" (an empty string) "AUTH CODE #" "REFUND ACCEPTED" "REVERSAL ACCEPTED"|Operation completed successfully. No further actions required.|
-| EFT_INVALID_DATA   | 0002|"Invalid data"|Invalid COMMAND request object, from the POS App, at the start of an operation. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
-|EFT_PROCESSING_ERROR	|0003|	"Processing error"|	An unexpected error occurred during processing. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
+| EFT_INVALID_DATA   | 0002|"Invalid data"|Invalid COMMAND request object, from the POS App, at the start of an operation. Please retry the operation. If the issue persists please contact technical support and provide any logs gathered from the POS for the request being sent.|
+|EFT_PROCESSING_ERROR	|0003|	"Processing error"|	An unexpected error occurred during processing. Please retry the operation. If the issue persists please contact technical support and provide transaction information such as transaction id, timestamp and device serial number.|
 |EFT_COMMAND_NOT_ALLOWED|	0004|	"Command not allowed"|	The card reader is currently busy processing another command. Please retry the operation once the current operation has completed.||
 |EFT_NOT_INITIALISED	|0005	|"Device is not initialized"|	The current operation can’t be completed because there is a pending software update that must be applied before processing can continue. Please retry the operation after the card reader has restarted itself.|
-|EFT_CONNECT_TIMEOUT	|0006	|"Connection time out detected"|	The back end connection timed out during an update. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
-|EFT_CONNECT_ERROR	|0007	|"Connection error"	|It was not possible to establish a connection to the back end system during an update operation. Please retry the operation. If the issue persists please contact technical support and provide card reader logs.|
-|EFT_SENDING_ERROR	|0008	|"Send error"	|A failure was detected during communication with the back end system. If a SALE or a REFUND transaction was in progress when this occurred then you MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Note: You may be asked to provide the card reader logs. Once verified please retry the operation.|
-|EFT_RECEIVING_ERROR	|0009|	"Receiving error"|	A failure was detected during communication with the back end system. If a SALE or a REFUND transaction was in progress when this occurred then you MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Note: You may be asked to provide the card reader logs. Once verified please retry the operation.|
-|EFT_NO_DATA_AVAILABLE	|000A|	"No data available"|	The POS App is trying to fetch the card reader log file but there is no data stored in the log file. If logs are required then please set the log level to an appropriate value and retry the operation.|
+|EFT_CONNECT_TIMEOUT	|0006	|"Connection time out detected"|	The back end connection timed out during an update. Please retry the operation. If the issue persists please contact technical support.|
+|EFT_CONNECT_ERROR	|0007	|"Connection error"	|It was not possible to establish a connection to the back end system during an update operation. Please retry the operation. If the issue persists please contact technical support.|
+|EFT_SENDING_ERROR	|0008	|"Send error"	|A failure was detected during communication with the back end system. If a SALE or a REFUND transaction was in progress when this occurred then you MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Once verified please retry the operation.|
+|EFT_RECEIVING_ERROR	|0009|	"Receiving error"|	A failure was detected during communication with the back end system. If a SALE or a REFUND transaction was in progress when this occurred then you MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Once verified please retry the operation.|
 |EFT_TRANS_NOT_ALLOWED	|000B|	"Transaction not allowed"|	`Currently not used`|
 |EFT_UNSUPPORTED_CURRENCY|	000C|	"Currency not supported"|	A currency has been selected that the card reader has not been configured for. Please select the correct currency and retry the operation. Alternatively, please contact technical support and ask for the specific currency to be supported.|
-|EFT_NO_HOST_AVAILABLE|	000D	|"No host configuration found"|	An update was initiated but the card reader could not find any host information for the back end system, even though it otherwise contains valid configuration. This is indicative of an invalid `hostBlock` block with in the `HostList` block in this device configuration, which was placed on the card reader during a previous update. Please contact technical support and provide card reader logs and ask for a replacement device. The card reader will be unable to update itself and must be replaced.|
-|EFT_CARD_READER_ERROR	|000E	|"Card reader error"|	Error detected in the chip reader or the magnetic stripe reader. Please retry the operation. If the issue persists please contact technical support and provide them with the card reader logs as well as asking for a replacement reader.|
+|EFT_NO_HOST_AVAILABLE|	000D	|"No host configuration found"|	An update was initiated but the card reader could not find any host information for the back end system, even though it otherwise contains valid configuration. This is indicative of an invalid `hostBlock` block with in the `HostList` block in this device configuration, which was placed on the card reader during a previous update. Please contact technical support and ask for a replacement device. The card reader will be unable to update itself and must be replaced.|
+|EFT_CARD_READER_ERROR	|000E	|"Card reader error"|	Error detected in the chip reader or the magnetic stripe reader. Please retry the operation. If the issue persists please contact technical support and ask for a replacement reader.|
 |EFT_CARD_READING_FAILED|	000F|	"Failed to read card data"|	The card reader could not read any data from the card. Please retry the operation. If the issue persists the card may be faulty, please try another card. If the issue still persists the card reader may require replacement, please contact technical support.|
 |EFT_INVALID_CARD	|0010	|"INVALID CARD"	|The card reader detected invalid card data. Please retry the operation. If the issue persists the card may be faulty, please try another card. If the issue still persists the card reader may require replacement, please contact technical support.|
 |EFT_INPUT_TIMEOUT	|0011|	"Timeout waiting for user input"|	The card reader timed out while waiting for a user action. No further actions required.|
@@ -750,10 +705,10 @@ All values are in hex in the following table.
 |EFT_REQUEST_INVALID|	0026|	"Request invalid"|	Card not allowed with this transaction type.|
 |EFT_CARD_CANCELLED	|0027|	"TRANSACTION VOID"|	The chip on the card cancelled the transaction. No further actions required.|
 |EFT_CARD_BLOCKED	|0028|	|"CARD BLOCKED"	|The card used in the transaction is blocked. Please retry the transaction with a non-blocked card.|
-|EFT_REQUEST_AUTH_TIMEOUT	|0029|	"Request for authorisation timed out"|	Indicates that the card reader detected a communication failure between itself and the back end system during the authorization phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support. Note: You may be asked to provide the card reader logs.|
-|EFT_REQUEST_PAYMENT_TIMEOUT|	002A|	"Request for payment timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the payments phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support. Note: You may be asked to provide the card reader logs.|
-|EFT_RESPONSE_AUTH_TIMEOUT	|002B|	"Response to authorisation request timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the authorization phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support. Note: You may be asked to provide the card reader logs.|
-|EFT_RESPONSE_PAYMENT_TIMEOUT|	002C|	"Response to payment request timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the payments phase. You MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges.   Note: You may be asked to provide the card reader logs. Once you have verified that the transaction did not go through then please make sure the phone/pc has an internet connection and then retry the operation.|
+|EFT_REQUEST_AUTH_TIMEOUT	|0029|	"Request for authorisation timed out"|	Indicates that the card reader detected a communication failure between itself and the back end system during the authorization phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support.|
+|EFT_REQUEST_PAYMENT_TIMEOUT|	002A|	"Request for payment timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the payments phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support.|
+|EFT_RESPONSE_AUTH_TIMEOUT	|002B|	"Response to authorisation request timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the authorization phase. Please make sure the phone/pc has an internet connection and then retry the operation. If the problem persists then please contact technical support.|
+|EFT_RESPONSE_PAYMENT_TIMEOUT|	002C|	"Response to payment request timed out"	|Indicates that the card reader detected a communication failure between itself and the back end system during the payments phase. You MUST contact technical support and verify whether the transaction went through or not. If you fail to do so then you may be liable for any costs incurred due to any double charges. Once you have verified that the transaction did not go through then please make sure the phone/pc has an internet connection and then retry the operation.|
 |EFT_ICC_CARD_SWIPED|	002D|	"Please insert card in chip reader"	|`Currently not used`|
 |EFT_REMOVE_CARD	|002E|	"Remove the card from the reader"	|`Currently not used`|
 |EFT_SCANNER_IS_NOT_SUPPORTED|	002F|	"This device does not have a scanner"	|Bar-code scanner hardware is not present on this card reader. No further actions are required.|
