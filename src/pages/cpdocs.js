@@ -900,6 +900,14 @@ function CommunicationTypesTable() {
               <TableCell align="center"></TableCell>
             </TableRow>
 
+          <TableRow>
+              <TableCell align="center"><b>PAX A8900</b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+            </TableRow>
 
           </TableBody>
         </Table>
