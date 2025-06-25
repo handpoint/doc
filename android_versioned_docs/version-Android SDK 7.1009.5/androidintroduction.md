@@ -44,6 +44,7 @@ We take care of PCI compliance so you can be kept out of PCI scope. The Handpoin
 
 ### SDK distribution 
 
+
 The Handpoint Android SDK is available on the Handpoint internal Nexus server which contains both the **production builds** and **development snapshots** of the SDK.
 - If you are integrating your software with a **PAX debug terminal** you will need to use the development Snapshots, listed as -RC.X-SNAPSHOT for example **7.1009.5-RC.16-SNAPSHOT**
 - If you are integrating your software with a **PAX production terminal** or with a **HiLite terminal** you will need to use the Production versions listed eg **7.1009.5**
