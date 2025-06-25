@@ -44,13 +44,11 @@ We take care of PCI compliance so you can be kept out of PCI scope. The Handpoin
 
 ### SDK distribution 
 
-
 The Handpoint Android SDK is available on the Handpoint internal Nexus server which contains both the **production builds** and **development snapshots** of the SDK.
-- If you are integrating your software with a **PAX debug terminal** you will need to use the development Snapshots, listed as -RC.X-SNAPSHOT for example **7.1009.5-RC.16-SNAPSHOT**
-- If you are integrating your software with a **PAX production terminal** or with a **HiLite terminal** you will need to use the Production versions listed eg **7.1009.5**
+- If you are integrating your software with a **PAX debug terminal** you will need to use the development Snapshots, listed as -RC.X-SNAPSHOT for example **7.1010.1-RC.0-SNAPSHOT**
+- If you are integrating your software with a **PAX production terminal** or with a **HiLite terminal** you will need to use the Production versions listed eg **7.1010.1**
 
 If in doubt regarding what version to use, we always recommend using the latest available production version, for development snapshots the recommendation is to use the latest RC (highest number) that matches the latest production SDK version published. Our support team is also available to answer any questions regarding what version to use.
-
 
 The Handpoint Android SDK is compatible with Android version 5.1.1 [(API level 22)](https://developer.android.com/about/versions/lollipop/android-5.1) and up.
 The latest version is compiled with java **1.8**
