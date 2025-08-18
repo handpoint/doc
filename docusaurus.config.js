@@ -229,10 +229,6 @@ module.exports = {
     [
       '@docusaurus/preset-classic',
       {
-        googleAnalytics: {
-          trackingID: 'UA-1295190-6',
-          anonymizeIP: false,
-        },
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           includeCurrentVersion: true,
@@ -253,9 +249,6 @@ module.exports = {
     ],
   ],
   scripts: [
-    // String format.
-    'https:////js-eu1.hs-scripts.com/25846579.js',
-    
   ],
   plugins: [
     // require.resolve('docusaurus-lunr-search', {
