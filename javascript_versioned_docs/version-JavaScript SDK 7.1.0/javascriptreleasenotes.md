@@ -6,7 +6,7 @@ id: javascriptreleasenotes
 # Release Notes
 
 :::tip
-Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!Newsletter!
+Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
 ## 7.1.0
