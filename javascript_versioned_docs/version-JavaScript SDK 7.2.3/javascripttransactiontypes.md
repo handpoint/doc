@@ -184,7 +184,7 @@ A sale Reversal, also called sale VOID allows the merchant to reverse a previous
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
 | `originalTransactionID` <span class="badge badge--primary">Required</span>   <br />*string*   | The transaction id of the original sale authorization.|
-| `merchantAuthOptions`  <br />[*MerchantAuthOptions*](javascriptobjects.md#25)   | An object to store the customization options for a saleReversal operation. This object can be empty if no options are required.|
+| `reversalOptions`  <br />[*ReversalOptions*](javascriptobjects.md#40)   | An object to store the customization options for a saleReversal operation. This object can be empty if no options are required.|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**
@@ -285,7 +285,7 @@ A Refund Reversal, also called Refund VOID, allows the merchant to reverse a pre
 | `amount` <span class="badge badge--primary">Required</span>   <br />*integer*   | Amount of the transaction - in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `currency` <span class="badge badge--primary">Required</span>   <br />*string*   | Currency of the transaction.|
 | `originalTransactionID` <span class="badge badge--primary">Required</span>   <br />*string*   | The transaction id of the original refund authorization.|
-| `merchantAuthOptions` <br />[*MerchantAuthOptions*](javascriptobjects.md#25)   | An object to store the customization options for a refundReversal operation. This object can be empty if no options are required.|
+| `reversalOptions` <br />[*ReversalOptions*](javascriptobjects.md#40)   | An object to store the customization options for a refundReversal operation. This object can be empty if no options are required.|
 | `callback_function` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
 
 **Code example**

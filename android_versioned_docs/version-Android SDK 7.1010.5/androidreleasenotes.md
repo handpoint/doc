@@ -12,6 +12,12 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 :::
 
 
+## 7.1010.5
+**Features**:
+
+A new cardPresent flag is supported from our REST API and Cloud clients. This new flag allows to indicate the payments flow that a Reversal operation will imply an actual present card. Plee see TODO IRU for further information on the purpose of this flag.
+
+
 ## 7.1010.3
 **Fixes**:
 

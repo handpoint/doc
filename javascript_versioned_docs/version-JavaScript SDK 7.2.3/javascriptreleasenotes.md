@@ -9,6 +9,11 @@ id: javascriptreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 7.2.3
+**Features:**
+
+A new `cardPresent` parameter is available under [ReversalOptions](javascriptobjects.md#40). See [Android SDK 7.1010.5](/android/androidreleasenotes#7.1010.5) and TODO IRU for detailed information on the purpose of this feature.
+
 ## 7.2.2
 **Features:**
 
