@@ -570,6 +570,7 @@ An object to store information about the request sent to the payment terminal.
 | `transactionReference`  <br />*String*   | The `transactionReference` is a unique ([UUID v4](https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_(random))) that you need to generate and add to every transaction request. In case something goes wrong and you do not receive a transaction result from the terminal, you will be able to query the Handpoint gateway directly with this id by using the [get transaction status](restendpoints.md#transactionstransactionreferencestatus) endpoint.|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](restobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions. The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund |
 | `tokenize`  <br />*Boolean*   | Used to enable the tokenization flow in Tokenized Payments Operationss. See [Android SDK 7.1009.5](/android/androidreleasenotes#710095) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information.|
+| `cardPresent`  <br />*Boolean*   | Optional parameter to indicate that a reversal operation will imply an actual present card, and this will be taken into account in the payments flow. See [Android SDK 7.1010.5](/android/androidreleasenotes#710105) and TODO IRU for detailed information on how to use this feature.|
 
 **Code example**
 
