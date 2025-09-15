@@ -12,7 +12,7 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 ## 2.22.2
 **Features:**
 
-A new `cardPresent` parameter is available under [Optional Transaction Parameters](restobjects.md#transactionRequest). See [Android SDK 7.1010.5](/android/androidreleasenotes#710105) and TODO IRU for detailed information on the purpose of this feature.
+A new `cardPresent` parameter is available under [Optional Transaction Parameters](restobjects.md#transactionRequest). See [Android SDK 7.1010.5](/android/androidreleasenotes#710105) and [Handling card present reversals with Elavon acquirers](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5104533505/Handling+card+present+reversals+with+Elavon+acquirers) for detailed information on the purpose of this feature.
 
 ## 2.20.0
 **Features:**
