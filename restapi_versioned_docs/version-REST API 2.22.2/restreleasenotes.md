@@ -16,7 +16,7 @@ Added a selector to the [{transactionReference}/status](restendpoints.md#transac
 
 Added "commands" to allow greater device control options
 
-A new `tokenize` parameter is available under [Optional Transaction Parameters](restobjects.md#transactionRequest). See [Android SDK 7.1009.5](/android/androidreleasenotes#7.1009.5) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
+A new `tokenize` parameter is available under [Optional Transaction Parameters](restobjects.md#transactionRequest). See [Android SDK 7.1009.5](/android/androidreleasenotes#710095) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
 
 ## 2.17.0
 **Features:**

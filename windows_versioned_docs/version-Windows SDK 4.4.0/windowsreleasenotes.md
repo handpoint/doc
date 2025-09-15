@@ -9,9 +9,15 @@ id: windowsreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 4.4.0
+**Features:**
+
+A new `cardPresent` parameter is available under [Optional Transaction Parameters](windowsobjects.md#3). See [Android SDK 7.1010.5](/android/androidreleasenotes#710105) and TODO IRU for detailed information on the purpose of this feature.
+
 ## 4.3.1
 **Features:**
-A new `tokenize` parameter is available under [Optional Transaction Parameters](windowsobjects.md). See [Android SDK 7.1009.5](/android/androidreleasenotes#7.1009.5) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
+
+A new `tokenize` parameter is available under [Optional Transaction Parameters](windowsobjects.md#3). See [Android SDK 7.1009.5](/android/androidreleasenotes#710095) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
 
 ## 4.2.0
 **Features:**
