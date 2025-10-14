@@ -154,18 +154,6 @@ android {
  }
   ```
 
-### Maven Settings
-
-For production terminals: 
-
-```xml
-    <dependency>
-      <groupId>com.handpoint.api</groupId>
-      <artifactId>sdk</artifactId>
-      <version>[7.1001.0,)</version>
-      <type>aar</type>
-    </dependency>
-```
 :::tip
 If using AndroidX you will need to switch the following flags to true:<br></br> 
 android.enableJetifier=true<br></br> 

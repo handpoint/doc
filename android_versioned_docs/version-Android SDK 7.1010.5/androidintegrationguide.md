@@ -57,9 +57,9 @@ We **strongly** recommend you add the following to your `AndroidManifest.xml`:
 **2. SDK distribution** 
 
 The Handpoint Android SDK is available on Maven central as well as the Handpoint internal Nexus server. Maven central contains the **production builds** while Nexus contains **development snapshots** of the SDK.
-- If you are integrating your software with a **PAX debug terminal** you will need to get the SDK from **Nexus**. 
-- If you are integrating your software with a **PAX production terminal** you will need to get the SDK from **Maven Central**. 
-- If you are integrating your software with an HiLite terminal you will need to get the SDK from **Maven Central**. 
+- If you are integrating your software with a **PAX debug terminal** you will need to get the **release candidates 7.xxxx.xx-RC** SDK. 
+- If you are integrating your software with a **PAX production terminal** you will need to get the **production** SDK.
+- If you are integrating your software with an **HiLite terminal** you will need to get the **production** SDK.
 
 
 The Handpoint Android SDK is compatible with Android version 5.1.1 [(API level 22)](https://developer.android.com/about/versions/lollipop/android-5.1) and up.
@@ -136,18 +136,6 @@ android {
  }
 ```
 
-**Maven Settings**
-
-For production terminals: 
-
-```xml
-    <dependency>
-      <groupId>com.handpoint.api</groupId>
-      <artifactId>sdk</artifactId>
-      <version>[7.1001.0,)</version>
-      <type>aar</type>
-    </dependency>
-```
 :::tip
 If using AndroidX you will need to switch the following flags to true:<br></br> 
 android.enableJetifier=true<br></br> 
