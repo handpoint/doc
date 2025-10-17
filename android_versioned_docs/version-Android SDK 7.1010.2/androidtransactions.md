@@ -645,6 +645,7 @@ The code example provided depends on RxJava, take a look a their documentation t
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `tipAmount` <span class="badge badge--primary">Required</span> <br />*BigDecimal*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />*ENUM*     | Currency of the original transaction |
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Unique id of the original sale transaction as received from the card reader (EFTTransactionID)|
 
 **Code example**
@@ -653,7 +654,7 @@ The code example provided depends on RxJava, take a look a their documentation t
 Observable.fromCallable(new Callable() {
 	@Override
 	public FinancialStatus call() throws Exception {
-		return api.tipAdjustment(new BigDecimal(1000), "2bc23910-c3b3-11e6-9e62-07b2a5f091ec");
+		return api.tipAdjustment(new BigDecimal(1000), currency.GBP, "2bc23910-c3b3-11e6-9e62-07b2a5f091ec");
 	}
 })
 .subscribeOn(Schedulers.io())
