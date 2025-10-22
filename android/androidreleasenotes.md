@@ -12,6 +12,18 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 :::
 
 
+## 7.1010.6
+**Features**:
+
+- Partial reversals are supported now
+
+- Support for PAX A3700 reader has been added
+
+**Fixes**
+
+- Processing misalignment between SDK and Gateway has been fixed
+
+
 ## 7.1010.5
 **Features**:
 
