@@ -166,14 +166,14 @@ An enum representing all the supported acquirers for merchant authentication.
 
 ```java
 public enum Acquirer {	AMEX,
-	BORGUN,
-	EVO,
-	OMNIPAY,
-	POSTBRIDGE,
-	INTERAC,
-	TSYS,
-	VANTIV,
-	SANDBOX
+  BORGUN,
+  EVO,
+  OMNIPAY,
+  POSTBRIDGE,
+  INTERAC,
+  TSYS,
+  VANTIV,
+  SANDBOX
 }
 ```
 
@@ -431,9 +431,9 @@ A class containing the credentials used to communicate with the payment terminal
 
 ```java
 {
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
-	//We've even set a default shared secret!
+  String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+  HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
+  //We've even set a default shared secret!
 }
 ```
 
@@ -461,9 +461,9 @@ getAsyncInterface( Events.Required requiredListener , Context context , Handpoin
 //InitApi for Datecs devices or PAX/Telpo ConnectionMethod.ANDROID_PAYMENT
 public void InitApi()
 {
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
-	//The api is now initialized. Yay! we've even set a default shared secret
+  String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+  api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
+  //The api is now initialized. Yay! we've even set a default shared secret
 }
 ```
 
@@ -736,7 +736,7 @@ MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
 
 `OperationDto` <span class="badge badge--info">Object</span>
 
-Object indicating which financial transaction type needs to be performed after tokenization of the card during a Tokenize and Modify operation. 
+Object indicating which financial transaction type needs to be performed after tokenization of the card during a Tokenize Payment Operation. 
 
 **Properties**
 

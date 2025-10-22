@@ -11,6 +11,166 @@ id: androidreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+
+## 7.1010.5
+**Features**:
+
+A new `cardPresent` flag is supported in Integrated mode, which comes from our [REST API](/restapi/restintroduction) or its related Cloud clients [JavaScript SDK](/javascript/javascriptintroduction) and [Windows SDK](/windows/windowsintroduction). This new flag allows to indicate the payments flow that a Reversal operation will imply an actual present card. Please see [Handling card present reversals with Elavon acquirers](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5104533505/Handling+card+present+reversals+with+Elavon+acquirers) for further information on the purpose of this flag.
+
+
+## 7.1010.3
+**Fixes**:
+
+Some timeout-ed authorization requests in the reader were still reaching the gateway. This was causing double charges.
+
+
+## 7.1010.2
+**Fixes**:
+
+Network stability has been improved
+
+
+## 7.1010.1
+**Features**:
+
+"Cash" and "Other" transaction types now have a Transaction ID
+
+**Fixes**:
+
+- A scenario where double charges could happen has been fixed
+
+- The customer receipt now is fully in the card's language (when the language tag is available)
+
+- Some Fiserv and Elavon certification issues have been addressed
+
+
+## 7.1009.5
+**Features**:
+
+We're excited to announce the latest update to our Android SDK, featuring support of ***Tokenized Payments Operations***, as well as supporting a new PAX card readers model: **IM25**. This new Tokenized Payments Operations feature is an expansion of our former Tokenize and Modify feature, fully replacing and complementing it.
+
+**Tokenized Payments Operations** enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant.
+
+Thanks to our new Tokenize Payments Operations feature, integrators can now first tokenize card, and right after this, apply their own bussiness logic before resuming the operation to decide how the final operation will be according to customer's loyalty points, current discount policy, or some other particular use cases.
+
+There are two main modes for how this works, depending on integration needs: Standalone or Cloud.
+
+- [Standalone Tokenized Payments Operations](androidtransactions.md#standalone-tokenized-payments-operations). In this mode, Android SDK integrators can directly use the methods this SDK offers in the app they are building on top of it, to implement their loyalty, subscriptions or related uses logic.
+
+- [Cloud Tokenized Payments Operations](androidtransactions.md#cloud-tokenized-payments-operations). In this mode, Tokenized Payments Operations methods and flows of the Android SDK are commanded via our Cloud clients, which can be either [REST API](/restapi/restintroduction), [JavaScript SDK](/javascript/javascriptintroduction) or [Windows SDK](/windows/windowsintroduction). This allows to execute all operations programmatically, offering seamless integration with their existing workflows.
+
+
+**Fixes**:
+
+- Several EMV certification issues have been addressed
+
+- Transaction Result was not being delivered in some cases. Now it is working properly in all use cases.
+
+- Refunds and Reversals didn't include the transactionReference field. This has been fixed.
+
+
+## 7.1008.6
+**Fixes**:
+
+- Some translations have been corrected, as well as error messages from our Gateway
+
+
+## 7.1008.4
+**Fixes**:
+
+- Several minor stability issues have been fixed 
+
+
+## 7.1008.3
+**Features**:
+
+- In account type selection, the order is first "Credit" and then "Debit" now.
+
+**Fixes**:
+
+- An issue with the remove card event has been addressed
+
+
+## 7.1008.1
+**Fixes**:
+
+- Several certification issues have been addressed
+
+
+## 7.1008.0
+**Features**:
+
+- Brightness level control is offered as a public method now
+
+- Internal payments libraries of PAX devices have been updated
+
+**Fixes**:
+
+- Some EMV related issues have been solved
+
+- Volume controls were accessible during payment signature screen in some use cases where the shouldn't
+
+
+## 7.1006.3
+**Fixes**:
+
+- Signature was missing in receipts in some use cases
+
+
+## 7.1006.2
+**Fixes**:
+
+- Several minor stability issues have been fixed 
+
+
+## 7.1006.1
+**Fixes**:
+
+- Fix for language selection menu (only for Interac cards)
+
+
+## 7.1006.0
+**Features**:
+
+- Now just "CARD" in shown in receipts when the card brand is not in the language library
+
+**Fixes**:
+
+- Tokenize and Modify: A second "remove card" was being displayed after providing phone number
+
+- Some EMV related issues have been solved
+
+
+## 7.1005.4
+**Fixes**:
+
+- The RRN was missing in the ReceiptDataKeeper object 
+
+
+## 7.1005.3
+**Fixes**:
+
+- Several minor stability issues have been fixed 
+
+
+## 7.1005.2
+**Fixes**:
+
+- Operations with 0 amount and/or tip supported
+
+- Receipt uploaded event's behavior has been fixed
+
+- Transactions corrections
+
+- Minor fixes in tokenization
+
+
+## 7.1005.1
+**Fixes**:
+
+- Several minor stability issues have been fixed
+
+
 ## 7.1005.0
 **Features**:
 

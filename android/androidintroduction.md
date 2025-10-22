@@ -14,14 +14,11 @@ id: androidintroduction
       <h3>Android SDK</h3>
     </div>
     <div class="card__body">
-      <a href="https://search.maven.org/artifact/com.handpoint.api/sdk/">
   <img src="https://handpoint.imgix.net/ballicons/small/android.png"/> 
-</a>
     </div>
     <div class="card__footer">
-      :::info
-      Get our latest android SDK! Ask our support team to obtain access if you don't have already<br />
-      :::
+      Get our latest android SDK! Ask our support team to obtain access if you don't have already.<br />
+      In our <strong>Nexus Repository</strong> you will find both Development and Production <strong>SDK</strong> versions.
     </div>
   </div>
 </div>
@@ -47,11 +44,11 @@ We take care of PCI compliance so you can be kept out of PCI scope. The Handpoin
 
 ### SDK distribution 
 
-The Handpoint Android SDK is available on Maven central as well as the Handpoint internal Nexus server. Maven central contains the **production builds** while Nexus contains **development snapshots** of the SDK.
-- If you are integrating your software with a **PAX debug terminal** you will need to get the SDK from **Nexus**. 
-- If you are integrating your software with a **PAX production terminal** you will need to get the SDK from **Maven Central**. 
-- If you are integrating your software with an HiLite terminal you will need to get the SDK from **Maven Central**. 
+The Handpoint Android SDK is available on the Handpoint internal Nexus server which contains both the **production builds** and **development snapshots** of the SDK.
+- If you are integrating your software with a **PAX debug terminal** you will need to use the development Snapshots, listed as -RC.X-SNAPSHOT for example **7.1010.3-RC.1-SNAPSHOT**
+- If you are integrating your software with a **PAX production terminal** or with a **HiLite terminal** you will need to use the Production versions listed eg **7.1010.3**
 
+If in doubt regarding what version to use, we always recommend using the latest available production version, for development snapshots the recommendation is to use the latest RC (highest number) that matches the latest production SDK version published. Our support team is also available to answer any questions regarding what version to use.
 
 The Handpoint Android SDK is compatible with Android version 5.1.1 [(API level 22)](https://developer.android.com/about/versions/lollipop/android-5.1) and up.
 The latest version is compiled with java **1.8**
@@ -85,24 +82,6 @@ We **strongly** recommend you add the following to your `AndroidManifest.xml`:
 
 ### Gradle Settings
 
-#### For production terminals (Maven):
-```groovy
- //Handpoint Production SDK (Production terminals)
- implementation 'com.handpoint.api:sdk:7.x.x'
-```
-In the `gradle.build` (Top-level build file) for production terminals (Maven):
-
-  ```groovy
-        allprojects {     //Handpoint Production SDK (Production terminals)
-          repositories {
-             google()
-             mavenCentral()
-             maven { url 'https://jitpack.io' }
-              }
-        }
-  ```
-
-#### For debug terminals (Nexus) [Only applies to PAX/Telpo devices]:  
 ```groovy 
  //Handpoint Staging/Development SDK (Debug terminals)
  implementation 'com.handpoint.api:sdk:7.x.x-RC.x-SNAPSHOT'
@@ -110,7 +89,7 @@ In the `gradle.build` (Top-level build file) for production terminals (Maven):
    In the `gradle.build` (Top-level build file) for debug terminals (Nexus) [Only applies to PAX/Telpo devices]:
 
   ```groovy
-        allprojects {   //Handpoint Staging/Development SDK (Debug terminals)
+        allprojects {
           repositories {
             google()
             mavenCentral()
@@ -153,12 +132,6 @@ android {
     }
  }
   ```
-
-:::tip
-If using AndroidX you will need to switch the following flags to true:<br></br> 
-android.enableJetifier=true<br></br> 
-android.useAndroidX=true
-:::
 
 It is time to visit our **[Integration Guides](androidintegrationguide)** section.
 

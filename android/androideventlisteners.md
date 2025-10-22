@@ -20,9 +20,9 @@ You must provide a class implementing this interface when initializing the SDK f
 public final class EventHandler implements Events.SmartposRequired {
 
 	@Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
 	 @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
 	@Override
 	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
 	@Override
@@ -49,14 +49,14 @@ You must provide a class implementing this interface when initializing the SDK f
 
 ```java
 public final class EventHandler implements Events.MposRequired {
-    @Override
-    public void deviceDiscoveryFinished(List devices) { ... }
 	@Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	public void deviceDiscoveryFinished(List devices) { ... }
+	@Override
+	public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
 	 @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
 	@Override
-    public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
+	public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
 	@Override
 	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
 	@Override
@@ -82,14 +82,14 @@ You must provide a class implementing this interface when initializing the SDK w
 
 ```java
 public final class EventHandler implements Events.PosRequired {
-    @Override
-    public void deviceDiscoveryFinished(List devices) { ... }
 	@Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	public void deviceDiscoveryFinished(List devices) { ... }
+	@Override
+	public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
 	 @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
 	@Override
-    public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
+	public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
 	@Override
 	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
 	@Override

@@ -75,8 +75,8 @@ public class HandpointDelegate implements
 ```java
 class KotlinClient: 
 	Events.Required,
-    Events.CurrentTransactionStatus,
-    Events.ConnectionStatusChanged {
+	Events.CurrentTransactionStatus,
+	Events.ConnectionStatusChanged {
 ```
 
 </TabItem>
@@ -88,11 +88,11 @@ class KotlinClient:
 
 ```java
 public class HandpointDelegate implements
-    Events.SmartposRequired,
-    Events.CurrentTransactionStatus,
-    Events.ConnectionStatusChanged,
-    Events.EndOfTransaction,
-    Events.TransactionResultReady {
+	Events.SmartposRequired,
+	Events.CurrentTransactionStatus,
+	Events.ConnectionStatusChanged,
+	Events.EndOfTransaction,
+	Events.TransactionResultReady {
 ```
 
 </TabItem>
@@ -129,7 +129,7 @@ public class HandpointDelegate implements
 
 ```java
 class KotlinClient: 
-    Events.Required, 
+	Events.Required, 
 	Events.ConnectionStatusChanged, 
 	Events.CurrentTransactionStatus {
 ```
@@ -145,11 +145,11 @@ class KotlinClient:
 public class JavaClient implements
 	Events.MposRequired,
 	Events.ConnectionStatusChanged, 
-    Events.CurrentTransactionStatus,
-    Events.SignatureRequired,
-    Events.EndOfTransaction,
-    Events.DeviceDiscoveryFinished,
-    Events.TransactionResultReady {
+	Events.CurrentTransactionStatus,
+	Events.SignatureRequired,
+	Events.EndOfTransaction,
+	Events.DeviceDiscoveryFinished,
+	Events.TransactionResultReady {
 ```
 
 </TabItem>
@@ -186,7 +186,7 @@ public class HandpointDelegate implements
 
 ```java
 class KotlinClient: 
-    Events.Required, 
+	Events.Required, 
 	Events.ConnectionStatusChanged, 
 	Events.CurrentTransactionStatus {
 ```
