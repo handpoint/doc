@@ -9,6 +9,25 @@ id: restreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 2.22.3
+**Bug fixes:**
+
+A external vulnerability has been addressed.
+
+## 2.22.2
+**Features:**
+
+A new `cardPresent` parameter is available under [Optional Transaction Parameters](restobjects.md#transactionRequest). See [Android SDK 7.1010.5](/android/androidreleasenotes#710105) and [Handling card present reversals with Elavon acquirers](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5104533505/Handling+card+present+reversals+with+Elavon+acquirers) for detailed information on the purpose of this feature.
+
+## 2.20.0
+**Features:**
+
+Added a selector to the [{transactionReference}/status](restendpoints.md#transactionstransactionreferencestatusselector) endpoint which improves greatly on reporting
+
+Added "commands" to allow greater device control options
+
+A new `tokenize` parameter is available under [Optional Transaction Parameters](restobjects.md#transactionRequest). See [Android SDK 7.1009.5](/android/androidreleasenotes#710095) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information on how to use this feature.
+
 ## 2.17.0
 **Features:**
 
