@@ -9,16 +9,6 @@ id: restreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
-## 2.23.0
-**Bug fixes:**
-
-Support for MOTO operations in the Get Transaction Status service has been added
-
-## 2.22.4
-**Bug fixes:**
-
-Internal performance issues have been solved.
-
 ## 2.22.3
 **Bug fixes:**
 
