@@ -15,7 +15,7 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 ## 7.1010.6
 **Features**:
 
-- Partial reversals are supported now
+- `Partial Voids` (also known as Partial Reversals) are now supported for *TSYS* acquirer. Please see [Handling Partial Voids with TSYS](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5210701825/Handling+Partial+Voids+with+TSYS) for further information on this.
 
 - Support for PAX A3700 reader has been added
 
