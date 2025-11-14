@@ -12,7 +12,7 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 ## 7.2.4
 **Features:**
 
-The batch number is returned in the Transaction Result object now as `batchNumber`, provided the acquirer returns it. Please see [Transaction Result Object](javascriptobjects.md#transaction-result)
+The batch number is returned in the Transaction Result object now as `batchNumber`, provided the acquirer returns it. Please see [Transaction Result Object](javascriptobjects.md#18)
 
 ## 7.2.3
 **Features:**
