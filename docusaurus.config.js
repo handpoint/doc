@@ -249,7 +249,6 @@ module.exports = {
     ],
   ],
   scripts: [
-    
   ],
   plugins: [
     // require.resolve('docusaurus-lunr-search', {
