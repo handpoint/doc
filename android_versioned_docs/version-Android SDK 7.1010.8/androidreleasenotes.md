@@ -16,6 +16,7 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 
 - Minor fix in payments flow to improve error handling
 
+
 ## 7.1010.7
 **Fixes**
 
