@@ -810,7 +810,7 @@ Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRe
 
 ```shell
 http POST https://cloud.handpoint.io/moto/sale \
-  ApiKeyCloud:SX34S16-WRZMY6C-JNJMP9J-7B0P0TH \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
   amount='20.00' \
   currency='EUR' \
   cardToken='665630867'
@@ -884,7 +884,7 @@ A very common cause of **3107** is having “CVV/CV2 input mandatory” enabled 
 ```shell
 curl -X POST \
   -H "Content-Type: application/json" \
-  -H "ApiKeyCloud: SX34S16-WRZMY6C-JNJMP9J-7B0P0TH" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
   -d '{
     "amount": "20.00",
     "currency": "EUR",
@@ -936,7 +936,7 @@ Supports full and partial refunds, depending on acquirer configuration.
 
   ```shell
   http POST https://cloud.handpoint.io/moto/refund \
-    ApiKeyCloud:SX34S16-WRZMY6C-JNJMP9J-7B0P0TH \
+    ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
     originalGuid='1a41d9f0-cf72-11f0-95b2-770b7d1d8e67' \
     amount='5.00' \
     currency='EUR'
@@ -987,7 +987,7 @@ Supports full and partial refunds, depending on acquirer configuration.
 ```shell
 curl -X POST \
   -H "Content-Type: application/json" \
-  -H "ApiKeyCloud: SX34S16-WRZMY6C-JNJMP9J-7B0P0TH" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
   -d '{
     "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67",
     "amount": "5.00",
@@ -1039,7 +1039,7 @@ Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for f
 
   ```shell
   http POST https://cloud.handpoint.io/moto/reversal \
-    ApiKeyCloud:RCZNP67-CB6M5VN-J4QBVGZ-9JWX765 \
+    ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
     originalGuid='b28bdb10-cf87-11f0-b588-a122fae316de' \
     amount='20.00' \
     currency='EUR'
@@ -1088,7 +1088,7 @@ Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for f
 ```shell
 curl -X POST \
   -H "Content-Type: application/json" \
-  -H "ApiKeyCloud: RCZNP67-CB6M5VN-J4QBVGZ-9JWX765" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
   -d '{
     "originalGuid": "b28bdb10-cf87-11f0-b588-a122fae316de",
     "amount": "20.00",
@@ -1097,4 +1097,125 @@ curl -X POST \
     "transactionReference": "4d7b1a2c-5bfd-4a30-9b6f-123456789abc"
   }' \
   "https://cloud.handpoint.io/moto/reversal"
+```
+
+## Batch Operations
+
+Batch operations allow you to remotely **close a batch on a specific payment terminal** using Cloud API.
+
+These endpoints are typically used in scenarios where the acquirer or merchant workflow is batch-based (for example,
+daily settlement batches per terminal).
+
+Currently, the primary batch operation exposed via Cloud API is:
+
+- `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
+
+All request and response payloads are defined in the corresponding [Batch objects](restobjects#batch).
+
+---
+
+### /batch/close
+
+`BatchClose`
+
+`POST /batch/close` is used to request **closure of a batch** for a specific payment terminal, identified by its
+`deviceType` and `serialNumber`, and a `batchNumber`.
+
+Typical use cases:
+
+- End-of-day batch closure triggered from a back-office or back-office job.
+- Manual batch close as part of a support or reconciliation process.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: BatchCloseRequest` <span class="badge badge--primary">Required</span> | [BatchCloseRequest](restobjects#batchCloseRequest) object containing `deviceType`, `serialNumber` and `batchNumber`. |
+
+Typical fields in the request body (see [BatchCloseRequest](restobjects#batchCloseRequest) for full details):
+
+- `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
+- `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
+- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch to close (for example, `"1"`).
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Batch close request accepted. The response body is a [BatchCloseResponse](restobjects#batchCloseResponse) with the batch number, a unique `closeBatchGuid`, timestamps and an issuer-style response code/text. |
+| `400` | Business rule error or generic gateway error. Returned as `BadRequestError`, with `error.code`, `error.message` and `error.details` describing the problem. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (for example, missing `batchNumber`). |
+| `5xx` | Internal error or service unavailability. The final outcome of the batch close may be unknown and may require reconciliation or a retry at a later time. |
+
+#### Behaviour examples
+
+**Happy path – close batch 1 for a terminal**
+
+```shell
+http POST https://cloud.handpoint.io/batch/close \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262' \
+  batchNumber='1'
+````
+
+Example response:
+
+```json
+{
+  "batchNumber": "1",
+  "closeBatchGuid": "14431ad0-d0dc-11f0-9ed0-695d1a368668",
+  "closedAt": "20251204064010281",
+  "customerReference": {},
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED"
+}
+```
+
+**Validation error – missing `batchNumber`**
+
+```shell
+http POST https://cloud.handpoint.io/batch/close \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262'
+```
+
+Response:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "code": "required",
+        "info": {
+          "missingProperty": "batchNumber"
+        },
+        "message": "must have required property 'batchNumber'",
+        "path": ""
+      }
+    ],
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "name": "UnprocessableEntityError",
+    "statusCode": 422
+  }
+}
+```
+
+#### Code example – Close batch via `curl`
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/close"
 ```

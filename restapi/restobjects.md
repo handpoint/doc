@@ -1012,3 +1012,65 @@ The exact shape is very similar across these operations; some fields (such as `o
   "terminalDateTime": "20251202140733000"
 }
 ```
+
+## Batch {#batch}
+
+### BatchCloseRequest {#batchCloseRequest}
+
+`BatchCloseRequest` <span class="badge badge--info">Object</span>
+
+Object used by the [`POST /batch/close`](restendpoints#batch-operations) endpoint to request closure of a batch for a specific payment terminal.
+
+**Properties**
+
+| Property | Description |
+| -------- | ----------- |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch is being closed (for example, `"2740013262"`). |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to close (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+
+**Code example**
+
+```json
+{
+  "deviceType": "PAXA920MAX",
+  "serialNumber": "2740013262",
+  "batchNumber": "1",
+  "customerReference": "end-of-day-2025-12-04"
+}
+```
+
+---
+
+### BatchCloseResponse {#batchCloseResponse}
+
+`BatchCloseResponse` <span class="badge badge--info">Object</span>
+
+Object returned by [`POST /batch/close`](restendpoints#batch-operations) when the batch close request is accepted by the gateway.
+
+**Properties**
+
+| Property                            | Description                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `batchNumber` <br />*String*        | Batch number that was requested to be closed. Mirrors the `batchNumber` from the request.                                       |
+| `closeBatchGuid` <br />*String*     | Unique identifier for the batch close operation. Can be used for support and audit purposes.                                    |
+| `closedAt` <br />*String*           | Timestamp (gateway internal format) indicating when the batch close request was processed (for example, `"20251204064010281"`). |
+| `customerReference` <br />*Object*  | Optional reference or metadata associated with this batch close. May be an empty object if no metadata was provided.            |
+| `httpStatus` <br />*String*         | HTTP status code as returned by the gateway (for example, `"200"`).                                                             |
+| `issuerResponseCode` <br />*String* | Response code for the batch close operation (for example, `"00"` for accepted).                                                 |
+| `issuerResponseText` <br />*String* | Human-readable description of the response (for example, `"ACCEPTED"`).                                                         |
+
+**Code example**
+
+```json
+{
+  "batchNumber": "1",
+  "closeBatchGuid": "14431ad0-d0dc-11f0-9ed0-695d1a368668",
+  "closedAt": "20251204064010281",
+  "customerReference": {},
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED"
+}
+```
