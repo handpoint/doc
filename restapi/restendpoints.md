@@ -61,11 +61,7 @@ RESPONSE:
 Reminder that SSK (Shared Secret Key) is a value unique to a Merchant, and the same Merchant (SSK) can have assigned multiple devices from different manufacturers. This includes PAX and Datecs (eg. HiLite)
 :::
 
-
-
 ## /transactions
-
-
 
 `Transactions`
 
@@ -743,4 +739,362 @@ curl -X POST \
     "hour": 22
   }' \
   "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-reboot-time"
+```
+
+## MOTO Operations (no reader)
+
+MOTO (Mail Order / Telephone Order) operations can also be processed **without a payment reader**, using information
+that is already stored in the gateway (tokens and references to previous transactions).
+
+These endpoints are intended for MOTO scenarios where the merchant does **not** need to collect or handle sensitive
+card data (PAN, expiry date, CVV) in their own systems:
+
+- `/moto/sale` performs a sale using a **previously generated card token** (`cardToken`) that represents card details stored in the gateway.
+- `/moto/refund` performs a refund of a **previous operation**, using the card associated with that original operation (`originalGuid`).
+- `/moto/reversal` performs a reversal (void) of a **previous operation**, passing only its identifier (`originalGuid`).
+
+:::tip
+Unlike the standard MOTO operations that use `/transactions` and a physical terminal, these endpoints:
+
+- Do **not** require `serial_number` or `terminal_type`.
+- Do **not** receive raw card data in the request.
+- Rely on `cardToken` and `originalGuid` to reference card information already stored in the gateway.
+:::
+
+All request and response payloads are defined in the corresponding [Moto objects](restobjects#moto).
+
+---
+
+### /moto/sale
+
+`MotoSale`
+
+`POST /moto/sale` is used to perform a **MOTO sale without a payment reader**, using a **card token** (`cardToken`)
+that was generated previously (for example, by a `saleAndTokenizeCard` operation).
+
+The card details are *not* sent in the request; they are resolved by the gateway using the `cardToken`.
+
+Typical flow:
+
+1. A card is captured securely in a previous flow, for example through the [`/transactions`](restendpoints#transactions) endpoint using a
+   `saleAndTokenizeCard` operation.
+2. The gateway returns a `cardToken` (e.g. `665630867`).
+3. The integrator can later perform one or more MOTO sales using that `cardToken`, without handling PAN/CVV again.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>  | Cloud API key used to authenticate the merchant. |
+| `Request Body: MotoSaleRequest` <span class="badge badge--primary">Required</span>  | [MotoSaleRequest](restobjects#motoSaleRequest) object containing `cardToken`, `amount`, `currency` and optional merchant references. |
+
+Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRequest) for full details):
+
+- `cardToken` <span class="badge badge--primary">Required</span> – Token representing the card stored in the gateway (e.g. `"665630867"`).
+- `amount` <span class="badge badge--primary">Required</span> – String amount with dot as decimal separator (e.g. `"20.00"`), matching `^\d+(\.\d+)?$`.
+- `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 currency code (e.g. `"EUR"`).
+- Optional references for reconciliation: `customerReference`, `transactionReference`, etc.
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Sale successfully processed. The response body is a `motoSaleResponse` [Moto Transaction Response](restobjects#motoTransactionResponse) with the authorization result (approved/declined), authorization code, masked card details, acquirer TID, timestamps, etc. |
+| `400` | Business rule error from the payment gateway (for example, CVV required, card token failure). Returned as `BadRequestError`, with `error.code` and `error.details` containing the gateway error code and description. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (invalid amount pattern, currency length, etc.). |
+| `5xx` | Internal error or gateway unavailability. The final outcome may be unknown and may require reconciliation. |
+
+#### Behaviour examples
+
+- **CVV required (3107)** — merchant configured with “CVV/CV2 input mandatory” for Card Not Present:
+
+```shell
+http POST https://cloud.handpoint.io/moto/sale \
+  ApiKeyCloud:SX34S16-WRZMY6C-JNJMP9J-7B0P0TH \
+  amount='20.00' \
+  currency='EUR' \
+  cardToken='665630867'
+```
+
+Example response:
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "CVV required",
+    "code": "3107",
+    "details": {
+      "errorGuid": "dae59b20-cf71-11f0-b588-a122fae316de",
+      "errorCode": "3107",
+      "description": "CVV required",
+      "httpStatus": 400
+    }
+  }
+}
+```
+
+A very common cause of **3107** is having “CVV/CV2 input mandatory” enabled for Card Not Present.
+
+* **Invalid / unknown card token (5252)**:
+
+  ```json
+  {
+    "error": {
+      "code": "5252",
+      "details": {
+        "description": "Card token failure",
+        "errorCode": "5252",
+        "errorGuid": "10a3d120-cf75-11f0-95b2-770b7d1d8e67",
+        "httpStatus": 404
+      },
+      "message": "Card token failure",
+      "name": "BadRequestError",
+      "statusCode": 400
+    }
+  }
+  ```
+
+* **Validation errors (422 `VALIDATION_FAILED`)** – for example, missing `amount`:
+
+  ```json
+  {
+    "error": {
+      "code": "VALIDATION_FAILED",
+      "details": [
+        {
+          "code": "required",
+          "info": {
+            "missingProperty": "amount"
+          },
+          "message": "must have required property 'amount'",
+          "path": ""
+        }
+      ],
+      "message": "The request body is invalid. See error object `details` property for more info.",
+      "name": "UnprocessableEntityError",
+      "statusCode": 422
+    }
+  }
+  ```
+
+#### Code example – MOTO sale with `cardToken`
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: SX34S16-WRZMY6C-JNJMP9J-7B0P0TH" \
+  -d '{
+    "amount": "20.00",
+    "currency": "EUR",
+    "cardToken": "665630867",
+    "customerReference": "order-12345",
+    "transactionReference": "b7b2360d-3e9e-4b62-9a3a-2e6ef6c5cd01"
+  }' \
+  "https://cloud.handpoint.io/moto/sale"
+```
+
+---
+
+### /moto/refund
+
+`MotoRefund`
+
+`POST /moto/refund` is used to perform a **MOTO refund without a payment reader**.
+
+The refund is **linked** to a previous MOTO sale via `originalGuid`, and the gateway reuses the card associated with that
+original transaction. No card data is passed in the refund request.
+
+#### Parameters
+
+| Parameter                                                                            | Notes                                                                                                   |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>             | Cloud API key used to authenticate the merchant.                                                        |
+| `Request Body: MotoRefundRequest` <span class="badge badge--primary">Required</span> | [MotoRefundRequest](restobjects#motoRefundRequest) object containing `originalGuid`, `amount`, `currency` and optional merchant references. |
+
+Typical fields (see [MotoRefundRequest](restobjects#motoRefundRequest) for full details):
+
+* `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be refunded (e.g. `"1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"`).
+* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded (e.g. `"5.00"`), matching `^\d+(\.\d+)?$`.
+* `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code (e.g. `"EUR"`, `"USD"`).
+* Optional: `customerReference`, `transactionReference`.
+
+Supports full and partial refunds, depending on acquirer configuration.
+
+#### Returns
+
+| Result | Notes                                                                                                                                                                                                                   |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `200`  | Refund successfully processed. The response body is a `motoRefundResponse` [Moto Transaction Response](restobjects#motoTransactionResponse) including `guid`, `originalGuid`, `amount`, `currency`, `maskedCardNumber`, `approvalCode`, `issuerResponseText`, etc. |
+| `400`  | Business rule error from the payment gateway (for example, currency mismatch, refund amount greater than the original sale). Returned as `BadRequestError`, with `error.code` and `error.details` describing the gateway error. |
+| `422`  | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or invalid (missing `originalGuid`, invalid amount, invalid currency format, etc.).                                                     |
+
+#### Behaviour examples
+
+* **Partial refund – happy path** (EUR 5.00 of a 20.00 EUR sale):
+
+  ```shell
+  http POST https://cloud.handpoint.io/moto/refund \
+    ApiKeyCloud:SX34S16-WRZMY6C-JNJMP9J-7B0P0TH \
+    originalGuid='1a41d9f0-cf72-11f0-95b2-770b7d1d8e67' \
+    amount='5.00' \
+    currency='EUR'
+  ```
+
+* **Currency mismatch (3210)**
+
+  ```json
+  {
+    "error": {
+      "code": "3210",
+      "details": {
+        "description": "Original and linked currency do not match",
+        "errorCode": "3210",
+        "errorGuid": "35a2b220-cf7a-11f0-b588-a122fae316de",
+        "httpStatus": 400
+      },
+      "message": "Original and linked currency do not match",
+      "name": "BadRequestError",
+      "statusCode": 400
+    }
+  }
+  ```
+
+* **Refund amount greater than original (3209)**
+
+  ```json
+  {
+    "error": {
+      "code": "3209",
+      "details": {
+        "description": "The requested refund amount is greater than the initial sale amount",
+        "errorCode": "3209",
+        "errorGuid": "e72ea940-cf7a-11f0-b588-a122fae316de",
+        "httpStatus": 400
+      },
+      "message": "The requested refund amount is greater than the initial sale amount",
+      "name": "BadRequestError",
+      "statusCode": 400
+    }
+  }
+  ```
+
+* **Validation errors** – missing `originalGuid`, missing `amount`, invalid `currency` length, invalid `amount` pattern — are returned as `422 VALIDATION_FAILED` with one or more entries in `error.details`.
+
+#### Code example – partial MOTO refund by `originalGuid`
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: SX34S16-WRZMY6C-JNJMP9J-7B0P0TH" \
+  -d '{
+    "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67",
+    "amount": "5.00",
+    "currency": "EUR",
+    "customerReference": "refund-98765",
+    "transactionReference": "a1fe8db5-69a4-4b4d-a704-94ac2570f9b0"
+  }' \
+  "https://cloud.handpoint.io/moto/refund"
+```
+
+---
+
+### /moto/reversal
+
+`MotoReversal`
+
+`POST /moto/reversal` is used to **reverse (void)** a previous MOTO operation processed via the no-reader MOTO endpoints.
+
+The request is linked to the original sale via `originalGuid`. No card data is sent; the gateway uses the original
+transaction information.
+
+Reversals are typically used to cancel a MOTO sale shortly after authorization, subject to acquirer rules.
+
+#### Parameters
+
+| Parameter                                                                              | Notes                                                                                                                                |
+| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>               | Cloud API key used to authenticate the merchant.                                                                                     |
+| `Request Body: MotoReversalRequest` <span class="badge badge--primary">Required</span> | [MotoReversalRequest](restobjects#motoReversalRequest) object referencing the original MOTO transaction (`originalGuid`) and including the reversal `amount` and `currency`. |
+
+Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for full details):
+
+* `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse (e.g. `"20.00"`), `^\d+(\.\d+)?$`.
+* `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
+* Optional merchant references: `customerReference`, `transactionReference`.
+
+#### Returns
+
+| Result | Notes                                                                                                                                                                                                                                                                             |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `200`  | Reversal accepted and processed. Response body is a `motoReversalResponse` [Moto Transaction Response](restobjects#motoTransactionResponse) indicating whether the reversal was approved, with fields such as `guid`, `originalGuid`, `issuerResponseCode`, `issuerResponseText`, `f25`, etc. |
+| `400`  | Business rule error from the payment gateway (for example, unknown `originalGuid`, reversal not allowed). Returned as `BadRequestError`, with `error.code` and `error.details` describing the gateway error (for example, code `3153`). |
+| `422`  | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or invalid (missing `originalGuid`, missing `amount`, invalid `currency`, invalid `amount` pattern).                                                                                              |
+
+#### Behaviour examples
+
+* **Happy path – full MOTO reversal**
+
+  ```shell
+  http POST https://cloud.handpoint.io/moto/reversal \
+    ApiKeyCloud:RCZNP67-CB6M5VN-J4QBVGZ-9JWX765 \
+    originalGuid='b28bdb10-cf87-11f0-b588-a122fae316de' \
+    amount='20.00' \
+    currency='EUR'
+  ```
+
+  Typical success response (simplified):
+
+  ```json
+  {
+    "type": "motoReversalResponse",
+    "httpStatus": 200,
+    "amount": "20.00",
+    "currency": "EUR",
+    "guid": "3f7772a0-cf88-11f0-b588-a122fae316de",
+    "originalGuid": "b28bdb10-cf87-11f0-b588-a122fae316de",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "Successful",
+    "maskedCardNumber": "************3555",
+    "f25": "4000"
+  }
+  ```
+
+* **Unknown / invalid `originalGuid` (3153)**
+
+  ```json
+  {
+    "error": {
+      "code": "3153",
+      "details": {
+        "description": "Unable to find message to reverse.",
+        "errorCode": "3153",
+        "errorGuid": "633a4370-cf88-11f0-b588-a122fae316de",
+        "httpStatus": 404
+      },
+      "message": "Unable to find message to reverse.",
+      "name": "BadRequestError",
+      "statusCode": 400
+    }
+  }
+  ```
+
+* **Validation errors** – missing `originalGuid`, missing `amount`, invalid `currency` length, invalid `amount` pattern — result in `422 VALIDATION_FAILED` with one or more entries in `error.details`.
+
+#### Code example – MOTO reversal by `originalGuid`
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: RCZNP67-CB6M5VN-J4QBVGZ-9JWX765" \
+  -d '{
+    "originalGuid": "b28bdb10-cf87-11f0-b588-a122fae316de",
+    "amount": "20.00",
+    "currency": "EUR",
+    "customerReference": "void-001",
+    "transactionReference": "4d7b1a2c-5bfd-4a30-9b6f-123456789abc"
+  }' \
+  "https://cloud.handpoint.io/moto/reversal"
 ```
