@@ -777,3 +777,69 @@ let operationStartedResult = handpoint.preAuthorizationReversal('00000000-0000-0
 | Parameter      | Notes |
 | ----------- | ----------- |
 | *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Batch Summary
+
+`batchSummary`
+
+A Batch Summary allows the user to request closure of a batch for a specific payment terminal.
+
+**Parameters**
+
+| Property | Description |
+| -------- | ----------- |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to close (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch is being closed (for example, `"2740013262"`). |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+// Perform the batchSummary operation
+let operationStartedResult = handpoint.batchSummary("1", "PAXA920", "123456789", "custom reference", function (stat) {
+  console.log('Batch Summary received -> '+ stat.message) 
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+
+## Close Batch
+
+`closeBatch`
+
+A Close Batch allows the user to request the summary of a batch for a specific payment terminal.
+
+**Parameters**
+
+| Property | Description |
+| -------- | ----------- |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to close (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch is being closed (for example, `"2740013262"`). |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+// Perform the closeBatch operation
+
+let operationStartedResult = handpoint.closeBarch("1", "PAXA920", "123456789", "custom reference", function (stat) {
+  console.log('Close Batch received -> '+ stat.message) 
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
