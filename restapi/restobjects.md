@@ -1074,3 +1074,86 @@ Object returned by [`POST /batch/close`](restendpoints#batch-operations) when th
   "issuerResponseText": "ACCEPTED"
 }
 ```
+
+---
+
+### BatchSummaryRequest {#batchSummaryRequest}
+
+`BatchSummaryRequest` <span class="badge badge--info">Object</span>
+
+Object used by the [`POST /batch/summary`](restendpoints#batch-operations) endpoint to request a **summary of a batch** for a specific payment terminal.
+
+**Properties**
+
+| Property | Description |
+| -------- | ----------- |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"` or `"PAXA920PRO"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch summary is being requested (for example, `"2740013262"`). |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to summarise (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+
+**Code example**
+
+```json
+{
+  "deviceType": "PAXA920MAX",
+  "serialNumber": "2740013262",
+  "batchNumber": "1",
+  "customerReference": "daily-report-2025-12-05"
+}
+```
+
+---
+
+### BatchSummaryResponse {#batchSummaryResponse}
+
+`BatchSummaryResponse` <span class="badge badge--info">Object</span>
+
+Object returned by [`POST /batch/summary`](restendpoints#batch-operations) when the batch summary is successfully retrieved.
+
+**Properties**
+
+| Property                            | Description                                                                                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `batchNumber` <br />*String*        | Batch number whose summary is being returned. Mirrors the `batchNumber` from the request.                                                                            |
+| `batchStatus` <br />*String*        | Current status of the batch (for example, `"CLOSED"`).                                                                                                               |
+| `batchSummaryGuid` <br />*String*   | Unique identifier for this batch summary operation. Useful for support, logging and audit purposes.                                                                  |
+| `transactionCount` <br />*String*   | Total number of transactions in the batch, as a string (for example, `"158"`).                                                                                       |
+| `netAmount` <br />*String*          | Net amount for the batch in major units as a string (for example, `"245.00"`). Uses a dot (`.`) as decimal separator.                                                |
+| `customFields` <br />*Object*       | Container for acquirer-specific metrics and extra data. Typically includes an `entry` array of `{ "key": "...", "value": "..." }` pairs (for example, `salesCount`). |
+| `customerReference` <br />*Object*  | Optional reference or metadata associated with this batch summary. May be an empty object if no metadata was provided in the request.                                |
+| `httpStatus` <br />*String*         | HTTP status code as returned by the gateway (for example, `"200"`).                                                                                                  |
+| `issuerResponseCode` <br />*String* | Response code for the batch summary operation (for example, `"00"` for a successful retrieval).                                                                      |
+| `issuerResponseText` <br />*String* | Human-readable description of the response (for example, `"DATA RETRIEVED"`).                                                                                        |
+
+**Code example**
+
+```json
+{
+  "batchNumber": "1",
+  "batchStatus": "CLOSED",
+  "batchSummaryGuid": "61573ba0-08ac-11f1-b002-eb225f134f40",
+  "customFields": {
+    "entry": [
+      {
+        "key": "salesCount",
+        "value": "155"
+      },
+      {
+        "key": "refundsCount",
+        "value": "3"
+      },
+      {
+        "key": "issuerBatchCloseLocalTimestamp",
+        "value": "2025-12-05T11:00:00"
+      }
+    ]
+  },
+  "customerReference": {},
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "netAmount": "245.00",
+  "transactionCount": "158"
+}
+```
