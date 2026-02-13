@@ -1098,3 +1098,251 @@ curl -X POST \
   }' \
   "https://cloud.handpoint.io/moto/reversal"
 ```
+
+## Batch Operations
+
+Batch operations allow you to remotely **close a batch on a specific payment terminal** using Cloud API.
+
+These endpoints are typically used in scenarios where the acquirer or merchant workflow is batch-based (for example,
+daily settlement batches per terminal).
+
+Currently, the primary batch operation exposed via Cloud API is:
+
+- `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
+
+All request and response payloads are defined in the corresponding [Batch objects](restobjects#batch).
+
+---
+
+### /batch/close
+
+`BatchClose`
+
+`POST /batch/close` is used to request **closure of a batch** for a specific payment terminal, identified by its
+`deviceType` and `serialNumber`, and a `batchNumber`.
+
+Typical use cases:
+
+- End-of-day batch closure triggered from a back-office or back-office job.
+- Manual batch close as part of a support or reconciliation process.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: BatchCloseRequest` <span class="badge badge--primary">Required</span> | [BatchCloseRequest](restobjects#batchCloseRequest) object containing `deviceType`, `serialNumber` and `batchNumber`. |
+
+Typical fields in the request body (see [BatchCloseRequest](restobjects#batchCloseRequest) for full details):
+
+- `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
+- `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
+- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch to close (for example, `"1"`).
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Batch close request accepted. The response body is a [BatchCloseResponse](restobjects#batchCloseResponse) with the batch number, a unique `closeBatchGuid`, timestamps and an issuer-style response code/text. |
+| `400` | Business rule error or generic gateway error. Returned as `BadRequestError`, with `error.code`, `error.message` and `error.details` describing the problem. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (for example, missing `batchNumber`). |
+| `5xx` | Internal error or service unavailability. The final outcome of the batch close may be unknown and may require reconciliation or a retry at a later time. |
+
+#### Behaviour examples
+
+**Happy path – close batch 1 for a terminal**
+
+```shell
+http POST https://cloud.handpoint.io/batch/close \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262' \
+  batchNumber='1'
+````
+
+Example response:
+
+```json
+{
+  "batchNumber": "1",
+  "closeBatchGuid": "14431ad0-d0dc-11f0-9ed0-695d1a368668",
+  "closedAt": "20251204064010281",
+  "customerReference": {},
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED"
+}
+```
+
+**Validation error – missing `batchNumber`**
+
+```shell
+http POST https://cloud.handpoint.io/batch/close \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262'
+```
+
+Response:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "code": "required",
+        "info": {
+          "missingProperty": "batchNumber"
+        },
+        "message": "must have required property 'batchNumber'",
+        "path": ""
+      }
+    ],
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "name": "UnprocessableEntityError",
+    "statusCode": 422
+  }
+}
+```
+
+#### Code example – Close batch via `curl`
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/close"
+```
+
+### /batch/summary
+
+`BatchSummary`
+
+`POST /batch/summary` is used to retrieve a **summary of a batch** for a specific payment terminal, identified by its
+`deviceType`, `serialNumber`, and `batchNumber`.
+
+Typical use cases:
+
+- Back-office reconciliation after a batch close.
+- Reporting and dashboards that need batch-level totals (number of transactions, net amount, status).
+- Support tools that need to check the status of a batch on a given terminal.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: BatchSummaryRequest` <span class="badge badge--primary">Required</span> | [BatchSummaryRequest](restobjects#batchSummaryRequest) object containing `deviceType`, `serialNumber` and `batchNumber`. |
+
+Typical fields in the request body (see [BatchSummaryRequest](restobjects#batchSummaryRequest) for full details):
+
+- `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
+- `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
+- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch whose summary is being requested (for example, `"1"`).
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Batch summary successfully retrieved. The response body is a [BatchSummaryResponse](restobjects#batchSummaryResponse) with batch status, transaction counts, net amount and optional custom fields. |
+| `400` | Business / lookup error (for example, the batch cannot be summarised for the given terminal). Returned as `BadRequestError`, with `error.code`, `error.message` and optional `error.details`. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (for example, missing `batchNumber`). |
+| `5xx` | Internal error or service unavailability. The batch itself is not modified; the integrator may retry later or reconcile through other means. |
+
+#### Behaviour examples
+
+**Happy path – summary for batch `1`**
+
+```shell
+http POST https://cloud.handpoint.io/batch/summary \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262' \
+  batchNumber='1'
+````
+
+Example response:
+
+```json
+{
+  "batchNumber": "1",
+  "batchStatus": "CLOSED",
+  "batchSummaryGuid": "61573ba0-08ac-11f1-b002-eb225f134f40",
+  "customFields": {
+    "entry": [
+      {
+        "key": "salesCount",
+        "value": "155"
+      },
+      {
+        "key": "refundsCount",
+        "value": "3"
+      },
+      {
+        "key": "issuerBatchCloseLocalTimestamp",
+        "value": "2025-12-05T11:00:00"
+      }
+    ]
+  },
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "netAmount": "245.00",
+  "transactionCount": "158"
+}
+```
+
+Key fields:
+
+* `batchStatus` – Current status of the batch (for example, `"CLOSED"`).
+* `transactionCount` – Total number of transactions in the batch.
+* `netAmount` – Net amount for the batch in major units as a string (for example, `"245.00"`).
+* `customFields.entry` – Optional list of key/value pairs with acquirer-specific metrics (for example, `salesCount`, `refundsCount`, `issuerBatchCloseLocalTimestamp`).
+
+**Validation error – missing `batchNumber`**
+
+```shell
+http POST https://cloud.handpoint.io/batch/summary \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262'
+```
+
+Response:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "code": "required",
+        "info": {
+          "missingProperty": "batchNumber"
+        },
+        "message": "must have required property 'batchNumber'",
+        "path": ""
+      }
+    ],
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "name": "UnprocessableEntityError",
+    "statusCode": 422
+  }
+}
+```
+
+#### Code example – Batch summary
+
+```shell
+http POST https://cloud.handpoint.io/batch/summary \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262' \
+  batchNumber='1'
+```
