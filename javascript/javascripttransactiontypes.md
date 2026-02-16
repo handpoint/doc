@@ -777,3 +777,102 @@ let operationStartedResult = handpoint.preAuthorizationReversal('00000000-0000-0
 | Parameter      | Notes |
 | ----------- | ----------- |
 | *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+
+## Batch Operations{batch-operations}
+
+### Batch Summary
+
+`batchSummary`
+
+A Batch Summary allows the user to retrieve information about a specific batch (including the total amount and the transaction count) of a batch for a specific payment terminal.
+
+**Parameters**
+
+| Property | Description |
+| -------- | ----------- |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to close (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch is being closed (for example, `"2740013262"`). |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+// Perform the batchSummary operation
+let operationStartedResult = handpoint.batchSummary("1", "PAXA920", "123456789", "custom reference", function (stat) {
+  console.log('Batch Summary received -> '+ stat.message) 
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Batch Summary Response**| If the result is successful, the response body is a [BatchSummaryResponse](javascriptobjects#batchSummaryResponse) with batch status, transaction counts, net amount and optional custom fields. Otherwise, it returns an error |
+
+
+### Close Batch
+
+`closeBatch`
+
+A Close Batch allows the user to request closure of a batch for a specific payment terminal. So it finalizes an open set of transactions and submits the batch to the acquirer for settlement.
+
+**Parameters**
+
+| Property | Description |
+| -------- | ----------- |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to close (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch is being closed (for example, `"2740013262"`). |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+// Perform the closeBatch operation
+
+let operationStartedResult = handpoint.closeBarch("1", "PAXA920", "123456789", "custom reference", function (stat) {
+  console.log('Close Batch received -> '+ stat.message) 
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Close Batch Response**| If the batch close request is accepted, the response body is a [BatchCloseResponse](javascriptobjects#batchCloseResponse) with the batch number, a unique `closeBatchGuid`, timestamps and an issuer-style response code/text. Otherwise, it returns an error |
+
+### Batch Detail
+
+`batchDetail`
+
+A Batch Detail allows the user to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal.
+
+**Parameters**
+
+| Property | Description |
+| -------- | ----------- |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to close (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch is being closed (for example, `"2740013262"`). |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+| `rrn`  <br />*String*   | 		Retrieval Reference Number, unique number assigned by the acquirer.|
+| `callback_function ` <span class="badge badge--primary">Required</span>   <br />*string*   | Callback function to subscribe to the transaction status updates.|
+
+**Code example**
+
+```javascript
+// Perform the batchDetail operation
+let operationStartedResult = handpoint.batchDetail("1", "PAXA920", "123456789", "custom reference", "123456", function (stat) {
+  console.log('Batch Detail received -> '+ stat.message) 
+});
+```
+
+**Returns**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| **Close Batch Response**| If the batch detail is successfully retrieved, the response body is a [BatchDetailResponse](javascriptobjects#batchDetailResponse) with batch status and optional details fields. Otherwise, it returns an error |
+
