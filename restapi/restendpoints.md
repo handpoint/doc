@@ -1346,3 +1346,127 @@ http POST https://cloud.handpoint.io/batch/summary \
   serialNumber='2740013262' \
   batchNumber='1'
 ```
+
+### /batch/detail
+
+`BatchDetail`
+A Batch Detail allows the user to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal.
+
+`POST /batch/detail` is used to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal, identified by its
+`deviceType`, `serialNumber`, `batchNumber` and `RRN`.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: BatchDetailRequest` <span class="badge badge--primary">Required</span> | [BatchDetailRequest](restobjects#batchDetailRequest) object containing `deviceType`, `serialNumber`, `batchNumber` and `rrn`. |
+
+Typical fields in the request body (see [BatchDetailRequest](restobjects#batchDetailRequest) for full details):
+
+- `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
+- `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
+- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch whose summary is being requested (for example, `"1"`).
+- `rrn` <span class="badge badge--primary">Optional</span> – Retrieval Reference Number, unique number assigned by the acquirer (for example, `"123"`).
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Batch detail successfully retrieved. The response body is a [BatchDetailResponse](restobjects#batchDetailResponse) with batch status and optional details fields. |
+| `400` | Business / lookup error (for example, the batch cannot be summarised for the given terminal). Returned as `BadRequestError`, with `error.code`, `error.message` and optional `error.details`. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (for example, missing `batchNumber`). |
+| `5xx` | Internal error or service unavailability. The batch itself is not modified; the integrator may retry later or reconcile through other means. |
+
+#### Behaviour examples
+
+**Happy path – detail for batch `1`**
+
+```shell
+http POST https://cloud.handpoint.io/batch/detail \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262' \
+  batchNumber='1'
+````
+
+Example response:
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "1",
+  "closedAt": "20260213135114884",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Batch detail retrieved",
+  "details": [
+    {
+      "transactionType": "SALE",
+      "amount": "100.00",
+      "batchDetailElementGuid": "2fac8676-396a-4cf1-a5ab-650f3f79e923"
+    },
+    {
+      "transactionType": "SALE",
+      "retrievalReferenceNumber": "RRN08236",
+      "amount": "50.00",
+      "batchDetailElementGuid": "dcb718ef-59f0-4de8-b414-41048782aff9"
+    },
+    {
+      "transactionType": "REFUND",
+      "retrievalReferenceNumber": "RRN08237",
+      "amount": "25.00",
+      "batchDetailElementGuid": "d1a7ef06-c429-4a57-a07b-b461482bcafa"
+    }
+  ],
+  "batchDetailGuid": "10360390-08e4-11f1-8bbe-a982e87fcbf2",
+  "batchStatus": "CLOSED"
+}
+```
+
+Key fields:
+
+* `batchStatus` – Current status of the batch (for example, `"CLOSED"`).
+* `details.entry` – Optional list with transaction info (for example, `transactionType`, `amount`, `retrievalReferenceNumber`, `batchDetailElementGuid`).
+
+**Validation error – missing `batchNumber`**
+
+```shell
+http POST https://cloud.handpoint.io/batch/detail \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262'
+```
+
+Response:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "code": "required",
+        "info": {
+          "missingProperty": "batchNumber"
+        },
+        "message": "must have required property 'batchNumber'",
+        "path": ""
+      }
+    ],
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "name": "UnprocessableEntityError",
+    "statusCode": 422
+  }
+}
+```
+
+#### Code example – Batch detail
+
+```shell
+http POST https://cloud.handpoint.io/batch/detail \
+  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
+  deviceType='PAXA920MAX' \
+  serialNumber='2740013262' \
+  batchNumber='1'
+```
+
