@@ -778,8 +778,9 @@ let operationStartedResult = handpoint.preAuthorizationReversal('00000000-0000-0
 | ----------- | ----------- |
 | *[OperationStartResult](javascriptobjects.md#operation-started-result)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
+## Batch Operations{batch-operations}
 
-## Batch Summary
+### Batch Summary
 
 `batchSummary`
 
@@ -808,10 +809,10 @@ let operationStartedResult = handpoint.batchSummary("1", "PAXA920", "123456789",
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Batch Summary Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| **Batch Summary Response**| If the result is successful, the response body is a [BatchSummaryResponse](javascriptobjects#batchSummaryResponse) with batch status, transaction counts, net amount and optional custom fields. Otherwise, it returns an error |
 
 
-## Close Batch
+### Close Batch
 
 `closeBatch`
 
@@ -841,10 +842,9 @@ let operationStartedResult = handpoint.closeBarch("1", "PAXA920", "123456789", "
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Close Batch Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| **Close Batch Response**| If the batch close request is accepted, the response body is a [BatchCloseResponse](javascriptobjects#batchCloseResponse) with the batch number, a unique `closeBatchGuid`, timestamps and an issuer-style response code/text. Otherwise, it returns an error |
 
-
-## Batch Detail
+### Batch Detail
 
 `batchDetail`
 
@@ -874,5 +874,5 @@ let operationStartedResult = handpoint.batchDetail("1", "PAXA920", "123456789", 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **Batch Detail Response**|[*Transaction Result Object*](javascriptobjects.md#18)|
+| **Close Batch Response**| If the batch detail is successfully retrieved, the response body is a [BatchDetailResponse](javascriptobjects#batchDetailResponse) with batch status and optional details fields. Otherwise, it returns an error |
 
