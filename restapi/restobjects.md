@@ -1157,3 +1157,87 @@ Object returned by [`POST /batch/summary`](restendpoints#batch-operations) when 
   "transactionCount": "158"
 }
 ```
+
+---
+
+### BatchDetailRequest {#batchDetailRequest}
+
+`BatchDetailRequest` <span class="badge badge--info">Object</span>
+
+Object used by the [`POST /batch/detail`](restendpoints#batch-operations) endpoint to request a **detail of a batch** for a specific payment terminal.
+
+**Properties**
+
+| Property | Description |
+| -------- | ----------- |
+| `deviceType` <span class="badge badge--primary">Required</span> <br />*String* | Terminal model identifier, matching the device type configured in Cloud API (for example, `"PAXA920MAX"` or `"PAXA920PRO"`). |
+| `serialNumber` <span class="badge badge--primary">Required</span> <br />*String* | Serial number of the payment terminal whose batch summary is being requested (for example, `"2740013262"`). |
+| `batchNumber` <span class="badge badge--primary">Required</span> <br />*String* | Identifier of the batch to summarise (for example, `"1"`, `"2"`). Typically a numeric string defined by the acquirer or terminal configuration. |
+| `customerReference` <br />*String \| Object* | Optional reference or metadata defined by the integrator. If provided, it can be echoed back in the response for reconciliation. |
+| `rrn`  <br />*String*   | 		(Optional) Retrieval Reference Number, unique number assigned by the acquirer.|
+
+**Code example**
+
+```json
+{
+  "deviceType": "PAXA920MAX",
+  "serialNumber": "2740013262",
+  "batchNumber": "1",
+  "customerReference": "daily-report-2025-12-05",
+  "rrn": "RRN08236"
+}
+```
+
+---
+
+### BatchDetailResponse {#batchDetailResponse}
+
+`BatchDetailResponse` <span class="badge badge--info">Object</span>
+
+Object returned by [`POST /batch/detail`](restendpoints#batch-operations) when the batch detail is successfully retrieved.
+
+**Properties**
+
+| Property                            | Description                                                                                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `httpStatus` <br />*String*         | HTTP status code as returned by the gateway (for example, `"200"`).                                                          |
+| `batchNumber` <br />*String*        | Batch number whose setail is being returned. Mirrors the `batchNumber` from the request.                                     |
+| `batchStatus` <br />*String*        | Current status of the batch (for example, `"CLOSED"`).                                                                       |
+| `issuerResponseCode` <br />*String* | Response code for the batch detail operation (for example, `"00"` for a successful retrieval).                               |
+| `issuerResponseText` <br />*String* | Human-readable description of the response (for example, `"DATA RETRIEVED"`).                                                |
+| `batchDetailGuid` <br />*String*    | Unique identifier for this batch detail operation. Useful for support, logging and audit purposes.                           |
+| `details` <br />*Object*            | Container for transaction list info. Typically for each transaction it includes: `transactionType`, `amount` and `batchDetailElementGuid`. |
+
+**Code example**
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "1",
+  "closedAt": "20260213135114884",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Batch detail retrieved",
+  "details": [
+    {
+      "transactionType": "SALE",
+      "amount": "100.00",
+      "batchDetailElementGuid": "2fac8676-396a-4cf1-a5ab-650f3f79e923"
+    },
+    {
+      "transactionType": "SALE",
+      "retrievalReferenceNumber": "RRN08236",
+      "amount": "50.00",
+      "batchDetailElementGuid": "dcb718ef-59f0-4de8-b414-41048782aff9"
+    },
+    {
+      "transactionType": "REFUND",
+      "retrievalReferenceNumber": "RRN08237",
+      "amount": "25.00",
+      "batchDetailElementGuid": "d1a7ef06-c429-4a57-a07b-b461482bcafa"
+    }
+  ],
+  "batchDetailGuid": "10360390-08e4-11f1-8bbe-a982e87fcbf2",
+  "batchStatus": "CLOSED"
+}
+```
+
