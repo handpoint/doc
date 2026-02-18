@@ -809,11 +809,15 @@ Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRe
 - **CVV required (3107)** — merchant configured with “CVV/CV2 input mandatory” for Card Not Present:
 
 ```shell
-http POST https://cloud.handpoint.io/moto/sale \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  amount='20.00' \
-  currency='EUR' \
-  cardToken='665630867'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "amount": "20.00",
+    "currency": "EUR",
+    "cardToken": "665630867"
+  }' \
+  "https://cloud.handpoint.io/moto/sale"
 ```
 
 Example response:
@@ -935,11 +939,15 @@ Supports full and partial refunds, depending on acquirer configuration.
 * **Partial refund – happy path** (EUR 5.00 of a 20.00 EUR sale):
 
   ```shell
-  http POST https://cloud.handpoint.io/moto/refund \
-    ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-    originalGuid='1a41d9f0-cf72-11f0-95b2-770b7d1d8e67' \
-    amount='5.00' \
-    currency='EUR'
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+    -d '{
+      "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67",
+      "amount": "5.00",
+      "currency": "EUR"
+    }' \
+    "https://cloud.handpoint.io/moto/refund"
   ```
 
 * **Currency mismatch (3210)**
@@ -1038,11 +1046,15 @@ Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for f
 * **Happy path – full MOTO reversal**
 
   ```shell
-  http POST https://cloud.handpoint.io/moto/reversal \
-    ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-    originalGuid='b28bdb10-cf87-11f0-b588-a122fae316de' \
-    amount='20.00' \
-    currency='EUR'
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+    -d '{
+      "originalGuid": "b28bdb10-cf87-11f0-b588-a122fae316de",
+      "amount": "20.00",
+      "currency": "EUR"
+    }' \
+    "https://cloud.handpoint.io/moto/reversal"
   ```
 
   Typical success response (simplified):
@@ -1101,14 +1113,17 @@ curl -X POST \
 
 ## Batch Operations
 
-Batch operations allow you to remotely **close a batch on a specific payment terminal** using Cloud API.
+Batch operations allow you to remotely **manage batches on a specific payment terminal** using Cloud API.
 
 These endpoints are typically used in scenarios where the acquirer or merchant workflow is batch-based (for example,
 daily settlement batches per terminal).
 
-Currently, the primary batch operation exposed via Cloud API is:
+Cloud API currently supports the following batch operations:
 
 - `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
+- `POST /batch/summary` — retrieves a **summary of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
+- `POST /batch/detail` — retrieves **batch detail** (including a list of transactions) for a given terminal (`deviceType`, `serialNumber`) and `batchNumber` (and optional `rrn`).
+
 
 All request and response payloads are defined in the corresponding [Batch objects](restobjects#batch).
 
@@ -1153,12 +1168,16 @@ Typical fields in the request body (see [BatchCloseRequest](restobjects#batchClo
 **Happy path – close batch 1 for a terminal**
 
 ```shell
-http POST https://cloud.handpoint.io/batch/close \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262' \
-  batchNumber='1'
-````
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/close"
+```
 
 Example response:
 
@@ -1177,10 +1196,14 @@ Example response:
 **Validation error – missing `batchNumber`**
 
 ```shell
-http POST https://cloud.handpoint.io/batch/close \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262"
+  }' \
+  "https://cloud.handpoint.io/batch/close"
 ```
 
 Response:
@@ -1260,12 +1283,16 @@ Typical fields in the request body (see [BatchSummaryRequest](restobjects#batchS
 **Happy path – summary for batch `1`**
 
 ```shell
-http POST https://cloud.handpoint.io/batch/summary \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262' \
-  batchNumber='1'
-````
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/summary"
+```
 
 Example response:
 
@@ -1308,10 +1335,14 @@ Key fields:
 **Validation error – missing `batchNumber`**
 
 ```shell
-http POST https://cloud.handpoint.io/batch/summary \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262"
+  }' \
+  "https://cloud.handpoint.io/batch/summary"
 ```
 
 Response:
@@ -1340,11 +1371,15 @@ Response:
 #### Code example – Batch summary
 
 ```shell
-http POST https://cloud.handpoint.io/batch/summary \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262' \
-  batchNumber='1'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/summary"
 ```
 
 ### /batch/detail
@@ -1383,12 +1418,16 @@ Typical fields in the request body (see [BatchDetailRequest](restobjects#batchDe
 **Happy path – detail for batch `1`**
 
 ```shell
-http POST https://cloud.handpoint.io/batch/detail \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262' \
-  batchNumber='1'
-````
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/detail"
+```
 
 Example response:
 
@@ -1431,10 +1470,14 @@ Key fields:
 **Validation error – missing `batchNumber`**
 
 ```shell
-http POST https://cloud.handpoint.io/batch/detail \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262"
+  }' \
+  "https://cloud.handpoint.io/batch/detail"
 ```
 
 Response:
@@ -1463,10 +1506,14 @@ Response:
 #### Code example – Batch detail
 
 ```shell
-http POST https://cloud.handpoint.io/batch/detail \
-  ApiKeyCloud:XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX \
-  deviceType='PAXA920MAX' \
-  serialNumber='2740013262' \
-  batchNumber='1'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1"
+  }' \
+  "https://cloud.handpoint.io/batch/detail"
 ```
 
