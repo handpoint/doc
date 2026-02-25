@@ -331,7 +331,7 @@ Error example response (using invalid guid):
 
 
 
-## /transactions/{transactionReference}/status
+### /transactions/{transactionReference}/status
 
 :::warning
 This endpoint does **not** use **https://cloud.handpoint.(io/com)/** as a base URL, it uses **https://transactions.handpoint.(io/com)/**
@@ -430,7 +430,7 @@ RESPONSE:
 }
 ```
 
-## /transactions/{transactionReference}/status/{selector}
+### /transactions/{transactionReference}/status/{selector}
 
 :::warning
 This endpoint does **not** use **https://cloud.handpoint.(io/com)/** as a base URL, it uses **https://transactions.handpoint.(io/com)/**

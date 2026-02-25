@@ -12,6 +12,12 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 ## 2.25.0
 **Features:**
 
+New [MOTO Operations (no reader)](restendpoints.md#moto-operations-no-reader) endpoints are now available, allowing MOTO (Mail Order / Telephone Order) transactions to be processed **without a payment reader**, using a card token retrieved from the gateway:
+
+- [`POST /moto/sale`](restendpoints.md#motosale) — performs a MOTO sale using a previously generated card token.
+- [`POST /moto/refund`](restendpoints.md#motorefund) — performs a refund of a previous operation using its original identifier.
+- [`POST /moto/reversal`](restendpoints.md#motoreversal) — performs a reversal (void) of a previous operation using its original identifier.
+
 New [Batch Operations](restendpoints.md#batch-operations) endpoints are now available, allowing you to remotely manage batches on a specific payment terminal using the Cloud API:
 
 - [`POST /batch/close`](restendpoints.md#batchclose) — requests the closure of a batch for a given terminal and batch number.
@@ -21,15 +27,6 @@ New [Batch Operations](restendpoints.md#batch-operations) endpoints are now avai
 :::info
 Batch Operations are currently in **Beta** and are not available for all acquirers. Contact your Handpoint relationship manager to find out if this feature is supported for your acquirer.
 :::
-
-## 2.24.0
-**Features:**
-
-New [MOTO Operations (no reader)](restendpoints.md#moto-operations-no-reader) endpoints are now available, allowing MOTO (Mail Order / Telephone Order) transactions to be processed **without a payment reader**, using a card token retrieved from the gateway:
-
-- [`POST /moto/sale`](restendpoints.md#motosale) — performs a MOTO sale using a previously generated card token.
-- [`POST /moto/refund`](restendpoints.md#motorefund) — performs a refund of a previous operation using its original identifier.
-- [`POST /moto/reversal`](restendpoints.md#motoreversal) — performs a reversal (void) of a previous operation using its original identifier.
 
 ## 2.23.1
 **Features:**
