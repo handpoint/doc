@@ -60,6 +60,11 @@ RESPONSE:
 :::tip
 Reminder that SSK (Shared Secret Key) is a value unique to a Merchant, and the same Merchant (SSK) can have assigned multiple devices from different manufacturers. This includes PAX and Datecs (eg. HiLite)
 :::
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> main
 
 ## /transactions
 
