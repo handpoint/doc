@@ -1111,7 +1111,11 @@ curl -X POST \
   "https://cloud.handpoint.io/moto/reversal"
 ```
 
-## Batch Operations
+## Batch Operations <span class="badge badge--warning">Beta</span>
+
+:::info
+Batch Operations are not available for all acquirers. Contact your Handpoint relationship manager to find out if this feature is supported for your acquirer.
+:::
 
 Batch operations allow you to remotely **manage batches on a specific payment terminal** using Cloud API.
 
@@ -1126,6 +1130,10 @@ Cloud API currently supports the following batch operations:
 
 
 All request and response payloads are defined in the corresponding [Batch objects](restobjects#batch).
+
+:::info
+In MOTO scenarios, the `deviceType` and `serialNumber` fields can refer to a **virtual terminal** (`VT`) instead of a physical device. Use `VT` as the `deviceType` and the serial number of the virtual terminal assigned to the merchant. The serial number of the virtual terminal can be retrieved from the response of the [/initialize](restendpoints#initialize) endpoint.
+:::
 
 ---
 
