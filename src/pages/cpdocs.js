@@ -690,7 +690,7 @@ function TableTerminals() {
         </div>
         <br></br>
         <div class="row">
-          <div class="col col--12">
+          <div class="col col--6">
             <div class="integrationOptions">
               <div class="card-demo" style={{ fontSize: '13px' }}>
                 <div class="card shadow--md ">
@@ -700,6 +700,23 @@ function TableTerminals() {
                   <div class="card__body" align="center">
                     <a href="https://www.paxtechnology.com/a8900" target="_blank"><img style={{ height: '150px' }}
                       src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_3000,w_2000,f_auto,q_auto/1402119/404900_191355.png"
+                      alt="">
+                    </img></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col col--6">
+            <div class="integrationOptions">
+              <div class="card-demo" style={{ fontSize: '13px' }}>
+                <div class="card shadow--md ">
+                  <h3 class="card__header" align="center">
+                    <b><a href="https://www.paxtechnology.com/a6630" target="_blank">PAX A6630</a></b>
+                  </h3>
+                  <div class="card__body" align="center">
+                    <a href="https://www.paxtechnology.com/a6630" target="_blank"><img style={{ height: '150px' }}
+                      src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_3000,w_2000,f_auto,q_auto/1402119/178674_932073.png"
                       alt="">
                     </img></a>
                   </div>
@@ -857,6 +874,15 @@ function CommunicationTypesTable() {
 
             <TableRow>
               <TableCell align="center"><b>PAX A6650</b></TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center">✅</TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+              <TableCell align="center"></TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell align="center"><b>PAX A6630</b></TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center">✅</TableCell>
               <TableCell align="center"></TableCell>
