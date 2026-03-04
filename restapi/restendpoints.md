@@ -60,11 +60,6 @@ RESPONSE:
 :::tip
 Reminder that SSK (Shared Secret Key) is a value unique to a Merchant, and the same Merchant (SSK) can have assigned multiple devices from different manufacturers. This includes PAX and Datecs (eg. HiLite)
 :::
-<<<<<<< HEAD
-=======
-
-
->>>>>>> main
 
 ## /transactions
 
@@ -158,7 +153,7 @@ Transaction Request with callbackUrl and token
 ```
 
 
-## /transaction-result/{transactionResultId}
+## /transaction-result/\{transactionResultId\}
 
 
 `TransactionResultRetrieval`
@@ -260,7 +255,7 @@ RESPONSE:
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
 
-## /transactions/{guid}/tip-adjustment
+## /transactions/\{guid\}/tip-adjustment
 
 
 `TipAdjustment`
@@ -336,14 +331,14 @@ Error example response (using invalid guid):
 
 
 
-### /transactions/{transactionReference}/status
+### /transactions/\{transactionReference\}/status
 
 :::warning
 This endpoint does **not** use **https://cloud.handpoint.(io/com)/** as a base URL, it uses **https://transactions.handpoint.(io/com)/**
 :::
 
 
-The `https://transactions.handpoint.com/transactions/{transactionReference}/status` endpoint is a RESTful API endpoint designed to retrieve the status of the first transaction associated with a given `transactionReference`. This endpoint returns the status of the initial transaction linked to the reference, reflecting the current state of that transaction.The `transactionReference` is a unique value that you need to generate and pass in the original [ transaction request](restobjects.md#transactionRequest).
+The `https://transactions.handpoint.com/transactions/\{transactionReference\}/status` endpoint is a RESTful API endpoint designed to retrieve the status of the first transaction associated with a given `transactionReference`. This endpoint returns the status of the initial transaction linked to the reference, reflecting the current state of that transaction.The `transactionReference` is a unique value that you need to generate and pass in the original [ transaction request](restobjects.md#transactionRequest).
 
 The main transaction result [*FinancialStatus*](restobjects.md#financialStatus) that can be returned as a response to this method are the following ones: 
 
@@ -435,13 +430,13 @@ RESPONSE:
 }
 ```
 
-### /transactions/{transactionReference}/status/{selector}
+### /transactions/\{transactionReference\}/status/\{selector\}
 
 :::warning
 This endpoint does **not** use **https://cloud.handpoint.(io/com)/** as a base URL, it uses **https://transactions.handpoint.(io/com)/**
 :::
 
-The `https://transactions.handpoint.io/transactions/{transactionReference}/status/{selector}` endpoint is a RESTful API that retrieves the status of transactions associated with a given `transactionReference`. The `{selector}` path parameter allows you to specify whether you want to retrieve the status of a specific transaction by its index or retrieve all transactions associated with the `transactionReference`.
+The `https://transactions.handpoint.io/transactions/\{transactionReference\}/status/\{selector\}` endpoint is a RESTful API that retrieves the status of transactions associated with a given `transactionReference`. The `\{selector\}` path parameter allows you to specify whether you want to retrieve the status of a specific transaction by its index or retrieve all transactions associated with the `transactionReference`.
 
 **Selector Values**
 
@@ -450,7 +445,7 @@ The `https://transactions.handpoint.io/transactions/{transactionReference}/statu
 | all           | Returns the status of all transactions associated with the given `transactionReference`. |
 | first         | Returns the status of the first transaction associated with the `transactionReference`. |
 | last          | Returns the status of the last transaction associated with the `transactionReference`. |
-| {index}       | Returns the status of a specific transaction identified by its 1-based index in the sequence of transactions associated with the `transactionReference`. For example, `1` for the first transaction, `2` for the second, and so on. |
+| \{index\}       | Returns the status of a specific transaction identified by its 1-based index in the sequence of transactions associated with the `transactionReference`. For example, `1` for the first transaction, `2` for the second, and so on. |
 
 
 :::caution
@@ -507,12 +502,12 @@ It's our recommendation that a new value is created and sent for every request a
 Command Endpoint Format
 
 All device control commands follow this endpoint structure:
-```https://cloud.handpoint.io/devices/{deviceType}/{serialNumber}/{command}```
+```https://cloud.handpoint.io/devices/\{deviceType\}/\{serialNumber\}/\{command\}```
 
 Where:
-- `{deviceType}` is the type of the device (e.g., PAXIM30)
-- `{serialNumber}` is the serial number of the device (e.g., 1640013848)
-- `{command}` is the specific command to execute
+- `\{deviceType\}` is the type of the device (e.g., PAXIM30)
+- `\{serialNumber\}` is the serial number of the device (e.g., 1640013848)
+- `\{command\}` is the specific command to execute
 
 Common Parameters
 
@@ -541,7 +536,7 @@ If you attempt to send one of these commands and the device is not yet in Integr
 
 ### Set Unattended Mode
 
-`POST /devices/{deviceType}/{serialNumber}/set-unattended-mode`
+`POST /devices/\{deviceType\}/\{serialNumber\}/set-unattended-mode`
 
 Enables or disables unattended mode on the device.
 Unattended mode will disable the Bottom navigation bar containing the Home, back, recent buttons.
@@ -568,7 +563,7 @@ curl -X POST \
 
 ### Set Locale
 
-`POST /devices/{deviceType}/{serialNumber}/set-locale`
+`POST /devices/\{deviceType\}/\{serialNumber\}/set-locale`
 
 Sets the locale of the target device.
 
@@ -602,7 +597,7 @@ curl -X POST \
 
 ### Set Password Protection
 
-`POST /devices/{deviceType}/{serialNumber}/set-password-protected`
+`POST /devices/\{deviceType\}/\{serialNumber\}/set-password-protected`
 
 Enables or disables password protection on the device.
 
@@ -636,7 +631,7 @@ curl -X POST \
 
 ### Reboot Device
 
-`POST /devices/{deviceType}/{serialNumber}/reboot`
+`POST /devices/\{deviceType\}/\{serialNumber\}/reboot`
 
 Reboots the device with an optional force parameter.
 
@@ -670,7 +665,7 @@ curl -X POST \
 
 ### Set Screen Brightness
 
-`POST /devices/{deviceType}/{serialNumber}/set-screen-brightness`
+`POST /devices/\{deviceType\}/\{serialNumber\}/set-screen-brightness`
 
 Sets the screen brightness levels.
 
@@ -711,7 +706,7 @@ curl -X POST \
 This feature is only enabled for production devices.
 :::
 
-`POST /devices/{deviceType}/{serialNumber}/set-reboot-time`
+`POST /devices/\{deviceType\}/\{serialNumber\}/set-reboot-time`
 
 Sets the daily reboot time for the device. The actual reboot will occur at a random minute within the specified hour.
 

@@ -19,7 +19,7 @@ Complete your integration in just three steps: Initiate the interface, choose th
 
 **Features:**
 
-- Transaction result retrieval through API endpoint GET .../transaction-result/{transactionResultId}
+- Transaction result retrieval through API endpoint GET .../transaction-result/\{transactionResultId\}
 
 
 ## API Overview
@@ -230,7 +230,7 @@ RESPONSE:
 ```
 
 
-### /transaction-result/{transactionResultId}
+### /transaction-result/\{transactionResultId\}
 
 
 `TransactionResultRetrieval`

@@ -18,7 +18,7 @@ The HeftManager is used for discovering devices and to connect and create a Heft
 | ----------- | ----------- |
 | `devicesCopy`  <br />*NSArray* | **DEPRECATED_ATTRIBUTE**: Stored array which contains all found devices.|
 | `connectedCardReaders`  <br />*NSArray* | Stored array which contains all found devices.|
-| `delegate`  <br />*NSObject<HeftDiscoveryDelegate\>*| Key for value in mpedInfo|
+| `delegate`  <br />`NSObject<HeftDiscoveryDelegate>`| Key for value in mpedInfo|
 | `version`  <br />*NSString* | Current HeftManager version.|
 
 **Code example**

@@ -543,7 +543,7 @@ MerchantAuth( List<Credential> credentials );
 ```
 | Parameter      | Description |
 | ----------- | ----------- |
-| `credential`  <br/>*List<Credential\>*   | 		If present, the list of credentials.|
+| `credential`  <br/>`List<Credential>`   | 		If present, the list of credentials.|
 
 ```java
 Add Credential
@@ -712,6 +712,7 @@ An object to store optional parameters for card not present (MoTo) transactions.
 | ----------- | ----------- |
 | `CustomerReference` <br />*String*    | An arbitrary string to use as your own identifier for a transaction|
 | `Channel`  <br />[*MoToChannel*](#moto-channel)  | MO for Mail order - TO for Telephone order|
+| `cardToken`  <br />*String*  | From token providers who support PAN + Expiry de-tokenization|
 | `Tokenize`  <br />*Boolean*  | Flag to activate tokenization of the operation, if this flag is set, a token representing the PAN of the card will be sent back by the Handpoint sytems|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
@@ -1163,7 +1164,7 @@ TipConfiguration( String tipAmount );
 | `amount`  <br />*BigInteger*   | 			Transaction amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `baseAmount` <br />*BigInteger*   | 			Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.|
 | `headerName`   <br />*String*  | 			Name of the tipping menu appearing on the terminal. Default: Tip|
-| `tipPercentages` <br />*List<Integer\>*    | 			List of percentages used to calculate the tip amount. **REQUIRED**|
+| `tipPercentages` <br />`List<Integer>`    | 			List of percentages used to calculate the tip amount. **REQUIRED**|
 | `enterAmountEnabled`  <br/> *Boolean*   | 			Flag used to enable the cardholder to manually enter the tip amount. Default: true|
 | `skipEnabled` <br />*Boolean*    | 			Flag used to enable the cardholder to skip the tipping step. Default: true|
 | `footer`   <br />*String*  | 			Footer note which will appear on the tipping menu. Default: Empty string|

@@ -17,7 +17,7 @@ A new `cardPresent` parameter is available under [Optional Transaction Parameter
 ## 2.20.0
 **Features:**
 
-Added a selector to the [{transactionReference}/status](restendpoints.md#transactionstransactionreferencestatusselector) endpoint which improves greatly on reporting
+Added a selector to the [\{transactionReference\}/status](restendpoints.md#transactionstransactionreferencestatusselector) endpoint which improves greatly on reporting
 
 Added "commands" to allow greater device control options
 
@@ -104,4 +104,4 @@ The new `duplicate_check` parameter is available under the [Transaction Request 
 ## 2.4.0
 **Features:**
 
-- Transaction result retrieval through API endpoint GET .../transaction-result/{transactionResultId}
+- Transaction result retrieval through API endpoint GET .../transaction-result/\{transactionResultId\}
