@@ -767,6 +767,10 @@ All request and response payloads are defined in the corresponding [Moto objects
 
 ### /moto/sale
 
+:::warning
+MotoSale with cardToken is not available for all Token Providers. Contact your Handpoint relationship manager to find out if this feature is supported for your Token Provider.
+:::
+
 `MotoSale`
 
 `POST /moto/sale` is used to perform a **MOTO sale without a payment reader**, using a **card token** (`cardToken`)
