@@ -394,7 +394,7 @@ Invoked when the terminal finishes processing the transaction.
 
 `MoToSale`
 
-Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase.
+Mail Order /Telephone Order (MOTO) sale. MOTO is a type of card-not-present (CNP) transaction in which services are paid and delivered via telephone, mail, fax, or internet communication. MOTO has become synonymous with any financial transaction where the entity taking payment does not physically see the card used to make the purchase. This operation now supports the use of a **cardToken** via MoToOptions for secure, card-less transactions.
 
 
 **Parameters**
@@ -422,6 +422,19 @@ MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
 api.motoSale(new BigInteger("1000"), Currency.USD, moToOptions);
 
 ```
+
+**Code Example 2**
+
+```java
+// Initiate a MoTo sale using a cardToken
+MoToOptions options = new MoToOptions();
+options.setCardToken("your-stored-card-token");
+options.setChannel(MoToChannel.TO);
+
+api.motoSale(new BigInteger("1000"), Currency.EUR, options);
+
+```
+
 
 **Events invoked**
 
@@ -510,6 +523,8 @@ A MOTO reversal, also called VOID allows the user to reverse a previous sale/ref
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `originalTransactionId` <span class="badge badge--primary">Required</span>  <br />*String*    | Id of the original sale transaction.|
+| `amount` <br />*String*    | (Optional) The amount to reverse from the original transaction. (Required for partial reversals). Check with Integration Support if your acquirer supports Partial Reversals|
+| `currency` <br />*String*    | (Optional) The currency of the original transaction. (Required for partial reversals)|
 | `options` <br />[*MoToOptions*](androidobjects.md#moto-options)       | An object to store optional parameters for a MoTo reversal.|
 
 **Code example**
@@ -519,6 +534,12 @@ MoToOptions options = new MoToOptions();
 options.setCustomerReference("MoTo Reversal Example");
 
 api.motoReversal("00000000-0000-0000-0000-000000000000",options);
+
+// Simple MoTo reversal
+api.motoReversal("00000000-0000-0000-0000-000000000000");
+
+// MoTo reversal with explicit amount and currency
+api.motoReversal("1000", "EUR", "00000000-0000-0000-0000-000000000000");
 ```
 **Events invoked**
 
