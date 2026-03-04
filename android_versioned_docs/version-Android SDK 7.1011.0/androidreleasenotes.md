@@ -11,6 +11,19 @@ id: androidreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 7.1011.0
+**New Features**
+
+- PAX A6630 model is supported now
+- MOTO sales can now be performed by using a token
+- MOTO partial reversals are now supported
+- The Get Transaction Status service is used now also in MOTO operations
+
+**Improvements**
+
+- Some duplicate events scenarios have been addressed
+- Some minor visual issues have been addressed
+
 ## 7.1010.8
 **Fixes**
 

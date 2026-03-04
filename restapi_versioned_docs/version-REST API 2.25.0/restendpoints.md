@@ -60,11 +60,6 @@ RESPONSE:
 :::tip
 Reminder that SSK (Shared Secret Key) is a value unique to a Merchant, and the same Merchant (SSK) can have assigned multiple devices from different manufacturers. This includes PAX and Datecs (eg. HiLite)
 :::
-<<<<<<< HEAD
-=======
-
-
->>>>>>> main
 
 ## /transactions
 
@@ -771,6 +766,10 @@ All request and response payloads are defined in the corresponding [Moto objects
 ---
 
 ### /moto/sale
+
+:::warning
+MotoSale with cardToken is not available for all Token Providers. Contact your Handpoint relationship manager to find out if this feature is supported for your Token Provider.
+:::
 
 `MotoSale`
 

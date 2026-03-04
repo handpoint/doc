@@ -750,4 +750,140 @@ An enum representing different cardholder verification methods.
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
 
 
+## BatchCloseResponse {#batchCloseResponse}
+
+`BatchCloseResponse` <span class="badge badge--info">Object</span>
+
+Object returned by [`POST /batch/close`](javascripttransactiontypes#batch-operations) when the batch close request is accepted by the gateway.
+
+**Properties**
+
+| Property                            | Description                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `batchNumber` <br />*String*        | Batch number that was requested to be closed. Mirrors the `batchNumber` from the request.                                       |
+| `closeBatchGuid` <br />*String*     | Unique identifier for the batch close operation. Can be used for support and audit purposes.                                    |
+| `closedAt` <br />*String*           | Timestamp (gateway internal format) indicating when the batch close request was processed (for example, `"20251204064010281"`). |
+| `customerReference` <br />*Object*  | Optional reference or metadata associated with this batch close. May be an empty object if no metadata was provided.            |
+| `httpStatus` <br />*String*         | HTTP status code as returned by the gateway (for example, `"200"`).                                                             |
+| `issuerResponseCode` <br />*String* | Response code for the batch close operation (for example, `"00"` for accepted).                                                 |
+| `issuerResponseText` <br />*String* | Human-readable description of the response (for example, `"ACCEPTED"`).                                                         |
+
+**Code example**
+
+```json
+{
+  "batchNumber": "1",
+  "closeBatchGuid": "14431ad0-d0dc-11f0-9ed0-695d1a368668",
+  "closedAt": "20251204064010281",
+  "customerReference": {},
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED"
+}
+```
+
+## BatchSummaryResponse {#batchSummaryResponse}
+
+`BatchSummaryResponse` <span class="badge badge--info">Object</span>
+
+Object returned by [`POST /batch/summary`](javascripttransactiontypes#batch-operations) when the batch summary is successfully retrieved.
+
+**Properties**
+
+| Property                            | Description                                                                                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `batchNumber` <br />*String*        | Batch number whose summary is being returned. Mirrors the `batchNumber` from the request.                                                                            |
+| `batchStatus` <br />*String*        | Current status of the batch (for example, `"CLOSED"`).                                                                                                               |
+| `batchSummaryGuid` <br />*String*   | Unique identifier for this batch summary operation. Useful for support, logging and audit purposes.                                                                  |
+| `transactionCount` <br />*String*   | Total number of transactions in the batch, as a string (for example, `"158"`).                                                                                       |
+| `netAmount` <br />*String*          | Net amount for the batch in major units as a string (for example, `"245.00"`). Uses a dot (`.`) as decimal separator.                                                |
+| `customFields` <br />*Object*       | Container for acquirer-specific metrics and extra data. Typically includes an `entry` array of `{ "key": "...", "value": "..." }` pairs (for example, `salesCount`). |
+| `customerReference` <br />*Object*  | Optional reference or metadata associated with this batch summary. May be an empty object if no metadata was provided in the request.                                |
+| `httpStatus` <br />*String*         | HTTP status code as returned by the gateway (for example, `"200"`).                                                                                                  |
+| `issuerResponseCode` <br />*String* | Response code for the batch summary operation (for example, `"00"` for a successful retrieval).                                                                      |
+| `issuerResponseText` <br />*String* | Human-readable description of the response (for example, `"DATA RETRIEVED"`).                                                                                        |
+
+**Code example**
+
+```json
+{
+  "batchNumber": "1",
+  "batchStatus": "CLOSED",
+  "batchSummaryGuid": "61573ba0-08ac-11f1-b002-eb225f134f40",
+  "customFields": {
+    "entry": [
+      {
+        "key": "salesCount",
+        "value": "155"
+      },
+      {
+        "key": "refundsCount",
+        "value": "3"
+      },
+      {
+        "key": "issuerBatchCloseLocalTimestamp",
+        "value": "2025-12-05T11:00:00"
+      }
+    ]
+  },
+  "customerReference": {},
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "netAmount": "245.00",
+  "transactionCount": "158"
+}
+```
+
+## BatchDetailResponse {#batchDetailResponse}
+
+`BatchDetailResponse` <span class="badge badge--info">Object</span>
+
+Object returned by [`POST /batch/detail`](javascripttransactiontypes#batch-operations) when the batch detail is successfully retrieved.
+
+**Properties**
+
+| Property                            | Description                                                                                                                                                          |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `httpStatus` <br />*String*         | HTTP status code as returned by the gateway (for example, `"200"`).                                                          |
+| `batchNumber` <br />*String*        | Batch number whose setail is being returned. Mirrors the `batchNumber` from the request.                                     |
+| `batchStatus` <br />*String*        | Current status of the batch (for example, `"CLOSED"`).                                                                       |
+| `issuerResponseCode` <br />*String* | Response code for the batch detail operation (for example, `"00"` for a successful retrieval).                               |
+| `issuerResponseText` <br />*String* | Human-readable description of the response (for example, `"DATA RETRIEVED"`).                                                |
+| `batchDetailGuid` <br />*String*    | Unique identifier for this batch detail operation. Useful for support, logging and audit purposes.                           |
+| `details` <br />*Object*            | Container for transaction list info. Typically for each transaction it includes: `transactionType`, `amount` and `batchDetailElementGuid`. |
+
+**Code example**
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "1",
+  "closedAt": "20260213135114884",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Batch detail retrieved",
+  "details": [
+    {
+      "transactionType": "SALE",
+      "amount": "100.00",
+      "batchDetailElementGuid": "2fac8676-396a-4cf1-a5ab-650f3f79e923"
+    },
+    {
+      "transactionType": "SALE",
+      "retrievalReferenceNumber": "RRN08236",
+      "amount": "50.00",
+      "batchDetailElementGuid": "dcb718ef-59f0-4de8-b414-41048782aff9"
+    },
+    {
+      "transactionType": "REFUND",
+      "retrievalReferenceNumber": "RRN08237",
+      "amount": "25.00",
+      "batchDetailElementGuid": "d1a7ef06-c429-4a57-a07b-b461482bcafa"
+    }
+  ],
+  "batchDetailGuid": "10360390-08e4-11f1-8bbe-a982e87fcbf2",
+  "batchStatus": "CLOSED"
+}
+```
+
 
