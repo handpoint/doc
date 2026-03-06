@@ -1,5 +1,6 @@
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const {themes} = require('prism-react-renderer');
+const lightCodeTheme = themes.github;
+const darkCodeTheme = themes.dracula;
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
@@ -86,7 +87,7 @@ module.exports = {
           items: [
             {
               label: 'In-Person Payments Docs',
-              to: '/cpdocs/index.html',
+              to: '/',
             },
             {
               label: 'Online Payments Docs',
@@ -176,55 +177,7 @@ module.exports = {
     },
   },
   themes: [
-  ['@easyops-cn/docusaurus-search-local', {
-    id: 'search-android',
-    indexBlog: false,
-    indexPages: false,
-    indexDocs: true,
-    docsDir: 'android',
-    docsRouteBasePath: 'android',
-  }],
-  ['@easyops-cn/docusaurus-search-local', {
-    id: 'search-ios',
-    indexBlog: false,
-    indexPages: false,
-    indexDocs: true,
-    docsDir: 'ios',
-    docsRouteBasePath: 'ios',
-  }],
-  ['@easyops-cn/docusaurus-search-local', {
-    id: 'search-windows',
-    indexBlog: false,
-    indexPages: false,
-    indexDocs: true,
-    docsDir: 'windows',
-    docsRouteBasePath: 'windows',
-  }],
-  ['@easyops-cn/docusaurus-search-local', {
-    id: 'search-javascript',
-    indexBlog: false,
-    indexPages: false,
-    indexDocs: true,
-    docsDir: 'javascript',
-    docsRouteBasePath: 'javascript',
-  }],
-  ['@easyops-cn/docusaurus-search-local', {
-    id: 'search-restapi',
-    indexBlog: false,
-    indexPages: false,
-    indexDocs: true,
-    docsDir: 'restapi',
-    docsRouteBasePath: 'restapi',
-  }],
-  ['@easyops-cn/docusaurus-search-local', {
-    id: 'search-express',
-    indexBlog: false,
-    indexPages: false,
-    indexDocs: true,
-    docsDir: 'express',
-    docsRouteBasePath: 'express',
-  }],
-],
+  ],
   presets: [
     [
       '@docusaurus/preset-classic',

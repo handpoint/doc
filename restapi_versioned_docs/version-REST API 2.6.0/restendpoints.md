@@ -145,7 +145,7 @@ Transaction Request with callbackUrl and token
 ```
 
 
-## /transaction-result/{transactionResultId}
+## /transaction-result/\{transactionResultId\}
 
 
 `TransactionResultRetrieval`

@@ -153,7 +153,7 @@ Transaction Request with callbackUrl and token
 ```
 
 
-## /transaction-result/{transactionResultId}
+## /transaction-result/\{transactionResultId\}
 
 
 `TransactionResultRetrieval`
@@ -255,7 +255,7 @@ RESPONSE:
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
 
-## /transactions/{guid}/tip-adjustment
+## /transactions/\{guid\}/tip-adjustment
 
 
 `TipAdjustment`
@@ -331,14 +331,14 @@ Error example response (using invalid guid):
 
 
 
-## /transactions/{transactionReference}/status
+## /transactions/\{transactionReference\}/status
 
 :::warning
 This endpoint does not use **https://cloud.handpoint.(io/com)/** as a base URL, it uses **https://transactions.handpoint.(io/com)/**
 :::
 
 
-The `https://transactions.handpoint.com/transactions/{transactionReference}/status` endpoint is a RESTful API endpoint designed to retrieve the current status of a transaction based on its unique reference. It accepts the transaction reference as a path parameter and returns the current status of the transaction in the response. The `transactionReference` is a unique value that you need to generate and pass in the original [ transaction request](restobjects.md#transactionRequest).
+The `https://transactions.handpoint.com/transactions/\{transactionReference\}/status` endpoint is a RESTful API endpoint designed to retrieve the current status of a transaction based on its unique reference. It accepts the transaction reference as a path parameter and returns the current status of the transaction in the response. The `transactionReference` is a unique value that you need to generate and pass in the original [ transaction request](restobjects.md#transactionRequest).
 
 The main transaction result [*FinancialStatus*](restobjects.md#financialStatus) that can be returned as a response to this method are the following ones: 
 
