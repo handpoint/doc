@@ -320,7 +320,7 @@ GET endpoint used to retrieve a card token from a previously completed card-pres
 The returned `cardToken` can then be used to perform subsequent MOTO operations (e.g. [`POST /moto/sale`](#moto-operations-no-reader)).
 
 :::note
-Deferred tokenization is only available for `sale` and `refund` transaction types. Other transaction types (e.g. tip adjustments) will return a `400` error.
+Deferred tokenization is supported for the following transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale` and `moToRefund`. Other transaction types will return a `400` error.
 :::
 
 **Parameters**

@@ -173,7 +173,7 @@ A class which holds the payment terminal status.
 
 `DeferredTokenizationResponse` <span class="badge badge--info">Object</span>
 
-Response object returned by the [`GET /transactions/{guid}/token`](restendpoints.md#transactionsguidtoken) endpoint. Contains the card token and associated details retrieved from a completed card-present transaction.
+Response object returned by the [`GET /transactions/{guid}/token`](restendpoints.md#transactionsguidtoken) endpoint. Contains the card token and associated details retrieved from a completed transaction. Supported transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale` and `moToRefund`.
 
 **Properties**
 
