@@ -321,6 +321,10 @@ GET endpoint used to retrieve a card token from a previously completed transacti
 Deferred tokenization is supported for the following transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale` and `moToRefund`. Other transaction types will return a `400` error.
 :::
 
+:::warning
+Tokenization requests must be made within **12 months** of the original transaction. Requests for transactions older than 12 months will not be processed.
+:::
+
 **Parameters**
 
 | Parameter      | Notes |
