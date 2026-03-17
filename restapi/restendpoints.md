@@ -315,7 +315,7 @@ Error example response (using invalid guid):
 
 `DeferredTokenization`
 
-GET endpoint used to retrieve a card token from a previously completed card-present transaction. This operation, known as **deferred tokenization**, allows merchants to obtain a card token at any point after a `sale` or `refund` transaction has been completed on the terminal, without requiring tokenization to be enabled at the time of the original transaction.
+GET endpoint used to retrieve a card token from a previously completed card-present transaction. This operation, known as **deferred tokenization**, allows merchants to obtain a card token at any point after a supported transaction (`sale`, `refund`, `preAuthorizationCapture`, `moToSale` or `moToRefund`) has been completed, without requiring tokenization to be enabled at the time of the original transaction.
 
 The returned `cardToken` can then be used to perform subsequent MOTO operations (e.g. [`POST /moto/sale`](#moto-operations-no-reader)).
 
