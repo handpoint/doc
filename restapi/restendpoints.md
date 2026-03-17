@@ -311,6 +311,77 @@ Error example response (using invalid guid):
 }
 ```
 
+## /transactions/\{guid\}/token \{#transactionsguidtoken\}
+
+`DeferredTokenization`
+
+GET endpoint used to retrieve a card token from a previously completed card-present transaction. This operation, known as **deferred tokenization**, allows merchants to obtain a card token at any point after a `sale` or `refund` transaction has been completed on the terminal, without requiring tokenization to be enabled at the time of the original transaction.
+
+The returned `cardToken` can then be used to perform subsequent MOTO operations (e.g. [`POST /moto/sale`](#moto-operations-no-reader)).
+
+:::note
+Deferred tokenization is only available for `sale` and `refund` transaction types. Other transaction types (e.g. tip adjustments) will return a `400` error.
+:::
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
+| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The GUID of the completed card-present transaction from which to retrieve the token. |
+
+**Returns**
+
+| Response      | Response Code |
+| ----------- | ----------- |
+| [DeferredTokenizationResponse](restobjects.md#deferredTokenizationResponse) | Response code 200. |
+| **BadRequest** | Response code 400. Returned when the transaction type is not eligible for deferred tokenization. |
+
+**Code Example**
+
+```shell
+Operation executed using CLI tool CURL:
+
+REQUEST (sale tokenization):
+  curl -X GET \
+   -H "ApiKeyCloud: MeRcHaNt-ApIkEy" \
+   -H "Content-Type: application/json" \
+   "https://cloud.handpoint.com/transactions/75413c40-21db-11f1-991b-6f80eaf25911/token" (production)
+   "https://cloud.handpoint.io/transactions/75413c40-21db-11f1-991b-6f80eaf25911/token" (development)
+
+RESPONSE code 200:
+{
+    "agreementNumber": "123456789010102",
+    "cardToken": "665630867",
+    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
+    "expiryDateMMYY": "0927",
+    "httpStatus": "200",
+    "maskedCardNumber": "************3555",
+    "serverDateTime": "20260317083711509",
+    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+}
+
+Error example response (transaction type not eligible for deferred tokenization):
+{
+    "error": {
+        "details": {
+            "body": {
+                "error": {
+                    "errorCode": "3112",
+                    "errorGuid": "624d05e0-21dd-11f1-991b-6f80eaf25911",
+                    "httpStatus": "403",
+                    "reason": "Transaction type is not eligible for deferred tokenization"
+                }
+            },
+            "status": 403
+        },
+        "message": "Viscus operation failed",
+        "name": "BadRequestError",
+        "statusCode": 400
+    }
+}
+```
+
 ## Transaction Result Recovery
 
 
