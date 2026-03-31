@@ -543,7 +543,7 @@ MerchantAuth( List<Credential> credentials );
 ```
 | Parameter      | Description |
 | ----------- | ----------- |
-| `credential`  <br/>*List<Credential>*   | 		If present, the list of credentials.|
+| `credential`  <br/>`List<Credential>`   | 		If present, the list of credentials.|
 
 ```java
 Add Credential
