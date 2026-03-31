@@ -149,7 +149,7 @@ Transaction Request with callbackUrl and token
 ```
 
 
-## /transaction-result/{transactionResultId}
+## /transaction-result/\{transactionResultId\}
 
 
 `TransactionResultRetrieval`
@@ -251,7 +251,7 @@ RESPONSE:
 `customerReceipt` and `merchantReceipt`: The receipts are usually received as URLs in the transaction result from the terminal. Please note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and an URL is not generated then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats.
 :::
 
-## /transactions/{guid}/tip-adjustment
+## /transactions/\{guid\}/tip-adjustment
 
 
 `TipAdjustment`

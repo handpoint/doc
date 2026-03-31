@@ -36,4 +36,4 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 
 **Features:**
 
-- Transaction result retrieval through API endpoint GET .../transaction-result/{transactionResultId}
+- Transaction result retrieval through API endpoint GET .../transaction-result/\{transactionResultId\}

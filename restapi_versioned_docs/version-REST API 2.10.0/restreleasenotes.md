@@ -37,4 +37,4 @@ The new `duplicate_check` parameter is available under the [Transaction Request 
 ## 2.4.0
 **Features:**
 
-- Transaction result retrieval through API endpoint GET .../transaction-result/{transactionResultId}
+- Transaction result retrieval through API endpoint GET .../transaction-result/\{transactionResultId\}

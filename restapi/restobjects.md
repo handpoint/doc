@@ -169,6 +169,40 @@ A class which holds the payment terminal status.
 }
 ````
 
+## Deferred Tokenization Response {#deferredTokenizationResponse}
+
+`DeferredTokenizationResponse` <span class="badge badge--info">Object</span>
+
+Response object returned by the [`GET /transactions/{guid}/token`](restendpoints.md#transactionsguidtoken) endpoint. Contains the card token and associated details retrieved from a completed transaction. Supported transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale` and `moToRefund`.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `agreementNumber`  <br />*String*   | The merchant agreement number associated with the transaction.|
+| `cardToken`  <br />*String*   | Token representing the PAN of the card. Can be used for subsequent MOTO operations.|
+| `cardTokenizationGuid`  <br />*String*   | Unique identifier of the tokenization operation.|
+| `expiryDateMMYY`  <br />*String*   | Card expiry date in MMYY format.|
+| `httpStatus`  <br />*String*   | HTTP status code of the tokenization response.|
+| `maskedCardNumber`  <br />*String*   | Masked card number, showing only the last 4 digits.|
+| `serverDateTime`  <br />*String*   | Server date and time when the token was generated, in `YYYYMMDDHHmmssSSS` format.|
+| `transactionReference`  <br />*String*   | The GUID of the original card-present transaction.|
+
+**Code example**
+
+````json
+{
+    "agreementNumber": "123456789010102",
+    "cardToken": "665630867",
+    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
+    "expiryDateMMYY": "0927",
+    "httpStatus": "200",
+    "maskedCardNumber": "************3555",
+    "serverDateTime": "20260317083711509",
+    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+}
+````
+
 ## Financial Status{#financialStatus}
 
 `Financial Status` <span class="badge badge--info">Enum</span>
