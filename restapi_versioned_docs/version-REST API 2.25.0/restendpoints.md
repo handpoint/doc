@@ -911,7 +911,7 @@ curl -X POST \
 
 `POST /moto/refund` is used to perform a **MOTO refund without a payment reader**.
 
-The refund is **linked** to a previous transaction via `originalGuid`, and the gateway reuses the card associated with that
+The refund is **linked** to a previous MOTO sale via `originalGuid`, and the gateway reuses the card associated with that
 original transaction. No card data is passed in the refund request.
 
 #### Parameters
@@ -1016,12 +1016,12 @@ curl -X POST \
 
 `MotoReversal`
 
-`POST /moto/reversal` is used to **reverse (void)** a previous operation. And will be processed via the no-reader MOTO endpoints.
+`POST /moto/reversal` is used to **reverse (void)** a previous MOTO operation processed via the no-reader MOTO endpoints.
 
-The request is linked to the original operation via `originalGuid`. No card data is sent; the gateway uses the original
+The request is linked to the original sale via `originalGuid`. No card data is sent; the gateway uses the original
 transaction information.
 
-Reversals are typically used to cancel a transaction shortly after authorization, subject to acquirer rules.
+Reversals are typically used to cancel a MOTO sale shortly after authorization, subject to acquirer rules.
 
 #### Parameters
 
