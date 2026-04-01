@@ -127,14 +127,14 @@ Returns the payment terminals associated with the specified ConnectionMethod.
 
 ```java
 // Get paired terminals
-List<Device> devices = api.getPairedDevices(ConnectionMethod.XXX);
+List Device devices = api.getPairedDevices(ConnectionMethod.XXX);
 ```
 
 **Returns**
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **`List<Device>`**| The list of payment terminals.|
+| **`List Device`**| The list of payment terminals.|
 
 ## Get Transactions Report{#getTransactionReport}
 

@@ -173,11 +173,11 @@ Implement this interface in order to receive a list of available payment termina
 
 **Methods**
 
-`deviceDiscoveryFinished( List<Device> devices );`
+`deviceDiscoveryFinished( List devices );`
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `devices` <span class="badge badge--primary">Required</span> <br /> List `<Device>`  | 	A list of available devices.|
+| `devices` <span class="badge badge--primary">Required</span> <br /> [*Device*](androidobjects.md#17)  | 	A list of available devices.|
 
 
 **Code example**
@@ -186,7 +186,7 @@ Implement this interface in order to receive a list of available payment termina
 public final class EventHandler implements Events.DeviceDiscoveryFinished {
 
 	@Override
-	public void deviceDiscoveryFinished(List<Device> devices) {
+	public void deviceDiscoveryFinished(List devices) {
 		// Receiving a list of connectable payment terminals
 		foreach(Device device in devices) { ... }
 

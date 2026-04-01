@@ -30,7 +30,7 @@ An object holding information about the result of a transaction.
 | `authorisationCode`   <br />*String*  | 		Acquirer response code.|
 | `balance` <br />[*Balance*](#balance)   | 		Balance available on the card.|
 | `budgetNumber` <br />*String*    | 		Used to split payments over a period of months.|
-| `cardEntryType`  <br />[*CardEntryType *](#22)  | 		Method used by the terminal to read the card.|
+| `cardEntryType`  <br />[*CardEntryType*](#22)  | 		Method used by the terminal to read the card.|
 | `cardLanguagePreference`   <br />*String*  | 		Preferred language of the card (EMV tag 5F2D).|
 | `cardSchemeName`  <br />[*CardSchemeName*](#32)   | 		The brand of the card.|
 | `cardToken`   <br />*String*  | 		Token representing the PAN of the card.|
@@ -74,6 +74,11 @@ An object holding information about the result of a transaction.
 | `multiLanguageStatusMessages` <br />*Map*     | 		`Map` containing the status message in a human readable format for all the supported locales.|
 | `multiLanguageErrorMessages`  <br />*Map*   | 		`Map` containing the error message in a human readable format for all the supported locales.|
 | `cardHolderName`  <br />*String*   | 		Name of the cardholder.|
+| `transactionReference`  <br />*String*   | 		The transaction reference used to query the Handpoint Gateway directly to know the outcome of the transaction in case the result is not delivered. **Must be saved on your end as a fallback.** Not returned for linked refunds or reversals (those share the reference of the original transaction).|
+| `batchNumber`  <br />*String*   | 		Batch number of the transaction.|
+| `accountType`  <br />*String*   | 		Account type used for the transaction.|
+| `applicationLabel`  <br />*String*   | 		Application label from the card.|
+| `customData`  <br />*String*   | 		Custom data field, can be used to pass additional information.|
 
 
 **Code example**
@@ -166,14 +171,14 @@ An enum representing all the supported acquirers for merchant authentication.
 
 ```java
 public enum Acquirer {	AMEX,
-	BORGUN,
-	EVO,
-	OMNIPAY,
-	POSTBRIDGE,
-	INTERAC,
-	TSYS,
-	VANTIV,
-	SANDBOX
+  BORGUN,
+  EVO,
+  OMNIPAY,
+  POSTBRIDGE,
+  INTERAC,
+  TSYS,
+  VANTIV,
+  SANDBOX
 }
 ```
 
@@ -290,7 +295,7 @@ A list of connection statuses. Note: the events starting with Cloud[...] are exc
 
 **Possible values**
 
-`Connected` `Connecting` `Disconnected` `Disconnecting` `NotConfigured` `Initializing` `CloudConnected` `CloudInitialized` `CloudAvailable` `CloudDisconnected` `CloudUnavailable`
+`Connected` `Connecting` `Disconnected` `Disconnecting` `NotConfigured` `CloudConnected` `CloudInitialized` `CloudAvailable` `CloudDisconnected` `CloudUnavailable`
 
 ## Currency{#13}
 
@@ -323,7 +328,7 @@ Device(String name, String address, UsbDevice usbDevice, ConnectionMethod connec
 | `name` <span class="badge badge--primary">Required</span> <br />*String*     | 		A name to identify the device|
 | `address` <span class="badge badge--primary">Required</span> <br />*String*    | 		The address of the device you wish to connect to. E.g.: "08:00:69:02:01:FC" for bluetooth or just an identifier if your application is running directly on a PAX or Telpo device (ConnectionMethod.ANDROID_PAYMENT).|
 | `usbDevice` <span class="badge badge--primary">Required</span> <br />*UsbDevice*     | 		Represents a concrete attached USB device.|
-| `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod *](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth|
+| `connectionMethod` <span class="badge badge--primary">Required</span> <br />[*ConnectionMethod*](#20)     | 		Type of connection with the payment terminal. E.g: Bluetooth|
 | `sharedSecret`  <br />*String*  | 		Replaces the default shared secret proviced in the initialization step.|
 | `timeout`  <br />*int*  | 		The number of miliseconds until a connection is considered timed out. If not set, the default timeout is 15 seconds.|
 
@@ -394,7 +399,7 @@ An enum representing different statuses of a finalized transaction
 
 **Possible values**
 
-`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED`
+`UNDEFINED` `AUTHORISED` `DECLINED` `PROCESSED` `FAILED` `CANCELLED` `PARTIAL_APPROVAL` `IN_PROGRESS` `REFUNDED` `CAPTURED` `AUTHORISED_DEFERRED`
 
 
 Description of the different financial statuses:
@@ -411,6 +416,7 @@ Description of the different financial statuses:
 | `IN_PROGRESS` * <br/>   | The `IN_PROGRESS` status can be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method. The transaction is known by the gateway but the result is not available yet. Please check the status again after a few seconds. |
 | `REFUNDED` * <br/>   | The `REFUNDED` status can be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method. The original transaction (sale) has been refunded. |
 | `CAPTURED` <br/>   | The pre-authorization has been captured and funds are being moved to the merchant account. The `CAPTURED` financial status will only be returned in case a [preAuthorizationCapture](androidtransactions.md#pre-auth-capture) message was used to complete a pre-authorization. Regular Sales do NOT need to be captured and will not return a `CAPTURED` financial status. |
+| `AUTHORISED_DEFERRED` <br/>   | The transaction has been authorised but deferred. |
 
 
 \* Financial statuses marked with an asterisk (*) can only be returned as a response to the [get transaction status](androiddevicemanagement.md#getTransactionStatus) method.
@@ -431,9 +437,9 @@ A class containing the credentials used to communicate with the payment terminal
 
 ```java
 {
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
-	//We've even set a default shared secret!
+  String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+  HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);
+  //We've even set a default shared secret!
 }
 ```
 
@@ -461,9 +467,9 @@ getAsyncInterface( Events.Required requiredListener , Context context , Handpoin
 //InitApi for Datecs devices or PAX/Telpo ConnectionMethod.ANDROID_PAYMENT
 public void InitApi()
 {
-	String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
-	api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
-	//The api is now initialized. Yay! we've even set a default shared secret
+  String sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132";
+  api = HapiFactory.getAsyncInterface(this, new HandpointCredentials(sharedSecret));
+  //The api is now initialized. Yay! we've even set a default shared secret
 }
 ```
 
@@ -539,11 +545,11 @@ MerchantAuth( Credential credential );
 
 ```java
 Constructor
-MerchantAuth( List<Credential> credentials );
+MerchantAuth( Credential credential );
 ```
 | Parameter      | Description |
 | ----------- | ----------- |
-| `credential`  <br/>`List<Credential>`   | 		If present, the list of credentials.|
+| `credential` <br />[*Credential*](#40)     | 		If present, the list of credentials.|
 
 ```java
 Add Credential
@@ -579,7 +585,7 @@ An object to store credentials (Acquirer, Mid, Tid, MCC and ExternalId) for merc
 
 | Parameter      | Description |
 | ----------- | ----------- |
-| `acquirer`  <br />[*Acquirer *](#21)   | 		If present, it links this credential to the specified acquirer. Required if more than one credential is provided.|
+| `acquirer`  <br />[*Acquirer*](#21)   | 		If present, it links this credential to the specified acquirer. Required if more than one credential is provided.|
 | `mid`  <br />*String*    | 		For this transaction, overrides the default MID (merchant ID) saved in the terminal configuration.|
 | `tid`  <br />*String*    | 		For this transaction, overrides the default TID (terminal ID) saved in the terminal configuration.|
 | `mcc`  <br />*String*    | 		Merchant Category Code, overrides the default MCC saved in the terminal configuration.|
@@ -712,6 +718,7 @@ An object to store optional parameters for card not present (MoTo) transactions.
 | ----------- | ----------- |
 | `CustomerReference` <br />*String*    | An arbitrary string to use as your own identifier for a transaction|
 | `Channel`  <br />[*MoToChannel*](#moto-channel)  | MO for Mail order - TO for Telephone order|
+| `cardToken`  <br />*String*  | From token providers who support PAN + Expiry de-tokenization|
 | `Tokenize`  <br />*Boolean*  | Flag to activate tokenization of the operation, if this flag is set, a token representing the PAN of the card will be sent back by the Handpoint sytems|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
 
@@ -846,7 +853,7 @@ An object to store all the customization options for a refund.
 | `CustomerReference`  <br />*String*    | 		An arbitrary string to use as your own identifier for a transaction|
 | `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
 | `PinBypass`   <br />*Boolean*    | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
-| `SignatureBypass`  <br />*Boolean*   | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `SignatureBypass`  <br />*Boolean*   | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to disable signature for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 | `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
@@ -928,7 +935,7 @@ An object to store all the customization options for a sale.
 | `CustomerReference`  <br />*String*   | 		An arbitrary string to use as your own identifier for a transaction|
 | `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
 | `PinBypass`   <br />*Boolean* | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
-| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to disable signature for this transaction|
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 | `Metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
@@ -1003,7 +1010,7 @@ An object to store all the customization options for a sale and tokenize options
 | `CustomerReference`  <br />*String*   | 		An arbitrary string to use as your own identifier for a transaction|
 | `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
 | `PinBypass`   <br />*Boolean* | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
-| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to disable signature for this transaction|
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
@@ -1163,7 +1170,7 @@ TipConfiguration( String tipAmount );
 | `amount`  <br />*BigInteger*   | 			Transaction amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `baseAmount` <br />*BigInteger*   | 			Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.|
 | `headerName`   <br />*String*  | 			Name of the tipping menu appearing on the terminal. Default: Tip|
-| `tipPercentages` <br />`List<Integer>`    | 			List of percentages used to calculate the tip amount. **REQUIRED**|
+| `tipPercentages` <br />*Integer*   | 			List of percentages used to calculate the tip amount. **REQUIRED**|
 | `enterAmountEnabled`  <br/> *Boolean*   | 			Flag used to enable the cardholder to manually enter the tip amount. Default: true|
 | `skipEnabled` <br />*Boolean*    | 			Flag used to enable the cardholder to skip the tipping step. Default: true|
 | `footer`   <br />*String*  | 			Footer note which will appear on the tipping menu. Default: Empty string|
@@ -1191,7 +1198,7 @@ An enum representing different types of transactions.
 
 **Possible values**
 
-`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `REVERSAL` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `SALE_AND_TOKENIZE_CARD` `CARD_PAN`
+`UNDEFINED` `SALE` `VOID_SALE` `REFUND` `VOID_REFUND` `REVERSAL` `CANCEL_SALE` `CANCEL_REFUND` `TOKENIZE_CARD` `TOKENIZED_OPERATION` `SALE_AND_TOKENIZE_CARD` `CARD_PAN` `UPDATE` `PRINT_RECEIPT` `TIP_ADJUSTMENT` `PRE_AUTHORIZATION` `PRE_AUTHORIZATION_INCREASE` `PRE_AUTHORIZATION_CAPTURE` `MOTO_SALE` `MOTO_CANCEL` `MOTO_REFUND` `MOTO_REVERSAL` `MOTO_PREAUTHORIZATION` `TRANSACTION_STATUS`
 
 ## Type of Result{#30}
 
@@ -1212,5 +1219,6 @@ An enum representing different verification methods used in the transaction.
 **Possible values**
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
+
 
 

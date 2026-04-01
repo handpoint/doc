@@ -94,7 +94,7 @@ namespace GettingStartedApp
             api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret, apikey));
         }
 
-        public void DeviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List Device devices)
         {
           // here you get a list of payment terminals associated with the api key.
         }
@@ -140,7 +140,7 @@ public void DiscoverDevices()
     api.SearchDevices(ConnectionMethod.CLOUD);
 }
 
-public void DeviceDiscoveryFinished(List<Device> devices)
+public void DeviceDiscoveryFinished(List Device devices)
 {
     foreach (Device device in devices)
     {
@@ -238,7 +238,7 @@ namespace GettingStartedApp
             api.SearchDevices(ConnectionMethod.CLOUD);
         }
 
-        public void DeviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List Device devices)
         {
             foreach (Device device in devices)
             {
@@ -603,7 +603,7 @@ namespace GettingStartedApp
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
 
-        public void DeviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List Device devices)
         {
             foreach (Device device in devices)
             {
@@ -831,7 +831,7 @@ namespace GettingStartedApp
             api = HapiFactory.GetAsyncInterface(this, new HandpointCredentials(sharedSecret));
         }
 
-        public void DeviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List Device devices)
         {
             // Here you get a list of Bluetooth payment terminals paired with your computer
         }
@@ -881,7 +881,7 @@ public void DiscoverDevices()
     // You can also search for USB and Serial as a connection method
 }
 
-public void DeviceDiscoveryFinished(List<Device> devices)
+public void DeviceDiscoveryFinished(List Device devices)
 {
     foreach (Device device in devices)
     {
@@ -962,7 +962,7 @@ namespace GettingStartedApp
             api.SearchDevices(ConnectionMethod.BLUETOOTH);
         }
 
-        public void DeviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List Device devices)
         {
             foreach (Device device in devices)
             {
@@ -1301,7 +1301,7 @@ namespace GettingStartedApp
             //Let's log also the status during the transaction
             Console.WriteLine("*** CurrentTransactionStatus *** " + info.Status.ToString());
         }
-        public void DeviceDiscoveryFinished(List<Device> devices)
+        public void DeviceDiscoveryFinished(List Device devices)
         {
             foreach (Device device in devices)
             {
@@ -1543,7 +1543,7 @@ Create a new C# class called MyClass and include com.handpoint.api as a dependen
                 // It prevents other people to connect to your card reader
             }
 
-            public void DeviceDiscoveryFinished(List<Device> devices)
+            public void DeviceDiscoveryFinished(List Device devices)
             {
                 // Only needed when using a payment terminal
                 //here you get a list of Bluetooth payment terminals paired with your PC
@@ -1880,7 +1880,7 @@ Here is how MyClass.cs and Form1.cs must eventually look like :
                 // It prevents other people to connect to your card reader.
             }
 
-            public void DeviceDiscoveryFinished(List<Device> devices)
+            public void DeviceDiscoveryFinished(List Device devices)
             {
                 // Only needed when using a payment terminal
                 //Here you get a list of Bluetooth payment terminals paired with your PC
