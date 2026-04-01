@@ -118,7 +118,7 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
     }
 
     @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
+    public void deviceDiscoveryFinished(List Device devices) {
         // This event can be safely ignored for a PAX/Telpo integration
     }
 
@@ -317,7 +317,7 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
         this.api.searchDevices(ConnectionMethod.BLUETOOTH);
         // This triggers the asynchronous search for all the devices around that haven't been paired.
         // You could, alternatively, search for the already paired devices
-        // List<Device> devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
+        // List Device devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
         // Now:
         // selectDeviceAndConnect(devices);
         // You'll receive the devices found through deviceDiscoveryFinished method.
@@ -325,11 +325,11 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
     }
 
     @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
+    public void deviceDiscoveryFinished(List Device devices) {
         selectDeviceAndConnect(devices);
     }
 
-    private void selectDeviceAndConnect(List<Device> devices) {
+    private void selectDeviceAndConnect(List Device devices) {
         for (Device device : devices) {
             if (device.getName() != null) {
                 // All the devices here are datecs devices
@@ -518,7 +518,7 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
         // This triggers the asynchronous search for all the devices around that haven't been paired.
 
         // You could, alternatively, search for the already paired devices
-        // List<Device> devices = this.api.getPairedDevices(ConnectionMethod.CLOUD);
+        // List Device devices = this.api.getPairedDevices(ConnectionMethod.CLOUD);
         // Now:
         // selectDeviceAndConnect(devices);
         // You'll receive the devices found through the deviceDiscoveryFinished method.
@@ -526,11 +526,11 @@ public class HandpointDelegate implements Events.Required, Events.ConnectionStat
     }
 
     @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
+    public void deviceDiscoveryFinished(List Device devices) {
         selectDeviceAndConnect(devices);
     }
 
-    private void selectDeviceAndConnect(List<Device> devices) {
+    private void selectDeviceAndConnect(List Device devices) {
         for (Device device : devices) {
             if (device.getName() != null){
                 // All the devices here are all of the merchant's devices

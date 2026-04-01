@@ -35,8 +35,8 @@ deviceDiscoveryFinished event gets called when a device discovery has finished a
 
 ```csharp
 //Receiving a list of connectable devices
-List<Device> myListOfDevices = new List<Device>();
-public void **[*deviceDiscoveryFinished*](#13)**(List<Device> devices)
+List Device myListOfDevices = new List Device();
+public void **[*deviceDiscoveryFinished*](#13)**(List Device devices)
 {
     foreach(Device device in devices)
     {

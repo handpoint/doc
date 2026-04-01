@@ -172,7 +172,7 @@ Implement this interface in order to receive a list of available terminals. The 
 
 **Methods**
 
-`deviceDiscoveryFinished( List<Device> devices );`
+`deviceDiscoveryFinished( List devices );`
 
 | Parameter      | Notes |
 | ----------- | ----------- |
@@ -185,7 +185,7 @@ Implement this interface in order to receive a list of available terminals. The 
 public final class EventHandler implements Events.DeviceDiscoveryFinished {
 
 	@Override
-	public void deviceDiscoveryFinished(List<Device> devices) {
+	public void deviceDiscoveryFinished(List devices) {
 		// Receiving a list of connectable devices
 		foreach(Device device in devices) { ... }
 

@@ -30,7 +30,7 @@ An object holding information about the result of a transaction.
 | `authorisationCode`   <br />*String*  | 		Acquirer response code.|
 | `balance` <br />[*Balance*](#balance)   | 		Balance available on the card.|
 | `budgetNumber` <br />*String*    | 		Used to split payments over a period of months.|
-| `cardEntryType`  <br />[*CardEntryType *](#22)  | 		Method used by the terminal to read the card.|
+| `cardEntryType`  <br />[*CardEntryType*](#22)  | 		Method used by the terminal to read the card.|
 | `cardLanguagePreference`   <br />*String*  | 		Preferred language of the card (EMV tag 5F2D).|
 | `cardSchemeName`  <br />[*CardSchemeName*](#32)   | 		The brand of the card.|
 | `cardToken`   <br />*String*  | 		Token representing the PAN of the card.|
@@ -507,11 +507,11 @@ MerchantAuth( Credential credential );
 
 ```java
 Constructor
-MerchantAuth( List<Credential> credentials );
+MerchantAuth( Credential credential );
 ```
 | Parameter      | Description |
 | ----------- | ----------- |
-| `credential`  <br/>`List<Credential>`   | 		If present, the list of credentials.|
+| `credential` <br />[*Credential*](#40)   | 		If present, the list of credentials.|
 
 ```java
 Add Credential
@@ -737,7 +737,7 @@ An object to store all the customization options for a refund.
 | `CustomerReference`  <br />*String*    | 		An arbitrary string to use as your own identifier for a transaction|
 | `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
 | `PinBypass`   <br />*Boolean*    | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
-| `SignatureBypass`  <br />*Boolean*   | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `SignatureBypass`  <br />*Boolean*   | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to disable signature for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 
 **Code example**
@@ -809,7 +809,7 @@ An object to store all the customization options for a sale.
 | `CustomerReference`  <br />*String*   | 		An arbitrary string to use as your own identifier for a transaction|
 | `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
 | `PinBypass`   <br />*Boolean* | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
-| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to disable signature for this transaction|
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 
@@ -874,7 +874,7 @@ An object to store all the customization options for a sale and tokenize options
 | `CustomerReference`  <br />*String*   | 		An arbitrary string to use as your own identifier for a transaction|
 | `MerchantAuth` <br />[*MerchantAuth*](#37)    | 		An object containing all the credentials used to optionally authenticate a merchant|
 | `PinBypass`   <br />*Boolean* | 		Bypasses PIN entry when the shopper says they don't know the PIN for the card and the merchant either knows they are the legitimate cardholder or want to give them the benefit of the doubt. PIN Bypass should be set to True if you want to enable pin bypass for a transaction|
-| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to enable signature for this transaction|
+| `SignatureBypass`  <br />*Boolean*  | 		Whether the terminal prompts for a signature, depends on how you configure this. The major card schemes (American Express, Diners, Discover, JCB, Mastercard, Visa, UnionPay) no longer require a signature; they regard it as optional for card-present transactions. This means you can speed up your checkout by skipping the signature prompt. But if your business requires it, you can still let the terminal prompt for a signature. The shopper then provides their signature on the touch screen of the terminal or on the printed transaction receipt. This depends on how you configure this setting. It is your responsibility to verify the signature of the shopper with the signature on the card or another form of identification. Signature Bypass should be set to True if you want to disable signature for this transaction|
 | `TipConfiguration` <br />[*TipConfiguration*](#39)    | 		An object containing the tip configuration for this transaction|
 | `CheckDuplicates` <br />*Boolean* | Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu is pushed by the Handpoint SDK and will automatically be displayed on top of your own UI when required. The Handpoint SDK will only prompt the duplicate payment check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe. The duplicate payment check feature is enabled by default but can be disabled by passing a false value.|
 
@@ -1027,7 +1027,7 @@ TipConfiguration( String tipAmount );
 | `amount`  <br />*BigInteger*   | 			Transaction amount in the minor unit of currency (f.ex. 1000 is 10.00 GBP).|
 | `baseAmount` <br />*BigInteger*   | 			Base amount used to calculate the tip - in the minor unit of currency (f.ex. 1000 is 10.00 GBP). If no base amount is defined, the transaction amount is used as base amount.|
 | `headerName`   <br />*String*  | 			Name of the tipping menu appearing on the terminal. Default: Tip|
-| `tipPercentages` <br />`List<Integer>`    | 			List of percentages used to calculate the tip amount. **REQUIRED**|
+| `tipPercentages` <br />*List of Integer*    | 			List of percentages used to calculate the tip amount. **REQUIRED**|
 | `enterAmountEnabled`  <br/> *Boolean*   | 			Flag used to enable the cardholder to manually enter the tip amount. Default: true|
 | `skipEnabled` <br />*Boolean*    | 			Flag used to enable the cardholder to skip the tipping step. Default: true|
 | `footer`   <br />*String*  | 			Footer note which will appear on the tipping menu. Default: Empty string|
@@ -1076,3 +1076,4 @@ An enum representing different verification methods used in the transaction.
 **Possible values**
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
+

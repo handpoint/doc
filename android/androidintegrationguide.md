@@ -454,7 +454,7 @@ public class HandpointDelegate implements Events.MposRequired, Events.Connection
         this.api.searchDevices(ConnectionMethod.BLUETOOTH);
         // This triggers the asynchronous search for all the devices around that haven't been paired.
         // You could, alternatively, search for the already paired devices
-        // List<Device> devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
+        // List Device devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
         // Now:
         // selectDeviceAndConnect(devices);
         // You'll receive the devices found through deviceDiscoveryFinished method.
@@ -462,11 +462,11 @@ public class HandpointDelegate implements Events.MposRequired, Events.Connection
     }
 
     @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
+    public void deviceDiscoveryFinished(List Device devices) {
         selectDeviceAndConnect(devices);
     }
 
-    private void selectDeviceAndConnect(List<Device> devices) {
+    private void selectDeviceAndConnect(List Device devices) {
         for (Device device : devices) {
             if (device.getName() != null) {
                 // All the devices here are datecs devices
@@ -717,9 +717,9 @@ public class HandpointDelegate implements Events.MposRequired, Events.Connection
 
         // OPTION 2 - Search for devices synchronously
         // Alternatively, already paired devices can be searched in the case of Bluetooth:
-        List<Device> devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
+        List Device devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);
         // Or, already cable-connected devices can be searched in the case of USB:
-        List<Device> devices = this.api.getPairedDevices(ConnectionMethod.USB);
+        List Device devices = this.api.getPairedDevices(ConnectionMethod.USB);
         // And then:
         selectDeviceAndConnect(devices);
         // You'll receive the devices found through deviceDiscoveryFinished method.
@@ -727,11 +727,11 @@ public class HandpointDelegate implements Events.MposRequired, Events.Connection
     }
 
     @Override
-    public void deviceDiscoveryFinished(List<Device> devices) {
+    public void deviceDiscoveryFinished(List Device devices) {
         selectDeviceAndConnect(devices);
     }
 
-    private void selectDeviceAndConnect(List<Device> devices) {
+    private void selectDeviceAndConnect(List Device devices) {
         for (Device device : devices) {
             if (device.getName() != null) {
                 // All the devices here are datecs devices

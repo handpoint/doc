@@ -20,9 +20,9 @@ You must provide a class implementing this interface when initializing the SDK f
 public final class EventHandler implements Events.SmartposRequired {
 
 	@Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
 	 @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
 	@Override
 	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
 	@Override
@@ -49,14 +49,14 @@ You must provide a class implementing this interface when initializing the SDK f
 
 ```java
 public final class EventHandler implements Events.MposRequired {
-    @Override
-    public void deviceDiscoveryFinished(List devices) { ... }
 	@Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	public void deviceDiscoveryFinished(List devices) { ... }
+	@Override
+	public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
 	 @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
 	@Override
-    public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
+	public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
 	@Override
 	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
 	@Override
@@ -82,14 +82,14 @@ You must provide a class implementing this interface when initializing the SDK w
 
 ```java
 public final class EventHandler implements Events.PosRequired {
-    @Override
-    public void deviceDiscoveryFinished(List devices) { ... }
 	@Override
-    public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
+	public void deviceDiscoveryFinished(List devices) { ... }
+	@Override
+	public void connectionStatusChanged(ConnectionStatus status, Device device)  { ... }
 	 @Override
-    public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
+	public void currentTransactionStatus(StatusInfo statusInfo, Device device) { ... }
 	@Override
-    public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
+	public void signatureRequired(SignatureRequest signatureRequest, Device device) { ... }
 	@Override
 	public void endOfTransaction(TransactionResult transactionResult, Device device) { ... }
 	@Override
@@ -114,11 +114,11 @@ An interface which needs to be implemented and added as a listener to get events
 
 **Methods**
 
-`supportedCardBrands( List<CardBrands> cardBrandsList );` 
+`supportedCardBrands( List cardBrandsList );` 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `cardBrandsList` <span class="badge badge--primary">Required</span> <br />*List `<CardBrands>`*  | A list containing the supported card brands|
+| `cardBrandsList` <span class="badge badge--primary">Required</span> <br />[*CardBrands*](androidobjects.md#cardBrands)  | A list containing the supported card brands|
 
 <br></br>
 
@@ -278,11 +278,11 @@ Implement this interface in order to receive a list of available payment termina
 
 **Methods**
 
-`deviceDiscoveryFinished( List<Device> devices );`
+`deviceDiscoveryFinished( List devices );`
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `devices` <span class="badge badge--primary">Required</span> <br /> List `<Device>`  | 	A list of available devices.|
+| `devices` <span class="badge badge--primary">Required</span> <br /> [*Device*](androidobjects.md#17)  | 	A list of available devices.|
 
 
 **Code example**
@@ -291,7 +291,7 @@ Implement this interface in order to receive a list of available payment termina
 public final class EventHandler implements Events.DeviceDiscoveryFinished {
 
 	@Override
-	public void deviceDiscoveryFinished(List<Device> devices) {
+	public void deviceDiscoveryFinished(List devices) {
 		// Receiving a list of connectable payment terminals
 		foreach(Device device in devices) { ... }
 
@@ -341,12 +341,12 @@ Implement this interface in order to receive events when the hardware status cha
 
 **Methods**
 
-`hardwareStatusChanged( HardwareStatus status , Device device );`
+`hardwareStatusChanged( HardwareStatus status , ConnectionMethod hardware );`
 
 | Parameter      | Notes |
 | ----------- | ----------- |
 | `status` <span class="badge badge--primary">Required</span>  <br/> *HardwareStatus*    | 		New status of the hardware.|
-| `device` <span class="badge badge--primary">Required</span>  <br/>[*Device*](androidobjects.md#17)     | 	The payment terminal.|
+| `hardware` <span class="badge badge--primary">Required</span>  <br/>[*ConnectionMethod*](androidobjects.md#20)     | 	The connection method whose hardware status changed.|
 
 
 **Code example**
@@ -355,7 +355,7 @@ Implement this interface in order to receive events when the hardware status cha
 public final class EventHandler implements Events.HardwareStatusChanged {
 
 	@Override
-	public void hardwareStatusChanged(HardwareStatus status, Device device) { ... }
+	public void hardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware) { ... }
 
 }
 
@@ -475,7 +475,7 @@ An interface which needs to be implemented and added as a listener to get events
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `key` <span class="badge badge--primary">Required</span>  <br />[*PaxA80Keys*](androidobjects.md#28)     | 		The name of the key that has been pressed|
+| `key` <span class="badge badge--primary">Required</span>  <br />*String*     | 		The name of the key that has been pressed|
 
 
 **Code example**
@@ -650,9 +650,11 @@ public final class EventHandler implements Events.Status {
 	@Override
 	public void connectionStatusChanged(ConnectionStatus status, Device device) { ... }
 	@Override
-	public void hardwareStatusChanged(HardwareStatus status, Device device) { ... }
+	public void hardwareStatusChanged(HardwareStatus status, ConnectionMethod hardware) { ... }
 	@Override
 	public void currentTransactionStatus(StatusInfo info, Device device) { ... }
+	@Override
+	public void networkStatusChanged(NetworkStatus networkStatus, Device device) { ... }
 
 }
 
@@ -662,7 +664,7 @@ this.api.registerEventsDelegate(eventHandlerInstance);
 
 **Extends**
 
-[`ConnectionStatusChanged`](#connectionStatusChanged) [`HardwareStatusChanged`](#hardwareStatusChanged) [`CurrentTransactionStatus`](#14)
+[`ConnectionStatusChanged`](#connectionStatusChanged) [`HardwareStatusChanged`](#hardwareStatusChanged) [`CurrentTransactionStatus`](#14) [`NetworkStatusChanged`](#networkStatusChanged)
 
 ## Transaction result ready{#transactionResultReady}
 
@@ -687,6 +689,36 @@ public final class EventHandler implements Events.TransactionResultReady {
 
 	@Override
 	public void transactionResultReady(TransactionResult transactionResult, Device device) { ... }
+
+}
+
+// Remember to register the instance of this EventHandler:
+this.api.registerEventsDelegate(eventHandlerInstance);
+```
+
+## Network status changed{#networkStatusChanged}
+
+`Events.NetworkStatusChanged` <span class="badge badge--info">Interface</span>
+
+Implement this interface in order to receive network status changes.
+
+**Methods**
+
+`networkStatusChanged( NetworkStatus networkStatus , Device device );`
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `networkStatus` <span class="badge badge--primary">Required</span> <br />*NetworkStatus*  | New status of the network connection|
+| `device` <span class="badge badge--primary">Required</span> <br />[*Device*](androidobjects.md#17)          | The terminal which sent this information.|
+
+
+**Code example**
+
+```java
+public final class EventHandler implements Events.NetworkStatusChanged {
+
+	@Override
+	public void networkStatusChanged(NetworkStatus networkStatus, Device device) { ... }
 
 }
 

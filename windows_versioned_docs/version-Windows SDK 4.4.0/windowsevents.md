@@ -37,8 +37,8 @@ The deviceDiscoveryFinished event gets called when the payment terminal search h
 
 ```csharp
 //Receiving a list of connectable devices
-List<Device> myListOfDevices = new List<Device>();
-public void deviceDiscoveryFinished(List<Device> devices)
+List Device myListOfDevices = new List Device();
+public void deviceDiscoveryFinished(List Device devices)
 {
     foreach(Device device in devices)
     {
