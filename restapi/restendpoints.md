@@ -1188,6 +1188,126 @@ curl -X POST \
   "https://cloud.handpoint.io/moto/reversal"
 ```
 
+## Reversal Operations <span class="badge badge--warning">Beta</span>
+
+The Reversal endpoint allows you to **reverse any reversible transaction** (authorization, payment or refund) using only its identifier. The reversal is processed against the Handpoint gateway via Cloud API without requiring a physical payment terminal.
+
+Cloud API currently supports:
+
+- `POST /v1/reversal` — reverses a transaction identified by `originalGuid`.
+
+All request and response payloads are defined in [Reversal objects](restobjects#reversal).
+
+---
+
+### /v1/reversal
+
+`Reversal`
+
+`POST /v1/reversal` is used to **reverse (void)** a previously completed transaction. The operation is linked to the original transaction via `originalGuid`. No card data is sent; the gateway resolves the original transaction internally.
+
+Reversals are typically used to cancel an authorization or payment shortly after it was processed, subject to acquirer rules. For partial reversals, provide `amount` and `currency` to release only part of the held funds.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: ViscusReversalRequest` <span class="badge badge--primary">Required</span> | [ViscusReversalRequest](restobjects#viscusReversalRequest) object identifying the transaction to reverse. |
+
+Typical fields (see [ViscusReversalRequest](restobjects#viscusReversalRequest) for full details):
+
+* `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the transaction to reverse.
+* `messageReasonCode` <span class="badge badge--secondary">Optional</span> – ISO 8583 reason code. Defaults to `CUSTOMER_CANCELLATION` when not provided.
+* `timestamp` <span class="badge badge--secondary">Optional</span> – Terminal timestamp in `YYYYMMDDHHmmssSSS` format. Defaults to the current server time when not provided.
+* `amount` <span class="badge badge--secondary">Optional</span> – Amount to reverse, for partial reversals only (e.g. `"15.00"`).
+* `currency` <span class="badge badge--secondary">Optional</span> – ISO 4217 3-character code, for partial reversals only (e.g. `"EUR"`).
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Reversal accepted and processed. Response body is a parsed gateway object. |
+| `400` | Business rule error from the gateway (for example, unknown `originalGuid` or reversal not allowed). Returned as `BadRequestError` with `error.code` and `error.details`. |
+| `403` | Forbidden — the API key does not belong to a merchant, or the merchant is not configured. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) — `originalGuid` is missing, `messageReasonCode` is not one of the allowed values, or `currency` is not exactly 3 characters. |
+
+#### Behaviour examples
+
+* **Happy path – full reversal**
+
+  ```shell
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+    -d '{
+      "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a"
+    }' \
+    "https://cloud.handpoint.io/v1/reversal"
+  ```
+
+* **Partial reversal**
+
+  ```shell
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+    -d '{
+      "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+      "amount": "15.00",
+      "currency": "EUR"
+    }' \
+    "https://cloud.handpoint.io/v1/reversal"
+  ```
+
+* **With explicit reason code**
+
+  ```shell
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+    -d '{
+      "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+      "messageReasonCode": "TIMEOUT_WAITING_FOR_RESPONSE"
+    }' \
+    "https://cloud.handpoint.io/v1/reversal"
+  ```
+
+* **Validation error – missing `originalGuid`**
+
+  ```json
+  {
+    "error": {
+      "statusCode": 422,
+      "name": "UnprocessableEntityError",
+      "message": "The request body is invalid.",
+      "code": "VALIDATION_FAILED",
+      "details": [
+        {
+          "path": "",
+          "code": "required",
+          "message": "must have required property 'originalGuid'",
+          "info": { "missingProperty": "originalGuid" }
+        }
+      ]
+    }
+  }
+  ```
+
+#### Code example – full reversal
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a"
+  }' \
+  "https://cloud.handpoint.io/v1/reversal"
+```
+
+---
+
 ## Batch Operations <span class="badge badge--warning">Beta</span>
 
 :::info
