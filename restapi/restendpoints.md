@@ -1722,3 +1722,227 @@ curl -X POST \
   "https://cloud.handpoint.io/batch/detail"
 ```
 
+---
+
+## Pre-authorization Operations <span class="badge badge--warning">Beta</span>
+
+:::info
+Pre-authorization operations are only available for acquirers that support pre-authorization flows. Contact your Handpoint relationship manager to confirm support for your acquirer.
+:::
+
+Pre-authorization operations allow you to **manage open pre-authorizations** remotely via Cloud API. A pre-authorization reserves funds on a card without charging them; the increase and capture endpoints let you adjust or finalize that reservation without requiring a physical payment terminal.
+
+Cloud API currently supports the following pre-authorization operations:
+
+- `POST /preauthorization/increase` — increases (or decreases, with `subtract: "1"`) the authorized amount of an open pre-authorization.
+- `POST /preauthorization/capture` — finalizes (captures) an open pre-authorization, charging the captured amount.
+
+All request and response payloads are defined in the corresponding [Pre-authorization objects](restobjects#preauthorization).
+
+---
+
+### /preauthorization/increase
+
+`PreauthIncrease`
+
+`POST /preauthorization/increase` is used to **modify the authorized amount** of an existing open pre-authorization. The operation is linked to the original pre-authorization via `originalGuid`.
+
+Pass `subtract: "1"` to decrease the authorized amount instead of increasing it.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: PreauthIncreaseRequest` <span class="badge badge--primary">Required</span> | [PreauthIncreaseRequest](restobjects#preauthIncreaseRequest) object containing the original pre-authorization GUID and the amount delta. |
+
+Typical fields in the request body (see [PreauthIncreaseRequest](restobjects#preauthIncreaseRequest) for full details):
+
+- `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original pre-authorization transaction.
+- `increaseAmount` <span class="badge badge--primary">Required</span> – Amount delta to apply (for example, `"10.00"`).
+- `tipAmount` <span class="badge badge--secondary">Optional</span> – Tip amount to add (for example, `"2.00"`).
+- `subtract` <span class="badge badge--secondary">Optional</span> – Pass `"1"` to decrease the authorized amount instead of increasing it.
+- `customerReference` <span class="badge badge--secondary">Optional</span> – Integrator-defined reference, forwarded as-is to the gateway.
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Pre-authorization increase accepted. Response body is a parsed gateway object. |
+| `400` | Business rule error from the gateway (for example, unknown `originalGuid` or pre-authorization no longer open). Returned as `BadRequestError` with `error.code` and `error.details`. |
+| `403` | Forbidden — the API key does not belong to a merchant. Partner keys are not accepted by this endpoint. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) — `originalGuid` or `increaseAmount` is missing. |
+
+#### Behaviour examples
+
+**Happy path – increase the authorized amount**
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "increaseAmount": "10.00"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/increase"
+```
+
+**Decrease the authorized amount**
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "increaseAmount": "5.00",
+    "subtract": "1"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/increase"
+```
+
+**With tip and customer reference**
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "increaseAmount": "10.00",
+    "tipAmount": "2.00",
+    "customerReference": "table-12-increase"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/increase"
+```
+
+**Validation error – missing `increaseAmount`**
+
+```json
+{
+  "error": {
+    "statusCode": 422,
+    "name": "UnprocessableEntityError",
+    "message": "The request body is invalid.",
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "path": "",
+        "code": "required",
+        "message": "must have required property 'increaseAmount'",
+        "info": { "missingProperty": "increaseAmount" }
+      }
+    ]
+  }
+}
+```
+
+#### Code example – Increase pre-authorization
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "increaseAmount": "10.00"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/increase"
+```
+
+---
+
+### /preauthorization/capture
+
+`PreauthCapture`
+
+`POST /preauthorization/capture` is used to **finalize (capture) an open pre-authorization**, charging the `capturedAmount` to the cardholder. Once captured, the pre-authorization is settled and the held funds are transferred.
+
+#### Parameters
+
+| Parameter | Notes |
+| --------- | ----- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
+| `Request Body: PreauthCaptureRequest` <span class="badge badge--primary">Required</span> | [PreauthCaptureRequest](restobjects#preauthCaptureRequest) object containing the original pre-authorization GUID and the amount to capture. |
+
+Typical fields in the request body (see [PreauthCaptureRequest](restobjects#preauthCaptureRequest) for full details):
+
+- `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original pre-authorization transaction.
+- `capturedAmount` <span class="badge badge--primary">Required</span> – Amount to capture and charge (for example, `"120.00"`).
+- `tipAmount` <span class="badge badge--secondary">Optional</span> – Tip amount to include in the captured total (for example, `"5.00"`).
+- `customerReference` <span class="badge badge--secondary">Optional</span> – Integrator-defined reference, forwarded as-is to the gateway.
+
+#### Returns
+
+| Result | Notes |
+| ------ | ----- |
+| `200` | Pre-authorization capture accepted. Response body is a parsed gateway object. |
+| `400` | Business rule error from the gateway (for example, unknown `originalGuid`, pre-authorization already captured, or captured amount exceeds authorized amount). Returned as `BadRequestError` with `error.code` and `error.details`. |
+| `403` | Forbidden — the API key does not belong to a merchant. Partner keys are not accepted by this endpoint. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) — `originalGuid` or `capturedAmount` is missing. |
+
+#### Behaviour examples
+
+**Happy path – capture a pre-authorization**
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "capturedAmount": "120.00"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/capture"
+```
+
+**With tip and customer reference**
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "capturedAmount": "120.00",
+    "tipAmount": "5.00",
+    "customerReference": "hotel-folio-4422"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/capture"
+```
+
+**Validation error – missing `capturedAmount`**
+
+```json
+{
+  "error": {
+    "statusCode": 422,
+    "name": "UnprocessableEntityError",
+    "message": "The request body is invalid.",
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "path": "",
+        "code": "required",
+        "message": "must have required property 'capturedAmount'",
+        "info": { "missingProperty": "capturedAmount" }
+      }
+    ]
+  }
+}
+```
+
+#### Code example – Capture pre-authorization
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "capturedAmount": "120.00"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/capture"
+```
+
