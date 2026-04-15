@@ -241,3 +241,13 @@ color: white;
 .handpointBackground{
   background: linear-gradient(248.33deg, #FFF5EB4d -6.24%, #EDE2DE4d 44.52%, #7A9BE84d 116.8%)!important;
 }
+
+/* Always-bold section group headings in the right-side TOC */
+.table-of-contents__link[href="#list-devices"],
+.table-of-contents__link[href="#terminal-operations"],
+.table-of-contents__link[href="#transaction-result-recovery"],
+.table-of-contents__link[href="#device-control-commands"],
+.table-of-contents__link[href="#endpoints-not-requiring-a-payment-terminal"],
+.table-of-contents__link[href="#batch-operations"] {
+  font-weight: bold;
+}
