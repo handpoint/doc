@@ -107,10 +107,14 @@ POST endpoint used to send a financial operation to the payment terminal. The tr
 Make sure that your transactionReference is unique per request, and change it for every new request attempt (even if the request contains the same values re-attempt). This will improve logs and could help troubleshooting.
 :::
 
+:::note
+`transactionReference` should only be included in **original** operations (Sale, Pre-Auth, MOTO Sale, or an **unlinked** MOTO Refund). Linked operations — such as Refund, Reversal, Pre-Auth Increase/Capture — should **not** include a `transactionReference`. These operations will be automatically logged under the `transactionReference` of the original transaction.
+:::
+
 **Requests**
 
 <Tabs>
-<TabItem value="no-callback" label="Request (no callback)">
+<TabItem value="no-callback" label="Sale (no callback)">
 
 ```shell
 curl -X POST \
@@ -130,7 +134,7 @@ curl -X POST \
 ```
 
 </TabItem>
-<TabItem value="with-callback" label="Request (with callback)">
+<TabItem value="with-callback" label="Sale (with callback)">
 
 ```shell
 curl -X POST \
@@ -150,6 +154,75 @@ curl -X POST \
  "https://cloud.handpoint.com/transactions" (production)
  "https://cloud.handpoint.io/transactions" (development)
 ```
+
+</TabItem>
+<TabItem value="refund" label="Refund">
+
+```shell
+curl -X POST \
+ -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
+ -H "Content-Type: application/json" \
+ -d '{
+     "operation":"refund",
+     "amount":"10000",
+     "currency":"EUR",
+     "terminal_type":"PAXA920",
+     "serial_number":"1547854757",
+     "originalTransactionId":"2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+ }' \
+ "https://cloud.handpoint.com/transactions" (production)
+ "https://cloud.handpoint.io/transactions" (development)
+```
+
+:::note
+The `amount` field can be a partial or full refund. The amount specified is what will be refunded (in minor units, e.g. `"10000"` = 100.00). `transactionReference` should not be included — the refund will be linked to the `transactionReference` of the original transaction.
+:::
+
+</TabItem>
+<TabItem value="unlinked-refund" label="Unlinked Refund">
+
+```shell
+curl -X POST \
+ -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
+ -H "Content-Type: application/json" \
+ -d '{
+     "operation":"refund",
+     "amount":"10000",
+     "currency":"EUR",
+     "terminal_type":"PAXA920",
+     "serial_number":"1547854757",
+     "transactionReference": "9f3a1b2c-44d5-67e8-f901-23456789abcd"
+ }' \
+ "https://cloud.handpoint.com/transactions" (production)
+ "https://cloud.handpoint.io/transactions" (development)
+```
+
+:::note
+An unlinked refund is not tied to a previous transaction — no `originalTransactionId` is provided. Because it is an original operation, a unique `transactionReference` (UUID v4) must be included.
+:::
+
+</TabItem>
+<TabItem value="reversal" label="Reversal">
+
+```shell
+curl -X POST \
+ -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
+ -H "Content-Type: application/json" \
+ -d '{
+     "operation":"refundReversal",
+     "amount":"10000",
+     "currency":"EUR",
+     "terminal_type":"PAXA920",
+     "serial_number":"1547854757",
+     "originalTransactionId":"2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+ }' \
+ "https://cloud.handpoint.com/transactions" (production)
+ "https://cloud.handpoint.io/transactions" (development)
+```
+
+:::note
+`amount` and `currency` are required fields. For acquirers that support partial reversals, the specified amount will be reversed. For all other acquirers, the full original amount is reversed regardless of the amount sent (must be between 0 and 999999999999). `transactionReference` should not be included — the reversal will be linked to the `transactionReference` of the original transaction.
+:::
 
 </TabItem>
 </Tabs>
@@ -190,172 +263,6 @@ curl -X POST \
       "message": "The device is busy"
     }
   }
-}
-```
-
-</TabItem>
-</Tabs>
-
-
-### /transactions/\{guid\}/tip-adjustment
-
-
-`TipAdjustment`
-
-POST endpoint used to execute a tip adjustment operation. 
-
-A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV. 
-
-Note: If two tip adjustments are sent for the same original transaction, only the second one will be taken into account. Each new tip adjustment will override the previous one. A tip adjustment will be rejected if the original transaction has already been batched out by the acquirer.
-
-**Parameters**
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
-| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid of the transaction to be adjusted. |
-| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the tip amount (as a *String* in minor units, e.g. `"525"` for $5.25) and currency of the tip adjustment.  |
-
-**Returns**
-
-
-| Response      | Response Code |
-| ----------- | ----------- |
-| **OK** | Response code 200.      |
-| **BadRequest** | Response code 400.      |
-
-
-**Code Example**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da784-8b57-11ed-9891-ebe2a88ff071/tip-adjustment' \
---header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "amount": "525"
-}'
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="200" label="200 OK">
-
-```json
-{
-  "statusMessage": "tip adjusted"
-}
-```
-
-</TabItem>
-<TabItem value="400" label="400 Bad Request">
-
-```json
-{
-  "error": {
-    "statusCode": 400,
-    "name": "BadRequestError",
-    "message": "Invalid guid [fake-guid]"
-  }
-}
-```
-
-</TabItem>
-</Tabs>
-
-### /transactions/\{guid\}/token \{#transactionsguidtoken\}
-
-`DeferredTokenization`
-
-GET endpoint used to retrieve a card token from a previously completed transaction. This operation, known as **deferred tokenization**, allows merchants to obtain a card token without requiring tokenization to be enabled at the time of the original transaction. The returned `cardToken` can be used for subsequent operations such as cardholder identification or MOTO payments. See the supported transaction types below.
-
-:::note
-Deferred tokenization is supported for the following transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale` and `moToRefund`. Other transaction types will return a `400` error.
-:::
-
-:::warning
-Tokenization requests must be made within **12 months** of the original transaction. Requests for transactions older than 12 months will not be processed.
-:::
-
-**Parameters**
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
-| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The GUID of the completed card-present transaction from which to retrieve the token. |
-
-**Returns**
-
-| Response      | Response Code |
-| ----------- | ----------- |
-| [DeferredTokenizationResponse](restobjects.md#deferredTokenizationResponse) | Response code 200. |
-| **BadRequest** | Response code 400. Returned when the transaction type is not eligible for deferred tokenization. |
-
-**Code Example**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X GET \
- -H "ApiKeyCloud: MeRcHaNt-ApIkEy" \
- -H "Content-Type: application/json" \
- "https://cloud.handpoint.com/transactions/75413c40-21db-11f1-991b-6f80eaf25911/token" (production)
- "https://cloud.handpoint.io/transactions/75413c40-21db-11f1-991b-6f80eaf25911/token" (development)
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="200" label="200">
-
-```json
-{
-    "agreementNumber": "123456789010102",
-    "cardToken": "665630867",
-    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
-    "expiryDateMMYY": "0927",
-    "httpStatus": "200",
-    "maskedCardNumber": "************3555",
-    "serverDateTime": "20260317083711509",
-    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
-}
-```
-
-</TabItem>
-<TabItem value="400" label="400">
-
-```json
-{
-    "error": {
-        "details": {
-            "body": {
-                "error": {
-                    "errorCode": "3112",
-                    "errorGuid": "624d05e0-21dd-11f1-991b-6f80eaf25911",
-                    "httpStatus": "403",
-                    "reason": "Transaction type is not eligible for deferred tokenization"
-                }
-            },
-            "status": 403
-        },
-        "message": "Viscus operation failed",
-        "name": "BadRequestError",
-        "statusCode": 400
-    }
 }
 ```
 
@@ -707,6 +614,286 @@ curl -X GET \
 curl -X GET \
 -H "ApiKeyCloud: your-api-key" \
 "https://transactions.handpoint.io/transactions/123e4567-e89b-12d3-a456-426614174000/status/3"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="200-all" label="200 OK (All Transactions)">
+
+```json
+[
+    {
+        "aid": "A0000000031010",
+        "arc": "00",
+        "iad": "06011203A00000",
+        "tsi": "",
+        "tvr": "0000000000",
+        "cardEntryType": "ICC",
+        "cardLanguagePreference": "6573",
+        "currency": "EUR",
+        "type": "SALE",
+        "tipAmount": 0,
+        "totalAmount": 300,
+        "requestedAmount": 300,
+        "dueAmount": 0,
+        "tipPercentage": 0,
+        "efttimestamp": 1776238711661,
+        "originalEFTTransactionID": "",
+        "paymentScenario": "CHIPCONTACTLESS",
+        "verificationMethod": "UNDEFINED",
+        "authorisationCode": "123456",
+        "cardSchemeName": "Visa",
+        "cardToken": "",
+        "maskedCardNumber": "************0936",
+        "cardTypeId": "",
+        "customerReference": "",
+        "efttransactionID": "1abe8dc0-389e-11f1-8672-a1e0852a3198",
+        "transactionID": "1abe8dc0-389e-11f1-8672-a1e0852a3198",
+        "errorMessage": "",
+        "expiryDateMMYY": "1027",
+        "issuerResponseCode": "00",
+        "batchNumber": "",
+        "rrn": "0000415558180",
+        "tenderType": "CREDIT",
+        "unMaskedPan": "",
+        "holdAmount": 0,
+        "increaseAmount": 0,
+        "capturedAmount": 0,
+        "merchantAddress": "",
+        "merchantName": "",
+        "mid": "",
+        "cardHolderName": "",
+        "chipTransactionReport": "",
+        "customerReceipt": "",
+        "merchantReceipt": "",
+        "signatureUrl": "",
+        "statusMessage": "",
+        "tid": "",
+        "transactionReference": "f147c2e7-f445-4af8-9e11-ae035320ade3",
+        "transactionOrigin": "",
+        "finStatus": "AUTHORISED"
+    },
+    {
+        "aid": "A0000000031010",
+        "arc": "",
+        "iad": "06011203800000",
+        "tsi": "",
+        "tvr": "0000000000",
+        "cardEntryType": "ICC",
+        "cardLanguagePreference": "6573",
+        "currency": "EUR",
+        "type": "REFUND",
+        "tipAmount": 0,
+        "totalAmount": 300,
+        "requestedAmount": 300,
+        "dueAmount": 0,
+        "tipPercentage": 0,
+        "efttimestamp": 1776245491451,
+        "originalEFTTransactionID": "1abe8dc0-389e-11f1-8672-a1e0852a3198",
+        "paymentScenario": "CHIPCONTACTLESS",
+        "verificationMethod": "UNDEFINED",
+        "authorisationCode": "123456",
+        "cardSchemeName": "Visa",
+        "cardToken": "",
+        "maskedCardNumber": "************0936",
+        "cardTypeId": "",
+        "customerReference": "",
+        "efttransactionID": "e3dbda50-38ad-11f1-909c-f50efeae2190",
+        "transactionID": "e3dbda50-38ad-11f1-909c-f50efeae2190",
+        "errorMessage": "",
+        "expiryDateMMYY": "1027",
+        "issuerResponseCode": "",
+        "batchNumber": "",
+        "rrn": "",
+        "tenderType": "CREDIT",
+        "unMaskedPan": "",
+        "holdAmount": 0,
+        "increaseAmount": 0,
+        "capturedAmount": 0,
+        "merchantAddress": "",
+        "merchantName": "",
+        "mid": "",
+        "cardHolderName": "",
+        "chipTransactionReport": "",
+        "customerReceipt": "",
+        "merchantReceipt": "",
+        "signatureUrl": "",
+        "statusMessage": "",
+        "tid": "",
+        "transactionReference": "f147c2e7-f445-4af8-9e11-ae035320ade3",
+        "transactionOrigin": "",
+        "finStatus": "AUTHORISED"
+    },
+    {
+        "aid": "",
+        "arc": "",
+        "iad": "",
+        "tsi": "",
+        "tvr": "",
+        "cardEntryType": "UNDEFINED",
+        "cardLanguagePreference": "",
+        "currency": "EUR",
+        "type": "REVERSAL",
+        "tipAmount": 0,
+        "totalAmount": 300,
+        "requestedAmount": 300,
+        "dueAmount": 0,
+        "tipPercentage": 0,
+        "efttimestamp": 1776245504454,
+        "originalEFTTransactionID": "e3dbda50-38ad-11f1-909c-f50efeae2190",
+        "paymentScenario": "UNKNOWN",
+        "verificationMethod": "UNDEFINED",
+        "authorisationCode": "123456",
+        "cardSchemeName": "Visa",
+        "cardToken": "",
+        "maskedCardNumber": "************0936",
+        "cardTypeId": "",
+        "customerReference": "",
+        "efttransactionID": "eb439ad0-38ad-11f1-8672-a1e0852a3198",
+        "transactionID": "eb439ad0-38ad-11f1-8672-a1e0852a3198",
+        "errorMessage": "",
+        "expiryDateMMYY": "1027",
+        "issuerResponseCode": "",
+        "batchNumber": "",
+        "rrn": "",
+        "tenderType": "CREDIT",
+        "unMaskedPan": "",
+        "holdAmount": 0,
+        "increaseAmount": 0,
+        "capturedAmount": 0,
+        "merchantAddress": "",
+        "merchantName": "",
+        "mid": "",
+        "cardHolderName": "",
+        "chipTransactionReport": "",
+        "customerReceipt": "",
+        "merchantReceipt": "",
+        "signatureUrl": "",
+        "statusMessage": "",
+        "tid": "",
+        "transactionReference": "f147c2e7-f445-4af8-9e11-ae035320ade3",
+        "transactionOrigin": "",
+        "finStatus": "AUTHORISED"
+    }
+]
+```
+
+</TabItem>
+<TabItem value="200-index" label="200 OK (Single Record by Index)">
+
+```json
+{
+    "aid": "",
+    "arc": "",
+    "iad": "",
+    "tsi": "",
+    "tvr": "",
+    "cardEntryType": "UNDEFINED",
+    "cardLanguagePreference": "",
+    "currency": "EUR",
+    "type": "REVERSAL",
+    "tipAmount": 0,
+    "totalAmount": 300,
+    "requestedAmount": 300,
+    "dueAmount": 0,
+    "tipPercentage": 0,
+    "efttimestamp": 1776245504454,
+    "originalEFTTransactionID": "e3dbda50-38ad-11f1-909c-f50efeae2190",
+    "paymentScenario": "UNKNOWN",
+    "verificationMethod": "UNDEFINED",
+    "authorisationCode": "123456",
+    "cardSchemeName": "Visa",
+    "cardToken": "",
+    "maskedCardNumber": "************0936",
+    "cardTypeId": "",
+    "customerReference": "",
+    "efttransactionID": "eb439ad0-38ad-11f1-8672-a1e0852a3198",
+    "transactionID": "eb439ad0-38ad-11f1-8672-a1e0852a3198",
+    "errorMessage": "",
+    "expiryDateMMYY": "1027",
+    "issuerResponseCode": "",
+    "batchNumber": "",
+    "rrn": "",
+    "tenderType": "CREDIT",
+    "unMaskedPan": "",
+    "holdAmount": 0,
+    "increaseAmount": 0,
+    "capturedAmount": 0,
+    "merchantAddress": "",
+    "merchantName": "",
+    "mid": "",
+    "cardHolderName": "",
+    "chipTransactionReport": "",
+    "customerReceipt": "",
+    "merchantReceipt": "",
+    "signatureUrl": "",
+    "statusMessage": "",
+    "tid": "",
+    "transactionReference": "f147c2e7-f445-4af8-9e11-ae035320ade3",
+    "transactionOrigin": "",
+    "finStatus": "AUTHORISED"
+}
+```
+
+</TabItem>
+<TabItem value="200-last" label="200 OK (Last Transaction)">
+
+```json
+{
+    "aid": "",
+    "arc": "",
+    "iad": "",
+    "tsi": "",
+    "tvr": "",
+    "cardEntryType": "UNDEFINED",
+    "cardLanguagePreference": "",
+    "currency": "EUR",
+    "type": "REVERSAL",
+    "tipAmount": 0,
+    "totalAmount": 300,
+    "requestedAmount": 300,
+    "dueAmount": 0,
+    "tipPercentage": 0,
+    "efttimestamp": 1776245504454,
+    "originalEFTTransactionID": "e3dbda50-38ad-11f1-909c-f50efeae2190",
+    "paymentScenario": "UNKNOWN",
+    "verificationMethod": "UNDEFINED",
+    "authorisationCode": "123456",
+    "cardSchemeName": "Visa",
+    "cardToken": "",
+    "maskedCardNumber": "************0936",
+    "cardTypeId": "",
+    "customerReference": "",
+    "efttransactionID": "eb439ad0-38ad-11f1-8672-a1e0852a3198",
+    "transactionID": "eb439ad0-38ad-11f1-8672-a1e0852a3198",
+    "errorMessage": "",
+    "expiryDateMMYY": "1027",
+    "issuerResponseCode": "",
+    "batchNumber": "",
+    "rrn": "",
+    "tenderType": "CREDIT",
+    "unMaskedPan": "",
+    "holdAmount": 0,
+    "increaseAmount": 0,
+    "capturedAmount": 0,
+    "merchantAddress": "",
+    "merchantName": "",
+    "mid": "",
+    "cardHolderName": "",
+    "chipTransactionReport": "",
+    "customerReceipt": "",
+    "merchantReceipt": "",
+    "signatureUrl": "",
+    "statusMessage": "",
+    "tid": "",
+    "transactionReference": "f147c2e7-f445-4af8-9e11-ae035320ade3",
+    "transactionOrigin": "",
+    "finStatus": "AUTHORISED"
+}
 ```
 
 </TabItem>
@@ -1070,6 +1257,173 @@ No response body is returned.
 ## Endpoints Not Requiring a Payment Terminal
 
 The following endpoints operate entirely through the Cloud API and do **not** require a connected payment terminal.
+
+---
+
+### /transactions/\{guid\}/tip-adjustment
+
+
+`TipAdjustment`
+
+POST endpoint used to execute a tip adjustment operation. 
+
+A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day. Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV. 
+
+Note: If two tip adjustments are sent for the same original transaction, only the second one will be taken into account. Each new tip adjustment will override the previous one. A tip adjustment will be rejected if the original transaction has already been batched out by the acquirer.
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
+| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid of the transaction to be adjusted. |
+| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the tip amount (as a *String* in minor units, e.g. `"525"` for $5.25) and currency of the tip adjustment.  |
+
+**Returns**
+
+
+| Response      | Response Code |
+| ----------- | ----------- |
+| **OK** | Response code 200.      |
+| **BadRequest** | Response code 400.      |
+
+
+**Code Example**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da784-8b57-11ed-9891-ebe2a88ff071/tip-adjustment' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "amount": "525"
+}'
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="200" label="200 OK">
+
+```json
+{
+  "statusMessage": "tip adjusted"
+}
+```
+
+</TabItem>
+<TabItem value="400" label="400 Bad Request">
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Invalid guid [fake-guid]"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+### /transactions/\{guid\}/token \{#transactionsguidtoken\}
+
+`DeferredTokenization`
+
+GET endpoint used to retrieve a card token from a previously completed transaction. This operation, known as **deferred tokenization**, allows merchants to obtain a card token without requiring tokenization to be enabled at the time of the original transaction. The returned `cardToken` can be used for subsequent operations such as cardholder identification or MOTO payments. See the supported transaction types below.
+
+:::note
+Deferred tokenization is supported for the following transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale` and `moToRefund`. Other transaction types will return a `400` error.
+:::
+
+:::warning
+Tokenization requests must be made within **12 months** of the original transaction. Requests for transactions older than 12 months will not be processed.
+:::
+
+**Parameters**
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
+| `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The GUID of the completed card-present transaction from which to retrieve the token. |
+
+**Returns**
+
+| Response      | Response Code |
+| ----------- | ----------- |
+| [DeferredTokenizationResponse](restobjects.md#deferredTokenizationResponse) | Response code 200. |
+| **BadRequest** | Response code 400. Returned when the transaction type is not eligible for deferred tokenization. |
+
+**Code Example**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X GET \
+ -H "ApiKeyCloud: MeRcHaNt-ApIkEy" \
+ -H "Content-Type: application/json" \
+ "https://cloud.handpoint.com/transactions/75413c40-21db-11f1-991b-6f80eaf25911/token" (production)
+ "https://cloud.handpoint.io/transactions/75413c40-21db-11f1-991b-6f80eaf25911/token" (development)
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="200" label="200">
+
+```json
+{
+    "agreementNumber": "123456789010102",
+    "cardToken": "665630867",
+    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
+    "expiryDateMMYY": "0927",
+    "httpStatus": "200",
+    "maskedCardNumber": "************3555",
+    "serverDateTime": "20260317083711509",
+    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+}
+```
+
+</TabItem>
+<TabItem value="400" label="400">
+
+```json
+{
+    "error": {
+        "details": {
+            "body": {
+                "error": {
+                    "errorCode": "3112",
+                    "errorGuid": "624d05e0-21dd-11f1-991b-6f80eaf25911",
+                    "httpStatus": "403",
+                    "reason": "Transaction type is not eligible for deferred tokenization"
+                }
+            },
+            "status": 403
+        },
+        "message": "Viscus operation failed",
+        "name": "BadRequestError",
+        "statusCode": 400
+    }
+}
+```
+
+</TabItem>
+</Tabs>
 
 ---
 
