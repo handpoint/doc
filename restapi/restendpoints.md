@@ -939,7 +939,7 @@ For the Commands to work properly, the Handpoint Payments App **MUST** be in **I
 If you attempt to send one of these commands and the device is not yet in Integrated Mode, you may receive a **202 Accepted** response but the command will not have been executed by the terminal.
 :::
 
-### Set Unattended Mode
+### /devices/\{deviceType\}/\{serialNumber\}/set-unattended-mode
 
 `POST /devices/\{deviceType\}/\{serialNumber\}/set-unattended-mode`
 
@@ -984,7 +984,7 @@ No response body is returned.
 </TabItem>
 </Tabs>
 
-### Set Locale
+### /devices/\{deviceType\}/\{serialNumber\}/set-locale
 
 `POST /devices/\{deviceType\}/\{serialNumber\}/set-locale`
 
@@ -1036,7 +1036,7 @@ No response body is returned.
 
 ---
 
-### Set Password Protection
+### /devices/\{deviceType\}/\{serialNumber\}/set-password-protected
 
 `POST /devices/\{deviceType\}/\{serialNumber\}/set-password-protected`
 
@@ -1088,7 +1088,7 @@ No response body is returned.
 
 ---
 
-### Reboot Device
+### /devices/\{deviceType\}/\{serialNumber\}/reboot
 
 `POST /devices/\{deviceType\}/\{serialNumber\}/reboot`
 
@@ -1140,7 +1140,7 @@ No response body is returned.
 
 ---
 
-### Set Screen Brightness
+### /devices/\{deviceType\}/\{serialNumber\}/set-screen-brightness
 
 `POST /devices/\{deviceType\}/\{serialNumber\}/set-screen-brightness`
 
@@ -1195,7 +1195,7 @@ No response body is returned.
 
 ---
 
-### Set Reboot Time
+### /devices/\{deviceType\}/\{serialNumber\}/set-reboot-time
 
 :::note
 This feature is only enabled for production devices.
@@ -1277,7 +1277,7 @@ Note: If two tip adjustments are sent for the same original transaction, only th
 | ----------- | ----------- |
 | `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
 | `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid of the transaction to be adjusted. |
-| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the tip amount (as a *String* in minor units, e.g. `"525"` for $5.25) and currency of the tip adjustment.  |
+| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the tip amount (as a *String* in MAJOR units, e.g. `"5.25"`) and currency of the tip adjustment.  |
 
 **Returns**
 
@@ -1300,7 +1300,7 @@ curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da78
 --header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "amount": "525"
+    "amount": "5.25"  //5 => 5.00
 }'
 ```
 
@@ -1475,7 +1475,7 @@ Typical flow:
 Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRequest) for full details):
 
 - `cardToken` <span class="badge badge--primary">Required</span> – Token representing the card stored in the gateway (e.g. `"665630867"`).
-- `amount` <span class="badge badge--primary">Required</span> – String amount in minor units (e.g. `"2000"` for 20.00). Must be a positive integer string.
+- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00). Must be a positive integer string.
 - `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 currency code (e.g. `"EUR"`).
 - Optional references for reconciliation: `customerReference`, `transactionReference`, etc.
 
@@ -1500,7 +1500,7 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
   -d '{
-    "amount": "2000",
+    "amount": "20.00", // 20 => 20.00
     "currency": "EUR",
     "cardToken": "665630867",
     "customerReference": "order-12345",
@@ -1606,7 +1606,7 @@ original transaction. No card data is passed in the refund request.
 Typical fields (see [MotoRefundRequest](restobjects#motoRefundRequest) for full details):
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be refunded (e.g. `"1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"`).
-* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in minor units (e.g. `"500"` for 5.00). Must be a positive integer string.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in MAJOR units (e.g. `"5.00"` for $5.00). Must be a positive integer string.
 * `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code (e.g. `"EUR"`, `"USD"`).
 * Optional: `customerReference`, `transactionReference`.
 
@@ -1633,7 +1633,7 @@ curl -X POST \
   -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
   -d '{
     "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67",
-    "amount": "500",
+    "amount": "5.00", // 5 => 5.00
     "currency": "EUR",
     "customerReference": "refund-98765",
     "transactionReference": "a1fe8db5-69a4-4b4d-a704-94ac2570f9b0"
@@ -1717,7 +1717,7 @@ Reversals are typically used to cancel a MOTO sale shortly after authorization, 
 Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for full details):
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
-* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in minor units (e.g. `"2000"` for 20.00). Must be a positive integer string.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00). Must be a positive integer string.
 * `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
 * Optional merchant references: `customerReference`, `transactionReference`.
 
@@ -1742,7 +1742,7 @@ curl -X POST \
   -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
   -d '{
     "originalGuid": "b28bdb10-cf87-11f0-b588-a122fae316de",
-    "amount": "2000",
+    "amount": "20.00", //20 => 20.00 || 2000 => 2000.00
     "currency": "EUR",
     "customerReference": "void-001",
     "transactionReference": "4d7b1a2c-5bfd-4a30-9b6f-123456789abc"
