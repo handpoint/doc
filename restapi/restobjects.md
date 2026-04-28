@@ -3,6 +3,9 @@ sidebar_position: 7
 id: restobjects
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Objects
 
 
@@ -1097,33 +1100,53 @@ Object used by the [`POST /v1/reversal`](restendpoints#reversal-operations) endp
 | `MERCHANT_REVERSAL_SIGNATURE_DECLINED` | Merchant-initiated reversal; signature was declined. |
 | `NO_REVERSAL_REASON_CODE` | No specific reason code applies. |
 
-**Code example – full reversal (defaults)**
+**Code Example**
 
-```json
-{
-  "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a"
-}
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Full Reversal">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.io/reversal' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b"
+}'
 ```
 
-**Code example – partial reversal**
+</TabItem>
 
-```json
-{
-  "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
-  "amount": "15.00",
-  "currency": "EUR"
-}
+<TabItem value="parital" label="Partial Reversal">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.io/reversal' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b",
+    "amount": "15.00",
+    "currency": "EUR"
+}'
 ```
 
-**Code example – with explicit reason code and timestamp**
+</TabItem>
 
-```json
-{
-  "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
-  "messageReasonCode": "TIMEOUT_WAITING_FOR_RESPONSE",
-  "timestamp": "20240101120000000"
-}
+<TabItem value="explicit" label="With explicit reason">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.io/reversal' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b",
+    "messageReasonCode": "TIMEOUT_WAITING_FOR_RESPONSE"
+}'
 ```
+
+</TabItem>
+</Tabs>
 
 ---
 
