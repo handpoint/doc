@@ -3,6 +3,9 @@ sidebar_position: 7
 id: restobjects
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Objects
 
 
@@ -1046,6 +1049,106 @@ The exact shape is very similar across these operations; some fields (such as `o
   "terminalDateTime": "20251202140733000"
 }
 ```
+
+## Reversal {#reversal}
+
+### ViscusReversalRequest {#viscusReversalRequest}
+
+`ViscusReversalRequest` <span class="badge badge--info">Object</span>
+
+Object used by the [`POST /v1/reversal`](restendpoints#reversal-operations) endpoint to reverse any reversible transaction. Only `originalGuid` is required; all other fields are optional and default to sensible values when not provided.
+
+**Properties**
+
+| Property | Description |
+| -------- | ----------- |
+| `originalGuid` <span class="badge badge--primary">Required</span> <br />*String* | GUID of the transaction to reverse (maximum 64 characters). |
+| `messageReasonCode` <span class="badge badge--secondary">Optional</span> <br />*String* | ISO 8583 reason code for the reversal. Defaults to `CUSTOMER_CANCELLATION` when not provided. See [allowed values](#messageReasonCode) below. |
+| `timestamp` <span class="badge badge--secondary">Optional</span> <br />*String* | Timestamp in `YYYYMMDDHHmmssSSS` format (17 characters). Defaults to the current server time when not provided. |
+| `amount` <span class="badge badge--secondary">Optional</span> <br />*String* | Amount to reverse for partial reversals (e.g. `"15.00"`). When provided together with `currency`, only the specified amount is released from the hold. The most recent reversal received supersedes any earlier partial reversal. |
+| `currency` <span class="badge badge--secondary">Optional</span> <br />[*Currency*](#currency) | ISO 4217 3-character currency code for partial reversals (e.g. `"EUR"`). Must be exactly 3 characters. |
+
+#### Allowed values for `messageReasonCode` {#messageReasonCode}
+
+| Value | Description |
+| ----- | ----------- |
+| `CUSTOMER_CANCELLATION` | Transaction cancelled by the customer. **Default when not provided.** |
+| `UNSPECIFIED_NO_ACTION_TAKEN` | No action taken; reason unspecified. |
+| `SUSPECTED_MALFUNCTION` | Terminal malfunction suspected. |
+| `FORMAT_ERROR_NO_ACTION_TAKEN` | Format error with no action taken. |
+| `COMPLETED_PARTIALLY` | Transaction completed only partially. |
+| `ORIGINAL_AMOUNT_INCORRECT` | The original transaction amount was incorrect. |
+| `RESPONSE_RECEIVED_TOO_LATE` | Response from the acquirer arrived after the timeout. |
+| `CARD_ACCEPTOR_DEVICE_UNABLE_TO_COMPLETE_TRANSACTION` | The terminal was unable to complete the transaction. |
+| `DEPOSIT_OUT_OF_BALANCE` | Deposit amount does not balance. |
+| `NO_CHECK_IN_ENVELOPE` | No check found in the deposit envelope. |
+| `PAYMENT_OUT_OF_BALANCE` | Payment amount does not balance. |
+| `DEPOSIT_OUT_OF_BALANCE_APPLIED_CONTENTS` | Deposit out of balance after applying contents. |
+| `PAYMENT_OUT_OF_BALANCE_APPLIED_CONTENTS` | Payment out of balance after applying contents. |
+| `UNABLE_TO_DELIVER_MESSAGE_TO_POINT_OF_SERVICE` | Message could not be delivered to the point of service. |
+| `SUSPECTED_MALFUNCTION_CARD_RETAINED` | Malfunction suspected; card was retained. |
+| `SUSPECTED_MALFUNCTION_CARD_RETURNED` | Malfunction suspected; card was returned. |
+| `SUSPECTED_MALFUNCTION_TRACK_3_NOT_UPDATED` | Malfunction suspected; track 3 was not updated. |
+| `SUSPECTED_MALFUNCTION_NO_CASH_DISPENSED` | Malfunction suspected; no cash was dispensed. |
+| `TIMED_OUT_AT_TAKING_MONEY_NO_CASH_DISPENSED` | Timed out while taking money; no cash dispensed. |
+| `TIMED_OUT_AT_TAKING_CARD_CARD_RETAINED_AND_NO_CASH_DISPENSED` | Timed out taking card; card retained and no cash dispensed. |
+| `INVALID_RESPONSE_NO_ACTION_TAKEN` | Invalid response received; no action taken. |
+| `TIMEOUT_WAITING_FOR_RESPONSE` | Timed out waiting for a response from the acquirer. |
+| `PREMATURE_CHIP_CARD_REMOVAL` | Chip card was removed before the transaction completed. |
+| `CHIP_CARD_DECLINES_TRANSACTION` | Chip card declined the transaction. |
+| `SIGNATURE_TIMEOUT` | Signature capture timed out. |
+| `MERCHANT_REVERSAL_SIGNATURE_DECLINED` | Merchant-initiated reversal; signature was declined. |
+| `NO_REVERSAL_REASON_CODE` | No specific reason code applies. |
+
+**Code Example**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Full Reversal">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.io/reversal' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b"
+}'
+```
+
+</TabItem>
+
+<TabItem value="parital" label="Partial Reversal">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.io/reversal' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b",
+    "amount": "15.00",
+    "currency": "EUR"
+}'
+```
+
+</TabItem>
+
+<TabItem value="explicit" label="With explicit reason">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.io/reversal' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b",
+    "messageReasonCode": "TIMEOUT_WAITING_FOR_RESPONSE"
+}'
+```
+
+</TabItem>
+</Tabs>
+
+---
 
 ## Batch {#batch}
 

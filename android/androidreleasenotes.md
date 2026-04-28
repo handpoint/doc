@@ -11,7 +11,7 @@ id: androidreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
-## 7.1012.1
+## 7.1012.2
 **Features**
 
 Payments libraries have been updated to comply with latest TSYS requirements
@@ -21,7 +21,7 @@ Payments libraries have been updated to comply with latest TSYS requirements
 - Fixed an issue where, if a forced reversal failed, the system reported the reversal result instead of the original transaction result, which should always be returned.
 - Fixed error due emvData was included in request when magstripe fallback and duplicate check enabled
 - Amount in preauthorization reversals was not consistent with sale reversals     
-- Include transactionReference in txn result for MoTo failed UNDEFINED  
+- Include transactionReference in the transaction result object for MoTo failed / UNDEFINED operations
 
 ## 7.1011.0
 **New Features**
