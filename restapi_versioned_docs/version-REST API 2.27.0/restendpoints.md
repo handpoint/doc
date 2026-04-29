@@ -1232,7 +1232,7 @@ curl -X POST \
 
 ---
 
-## MOTO Operations
+## **MOTO Operations**
 
 `MOTO (Mail Order / Telephone Order)` operations can also be processed **without a payment reader**, using information
 that is already stored in the gateway (tokens and references to previous transactions).
