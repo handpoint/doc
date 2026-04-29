@@ -1327,7 +1327,6 @@ curl -X POST \
 
 </TabItem>
 <TabItem value="422" label="422 Validation Error">
-
 ```json
 {
   "error": {
@@ -1346,11 +1345,8 @@ curl -X POST \
   }
 }
 ```
-
 </TabItem>
 </Tabs>
-
----
 
 ## MOTO Operations
 
