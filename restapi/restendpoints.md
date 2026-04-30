@@ -1737,7 +1737,7 @@ daily settlement batches per terminal).
 
 Cloud API currently supports the following batch operations:
 
-- `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
+- `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`).
 - `POST /batch/summary` — retrieves a **summary of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
 - `POST /batch/detail` — retrieves **batch detail** (including a list of transactions) for a given terminal (`deviceType`, `serialNumber`) and `batchNumber` (and optional `rrn`).
 
@@ -1755,7 +1755,7 @@ In MOTO scenarios, the `deviceType` and `serialNumber` fields can refer to a **v
 `BatchClose`
 
 `POST /batch/close` is used to request **closure of a batch** for a specific payment terminal, identified by its
-`deviceType` and `serialNumber`, and a `batchNumber`.
+`deviceType` and `serialNumber`, and optionally a `batchNumber`.
 
 Typical use cases:
 
@@ -1773,7 +1773,7 @@ Typical fields in the request body (see [BatchCloseRequest](restobjects#batchClo
 
 - `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
 - `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
-- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch to close (for example, `"1"`).
+- `batchNumber` <span class="badge badge--secondary">Optional</span> – Identifier of the batch to close (for example, `"1"`), if not specified, the current open batch for that Terminal will be closed.
 
 #### Returns
 
@@ -1781,7 +1781,7 @@ Typical fields in the request body (see [BatchCloseRequest](restobjects#batchClo
 | ------ | ----- |
 | `200` | Batch close request accepted. The response body is a [BatchCloseResponse](restobjects#batchCloseResponse) with the batch number, a unique `closeBatchGuid`, timestamps and an issuer-style response code/text. |
 | `400` | Business rule error or generic gateway error. Returned as `BadRequestError`, with `error.code`, `error.message` and `error.details` describing the problem. |
-| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (for example, missing `batchNumber`). |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (for example, missing `serialNumber`). |
 | `5xx` | Internal error or service unavailability. The final outcome of the batch close may be unknown and may require reconciliation or a retry at a later time. |
 
 **Code Example**
