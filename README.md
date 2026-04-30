@@ -174,6 +174,17 @@ npm run docusaurus docs:version:restapi "REST API 2.27.0"
 
 **To see it published you will have to restart docusaurus.**
 
+## Edit or remove product versions
+
+To edit or remove a version, the files to check are:
+Folder with the version number
+releasenotes.md within the version folder
+releasenotes.md in the 'Next' version product base folder
+product_versions.json -> rename the version or remove it from the list
+.docusaurus/registry.js
+.docusaurus/routes.js
+
+
 ## Deployment
 
 The deployment is done automatically with Github Actions. The workflow is defined in `.github/workflows/deploy.yml`:
