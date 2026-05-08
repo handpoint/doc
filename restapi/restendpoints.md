@@ -749,6 +749,451 @@ curl -X GET \
 </TabItem>
 </Tabs>
 
+## Device Control Commands
+
+> **Note:**  
+> The following commands are available for all devices running Android SDK version 7.1006.0 or later.
+
+Command Endpoint Format
+
+All device control commands follow this endpoint structure:
+```https://cloud.handpoint.io/devices/{deviceType}/{serialNumber}/{command}```
+
+Where:
+- `{deviceType}` is the type of the device (e.g., PAXIM30)
+- `{serialNumber}` is the serial number of the device (e.g., 1640013848)
+- `{command}` is the specific command to execute
+
+Common Parameters
+
+All commands share these common parameters:
+
+| Parameter      | Notes |
+| ----------- | ----------- |
+| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*    | Api key used to authenticate the merchant. (UNIQUE per Merchant)       |
+| `Header: Content-Type` <span class="badge badge--primary">Required</span>   <br />*String*    | Must be set to `application/json`       |
+
+Common Response Codes
+
+| Response Code | Description |
+|--------------|-------------|
+| 202 | Request accepted, command will be executed |
+| 403 | Authentication failed |
+| 422 | Invalid request |
+| 400 | Invalid parameter value (when applicable) |
+
+---
+
+:::caution
+For the Commands to work properly, the Handpoint Payments App **MUST** be in **Integrated Mode** (enabled via **Handpoint TMS** and controlled by the merchant in the **Handpoint Payments App** Settings).<br />
+:::
+
+### Set Unattended Mode
+
+`POST /devices/{deviceType}/{serialNumber}/set-unattended-mode`
+
+Enables or disables unattended mode on the device.
+Unattended mode will disable the Bottom navigation bar containing the Home, back, recent buttons.
+The Payment screen will be the only visible screen in the Handpoint Payments App. (Settings, Hisotry and Analytic tabs will not be accessible)
+
+
+**Request Body Parameters**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `status` | boolean | `true` to enable unattended mode, `false` to disable |
+
+**Example Request**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X POST \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": false
+  }' \
+  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-unattended-mode"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="202" label="202 Accepted">
+
+No response body is returned.
+
+</TabItem>
+<TabItem value="400-not-listening" label="400 DeviceNotListening">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": {
+            "error": 1002,
+            "message": "No device listening at the other end of the secure channel"
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+### Set Locale
+
+`POST /devices/{deviceType}/{serialNumber}/set-locale`
+
+Sets the locale of the target device.
+
+**Request Body Parameters**
+
+| Parameter | Type   | Description                                                                 |
+|-----------|--------|-----------------------------------------------------------------------------|
+| `locale`  | string | IETF BCP 47 language tag (e.g., `en_US`). Two-letter language and country code.|
+
+**Response Codes**
+
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 202  | The request is accepted and will be executed|
+| 403  | Authentication failed                       |
+| 422  | Invalid request                             |
+
+**Example Request**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X POST \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "locale": "en_CA"
+  }' \
+  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-locale"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="202" label="202 Accepted">
+
+No response body is returned.
+
+</TabItem>
+<TabItem value="400-not-listening" label="400 DeviceNotListening">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": {
+            "error": 1002,
+            "message": "No device listening at the other end of the secure channel"
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+---
+
+### Set Password Protected
+
+`POST /devices/{deviceType}/{serialNumber}/set-password-protected`
+
+Enables or disables password protection on the device.
+
+**Request Body Parameters**
+
+| Parameter | Type    | Description                                         |
+|-----------|---------|-----------------------------------------------------|
+| `status`  | boolean | `true` to enable password protection, `false` to disable |
+
+**Response Codes**
+
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 202  | The request is accepted and will be executed|
+| 403  | Authentication failed                       |
+| 422  | Invalid request                             |
+
+**Example Request**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X POST \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": true
+  }' \
+  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-password-protected"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="202" label="202 Accepted">
+
+No response body is returned.
+
+</TabItem>
+<TabItem value="400-not-listening" label="400 DeviceNotListening">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": {
+            "error": 1002,
+            "message": "No device listening at the other end of the secure channel"
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+---
+
+### Reboot
+
+`POST /devices/{deviceType}/{serialNumber}/reboot`
+
+Reboots the device with an optional force parameter.
+
+**Request Body Parameters**
+
+| Parameter | Type    | Description                                                                 |
+|-----------|---------|-----------------------------------------------------------------------------|
+| `force`   | boolean | `true` to force reboot even during transaction, `false` to check status first|
+
+**Response Codes**
+
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 202  | The request is accepted and will be executed|
+| 403  | Authentication failed                       |
+| 422  | Invalid request                             |
+
+**Example Request**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X POST \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "force": false
+  }' \
+  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/reboot"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="202" label="202 Accepted">
+
+No response body is returned.
+
+</TabItem>
+<TabItem value="400-not-listening" label="400 DeviceNotListening">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": {
+            "error": 1002,
+            "message": "No device listening at the other end of the secure channel"
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+---
+
+### Set Screen Brightness
+
+`POST /devices/{deviceType}/{serialNumber}/set-screen-brightness`
+
+Sets the screen brightness levels.
+
+**Request Body Parameters**
+
+| Parameter                | Type    | Description                        |
+|--------------------------|---------|------------------------------------|
+| `minimumBrightnessLevel` | integer | Value between 0 and 100            |
+| `maximumBrightnessLevel` | integer | Value between 0 and 100            |
+
+**Response Codes**
+
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 202  | The request is accepted and will be executed|
+| 403  | Authentication failed                       |
+| 422  | Invalid request                             |
+| 400  | Value is outside the valid range            |
+
+**Example Request**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X POST \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "minimumBrightnessLevel": 20,
+    "maximumBrightnessLevel": 100
+  }' \
+  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-screen-brightness"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="202" label="202 Accepted">
+
+No response body is returned.
+
+</TabItem>
+<TabItem value="400-not-listening" label="400 DeviceNotListening">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": {
+            "error": 1002,
+            "message": "No device listening at the other end of the secure channel"
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+---
+
+### Set Reboot Time
+
+:::note
+This feature is only enabled for production devices.
+:::
+
+`POST /devices/{deviceType}/{serialNumber}/set-reboot-time`
+
+Sets the daily reboot time for the device. The actual reboot will occur at a random minute within the specified hour.
+
+**Request Body Parameters**
+
+| Parameter | Type    | Description                                         |
+|-----------|---------|-----------------------------------------------------|
+| `hour`    | integer | Hour of the day (0-23) when device should reboot    |
+
+:::tip
+If hour is set to 22, the device will reboot at a random time between 22:01 and 22:59.
+:::
+
+**Response Codes**
+
+| Code | Description                                 |
+|------|---------------------------------------------|
+| 202  | The request is accepted and will be executed|
+| 403  | Authentication failed                       |
+| 422  | Invalid request                             |
+| 400  | Value is outside the valid range            |
+
+**Example Request**
+
+**Requests**
+
+<Tabs>
+<TabItem value="request" label="Request">
+
+```shell
+curl -X POST \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "hour": 22
+  }' \
+  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-reboot-time"
+```
+
+</TabItem>
+</Tabs>
+
+**Responses**
+
+<Tabs>
+<TabItem value="202" label="202 Accepted">
+
+No response body is returned.
+
+</TabItem>
+<TabItem value="400-not-listening" label="400 DeviceNotListening">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": {
+            "error": 1002,
+            "message": "No device listening at the other end of the secure channel"
+        }
+    }
+}
+```
+</TabItem>
+</Tabs>
+
+
 ## Endpoints Not Requiring a Payment Terminal
 
 The following endpoints operate entirely through the Cloud API and do **not** require a connected payment terminal.
@@ -1838,6 +2283,28 @@ curl -X POST \
 ```
 
 </TabItem>
+<TabItem value="200x2" label="200 OK">
+
+```json
+{
+    "httpStatus": "200",
+    "customerReference": {},
+    "customFields": {
+        "entry": {
+            "key": "issuerBatchCloseLocalTimestamp",
+            "value": "2026-05-07T10:02:12"
+        }
+    },
+    "batchNumber": "1",
+    "closeBatchGuid": "d1988a50-49fb-11f1-b64d-2969d719a012",
+    "closedAt": "20260507100212859",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "ACCEPTED",
+    "batchStatus": "CLOSED"
+}
+```
+
+</TabItem>
 <TabItem value="422" label="422 Validation Error">
 
 ```json
@@ -2135,450 +2602,5 @@ Key fields:
 }
 ```
 
-</TabItem>
-</Tabs>
-
-
-## Device Control Commands
-
-> **Note:**  
-> The following commands are available for all devices running Android SDK version 7.1006.0 or later.
-
-Command Endpoint Format
-
-All device control commands follow this endpoint structure:
-```https://cloud.handpoint.io/devices/{deviceType}/{serialNumber}/{command}```
-
-Where:
-- `{deviceType}` is the type of the device (e.g., PAXIM30)
-- `{serialNumber}` is the serial number of the device (e.g., 1640013848)
-- `{command}` is the specific command to execute
-
-Common Parameters
-
-All commands share these common parameters:
-
-| Parameter      | Notes |
-| ----------- | ----------- |
-| `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*    | Api key used to authenticate the merchant. (UNIQUE per Merchant)       |
-| `Header: Content-Type` <span class="badge badge--primary">Required</span>   <br />*String*    | Must be set to `application/json`       |
-
-Common Response Codes
-
-| Response Code | Description |
-|--------------|-------------|
-| 202 | Request accepted, command will be executed |
-| 403 | Authentication failed |
-| 422 | Invalid request |
-| 400 | Invalid parameter value (when applicable) |
-
----
-
-:::caution
-For the Commands to work properly, the Handpoint Payments App **MUST** be in **Integrated Mode** (enabled via **Handpoint TMS** and controlled by the merchant in the **Handpoint Payments App** Settings).<br />
-:::
-
-### Set Unattended Mode
-
-`POST /devices/{deviceType}/{serialNumber}/set-unattended-mode`
-
-Enables or disables unattended mode on the device.
-Unattended mode will disable the Bottom navigation bar containing the Home, back, recent buttons.
-The Payment screen will be the only visible screen in the Handpoint Payments App. (Settings, Hisotry and Analytic tabs will not be accessible)
-
-
-**Request Body Parameters**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `status` | boolean | `true` to enable unattended mode, `false` to disable |
-
-**Example Request**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X POST \
-  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "status": false
-  }' \
-  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-unattended-mode"
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="202" label="202 Accepted">
-
-No response body is returned.
-
-</TabItem>
-<TabItem value="400-not-listening" label="400 DeviceNotListening">
-
-```json
-{
-    "error": {
-        "statusCode": 400,
-        "name": "BadRequestError",
-        "message": {
-            "error": 1002,
-            "message": "No device listening at the other end of the secure channel"
-        }
-    }
-}
-```
-</TabItem>
-</Tabs>
-
-### Set Locale
-
-`POST /devices/{deviceType}/{serialNumber}/set-locale`
-
-Sets the locale of the target device.
-
-**Request Body Parameters**
-
-| Parameter | Type   | Description                                                                 |
-|-----------|--------|-----------------------------------------------------------------------------|
-| `locale`  | string | IETF BCP 47 language tag (e.g., `en_US`). Two-letter language and country code.|
-
-**Response Codes**
-
-| Code | Description                                 |
-|------|---------------------------------------------|
-| 202  | The request is accepted and will be executed|
-| 403  | Authentication failed                       |
-| 422  | Invalid request                             |
-
-**Example Request**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X POST \
-  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "locale": "en_CA"
-  }' \
-  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-locale"
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="202" label="202 Accepted">
-
-No response body is returned.
-
-</TabItem>
-<TabItem value="400-not-listening" label="400 DeviceNotListening">
-
-```json
-{
-    "error": {
-        "statusCode": 400,
-        "name": "BadRequestError",
-        "message": {
-            "error": 1002,
-            "message": "No device listening at the other end of the secure channel"
-        }
-    }
-}
-```
-</TabItem>
-</Tabs>
-
----
-
-### Set Password Protected
-
-`POST /devices/{deviceType}/{serialNumber}/set-password-protected`
-
-Enables or disables password protection on the device.
-
-**Request Body Parameters**
-
-| Parameter | Type    | Description                                         |
-|-----------|---------|-----------------------------------------------------|
-| `status`  | boolean | `true` to enable password protection, `false` to disable |
-
-**Response Codes**
-
-| Code | Description                                 |
-|------|---------------------------------------------|
-| 202  | The request is accepted and will be executed|
-| 403  | Authentication failed                       |
-| 422  | Invalid request                             |
-
-**Example Request**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X POST \
-  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "status": true
-  }' \
-  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-password-protected"
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="202" label="202 Accepted">
-
-No response body is returned.
-
-</TabItem>
-<TabItem value="400-not-listening" label="400 DeviceNotListening">
-
-```json
-{
-    "error": {
-        "statusCode": 400,
-        "name": "BadRequestError",
-        "message": {
-            "error": 1002,
-            "message": "No device listening at the other end of the secure channel"
-        }
-    }
-}
-```
-</TabItem>
-</Tabs>
-
----
-
-### Reboot
-
-`POST /devices/{deviceType}/{serialNumber}/reboot`
-
-Reboots the device with an optional force parameter.
-
-**Request Body Parameters**
-
-| Parameter | Type    | Description                                                                 |
-|-----------|---------|-----------------------------------------------------------------------------|
-| `force`   | boolean | `true` to force reboot even during transaction, `false` to check status first|
-
-**Response Codes**
-
-| Code | Description                                 |
-|------|---------------------------------------------|
-| 202  | The request is accepted and will be executed|
-| 403  | Authentication failed                       |
-| 422  | Invalid request                             |
-
-**Example Request**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X POST \
-  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "force": false
-  }' \
-  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/reboot"
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="202" label="202 Accepted">
-
-No response body is returned.
-
-</TabItem>
-<TabItem value="400-not-listening" label="400 DeviceNotListening">
-
-```json
-{
-    "error": {
-        "statusCode": 400,
-        "name": "BadRequestError",
-        "message": {
-            "error": 1002,
-            "message": "No device listening at the other end of the secure channel"
-        }
-    }
-}
-```
-</TabItem>
-</Tabs>
-
----
-
-### Set Screen Brightness
-
-`POST /devices/{deviceType}/{serialNumber}/set-screen-brightness`
-
-Sets the screen brightness levels.
-
-**Request Body Parameters**
-
-| Parameter                | Type    | Description                        |
-|--------------------------|---------|------------------------------------|
-| `minimumBrightnessLevel` | integer | Value between 0 and 100            |
-| `maximumBrightnessLevel` | integer | Value between 0 and 100            |
-
-**Response Codes**
-
-| Code | Description                                 |
-|------|---------------------------------------------|
-| 202  | The request is accepted and will be executed|
-| 403  | Authentication failed                       |
-| 422  | Invalid request                             |
-| 400  | Value is outside the valid range            |
-
-**Example Request**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X POST \
-  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "minimumBrightnessLevel": 20,
-    "maximumBrightnessLevel": 100
-  }' \
-  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-screen-brightness"
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="202" label="202 Accepted">
-
-No response body is returned.
-
-</TabItem>
-<TabItem value="400-not-listening" label="400 DeviceNotListening">
-
-```json
-{
-    "error": {
-        "statusCode": 400,
-        "name": "BadRequestError",
-        "message": {
-            "error": 1002,
-            "message": "No device listening at the other end of the secure channel"
-        }
-    }
-}
-```
-</TabItem>
-</Tabs>
-
----
-
-### Set Reboot Time
-
-:::note
-This feature is only enabled for production devices.
-:::
-
-`POST /devices/{deviceType}/{serialNumber}/set-reboot-time`
-
-Sets the daily reboot time for the device. The actual reboot will occur at a random minute within the specified hour.
-
-**Request Body Parameters**
-
-| Parameter | Type    | Description                                         |
-|-----------|---------|-----------------------------------------------------|
-| `hour`    | integer | Hour of the day (0-23) when device should reboot    |
-
-:::tip
-If hour is set to 22, the device will reboot at a random time between 22:01 and 22:59.
-:::
-
-**Response Codes**
-
-| Code | Description                                 |
-|------|---------------------------------------------|
-| 202  | The request is accepted and will be executed|
-| 403  | Authentication failed                       |
-| 422  | Invalid request                             |
-| 400  | Value is outside the valid range            |
-
-**Example Request**
-
-**Requests**
-
-<Tabs>
-<TabItem value="request" label="Request">
-
-```shell
-curl -X POST \
-  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "hour": 22
-  }' \
-  "https://cloud.handpoint.io/devices/PAXIM30/0000000000/set-reboot-time"
-```
-
-</TabItem>
-</Tabs>
-
-**Responses**
-
-<Tabs>
-<TabItem value="202" label="202 Accepted">
-
-No response body is returned.
-
-</TabItem>
-<TabItem value="400-not-listening" label="400 DeviceNotListening">
-
-```json
-{
-    "error": {
-        "statusCode": 400,
-        "name": "BadRequestError",
-        "message": {
-            "error": 1002,
-            "message": "No device listening at the other end of the secure channel"
-        }
-    }
-}
-```
 </TabItem>
 </Tabs>
