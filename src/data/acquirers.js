@@ -14,7 +14,7 @@ export const ACQUIRERS = [
   },
   {
     "slug": "tns",
-    "name": "TNS",
+    "name": "TNS (Interac)",
     "geography": "Canada"
   },
   {

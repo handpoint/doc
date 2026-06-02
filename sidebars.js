@@ -62,6 +62,7 @@ const sidebars = {
       label: 'Reference',
       collapsible: false,
       items: [
+        'reference/full-matrix',
         'reference/acquirer-capabilities-matrix',
         'reference/transaction-result-object',
         'reference/error-codes',

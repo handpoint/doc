@@ -1,6 +1,6 @@
 ---
 id: tns
-title: "TNS"
+title: "TNS (Interac)"
 description: "Canada card-present acquirer. Supports: sale, void."
 geography: "Canada"
 status: active
@@ -52,7 +52,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
-:::note TNS
+:::note TNS (Interac)
 TNS processes Interac card-present transactions only. The only post-sale operation is VOID — full amount, card must be inserted or tapped, must occur before settlement. Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network. Pre-authorization is explicitly rejected (BAD_REQUEST).
 :::
 
@@ -174,7 +174,7 @@ Use specifically for Interac card transactions via TNS. For non-Interac transact
 3. Full amount only — partial voids are not supported.
 4. **ISV UI note:** label this button "VOID" in your application, not "Refund" or "Reverse". This is an Interac network requirement.
 
-:::note TNS
+:::note TNS (Interac)
 TNS processes Interac card-present transactions only. The only post-sale operation is VOID — full amount, card must be inserted or tapped, must occur before settlement. Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network. Pre-authorization is explicitly rejected (BAD_REQUEST).
 :::
 

@@ -12,7 +12,7 @@ description: Full matrix of payment capabilities per acquirer. Verified against 
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | TSYS | US, Canada | ✅ | ✅ | ✅ | ✅ US | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | PAYSAFE + Interac | Canada | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ TSYS only¹ | ❌ | ✅ |
-| TNS | Canada | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| TNS (Interac) | Canada | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | PAYSAFE | US | ✅ | ✅ | ✅ | ❌ | 🔜 | ❌ | ❌ | ❌ | ❌ | ❌ |
 | EmerchantPay | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ |
 | Lloyds | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ❌ | ❌ | ❌ |

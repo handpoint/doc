@@ -131,6 +131,12 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       void:
         rest-api: public
         android-pax: public
@@ -139,7 +145,7 @@ acquirers:
         cordova: public
 
   tns:
-    name: "TNS"
+    name: "TNS (Interac)"
     geography: "Canada"
     status: active
     card-brands: [Interac]

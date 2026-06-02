@@ -1,7 +1,7 @@
 ---
 id: tsys-tns
 title: "PAYSAFE + Interac"
-description: "Canada card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, void."
+description: "Canada card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching, void."
 geography: "Canada"
 status: active
 card-brands: [VISA, MC, Discover, Interac]
@@ -14,6 +14,7 @@ capabilities:
   pre-auth: true
   moto: true
   tokenization: true
+  batching: true
   void: true
 integration-paths:
   - rest-api
@@ -31,7 +32,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"void":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"void":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="tsys-tns" />
 
@@ -879,6 +880,92 @@ handpoint.tokenizeCard(
 
 ### Testing
 Tokenization on the TEST/DEMO merchant or staging device returns a test token. Test tokens are not valid in the production environment.
+
+## Batching (Manual Batch Close)
+
+### What this does
+Manually triggers the close of the current transaction batch, initiating settlement for all transactions since the last close.
+
+### When to use it
+Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
+
+### Implementation notes
+
+1. **TSYS US only.** This operation is specific to host-capture acquirers. Most EU acquirers use SQS-based settlement that does not require manual batch close.
+2. After batch close, tip adjustments and reversals are no longer possible — only refunds.
+3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
+4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
+
+:::note PAYSAFE + Interac
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/batchClose
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "terminal_serial_number": "123456789"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="Batch close is a server-side operation. The terminal does not initiate batch close."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Batch close is a server-side operation."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Batch close is a server-side operation."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Batch close is a server-side operation."
+  useInstead="REST API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `terminal_serial_number` | string | Yes | Terminal to close the batch for |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
+| `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
+
+### Testing
+Test batch close on the staging device (PAX debug). Batch close is a server-side REST API call and does not require card interaction.
 
 ## Void
 
