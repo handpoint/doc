@@ -217,12 +217,12 @@ acquirers:
         cordova: public
 
   omnipay-emp:
-    name: "OMNIPAY EMP"
+    name: "OMNIPAY EmerchantPay"
     geography: "EU"
     status: active
-    card-brands: [VISA, MC]
+    card-brands: [VISA, MC, AMEX]
     interac: false
-    notes: "Batch settlement via AWS SQS. Local MOTO refund supported."
+    notes: "Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported."
     capabilities:
       sale:
         rest-api: public
@@ -277,9 +277,9 @@ acquirers:
     name: "OMNIPAY Lloyds"
     geography: "EU"
     status: active
-    card-brands: [VISA, MC]
+    card-brands: [VISA, MC, AMEX]
     interac: false
-    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released."
+    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported."
     capabilities:
       sale:
         rest-api: public
@@ -334,9 +334,9 @@ acquirers:
     name: "OMNIPAY Paystrax"
     geography: "EU"
     status: active
-    card-brands: [VISA, MC]
+    card-brands: [VISA, MC, AMEX]
     interac: false
-    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released."
+    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported."
     capabilities:
       sale:
         rest-api: public
@@ -380,48 +380,6 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
-      batching:
-        rest-api: public
-        android-pax: not-supported
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
-
-  omnipay-amex:
-    name: "OMNIPAY + AMEX"
-    geography: "EU"
-    status: active
-    card-brands: [VISA, MC, AMEX]
-    interac: false
-    notes: >
-      Gateway routes automatically: AMEX cards go to AMEX direct, all other cards go to
-      OMNIPAY. Verify exact capability set for AMEX-routed portion with Handpoint
-      integration team before publishing integrator-facing documentation.
-    capabilities:
-      sale:
-        rest-api: public
-        android-pax: public
-        android-hilite: public
-        ios-hilite: public
-        cordova: public
-      refund:
-        rest-api: public
-        android-pax: public
-        android-hilite: public
-        ios-hilite: public
-        cordova: public
-      reversal:
-        rest-api: public
-        android-pax: public
-        android-hilite: public
-        ios-hilite: public
-        cordova: public
-      moto:
-        rest-api: public
-        android-pax: not-supported
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
       batching:
         rest-api: public
         android-pax: not-supported

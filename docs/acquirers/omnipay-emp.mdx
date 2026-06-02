@@ -1,10 +1,10 @@
 ---
 id: omnipay-emp
-title: "OMNIPAY EMP"
+title: "OMNIPAY EmerchantPay"
 description: "EU card-present acquirer. Supports: sale, refund, reversal, pre-auth, moto, tokenization, batching, money-remittance."
 geography: "EU"
 status: active
-card-brands: [VISA, MC]
+card-brands: [VISA, MC, AMEX]
 interac: false
 capabilities:
   sale: true
@@ -66,7 +66,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 | Money Remittance | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 :::info Acquirer notes
-Batch settlement via AWS SQS. Local MOTO refund supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 ## Sale
@@ -84,8 +84,8 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -206,8 +206,8 @@ Use for returning goods or services after settlement has occurred. For cancellat
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
 4. The cardholder's card must be present for card-present refunds.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -314,8 +314,8 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 3. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -403,8 +403,8 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 3. You can increase the authorised amount with an incremental pre-auth (not supported by all acquirers — check your integration notes).
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -600,8 +600,8 @@ Use for call centres, phone order systems, or any flow where the cardholder is n
 4. Ensure your system is PCI DSS compliant before handling raw card data.
 5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -701,8 +701,8 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
 4. For future charges using the token, use the REST API with the token in place of card details.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -823,8 +823,8 @@ Use when you need to settle at a specific time rather than waiting for automatic
 3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
 4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 
@@ -908,8 +908,8 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 2. Not all card brands support remittance in all geographies — verify with your acquirer.
 3. The API call is similar to a Sale but with an additional remittance flag.
 
-:::note OMNIPAY EMP
-Batch settlement via AWS SQS. Local MOTO refund supported.
+:::note OMNIPAY EmerchantPay
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
 :::
 
 

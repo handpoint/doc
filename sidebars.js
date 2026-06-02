@@ -37,7 +37,6 @@ const sidebars = {
             'acquirers/omnipay-emp',
             'acquirers/omnipay-lloyds',
             'acquirers/omnipay-paystrax',
-            'acquirers/omnipay-amex',
             'acquirers/teya',
           ],
         },

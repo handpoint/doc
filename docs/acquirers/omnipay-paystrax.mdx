@@ -4,7 +4,7 @@ title: "OMNIPAY Paystrax"
 description: "EU card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching."
 geography: "EU"
 status: active
-card-brands: [VISA, MC]
+card-brands: [VISA, MC, AMEX]
 interac: false
 capabilities:
   sale: true
@@ -66,7 +66,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 | Batching | ✅ | ❌ | ❌ | ❌ | ❌ |
 
 :::info Acquirer notes
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 ## Sale
@@ -85,7 +85,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -207,7 +207,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -315,7 +315,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -407,7 +407,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 7. iOS HiLite does not support card-present tip adjustment. Use REST API.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -502,7 +502,7 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -699,7 +699,7 @@ Use for call centres, phone order systems, or any flow where the cardholder is n
 5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -800,7 +800,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the REST API with the token in place of card details.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 
@@ -922,7 +922,7 @@ Use when you need to settle at a specific time rather than waiting for automatic
 4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
 
 :::note OMNIPAY Paystrax
-Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported.
 :::
 
 

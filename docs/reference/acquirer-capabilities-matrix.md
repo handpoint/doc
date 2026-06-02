@@ -14,10 +14,9 @@ description: Full matrix of payment capabilities per acquirer. Auto-generated fr
 | TSYS + TNS | Canada | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
 | TNS | Canada | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | PAYSAFE TSYS | US | ✅ | ✅ | ✅ | ❌ | 🔜 | ❌ | ❌ | 🔜 | ❌ | ✅ | ❌ |
-| OMNIPAY EMP | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| OMNIPAY EmerchantPay | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | OMNIPAY Lloyds | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | OMNIPAY Paystrax | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| OMNIPAY + AMEX | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
 | TEYA (Borgun) | EU | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | Elavon Canada | Canada | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | AMEX (direct) | US | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
