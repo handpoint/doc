@@ -70,6 +70,14 @@ const sidebars = {
     },
   ],
 
+  releaseNotesSidebar: [
+    {
+      type: 'doc',
+      id: 'release-notes/release-notes',
+      label: 'Release Notes',
+    },
+  ],
+
   deprecatedSidebar: [
     {
       type: 'category',

@@ -28,29 +28,9 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
+import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 
-## Integration path
-
-:::tip Select your integration path once — all code examples on this page update automatically.
-:::
-
-<Tabs groupId="integration-path" className="integration-path-selector">
-<TabItem value="rest-api" label="REST API">
-<p className="tab-description">Cloud API. PAX terminals for card-present; no terminal required for MOTO.</p>
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-<p className="tab-description">Native on-terminal SDK. Code runs on the PAX device.</p>
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-<p className="tab-description">Bluetooth. Android app on phone/tablet connects to HiLite (DATECS).</p>
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-<p className="tab-description">Bluetooth. iOS app connects to HiLite (DATECS).</p>
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-<p className="tab-description">Native SDK wrapper. One JS API for PAX and HiLite.</p>
-</TabItem>
-</Tabs>
+<AcquirerPageHeader currentSlug="omnipay-emp" />
 
 ## Capabilities
 
@@ -66,7 +46,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 | Money Remittance | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 :::info Acquirer notes
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 ## Sale
@@ -85,7 +65,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -207,7 +187,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -315,7 +295,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -404,7 +384,7 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -601,7 +581,7 @@ Use for call centres, phone order systems, or any flow where the cardholder is n
 5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -702,7 +682,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the REST API with the token in place of card details.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -824,7 +804,7 @@ Use when you need to settle at a specific time rather than waiting for automatic
 4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -909,7 +889,7 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 3. The API call is similar to a Sale but with an additional remittance flag.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported.
+Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 

@@ -222,7 +222,9 @@ acquirers:
     status: active
     card-brands: [VISA, MC, AMEX]
     interac: false
-    notes: "Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported."
+    notes: >
+      Batch settlement via AWS SQS. Local MOTO refund supported.
+      AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
       sale:
         rest-api: public
@@ -279,7 +281,9 @@ acquirers:
     status: active
     card-brands: [VISA, MC, AMEX]
     interac: false
-    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported."
+    notes: >
+      Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+      AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
       sale:
         rest-api: public
@@ -336,7 +340,9 @@ acquirers:
     status: active
     card-brands: [VISA, MC, AMEX]
     interac: false
-    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released. AMEX routing supported."
+    notes: >
+      Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released.
+      AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
       sale:
         rest-api: public

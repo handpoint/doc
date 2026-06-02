@@ -1,0 +1,131 @@
+---
+id: release-notes
+title: Release Notes
+sidebar_label: Release Notes
+description: SDK and API release notes by integration path. Select your integration path to see the relevant changelog.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Release Notes
+
+Select your integration path to see the relevant changelog. If you have already selected a path on an acquirer page, the correct tab will be pre-selected.
+
+<Tabs groupId="integration-path">
+
+<TabItem value="rest-api" label="REST API">
+
+## REST API
+
+The REST API is versioned independently. All card-present and card-not-present operations (MOTO, tokenization, batch close, tip adjustment) are available via this path.
+
+### v2.27.0
+- Added optional `batchNum` parameter to batch close endpoint
+- Improved error messaging for `OPERATION_NOT_SUPPORTED` responses
+
+### v2.26.0
+- Added partial reversal support (TSYS US only)
+- `original_transaction_reference` now accepted on refund for linked refunds
+
+### v2.25.0
+- Tip adjustment endpoint (`POST /tipAdjustment`) introduced
+- MOTO channel flag (`motoChannel: true`) added to transaction endpoint
+
+> For the full REST API changelog, see the REST API versioned documentation.
+
+</TabItem>
+
+<TabItem value="android-pax" label="Android (PAX)">
+
+## Android SDK — PAX
+
+The Android SDK runs natively on PAX terminals. APKs must be signed for production devices; debug devices accept unsigned builds.
+
+### v7.1013.0
+- Pre-authorization incremental support added
+- Improved reconnection logic after terminal sleep
+
+### v7.1012.0
+- Tokenization flow stabilised on PAX A920 series
+- Fixed: tip adjustment returning incorrect status on slow network
+
+### v7.1011.0
+- Money remittance flag added to `SaleOptions`
+- MOTO mode removed from terminal SDK (use REST API for MOTO)
+
+### v7.1010.0
+- Partial reversal support (TSYS US)
+- Batch close API added
+
+> For the full Android SDK changelog, see the Android versioned documentation.
+
+</TabItem>
+
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+## Android SDK — HiLite (Bluetooth)
+
+The Android SDK connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`.
+
+### v7.1013.0
+- Bluetooth reconnection improved after device sleep
+- HiLite firmware compatibility extended to latest DATECS firmware
+
+### v7.1012.0
+- Tokenization support added for HiLite path
+- Fixed: occasional disconnect during long idle periods
+
+### v7.1011.0
+- Stability improvements for BT pairing on Android 13+
+
+> HiLite integration uses the same Android SDK version as PAX. Connection method is set at runtime via `ConnectionMethod.BLUETOOTH`.
+
+</TabItem>
+
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+## iOS SDK — HiLite (Bluetooth)
+
+The iOS SDK connects to HiLite (DATECS) devices via Bluetooth (external accessory protocol: `com.datecs.pinpad`).
+
+### v2.2.0
+- Swift Package Manager support added
+- iOS 17 compatibility verified
+
+### v2.1.0
+- Tokenization support
+- Improved error handling for Bluetooth reconnection
+
+### v2.0.0
+- Major rewrite for Swift 5 / async-await patterns
+- Pre-authorization added (coming soon on HiLite hardware)
+
+> Requires entitlement for `com.datecs.pinpad` in your provisioning profile.
+
+</TabItem>
+
+<TabItem value="cordova" label="Cordova">
+
+## Cordova Plugin
+
+The Cordova plugin wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for all supported terminals.
+
+### v4.12.3
+- Updated to Android SDK v7.1013.0
+- Updated to iOS SDK v2.2.0
+- Fixed: Android 14 Bluetooth permission handling
+
+### v4.12.0
+- Tokenization added to JS API
+- `preAuthorizationCapture` and `preAuthorizationVoid` added
+
+### v4.11.0
+- Money remittance flag exposed in `sale()` options
+- Tip adjustment added to JS API
+
+> The Cordova plugin version tracks the underlying native SDK versions. Always update both the plugin and the native SDK dependency.
+
+</TabItem>
+
+</Tabs>

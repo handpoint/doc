@@ -27,29 +27,9 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
+import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 
-## Integration path
-
-:::tip Select your integration path once — all code examples on this page update automatically.
-:::
-
-<Tabs groupId="integration-path" className="integration-path-selector">
-<TabItem value="rest-api" label="REST API">
-<p className="tab-description">Cloud API. PAX terminals for card-present; no terminal required for MOTO.</p>
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-<p className="tab-description">Native on-terminal SDK. Code runs on the PAX device.</p>
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-<p className="tab-description">Bluetooth. Android app on phone/tablet connects to HiLite (DATECS).</p>
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-<p className="tab-description">Bluetooth. iOS app connects to HiLite (DATECS).</p>
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-<p className="tab-description">Native SDK wrapper. One JS API for PAX and HiLite.</p>
-</TabItem>
-</Tabs>
+<AcquirerPageHeader currentSlug="teya" />
 
 ## Capabilities
 

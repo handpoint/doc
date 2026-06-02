@@ -1,26 +1,261 @@
+/* ──────────────────────────────────────────────
+   Handpoint Brand Colours
+   Primary blue: #1B67B2   Dark blue: #0F3F6E
+   Purple:       #6B3FA0   Orange:    #F5821F
+   Black:        #1A1A1A
+   ────────────────────────────────────────────── */
+
 :root {
-  --ifm-color-primary: #0066cc;
-  --ifm-color-primary-dark: #005ab8;
-  --ifm-color-primary-darker: #0055ad;
-  --ifm-color-primary-darkest: #00468f;
-  --ifm-color-primary-light: #0072e0;
-  --ifm-color-primary-lighter: #0078eb;
-  --ifm-color-primary-lightest: #1a87f0;
+  --ifm-color-primary:          #1B67B2;
+  --ifm-color-primary-dark:     #185EA0;
+  --ifm-color-primary-darker:   #165897;
+  --ifm-color-primary-darkest:  #0F3F6E;
+  --ifm-color-primary-light:    #1E70BC;
+  --ifm-color-primary-lighter:  #2077C5;
+  --ifm-color-primary-lightest: #3388D4;
+
+  --handpoint-orange:        #F5821F;
+  --handpoint-orange-dark:   #D96E14;
+  --handpoint-purple:        #6B3FA0;
+  --handpoint-dark:          #1A1A1A;
+
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(27, 103, 178, 0.1);
+
+  /* Header component tokens */
+  --header-bg:         #EFF4FA;
+  --header-border:     #C8D9EE;
+  --header-btn-bg:     #FFFFFF;
+  --header-btn-border: #AFC7E1;
+  --header-select-bg:  #FFFFFF;
 }
 
-.integration-path-selector {
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: var(--ifm-color-emphasis-100);
-  border-radius: 8px;
+[data-theme='dark'] {
+  --ifm-color-primary:          #5DA0E0;
+  --ifm-color-primary-dark:     #4A8ECF;
+  --ifm-color-primary-darker:   #3E82C7;
+  --ifm-color-primary-darkest:  #2B6AAD;
+  --ifm-color-primary-light:    #70B2E9;
+  --ifm-color-primary-lighter:  #7BBCED;
+  --ifm-color-primary-lightest: #9CCDF4;
+
+  --header-bg:         #1C2A3A;
+  --header-border:     #2C3F55;
+  --header-btn-bg:     #243344;
+  --header-btn-border: #38526C;
+  --header-select-bg:  #243344;
 }
 
-.integration-path-selector > .tabs__item {
+/* ── Acquirer Page Header ─────────────────────── */
+
+/* Path tabs inside the header — compact, no heavy box */
+.acquirer-path-tabs {
+  margin: 0 !important;
+}
+
+.acquirer-path-tabs > .tabs-container > ul.tabs {
+  border-bottom: 2px solid var(--header-border) !important;
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.acquirer-path-tabs > .tabs-container > ul.tabs .tabs__item {
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  padding: 0.35rem 0.85rem !important;
+  border-radius: 4px 4px 0 0 !important;
+  margin-bottom: -2px !important;
+  border: 1.5px solid transparent !important;
+  border-bottom: none !important;
+  transition: color 0.12s, border-color 0.12s, background 0.12s !important;
+}
+
+.acquirer-path-tabs > .tabs-container > ul.tabs .tabs__item:hover {
+  color: var(--ifm-color-primary) !important;
+  background: var(--header-btn-bg) !important;
+}
+
+.acquirer-path-tabs > .tabs-container > ul.tabs .tabs__item--active {
+  color: var(--ifm-color-primary) !important;
+  border-color: var(--header-border) var(--header-border) var(--header-bg) !important;
+  background: var(--header-bg) !important;
+  font-weight: 700 !important;
+}
+
+.acquirer-path-tabs > .tabs-container > .margin-top--md {
+  margin-top: 0.5rem !important;
+}
+
+.acquirer-path-desc {
+  font-size: 0.8rem;
+  color: var(--ifm-color-secondary-darkest);
+  margin: 0;
+  line-height: 1.4;
+}
+
+[data-theme='dark'] .acquirer-path-desc {
+  color: var(--ifm-color-secondary-lighter);
+}
+
+.acquirer-page-header {
+  background: var(--header-bg);
+  border: 1px solid var(--header-border);
+  border-left: 4px solid var(--ifm-color-primary);
+  border-radius: 6px;
+  padding: 0.875rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.acquirer-header-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.acquirer-header-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.acquirer-header-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ifm-color-primary-darkest);
+  opacity: 0.8;
+}
+
+[data-theme='dark'] .acquirer-header-label {
+  color: var(--ifm-color-primary-lightest);
+}
+
+/* Acquirer dropdown */
+.acquirer-header-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--header-select-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231B67B2' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.65rem center;
+  border: 1.5px solid var(--header-btn-border);
+  border-radius: 6px;
+  color: var(--ifm-font-color-base);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.45rem 2.2rem 0.45rem 0.8rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-width: 180px;
+}
+
+.acquirer-header-select:hover {
+  border-color: var(--ifm-color-primary);
+}
+
+.acquirer-header-select:focus {
+  outline: none;
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 0 0 3px rgba(27, 103, 178, 0.2);
+}
+
+/* Integration path button strip */
+.acquirer-path-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.acquirer-path-btn {
+  background: var(--header-btn-bg);
+  border: 1.5px solid var(--header-btn-border);
+  border-radius: 5px;
+  color: var(--ifm-font-color-base);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.4rem 0.8rem;
+  transition: background 0.12s, border-color 0.12s, color 0.12s, box-shadow 0.12s;
+  white-space: nowrap;
+}
+
+.acquirer-path-btn:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+  box-shadow: 0 1px 4px rgba(27, 103, 178, 0.15);
+}
+
+.acquirer-path-btn--active {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #ffffff !important;
   font-weight: 600;
 }
 
-.integration-path-selector .tab-description {
-  font-size: 0.875rem;
-  color: var(--ifm-color-emphasis-700);
-  margin: 0;
+.acquirer-path-btn--active:hover {
+  background: var(--ifm-color-primary-dark);
+  border-color: var(--ifm-color-primary-dark);
+  box-shadow: 0 1px 6px rgba(27, 103, 178, 0.35);
+}
+
+/* ── Orange accent ───────────────────────────── */
+
+.button--primary,
+a.button--primary {
+  background-color: var(--handpoint-orange);
+  border-color: var(--handpoint-orange);
+  color: #fff;
+}
+
+.button--primary:hover,
+a.button--primary:hover {
+  background-color: var(--handpoint-orange-dark);
+  border-color: var(--handpoint-orange-dark);
+  color: #fff;
+}
+
+/* Navbar brand hover */
+.navbar__brand:hover .navbar__title {
+  color: var(--handpoint-orange);
+}
+
+/* Tip admonition uses orange */
+.theme-admonition-tip {
+  --ifm-alert-border-color: var(--handpoint-orange) !important;
+  --ifm-alert-background-color: rgba(245, 130, 31, 0.07) !important;
+}
+
+/* Active sidebar item */
+.menu__link--active {
+  color: var(--ifm-color-primary) !important;
+  font-weight: 600;
+}
+
+/* Tabs active tab uses primary blue */
+.tabs__item--active {
+  border-bottom-color: var(--ifm-color-primary) !important;
+  color: var(--ifm-color-primary) !important;
+}
+
+/* ── Responsive ──────────────────────────────── */
+
+@media (max-width: 640px) {
+  .acquirer-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .acquirer-path-btn {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .acquirer-header-select {
+    min-width: unset;
+    width: 100%;
+  }
 }
