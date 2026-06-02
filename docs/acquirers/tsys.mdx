@@ -42,7 +42,7 @@ export const _caps = {"sale":{"rest-api":"public","android-pax":"public","androi
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 ## Sale
@@ -61,7 +61,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -183,7 +183,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -291,7 +291,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -380,7 +380,7 @@ Use when the final amount is lower than the authorised amount and the batch is s
 4. This is a server-side REST API operation only. Terminal paths are not supported.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -475,7 +475,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 7. iOS HiLite does not support card-present tip adjustment. Use REST API.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -570,7 +570,7 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -767,7 +767,7 @@ Use for call centres, phone order systems, or any flow where the cardholder is n
 5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -868,7 +868,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the REST API with the token in place of card details.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -990,7 +990,7 @@ Use when you need to settle at a specific time rather than waiting for automatic
 4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 
@@ -1075,7 +1075,7 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 3. The API call is similar to a Sale but with an additional remittance flag.
 
 :::note TSYS
-Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583. Batching is US-only; not available for Canadian merchants.
+Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
 :::
 
 

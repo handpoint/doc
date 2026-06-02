@@ -22,12 +22,12 @@ const sidebars = {
         {
           type: 'category',
           label: 'United States',
-          items: ['acquirers/tsys', 'acquirers/paysafe-tsys', 'acquirers/vantiv', 'acquirers/amex'],
+          items: ['acquirers/tsys', 'acquirers/paysafe-tsys', 'acquirers/vantiv'],
         },
         {
           type: 'category',
           label: 'Canada',
-          items: ['acquirers/tsys-tns', 'acquirers/tns', 'acquirers/elavon-canada'],
+          items: ['acquirers/tsys-tns', 'acquirers/tns'],
         },
         {
           type: 'category',

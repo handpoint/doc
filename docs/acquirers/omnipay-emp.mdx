@@ -1,7 +1,7 @@
 ---
 id: omnipay-emp
 title: "OMNIPAY EmerchantPay"
-description: "EU card-present acquirer. Supports: sale, refund, reversal, pre-auth, moto, tokenization, batching, money-remittance."
+description: "EU card-present acquirer. Supports: sale, refund, reversal, pre-auth, moto, tokenization, money-remittance."
 geography: "EU"
 status: active
 card-brands: [VISA, MC, AMEX]
@@ -13,7 +13,6 @@ capabilities:
   pre-auth: true
   moto: true
   tokenization: true
-  batching: true
   money-remittance: true
 integration-paths:
   - rest-api
@@ -31,7 +30,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"money-remittance":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"money-remittance":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="omnipay-emp" />
 
@@ -40,7 +39,7 @@ export const _caps = {"sale":{"rest-api":"public","android-pax":"public","androi
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 ## Sale
@@ -59,7 +58,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -181,7 +180,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -289,7 +288,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -378,7 +377,7 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -575,7 +574,7 @@ Use for call centres, phone order systems, or any flow where the cardholder is n
 5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -676,7 +675,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the REST API with the token in place of card details.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -782,92 +781,6 @@ handpoint.tokenizeCard(
 ### Testing
 Tokenization on the TEST/DEMO merchant or staging device returns a test token. Test tokens are not valid in the production environment.
 
-## Batching (Manual Batch Close)
-
-### What this does
-Manually triggers the close of the current transaction batch, initiating settlement for all transactions since the last close.
-
-### When to use it
-Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
-
-### Implementation notes
-
-1. **TSYS US only.** This operation is specific to host-capture acquirers. Most EU acquirers use SQS-based settlement that does not require manual batch close.
-2. After batch close, tip adjustments and reversals are no longer possible — only refunds.
-3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
-4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
-
-:::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/batchClose
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "terminal_serial_number": "123456789"
-}
-```
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-<NotSupported
-  reason="Batch close is a server-side operation. The terminal does not initiate batch close."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="Batch close is a server-side operation."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="Batch close is a server-side operation."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="Batch close is a server-side operation."
-  useInstead="REST API"
-/>
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `terminal_serial_number` | string | Yes | Terminal to close the batch for |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
-| `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
-
-### Testing
-Test batch close on the staging device (PAX debug). Batch close is a server-side REST API call and does not require card interaction.
-
 ## Money Remittance
 
 ### What this does
@@ -883,7 +796,7 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 3. The API call is similar to a Sale but with an additional remittance flag.
 
 :::note OMNIPAY EmerchantPay
-Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 

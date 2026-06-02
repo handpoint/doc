@@ -43,18 +43,8 @@ export const ACQUIRERS = [
     "geography": "EU"
   },
   {
-    "slug": "elavon-canada",
-    "name": "Elavon Canada",
-    "geography": "Canada"
-  },
-  {
-    "slug": "amex",
-    "name": "AMEX (direct)",
-    "geography": "US"
-  },
-  {
     "slug": "vantiv",
-    "name": "VANTIV",
+    "name": "VANTIV (Worldpay)",
     "geography": "US"
   }
 ];

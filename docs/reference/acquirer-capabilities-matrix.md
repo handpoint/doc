@@ -10,17 +10,15 @@ description: Full matrix of payment capabilities per acquirer. Auto-generated fr
 
 | Acquirer | Geography | Sale | Refund | Reversal | Partial Rev. | Tip Adj. | Pre-Auth | MOTO | Batching | Money Rem. | Void |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| TSYS | US, Canada | ✅ | ✅ | ✅ | ✅ US | ✅ | ✅ | ✅ | ✅ US | ✅ | ❌ |
+| TSYS | US, Canada | ✅ | ✅ | ✅ | ✅ US | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | PAYSAFE TSYS + TNS | Canada | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ TSYS only¹ | ❌ | ✅ |
 | TNS | Canada | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | PAYSAFE TSYS | US | ✅ | ✅ | ✅ | ❌ | 🔜 | ❌ | ❌ | ❌ | ✅ | ❌ |
-| OMNIPAY EmerchantPay | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| OMNIPAY Lloyds | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ❌ | ❌ |
-| OMNIPAY Paystrax | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ❌ | ❌ |
+| OMNIPAY EmerchantPay | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ |
+| OMNIPAY Lloyds | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ❌ | ❌ | ❌ |
+| OMNIPAY Paystrax | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ❌ | ❌ | ❌ |
 | TEYA (Borgun) | EU | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Elavon Canada | Canada | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| AMEX (direct) | US | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| VANTIV | US | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| VANTIV (Worldpay) | US | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ |
 
 ¹ PAYSAFE TSYS + TNS: Batching only applies to TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently.
 
