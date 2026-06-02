@@ -23,7 +23,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 **Tokenize only (no charge):**
 ```http
 POST https://cloud.handpoint.com/transaction
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
@@ -35,7 +35,7 @@ Content-Type: application/json
 **Sale and tokenize (charge + token in one step):**
 ```http
 POST https://cloud.handpoint.com/transaction
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {

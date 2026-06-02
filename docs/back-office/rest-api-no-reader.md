@@ -8,13 +8,17 @@ description: Card-not-present and server-side operations that do not require a p
 
 These operations are performed entirely server-side via the Handpoint Cloud REST API. No terminal, no SDK, no hardware required.
 
+:::info URL for staging vs production
+Use `https://cloud.handpoint.io` for PAX debug devices (staging). Use `https://cloud.handpoint.com` for production PAX devices.
+:::
+
 ## MOTO (Mail Order / Telephone Order)
 
 Process card-not-present transactions. See the [MOTO section](../acquirers/tsys#moto) on your acquirer's page for the full implementation guide.
 
 ```http
 POST https://cloud.handpoint.com/transaction
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 {
   "action": "SALE",
@@ -31,7 +35,7 @@ Use a stored token to charge a cardholder without requiring card entry:
 
 ```http
 POST https://cloud.handpoint.com/transaction
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 {
   "action": "SALE",
@@ -47,7 +51,7 @@ Adjust a tip on a completed sale — no card or terminal required:
 
 ```http
 POST https://cloud.handpoint.com/tipAdjustment
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 {
   "originalTransactionId": "abc-123",
@@ -61,7 +65,7 @@ Reduce an authorised amount before settlement:
 
 ```http
 POST https://cloud.handpoint.com/transaction
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 {
   "action": "PARTIALREVERSAL",
@@ -77,7 +81,7 @@ Manually trigger settlement:
 
 ```http
 POST https://cloud.handpoint.com/batchClose
-Authorization: YOUR_API_KEY
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 { "terminal_serial_number": "123456789" }
 ```
