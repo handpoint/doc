@@ -1,0 +1,86 @@
+## Money Remittance
+
+### What this does
+Processes a payment transaction flagged as a money transfer — subject to specific network rules for remittance transactions.
+
+### When to use it
+Use when processing money transfer payments (e.g. sending money to family abroad) where the merchant category requires the remittance flag. Do NOT use for standard retail — use Sale instead.
+
+### Implementation notes
+
+1. Money remittance transactions are flagged with a specific MCC and network indicator.
+2. Not all card brands support remittance in all geographies — verify with your acquirer.
+3. The API call is similar to a Sale but with an additional remittance flag.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 50000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789",
+  "moneyRemittance": true
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val options = SaleOptions()
+options.isMoneyRemittance = true
+hapi.sale(BigInteger("50000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val options = SaleOptions()
+options.isMoneyRemittance = true
+hapi.sale(BigInteger("50000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Contact Handpoint integration team for money remittance options on iOS
+heftClient.saleWithAmount(50000, currency: "USD", cardholder: true)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  { amount: 50000, currency: "USD", moneyRemittance: true },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Transfer amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `moneyRemittance` | boolean | Yes | Must be `true` |
+| `terminal_serial_number` | string | Yes (REST) | Target terminal |
+
+### Sandbox behaviour
+Money remittance transactions are approved in sandbox the same as standard sales.

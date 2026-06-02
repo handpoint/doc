@@ -1,0 +1,998 @@
+---
+id: tsys-tns
+title: "TSYS + TNS"
+description: "Canada card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, void."
+geography: "Canada"
+status: active
+card-brands: [VISA, MC, Discover, Interac]
+interac: true
+capabilities:
+  sale: true
+  refund: true
+  reversal: true
+  tip-adjustment: true
+  pre-auth: true
+  moto: true
+  tokenization: true
+  void: true
+integration-paths:
+  - rest-api
+  - android-pax
+  - android-hilite
+  - ios-hilite
+  - cordova
+last-reviewed: "2026-06-02"
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import NotSupported from '@site/src/components/NotSupported';
+import ComingSoon from '@site/src/components/ComingSoon';
+
+## Integration path
+
+:::tip Select your integration path once — all code examples on this page update automatically.
+:::
+
+<Tabs groupId="integration-path" className="integration-path-selector">
+<TabItem value="rest-api" label="REST API">
+<p className="tab-description">Cloud API. PAX terminals for card-present; no terminal required for MOTO.</p>
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+<p className="tab-description">Native on-terminal SDK. Code runs on the PAX device.</p>
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+<p className="tab-description">Bluetooth. Android app on phone/tablet connects to HiLite (DATECS).</p>
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+<p className="tab-description">Bluetooth. iOS app connects to HiLite (DATECS).</p>
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+<p className="tab-description">Native SDK wrapper. One JS API for PAX and HiLite.</p>
+</TabItem>
+</Tabs>
+
+## Capabilities
+
+| Capability | REST API | Android (PAX) | Android (HiLite) | iOS (HiLite) | Cordova |
+|---|---|---|---|---|---|
+| Sale | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Refund | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Reversal | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Tip Adjustment | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Pre Auth | ✅ | ✅ | 🔜 | 🔜 | ✅ |
+| Moto | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Void | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+:::info Acquirer notes
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+## Sale
+
+### What this does
+Authorises and captures a card-present payment in a single step.
+
+### When to use it
+Use for standard retail and hospitality transactions where the cardholder is present and the amount is known before the transaction starts. Do NOT use when the final amount may change after authorisation — use Pre-Authorization instead.
+
+### Implementation notes
+
+1. The terminal handles EMV chip, contactless, and magnetic stripe automatically — you do not specify the card entry method.
+2. The SDK returns an `OperationStartResult` synchronously with a `transactionReference`. The actual result arrives asynchronously via the events listener/callback.
+3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
+4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Kotlin — runs on the PAX terminal
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+// Result arrives in your events listener:
+override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+    if (result.type == TransactionResultType.APPROVED) {
+        // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Kotlin — Android app connected to HiLite via Bluetooth
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+// Result arrives in your events listener:
+override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+    if (result.type == TransactionResultType.APPROVED) {
+        // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Swift — iOS app connected to HiLite via Bluetooth
+heftClient.saleWithAmount(1000, currency: "USD", cardholder: true)
+
+// Result arrives in your delegate:
+func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
+    if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
+        // store info.xml for the transaction record
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// JavaScript — Cordova plugin wrapping native Android/iOS SDK
+handpoint.sale(
+  { amount: 1000, currency: "USD" },
+  function(result) {
+    if (result.type === "APPROVED") {
+      // store result.transactionId for potential reversal
+    }
+  },
+  function(error) { console.error("Sale failed:", error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Amount in smallest currency unit (cents). `1000` = $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code. e.g. `"USD"`, `"GBP"`, `"EUR"` |
+| `terminal_serial_number` | string | Yes (REST) | Target terminal. Not required for SDK paths (terminal already connected). |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined the card | Ask cardholder to try another card |
+| `TIMEOUT` | Terminal did not respond within timeout | Check terminal connection; retry |
+| `CANCELLED` | Cardholder cancelled at terminal | No action required |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+### Sandbox behaviour
+All amounts are approved in sandbox. To simulate specific outcomes use trigger amounts — see [Sandbox guide](../get-started/sandbox).
+
+## Refund
+
+### What this does
+Returns funds to a cardholder's account, either linked to a specific original transaction or as a standalone credit.
+
+### When to use it
+Use for returning goods or services after settlement has occurred. For cancellations before settlement, use Reversal instead — it is faster and does not incur interchange fees. Partial refunds (amount less than original) are supported at the protocol level for all acquirers.
+
+### Implementation notes
+
+1. **Linked refund** (recommended): includes `originalTransactionReference` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
+2. **Unlinked refund**: omit `originalTransactionReference` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
+3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
+4. The cardholder's card must be present for card-present refunds.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "REFUND",
+  "amount": 1000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789",
+  "original_transaction_reference": "abc-123-def"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.refund(
+    BigInteger("1000"),
+    Currency.USD,
+    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.refund(
+    BigInteger("1000"),
+    Currency.USD,
+    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.refundWithAmount(1000, currency: "USD", cardholder: true)
+// Pass originalTransactionId if available for linked refund
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.refund(
+  {
+    amount: 1000,
+    currency: "USD",
+    originalTransactionId: "abc-123-def"  // omit for unlinked refund
+  },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Refund amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_serial_number` | string | Yes (REST) | Target terminal |
+| `original_transaction_reference` | string | No | Links refund to original sale. Recommended. |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined refund | Contact acquirer support |
+| `AMOUNT_EXCEEDS_ORIGINAL` | Refund amount exceeds original sale | Reduce amount |
+| `ORIGINAL_NOT_FOUND` | Provided reference not found | Verify reference; try unlinked refund |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+
+### Sandbox behaviour
+All refund amounts are approved in sandbox. Linked refunds do not validate against a real original transaction in sandbox.
+
+## Reversal
+
+### What this does
+Voids a sale before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
+
+### When to use it
+Use when a sale needs to be cancelled before the batch closes. This is always preferable to a refund for same-day cancellations — faster and fee-free. Do NOT use after settlement — send a Refund instead.
+
+### Implementation notes
+
+1. Reversal only works on the current open batch. Once the batch closes (auto or manual), only a refund is possible.
+2. Full amount only — partial reversals are a separate operation (`partial-reversal`), supported only on TSYS US.
+3. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
+4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "REVERSAL",
+  "original_transaction_reference": "abc-123-def"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.reversal("abc-123-def")  // originalTransactionReference from sale result
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.reversal("abc-123-def")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.voidWithCard(true)
+// Note: pass the original transaction reference if available
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.reversal(
+  { originalTransactionId: "abc-123-def" },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `original_transaction_reference` | string | Yes | Reference from the original sale |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `ORIGINAL_NOT_FOUND` | Reference not found or batch already closed | Send a Refund instead |
+| `ALREADY_REVERSED` | Transaction already reversed | No action needed |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+
+### Sandbox behaviour
+Reversals always succeed in sandbox regardless of reference validity.
+
+## Tip Adjustment
+
+### What this does
+Modifies the tip amount on a completed sale before batch close.
+
+### When to use it
+Use in restaurant/hospitality flows where the cardholder adds a tip after the initial transaction is approved. Do NOT use after batch close — send a Refund for the difference instead.
+
+### Implementation notes
+
+1. **To void a tip:** send `tipAmount: 0`. There is no separate cancel call. The last value sent always wins.
+2. **Deadline:** before batch close. For TSYS, auto-close is typically 11pm EST. After close, only a refund is possible.
+3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
+4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
+5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via REST API. The integration path used for the sale does not constrain the tip adjustment path.
+6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
+7. iOS HiLite does not support card-present tip adjustment. Use REST API.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/tipAdjustment
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "originalTransactionId": "abc-123-def",
+  "tipAmount": 900
+}
+```
+
+To void a tip, send `"tipAmount": 0`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.tipAdjustment("abc-123-def", BigInteger("900"))
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.tipAdjustment("abc-123-def", BigInteger("900"))
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Tip adjustment is not supported on iOS HiLite. HiLite is a card-present Bluetooth device; tip adjustment requires a server-side call."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.tipAdjustment(
+  { originalTransactionId: "abc-123-def", tipAmount: 900 },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `originalTransactionId` | string | Yes | Transaction ID from the original sale |
+| `tipAmount` | integer | Yes | Tip amount in smallest currency unit. `0` to void an existing tip. |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `ORIGINAL_NOT_FOUND` | Transaction ID not found | Verify the ID |
+| `BATCH_ALREADY_CLOSED` | Batch has closed | Refund the tip amount instead |
+| `TIP_ADJUSTMENT_NOT_ENABLED` | TMS config not set | Contact Handpoint onboarding team |
+| `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
+
+### Sandbox behaviour
+Tip adjustment always succeeds in sandbox. TMS enablement is not checked in sandbox.
+
+## Pre-Authorization
+
+### What this does
+Places a hold on funds without capturing them, allowing the final amount to be adjusted before settlement.
+
+### When to use it
+Use for hotel check-ins, car rentals, or any flow where the final amount is unknown at the time of card interaction. Do NOT use for standard retail — use Sale instead.
+
+### Implementation notes
+
+1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture (Pre-Auth Completion).
+2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
+3. You can increase the authorised amount with an incremental pre-auth (not supported by all acquirers — check your integration notes).
+4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "PREAUTHORISATION",
+  "amount": 10000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorization(BigInteger("10000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorization(
+  { amount: 10000, currency: "USD" },
+  function(result) { /* store result.transactionId for capture */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Authorisation amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_serial_number` | string | Yes (REST) | Target terminal |
+
+### Pre-Authorization Capture
+
+Captures the funds from a previously created pre-authorization (completion).
+
+**When to use:** When you know the final amount and are ready to settle. Send the actual charged amount — it may differ from the original pre-auth amount.
+
+**Implementation notes:**
+1. The capture amount can be less than the pre-auth amount. Most acquirers also allow a small overage (check your acquirer rules).
+2. You must capture before the hold expires (typically 7–30 days).
+3. After capture, a standard refund process applies if the cardholder requests a return.
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "PREAUTHORISATIONCAPTURE",
+  "amount": 9500,
+  "currency": "USD",
+  "original_transaction_reference": "pre-auth-abc-123"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationCapture(
+  { originalTransactionId: "pre-auth-abc-123", amount: 9500, currency: "USD" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Actual capture amount (may differ from pre-auth) |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+
+### Void Pre-Authorization
+
+Releases a pre-authorization hold without capturing funds.
+
+**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always void unused pre-auths — unreleased holds affect cardholder available credit.
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "VOIDPREAUTHORISATION",
+  "original_transaction_reference": "pre-auth-abc-123"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationVoid("pre-auth-abc-123")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationVoid(
+  { originalTransactionId: "pre-auth-abc-123" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+
+## MOTO (Mail Order / Telephone Order)
+
+### What this does
+Processes a card-not-present transaction where the cardholder provides card details by phone or mail — no physical terminal required.
+
+### When to use it
+Use for call centres, phone order systems, or any flow where the cardholder is not physically present. Do NOT use for card-present transactions — always prefer Sale for in-person payments.
+
+### Implementation notes
+
+1. **REST API only.** MOTO does not require or use a physical terminal. All terminal-based integration paths (Android, iOS, Cordova) are not applicable.
+2. The cardholder provides card number, expiry date, and CVV verbally or in writing. Your system sends these to the Handpoint cloud API over TLS.
+3. MOTO transactions carry higher fraud risk and interchange rates than card-present transactions.
+4. Ensure your system is PCI DSS compliant before handling raw card data.
+5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "motoChannel": true,
+  "card": {
+    "number": "4111111111111111",
+    "expiryDate": "0128",
+    "cvv": "123"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `motoChannel` | boolean | Yes | Must be `true` |
+| `card.number` | string | Yes | Card PAN (no spaces) |
+| `card.expiryDate` | string | Yes | `MMYY` format |
+| `card.cvv` | string | Yes | Card verification value |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask customer for another card |
+| `INVALID_CARD_NUMBER` | Card number failed Luhn check | Verify number with customer |
+| `CVV_MISMATCH` | CVV does not match | Re-confirm with customer |
+| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
+
+### Sandbox behaviour
+Use test card numbers from the [Sandbox guide](../get-started/sandbox). Real card numbers are rejected in sandbox.
+
+## Tokenization
+
+### What this does
+Stores a card on file and returns a token that can be used for future transactions without requiring the card to be present again.
+
+### When to use it
+Use for subscription billing, recurring payments, or "save my card" flows. The token replaces the PAN — your system never stores raw card data.
+
+### Implementation notes
+
+1. The token is acquirer-specific and non-portable — a token from TSYS cannot be used with another acquirer.
+2. Two flows are available: **tokenize-only** (card is read, token returned, no charge) and **sale-and-tokenize** (card is charged and tokenized in one step).
+3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
+4. For future charges using the token, use the REST API with the token in place of card details.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+**Tokenize only (no charge):**
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "TOKENIZE",
+  "terminal_serial_number": "123456789"
+}
+```
+
+**Sale and tokenize (charge + token in one step):**
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789",
+  "tokenize": true
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Tokenize only
+heftClient.tokenizeCard()
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Tokenize only
+handpoint.tokenizeCard(
+  {},
+  function(result) { /* result.cardToken contains the token */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `terminal_serial_number` | string | Yes (REST) | Target terminal for card read |
+| `tokenize` | boolean | No (REST) | Set `true` on a Sale to also tokenize |
+
+### Response fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | The token to store. Use for future charges. |
+| `cardTokenProvider` | Which token provider issued the token (e.g. `TSYS`, `PAYSAFE`) |
+| `cardExpiryDate` | Token expiry (matches card expiry) |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
+| `CARD_READ_ERROR` | Terminal failed to read card | Retry; ask customer to try again |
+
+### Sandbox behaviour
+Tokenization returns a synthetic token in sandbox. Tokens from sandbox cannot be used in production.
+
+## Void
+
+### What this does
+Voids a transaction — used for Interac card transactions where standard reversal is not available.
+
+### When to use it
+Use specifically for Interac card transactions via TNS. For non-Interac transactions, use Reversal instead. The card must be physically present at the terminal. This must occur before settlement.
+
+### Implementation notes
+
+1. **Interac / TNS only.** For non-Interac cards, use Reversal.
+2. The card must be inserted or tapped at the terminal — card-not-present void is not supported by the Interac network.
+3. Full amount only — partial voids are not supported.
+4. **ISV UI note:** label this button "VOID" in your application, not "Refund" or "Reverse". This is an Interac network requirement.
+
+:::note TSYS + TNS
+Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac.
+:::
+
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "VOID",
+  "original_transaction_reference": "abc-123-def"
+}
+```
+
+The gateway detects that the original transaction was Interac/TNS and maps to the correct void protocol automatically.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Send a standard reversal — the gateway maps to TNS void automatically
+hapi.reversal("abc-123-def")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.reversal("abc-123-def")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.voidWithCard(true)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.reversal(
+  { originalTransactionId: "abc-123-def" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `original_transaction_reference` | string | Yes | Reference from the original Interac sale |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `CARD_NOT_PRESENT` | Card was not inserted/tapped | Ask cardholder to present card at terminal |
+| `ALREADY_SETTLED` | Transaction already settled | Credit refund is not available for Interac |
+| `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
+
+### Sandbox behaviour
+Void succeeds in sandbox without requiring a physical card.

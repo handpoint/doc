@@ -1,0 +1,612 @@
+# Handpoint acquirer capabilities — source of truth for generated pages.
+# Edit this file, then run: node scripts/generate-acquirer-pages.js
+#
+# Capability values per integration path:
+#   public       — documented with code example
+#   coming-soon  — announced, no code shown yet
+#   not-supported — cannot work on this path (e.g. MOTO on physical terminal)
+#   (absent)     — acquirer does not support this capability at all
+
+acquirers:
+
+  tsys:
+    name: "TSYS"
+    geography: "US, Canada"
+    status: active
+    card-brands: [VISA, MC, Discover]
+    interac: false
+    notes: >
+      Batch auto-closes ~11pm EST (US, host-capture). Partial reversal is US-only —
+      uses the MasterCard flag in ISO 8583. Batching is US-only; not available for
+      Canadian merchants.
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      partial-reversal:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tip-adjustment:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: not-supported
+        cordova: public
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      money-remittance:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  tsys-tns:
+    name: "TSYS + TNS"
+    geography: "Canada"
+    status: active
+    card-brands: [VISA, MC, Discover, Interac]
+    interac: true
+    notes: >
+      Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS.
+      IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund
+      or Reverse. The only post-sale operation for Interac transactions is VOID (full
+      amount, card must be present at terminal). Standard refund is not available for
+      Interac.
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      tip-adjustment:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: not-supported
+        cordova: public
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      void:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  tns:
+    name: "TNS"
+    geography: "Canada"
+    status: active
+    card-brands: [Interac]
+    interac: true
+    notes: >
+      TNS processes Interac card-present transactions only. The only post-sale operation
+      is VOID — full amount, card must be inserted or tapped, must occur before settlement.
+      Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network.
+      Pre-authorization is explicitly rejected (BAD_REQUEST).
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      void:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  paysafe-tsys:
+    name: "PAYSAFE TSYS"
+    geography: "US"
+    status: active
+    card-brands: [VISA, MC, AMEX, Discover, Interac]
+    interac: true
+    notes: >
+      Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set
+      compared to direct TSYS. Tip adjustment and tokenization are forthcoming.
+      Interac transactions follow TNS void-only rules.
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      tip-adjustment:
+        rest-api: coming-soon
+        android-pax: coming-soon
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: coming-soon
+      tokenization:
+        rest-api: coming-soon
+        android-pax: coming-soon
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: coming-soon
+      money-remittance:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  omnipay-emp:
+    name: "OMNIPAY EMP"
+    geography: "EU"
+    status: active
+    card-brands: [VISA, MC]
+    interac: false
+    notes: "Batch settlement via AWS SQS. Local MOTO refund supported."
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      money-remittance:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  omnipay-lloyds:
+    name: "OMNIPAY Lloyds"
+    geography: "EU"
+    status: active
+    card-brands: [VISA, MC]
+    interac: false
+    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released."
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      tip-adjustment:
+        rest-api: coming-soon
+        android-pax: coming-soon
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: coming-soon
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+
+  omnipay-paystrax:
+    name: "OMNIPAY Paystrax"
+    geography: "EU"
+    status: active
+    card-brands: [VISA, MC]
+    interac: false
+    notes: "Batch settlement via AWS SQS. Tip adjustment implemented in code but not officially released."
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      tip-adjustment:
+        rest-api: coming-soon
+        android-pax: coming-soon
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: coming-soon
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+
+  omnipay-amex:
+    name: "OMNIPAY + AMEX"
+    geography: "EU"
+    status: active
+    card-brands: [VISA, MC, AMEX]
+    interac: false
+    notes: >
+      Gateway routes automatically: AMEX cards go to AMEX direct, all other cards go to
+      OMNIPAY. Verify exact capability set for AMEX-routed portion with Handpoint
+      integration team before publishing integrator-facing documentation.
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+
+  teya:
+    name: "TEYA (Borgun)"
+    geography: "EU"
+    status: active
+    card-brands: [VISA, MC]
+    interac: false
+    notes: "TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration."
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      tip-adjustment:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: not-supported
+        cordova: public
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  elavon-canada:
+    name: "Elavon Canada"
+    geography: "Canada"
+    status: active
+    card-brands: [VISA, MC]
+    interac: true
+    notes: >
+      Limited scope: sale, refund, and void only. Pre-auth, MOTO, tokenization, and
+      tip-adjustment throw ProtocolException in viscus-elavon. Interac reversals require
+      the card to be physically present (Interac network rule).
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      void:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
+  amex:
+    name: "AMEX (direct)"
+    geography: "US"
+    status: active
+    card-brands: [AMEX]
+    interac: false
+    notes: "AMEX-only merchant configuration. Batch settlement via SQS supported."
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      batching:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+
+  vantiv:
+    name: "VANTIV"
+    geography: "US"
+    status: active
+    card-brands: [VISA, MC, Discover]
+    interac: false
+    notes: "Implements both card-present and MOTO protocols."
+    capabilities:
+      sale:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      refund:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      reversal:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      tip-adjustment:
+        rest-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: not-supported
+        cordova: public
+      pre-auth:
+        rest-api: public
+        android-pax: public
+        android-hilite: coming-soon
+        ios-hilite: coming-soon
+        cordova: public
+      moto:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+
+  # Deprecated — retained for reference only, not published
+  evo:
+    name: "EVO"
+    geography: "US"
+    status: deprecated
+    card-brands: [VISA, MC, Discover]
+    interac: false
+    capabilities: {}
+
+  postbridge:
+    name: "PostBridge"
+    geography: "EU"
+    status: unknown
+    card-brands: [VISA, MC]
+    interac: false
+    capabilities: {}

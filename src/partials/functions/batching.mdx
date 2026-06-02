@@ -1,0 +1,82 @@
+## Batching (Manual Batch Close)
+
+### What this does
+Manually triggers the close of the current transaction batch, initiating settlement for all transactions since the last close.
+
+### When to use it
+Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
+
+### Implementation notes
+
+1. **TSYS US only.** This operation is specific to host-capture acquirers. Most EU acquirers use SQS-based settlement that does not require manual batch close.
+2. After batch close, tip adjustments and reversals are no longer possible — only refunds.
+3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
+4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/batchClose
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "terminal_serial_number": "123456789"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="Batch close is a server-side operation. The terminal does not initiate batch close."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Batch close is a server-side operation."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Batch close is a server-side operation."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Batch close is a server-side operation."
+  useInstead="REST API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `terminal_serial_number` | string | Yes | Terminal to close the batch for |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
+| `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
+
+### Sandbox behaviour
+Batch close always succeeds in sandbox.

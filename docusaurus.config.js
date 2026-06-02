@@ -1,291 +1,57 @@
-const {themes} = require('prism-react-renderer');
-const lightCodeTheme = themes.github;
-const darkCodeTheme = themes.dracula;
+// @ts-check
+const { themes } = require('prism-react-renderer');
 
-/** @type {import('@docusaurus/types').DocusaurusConfig} */
-module.exports = {
-  title: 'Handpoint',
-  tagline: 'Global Payments-Powered Growth for SaaS',
+/** @type {import('@docusaurus/types').Config} */
+const config = {
+  title: 'Handpoint Developer Portal',
+  tagline: 'Payment integrations for ISVs and developers',
   url: 'https://developer.handpoint.com',
   baseUrl: '/',
-  onBrokenLinks: 'throw',
-  markdown: {
-    hooks: {
-      onBrokenMarkdownLinks: 'throw',
-    },
-  },
-  favicon: '/img/favicon.png',
-  organizationName: 'handpoint', // Usually your GitHub org/user name.
-  projectName: 'handpoint.github.io', // Usually your repo name.
-  deploymentBranch: 'main',
-  themeConfig: {
-    navbar: {
-      style: 'dark',
-      logo: {
-        alt: 'My Site Logo',
-        src: 'img/handpoint-logo-hvitt.svg',
-        width: 75
-      },
-      items: [
-        {
-          className: 'navbar-statuspage-icon',
-          href: 'https://status.handpoint.com',
-          position: 'right',
-          'aria-label': 'Status Page',
-        },
-        {
-          to: '/',
-          label: 'Getting Started',
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'android',
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'restapi',
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'ios',
-          activeBasePath: './ios_versioned_docs/'
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'windows',
-        },
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'javascript',
-          activeBaseRegex: 'javascript_versioned_docs/'
-        },
-        
-        {
-          type: 'docsVersionDropdown',
-          docsPluginId: 'express',
-        },
-        {
+  onBrokenLinks: 'warn',
+  onBrokenMarkdownLinks: 'warn',
+  favicon: 'img/favicon.ico',
+  organizationName: 'handpoint',
+  projectName: 'developer-portal',
 
-          href: 'https://www.npmjs.com/package/cordova-plugin-handpoint',
-          label: 'Cordova Plugin',
-
-        },
-        {
-
-          href: 'https://github.com/thescruba/xamarin-handpoint-bindings',
-          label: 'Xamarin Plugin',
-
-        },
-        {
-
-          href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',
-          label: 'FAQ',
-        },
-      ],
-    },
-    footer: {
-      style: 'light',
-      links: [
-        {
-          title: 'Docs',
-          items: [
-            {
-              label: 'In-Person Payments Docs',
-              to: '/',
-            },
-            {
-              label: 'Online Payments Docs',
-              href: 'https://developer-ecomm.handpoint.com/cnpdocs/index.html',
-            },
-            {
-              label: 'Transaction Analytics API',
-              href: 'https://txnfeedapi.handpoint.com/',
-            },
-            {
-              label: 'Merchants & Terminals Management API',
-              href: 'https://tmsdoc.handpoint.com/',
-            },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
-            {
-              label: 'Handpoint Website',
-              href: 'https://www.handpoint.com',
-            },
-            {
-              label: 'LinkedIn',
-              href: 'https://www.linkedin.com/company/handpoint',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://twitter.com/handpointltd?lang=en',
-            },
-          ],
-        },
-        {
-          title: 'Get our Apps',
-          items: [
-            {
-              label: 'Get it on Google Play',
-              href: 'https://play.google.com/store/apps/details?id=com.handpoint.hipos&hl=en&gl=US&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1',
-            },
-
-            {
-              label: 'Download on the App Store',
-              href: 'https://apps.apple.com/us/app/handpoint/id1450546788?itsct=apps_box_link&itscg=30200',
-            },
-
-          ],
-        },
-        {
-          title: 'More',
-          items: [
-            {
-              label: 'Handpoint Status Page',
-              href: 'https://status.handpoint.com',
-            },
-            {
-              label: 'FAQ',
-              href: 'https://handpoint.atlassian.net/wiki/spaces/PD/overview?homepageId=5898250',
-            },
-            {
-              label: 'Subscribe to the Handpoint Newsletter',
-              href: 'https://handpoint.us6.list-manage.com/subscribe?u=4d9dff9e7edb7e57a67a7b252&id=0a2179241e',
-            },
-
-            {
-              label: 'GitHub',
-              href: 'https://github.com/handpoint',
-            },
-          ],
-        },
-      ],
-      logo: {
-        alt: 'Handpoint Logo',
-        src: 'https://handpoint.imgix.net/handpoint-logo-w.png?w=150',
-        href: 'https://www.handpoint.com'
-      },
-      copyright: `Copyright © ${new Date().getFullYear()} Handpoint`,
-    },
-    prism: {
-      theme: darkCodeTheme,
-      darkTheme: darkCodeTheme,
-      additionalLanguages: ['java', 'groovy', 'csharp'],
-    },
-    docs: {
-      sidebar: {
-        hideable: true,
-      },
-    },
-  },
-  themes: [
-  ],
   presets: [
     [
-      '@docusaurus/preset-classic',
-      {
+      'classic',
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      ({
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
-          includeCurrentVersion: true,
-          // Please change this to your repo.
-          editUrl:
-            'https://github.com/facebook/docusaurus/edit/master/website/',
+          routeBasePath: '/',
         },
         blog: false,
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
-      },
+      }),
     ],
   ],
-  scripts: [
-  ],
-  plugins: [
-    // require.resolve('docusaurus-lunr-search', {
 
-
-
-    // }),
-     [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'ios',
-        includeCurrentVersion: false, // dev: Change to true
-        path: 'ios',
-        routeBasePath: 'ios',
-        sidebarPath: require.resolve('./sidebarsIos.js'),
-        sidebarCollapsed: false
-        // ... other options
+  themeConfig:
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    ({
+      navbar: {
+        title: 'Handpoint',
+        items: [
+          { type: 'doc', docId: 'get-started/index', label: 'Get Started', position: 'left' },
+          { type: 'docSidebar', sidebarId: 'acquirersSidebar', label: 'Acquirers', position: 'left' },
+          { type: 'docSidebar', sidebarId: 'backOfficeSidebar', label: 'Back Office', position: 'left' },
+          { type: 'docSidebar', sidebarId: 'referenceSidebar', label: 'Reference', position: 'left' },
+        ],
       },
-
-
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'javascript',
-        includeCurrentVersion: true, // dev: Change to true
-        path: 'javascript',
-        routeBasePath: 'javascript',
-        sidebarPath: require.resolve('./sidebarsIos.js'),
-        sidebarCollapsed: false
-        // ... other options
+      prism: {
+        theme: themes.github,
+        darkTheme: themes.dracula,
+        additionalLanguages: ['kotlin', 'swift', 'csharp', 'java', 'bash', 'json', 'http'],
       },
-
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'restapi',
-        includeCurrentVersion: true, // dev: Change to true
-        path: 'restapi',
-        routeBasePath: 'restapi',
-        sidebarPath: require.resolve('./sidebarsIos.js'),
-        sidebarCollapsed: false
-        // ... other options
+      tableOfContents: {
+        minHeadingLevel: 2,
+        maxHeadingLevel: 3,
       },
-
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'windows',
-        includeCurrentVersion: true, // dev: Change to true
-        path: 'windows',
-        routeBasePath: 'windows',
-        sidebarPath: require.resolve('./sidebarsIos.js'),
-        sidebarCollapsed: false
-        // ... other options
-      },
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'express',
-        includeCurrentVersion: false, // dev: Change to true
-        path: 'express',
-        routeBasePath: 'express',
-        sidebarPath: require.resolve('./sidebarsIos.js'),
-        sidebarCollapsed: false
-        // ... other options
-      },
-    ],
-    [
-      '@docusaurus/plugin-content-docs',
-      {
-        id: 'android',
-        includeCurrentVersion: true, // dev: Change to true
-        path: './android',
-        routeBasePath: 'android',
-        sidebarPath: require.resolve('./sidebarsAndroid.js'),
-        sidebarCollapsed: false
-
-        // ... other options
-      },
-
-    ],
-  ]
-
+    }),
 };
+
+module.exports = config;

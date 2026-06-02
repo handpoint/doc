@@ -1,0 +1,54 @@
+### Void Pre-Authorization
+
+Releases a pre-authorization hold without capturing funds.
+
+**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always void unused pre-auths — unreleased holds affect cardholder available credit.
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "VOIDPREAUTHORISATION",
+  "original_transaction_reference": "pre-auth-abc-123"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationVoid("pre-auth-abc-123")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationVoid(
+  { originalTransactionId: "pre-auth-abc-123" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |

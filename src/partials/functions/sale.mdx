@@ -1,0 +1,118 @@
+## Sale
+
+### What this does
+Authorises and captures a card-present payment in a single step.
+
+### When to use it
+Use for standard retail and hospitality transactions where the cardholder is present and the amount is known before the transaction starts. Do NOT use when the final amount may change after authorisation — use Pre-Authorization instead.
+
+### Implementation notes
+
+1. The terminal handles EMV chip, contactless, and magnetic stripe automatically — you do not specify the card entry method.
+2. The SDK returns an `OperationStartResult` synchronously with a `transactionReference`. The actual result arrives asynchronously via the events listener/callback.
+3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
+4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Kotlin — runs on the PAX terminal
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+// Result arrives in your events listener:
+override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+    if (result.type == TransactionResultType.APPROVED) {
+        // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Kotlin — Android app connected to HiLite via Bluetooth
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+// Result arrives in your events listener:
+override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+    if (result.type == TransactionResultType.APPROVED) {
+        // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Swift — iOS app connected to HiLite via Bluetooth
+heftClient.saleWithAmount(1000, currency: "USD", cardholder: true)
+
+// Result arrives in your delegate:
+func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
+    if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
+        // store info.xml for the transaction record
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// JavaScript — Cordova plugin wrapping native Android/iOS SDK
+handpoint.sale(
+  { amount: 1000, currency: "USD" },
+  function(result) {
+    if (result.type === "APPROVED") {
+      // store result.transactionId for potential reversal
+    }
+  },
+  function(error) { console.error("Sale failed:", error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Amount in smallest currency unit (cents). `1000` = $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code. e.g. `"USD"`, `"GBP"`, `"EUR"` |
+| `terminal_serial_number` | string | Yes (REST) | Target terminal. Not required for SDK paths (terminal already connected). |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined the card | Ask cardholder to try another card |
+| `TIMEOUT` | Terminal did not respond within timeout | Check terminal connection; retry |
+| `CANCELLED` | Cardholder cancelled at terminal | No action required |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+### Sandbox behaviour
+All amounts are approved in sandbox. To simulate specific outcomes use trigger amounts — see [Sandbox guide](../get-started/sandbox).

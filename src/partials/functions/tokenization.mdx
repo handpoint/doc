@@ -1,0 +1,118 @@
+## Tokenization
+
+### What this does
+Stores a card on file and returns a token that can be used for future transactions without requiring the card to be present again.
+
+### When to use it
+Use for subscription billing, recurring payments, or "save my card" flows. The token replaces the PAN — your system never stores raw card data.
+
+### Implementation notes
+
+1. The token is acquirer-specific and non-portable — a token from TSYS cannot be used with another acquirer.
+2. Two flows are available: **tokenize-only** (card is read, token returned, no charge) and **sale-and-tokenize** (card is charged and tokenized in one step).
+3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
+4. For future charges using the token, use the REST API with the token in place of card details.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+**Tokenize only (no charge):**
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "TOKENIZE",
+  "terminal_serial_number": "123456789"
+}
+```
+
+**Sale and tokenize (charge + token in one step):**
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "terminal_serial_number": "123456789",
+  "tokenize": true
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Tokenize only
+heftClient.tokenizeCard()
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Tokenize only
+handpoint.tokenizeCard(
+  {},
+  function(result) { /* result.cardToken contains the token */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `terminal_serial_number` | string | Yes (REST) | Target terminal for card read |
+| `tokenize` | boolean | No (REST) | Set `true` on a Sale to also tokenize |
+
+### Response fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | The token to store. Use for future charges. |
+| `cardTokenProvider` | Which token provider issued the token (e.g. `TSYS`, `PAYSAFE`) |
+| `cardExpiryDate` | Token expiry (matches card expiry) |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
+| `CARD_READ_ERROR` | Terminal failed to read card | Retry; ask customer to try again |
+
+### Sandbox behaviour
+Tokenization returns a synthetic token in sandbox. Tokens from sandbox cannot be used in production.

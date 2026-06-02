@@ -1,0 +1,43 @@
+---
+id: index
+title: Choose your acquirer
+sidebar_label: Choose your acquirer
+sidebar_position: 1
+description: Select your acquirer to see the payment functions available for your integration.
+---
+
+# Choose your acquirer
+
+Each Handpoint integration is tied to an acquiring bank or payment processor. Select yours to see which payment functions are available and how to implement them.
+
+## United States
+
+| Acquirer | Card Brands | Key capabilities |
+|---|---|---|
+| [TSYS](../acquirers/tsys) | VISA, MC, Discover | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth, MOTO, Tokenization, Batching |
+| [PAYSAFE TSYS](../acquirers/paysafe-tsys) | VISA, MC, AMEX, Discover, Interac | Sale, Refund, Reversal, Money Remittance |
+| [VANTIV](../acquirers/vantiv) | VISA, MC, Discover | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth, MOTO |
+| [AMEX (direct)](../acquirers/amex) | AMEX | Sale, Refund, Reversal, MOTO, Batching |
+
+## Canada
+
+| Acquirer | Card Brands | Key capabilities |
+|---|---|---|
+| [TSYS](../acquirers/tsys) | VISA, MC, Discover | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth, MOTO, Tokenization |
+| [TSYS + TNS](../acquirers/tsys-tns) | VISA, MC, Discover, Interac | TSYS capabilities + Interac void |
+| [TNS](../acquirers/tns) | Interac | Sale, Void |
+| [Elavon Canada](../acquirers/elavon-canada) | VISA, MC | Sale, Refund, Void |
+
+## Europe
+
+| Acquirer | Card Brands | Key capabilities |
+|---|---|---|
+| [OMNIPAY EMP](../acquirers/omnipay-emp) | VISA, MC | Sale, Refund, Reversal, Pre-Auth, MOTO, Tokenization, Batching |
+| [OMNIPAY Lloyds](../acquirers/omnipay-lloyds) | VISA, MC | Sale, Refund, Reversal, Pre-Auth, MOTO, Tokenization, Batching |
+| [OMNIPAY Paystrax](../acquirers/omnipay-paystrax) | VISA, MC | Sale, Refund, Reversal, Pre-Auth, MOTO, Tokenization, Batching |
+| [OMNIPAY + AMEX](../acquirers/omnipay-amex) | VISA, MC, AMEX | Sale, Refund, Reversal, MOTO, Batching |
+| [TEYA (Borgun)](../acquirers/teya) | VISA, MC | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth, MOTO, Tokenization |
+
+:::tip AI agents
+Fetch `/llms.txt` for a machine-readable capability index before loading individual acquirer pages.
+:::

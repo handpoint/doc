@@ -1,0 +1,85 @@
+## Reversal
+
+### What this does
+Voids a sale before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
+
+### When to use it
+Use when a sale needs to be cancelled before the batch closes. This is always preferable to a refund for same-day cancellations — faster and fee-free. Do NOT use after settlement — send a Refund instead.
+
+### Implementation notes
+
+1. Reversal only works on the current open batch. Once the batch closes (auto or manual), only a refund is possible.
+2. Full amount only — partial reversals are a separate operation (`partial-reversal`), supported only on TSYS US.
+3. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
+4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "REVERSAL",
+  "original_transaction_reference": "abc-123-def"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.reversal("abc-123-def")  // originalTransactionReference from sale result
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.reversal("abc-123-def")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.voidWithCard(true)
+// Note: pass the original transaction reference if available
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.reversal(
+  { originalTransactionId: "abc-123-def" },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `original_transaction_reference` | string | Yes | Reference from the original sale |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `ORIGINAL_NOT_FOUND` | Reference not found or batch already closed | Send a Refund instead |
+| `ALREADY_REVERSED` | Transaction already reversed | No action needed |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+
+### Sandbox behaviour
+Reversals always succeed in sandbox regardless of reference validity.

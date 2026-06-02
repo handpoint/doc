@@ -1,0 +1,98 @@
+## MOTO (Mail Order / Telephone Order)
+
+### What this does
+Processes a card-not-present transaction where the cardholder provides card details by phone or mail — no physical terminal required.
+
+### When to use it
+Use for call centres, phone order systems, or any flow where the cardholder is not physically present. Do NOT use for card-present transactions — always prefer Sale for in-person payments.
+
+### Implementation notes
+
+1. **REST API only.** MOTO does not require or use a physical terminal. All terminal-based integration paths (Android, iOS, Cordova) are not applicable.
+2. The cardholder provides card number, expiry date, and CVV verbally or in writing. Your system sends these to the Handpoint cloud API over TLS.
+3. MOTO transactions carry higher fraud risk and interchange rates than card-present transactions.
+4. Ensure your system is PCI DSS compliant before handling raw card data.
+5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "motoChannel": true,
+  "card": {
+    "number": "4111111111111111",
+    "expiryDate": "0128",
+    "cvv": "123"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  useInstead="REST API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `motoChannel` | boolean | Yes | Must be `true` |
+| `card.number` | string | Yes | Card PAN (no spaces) |
+| `card.expiryDate` | string | Yes | `MMYY` format |
+| `card.cvv` | string | Yes | Card verification value |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask customer for another card |
+| `INVALID_CARD_NUMBER` | Card number failed Luhn check | Verify number with customer |
+| `CVV_MISMATCH` | CVV does not match | Re-confirm with customer |
+| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
+
+### Sandbox behaviour
+Use test card numbers from the [Sandbox guide](../get-started/sandbox). Real card numbers are rejected in sandbox.

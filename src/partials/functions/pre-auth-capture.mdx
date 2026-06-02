@@ -1,0 +1,63 @@
+### Pre-Authorization Capture
+
+Captures the funds from a previously created pre-authorization (completion).
+
+**When to use:** When you know the final amount and are ready to settle. Send the actual charged amount — it may differ from the original pre-auth amount.
+
+**Implementation notes:**
+1. The capture amount can be less than the pre-auth amount. Most acquirers also allow a small overage (check your acquirer rules).
+2. You must capture before the hold expires (typically 7–30 days).
+3. After capture, a standard refund process applies if the cardholder requests a return.
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "PREAUTHORISATIONCAPTURE",
+  "amount": 9500,
+  "currency": "USD",
+  "original_transaction_reference": "pre-auth-abc-123"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationCapture(
+  { originalTransactionId: "pre-auth-abc-123", amount: 9500, currency: "USD" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Actual capture amount (may differ from pre-auth) |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |

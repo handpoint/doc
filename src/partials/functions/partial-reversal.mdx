@@ -1,0 +1,88 @@
+## Partial Reversal
+
+### What this does
+Reduces the authorised amount on a sale before settlement — the cardholder is charged only the reduced amount.
+
+### When to use it
+Use when the final amount is lower than the authorised amount and the batch is still open. Example: a pre-authorised $100 hotel stay costs only $80 at checkout. Do NOT attempt on closed batches — send a Refund instead.
+
+### Implementation notes
+
+1. **TSYS US only.** This capability is not supported on TSYS Canada or any other acquirer.
+2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
+3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
+4. This is a server-side REST API operation only. Terminal paths are not supported.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "PARTIALREVERSAL",
+  "amount": 800,
+  "currency": "USD",
+  "original_transaction_reference": "abc-123-def"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="Partial reversal is a server-side operation only. The terminal cannot initiate a partial reversal."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Partial reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Partial reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Partial reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | New final amount (not a delta). Must be less than original authorised amount. |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `original_transaction_reference` | string | Yes | Reference from the original sale |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `AMOUNT_EXCEEDS_ORIGINAL` | New amount is greater than original | Correct the amount |
+| `OPERATION_NOT_SUPPORTED` | Acquirer does not support partial reversal | Use a full refund after settlement |
+| `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
+
+### Sandbox behaviour
+Partial reversal is approved for any amount below the original in sandbox.

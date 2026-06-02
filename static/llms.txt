@@ -1,0 +1,29 @@
+# Handpoint Developer Documentation
+# Fetch the acquirer URL for full implementation detail.
+# Generated: 2026-06-02T05:38:27.069Z
+
+## Acquirers
+TSYS | geography: US, Canada | sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching, money-remittance | cards: VISA, MC, Discover | url: /acquirers/tsys
+TSYS + TNS | geography: Canada | sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, void | cards: VISA, MC, Discover, Interac | interac: true | url: /acquirers/tsys-tns
+TNS | geography: Canada | sale, void | cards: Interac | interac: true | url: /acquirers/tns
+PAYSAFE TSYS | geography: US | sale, refund, reversal, tip-adjustment, tokenization, money-remittance | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe-tsys
+OMNIPAY EMP | geography: EU | sale, refund, reversal, pre-auth, moto, tokenization, batching, money-remittance | cards: VISA, MC | url: /acquirers/omnipay-emp
+OMNIPAY Lloyds | geography: EU | sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching | cards: VISA, MC | url: /acquirers/omnipay-lloyds
+OMNIPAY Paystrax | geography: EU | sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching | cards: VISA, MC | url: /acquirers/omnipay-paystrax
+OMNIPAY + AMEX | geography: EU | sale, refund, reversal, moto, batching | cards: VISA, MC, AMEX | url: /acquirers/omnipay-amex
+TEYA (Borgun) | geography: EU | sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization | cards: VISA, MC | url: /acquirers/teya
+Elavon Canada | geography: Canada | sale, refund, void | cards: VISA, MC | interac: true | url: /acquirers/elavon-canada
+AMEX (direct) | geography: US | sale, refund, reversal, moto, batching | cards: AMEX | url: /acquirers/amex
+VANTIV | geography: US | sale, refund, reversal, tip-adjustment, pre-auth, moto | cards: VISA, MC, Discover | url: /acquirers/vantiv
+
+## Integration paths
+rest-api | cloud | PAX terminals (card-present); no terminal for MOTO/CNP
+android-pax | native on-terminal | PAX devices
+android-hilite | bluetooth | HiLite (DATECS) devices
+ios-hilite | bluetooth | HiLite (DATECS) devices
+cordova | native SDK wrapper | PAX + HiLite devices
+
+## Reference
+/reference/acquirer-capabilities-matrix
+/reference/transaction-result-object
+/reference/error-codes

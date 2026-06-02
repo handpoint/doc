@@ -1,0 +1,87 @@
+## Void
+
+### What this does
+Voids a transaction — used for Interac card transactions where standard reversal is not available.
+
+### When to use it
+Use specifically for Interac card transactions via TNS. For non-Interac transactions, use Reversal instead. The card must be physically present at the terminal. This must occur before settlement.
+
+### Implementation notes
+
+1. **Interac / TNS only.** For non-Interac cards, use Reversal.
+2. The card must be inserted or tapped at the terminal — card-not-present void is not supported by the Interac network.
+3. Full amount only — partial voids are not supported.
+4. **ISV UI note:** label this button "VOID" in your application, not "Refund" or "Reverse". This is an Interac network requirement.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+Authorization: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "action": "VOID",
+  "original_transaction_reference": "abc-123-def"
+}
+```
+
+The gateway detects that the original transaction was Interac/TNS and maps to the correct void protocol automatically.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Send a standard reversal — the gateway maps to TNS void automatically
+hapi.reversal("abc-123-def")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.reversal("abc-123-def")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.voidWithCard(true)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.reversal(
+  { originalTransactionId: "abc-123-def" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `original_transaction_reference` | string | Yes | Reference from the original Interac sale |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `CARD_NOT_PRESENT` | Card was not inserted/tapped | Ask cardholder to present card at terminal |
+| `ALREADY_SETTLED` | Transaction already settled | Credit refund is not available for Interac |
+| `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
+
+### Sandbox behaviour
+Void succeeds in sandbox without requiring a physical card.
