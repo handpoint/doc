@@ -251,6 +251,89 @@
   box-shadow: 0 1px 6px rgba(27, 103, 178, 0.35);
 }
 
+/* ── Capability Summary Table ────────────────── */
+
+.capability-summary {
+  margin-bottom: 1.5rem;
+}
+
+.capability-summary-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(27, 103, 178, 0.08);
+  border: 1px solid var(--ifm-color-primary-lightest);
+  border-radius: 5px;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.75rem;
+}
+
+.capability-summary-clear-btn {
+  background: none;
+  border: 1px solid var(--ifm-color-primary);
+  border-radius: 4px;
+  color: var(--ifm-color-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  transition: background 0.12s;
+}
+
+.capability-summary-clear-btn:hover {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.capability-summary-table {
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  width: 100%;
+}
+
+.capability-summary-table th {
+  background: var(--header-bg);
+  border: 1px solid var(--header-border);
+  font-weight: 600;
+  padding: 0.45rem 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.capability-summary-table th.cap-col--active {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.capability-summary-table td {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  padding: 0.4rem 0.75rem;
+}
+
+.capability-summary-table .cap-cell {
+  text-align: center;
+  font-size: 1rem;
+}
+
+.capability-summary-table .cap-label {
+  font-weight: 500;
+}
+
+.capability-summary-note {
+  color: var(--ifm-color-secondary-darkest);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+[data-theme='dark'] .capability-summary-note {
+  color: var(--ifm-color-secondary-lighter);
+}
+
+.capability-summary-empty {
+  color: var(--ifm-color-secondary-darkest);
+  font-style: italic;
+}
+
 /* ── Orange accent ───────────────────────────── */
 
 .button--primary,

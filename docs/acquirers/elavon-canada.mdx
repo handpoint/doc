@@ -24,16 +24,15 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
+import CapabilitySummary from '@site/src/components/CapabilitySummary';
+
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"void":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="elavon-canada" />
 
 ## Capabilities
 
-| Capability | REST API | Android (PAX) | Android (HiLite) | iOS (HiLite) | Cordova |
-|---|---|---|---|---|---|
-| Sale | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Refund | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Void | ✅ | ✅ | ✅ | ✅ | ✅ |
+<CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
 Limited scope: sale, refund, and void only. Pre-auth, MOTO, tokenization, and tip-adjustment throw ProtocolException in viscus-elavon. Interac reversals require the card to be physically present (Interac network rule).

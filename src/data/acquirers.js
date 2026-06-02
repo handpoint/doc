@@ -9,7 +9,7 @@ export const ACQUIRERS = [
   },
   {
     "slug": "tsys-tns",
-    "name": "TSYS + TNS",
+    "name": "PAYSAFE TSYS + TNS",
     "geography": "Canada"
   },
   {

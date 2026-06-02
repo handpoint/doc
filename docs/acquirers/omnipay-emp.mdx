@@ -29,21 +29,15 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
+import CapabilitySummary from '@site/src/components/CapabilitySummary';
+
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"money-remittance":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="omnipay-emp" />
 
 ## Capabilities
 
-| Capability | REST API | Android (PAX) | Android (HiLite) | iOS (HiLite) | Cordova |
-|---|---|---|---|---|---|
-| Sale | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Refund | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Reversal | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Pre Auth | ✅ | ✅ | 🔜 | 🔜 | ✅ |
-| Moto | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Batching | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Money Remittance | ✅ | ✅ | ✅ | ✅ | ✅ |
+<CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
 Batch settlement via AWS SQS. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef, useId} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useHistory} from '@docusaurus/router';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -15,6 +15,12 @@ const PATHS = [
 const PATH_LABEL_MAP = Object.fromEntries(PATHS.map(p => [p.value, p.label]));
 const STORAGE_KEY = 'docusaurus.tab.integration-path';
 
+function broadcast(path) {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('handpoint:pathChanged', {detail: {path}}));
+  }
+}
+
 export default function AcquirerPageHeader({currentSlug}) {
   const history = useHistory();
   const syncId = 'hp-path-sync-' + currentSlug;
@@ -26,7 +32,8 @@ export default function AcquirerPageHeader({currentSlug}) {
     return 'rest-api';
   });
 
-  // Keep select in sync when a code block tab is clicked directly
+  // Keep select in sync when a code block tab is clicked directly,
+  // and broadcast to CapabilitySummary and any other listeners.
   useEffect(() => {
     const syncDiv = document.getElementById(syncId);
     if (!syncDiv) return;
@@ -38,6 +45,7 @@ export default function AcquirerPageHeader({currentSlug}) {
         const entry = PATHS.find(p => p.label === label);
         if (entry && entry.value !== selectedPath) {
           setSelectedPath(entry.value);
+          broadcast(entry.value);
         }
       }
     });
@@ -53,8 +61,10 @@ export default function AcquirerPageHeader({currentSlug}) {
 
   const handlePathChange = (value) => {
     setSelectedPath(value);
+    broadcast(value);
+
     // Click the matching tab inside the hidden sync Tabs —
-    // this triggers Docusaurus's groupId sync, updating all code blocks on the page
+    // triggers Docusaurus's groupId sync, updating all code block tabs on the page
     const syncDiv = document.getElementById(syncId);
     if (syncDiv) {
       const targetLabel = PATH_LABEL_MAP[value];
@@ -72,7 +82,6 @@ export default function AcquirerPageHeader({currentSlug}) {
     <div className="acquirer-page-header">
       <div className="acquirer-header-row">
 
-        {/* Acquirer dropdown */}
         <div className="acquirer-header-group">
           <label className="acquirer-header-label" htmlFor="hp-acquirer-select">
             Acquirer
@@ -91,7 +100,6 @@ export default function AcquirerPageHeader({currentSlug}) {
           </select>
         </div>
 
-        {/* Integration path dropdown */}
         <div className="acquirer-header-group">
           <label className="acquirer-header-label" htmlFor="hp-path-select">
             Integration path
@@ -110,8 +118,7 @@ export default function AcquirerPageHeader({currentSlug}) {
 
       </div>
 
-      {/* Hidden Tabs — acts as the Docusaurus groupId sync bridge.
-          Positioned off-screen but fully rendered so React events fire. */}
+      {/* Hidden Tabs — groupId sync bridge. Off-screen but rendered for React events. */}
       <div
         id={syncId}
         style={{position:'absolute',left:'-9999px',top:0,height:'1px',overflow:'hidden',visibility:'hidden'}}

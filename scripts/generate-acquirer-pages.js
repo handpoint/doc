@@ -120,6 +120,9 @@ function buildPage(slug, a) {
     ? `:::info Acquirer notes\n${a.notes.trim()}\n:::\n`
     : '';
 
+  // Inline capabilities data for the reactive CapabilitySummary component
+  const capsJson = JSON.stringify(caps);
+
   return [
     buildFrontmatter(slug, a),
     '',
@@ -128,12 +131,15 @@ function buildPage(slug, a) {
     "import NotSupported from '@site/src/components/NotSupported';",
     "import ComingSoon from '@site/src/components/ComingSoon';",
     "import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';",
+    "import CapabilitySummary from '@site/src/components/CapabilitySummary';",
+    '',
+    `export const _caps = ${capsJson};`,
     '',
     `<AcquirerPageHeader currentSlug="${slug}" />`,
     '',
     '## Capabilities',
     '',
-    buildSummaryTable(caps),
+    '<CapabilitySummary capabilities={_caps} />',
     '',
     notesBlock,
     ...sections,

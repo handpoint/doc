@@ -82,7 +82,7 @@ acquirers:
         cordova: public
 
   tsys-tns:
-    name: "TSYS + TNS"
+    name: "PAYSAFE TSYS + TNS"
     geography: "Canada"
     status: active
     card-brands: [VISA, MC, Discover, Interac]
@@ -93,6 +93,9 @@ acquirers:
       or Reverse. The only post-sale operation for Interac transactions is VOID (full
       amount, card must be present at terminal). Standard refund is not available for
       Interac.
+      BATCHING: Batch close is only available for TSYS (non-Interac) transactions.
+      Interac (TNS) transactions settle independently and do not participate in the TSYS
+      batch close.
     capabilities:
       sale:
         rest-api: public
