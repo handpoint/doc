@@ -42,7 +42,9 @@ A production PAX device can also be used for development. It processes real tran
 
 HiLite devices connect via Bluetooth. Request a HiLite device from your **referring partner**.
 
-HiLite devices come **pre-injected** to communicate with the Handpoint **production environment**, where a **TEST/DEMO merchant** is set up for testing purposes.
+HiLite devices always connect to the **production environment** (`https://cloud.handpoint.com`) — there is no staging path for HiLite. Testing is done against a **TEST/DEMO merchant** set up on production, which uses a test acquirer that mocks real acquirer responses.
+
+When the merchant goes live, new unique credentials are issued for the live merchant account. The HiLite device continues to connect to the same production environment — the merchant type changes from DEMO to live.
 
 **iOS:** Requires a provisioning profile that includes the `com.datecs.pinpad` external accessory protocol.
 

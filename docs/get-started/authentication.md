@@ -21,17 +21,24 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 ## REST API — Base URL
 
-The base URL depends on whether the PAX terminal is a **debug device** or a **production device**:
+The base URL is determined by the **PAX device type** — debug or production:
 
-| Device type | Base URL | Environment |
+| Device type | Base URL | Notes |
 |---|---|---|
-| PAX debug device | `https://cloud.handpoint.io` | Staging — TEST/DEMO merchant |
-| PAX production device | `https://cloud.handpoint.com` | Production — live merchant |
+| PAX debug device | `https://cloud.handpoint.io` | Staging environment only |
+| PAX production device | `https://cloud.handpoint.com` | Production environment — DEMO or live merchant |
 
-Your POS application should include logic to select the correct base URL based on the device in use. This mapping is typically done at configuration time (not runtime).
+Your POS application should include logic to select the correct base URL based on the device in use. This mapping is typically done at configuration time, not at runtime.
+
+### Production environment — DEMO vs live merchants
+
+The production environment (`https://cloud.handpoint.com`) supports **two merchant types**:
+
+- **DEMO merchant** — uses a test acquirer that mocks real acquirer responses. REST API integrators use this during development on a production PAX device. Credentials are provided by Handpoint Integration Support.
+- **Live merchant** — processes real transactions against the configured acquirer. Each live merchant receives their own unique credentials when they go live. These are **not shared** with any other merchant, including the DEMO merchant used during development.
 
 :::caution
-Staging (`.io`) and production (`.com`) credentials are **not interchangeable**. A production merchant key will not work against the staging endpoint, and vice versa.
+`.io` (staging) and `.com` (production) credentials are not interchangeable. When a merchant goes live, new unique credentials are issued — they do not inherit the DEMO merchant credentials.
 :::
 
 ## Android SDK — SSK (Shared Secret Key)
@@ -48,11 +55,14 @@ val hapi = HapiFactory.getHapi(ssk = "YOUR_MERCHANT_SSK", context = applicationC
 
 Authentication for iOS HiLite integrations uses the same merchant-scoped credential model. Contact your Handpoint Integration Support engineer for the correct credentials for your merchant.
 
-## Staging vs Production
+## Summary — environments and credentials
 
-| Environment | Base URL | Use |
-|---|---|---|
-| Staging | `https://cloud.handpoint.io` | PAX debug devices; TEST/DEMO merchant |
-| Production | `https://cloud.handpoint.com` | Live merchant transactions |
+| Environment | Base URL | Device | Merchant type |
+|---|---|---|---|
+| Staging | `https://cloud.handpoint.io` | PAX debug device | DEMO only |
+| Production | `https://cloud.handpoint.com` | PAX production device | DEMO or live |
+| Production | `https://cloud.handpoint.com` | HiLite (any) | DEMO or live |
 
-Staging credentials are provisioned for debug PAX devices and TEST/DEMO HiLite merchants by the Handpoint Integration Support team. Production credentials are provisioned per merchant via the TMS.
+**HiLite devices** (Android BT and iOS BT) always connect to the production environment (`https://cloud.handpoint.com`), regardless of whether the merchant is DEMO or live. There is no staging path for HiLite — testing is done against the DEMO merchant on production.
+
+Credentials are provisioned by Handpoint Integration Support for DEMO merchants. Live merchant credentials are provisioned per merchant via the TMS when the merchant goes live.
