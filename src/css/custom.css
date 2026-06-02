@@ -46,6 +46,56 @@
   --header-select-bg:  #243344;
 }
 
+/* ── Navbar ──────────────────────────────────── */
+
+.navbar {
+  background-color: #0F3F6E !important;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
+  padding: 0 1.5rem;
+}
+
+.navbar__brand {
+  margin-right: 1.5rem;
+}
+
+/* Remove the title text — we use an SVG logo that includes it */
+.navbar__title {
+  display: none;
+}
+
+.navbar__link {
+  color: rgba(255, 255, 255, 0.88) !important;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar__link:hover {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.navbar__link--active {
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.16);
+  font-weight: 600;
+}
+
+.navbar__toggle svg {
+  stroke: white;
+}
+
+/* Mobile nav panel */
+.navbar-sidebar {
+  background-color: #0F3F6E;
+}
+
+.navbar-sidebar__brand {
+  background-color: #0d3660;
+}
+
 /* ── Acquirer Page Header ─────────────────────── */
 
 /* Path tabs inside the header — compact, no heavy box */

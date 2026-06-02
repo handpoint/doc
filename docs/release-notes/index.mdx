@@ -2,7 +2,8 @@
 id: release-notes
 title: Release Notes
 sidebar_label: Release Notes
-description: SDK and API release notes by integration path. Select your integration path to see the relevant changelog.
+hide_table_of_contents: true
+description: SDK and API release notes. Select your integration path to filter by path.
 ---
 
 import Tabs from '@theme/Tabs';
@@ -10,7 +11,11 @@ import TabItem from '@theme/TabItem';
 
 # Release Notes
 
-Select your integration path to see the relevant changelog. If you have already selected a path on an acquirer page, the correct tab will be pre-selected.
+:::tip
+Don't miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
+:::
+
+Select your integration path to see the relevant changelog. Selecting a path here also filters all code examples across the docs.
 
 <Tabs groupId="integration-path">
 
@@ -18,21 +23,76 @@ Select your integration path to see the relevant changelog. If you have already 
 
 ## REST API
 
-The REST API is versioned independently. All card-present and card-not-present operations (MOTO, tokenization, batch close, tip adjustment) are available via this path.
+### 2.26.0
+**Features:**
 
-### v2.27.0
-- Added optional `batchNum` parameter to batch close endpoint
-- Improved error messaging for `OPERATION_NOT_SUPPORTED` responses
+New [Deferred Tokenization Endpoint](/back-office/rest-api-no-reader) is now available, allowing a deferred tokenization on the following operations: sale, refund, preAuthorizationCapture, moToSale and moToRefund. This ensures that if a SaleAndTokenize operation fails due to issues with the token provider, the integrator can choose to de-couple these operations into 2, allowing authorizations to be processed and tokenizing using the transactionId (guid) of the original operation later on.
 
-### v2.26.0
-- Added partial reversal support (TSYS US only)
-- `original_transaction_reference` now accepted on refund for linked refunds
+### 2.25.0
+**Features:**
 
-### v2.25.0
-- Tip adjustment endpoint (`POST /tipAdjustment`) introduced
-- MOTO channel flag (`motoChannel: true`) added to transaction endpoint
+New MOTO Operations (no reader) endpoints are now available, allowing MOTO (Mail Order / Telephone Order) transactions to be processed **without a payment reader**, using a card token retrieved from the gateway:
 
-> For the full REST API changelog, see the REST API versioned documentation.
+- `POST /moto/sale` — performs a MOTO sale using a previously generated card token.
+- `POST /moto/refund` — performs a refund of a previous operation using its original identifier.
+- `POST /moto/reversal` — performs a reversal (void) of a previous operation using its original identifier.
+
+New Batch Operations endpoints are now available, allowing you to remotely manage batches on a specific payment terminal using the Cloud API:
+
+- `POST /batch/close` — requests the closure of a batch for a given terminal and batch number.
+- `POST /batch/summary` — retrieves a summary of a batch for a given terminal and batch number.
+- `POST /batch/detail` — retrieves the full detail of a batch, including a list of transactions.
+
+:::info
+Batch Operations are currently in **Beta** and are not available for all acquirers. Contact your Handpoint relationship manager to find out if this feature is supported for your acquirer.
+:::
+
+### 2.23.1
+**Features:**
+
+The batch number is returned in the Transaction Result object now as `batchNumber`, provided the acquirer returns it.
+
+### 2.23.0
+**Bug fixes:**
+
+Support for MOTO operations in the Get Transaction Status service has been added.
+
+### 2.22.4
+**Bug fixes:**
+
+Internal performance issues have been solved.
+
+### 2.22.3
+**Bug fixes:**
+
+An external vulnerability has been addressed.
+
+### 2.22.2
+**Features:**
+
+A new `cardPresent` parameter is available under Optional Transaction Parameters. Used for Elavon card-present reversals.
+
+### 2.20.0
+**Features:**
+
+- Added a selector to the `/{transactionReference}/status` endpoint which improves greatly on reporting.
+- Added "commands" to allow greater device control options.
+- A new `tokenize` parameter is available under Optional Transaction Parameters.
+
+### 2.17.0
+**Features:**
+
+Mastercard MoneySend fields for money remittance merchants. Supported operations: Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund.
+
+### 2.15.0
+**Features:**
+
+New transaction type: [Pre-Authorization](/acquirers/tsys#pre-authorization). A pre-authorization charge is a temporary hold placed on a customer's payment card. A pre-authorized transaction can be increased (Pre-Auth Increase), captured (Pre-Auth Capture), or fully released (Pre-Auth Reversal).
+
+### 2.14.0
+**Features:**
+
+New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. Query the Handpoint Gateway for the status of a transaction at any given time using the `transactionReference` provided at the start of a financial operation.
 
 </TabItem>
 
@@ -40,25 +100,214 @@ The REST API is versioned independently. All card-present and card-not-present o
 
 ## Android SDK — PAX
 
-The Android SDK runs natively on PAX terminals. APKs must be signed for production devices; debug devices accept unsigned builds.
+:::info Latest version
+**7.1012.1** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
+:::
 
-### v7.1013.0
-- Pre-authorization incremental support added
-- Improved reconnection logic after terminal sleep
+### 7.1012.1
+**New Features**
 
-### v7.1012.0
-- Tokenization flow stabilised on PAX A920 series
-- Fixed: tip adjustment returning incorrect status on slow network
+- `MoToOptions.cardToken`: MOTO operations can now charge a previously stored card token without requiring card interaction.
+- `DeviceParameter.Language`: New device parameter to set the terminal language remotely.
+- `automaticRefund(originalGuid)`: New overload to perform a full-amount refund by referencing the original transaction GUID, without specifying the amount.
 
-### v7.1011.0
-- Money remittance flag added to `SaleOptions`
-- MOTO mode removed from terminal SDK (use REST API for MOTO)
+**Breaking Changes**
 
-### v7.1010.0
-- Partial reversal support (TSYS US)
-- Batch close API added
+- `Events.DependantOperationEvent.dependantReversalReceived` now includes a `cardPresent: Boolean` parameter. Integrators implementing this interface must update their event handler signature.
 
-> For the full Android SDK changelog, see the Android versioned documentation.
+### 7.1011.0
+**New Features**
+
+- PAX A6630 model is supported now.
+- MOTO sales can now be performed by using a token.
+- MOTO partial reversals are now supported.
+- The Get Transaction Status service is used now also in MOTO operations.
+
+**Improvements**
+
+- Some duplicate events scenarios have been addressed.
+- Some minor visual issues have been addressed.
+
+### 7.1010.8
+**Fixes**
+
+- Minor fix in payments flow to improve error handling.
+
+### 7.1010.7
+**Fixes**
+
+- Deprecated coroutines APIs have been removed to improve compatibility for integrators.
+
+### 7.1010.6
+**Features**
+
+- `Partial Voids` (also known as Partial Reversals) are now supported for TSYS US acquirer.
+- Support for PAX A3700 reader has been added.
+
+**Fixes**
+
+- Processing misalignment between SDK and Gateway has been fixed.
+
+### 7.1010.5
+**Features**
+
+A new `cardPresent` flag is supported in Integrated mode. This new flag allows to indicate the payments flow that a Reversal operation will imply an actual present card (used with Elavon acquirers).
+
+### 7.1010.3
+**Fixes**
+
+Some timeout-ed authorization requests in the reader were still reaching the gateway. This was causing double charges.
+
+### 7.1010.2
+**Fixes**
+
+Network stability has been improved.
+
+### 7.1010.1
+**Features**
+
+- "Cash" and "Other" transaction types now have a Transaction ID.
+
+**Fixes**
+
+- A scenario where double charges could happen has been fixed.
+- The customer receipt now is fully in the card's language.
+- Some Fiserv and Elavon certification issues have been addressed.
+
+### 7.1009.5
+**Features**
+
+Tokenized Payments Operations support, plus new PAX **IM25** model support.
+
+Tokenized Payments Operations enable merchants to securely capture a customer's card information and use that token to immediately perform a payment-related operation. Two modes: **Standalone** (direct SDK methods) and **Cloud** (commanded via REST API).
+
+**Fixes**
+
+- Several EMV certification issues have been addressed.
+- Transaction Result was not being delivered in some cases.
+- Refunds and Reversals didn't include the transactionReference field.
+
+### 7.1008.6
+**Fixes**
+
+- Some translations have been corrected, as well as error messages from our Gateway.
+
+### 7.1008.4
+**Fixes**
+
+- Several minor stability issues have been fixed.
+
+### 7.1008.3
+**Features**
+
+- In account type selection, the order is first "Credit" and then "Debit" now.
+
+**Fixes**
+
+- An issue with the remove card event has been addressed.
+
+### 7.1008.0
+**Features**
+
+- Brightness level control is offered as a public method now.
+- Internal payments libraries of PAX devices have been updated.
+
+**Fixes**
+
+- Some EMV related issues have been solved.
+
+### 7.1006.0
+**Features**
+
+- Now just "CARD" is shown in receipts when the card brand is not in the language library.
+
+### 7.1005.0
+**Features**
+
+Speed improvements — significant improvements in transaction processing speeds. Cloud initialization is now faster, leading to quicker overall transaction processing.
+
+:::caution
+**Cloud Mode** users: There might be a short delay in accessing your receipt after a transaction is completed in Cloud Mode.
+:::
+
+### 7.1004.2
+**Features**
+
+Automatic Refunds — process refunds without physical card interaction:
+
+- **Automatic Refund**: initiate a refund using the original Transaction ID (GUID). The refunded amount mirrors the original sale amount.
+- **Automatic Partial Refunds**: partially refund a card automatically. Pass amount, currency and original Transaction ID.
+
+### 7.1004.1
+**Features**
+
+Mastercard MoneySend fields for money remittance merchants. See [Money Remittance](/acquirers/tsys#money-remittance).
+
+### 7.1004.0
+**Features**
+
+- [Pre-Authorization](/acquirers/tsys#pre-authorization) transaction type introduced.
+- Pre-Auth Increase/Decrease, Pre-Auth Capture, Pre-Auth Reversal.
+- Tokenize And Modify operation introduced.
+
+### 7.1002.0
+**Features**
+
+- Get Transaction Status: query the Handpoint Gateway for the status of a transaction at any given time using the `transactionReference`.
+- Cloud integrations: new `transactionReference` parameter added to the `transactionStarted` method.
+- Estonian language support 🇪🇪.
+
+### 7.1001.0
+**Features**
+
+- Transaction Metadata: persist and echo back business domain data at transaction time. Data is echoed back in the response and searchable via Transaction Feed API.
+- German language support 🇩🇪.
+- PAX A800 device support.
+
+### 7.0.2
+**Features**
+
+- Norwegian and Italian language support.
+
+### 7.0.1
+- Removed `Events.Required` interface, divided into 3 new interfaces.
+- Financial operations now return `OperationStartResult` instead of a boolean.
+- Duplicate payment check feature introduced.
+- `deviceCapabilities` event renamed to `supportedCardBrands`.
+
+### 6.7.4
+- `customerReference` correctly populated when card is removed mid-transaction.
+- MOTO: Correct handling of expired access and refresh tokens.
+- CLOUD: Channel connection/subscription handling.
+
+### 6.7.3
+**Fixes**
+
+- MOTO: Linked Refund only with GUID.
+- `originalEFTTransactionID` correctly populated on Linked Refunds.
+- Amounts correctly populated on "Already reversed" operations.
+- Crash fixes identified in the field.
+
+### 6.7.2
+**Fixes**
+
+- MOTO: Retry token and configuration download if missing.
+- CLOUD: device status moving terminals between merchants.
+- `requestedAmount` field in Transaction Result correctly populated.
+
+### 6.7.0
+**Features**
+
+- PAX A35 support added.
+- Swedish language support 🇸🇪.
+- `customerReference` field added to TransactionResult.
+
+### 6.6.7
+**Fixes**
+
+- SCA scenarios on PAX A80.
+- CLOUD: receipt printing.
+- Deadman mechanism for uncompleted transactions.
 
 </TabItem>
 
@@ -66,20 +315,81 @@ The Android SDK runs natively on PAX terminals. APKs must be signed for producti
 
 ## Android SDK — HiLite (Bluetooth)
 
-The Android SDK connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`.
+:::info Latest version
+**7.1004.3** — connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`. See [Development hardware](/get-started/development-hardware).
+:::
 
-### v7.1013.0
-- Bluetooth reconnection improved after device sleep
-- HiLite firmware compatibility extended to latest DATECS firmware
+:::note
+The HiLite (BT) path uses the same Android SDK as the PAX path. Connection method is set at runtime via `ConnectionMethod.BLUETOOTH`. The HiLite-certified release track is maintained separately from the PAX on-terminal track.
+:::
 
-### v7.1012.0
-- Tokenization support added for HiLite path
-- Fixed: occasional disconnect during long idle periods
+### 7.1004.3
+**Fixes**
 
-### v7.1011.0
-- Stability improvements for BT pairing on Android 13+
+- Bluetooth reconnection stability improvements for HiLite devices on Android 13+.
+- Fixed occasional disconnect during idle periods over BLE.
 
-> HiLite integration uses the same Android SDK version as PAX. Connection method is set at runtime via `ConnectionMethod.BLUETOOTH`.
+### 7.1004.2
+**Features**
+
+Automatic Refunds — process refunds without physical card interaction:
+
+- **Automatic Refund**: initiate a refund using the original Transaction ID (GUID).
+- **Automatic Partial Refunds**: partially refund using amount, currency, and original GUID.
+
+**Fixes**
+
+- Inconsistency when formatting currencies using Slovenian as the locale.
+
+### 7.1004.1
+**Features**
+
+Money Remittance support. Mastercard MoneySend fields for money remittance merchants.
+
+### 7.1004.0
+**Features**
+
+- Pre-Authorization transaction type introduced.
+- Pre-Auth Increase/Decrease, Pre-Auth Capture, Pre-Auth Reversal.
+- Tokenize And Modify operation.
+
+### 7.1002.0
+**Features**
+
+- Get Transaction Status using the `transactionReference`.
+- Estonian language support 🇪🇪.
+
+### 7.1001.0
+**Features**
+
+- Transaction Metadata feature.
+- German language support 🇩🇪.
+
+### 7.0.2
+**Features**
+
+- Norwegian and Italian language support.
+
+### 7.0.1
+- Removed `Events.Required` interface, divided into 3 new interfaces.
+- `OperationStartResult` returned from financial operations.
+- Duplicate payment check introduced.
+
+### 6.7.4
+- Bluetooth reconnection improvements.
+- `customerReference` correctly populated.
+
+### 6.7.3
+**Fixes**
+
+- Linked Refund with GUID only.
+- `originalEFTTransactionID` correctly populated on Linked Refunds.
+
+### 6.7.0
+**Features**
+
+- Swedish language support 🇸🇪.
+- `customerReference` field added to TransactionResult.
 
 </TabItem>
 
@@ -87,21 +397,70 @@ The Android SDK connects to HiLite (DATECS) devices via Bluetooth. Uses `Connect
 
 ## iOS SDK — HiLite (Bluetooth)
 
-The iOS SDK connects to HiLite (DATECS) devices via Bluetooth (external accessory protocol: `com.datecs.pinpad`).
+:::info
+Connects to HiLite (DATECS) devices via Bluetooth (external accessory protocol: `com.datecs.pinpad`). See [Development hardware](/get-started/development-hardware) for provisioning profile requirements.
+:::
 
-### v2.2.0
-- Swift Package Manager support added
-- iOS 17 compatibility verified
+### 2.2.0
+**Features**
 
-### v2.1.0
-- Tokenization support
-- Improved error handling for Bluetooth reconnection
+- Swift Package Manager support added.
+- iOS 17 compatibility verified.
+- Improved BLE connection stability on HiLite Pro.
 
-### v2.0.0
-- Major rewrite for Swift 5 / async-await patterns
-- Pre-authorization added (coming soon on HiLite hardware)
+### 2.1.0
+**Features**
 
-> Requires entitlement for `com.datecs.pinpad` in your provisioning profile.
+- Tokenization support added.
+- `saleAndTokenizeCard()` method introduced.
+
+**Fixes**
+
+- Improved error handling for Bluetooth reconnection after device sleep.
+- Receipt delivery timing improved.
+
+### 2.0.0
+**Features**
+
+Major rewrite for Swift 5 / async-await patterns.
+
+- `OperationStartResult` returned from all financial operations.
+- Pre-authorization support (coming soon on HiLite hardware).
+- Transaction Metadata support.
+- `customerReference` field added to `TransactionResult`.
+
+**Breaking Changes**
+
+- `HeftClient` delegate methods updated to new naming convention.
+- `Events.Required` split into separate delegate protocols.
+- `saleWithAmount:currency:cardholder:` signature unchanged; new optional parameters added.
+
+### 1.9.0
+**Features**
+
+- Get Transaction Status support via `transactionReference`.
+- Swedish, Norwegian, German, Italian, Estonian language support.
+- Money Remittance options added.
+
+### 1.8.0
+**Fixes**
+
+- SCA flow improvements.
+- Contactless card tokenization fixed.
+- Amount fields populated on FAILURE and DECLINE responses.
+
+### 1.7.5
+**Fixes**
+
+- `customerReference` correctly populated when card removed mid-transaction.
+- MOTO: correct token expiry handling.
+
+### 1.7.0
+**Features**
+
+- Reversal (void) operation improvements.
+- Improved duplicate payment detection.
+- `supportedCardBrands` event introduced (replaces `deviceCapabilities`).
 
 </TabItem>
 
@@ -109,22 +468,61 @@ The iOS SDK connects to HiLite (DATECS) devices via Bluetooth (external accessor
 
 ## Cordova Plugin
 
-The Cordova plugin wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for all supported terminals.
+:::info
+Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for all supported terminals. Update the plugin and native SDK dependency together.
+:::
 
-### v4.12.3
-- Updated to Android SDK v7.1013.0
-- Updated to iOS SDK v2.2.0
-- Fixed: Android 14 Bluetooth permission handling
+### 4.12.3
+**Updates**
 
-### v4.12.0
-- Tokenization added to JS API
-- `preAuthorizationCapture` and `preAuthorizationVoid` added
+- Updated to Android SDK 7.1004.3 (HiLite path) / 7.1011.0 (PAX path).
+- Updated to iOS SDK 2.2.0.
+- Fixed Android 14 Bluetooth permission handling (`BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN`).
 
-### v4.11.0
-- Money remittance flag exposed in `sale()` options
-- Tip adjustment added to JS API
+**Fixes**
 
-> The Cordova plugin version tracks the underlying native SDK versions. Always update both the plugin and the native SDK dependency.
+- `transactionReference` now correctly returned in the `transactionStarted` callback.
+
+### 4.12.0
+**Features**
+
+- Tokenization added to JS API: `handpoint.tokenizeCard()` and `handpoint.saleAndTokenizeCard()`.
+- `preAuthorizationCapture()` and `preAuthorizationVoid()` added.
+- Get Transaction Status: `handpoint.getTransactionStatus(transactionReference, callback)`.
+
+### 4.11.0
+**Features**
+
+- Money remittance flag exposed in `sale()` options: `{ moneyRemittance: true }`.
+- Tip Adjustment added to JS API: `handpoint.tipAdjustment(transactionId, tipAmount, callback)`.
+- Automatic Refund added: `handpoint.automaticRefund(originalGuid, callback)`.
+
+### 4.10.0
+**Features**
+
+- Pre-Authorization: `handpoint.preAuthorization(amount, currency, callback)`.
+- Pre-Auth Capture: `handpoint.preAuthorizationCapture(originalId, amount, currency, callback)`.
+- Pre-Auth Void: `handpoint.preAuthorizationVoid(originalId, callback)`.
+- Transaction Metadata support added to all financial operations.
+
+### 4.9.0
+**Features**
+
+- `transactionReference` parameter added to `transactionStarted` event (aligns with SDK 7.1002.0).
+- Language support: German, Norwegian, Italian, Estonian, Swedish.
+
+### 4.8.0
+**Features**
+
+- Tokenize And Modify operation added.
+- Duplicate payment check enabled.
+
+### 4.7.0
+**Updates**
+
+- `OperationStartResult` returned from financial operations (was boolean).
+- `Events.Required` split into 3 separate interfaces — update your event handler registration.
+- `deviceCapabilities` renamed to `supportedCardBrands`.
 
 </TabItem>
 

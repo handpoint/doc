@@ -1,32 +1,87 @@
-import React from 'react';
+import React, {useState, useEffect, useRef, useId} from 'react';
 import {useHistory} from '@docusaurus/router';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import {ACQUIRERS} from '@site/src/data/acquirers';
 
-// Short descriptions shown inside the active path tab
-const PATH_DESC = {
-  'rest-api':       'Cloud API — PAX terminals for card-present; no terminal for MOTO.',
-  'android-pax':    'Native on-terminal — code runs directly on the PAX device.',
-  'android-hilite': 'Bluetooth — Android app connects to HiLite (DATECS) wirelessly.',
-  'ios-hilite':     'Bluetooth — iOS app connects to HiLite (DATECS) wirelessly.',
-  'cordova':        'Native wrapper — one JS API for PAX and HiLite.',
-};
+const PATHS = [
+  {value: 'rest-api',       label: 'REST API'},
+  {value: 'android-pax',    label: 'Android (PAX)'},
+  {value: 'android-hilite', label: 'Android (HiLite)'},
+  {value: 'ios-hilite',     label: 'iOS (HiLite)'},
+  {value: 'cordova',        label: 'Cordova'},
+];
+
+const PATH_LABEL_MAP = Object.fromEntries(PATHS.map(p => [p.value, p.label]));
+const STORAGE_KEY = 'docusaurus.tab.integration-path';
 
 export default function AcquirerPageHeader({currentSlug}) {
   const history = useHistory();
+  const syncId = 'hp-path-sync-' + currentSlug;
+
+  const [selectedPath, setSelectedPath] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(STORAGE_KEY) || 'rest-api';
+    }
+    return 'rest-api';
+  });
+
+  // Keep select in sync when a code block tab is clicked directly
+  useEffect(() => {
+    const syncDiv = document.getElementById(syncId);
+    if (!syncDiv) return;
+
+    const observer = new MutationObserver(() => {
+      const activeTab = syncDiv.querySelector('[role="tab"][aria-selected="true"]');
+      if (activeTab) {
+        const label = activeTab.textContent.trim();
+        const entry = PATHS.find(p => p.label === label);
+        if (entry && entry.value !== selectedPath) {
+          setSelectedPath(entry.value);
+        }
+      }
+    });
+
+    observer.observe(syncDiv, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['aria-selected'],
+    });
+
+    return () => observer.disconnect();
+  }, [syncId, selectedPath]);
+
+  const handlePathChange = (value) => {
+    setSelectedPath(value);
+    // Click the matching tab inside the hidden sync Tabs —
+    // this triggers Docusaurus's groupId sync, updating all code blocks on the page
+    const syncDiv = document.getElementById(syncId);
+    if (syncDiv) {
+      const targetLabel = PATH_LABEL_MAP[value];
+      const tabBtns = syncDiv.querySelectorAll('[role="tab"]');
+      for (const btn of tabBtns) {
+        if (btn.textContent.trim() === targetLabel) {
+          btn.click();
+          break;
+        }
+      }
+    }
+  };
 
   return (
     <div className="acquirer-page-header">
-      <div className="acquirer-header-top">
+      <div className="acquirer-header-row">
 
+        {/* Acquirer dropdown */}
         <div className="acquirer-header-group">
-          <span className="acquirer-header-label">Acquirer</span>
+          <label className="acquirer-header-label" htmlFor="hp-acquirer-select">
+            Acquirer
+          </label>
           <select
+            id="hp-acquirer-select"
             className="acquirer-header-select"
             value={currentSlug}
             onChange={(e) => history.push(`/acquirers/${e.target.value}`)}
-            aria-label="Select acquirer"
           >
             {ACQUIRERS.map(a => (
               <option key={a.slug} value={a.slug}>
@@ -36,26 +91,37 @@ export default function AcquirerPageHeader({currentSlug}) {
           </select>
         </div>
 
+        {/* Integration path dropdown */}
+        <div className="acquirer-header-group">
+          <label className="acquirer-header-label" htmlFor="hp-path-select">
+            Integration path
+          </label>
+          <select
+            id="hp-path-select"
+            className="acquirer-header-select acquirer-header-select--path"
+            value={selectedPath}
+            onChange={(e) => handlePathChange(e.target.value)}
+          >
+            {PATHS.map(p => (
+              <option key={p.value} value={p.value}>{p.label}</option>
+            ))}
+          </select>
+        </div>
+
       </div>
 
-      <div className="acquirer-header-path-section">
-        <span className="acquirer-header-label">Integration path</span>
-        {/* Uses same groupId as all code blocks — clicking here syncs the whole page */}
-        <Tabs groupId="integration-path" className="acquirer-path-tabs">
-          {Object.entries(PATH_DESC).map(([value, desc]) => {
-            const labels = {
-              'rest-api':       'REST API',
-              'android-pax':    'Android (PAX)',
-              'android-hilite': 'Android (HiLite)',
-              'ios-hilite':     'iOS (HiLite)',
-              'cordova':        'Cordova',
-            };
-            return (
-              <TabItem key={value} value={value} label={labels[value]}>
-                <p className="acquirer-path-desc">{desc}</p>
-              </TabItem>
-            );
-          })}
+      {/* Hidden Tabs — acts as the Docusaurus groupId sync bridge.
+          Positioned off-screen but fully rendered so React events fire. */}
+      <div
+        id={syncId}
+        style={{position:'absolute',left:'-9999px',top:0,height:'1px',overflow:'hidden',visibility:'hidden'}}
+      >
+        <Tabs groupId="integration-path">
+          {PATHS.map(p => (
+            <TabItem key={p.value} value={p.value} label={p.label}>
+              <span />
+            </TabItem>
+          ))}
         </Tabs>
       </div>
     </div>

@@ -1,0 +1,8 @@
+<svg viewBox="0 0 230 36" xmlns="http://www.w3.org/2000/svg">
+  <!-- Handp -->
+  <text x="0" y="28" font-family="'Arial Black', Arial, sans-serif" font-size="26" font-weight="900" fill="white" letter-spacing="-0.3">Handp</text>
+  <!-- Orange 4-pointed sparkle above the i (Handpoint brand mark) -->
+  <text x="93" y="12" font-family="Arial, sans-serif" font-size="13" font-weight="900" fill="#F5821F" text-anchor="middle">✦</text>
+  <!-- dotless i (U+0131) so sparkle floats above cleanly -->
+  <text x="89" y="28" font-family="'Arial Black', Arial, sans-serif" font-size="26" font-weight="900" fill="white" letter-spacing="-0.3">ınt</text>
+</svg>

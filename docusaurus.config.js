@@ -34,7 +34,15 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'Handpoint',
+        title: '',
+        logo: {
+          alt: 'Handpoint',
+          src: 'img/logo.svg',
+          srcDark: 'img/logo.svg',
+          width: 160,
+          height: 28,
+        },
+        style: 'dark',
         items: [
           { type: 'doc', docId: 'get-started/index', label: 'Get Started', position: 'left' },
           { type: 'docSidebar', sidebarId: 'acquirersSidebar', label: 'Acquirers', position: 'left' },
