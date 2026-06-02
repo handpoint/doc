@@ -33,15 +33,15 @@ The response contains a bearer token valid for 1 hour. Use it as:
 Authorization: Bearer YOUR_ACCESS_TOKEN
 ```
 
-## Sandbox vs Production
+## Staging vs Production
 
-| Environment | Base URL | Keys |
+| Environment | Base URL | Use |
 |---|---|---|
-| Sandbox | `https://sandbox.handpoint.com` | Sandbox keys only |
-| Production | `https://cloud.handpoint.com` | Production keys only |
+| Staging | `https://cloud.handpoint.com` (staging key) | PAX debug devices; TEST/DEMO merchant on HiLite |
+| Production | `https://cloud.handpoint.com` | Live merchant transactions |
 
-Sandbox keys are issued automatically when you register a developer account. Production keys are provisioned per merchant via the TMS.
+Staging keys are provisioned for debug PAX devices and TEST/DEMO HiLite merchants by the Handpoint Integration Support team. Production keys are provisioned per merchant via the TMS.
 
 :::caution
-Never use production keys in development. Production keys create real charges on real cards.
+Staging and production share the same base URL — the environment is determined by the API key. Never use a production merchant key in development.
 :::

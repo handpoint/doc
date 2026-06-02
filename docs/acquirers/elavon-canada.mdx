@@ -157,8 +157,8 @@ handpoint.sale(
 | `CANCELLED` | Cardholder cancelled at terminal | No action required |
 | `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
 
-### Sandbox behaviour
-All amounts are approved in sandbox. To simulate specific outcomes use trigger amounts — see [Sandbox guide](../get-started/sandbox).
+### Testing
+Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../get-started/development-hardware#trigger-amounts). All other amounts process as approved.
 
 ## Refund
 
@@ -265,8 +265,8 @@ handpoint.refund(
 | `ORIGINAL_NOT_FOUND` | Provided reference not found | Verify reference; try unlinked refund |
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
-### Sandbox behaviour
-All refund amounts are approved in sandbox. Linked refunds do not validate against a real original transaction in sandbox.
+### Testing
+Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../get-started/development-hardware#trigger-amounts) to simulate declined or timeout responses.
 
 ## Void
 
@@ -356,5 +356,5 @@ handpoint.reversal(
 | `ALREADY_SETTLED` | Transaction already settled | Credit refund is not available for Interac |
 | `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
 
-### Sandbox behaviour
-Void succeeds in sandbox without requiring a physical card.
+### Testing
+Test void (Interac/TNS) on the TEST/DEMO merchant. A physical card must be present at the terminal — card must be inserted or tapped.

@@ -1,48 +1,101 @@
 ---
 title: Development hardware
-sidebar_position: 4
-description: Hardware requirements for SDK-based integrations.
+sidebar_position: 3
+description: Hardware requirements and testing guidance for Handpoint SDK integrations.
 ---
 
 # Development hardware
 
-## REST API integrations
+All Handpoint integrations require a **physical device** — there is no simulated or virtual payment terminal. We recommend the development team keeps the device with them after live deployment for ongoing troubleshooting and future feature development.
 
-REST API integrations do not require physical hardware. Use the sandbox environment with your API key.
+---
 
-## Android SDK — PAX devices
+## Android SDK — PAX devices (REST API or native on-terminal)
 
-PAX production terminals run firmware that **rejects unsigned APKs**. You cannot sideload a development build on a production PAX device.
+For card-present integrations using a PAX terminal (via REST API or Android SDK native), you can use either a **production PAX device** or a **PAX debug device**.
 
-To develop with Android SDK (PAX):
+### PAX debug device (recommended for development)
 
-1. **Request a PAX debug device** from your Handpoint integration engineer. Debug devices accept unsigned APKs.
-2. Build your APK in debug mode: `./gradlew assembleDebug`
+PAX production firmware **rejects unsigned APKs**. A debug device accepts unsigned builds and connects to the Handpoint **staging environment** for testing.
+
+1. **Request a PAX debug device from your referring partner.** Your referring partner is the entity that onboarded you to Handpoint — contact them to arrange hardware.
+2. **Build your APK using RC candidates provided by the Handpoint Integration Support team.** Do not build against the production SDK release; use the release candidate builds supplied by your integration contact.
 3. Install via ADB: `adb install app-debug.apk`
-4. The debug device connects to sandbox by default.
+4. The debug device connects to the Handpoint **staging environment** automatically.
 
-:::caution
-Do not attempt to install unsigned APKs on production PAX terminals — this will fail and may trigger security alerts on the device.
+:::info PAX debug vs production devices
+See the full guide on debug terminal injection and behaviour differences:
+[Manual Injection — PAX Debug Terminals (ONLY)](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5349212162/Manual+Injection+PAX+Debug+Terminals+ONLY)
 :::
 
-## Android SDK — HiLite (DATECS) devices
+:::caution
+Do not install unsigned APKs on production PAX terminals — this will fail and may trigger security alerts on the device.
+:::
 
-HiLite devices connect via Bluetooth. You need:
+### Production PAX device
 
-1. A HiLite device (contact your Handpoint integration engineer for the loaner program or purchase options)
-2. Enable Bluetooth on your Android development phone/tablet
-3. Pair the HiLite device via your app using the `ConnectionMethod.BLUETOOTH` connection type
+A production PAX device can also be used for development. It processes real transactions against the configured acquirer. Use test card numbers and low amounts during development, and ensure the merchant account is set up for testing with your acquirer.
 
-No special device mode is required — HiLite accepts connections from any paired Android app.
+---
 
-## iOS SDK — HiLite (DATECS) devices
+## Android SDK / iOS SDK — HiLite (DATECS) devices
 
-iOS connects to HiLite via Bluetooth (external accessory protocol: `com.datecs.pinpad`).
+HiLite devices connect via Bluetooth. Request a HiLite device from your **referring partner**.
 
-1. A HiLite device (same as Android above)
-2. An iOS development device (iPhone or iPad)
-3. A provisioning profile that includes the `com.datecs.pinpad` external accessory protocol
+HiLite devices come **pre-injected** to communicate with the Handpoint **production environment**, where a **TEST/DEMO merchant** is set up for testing purposes.
+
+**iOS:** Requires a provisioning profile that includes the `com.datecs.pinpad` external accessory protocol.
+
+---
 
 ## Cordova
 
 Cordova wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). Hardware requirements are the same as the respective native platforms above.
+
+---
+
+## Testing with trigger amounts {#trigger-amounts}
+
+When testing against the **TEST/DEMO merchant** (HiLite devices) or a PAX device on the **staging environment**, use the following amounts (in **minor units** — cents/pence) to simulate specific gateway responses.
+
+### Tip Adjustment
+
+| Amount | Gateway response |
+|---|---|
+| `3784` | Issuer response code 05 — Not authorized |
+| `3768` | Request timeout |
+
+### General transaction behaviour
+
+| Amount | Gateway response |
+|---|---|
+| `3779` | Issuer response code 01 — Refer to issuer |
+| `3784` | Issuer response code 05 — Not authorized |
+| `3793` | Issuer response code 04 — Pick up card |
+| `3757` | Partially approved |
+| `3768` | Request timeout |
+| `3741` | Unauthorized |
+
+### Withdrawal limit and issuer contact responses
+
+| Amount | Gateway response |
+|---|---|
+| `6165` | `responseCode 61` — Exceeds withdrawal amount limit |
+| `155` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `165` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1101` | `responseCode 70` — Cardholder to contact issuer |
+| `1103` | `responseCode 70` — Cardholder to contact issuer |
+| `1109` | `responseCode 70` — Cardholder to contact issuer |
+| `1111` | `responseCode 70` — Cardholder to contact issuer |
+| `1102` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1104` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1110` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1112` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1114` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1115` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1116` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1117` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1118` | `responseCode 65` — Exceeds withdrawal frequency limit |
+| `1119` | `responseCode 65` — Exceeds withdrawal frequency limit |
+
+All other amounts process as approved transactions against the TEST/DEMO merchant.

@@ -8,7 +8,6 @@ const sidebars = {
       items: [
         'get-started/index',
         'get-started/authentication',
-        'get-started/sandbox',
         'get-started/development-hardware',
       ],
     },

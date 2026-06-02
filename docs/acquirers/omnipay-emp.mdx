@@ -162,8 +162,8 @@ handpoint.sale(
 | `CANCELLED` | Cardholder cancelled at terminal | No action required |
 | `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
 
-### Sandbox behaviour
-All amounts are approved in sandbox. To simulate specific outcomes use trigger amounts — see [Sandbox guide](../get-started/sandbox).
+### Testing
+Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../get-started/development-hardware#trigger-amounts). All other amounts process as approved.
 
 ## Refund
 
@@ -270,8 +270,8 @@ handpoint.refund(
 | `ORIGINAL_NOT_FOUND` | Provided reference not found | Verify reference; try unlinked refund |
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
-### Sandbox behaviour
-All refund amounts are approved in sandbox. Linked refunds do not validate against a real original transaction in sandbox.
+### Testing
+Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../get-started/development-hardware#trigger-amounts) to simulate declined or timeout responses.
 
 ## Reversal
 
@@ -359,8 +359,8 @@ handpoint.reversal(
 | `ALREADY_REVERSED` | Transaction already reversed | No action needed |
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
-### Sandbox behaviour
-Reversals always succeed in sandbox regardless of reference validity.
+### Testing
+Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
 
 ## Pre-Authorization
 
@@ -657,8 +657,8 @@ Content-Type: application/json
 | `CVV_MISMATCH` | CVV does not match | Re-confirm with customer |
 | `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
 
-### Sandbox behaviour
-Use test card numbers from the [Sandbox guide](../get-started/sandbox). Real card numbers are rejected in sandbox.
+### Testing
+Test MOTO against the staging environment (PAX debug device) or TEST/DEMO merchant. Use real-format test card numbers — actual live cards will process against the configured acquirer.
 
 ## Tokenization
 
@@ -779,8 +779,8 @@ handpoint.tokenizeCard(
 | `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
 | `CARD_READ_ERROR` | Terminal failed to read card | Retry; ask customer to try again |
 
-### Sandbox behaviour
-Tokenization returns a synthetic token in sandbox. Tokens from sandbox cannot be used in production.
+### Testing
+Tokenization on the TEST/DEMO merchant or staging device returns a test token. Test tokens are not valid in the production environment.
 
 ## Batching (Manual Batch Close)
 
@@ -865,8 +865,8 @@ Content-Type: application/json
 | `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
 | `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
 
-### Sandbox behaviour
-Batch close always succeeds in sandbox.
+### Testing
+Test batch close on the staging device (PAX debug). Batch close is a server-side REST API call and does not require card interaction.
 
 ## Money Remittance
 
@@ -955,5 +955,5 @@ handpoint.sale(
 | `moneyRemittance` | boolean | Yes | Must be `true` |
 | `terminal_serial_number` | string | Yes (REST) | Target terminal |
 
-### Sandbox behaviour
-Money remittance transactions are approved in sandbox the same as standard sales.
+### Testing
+Test money remittance transactions on the TEST/DEMO merchant or staging device the same way as standard sales.
