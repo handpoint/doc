@@ -57,12 +57,12 @@ Authentication for iOS HiLite integrations uses the same merchant-scoped credent
 
 ## Summary — environments and credentials
 
-| Environment | Base URL | Device | Merchant type |
+| Integration path | Endpoint | Device | Merchant type |
 |---|---|---|---|
-| Staging | `https://cloud.handpoint.io` | PAX debug device | DEMO only |
-| Production | `https://cloud.handpoint.com` | PAX production device | DEMO or live |
-| Production | `https://cloud.handpoint.com` | HiLite (any) | DEMO or live |
+| REST API — staging | `https://cloud.handpoint.io` | PAX debug device | DEMO only |
+| REST API — production | `https://cloud.handpoint.com` | PAX production device | DEMO or live |
+| Android / iOS SDK (BT) | Bluetooth — no HTTP endpoint | HiLite (any) | DEMO or live |
 
-**HiLite devices** (Android BT and iOS BT) always connect to the production environment (`https://cloud.handpoint.com`), regardless of whether the merchant is DEMO or live. There is no staging path for HiLite — testing is done against the DEMO merchant on production.
+**HiLite devices** (Android BT and iOS BT) connect via Bluetooth to the native SDK — they do not use the REST API or any HTTP endpoint. The merchant context (DEMO or live) is determined by the SSK/credentials configured in the SDK. There is no staging path for HiLite — testing is done against the DEMO merchant on production.
 
 Credentials are provisioned by Handpoint Integration Support for DEMO merchants. Live merchant credentials are provisioned per merchant via the TMS when the merchant goes live.
