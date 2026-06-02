@@ -1,7 +1,7 @@
 ---
 id: teya
 title: "TEYA (Borgun)"
-description: "EU card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization."
+description: "EU card-present acquirer. Supports: sale, refund, reversal, tokenization."
 geography: "EU"
 status: active
 card-brands: [VISA, MC]
@@ -10,9 +10,6 @@ capabilities:
   sale: true
   refund: true
   reversal: true
-  tip-adjustment: true
-  pre-auth: true
-  moto: true
   tokenization: true
 integration-paths:
   - rest-api
@@ -30,7 +27,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="teya" />
 
@@ -39,7 +36,7 @@ export const _caps = {"sale":{"rest-api":"public","android-pax":"public","androi
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
+TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration. Verified via viscus-borgun: tip adjustment, pre-auth, and MOTO are not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
 :::
 
 ## Sale
@@ -58,7 +55,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
+TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration. Verified via viscus-borgun: tip adjustment, pre-auth, and MOTO are not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
 :::
 
 
@@ -180,7 +177,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
+TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration. Verified via viscus-borgun: tip adjustment, pre-auth, and MOTO are not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
 :::
 
 
@@ -288,7 +285,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
+TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration. Verified via viscus-borgun: tip adjustment, pre-auth, and MOTO are not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
 :::
 
 
@@ -361,402 +358,6 @@ handpoint.reversal(
 ### Testing
 Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
 
-## Tip Adjustment
-
-### What this does
-Modifies the tip amount on a completed sale before batch close.
-
-### When to use it
-Use in restaurant/hospitality flows where the cardholder adds a tip after the initial transaction is approved. Do NOT use after batch close — send a Refund for the difference instead.
-
-### Implementation notes
-
-1. **To void a tip:** send `tipAmount: 0`. There is no separate cancel call. The last value sent always wins.
-2. **Deadline:** before batch close. For TSYS, auto-close is typically 11pm EST. After close, only a refund is possible.
-3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
-4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
-5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via REST API. The integration path used for the sale does not constrain the tip adjustment path.
-6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-7. iOS HiLite does not support card-present tip adjustment. Use REST API.
-
-:::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/tipAdjustment
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "originalTransactionId": "abc-123-def",
-  "tipAmount": 900
-}
-```
-
-To void a tip, send `"tipAmount": 0`.
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
-// To void a tip: pass BigInteger("0")
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
-// To void a tip: pass BigInteger("0")
-```
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="Tip adjustment is not supported on iOS HiLite. HiLite is a card-present Bluetooth device; tip adjustment requires a server-side call."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-```javascript
-handpoint.tipAdjustment(
-  { originalTransactionId: "abc-123-def", tipAmount: 900 },
-  function(result) { /* handle result */ },
-  function(error) { console.error(error); }
-);
-```
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `originalTransactionId` | string | Yes | Transaction ID from the original sale |
-| `tipAmount` | integer | Yes | Tip amount in smallest currency unit. `0` to void an existing tip. |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `ORIGINAL_NOT_FOUND` | Transaction ID not found | Verify the ID |
-| `BATCH_ALREADY_CLOSED` | Batch has closed | Refund the tip amount instead |
-| `TIP_ADJUSTMENT_NOT_ENABLED` | TMS config not set | Contact Handpoint onboarding team |
-| `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
-
-### Testing
-Test tip adjustment on the TEST/DEMO merchant or staging device. TMS enablement must be configured — contact your Handpoint Integration Support engineer for staging TMS setup.
-
-## Pre-Authorization
-
-### What this does
-Places a hold on funds without capturing them, allowing the final amount to be adjusted before settlement.
-
-### When to use it
-Use for hotel check-ins, car rentals, or any flow where the final amount is unknown at the time of card interaction. Do NOT use for standard retail — use Sale instead.
-
-### Implementation notes
-
-1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture (Pre-Auth Completion).
-2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
-3. You can increase the authorised amount with an incremental pre-auth (not supported by all acquirers — check your integration notes).
-4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
-
-:::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/transaction
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "action": "PREAUTHORISATION",
-  "amount": 10000,
-  "currency": "USD",
-  "terminal_serial_number": "123456789"
-}
-```
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-```kotlin
-hapi.preAuthorization(BigInteger("10000"), Currency.USD)
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-```javascript
-handpoint.preAuthorization(
-  { amount: 10000, currency: "USD" },
-  function(result) { /* store result.transactionId for capture */ },
-  function(error) { console.error(error); }
-);
-```
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `amount` | integer | Yes | Authorisation amount in smallest currency unit |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal |
-
-### Pre-Authorization Capture
-
-Captures the funds from a previously created pre-authorization (completion).
-
-**When to use:** When you know the final amount and are ready to settle. Send the actual charged amount — it may differ from the original pre-auth amount.
-
-**Implementation notes:**
-1. The capture amount can be less than the pre-auth amount. Most acquirers also allow a small overage (check your acquirer rules).
-2. You must capture before the hold expires (typically 7–30 days).
-3. After capture, a standard refund process applies if the cardholder requests a return.
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/transaction
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "action": "PREAUTHORISATIONCAPTURE",
-  "amount": 9500,
-  "currency": "USD",
-  "original_transaction_reference": "pre-auth-abc-123"
-}
-```
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-```kotlin
-hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.USD)
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-```javascript
-handpoint.preAuthorizationCapture(
-  { originalTransactionId: "pre-auth-abc-123", amount: 9500, currency: "USD" },
-  function(result) { /* handle */ },
-  function(error) { console.error(error); }
-);
-```
-
-</TabItem>
-</Tabs>
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `amount` | integer | Yes | Actual capture amount (may differ from pre-auth) |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
-
-### Void Pre-Authorization
-
-Releases a pre-authorization hold without capturing funds.
-
-**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always void unused pre-auths — unreleased holds affect cardholder available credit.
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/transaction
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "action": "VOIDPREAUTHORISATION",
-  "original_transaction_reference": "pre-auth-abc-123"
-}
-```
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-```kotlin
-hapi.preAuthorizationVoid("pre-auth-abc-123")
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-```javascript
-handpoint.preAuthorizationVoid(
-  { originalTransactionId: "pre-auth-abc-123" },
-  function(result) { /* handle */ },
-  function(error) { console.error(error); }
-);
-```
-
-</TabItem>
-</Tabs>
-
-| Parameter | Type | Required | Description |
-|---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
-
-## MOTO (Mail Order / Telephone Order)
-
-### What this does
-Processes a card-not-present transaction where the cardholder provides card details by phone or mail — no physical terminal required.
-
-### When to use it
-Use for call centres, phone order systems, or any flow where the cardholder is not physically present. Do NOT use for card-present transactions — always prefer Sale for in-person payments.
-
-### Implementation notes
-
-1. **REST API only.** MOTO does not require or use a physical terminal. All terminal-based integration paths (Android, iOS, Cordova) are not applicable.
-2. The cardholder provides card number, expiry date, and CVV verbally or in writing. Your system sends these to the Handpoint cloud API over TLS.
-3. MOTO transactions carry higher fraud risk and interchange rates than card-present transactions.
-4. Ensure your system is PCI DSS compliant before handling raw card data.
-5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
-
-:::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/transaction
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "action": "SALE",
-  "amount": 1000,
-  "currency": "USD",
-  "motoChannel": true,
-  "card": {
-    "number": "4111111111111111",
-    "expiryDate": "0128",
-    "cvv": "123"
-  }
-}
-```
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `motoChannel` | boolean | Yes | Must be `true` |
-| `card.number` | string | Yes | Card PAN (no spaces) |
-| `card.expiryDate` | string | Yes | `MMYY` format |
-| `card.cvv` | string | Yes | Card verification value |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `DECLINED` | Issuer declined | Ask customer for another card |
-| `INVALID_CARD_NUMBER` | Card number failed Luhn check | Verify number with customer |
-| `CVV_MISMATCH` | CVV does not match | Re-confirm with customer |
-| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
-
-### Testing
-Test MOTO against the staging environment (PAX debug device) or TEST/DEMO merchant. Use real-format test card numbers — actual live cards will process against the configured acquirer.
-
 ## Tokenization
 
 ### What this does
@@ -773,7 +374,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the REST API with the token in place of card details.
 
 :::note TEYA (Borgun)
-TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration.
+TEYA and Borgun share the same integration. Both names refer to the same acquirer configuration. Verified via viscus-borgun: tip adjustment, pre-auth, and MOTO are not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
 :::
 
 

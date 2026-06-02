@@ -1,7 +1,7 @@
 ---
 id: vantiv
 title: "VANTIV (Worldpay)"
-description: "US card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto."
+description: "US card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth."
 geography: "US"
 status: active
 card-brands: [VISA, MC, Discover]
@@ -12,7 +12,6 @@ capabilities:
   reversal: true
   tip-adjustment: true
   pre-auth: true
-  moto: true
 integration-paths:
   - rest-api
   - android-pax
@@ -29,7 +28,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="vantiv" />
 
@@ -38,7 +37,7 @@ export const _caps = {"sale":{"rest-api":"public","android-pax":"public","androi
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-Also known as Worldpay. Implements both card-present and MOTO protocols.
+Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv returns BAD_REQUEST for all MOTO operations).
 :::
 
 ## Sale
@@ -57,7 +56,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note VANTIV (Worldpay)
-Also known as Worldpay. Implements both card-present and MOTO protocols.
+Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv returns BAD_REQUEST for all MOTO operations).
 :::
 
 
@@ -179,7 +178,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note VANTIV (Worldpay)
-Also known as Worldpay. Implements both card-present and MOTO protocols.
+Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv returns BAD_REQUEST for all MOTO operations).
 :::
 
 
@@ -287,7 +286,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note VANTIV (Worldpay)
-Also known as Worldpay. Implements both card-present and MOTO protocols.
+Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv returns BAD_REQUEST for all MOTO operations).
 :::
 
 
@@ -379,7 +378,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 7. iOS HiLite does not support card-present tip adjustment. Use REST API.
 
 :::note VANTIV (Worldpay)
-Also known as Worldpay. Implements both card-present and MOTO protocols.
+Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv returns BAD_REQUEST for all MOTO operations).
 :::
 
 
@@ -474,7 +473,7 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note VANTIV (Worldpay)
-Also known as Worldpay. Implements both card-present and MOTO protocols.
+Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv returns BAD_REQUEST for all MOTO operations).
 :::
 
 
@@ -653,105 +652,3 @@ handpoint.preAuthorizationVoid(
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
-
-## MOTO (Mail Order / Telephone Order)
-
-### What this does
-Processes a card-not-present transaction where the cardholder provides card details by phone or mail — no physical terminal required.
-
-### When to use it
-Use for call centres, phone order systems, or any flow where the cardholder is not physically present. Do NOT use for card-present transactions — always prefer Sale for in-person payments.
-
-### Implementation notes
-
-1. **REST API only.** MOTO does not require or use a physical terminal. All terminal-based integration paths (Android, iOS, Cordova) are not applicable.
-2. The cardholder provides card number, expiry date, and CVV verbally or in writing. Your system sends these to the Handpoint cloud API over TLS.
-3. MOTO transactions carry higher fraud risk and interchange rates than card-present transactions.
-4. Ensure your system is PCI DSS compliant before handling raw card data.
-5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
-
-:::note VANTIV (Worldpay)
-Also known as Worldpay. Implements both card-present and MOTO protocols.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/transaction
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "action": "SALE",
-  "amount": 1000,
-  "currency": "USD",
-  "motoChannel": true,
-  "card": {
-    "number": "4111111111111111",
-    "expiryDate": "0128",
-    "cvv": "123"
-  }
-}
-```
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
-/>
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `motoChannel` | boolean | Yes | Must be `true` |
-| `card.number` | string | Yes | Card PAN (no spaces) |
-| `card.expiryDate` | string | Yes | `MMYY` format |
-| `card.cvv` | string | Yes | Card verification value |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `DECLINED` | Issuer declined | Ask customer for another card |
-| `INVALID_CARD_NUMBER` | Card number failed Luhn check | Verify number with customer |
-| `CVV_MISMATCH` | CVV does not match | Re-confirm with customer |
-| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
-
-### Testing
-Test MOTO against the staging environment (PAX debug device) or TEST/DEMO merchant. Use real-format test card numbers — actual live cards will process against the configured acquirer.

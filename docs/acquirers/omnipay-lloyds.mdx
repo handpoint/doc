@@ -1,6 +1,6 @@
 ---
 id: omnipay-lloyds
-title: "OMNIPAY Lloyds"
+title: "Lloyds"
 description: "EU card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization."
 geography: "EU"
 status: active
@@ -57,7 +57,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
@@ -179,7 +179,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
 4. The cardholder's card must be present for card-present refunds.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
@@ -287,7 +287,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 3. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
@@ -379,7 +379,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
 7. iOS HiLite does not support card-present tip adjustment. Use REST API.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
@@ -474,7 +474,7 @@ Use for hotel check-ins, car rentals, or any flow where the final amount is unkn
 3. You can increase the authorised amount with an incremental pre-auth (not supported by all acquirers — check your integration notes).
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
@@ -671,7 +671,7 @@ Use for call centres, phone order systems, or any flow where the cardholder is n
 4. Ensure your system is PCI DSS compliant before handling raw card data.
 5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
@@ -772,7 +772,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
 4. For future charges using the token, use the REST API with the token in place of card details.
 
-:::note OMNIPAY Lloyds
+:::note Lloyds
 Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 

@@ -9,7 +9,7 @@ export const ACQUIRERS = [
   },
   {
     "slug": "tsys-tns",
-    "name": "PAYSAFE TSYS + TNS",
+    "name": "PAYSAFE + Interac",
     "geography": "Canada"
   },
   {
@@ -19,22 +19,22 @@ export const ACQUIRERS = [
   },
   {
     "slug": "paysafe-tsys",
-    "name": "PAYSAFE TSYS",
+    "name": "PAYSAFE",
     "geography": "US"
   },
   {
     "slug": "omnipay-emp",
-    "name": "OMNIPAY EmerchantPay",
+    "name": "EmerchantPay",
     "geography": "EU"
   },
   {
     "slug": "omnipay-lloyds",
-    "name": "OMNIPAY Lloyds",
+    "name": "Lloyds",
     "geography": "EU"
   },
   {
     "slug": "omnipay-paystrax",
-    "name": "OMNIPAY Paystrax",
+    "name": "Paystrax",
     "geography": "EU"
   },
   {
