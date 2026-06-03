@@ -65,6 +65,7 @@ const sidebars = {
         'reference/full-matrix',
         'reference/acquirer-capabilities-matrix',
         'reference/devices',
+        'reference/interac-void',
         'reference/transaction-result-object',
         'reference/error-codes',
       ],

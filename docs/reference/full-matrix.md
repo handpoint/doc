@@ -76,10 +76,10 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | Not exposed by Paysafe. |
+| Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | |
-| Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | Not exposed by Paysafe. |
-| MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | Not exposed by Paysafe. |
+| Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tokenization | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | |
 | Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
@@ -239,5 +239,6 @@ Other acquirers (TSYS, PAYSAFE, TEYA): JCB and UnionPay acceptance depends on ac
 | **JCB on TSYS / PAYSAFE / TEYA** | Platform supports it; verify acquirer agreement enables it per merchant |
 | **UnionPay on TSYS / VANTIV / TEYA** | Platform supports it; verify acquirer agreement |
 | **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
+
 
 

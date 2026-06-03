@@ -182,11 +182,11 @@ acquirers:
     card-brands: [VISA, MC, AMEX, Discover, Interac]
     interac: true
     notes: >
-      Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set.
-      Although the underlying TSYS protocol supports MOTO, partial reversal, and
-      pre-authorization, Paysafe does not expose these capabilities to integrators.
-      Tip adjustment and tokenization are forthcoming.
-      Interac transactions follow TNS void-only rules.
+      Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and
+      pre-authorization are not available. Tip adjustment forthcoming.
+      Tokenization: single-use Paysafe token — requires merchant onboarding by
+      Paysafe/Handpoint before use.
+      Interac transactions follow TNS void-only rules — see Interac VOID guide.
     capabilities:
       sale:
         rest-api: public

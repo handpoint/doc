@@ -169,10 +169,13 @@ Use specifically for Interac card transactions via TNS. For non-Interac transact
 
 ### Implementation notes
 
-1. **Interac / TNS only.** For non-Interac cards, use Reversal.
+1. **Interac / TNS only.** For non-Interac cards, use Reversal instead.
 2. The card must be inserted or tapped at the terminal — card-not-present void is not supported by the Interac network.
 3. Full amount only — partial voids are not supported.
-4. **ISV UI note:** label this button "VOID" in your application, not "Refund" or "Reverse". This is an Interac network requirement.
+4. **ISV UI note:** label this button **"VOID"** in your application — never "Refund" or "Reverse". This is an Interac network requirement.
+5. **SDK behaviour:** the Android SDK method called is `refund()`. The Handpoint gateway detects that the original transaction was processed via TNS (Interac) and automatically maps the refund request to a TNS VOID internally. You do not call a separate void function.
+
+See also: [Interac VOID — implementation guide](/reference/interac-void)
 
 :::note TNS (Interac)
 TNS processes Interac card-present transactions only. The only post-sale operation is VOID — full amount, card must be inserted or tapped, must occur before settlement. Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network. Pre-authorization is explicitly rejected (BAD_REQUEST).
@@ -201,15 +204,18 @@ The gateway detects that the original transaction was Interac/TNS and maps to th
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-// Send a standard reversal — the gateway maps to TNS void automatically
-hapi.reversal("abc-123-def")
+// Call refund() — the gateway detects the original was an Interac/TNS
+// transaction and maps this to a TNS VOID automatically.
+// Show "VOID" in your UI, not "Refund".
+hapi.refund(BigInteger("originalAmount"), Currency.CAD, "abc-123-def")
 ```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.reversal("abc-123-def")
+// Same as Android PAX — call refund(), gateway maps to TNS VOID.
+hapi.refund(BigInteger("originalAmount"), Currency.CAD, "abc-123-def")
 ```
 
 </TabItem>
