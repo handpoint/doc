@@ -1,6 +1,6 @@
 # Handpoint Developer Documentation
 # Fetch the acquirer URL for full implementation detail.
-# Generated: 2026-06-03T07:19:08.569Z
+# Generated: 2026-06-03T10:54:08.274Z
 
 ## Acquirers
 TSYS | geography: US, Canada | sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal | cards: VISA, MC, Discover | url: /acquirers/tsys
