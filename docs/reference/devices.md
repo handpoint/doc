@@ -1,7 +1,7 @@
 ---
 title: Supported devices
 sidebar_position: 4
-description: All payment terminals supported by Handpoint — PAX and HiLite (DATECS). Includes hardware comparison and datasheet links.
+description: All payment terminals supported by Handpoint — PAX and HiLite (DATECS). Includes hardware comparison table and TMS device type reference.
 hide_table_of_contents: false
 ---
 
@@ -22,7 +22,7 @@ Please reference the [PCI SSC website](https://www.pcisecuritystandards.org) to 
 
 ## Hardware comparison
 
-✅ = Included &nbsp;|&nbsp; ❌ = Not included &nbsp;|&nbsp; — = Verify with datasheet
+✅ = Included &nbsp;|&nbsp; ❌ = Not included &nbsp;|&nbsp; — = Verify with PAX
 
 | Device | Printer | Wi-Fi 2.4G | Wi-Fi 5G | 4G | 5G | Ethernet |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
