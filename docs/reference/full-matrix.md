@@ -7,7 +7,7 @@ hide_table_of_contents: true
 
 # Full capabilities matrix
 
-**Legend:** ✅ = Supported &nbsp;|&nbsp; 🔜 = Coming soon &nbsp;|&nbsp; ❌ = Not supported &nbsp;|&nbsp; — = N/A
+**Legend:** ✅ = Supported &nbsp;|&nbsp; ❌ = Coming soon &nbsp;|&nbsp; ❌ = Not supported &nbsp;|&nbsp; — = N/A
 
 Verified against viscus gateway SDK source code and Android SDK documentation.
 
@@ -24,12 +24,10 @@ Pre-auth includes the full lifecycle: create, increase/decrease, capture, void h
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ✅ | ✅ | ❌ | ❌ | ❌ | TSYS US and Canada. REST API + Android (PAX). |
 | Tip Adjustment | ✅ | ✅ | ✅ | ❌ | ✅ | iOS HiLite: use REST API instead. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
-| Pre-Auth Capture Reversal | 🔜 | ❌ | ❌ | ❌ | ❌ | In development. REST API only. |
+| Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX shows card entry screen) or back-office (REST API, no reader). PAX only for on-terminal. |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Batch Close | ✅ | ❌ | ❌ | ❌ | ❌ | US + Canada. REST API server-side. |
-| Void | ❌ | ❌ | ❌ | ❌ | ❌ | Use Reversal for card-present. |
+| Batch Operations | ✅ | ❌ | ❌ | ❌ | ❌ | US + Canada. REST API server-side. |
 
 ---
 
@@ -42,10 +40,10 @@ Pre-auth includes the full lifecycle: create, increase/decrease, capture, void h
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | Interac cards: not available. |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | ✅ | ✅ | ✅ | ❌ | ✅ | TSYS-routed cards only. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | TSYS-routed cards only. |
+| Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | TSYS-routed cards only. |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | TSYS-routed cards only. |
-| Batch Close | ✅ | ❌ | ❌ | ❌ | ❌ | TSYS (non-Interac) transactions only. |
+| Batch Operations | ✅ | ❌ | ❌ | ❌ | ❌ | TSYS (non-Interac) transactions only. |
 | Void | ✅ | ✅ | ✅ | ✅ | ✅ | **Interac cards only.** Card must be present. Show VOID in ISV UI, not Refund. |
 
 ---
@@ -55,21 +53,15 @@ Pre-auth includes the full lifecycle: create, increase/decrease, capture, void h
 | Operation | REST API | Android (PAX) | Android (HiLite) | iOS (HiLite) | Cordova | Notes |
 |---|:---:|:---:|:---:|:---:|:---:|---|
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Refund | ❌ | ❌ | ❌ | ❌ | ❌ | Not supported by Interac network. Use Void pre-settlement. |
-| Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | Not supported. Use Void. |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | Returns BAD_REQUEST. |
 | MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tokenization | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Interac settles independently. |
 | Void | ✅ | ✅ | ✅ | ✅ | ✅ | **Full amount only. Card must be present. Before settlement.** |
 
 ---
 
 ## PAYSAFE — US · VISA MC AMEX Discover Interac
-
-Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial reversal, and pre-auth — even though the underlying TSYS protocol supports them.
 
 | Operation | REST API | Android (PAX) | Android (HiLite) | iOS (HiLite) | Cordova | Notes |
 |---|:---:|:---:|:---:|:---:|:---:|---|
@@ -77,11 +69,11 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | |
+| Tip Adjustment | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Tokenization | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| Tokenization | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| Batch Operations | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
 ---
 
@@ -93,12 +85,10 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Tip Adjustment | ❌ | ❌ | ❌ | ❌ | ❌ | Not implemented in viscus-omnipay (returns null). |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
 | Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Settlement is automatic. |
 | Money Remittance | ✅ | ✅ | ✅ | ✅ | ✅ | AMEX routing: separate MID required. |
 
 ---
@@ -111,12 +101,10 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | Implemented in code, not officially released. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
 | Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Settlement is automatic. |
 
 ---
 
@@ -128,12 +116,10 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | Implemented in code, not officially released. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
 | Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Settlement is automatic. |
 
 ---
 
@@ -145,11 +131,8 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Tip Adjustment | ❌ | ❌ | ❌ | ❌ | ❌ | Returns OPERATION_NOT_SUPPORTED in viscus-borgun. |
-| Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | Returns BAD_REQUEST in viscus-borgun. |
-| MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | No IMotoProtocol in viscus-borgun. |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| Batch Operations | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Money Remittance | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
 ---
@@ -163,10 +146,8 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | ✅ | ✅ | ✅ | ❌ | ✅ | |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | |
-| MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | Returns BAD_REQUEST in viscus-vantiv. |
-| Tokenization | ❌ | ❌ | ❌ | ❌ | ❌ | Not implemented. |
-| Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | |
+| Batch Operations | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Money Remittance | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
 ---
@@ -180,19 +161,15 @@ EMP = EmerchantPay
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Refund | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Reversal | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Partial Rev | ✅¹ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Tip Adj | ✅ | ✅ | ❌ | 🔜 | ❌ | 🔜 | 🔜 | ❌ | ✅ |
-| Pre-Auth | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Pre-Auth Capture Rev | 🔜² | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Partial Rev | Tip Adj | ✅ | Pre-Auth | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Pre-Auth Capture Rev | ❌² | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Tokenization | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Batch Close | ✅ | ✅³ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Money Rem | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Void | ❌ | ✅⁴ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-
+| Tokenization | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Batch Operations | ✅ | Money Rem | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Void | ❌ | ✅⁴ 
 ¹ TSYS partial reversal: TSYS US and Canada. Available via REST API and Android SDK (PAX).  
-² Pre-Auth Capture Reversal: in development for TSYS (🔜 REST API only); confirmed supported for EmerchantPay, Lloyds, Paystrax (✅ REST API only).  
-³ PAYSAFE + Interac batch close: TSYS (non-Interac) transactions only, REST API only.  
+² Pre-Auth Capture Reversal: in development for TSYS (❌ REST API only); confirmed supported for EmerchantPay, Lloyds, Paystrax (✅ REST API only).  
+³ PAYSAFE + Interac Batch Operations: TSYS (non-Interac) transactions only, REST API only.  
 ⁴ PAYSAFE + Interac / TNS void: Interac cards only, card must be physically present.  
 ❓ = Status unknown — to be confirmed with integration team.
 
@@ -206,11 +183,11 @@ What each integration path can do across ALL acquirers:
 REST API card-present operations require a PAX terminal running the Handpoint Android SDK initialised in **cloud/integrated mode**. The REST API sends commands to the Handpoint Cloud, which forwards them to the terminal. MOTO (no-terminal) operations are a separate back-office capability — see [Back Office](/back-office/rest-api-no-reader).
 :::
 
-| Integration path | Card-present ops | MOTO | Batch Close | Partial Rev | Notes |
+| Integration path | Card-present ops | MOTO | Batch Operations | Partial Rev | Notes |
 |---|---|---|---|---|---|
 | **REST API** | ✅ All (PAX in integrated mode required) | ✅ Back-office (REST API, no reader, acquirer-dependent) | ✅ Where acquirer supports | ✅ TSYS only | PAX debug → `.io`; PAX prod → `.com` |
 | **Android (PAX)** | ✅ All except batch | ✅ On-terminal (PAX shows card entry screen) — PAX only | ❌ | ✅ TSYS only | Runs natively on PAX terminal |
-| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth 🔜 | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no MOTO/batch/partial rev |
+| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no MOTO/batch/partial rev |
 | **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |
 | **Cordova** | ✅ Same as Android (PAX) for PAX; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Single JS API for both device types |
 
@@ -239,6 +216,11 @@ Other acquirers (TSYS, PAYSAFE, TEYA): JCB and UnionPay acceptance depends on ac
 | **JCB on TSYS / PAYSAFE / TEYA** | Platform supports it; verify acquirer agreement enables it per merchant |
 | **UnionPay on TSYS / VANTIV / TEYA** | Platform supports it; verify acquirer agreement |
 | **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
+
+
+
+
+
 
 
 

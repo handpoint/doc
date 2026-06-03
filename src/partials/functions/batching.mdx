@@ -1,7 +1,9 @@
-## Batching (Manual Batch Close)
+## Batch Operations
+
+The Batch Operations API provides three server-side endpoints for managing transaction batches: **Close** (triggers settlement), **Summary** (retrieves batch totals), and **Detail** (retrieves individual transaction list).
 
 ### What this does
-Manually triggers the close of the current transaction batch, initiating settlement for all transactions since the last close.
+Enables server-side batch management: close the current batch to trigger settlement, or query batch summary and details for reconciliation.
 
 ### When to use it
 Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.

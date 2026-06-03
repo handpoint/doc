@@ -10,7 +10,7 @@ const CAPABILITY_LABELS = {
   'pre-auth':                   'Pre-Authorization',
   'pre-auth-capture-reversal':  'Pre-Auth Capture Reversal',
   'moto':                       'MOTO (no reader)',
-  'batching':                   'Batch Close (no reader)',
+  'batching':       'Batch Operations (Close / Summary / Detail)',
   'money-remittance':           'Money Remittance',
   'void':                       'Void',
 };
@@ -128,7 +128,7 @@ export default function CapabilitySummary({capabilities}) {
       {selectedPath === 'rest-api' && (
         <p className="capability-summary-note">
           <small>
-            MOTO and Batch Close are server-side operations — no physical terminal required.
+            MOTO and Batch Operations are server-side — no physical terminal required.
             All other operations command a PAX terminal via the Handpoint Cloud.
           </small>
         </p>
@@ -136,3 +136,4 @@ export default function CapabilitySummary({capabilities}) {
     </div>
   );
 }
+

@@ -1,7 +1,7 @@
 ---
 id: omnipay-paystrax
 title: "Paystrax"
-description: "EU card-present acquirer. Supports: pre-auth-capture-reversal, sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization."
+description: "EU card-present acquirer. Supports: pre-auth-capture-reversal, sale, refund, reversal, pre-auth, moto, tokenization."
 geography: "EU"
 status: active
 card-brands: [VISA, MC, AMEX, UnionPay]
@@ -11,7 +11,6 @@ capabilities:
   sale: true
   refund: true
   reversal: true
-  tip-adjustment: coming-soon
   pre-auth: true
   moto: true
   tokenization: true
@@ -31,7 +30,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"pre-auth-capture-reversal":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"coming-soon","android-pax":"coming-soon","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"coming-soon"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
+export const _caps = {"pre-auth-capture-reversal":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="omnipay-paystrax" />
 
@@ -361,104 +360,6 @@ handpoint.reversal(
 
 ### Testing
 Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
-
-## Tip Adjustment
-
-### What this does
-Modifies the tip amount on a completed sale before batch close.
-
-### When to use it
-Use in restaurant/hospitality flows where the cardholder adds a tip after the initial transaction is approved. Do NOT use after batch close — send a Refund for the difference instead.
-
-### Implementation notes
-
-1. **To void a tip:** send `tipAmount: 0`. There is no separate cancel call. The last value sent always wins.
-2. **Deadline:** before batch close. For TSYS, auto-close is typically 11pm EST. After close, only a refund is possible.
-3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
-4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
-5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via REST API. The integration path used for the sale does not constrain the tip adjustment path.
-6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-7. iOS HiLite does not support card-present tip adjustment. Use REST API.
-
-:::note Paystrax
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-```http
-POST https://cloud.handpoint.com/tipAdjustment
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "originalTransactionId": "abc-123-def",
-  "tipAmount": 900
-}
-```
-
-To void a tip, send `"tipAmount": 0`.
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
-// To void a tip: pass BigInteger("0")
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
-// To void a tip: pass BigInteger("0")
-```
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="Tip adjustment is not supported on iOS HiLite. HiLite is a card-present Bluetooth device; tip adjustment requires a server-side call."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-```javascript
-handpoint.tipAdjustment(
-  { originalTransactionId: "abc-123-def", tipAmount: 900 },
-  function(result) { /* handle result */ },
-  function(error) { console.error(error); }
-);
-```
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `originalTransactionId` | string | Yes | Transaction ID from the original sale |
-| `tipAmount` | integer | Yes | Tip amount in smallest currency unit. `0` to void an existing tip. |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `ORIGINAL_NOT_FOUND` | Transaction ID not found | Verify the ID |
-| `BATCH_ALREADY_CLOSED` | Batch has closed | Refund the tip amount instead |
-| `TIP_ADJUSTMENT_NOT_ENABLED` | TMS config not set | Contact Handpoint onboarding team |
-| `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
-
-### Testing
-Test tip adjustment on the TEST/DEMO merchant or staging device. TMS enablement must be configured — contact your Handpoint Integration Support engineer for staging TMS setup.
 
 ## Pre-Authorization
 

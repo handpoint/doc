@@ -52,8 +52,8 @@ acquirers:
       pre-auth:
         rest-api: public
         android-pax: public
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
+        android-hilite: not-supported
+        ios-hilite: not-supported
         cordova: public
       moto:
         rest-api: public
@@ -74,7 +74,7 @@ acquirers:
         ios-hilite: not-supported
         cordova: not-supported
       pre-auth-capture-reversal:
-        rest-api: coming-soon
+        rest-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
@@ -122,8 +122,8 @@ acquirers:
       pre-auth:
         rest-api: public
         android-pax: public
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
+        android-hilite: not-supported
+        ios-hilite: not-supported
         cordova: public
       moto:
         rest-api: public
@@ -207,17 +207,17 @@ acquirers:
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: coming-soon
-        android-pax: coming-soon
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
-        cordova: coming-soon
+        rest-api: not-supported
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       tokenization:
-        rest-api: coming-soon
-        android-pax: coming-soon
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
-        cordova: coming-soon
+        rest-api: not-supported
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
 
   omnipay-emp:
     name: "EmerchantPay"
@@ -257,8 +257,8 @@ acquirers:
       pre-auth:
         rest-api: public
         android-pax: public
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
+        android-hilite: not-supported
+        ios-hilite: not-supported
         cordova: public
       moto:
         rest-api: public
@@ -315,16 +315,16 @@ acquirers:
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: coming-soon
-        android-pax: coming-soon
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
-        cordova: coming-soon
+        rest-api: not-supported
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       pre-auth:
         rest-api: public
         android-pax: public
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
+        android-hilite: not-supported
+        ios-hilite: not-supported
         cordova: public
       moto:
         rest-api: public
@@ -375,16 +375,16 @@ acquirers:
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: coming-soon
-        android-pax: coming-soon
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
-        cordova: coming-soon
+        rest-api: not-supported
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       pre-auth:
         rest-api: public
         android-pax: public
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
+        android-hilite: not-supported
+        ios-hilite: not-supported
         cordova: public
       moto:
         rest-api: public
@@ -541,8 +541,8 @@ acquirers:
       pre-auth:
         rest-api: public
         android-pax: public
-        android-hilite: coming-soon
-        ios-hilite: coming-soon
+        android-hilite: not-supported
+        ios-hilite: not-supported
         cordova: public
 
   # Deprecated — retained for reference only, not published
@@ -561,4 +561,5 @@ acquirers:
     card-brands: [VISA, MC]
     interac: false
     capabilities: {}
+
 

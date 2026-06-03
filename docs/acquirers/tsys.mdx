@@ -1,7 +1,7 @@
 ---
 id: tsys
 title: "TSYS"
-description: "US, Canada card-present acquirer. Supports: sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal."
+description: "US, Canada card-present acquirer. Supports: sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching."
 geography: "US, Canada"
 status: active
 card-brands: [VISA, MC, Discover]
@@ -16,7 +16,6 @@ capabilities:
   moto: true
   tokenization: true
   batching: true
-  pre-auth-capture-reversal: coming-soon
 integration-paths:
   - rest-api
   - android-pax
@@ -33,7 +32,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"partial-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth-capture-reversal":{"rest-api":"coming-soon","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"partial-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth-capture-reversal":{"rest-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
 
 <AcquirerPageHeader currentSlug="tsys" />
 
@@ -769,63 +768,6 @@ handpoint.preAuthorizationVoid(
 |---|---|---|---|
 | `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
 
-### Pre-Authorization Capture Reversal
-
-Reverses a completed pre-authorization capture — releasing the settled funds back to the cardholder.
-
-:::caution Coming soon
-Pre-Authorization Capture Reversal is under development for TSYS. It is not yet available. Use a standard Refund after the batch closes instead.
-:::
-
-**When to use:** When a pre-auth was captured in error, or the merchant needs to fully cancel a capture before the customer is charged at settlement.
-
-**How it differs from Void Pre-Authorization:** Void Pre-Auth releases the *hold* before capture. Capture Reversal cancels the *capture* after it has been accepted.
-
-**Implementation notes:**
-1. Must be sent before the batch closes. After batch close, only a Refund is possible.
-2. Full capture amount only — partial capture reversals are not supported.
-3. REST API only — terminal paths are not supported for this operation.
-
-<Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-<NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
-  useInstead="REST API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
-  useInstead="REST API"
-/>
-
-</TabItem>
-</Tabs>
-
 ## MOTO (Mail Order / Telephone Order)
 
 ### What this does
@@ -1092,10 +1034,12 @@ handpoint.tokenizeCard(
 ### Testing
 Tokenization on the TEST/DEMO merchant or staging device returns a test token. Test tokens are not valid in the production environment.
 
-## Batching (Manual Batch Close)
+## Batch Operations
+
+The Batch Operations API provides three server-side endpoints for managing transaction batches: **Close** (triggers settlement), **Summary** (retrieves batch totals), and **Detail** (retrieves individual transaction list).
 
 ### What this does
-Manually triggers the close of the current transaction batch, initiating settlement for all transactions since the last close.
+Enables server-side batch management: close the current batch to trigger settlement, or query batch summary and details for reconciliation.
 
 ### When to use it
 Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.

@@ -8,18 +8,17 @@ description: Full matrix of payment capabilities per acquirer. Verified against 
 
 # Acquirer capabilities matrix
 
-| Acquirer | Geography | Sale | Refund | Reversal | Partial Rev. | Tip Adj. | Pre-Auth | MOTO | Batching | Money Rem. | Void |
+| Acquirer | Geography | Sale | Refund | Reversal | Partial Rev. | Tip Adj. | Pre-Auth | MOTO | Batch Ops | Money Rem. | Void |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | TSYS | US, Canada | ✅ | ✅ | ✅ | ✅ US | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | PAYSAFE + Interac | Canada | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ | ✅ TSYS only¹ | ❌ | ✅ |
 | TNS (Interac) | Canada | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
-| PAYSAFE | US | ✅ | ✅ | ✅ | ❌ | 🔜 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| PAYSAFE | US | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | EmerchantPay | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ✅ | ❌ |
-| Lloyds | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ❌ | ❌ | ❌ |
-| Paystrax | EU | ✅ | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Lloyds | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Paystrax | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
 | TEYA (Borgun) | EU | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | VANTIV (Worldpay) | US | ✅ | ✅ | ✅ | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
 
-¹ PAYSAFE + Interac: Batching only applies to TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently.
+¹ PAYSAFE + Interac: Batch Ops only applies to TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently.
 
-🔜 = Coming soon
