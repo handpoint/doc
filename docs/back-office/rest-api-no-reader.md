@@ -1,20 +1,20 @@
 ---
 title: REST API — no reader
 sidebar_position: 1
-description: Card-not-present and server-side operations that do not require a physical terminal.
+description: Server-side operations that do not require a physical terminal.
 ---
 
 # REST API — no reader
 
-These operations are performed entirely server-side via the Handpoint Cloud REST API. No terminal, no SDK, no hardware required.
+These operations are performed entirely server-side. **No terminal, no SDK, no hardware required.**
 
-:::info URL for staging vs production
-Use `https://cloud.handpoint.io` for PAX debug devices (staging). Use `https://cloud.handpoint.com` for production PAX devices.
+:::info MOTO has two modes
+MOTO can also be performed **on a PAX terminal** — the terminal shows a card entry screen and the operator types the card details. That mode requires a connected terminal in integrated mode and is documented on each acquirer's page. This page covers **MOTO back-office only** — where card data is submitted directly in the API request with no terminal involved.
 :::
 
-## MOTO (Mail Order / Telephone Order)
+## MOTO back-office (no terminal)
 
-Process card-not-present transactions. See the [MOTO section](../acquirers/tsys#moto) on your acquirer's page for the full implementation guide.
+Submit card details in the request body. No terminal serial number. The ISV system receives card data from the cardholder (over phone, mail, or secure form) and submits it directly. Ensure your platform is PCI DSS compliant before using this mode.
 
 ```http
 POST https://cloud.handpoint.com/transaction

@@ -823,18 +823,30 @@ Pre-Authorization Capture Reversal is under development for TSYS. It is not yet 
 ## MOTO (Mail Order / Telephone Order)
 
 ### What this does
-Processes a card-not-present transaction where the cardholder provides card details by phone or mail — no physical terminal required.
+Processes a card-not-present transaction where the cardholder provides card details by phone or mail.
+
+### Two MOTO modes
+
+MOTO is available in two distinct modes — both use the REST API but differ in how card data is captured:
+
+| Mode | How it works | Terminal required | PCI scope |
+|---|---|---|---|
+| **MOTO on terminal** | REST API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. | ✅ PAX in integrated mode | Lower — card data stays on terminal |
+| **MOTO back-office** | REST API request body contains raw card data (PAN, expiry, CVV). No terminal involved. | ❌ None | Higher — ISV system handles card data |
+
+:::caution PCI DSS
+MOTO back-office mode requires your system to handle raw card data. Ensure your platform is PCI DSS compliant before using this mode. MOTO on terminal keeps card data on the Handpoint terminal and reduces your PCI scope.
+:::
 
 ### When to use it
-Use for call centres, phone order systems, or any flow where the cardholder is not physically present. Do NOT use for card-present transactions — always prefer Sale for in-person payments.
+Use for call centres, phone order systems, or any flow where the cardholder is not physically present. Do NOT use for card-present transactions — always use Sale for in-person payments.
 
 ### Implementation notes
 
-1. **REST API only.** MOTO does not require or use a physical terminal. All terminal-based integration paths (Android, iOS, Cordova) are not applicable.
-2. The cardholder provides card number, expiry date, and CVV verbally or in writing. Your system sends these to the Handpoint cloud API over TLS.
-3. MOTO transactions carry higher fraud risk and interchange rates than card-present transactions.
-4. Ensure your system is PCI DSS compliant before handling raw card data.
-5. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
+1. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
+2. MOTO transactions carry higher fraud risk and interchange rates than card-present transactions.
+3. For **MOTO on terminal**: the PAX device must be running the Android SDK in integrated mode and connected to the Handpoint Cloud.
+4. For **MOTO back-office**: no terminal required — see the [Back Office section](/back-office/rest-api-no-reader).
 
 :::note TSYS
 Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses the MasterCard flag in ISO 8583.
@@ -845,6 +857,24 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only — uses
 
 <Tabs groupId="integration-path">
 <TabItem value="rest-api" label="REST API">
+
+**MOTO on terminal** — the terminal shows a card entry screen, operator types the card details:
+
+```http
+POST https://cloud.handpoint.com/transaction
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "motoChannel": true,
+  "terminal_serial_number": "123456789"
+}
+```
+
+**MOTO back-office** — card details submitted in the request body, no terminal:
 
 ```http
 POST https://cloud.handpoint.com/transaction
@@ -868,7 +898,7 @@ Content-Type: application/json
 <TabItem value="android-pax" label="Android (PAX)">
 
 <NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  reason="Use REST API with the terminal's serial number to trigger MOTO on the PAX terminal screen, or use REST API without a terminal for back-office MOTO."
   useInstead="REST API"
 />
 
@@ -876,23 +906,23 @@ Content-Type: application/json
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
+  reason="HiLite is a Bluetooth card reader — MOTO manual entry is not available on this path. Use REST API back-office mode."
+  useInstead="REST API (back-office)"
 />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
-  useInstead="REST API"
+  reason="HiLite is a Bluetooth card reader — MOTO manual entry is not available on this path. Use REST API back-office mode."
+  useInstead="REST API (back-office)"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="MOTO is a card-not-present operation. No physical terminal is involved."
+  reason="Use REST API with the terminal's serial number to trigger MOTO on the PAX terminal screen."
   useInstead="REST API"
 />
 
@@ -900,6 +930,17 @@ Content-Type: application/json
 </Tabs>
 
 ### Parameters
+
+**MOTO on terminal** (`terminal_serial_number` present, no `card` object):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | integer | Yes | Amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `motoChannel` | boolean | Yes | Must be `true` |
+| `terminal_serial_number` | string | Yes | PAX terminal serial number — triggers on-terminal card entry screen |
+
+**MOTO back-office** (`card` object present, no `terminal_serial_number`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -920,7 +961,7 @@ Content-Type: application/json
 | `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
 
 ### Testing
-Test MOTO against the staging environment (PAX debug device) or TEST/DEMO merchant. Use real-format test card numbers — actual live cards will process against the configured acquirer.
+Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a REST API call without a terminal serial number against the staging environment.
 
 ## Tokenization
 
