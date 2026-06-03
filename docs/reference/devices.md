@@ -67,7 +67,6 @@ Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android 
 | **Connection** | Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Integration paths** | Android SDK (HiLite BT), iOS SDK (HiLite BT), Cordova |
-| **Datasheet** | [DATECS website](https://www.datecs.bg) |
 
 ---
 
@@ -87,7 +86,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.6.7+ |
-| **Datasheet** | [PAX A920](https://www.paxtechnology.com/a920) · [PAX A920 Pro](https://www.paxtechnology.com/a920pro) |
 
 ---
 
@@ -101,7 +99,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Handheld smart terminal with printer (large screen) |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -115,7 +112,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, 5G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -129,7 +125,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -144,7 +139,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.7.0+ |
-| **Datasheet** | [PAX A80](https://www.paxtechnology.com/a80) |
 
 ---
 
@@ -159,7 +153,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v7.1001.0+ |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -173,7 +166,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Countertop smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -187,7 +179,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Countertop smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -203,7 +194,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v7.1011.0+ (A6630) |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -217,7 +207,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Compact handheld terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -232,7 +221,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.7.0+ |
-| **Datasheet** | [PAX A35](https://www.paxtechnology.com/a35) |
 
 ---
 
@@ -246,7 +234,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Compact handheld terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -260,7 +247,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Entry-level smart terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4GHz, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -274,7 +260,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -288,7 +273,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -303,7 +287,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Form factor** | Biometric smart terminal (fingerprint reader) |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe, fingerprint |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -319,7 +302,6 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, Ethernet |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Note** | E700 includes built-in printer; E500 does not |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -338,7 +320,6 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | **Connectivity** | Wi-Fi 2.4GHz, Ethernet |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Replacement** | PAX A3700 + L1400 (Elys Workstation) |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -354,7 +335,6 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | **Connectivity** | IM25: Wi-Fi 2.4GHz, 4G · IM30: Wi-Fi 2.4GHz, Ethernet |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | IM25: v7.1009.5+ |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -370,7 +350,6 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v7.1010.6+ |
 | **Note** | Part of the Elys Workstation (A3700 + L1400 tablet) — recommended upgrade for E800 |
-| **Datasheet** | [PAX Technology](https://www.paxtechnology.com) |
 
 ---
 
@@ -407,3 +386,4 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | `PAXIM30` | PAX IM30 | ✅ |
 | `PAXA3700` | PAX A3700 | ✅ |
 | `VT` | Virtual Terminal | — |
+
