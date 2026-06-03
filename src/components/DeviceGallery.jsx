@@ -16,7 +16,7 @@ const DEVICES = [
     id: 'hilite', name: 'HiLite', family: 'HiLite (DATECS)', tms: 'MPED400',
     img: '/img/devices/HiLite.jpg',
     paths: 'Android (HiLite BT) · iOS (HiLite BT) · Cordova',
-    printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
+    printer: false, wifi24: false, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
   },
   // PAX handheld with printer
   {
@@ -53,7 +53,7 @@ const DEVICES = [
     id: 'a77', name: 'PAX A77', family: 'PAX', tms: 'PAXA77',
     img: '/img/devices/PAXA77.png',
     paths: 'Android SDK (PAX) · REST API',
-    printer: true, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
+    printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
   },
   {
     id: 'a960', name: 'PAX A960', family: 'PAX', tms: 'PAXA960',
@@ -90,7 +90,7 @@ const DEVICES = [
     id: 'a3700', name: 'PAX A3700', family: 'PAX', tms: 'PAXA3700',
     img: '/img/devices/PAXA3700.jpg',
     paths: 'Android SDK (PAX) · REST API',
-    printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
+    printer: false, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
     note: 'Elys Workstation (A3700 + L1400 tablet) — recommended E800 replacement',
   },
   // PAX compact (no printer)

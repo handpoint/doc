@@ -28,40 +28,6 @@ Please reference the [PCI SSC website](https://www.pcisecuritystandards.org) to 
 
 ---
 
-## Hardware comparison
-
-✅ = Included &nbsp;|&nbsp; ❌ = Not included &nbsp;|&nbsp; — = Verify with PAX
-
-| Device | Printer | Wi-Fi 2.4G | Wi-Fi 5G | 4G | 5G | Ethernet |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|
-| HiLite | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| PAX A920 | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| PAX A920 Pro | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-
-| PAX A920 MAX | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| PAX A930 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
-| PAX A910 / A910S | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| PAX A80 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| PAX A800 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| PAX A8700 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| PAX A8900 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| PAX A6630 / A6650 | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| PAX A60 | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| PAX A35 | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| PAX A50 / A50S | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| PAX A30 | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| PAX A77 | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| PAX A960 | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| PAX ARIES6 / ARIES8 | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| PAX E500 | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| PAX E700 | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| PAX E800 *(EOL)* | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| PAX IM25 | ❌ | ✅ | ❌ | ✅ | ❌ | ❌ |
-| PAX IM30 | ❌ | ✅ | ❌ | ❌ | ❌ | ✅ |
-| PAX A3700 | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
-
----
-
 ## HiLite (DATECS)
 
 Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android or iOS host device running the Handpoint SDK. Comes pre-injected for the Handpoint production environment with a TEST/DEMO merchant for development. Request a device from your referring partner — see [Development hardware](/get-started/development-hardware).
