@@ -96,6 +96,71 @@
   background-color: #0d3660;
 }
 
+/* ── Navbar Global Filters ───────────────────── */
+
+.navbar-global-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.navbar-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.navbar-filter-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.navbar-filter-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(255, 255, 255, 0.12);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.7)' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.45rem center;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 0.3rem 1.6rem 0.3rem 0.6rem;
+  min-width: 120px;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.navbar-filter-select:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.navbar-filter-select:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--handpoint-orange);
+}
+
+.navbar-filter-select option {
+  background-color: #0F3F6E;
+  color: #ffffff;
+}
+
+/* Hide on small screens */
+@media (max-width: 996px) {
+  .navbar-global-filters {
+    display: none;
+  }
+}
+
 /* ── Acquirer Page Header ─────────────────────── */
 
 /* Path tabs inside the header — compact, no heavy box */

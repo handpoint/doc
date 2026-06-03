@@ -49,6 +49,7 @@ const config = {
           { type: 'docSidebar', sidebarId: 'backOfficeSidebar', label: 'Back Office', position: 'left' },
           { type: 'docSidebar', sidebarId: 'referenceSidebar', label: 'Reference', position: 'left' },
           { type: 'docSidebar', sidebarId: 'releaseNotesSidebar', label: 'Release Notes', position: 'left' },
+          { type: 'custom-GlobalFilters', position: 'right' },
         ],
       },
       prism: {
