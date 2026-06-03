@@ -29,6 +29,7 @@ Please reference the [PCI SSC website](https://www.pcisecuritystandards.org) to 
 | HiLite | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
 | PAX A920 | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
 | PAX A920 Pro | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+
 | PAX A920 MAX | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | PAX A930 | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
 | PAX A910 / A910S | ✅ | ✅ | ❌ | ✅ | ❌ | ❌ |
@@ -74,16 +75,29 @@ Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android 
 
 Android-based smart terminals. Support two integration paths: Android SDK (code runs natively on the device) or REST API (your POS calls the Handpoint Cloud, which commands the terminal in integrated mode). PAX production devices reject unsigned APKs — a PAX debug device is required for SDK development. See [Development hardware](/get-started/development-hardware).
 
-### PAX A920 / A920 Pro
+### PAX A920
 
 ![PAX A920](pathname:///img/devices/PAXA920.png)
+
+| | |
+|---|---|
+| **TMS device type** | `PAXA920` |
+| **Form factor** | Handheld smart terminal with printer |
+| **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
+| **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
+| **Handpoint Android SDK** | v6.6.7+ |
+
+---
+
+### PAX A920 Pro
+
 ![PAX A920 Pro](pathname:///img/devices/PAXA920PRO.png)
 
 | | |
 |---|---|
-| **TMS device types** | `PAXA920`, `PAXA920PRO` |
+| **TMS device type** | `PAXA920PRO` |
 | **Form factor** | Handheld smart terminal with printer |
-| **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
+| **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.6.7+ |
 
@@ -351,39 +365,4 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | **Handpoint Android SDK** | v7.1010.6+ |
 | **Note** | Part of the Elys Workstation (A3700 + L1400 tablet) — recommended upgrade for E800 |
 
----
-
-## Complete TMS device type reference
-
-| Code | Device | Image |
-|---|---|---|
-| `MPED400` | HiLite | ✅ |
-| `PAXA920` | PAX A920 | ✅ |
-| `PAXA920PRO` | PAX A920 Pro | ✅ |
-| `PAXA920MAX` | PAX A920 MAX | ✅ |
-| `PAXA930` | PAX A930 | ✅ |
-| `PAXA910` | PAX A910 | — |
-| `PAXA910S` | PAX A910S | ✅ |
-| `PAXA80` | PAX A80 | ✅ |
-| `PAXA800` | PAX A800 | ✅ |
-| `PAXA8700` | PAX A8700 | ✅ |
-| `PAXA8900` | PAX A8900 | ✅ |
-| `PAXA6630` | PAX A6630 | ✅ |
-| `PAXA6650` | PAX A6650 | ✅ |
-| `PAXA60` | PAX A60 | ✅ |
-| `PAXA35` | PAX A35 | ✅ |
-| `PAXA50` | PAX A50 | ✅ |
-| `PAXA50S` | PAX A50S | — |
-| `PAX30` → `PAXA30` | PAX A30 *(TMS naming inconsistency — being corrected to PAXA30)* | ✅ |
-| `PAXA77` | PAX A77 | ✅ |
-| `PAXA960` | PAX A960 | ✅ |
-| `PAXARIES6` | PAX ARIES6 | ✅ |
-| `PAXARIES8` | PAX ARIES8 | ✅ |
-| `PAXE500` | PAX E500 | ✅ |
-| `PAXE700` | PAX E700 | ✅ |
-| `PAXE800` | PAX E800 *(EOL)* | ✅ |
-| `PAXIM25` | PAX IM25 | ✅ |
-| `PAXIM30` | PAX IM30 | ✅ |
-| `PAXA3700` | PAX A3700 | ✅ |
-| `VT` | Virtual Terminal | — |
 
