@@ -86,7 +86,7 @@ Pre-auth includes the full lifecycle: create, increase/decrease, capture, void h
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
-| Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
+| Pre-Auth Capture Reversal | ✅ | ✅ | ❌ | ❌ | ❌ | REST API + Android (PAX). |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Money Remittance | ✅ | ✅ | ✅ | ✅ | ✅ | AMEX routing: separate MID required. |
@@ -102,7 +102,7 @@ Pre-auth includes the full lifecycle: create, increase/decrease, capture, void h
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
-| Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
+| Pre-Auth Capture Reversal | ✅ | ✅ | ❌ | ❌ | ❌ | REST API + Android (PAX). |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 
@@ -117,7 +117,7 @@ Pre-auth includes the full lifecycle: create, increase/decrease, capture, void h
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Pre-Authorization | ✅ | ✅ | ❌ | ❌ | ✅ | Includes increase/decrease, capture, void hold. |
-| Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
+| Pre-Auth Capture Reversal | ✅ | ✅ | ❌ | ❌ | ❌ | REST API + Android (PAX). |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ❌ | On-terminal (PAX) or back-office (REST API). |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 
@@ -216,6 +216,7 @@ Other acquirers (TSYS, PAYSAFE, TEYA): JCB and UnionPay acceptance depends on ac
 | **JCB on TSYS / PAYSAFE / TEYA** | Platform supports it; verify acquirer agreement enables it per merchant |
 | **UnionPay on TSYS / VANTIV / TEYA** | Platform supports it; verify acquirer agreement |
 | **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
+
 
 
 

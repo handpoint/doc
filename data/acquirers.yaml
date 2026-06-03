@@ -232,7 +232,7 @@ acquirers:
     capabilities:
       pre-auth-capture-reversal:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -292,7 +292,7 @@ acquirers:
     capabilities:
       pre-auth-capture-reversal:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -352,7 +352,7 @@ acquirers:
     capabilities:
       pre-auth-capture-reversal:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -561,5 +561,6 @@ acquirers:
     card-brands: [VISA, MC]
     interac: false
     capabilities: {}
+
 
 
