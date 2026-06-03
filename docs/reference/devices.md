@@ -1,13 +1,15 @@
 ---
 title: Supported devices
 sidebar_position: 4
-description: All payment terminals supported by Handpoint — PAX and HiLite (DATECS). Includes hardware comparison table and TMS device type reference.
+description: All payment terminals supported by Handpoint — PAX and HiLite (DATECS). Filter by hardware feature.
 hide_table_of_contents: false
 ---
 
+import DeviceGallery from '@site/src/components/DeviceGallery';
+
 # Supported devices
 
-All Handpoint card-present integrations require a physical payment terminal. Devices fall into two families:
+All Handpoint card-present integrations require a physical payment terminal.
 
 | Family | Connection | Integration paths |
 |---|---|---|
@@ -17,6 +19,12 @@ All Handpoint card-present integrations require a physical payment terminal. Dev
 :::note PCI compliance
 Please reference the [PCI SSC website](https://www.pcisecuritystandards.org) to adhere to all PCI and card brand guidelines for your terminal deployment.
 :::
+
+<DeviceGallery />
+
+---
+
+## Detailed specifications
 
 ---
 
