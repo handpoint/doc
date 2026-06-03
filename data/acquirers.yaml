@@ -223,7 +223,7 @@ acquirers:
     name: "EmerchantPay"
     geography: "EU"
     status: active
-    card-brands: [VISA, MC, AMEX]
+    card-brands: [VISA, MC, AMEX, UnionPay]
     interac: false
     notes: >
       Settlement is processed automatically — manual batch close is not available.
@@ -283,7 +283,7 @@ acquirers:
     name: "Lloyds"
     geography: "EU"
     status: active
-    card-brands: [VISA, MC, AMEX]
+    card-brands: [VISA, MC, AMEX, UnionPay]
     interac: false
     notes: >
       Settlement is processed automatically — manual batch close is not available.
@@ -343,7 +343,7 @@ acquirers:
     name: "Paystrax"
     geography: "EU"
     status: active
-    card-brands: [VISA, MC, AMEX]
+    card-brands: [VISA, MC, AMEX, UnionPay]
     interac: false
     notes: >
       Settlement is processed automatically — manual batch close is not available.
@@ -508,7 +508,7 @@ acquirers:
     name: "VANTIV (Worldpay)"
     geography: "US"
     status: active
-    card-brands: [VISA, MC, Discover]
+    card-brands: [VISA, MC, Discover, JCB]
     interac: false
     notes: >
       Also known as Worldpay. Card-present only — MOTO is not supported (viscus-vantiv

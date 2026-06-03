@@ -166,7 +166,7 @@ function buildLlmsTxt(acquirers) {
   lines.push(
     '',
     '## Integration paths',
-    'rest-api | cloud | PAX terminals (card-present); no terminal for MOTO/CNP',
+    'rest-api | cloud/integrated mode | PAX terminal running Android SDK in integrated mode',
     'android-pax | native on-terminal | PAX devices',
     'android-hilite | bluetooth | HiLite (DATECS) devices',
     'ios-hilite | bluetooth | HiLite (DATECS) devices',

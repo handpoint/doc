@@ -8,6 +8,8 @@ description: How to authenticate with the Handpoint Cloud API.
 
 ## REST API — API Keys
 
+The REST API integration commands a PAX terminal running the Handpoint Android SDK in **cloud/integrated mode**. Your POS application calls the Handpoint Cloud API, which forwards the command to the terminal. For card-present operations the PAX terminal must be connected and initialised.
+
 Each merchant account has one or more API keys. The API key is passed in every REST API request using the `ApiKeyCloud` header:
 
 ```http

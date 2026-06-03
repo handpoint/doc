@@ -37,10 +37,10 @@ const config = {
         title: '',
         logo: {
           alt: 'Handpoint',
-          src: 'img/logo.svg',
-          srcDark: 'img/logo.svg',
-          width: 160,
-          height: 28,
+          src: 'img/handpoint_logo_white.svg',
+          srcDark: 'img/handpoint_logo_white.svg',
+          width: 180,
+          height: 32,
         },
         style: 'dark',
         items: [

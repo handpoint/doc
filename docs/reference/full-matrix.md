@@ -202,22 +202,40 @@ EMP = EmerchantPay
 
 What each integration path can do across ALL acquirers:
 
+:::info REST API — integrated mode
+REST API card-present operations require a PAX terminal running the Handpoint Android SDK initialised in **cloud/integrated mode**. The REST API sends commands to the Handpoint Cloud, which forwards them to the terminal. MOTO (no-terminal) operations are a separate back-office capability — see [Back Office](/back-office/rest-api-no-reader).
+:::
+
 | Integration path | Card-present ops | MOTO | Batch Close | Partial Rev | Notes |
 |---|---|---|---|---|---|
-| **REST API** | ✅ All (PAX terminal required) | ✅ Where acquirer supports | ✅ Where acquirer supports | ✅ TSYS only | PAX debug → `.io`; PAX prod → `.com` |
+| **REST API** | ✅ All (PAX in integrated mode required) | Via Back Office only | ✅ Where acquirer supports | ✅ TSYS only | PAX debug → `.io`; PAX prod → `.com` |
 | **Android (PAX)** | ✅ All except partial rev, MOTO, batch | ❌ | ❌ | ❌ | Runs natively on PAX terminal |
-| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth 🔜 | ❌ | ❌ | ❌ | BT connection; no MOTO/batch/partial rev |
-| **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT connection; tip adj not supported |
-| **Cordova** | ✅ Same as Android (PAX) for PAX devices; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Same API surface for both device types |
+| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth 🔜 | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no MOTO/batch/partial rev |
+| **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |
+| **Cordova** | ✅ Same as Android (PAX) for PAX; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Single JS API for both device types |
 
 ---
 
-## Open items to confirm
+## Card brand support
+
+The Handpoint platform CardBrand enum (viscus-lib-core) defines these brands: **VISA, Mastercard, Maestro, AMEX, Discover, JCB, Diners, UnionPay, Interac.**
+
+Acquirer-level acceptance depends on the individual acquirer agreement. Confirmed from viscus source:
+
+| Card brand | Where confirmed |
+|---|---|
+| JCB | VANTIV (Worldpay) — `VantivFieldFormatter` maps `"JC"` → `"JCB"` |
+| UnionPay | OMNIPAY (EmerchantPay, Lloyds, Paystrax) — `CardBrandValidator` and `PayFacIdValidator` handle UnionPay separately |
+| Interac | TSYS Canada, PAYSAFE + Interac, TNS (Interac) |
+
+Other acquirers (TSYS, PAYSAFE, TEYA): JCB and UnionPay acceptance depends on acquirer agreement — verify with integration team per merchant.
+
+---
+
+## Open items
 
 | Item | Status |
 |---|---|
-| **Pre-Auth Capture Reversal on OMNIPAY** | In development for TSYS. Will it be supported for EmerchantPay, Lloyds, Paystrax? TBD. |
-| **CNP via CardStream** | Seen in original capability matrix — confirm if relevant and for which acquirers |
-| **JCB card brand** | Some acquirers may support JCB — verify per acquirer |
-| **CUP (China UnionPay)** | Was in original matrix — verify if any active acquirer supports it |
-| **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported by Paysafe (restriction, not a TSYS limitation) |
+| **JCB on TSYS / PAYSAFE / TEYA** | Platform supports it; verify acquirer agreement enables it per merchant |
+| **UnionPay on TSYS / VANTIV / TEYA** | Platform supports it; verify acquirer agreement |
+| **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
