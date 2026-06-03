@@ -16,8 +16,8 @@ acquirers:
     card-brands: [VISA, MC, Discover]
     interac: false
     notes: >
-      Batch auto-closes ~11pm EST (host-capture). Partial reversal is US-only —
-      uses the MasterCard flag in ISO 8583.
+      Batch auto-closes ~11pm EST (host-capture). Partial reversal available for
+      TSYS US and Canada — uses the MasterCard flag in ISO 8583.
     capabilities:
       sale:
         rest-api: public
@@ -39,7 +39,7 @@ acquirers:
         cordova: public
       partial-reversal:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -57,7 +57,7 @@ acquirers:
         cordova: public
       moto:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -127,7 +127,7 @@ acquirers:
         cordova: public
       moto:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -262,7 +262,7 @@ acquirers:
         cordova: public
       moto:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -328,7 +328,7 @@ acquirers:
         cordova: public
       moto:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -388,7 +388,7 @@ acquirers:
         cordova: public
       moto:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -493,7 +493,7 @@ acquirers:
         cordova: public
       moto:
         rest-api: public
-        android-pax: not-supported
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
@@ -561,3 +561,4 @@ acquirers:
     card-brands: [VISA, MC]
     interac: false
     capabilities: {}
+

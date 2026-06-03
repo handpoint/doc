@@ -31,7 +31,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"pre-auth-capture-reversal":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"money-remittance":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
+export const _caps = {"pre-auth-capture-reversal":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"coming-soon","ios-hilite":"coming-soon","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"money-remittance":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="omnipay-emp" />
 
@@ -699,39 +699,43 @@ Content-Type: application/json
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
-**MOTO back-office using Android SDK** — card token via `MoToOptions`:
+**MOTO on terminal** — the PAX device shows a manual card entry screen. This is a PAX-only feature:
+
+```kotlin
+// Terminal shows card entry screen — operator types card details on the PAX device
+hapi.motoSale(BigInteger("1000"), Currency.USD)
+```
+
+**MOTO back-office** — card token via `MoToOptions` (no terminal entry):
 
 ```kotlin
 val options = MoToOptions()
 options.setCardToken("YOUR_STORED_CARD_TOKEN")
-
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ```
-
-**MOTO on terminal** — use REST API with `terminal_serial_number` to trigger the card entry screen on the PAX device.
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader — MOTO is not available on this path. Use REST API back-office mode with a card token."
-  useInstead="REST API (back-office with cardToken)"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the REST API back-office endpoint with a card token."
+  useInstead="REST API (back-office)"
 />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader — MOTO is not available on this path. Use REST API back-office mode with a card token."
-  useInstead="REST API (back-office with cardToken)"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the REST API back-office endpoint with a card token."
+  useInstead="REST API (back-office)"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="Use REST API with terminal_serial_number to trigger MOTO on the PAX terminal screen, or REST API with cardToken for back-office MOTO."
-  useInstead="REST API"
+  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or REST API for back-office MOTO."
+  useInstead="Android SDK (PAX) or REST API"
 />
 
 </TabItem>

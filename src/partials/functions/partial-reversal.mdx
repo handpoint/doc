@@ -8,10 +8,10 @@ Use when the final amount is lower than the authorised amount and the batch is s
 
 ### Implementation notes
 
-1. **TSYS US only.** This capability is not supported on TSYS Canada or any other acquirer.
+1. Supported for **TSYS (US and Canada)**. Not available on other acquirers.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
 3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
-4. This is a server-side REST API operation only. Terminal paths are not supported.
+4. Available via REST API and Android SDK (PAX). Not supported on HiLite or iOS paths.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
@@ -36,16 +36,22 @@ Content-Type: application/json
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
-<NotSupported
-  reason="Partial reversal is a server-side operation only. The terminal cannot initiate a partial reversal."
-  useInstead="REST API"
-/>
+Pass the new (reduced) amount to `saleReversal` — the SDK sends a partial reversal when the amount is less than the original:
+
+```kotlin
+// Partial reversal — amount is the new final charge, not a delta
+hapi.saleReversal(
+    BigInteger("800"),         // new final amount (minor units)
+    Currency.USD,
+    "abc-123-def"              // originalTransactionId
+)
+```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="Partial reversal is a server-side operation only."
+  reason="Partial reversal is not available on HiLite. The HiLite BT path does not support partial reversals."
   useInstead="REST API"
 />
 
@@ -53,7 +59,7 @@ Content-Type: application/json
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="Partial reversal is a server-side operation only."
+  reason="Partial reversal is not available on iOS HiLite."
   useInstead="REST API"
 />
 
@@ -61,8 +67,8 @@ Content-Type: application/json
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="Partial reversal is a server-side operation only."
-  useInstead="REST API"
+  reason="Partial reversal via Cordova is not confirmed. Use REST API or Android SDK (PAX) directly."
+  useInstead="REST API or Android SDK (PAX)"
 />
 
 </TabItem>
