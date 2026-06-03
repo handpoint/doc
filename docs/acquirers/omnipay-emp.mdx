@@ -573,39 +573,52 @@ handpoint.preAuthorizationVoid(
 
 ### Pre-Authorization Capture Reversal
 
-Reverses a completed pre-authorization capture — releasing the settled funds back to the cardholder.
+Reverses a completed pre-authorization capture — releasing the funds withheld and returning the transaction to `AUTHORISED` state.
 
-:::caution Coming soon
-Pre-Authorization Capture Reversal is under development for TSYS. It is not yet available. Use a standard Refund after the batch closes instead.
-:::
-
-**When to use:** When a pre-auth was captured in error, or the merchant needs to fully cancel a capture before the customer is charged at settlement.
+**When to use:** When a pre-auth was captured in error and the merchant needs to fully cancel the capture before overnight settlement.
 
 **How it differs from Void Pre-Authorization:** Void Pre-Auth releases the *hold* before capture. Capture Reversal cancels the *capture* after it has been accepted.
 
 **Implementation notes:**
-1. Must be sent before the batch closes. After batch close, only a Refund is possible.
+1. Must be sent before the batch closes / overnight settlement. After settlement, only a Refund is possible.
 2. Full capture amount only — partial capture reversals are not supported.
-3. REST API only — terminal paths are not supported for this operation.
+3. Not all acquirers support this operation — check the capabilities table.
+4. **Android SDK:** The same `preAuthorizationReversal()` method is used for both voiding the hold (pre-capture) and reversing the capture (post-capture). The gateway determines the correct action based on the state of the original transaction.
 
 <Tabs groupId="integration-path">
 <TabItem value="rest-api" label="REST API">
 
-<ComingSoon />
+```http
+POST https://cloud.handpoint.com/transaction
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "action": "VOIDPREAUTHORISATIONCAPTURE",
+  "original_transaction_reference": "pre-auth-capture-abc-123"
+}
+```
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
-<NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
-  useInstead="REST API"
-/>
+The same `preAuthorizationReversal()` method is used regardless of whether the original pre-auth has been captured or not — the SDK/gateway determines the correct operation:
+
+```kotlin
+// Works for both: releasing a hold (pre-capture) AND reversing a capture (post-capture)
+hapi.preAuthorizationReversal("original-transaction-id")
+
+// With options
+val options = Options()
+options.customerReference = "CustomerReference"
+hapi.preAuthorizationReversal("original-transaction-id", options)
+```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
+  reason="Pre-Authorization Capture Reversal is not available on the HiLite Bluetooth path."
   useInstead="REST API"
 />
 
@@ -613,7 +626,7 @@ Pre-Authorization Capture Reversal is under development for TSYS. It is not yet 
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
+  reason="Pre-Authorization Capture Reversal is not available on the iOS HiLite path."
   useInstead="REST API"
 />
 
@@ -621,8 +634,8 @@ Pre-Authorization Capture Reversal is under development for TSYS. It is not yet 
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="Pre-Authorization Capture Reversal is a server-side operation only."
-  useInstead="REST API"
+  reason="Pre-Authorization Capture Reversal via Cordova is not confirmed."
+  useInstead="REST API or Android SDK (PAX)"
 />
 
 </TabItem>

@@ -1,7 +1,7 @@
 ---
 id: tsys
 title: "TSYS"
-description: "US, Canada card-present acquirer. Supports: sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching."
+description: "US, Canada card-present acquirer. Supports: sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal."
 geography: "US, Canada"
 status: active
 card-brands: [VISA, MC, Discover]
@@ -16,6 +16,7 @@ capabilities:
   moto: true
   tokenization: true
   batching: true
+  pre-auth-capture-reversal: true
 integration-paths:
   - rest-api
   - android-pax
@@ -32,7 +33,7 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"partial-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth-capture-reversal":{"rest-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
+export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"partial-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth-capture-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
 
 <AcquirerPageHeader currentSlug="tsys" />
 
@@ -767,6 +768,76 @@ handpoint.preAuthorizationVoid(
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+
+### Pre-Authorization Capture Reversal
+
+Reverses a completed pre-authorization capture — releasing the funds withheld and returning the transaction to `AUTHORISED` state.
+
+**When to use:** When a pre-auth was captured in error and the merchant needs to fully cancel the capture before overnight settlement.
+
+**How it differs from Void Pre-Authorization:** Void Pre-Auth releases the *hold* before capture. Capture Reversal cancels the *capture* after it has been accepted.
+
+**Implementation notes:**
+1. Must be sent before the batch closes / overnight settlement. After settlement, only a Refund is possible.
+2. Full capture amount only — partial capture reversals are not supported.
+3. Not all acquirers support this operation — check the capabilities table.
+4. **Android SDK:** The same `preAuthorizationReversal()` method is used for both voiding the hold (pre-capture) and reversing the capture (post-capture). The gateway determines the correct action based on the state of the original transaction.
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "action": "VOIDPREAUTHORISATIONCAPTURE",
+  "original_transaction_reference": "pre-auth-capture-abc-123"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+The same `preAuthorizationReversal()` method is used regardless of whether the original pre-auth has been captured or not — the SDK/gateway determines the correct operation:
+
+```kotlin
+// Works for both: releasing a hold (pre-capture) AND reversing a capture (post-capture)
+hapi.preAuthorizationReversal("original-transaction-id")
+
+// With options
+val options = Options()
+options.customerReference = "CustomerReference"
+hapi.preAuthorizationReversal("original-transaction-id", options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the HiLite Bluetooth path."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the iOS HiLite path."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal via Cordova is not confirmed."
+  useInstead="REST API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
 
 ## MOTO (Mail Order / Telephone Order)
 

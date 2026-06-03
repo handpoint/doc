@@ -1,9 +1,9 @@
 # Handpoint Developer Documentation
 # Fetch the acquirer URL for full implementation detail.
-# Generated: 2026-06-03T12:42:13.918Z
+# Generated: 2026-06-03T14:54:30.262Z
 
 ## Acquirers
-TSYS | geography: US, Canada | sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching | cards: VISA, MC, Discover | url: /acquirers/tsys
+TSYS | geography: US, Canada | sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal | cards: VISA, MC, Discover | url: /acquirers/tsys
 PAYSAFE + Interac | geography: Canada | sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching, void | cards: VISA, MC, Discover, Interac | interac: true | url: /acquirers/tsys-tns
 TNS (Interac) | geography: Canada | sale, void | cards: Interac | interac: true | url: /acquirers/tns
 PAYSAFE | geography: US | sale, refund, reversal | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe-tsys

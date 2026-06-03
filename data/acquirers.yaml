@@ -74,8 +74,8 @@ acquirers:
         ios-hilite: not-supported
         cordova: not-supported
       pre-auth-capture-reversal:
-        rest-api: not-supported
-        android-pax: not-supported
+        rest-api: public
+        android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
