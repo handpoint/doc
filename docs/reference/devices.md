@@ -22,7 +22,7 @@ Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android 
 
 ### HiLite
 
-![HiLite](/img/devices/hilite.png)
+![HiLite](pathname:///img/devices/HiLite.jpg)
 
 | | |
 |---|---|
@@ -39,6 +39,9 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A920 / A920 Pro
 
+![PAX A920](pathname:///img/devices/PAXA920.png)
+![PAX A920 Pro](pathname:///img/devices/PAXA920PRO.png)
+
 | | |
 |---|---|
 | **TMS device types** | `PAXA920`, `PAXA920PRO` |
@@ -50,6 +53,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A920 MAX
+
+![PAX A920 MAX](pathname:///img/devices/PAXA920MAX.jpg)
 
 | | |
 |---|---|
@@ -73,6 +78,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A910 / A910S
 
+![PAX A910S](pathname:///img/devices/PAXA910S.jpg)
+
 | | |
 |---|---|
 | **TMS device types** | `PAXA910`, `PAXA910S` |
@@ -83,6 +90,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A80
+
+![PAX A80](pathname:///img/devices/PAXA80.png)
 
 | | |
 |---|---|
@@ -96,6 +105,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A800
 
+![PAX A800](pathname:///img/devices/PAXA800.jpg)
+
 | | |
 |---|---|
 | **TMS device type** | `PAXA800` |
@@ -108,6 +119,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A8700
 
+![PAX A8700](pathname:///img/devices/PAXA8700.jpg)
+
 | | |
 |---|---|
 | **TMS device type** | `PAXA8700` |
@@ -119,6 +132,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A8900
 
+![PAX A8900](pathname:///img/devices/PAXA8900.jpg)
+
 | | |
 |---|---|
 | **TMS device type** | `PAXA8900` |
@@ -129,6 +144,9 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A6630 / A6650
+
+![PAX A6630](pathname:///img/devices/PAXA6630.jpg)
+![PAX A6650](pathname:///img/devices/PAXA6650.jpg)
 
 | | |
 |---|---|
@@ -142,6 +160,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A60
 
+![PAX A60](pathname:///img/devices/PAXA60.png)
+
 | | |
 |---|---|
 | **TMS device type** | `PAXA60` |
@@ -152,6 +172,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A35
+
+![PAX A35](pathname:///img/devices/PAXA35.jpg)
 
 | | |
 |---|---|
@@ -164,6 +186,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A50 / A50S
+
+![PAX A50](pathname:///img/devices/PAXA50.png)
 
 | | |
 |---|---|
@@ -187,6 +211,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX A77
 
+![PAX A77](pathname:///img/devices/PAXA77.png)
+
 | | |
 |---|---|
 | **TMS device type** | `PAXA77` |
@@ -197,6 +223,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A960
+
+![PAX A960](pathname:///img/devices/PAXA960.jpg)
 
 | | |
 |---|---|
@@ -231,6 +259,9 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ### PAX IM25 / IM30
 
+![PAX IM25](pathname:///img/devices/PAXIM25.jpg)
+![PAX IM30](pathname:///img/devices/PAXIM30.png)
+
 | | |
 |---|---|
 | **TMS device types** | `PAXIM25`, `PAXIM30` |
@@ -242,6 +273,8 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 ---
 
 ### PAX A3700
+
+![PAX A3700](pathname:///img/devices/PAXA3700.jpg)
 
 | | |
 |---|---|
@@ -255,38 +288,48 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ## Complete TMS device type reference
 
-| Code | Device | Family |
+| Code | Device | Image |
 |---|---|---|
-| `MPED400` | HiLite | DATECS |
-| `PAXA920` | PAX A920 | PAX |
-| `PAXA920PRO` | PAX A920 Pro | PAX |
-| `PAXA920MAX` | PAX A920 MAX | PAX |
-| `PAXA930` | PAX A930 | PAX |
-| `PAXA910` | PAX A910 | PAX |
-| `PAXA910S` | PAX A910S | PAX |
-| `PAXA80` | PAX A80 | PAX |
-| `PAXA800` | PAX A800 | PAX |
-| `PAXA8700` | PAX A8700 | PAX |
-| `PAXA8900` | PAX A8900 | PAX |
-| `PAXA6630` | PAX A6630 | PAX |
-| `PAXA6650` | PAX A6650 | PAX |
-| `PAXA60` | PAX A60 | PAX |
-| `PAXA35` | PAX A35 | PAX |
-| `PAXA50` | PAX A50 | PAX |
-| `PAXA50S` | PAX A50S | PAX |
-| `PAX30` | PAX A30 | PAX |
-| `PAXA77` | PAX A77 | PAX |
-| `PAXA960` | PAX A960 | PAX |
-| `PAXARIES6` | PAX ARIES6 | PAX |
-| `PAXARIES8` | PAX ARIES8 | PAX |
-| `PAXE500` | PAX E500 | PAX |
-| `PAXE700` | PAX E700 | PAX |
-| `PAXE800` | PAX E800 | PAX |
-| `PAXIM25` | PAX IM25 | PAX |
-| `PAXIM30` | PAX IM30 | PAX |
-| `PAXA3700` | PAX A3700 | PAX |
-| `VT` | Virtual Terminal | Virtual |
+| `MPED400` | HiLite | ✅ |
+| `PAXA920` | PAX A920 | ✅ |
+| `PAXA920PRO` | PAX A920 Pro | ✅ |
+| `PAXA920MAX` | PAX A920 MAX | ✅ |
+| `PAXA930` | PAX A930 | ❌ |
+| `PAXA910` | PAX A910 | — |
+| `PAXA910S` | PAX A910S | ✅ |
+| `PAXA80` | PAX A80 | ✅ |
+| `PAXA800` | PAX A800 | ✅ |
+| `PAXA8700` | PAX A8700 | ✅ |
+| `PAXA8900` | PAX A8900 | ✅ |
+| `PAXA6630` | PAX A6630 | ✅ |
+| `PAXA6650` | PAX A6650 | ✅ |
+| `PAXA60` | PAX A60 | ✅ |
+| `PAXA35` | PAX A35 | ✅ |
+| `PAXA50` | PAX A50 | ✅ |
+| `PAXA50S` | PAX A50S | — |
+| `PAX30` | PAX A30 | ❌ |
+| `PAXA77` | PAX A77 | ✅ |
+| `PAXA960` | PAX A960 | ✅ |
+| `PAXARIES6` | PAX ARIES6 | ❌ |
+| `PAXARIES8` | PAX ARIES8 | ❌ |
+| `PAXE500` | PAX E500 | ❌ |
+| `PAXE700` | PAX E700 | ❌ |
+| `PAXE800` | PAX E800 | ❌ |
+| `PAXIM25` | PAX IM25 | ✅ |
+| `PAXIM30` | PAX IM30 | ✅ |
+| `PAXA3700` | PAX A3700 | ✅ |
+| `VT` | Virtual Terminal | — |
 
-:::info Adding device images
-Product images for PAX terminals should be sourced from [PAX Technology](https://www.paxtechnology.com) or Handpoint marketing assets. Place images in `static/img/devices/` as `pax-a920.png`, `pax-a80.png` etc.
+**Missing images** (add to `static/img/devices/` as `PAXA930.jpg`, `PAX30.jpg`, `PAXARIES6.jpg`, `PAXARIES8.jpg`, `PAXE500.jpg`, `PAXE700.jpg`, `PAXE800.jpg`):
+
+- `PAXA930` — PAX A930
+- `PAX30` — PAX A30
+- `PAXARIES6` — PAX ARIES6
+- `PAXARIES8` — PAX ARIES8
+- `PAXE500` — PAX E500
+- `PAXE700` — PAX E700
+- `PAXE800` — PAX E800
+
+:::info
+Product images sourced from PAX Technology or Handpoint marketing assets. Place new images in `static/img/devices/` matching the TMS code as the filename (e.g. `PAXARIES6.jpg`), then rebuild.
 :::
