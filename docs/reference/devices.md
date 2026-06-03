@@ -167,14 +167,15 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 
 ---
 
-### PAX A6650
+### PAX A6630 / A6650
 
 | | |
 |---|---|
-| **TMS device type** | `PAXA6650` |
+| **TMS device types** | `PAXA6630`, `PAXA6650` |
 | **Form factor** | Handheld smart terminal |
 | **Connectivity** | Wi-Fi, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
+| **Handpoint Android SDK** | v7.1011.0+ (A6630) |
 
 ---
 
@@ -358,6 +359,7 @@ All device type codes registered in the Handpoint TMS gateway:
 | `PAXA800` | PAX A800 | PAX |
 | `PAXA8700` | PAX A8700 | PAX |
 | `PAXA8900` | PAX A8900 | PAX |
+| `PAXA6630` | PAX A6630 | PAX |
 | `PAXA6650` | PAX A6650 | PAX |
 | `PAXA60` | PAX A60 | PAX |
 | `PAXA35` | PAX A35 | PAX |
