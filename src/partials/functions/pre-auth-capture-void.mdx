@@ -1,0 +1,56 @@
+### Pre-Authorization Capture Reversal
+
+Reverses a completed pre-authorization capture — releasing the settled funds back to the cardholder.
+
+:::caution Coming soon
+Pre-Authorization Capture Reversal is under development for TSYS. It is not yet available. Use a standard Refund after the batch closes instead.
+:::
+
+**When to use:** When a pre-auth was captured in error, or the merchant needs to fully cancel a capture before the customer is charged at settlement.
+
+**How it differs from Void Pre-Authorization:** Void Pre-Auth releases the *hold* before capture. Capture Reversal cancels the *capture* after it has been accepted.
+
+**Implementation notes:**
+1. Must be sent before the batch closes. After batch close, only a Refund is possible.
+2. Full capture amount only — partial capture reversals are not supported.
+3. REST API only — terminal paths are not supported for this operation.
+
+<Tabs groupId="integration-path">
+<TabItem value="rest-api" label="REST API">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is a server-side operation only."
+  useInstead="REST API"
+/>
+
+</TabItem>
+</Tabs>

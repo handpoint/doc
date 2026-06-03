@@ -6,12 +6,25 @@ Places a hold on funds without capturing them, allowing the final amount to be a
 ### When to use it
 Use for hotel check-ins, car rentals, or any flow where the final amount is unknown at the time of card interaction. Do NOT use for standard retail — use Sale instead.
 
+### Pre-Auth is a bundle of operations
+
+Supporting pre-auth means supporting the full lifecycle:
+
+| Operation | Description |
+|---|---|
+| **Create** | Place the initial hold |
+| **Increase / Decrease** | Adjust the held amount before capture |
+| **Capture** | Finalise and charge the held amount |
+| **Void hold** | Release the hold without charging (pre-capture) |
+| **Capture Reversal** | Cancel a completed capture (pre-settlement) — see separate section; coming soon on TSYS |
+
 ### Implementation notes
 
-1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture (Pre-Auth Completion).
+1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture.
 2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
-3. You can increase the authorised amount with an incremental pre-auth (not supported by all acquirers — check your integration notes).
+3. Increase / Decrease adjusts the amount before capture. Supported wherever pre-auth is supported.
 4. Always void unused pre-authorisations — unreleased holds affect the cardholder's available credit.
+5. **Capture Reversal** (voiding after capture, pre-settlement) is a separate capability, currently in development for TSYS only.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 

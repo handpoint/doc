@@ -13,17 +13,18 @@ const LLMS_OUT = path.join(ROOT, 'static', 'llms.txt');
 const ACQUIRERS_DATA_OUT = path.join(ROOT, 'src', 'data', 'acquirers.js');
 
 const CAPABILITY_PARTIALS = {
-  sale:               ['sale'],
-  refund:             ['refund'],
-  reversal:           ['reversal'],
-  'partial-reversal': ['partial-reversal'],
-  'tip-adjustment':   ['tip-adjustment'],
-  'pre-auth':         ['pre-auth-create', 'pre-auth-capture', 'pre-auth-void'],
-  moto:               ['moto'],
-  tokenization:       ['tokenization'],
-  batching:           ['batching'],
-  'money-remittance': ['money-remittance'],
-  void:               ['void'],
+  sale:                       ['sale'],
+  refund:                     ['refund'],
+  reversal:                   ['reversal'],
+  'partial-reversal':         ['partial-reversal'],
+  'tip-adjustment':           ['tip-adjustment'],
+  'pre-auth':                 ['pre-auth-create', 'pre-auth-capture', 'pre-auth-void'],
+  'pre-auth-capture-reversal':['pre-auth-capture-void'],
+  moto:                       ['moto'],
+  tokenization:               ['tokenization'],
+  batching:                   ['batching'],
+  'money-remittance':         ['money-remittance'],
+  void:                       ['void'],
 };
 
 const CAPABILITY_ORDER = Object.keys(CAPABILITY_PARTIALS);

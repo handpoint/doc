@@ -2,16 +2,17 @@ import React, {useState, useEffect} from 'react';
 
 // Capabilities shown in the summary table — tokenization is intentionally excluded
 const CAPABILITY_LABELS = {
-  'sale':             'Sale',
-  'refund':           'Refund',
-  'reversal':         'Reversal',
-  'partial-reversal': 'Partial Reversal',
-  'tip-adjustment':   'Tip Adjustment',
-  'pre-auth':         'Pre-Authorization',
-  'moto':             'MOTO (no reader)',
-  'batching':         'Batch Close (no reader)',
-  'money-remittance': 'Money Remittance',
-  'void':             'Void',
+  'sale':                       'Sale',
+  'refund':                     'Refund',
+  'reversal':                   'Reversal',
+  'partial-reversal':           'Partial Reversal',
+  'tip-adjustment':             'Tip Adjustment',
+  'pre-auth':                   'Pre-Authorization',
+  'pre-auth-capture-reversal':  'Pre-Auth Capture Reversal',
+  'moto':                       'MOTO (no reader)',
+  'batching':                   'Batch Close (no reader)',
+  'money-remittance':           'Money Remittance',
+  'void':                       'Void',
 };
 
 const DISPLAY_ORDER = Object.keys(CAPABILITY_LABELS);

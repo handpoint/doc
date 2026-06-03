@@ -73,6 +73,12 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+      pre-auth-capture-reversal:
+        rest-api: coming-soon
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
   tsys-tns:
     name: "PAYSAFE + Interac"
     geography: "Canada"
@@ -176,8 +182,10 @@ acquirers:
     card-brands: [VISA, MC, AMEX, Discover, Interac]
     interac: true
     notes: >
-      Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set
-      compared to direct TSYS. Tip adjustment and tokenization are forthcoming.
+      Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set.
+      Although the underlying TSYS protocol supports MOTO, partial reversal, and
+      pre-authorization, Paysafe does not expose these capabilities to integrators.
+      Tip adjustment and tokenization are forthcoming.
       Interac transactions follow TNS void-only rules.
     capabilities:
       sale:

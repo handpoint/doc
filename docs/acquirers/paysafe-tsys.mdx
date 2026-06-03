@@ -18,7 +18,7 @@ integration-paths:
   - android-hilite
   - ios-hilite
   - cordova
-last-reviewed: "2026-06-02"
+last-reviewed: "2026-06-03"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -37,7 +37,7 @@ export const _caps = {"sale":{"rest-api":"public","android-pax":"public","androi
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set compared to direct TSYS. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
+Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set. Although the underlying TSYS protocol supports MOTO, partial reversal, and pre-authorization, Paysafe does not expose these capabilities to integrators. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
 :::
 
 ## Sale
@@ -56,7 +56,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set compared to direct TSYS. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
+Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set. Although the underlying TSYS protocol supports MOTO, partial reversal, and pre-authorization, Paysafe does not expose these capabilities to integrators. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
 :::
 
 
@@ -178,7 +178,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set compared to direct TSYS. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
+Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set. Although the underlying TSYS protocol supports MOTO, partial reversal, and pre-authorization, Paysafe does not expose these capabilities to integrators. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
 :::
 
 
@@ -286,7 +286,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set compared to direct TSYS. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
+Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set. Although the underlying TSYS protocol supports MOTO, partial reversal, and pre-authorization, Paysafe does not expose these capabilities to integrators. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
 :::
 
 
@@ -378,7 +378,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 7. iOS HiLite does not support card-present tip adjustment. Use REST API.
 
 :::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set compared to direct TSYS. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
+Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set. Although the underlying TSYS protocol supports MOTO, partial reversal, and pre-authorization, Paysafe does not expose these capabilities to integrators. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
 :::
 
 
@@ -473,7 +473,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the REST API with the token in place of card details.
 
 :::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure but with a reduced feature set compared to direct TSYS. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
+Paysafe uses TSYS + TNS routing infrastructure but with a restricted feature set. Although the underlying TSYS protocol supports MOTO, partial reversal, and pre-authorization, Paysafe does not expose these capabilities to integrators. Tip adjustment and tokenization are forthcoming. Interac transactions follow TNS void-only rules.
 :::
 
 

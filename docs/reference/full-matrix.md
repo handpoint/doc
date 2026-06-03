@@ -15,19 +15,21 @@ Verified against viscus gateway SDK source code. Integration path abbreviations:
 
 ## TSYS — US, Canada · VISA MC Discover
 
+Pre-auth includes the full lifecycle: create, increase/decrease, capture, void hold. See Pre-Auth Capture Reversal row for the one exception.
+
 | Operation | R | P | H | i | C | Notes |
 |---|:---:|:---:|:---:|:---:|:---:|---|
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | US only. REST API server-side. |
-| Tip Adjustment | ✅ | ✅ | ✅ | ❌ | ✅ | HiLite BT devices: use REST API. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | |
+| Tip Adjustment | ✅ | ✅ | ✅ | ❌ | ✅ | iOS HiLite: use REST API instead. |
+| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Auth Capture Reversal | 🔜 | ❌ | ❌ | ❌ | ❌ | In development. REST API only. |
 | MOTO | ✅ | ❌ | ❌ | ❌ | ❌ | No terminal required. REST API only. |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Batch Close | ✅ | ❌ | ❌ | ❌ | ❌ | US + Canada. REST API server-side. |
-| Money Remittance | ❌ | ❌ | ❌ | ❌ | ❌ | Not supported on TSYS. |
-| Void | ❌ | ❌ | ❌ | ❌ | ❌ | Not applicable (use Reversal). |
+| Void | ❌ | ❌ | ❌ | ❌ | ❌ | Use Reversal for card-present. |
 
 ---
 
@@ -67,18 +69,19 @@ Verified against viscus gateway SDK source code. Integration path abbreviations:
 
 ## PAYSAFE — US · VISA MC AMEX Discover Interac
 
+Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial reversal, and pre-auth — even though the underlying TSYS protocol supports them.
+
 | Operation | R | P | H | i | C | Notes |
 |---|:---:|:---:|:---:|:---:|:---:|---|
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | Not exposed by Paysafe. |
 | Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | |
-| Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | |
+| Pre-Authorization | ❌ | ❌ | ❌ | ❌ | ❌ | Not exposed by Paysafe. |
+| MOTO | ❌ | ❌ | ❌ | ❌ | ❌ | Not exposed by Paysafe. |
 | Tokenization | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | |
 | Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | |
-| Money Remittance | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
 ---
 
@@ -169,6 +172,8 @@ Verified against viscus gateway SDK source code. Integration path abbreviations:
 
 ## Cross-acquirer summary
 
+EMP = EmerchantPay
+
 | Operation | TSYS | PAYSAFE+Interac | TNS | PAYSAFE | EMP | Lloyds | Paystrax | TEYA | VANTIV |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -177,15 +182,18 @@ Verified against viscus gateway SDK source code. Integration path abbreviations:
 | Partial Rev | ✅¹ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Tip Adj | ✅ | ✅ | ❌ | 🔜 | ❌ | 🔜 | 🔜 | ❌ | ✅ |
 | Pre-Auth | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
+| Pre-Auth Capture Rev | 🔜² | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❌ | ❌ |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Tokenization | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ✅ | ❌ |
-| Batch Close | ✅ | ✅² | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Batch Close | ✅ | ✅³ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Money Rem | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Void | ❌ | ✅³ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Void | ❌ | ✅⁴ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ¹ TSYS partial reversal: US only, REST API only.  
-² PAYSAFE + Interac batch close: TSYS (non-Interac) transactions only, REST API only.  
-³ PAYSAFE + Interac / TNS void: Interac cards only, card must be physically present.
+² Pre-Auth Capture Reversal in development for TSYS, REST API only. Support for OMNIPAY acquirers TBD.  
+³ PAYSAFE + Interac batch close: TSYS (non-Interac) transactions only, REST API only.  
+⁴ PAYSAFE + Interac / TNS void: Interac cards only, card must be physically present.  
+❓ = Status unknown — to be confirmed with integration team.
 
 ---
 
@@ -203,16 +211,12 @@ What each integration path can do across ALL acquirers:
 
 ---
 
-## Possible gaps to confirm
+## Open items to confirm
 
-The following items were in earlier capability lists but are not currently documented — confirm if they apply:
-
-| Item | Status | Action needed |
-|---|---|---|
-| **CNP via CardStream** | Seen in original matrix but not in current docs | Confirm if relevant and which acquirers |
-| **JCB card brand** | Some acquirers may support JCB | Verify per acquirer |
-| **CUP (China UnionPay)** | In original matrix | Verify if supported by any active acquirer |
-| **TSYS + TNS batching** | Added, but note says "TSYS txns only" | Confirm mechanism with integration team |
-| **PAYSAFE MOTO** | Not in YAML — unclear if Paysafe/TSYS backend supports it | Verify with integration team |
-| **Recurring / scheduled payments** | Not documented as a distinct operation | Covered by tokenization + REST API |
-| **Incremental pre-auth** (pre-auth increase) | Not documented separately | viscus-tsys implements it; add if needed |
+| Item | Status |
+|---|---|
+| **Pre-Auth Capture Reversal on OMNIPAY** | In development for TSYS. Will it be supported for EmerchantPay, Lloyds, Paystrax? TBD. |
+| **CNP via CardStream** | Seen in original capability matrix — confirm if relevant and for which acquirers |
+| **JCB card brand** | Some acquirers may support JCB — verify per acquirer |
+| **CUP (China UnionPay)** | Was in original matrix — verify if any active acquirer supports it |
+| **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported by Paysafe (restriction, not a TSYS limitation) |
