@@ -10,7 +10,8 @@ const PATHS = [
   {value: 'cordova',        label: 'Cordova'},
 ];
 
-const STORAGE_KEY = 'docusaurus.tab.integration-path';
+const PATH_KEY     = 'docusaurus.tab.integration-path';
+const ACQUIRER_KEY = 'handpoint.selected.acquirer';
 
 function broadcast(path) {
   if (typeof window !== 'undefined') {
@@ -19,40 +20,76 @@ function broadcast(path) {
 }
 
 export default function GlobalFilters() {
-  const history = useHistory();
+  const history  = useHistory();
   const location = useLocation();
 
   // Detect current acquirer from URL
-  const currentAcquirerSlug = location.pathname.match(/\/acquirers\/([^/]+)/)?.[1] || '';
+  const urlAcquirerSlug = location.pathname.match(/\/acquirers\/([^/]+)/)?.[1] || '';
 
+  // Acquirer state — persists via localStorage even on non-acquirer pages
+  const [selectedAcquirer, setSelectedAcquirer] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return urlAcquirerSlug || localStorage.getItem(ACQUIRER_KEY) || '';
+    }
+    return urlAcquirerSlug || '';
+  });
+
+  // Integration path state — persists via localStorage
   const [selectedPath, setSelectedPath] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(STORAGE_KEY) || '';
+      return localStorage.getItem(PATH_KEY) || '';
     }
     return '';
   });
 
-  // Keep in sync when path changes from AcquirerPageHeader or tab clicks
+  // When URL changes to an acquirer page, update stored acquirer
   useEffect(() => {
-    const handler = (e) => setSelectedPath(e.detail?.path || '');
+    if (urlAcquirerSlug) {
+      setSelectedAcquirer(urlAcquirerSlug);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(ACQUIRER_KEY, urlAcquirerSlug);
+      }
+    }
+  }, [urlAcquirerSlug]);
+
+  // On EVERY page navigation: re-broadcast the current path so newly mounted
+  // components (CapabilitySummary, AcquirerPageHeader, etc.) pick up the selection
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (selectedPath) broadcast(selectedPath);
+    }, 80);  // small delay lets new page components mount and attach listeners
+    return () => clearTimeout(t);
+  }, [location.pathname, selectedPath]);
+
+  // Keep in sync when path changes from AcquirerPageHeader or tab clicks on the page
+  useEffect(() => {
+    const handler = (e) => {
+      const path = e.detail?.path || '';
+      setSelectedPath(path);
+      if (typeof window !== 'undefined') {
+        if (path) localStorage.setItem(PATH_KEY, path);
+        else localStorage.removeItem(PATH_KEY);
+      }
+    };
     window.addEventListener('handpoint:pathChanged', handler);
     return () => window.removeEventListener('handpoint:pathChanged', handler);
   }, []);
 
   const handlePathChange = (value) => {
-    setSelectedPath(value || '');
+    const path = value || '';
+    setSelectedPath(path);
     if (typeof window !== 'undefined') {
-      if (value) {
-        localStorage.setItem(STORAGE_KEY, value);
-      } else {
-        localStorage.removeItem(STORAGE_KEY);
-      }
-      broadcast(value || null);
+      if (path) localStorage.setItem(PATH_KEY, path);
+      else localStorage.removeItem(PATH_KEY);
     }
+    broadcast(path || null);
   };
 
   const handleAcquirerChange = (slug) => {
-    if (slug) history.push(`/acquirers/${slug}`);
+    if (!slug) return;
+    setSelectedAcquirer(slug);
+    if (typeof window !== 'undefined') localStorage.setItem(ACQUIRER_KEY, slug);
+    history.push(`/acquirers/${slug}`);
   };
 
   return (
@@ -63,15 +100,13 @@ export default function GlobalFilters() {
         <select
           id="nav-acquirer-select"
           className="navbar-filter-select"
-          value={currentAcquirerSlug}
+          value={selectedAcquirer}
           onChange={(e) => handleAcquirerChange(e.target.value)}
           aria-label="Select acquirer"
         >
           <option value="">— select —</option>
           {ACQUIRERS.map(a => (
-            <option key={a.slug} value={a.slug}>
-              {a.name}
-            </option>
+            <option key={a.slug} value={a.slug}>{a.name}</option>
           ))}
         </select>
       </div>
