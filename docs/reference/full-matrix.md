@@ -94,7 +94,8 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | ❌ | ❌ | ❌ | ❌ | ❌ | Not implemented in viscus-omnipay (returns null). |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | |
+| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | MOTO | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Settlement is automatic. |
@@ -111,11 +112,11 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | Implemented in code, not officially released. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | |
+| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | MOTO | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Settlement is automatic. |
-| Money Remittance | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
 ---
 
@@ -128,11 +129,11 @@ Paysafe uses TSYS + TNS routing under the hood but restricts MOTO, partial rever
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Partial Reversal | ❌ | ❌ | ❌ | ❌ | ❌ | |
 | Tip Adjustment | 🔜 | 🔜 | 🔜 | 🔜 | 🔜 | Implemented in code, not officially released. |
-| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | |
+| Pre-Authorization | ✅ | ✅ | 🔜 | 🔜 | ✅ | Includes increase/decrease, capture, void hold. |
+| Pre-Auth Capture Reversal | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | MOTO | ✅ | ❌ | ❌ | ❌ | ❌ | REST API only. |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Batch Close | ❌ | ❌ | ❌ | ❌ | ❌ | Settlement is automatic. |
-| Money Remittance | ❌ | ❌ | ❌ | ❌ | ❌ | |
 
 ---
 
@@ -182,7 +183,7 @@ EMP = EmerchantPay
 | Partial Rev | ✅¹ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | Tip Adj | ✅ | ✅ | ❌ | 🔜 | ❌ | 🔜 | 🔜 | ❌ | ✅ |
 | Pre-Auth | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ✅ |
-| Pre-Auth Capture Rev | 🔜² | ❌ | ❌ | ❌ | ❓ | ❓ | ❓ | ❌ | ❌ |
+| Pre-Auth Capture Rev | 🔜² | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | MOTO | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | Tokenization | ✅ | ✅ | ❌ | 🔜 | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Batch Close | ✅ | ✅³ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -190,7 +191,7 @@ EMP = EmerchantPay
 | Void | ❌ | ✅⁴ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ¹ TSYS partial reversal: US only, REST API only.  
-² Pre-Auth Capture Reversal in development for TSYS, REST API only. Support for OMNIPAY acquirers TBD.  
+² Pre-Auth Capture Reversal: in development for TSYS (🔜 REST API only); confirmed supported for EmerchantPay, Lloyds, Paystrax (✅ REST API only).  
 ³ PAYSAFE + Interac batch close: TSYS (non-Interac) transactions only, REST API only.  
 ⁴ PAYSAFE + Interac / TNS void: Interac cards only, card must be physically present.  
 ❓ = Status unknown — to be confirmed with integration team.

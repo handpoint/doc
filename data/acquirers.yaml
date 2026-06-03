@@ -230,6 +230,12 @@ acquirers:
       Local MOTO refund supported.
       AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
+      pre-auth-capture-reversal:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       sale:
         rest-api: public
         android-pax: public
@@ -284,6 +290,12 @@ acquirers:
       Tip adjustment implemented in code but not officially released.
       AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
+      pre-auth-capture-reversal:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       sale:
         rest-api: public
         android-pax: public
@@ -338,6 +350,12 @@ acquirers:
       Tip adjustment implemented in code but not officially released.
       AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
+      pre-auth-capture-reversal:
+        rest-api: public
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
       sale:
         rest-api: public
         android-pax: public
