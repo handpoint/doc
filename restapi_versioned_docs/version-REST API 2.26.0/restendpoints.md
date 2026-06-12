@@ -999,9 +999,8 @@ Typical fields (see [MotoRefundRequest](restobjects#motoRefundRequest) for full 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be refunded (e.g. `"1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"`).
 * `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded (e.g. `"5.00"`), matching `^\d+(\.\d+)?$`.
 * `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code (e.g. `"EUR"`, `"USD"`).
-* Optional: `customerReference`, `transactionReference`.
+* Optional: `customerReference`.
 
-Supports full and partial refunds, depending on acquirer configuration.
 
 #### Returns
 
