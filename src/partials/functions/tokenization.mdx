@@ -11,40 +11,49 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 1. The token is acquirer-specific and non-portable — a token from TSYS cannot be used with another acquirer.
 2. Two flows are available: **tokenize-only** (card is read, token returned, no charge) and **sale-and-tokenize** (card is charged and tokenized in one step).
 3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
-4. For future charges using the token, use the REST API with the token in place of card details.
+4. For future charges using the token, use the Cloud API `/moto/sale` endpoint with the token in place of card details.
+5. You can also retrieve a token from a previously completed transaction (within 12 months) via `GET /transactions/{transactionID}/token`.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 **Tokenize only (no charge):**
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "TOKENIZE",
-  "terminal_serial_number": "123456789"
+  "operation": "tokenizeCard",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578"
 }
 ```
 
 **Sale and tokenize (charge + token in one step):**
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "saleAndTokenizeCard",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789",
-  "tokenize": true
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
+```
+
+**Retrieve token from a previous transaction:**
+```http
+GET https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/token
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 </TabItem>
@@ -75,6 +84,9 @@ hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
 ```swift
 // Tokenize only
 heftClient.tokenizeCard()
+
+// Sale and tokenize
+heftClient.saleAndTokenizeCardWithAmount(1000, currency: "USD")
 ```
 
 </TabItem>
@@ -96,16 +108,19 @@ handpoint.tokenizeCard(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `terminal_serial_number` | string | Yes (REST) | Target terminal for card read |
-| `tokenize` | boolean | No (REST) | Set `true` on a Sale to also tokenize |
+| `operation` | string | Yes (Cloud API) | `"tokenizeCard"` for tokenize-only, `"saleAndTokenizeCard"` for sale+tokenize |
+| `amount` | string | Yes (saleAndTokenizeCard) | Amount in smallest currency unit as a string |
+| `currency` | string | Yes (saleAndTokenizeCard) | ISO 4217 currency code |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 
 ### Response fields
 
 | Field | Description |
 |---|---|
-| `cardToken` | The token to store. Use for future charges. |
+| `cardToken` | The token to store. Use for future charges via `/moto/sale` |
 | `cardTokenProvider` | Which token provider issued the token (e.g. `TSYS`, `PAYSAFE`) |
-| `cardExpiryDate` | Token expiry (matches card expiry) |
+| `expiryDateMMYY` | Token expiry (matches card expiry) |
 
 ### Errors
 

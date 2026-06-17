@@ -20,61 +20,61 @@ acquirers:
       TSYS US and Canada — uses the MasterCard flag in ISO 8583.
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       partial-reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tip-adjustment:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: not-supported
         cordova: public
       pre-auth:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
       moto:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       batching:
-        rest-api: public
+        cloud-api: public
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       pre-auth-capture-reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
@@ -96,55 +96,55 @@ acquirers:
       batch close.
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: not-supported
         cordova: public
       pre-auth:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
       moto:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       batching:
-        rest-api: public
+        cloud-api: public
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       void:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -163,13 +163,13 @@ acquirers:
       Pre-authorization is explicitly rejected (BAD_REQUEST).
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       void:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -189,31 +189,31 @@ acquirers:
       Interac transactions follow TNS void-only rules — see Interac VOID guide.
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: not-supported
+        cloud-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        rest-api: not-supported
+        cloud-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
@@ -231,49 +231,49 @@ acquirers:
       AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
       pre-auth-capture-reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       pre-auth:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
       moto:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       money-remittance:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -291,49 +291,49 @@ acquirers:
       AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
       pre-auth-capture-reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: not-supported
+        cloud-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       pre-auth:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
       moto:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -351,49 +351,49 @@ acquirers:
       AMEX routing supported — merchant must obtain a separate AMEX MID.
     capabilities:
       pre-auth-capture-reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: not-supported
+        cloud-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       pre-auth:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
       moto:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -411,25 +411,25 @@ acquirers:
       not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       tokenization:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -447,19 +447,19 @@ acquirers:
       the card to be physically present (Interac network rule).
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       void:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
@@ -474,31 +474,31 @@ acquirers:
     notes: "AMEX-only merchant configuration. Batch settlement via SQS supported."
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       moto:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
       batching:
-        rest-api: public
+        cloud-api: public
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
@@ -515,31 +515,31 @@ acquirers:
       returns BAD_REQUEST for all MOTO operations).
     capabilities:
       sale:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       refund:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       reversal:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
       tip-adjustment:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: not-supported
         cordova: public
       pre-auth:
-        rest-api: public
+        cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported

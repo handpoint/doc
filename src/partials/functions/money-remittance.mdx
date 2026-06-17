@@ -4,32 +4,38 @@
 Processes a payment transaction flagged as a money transfer — subject to specific network rules for remittance transactions.
 
 ### When to use it
-Use when processing money transfer payments (e.g. sending money to family abroad) where the merchant category requires the remittance flag. Do NOT use for standard retail — use Sale instead.
+Use when processing money transfer payments (e.g. sending money to family abroad) where the merchant category code requires the remittance flag. Applies to MCC 4829 (Wire Transfer) and MCC 6540 (POI Funding). Do NOT use for standard retail — use Sale instead.
 
 ### Implementation notes
 
-1. Money remittance transactions are flagged with a specific MCC and network indicator.
+1. Money remittance requires two additional fields: the **recipient's full name** and their **country code** (ISO 3166-1 alpha-3, e.g. `"USA"`, `"GBR"`, `"MEX"`).
 2. Not all card brands support remittance in all geographies — verify with your acquirer.
-3. The API call is similar to a Sale but with an additional remittance flag.
+3. Introduced in Android SDK v7.1004.1 and later.
+4. The recipient name and country code are included in the transaction result and appear on the receipt when present.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 50000,
+  "operation": "sale",
+  "amount": "50000",
   "currency": "USD",
-  "terminal_serial_number": "123456789",
-  "moneyRemittance": true
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "moneyRemittanceOptions": {
+    "fullName": "John Doe",
+    "countryCode": "USA"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
 
@@ -37,8 +43,12 @@ Content-Type: application/json
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-val options = SaleOptions()
-options.isMoneyRemittance = true
+val options = SaleOptions(
+    moneyRemittanceOptions = MoneyRemittanceOptions(
+        fullName = "John Doe",
+        countryCode = CountryCode.USA   // ISO 3166-1 alpha-3 enum
+    )
+)
 hapi.sale(BigInteger("50000"), Currency.USD, options)
 ```
 
@@ -46,8 +56,12 @@ hapi.sale(BigInteger("50000"), Currency.USD, options)
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-val options = SaleOptions()
-options.isMoneyRemittance = true
+val options = SaleOptions(
+    moneyRemittanceOptions = MoneyRemittanceOptions(
+        fullName = "John Doe",
+        countryCode = CountryCode.USA
+    )
+)
 hapi.sale(BigInteger("50000"), Currency.USD, options)
 ```
 
@@ -56,7 +70,7 @@ hapi.sale(BigInteger("50000"), Currency.USD, options)
 
 ```swift
 // Contact Handpoint integration team for money remittance options on iOS
-heftClient.saleWithAmount(50000, currency: "USD", cardholder: true)
+heftClient.saleWithAmount(50000, currency: "USD")
 ```
 
 </TabItem>
@@ -64,7 +78,11 @@ heftClient.saleWithAmount(50000, currency: "USD", cardholder: true)
 
 ```javascript
 handpoint.sale(
-  { amount: 50000, currency: "USD", moneyRemittance: true },
+  {
+    amount: 50000,
+    currency: "USD",
+    moneyRemittanceOptions: { fullName: "John Doe", countryCode: "USA" }
+  },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -77,10 +95,14 @@ handpoint.sale(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Transfer amount in smallest currency unit |
+| `operation` | string | Yes (Cloud API) | Must be `"sale"` |
+| `amount` | string | Yes | Transfer amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `moneyRemittance` | boolean | Yes | Must be `true` |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `moneyRemittanceOptions.fullName` | string | Yes | Recipient's full name (max 30 characters) |
+| `moneyRemittanceOptions.countryCode` | string | Yes | Recipient's country code in ISO 3166-1 alpha-3 format, e.g. `"USA"`, `"GBR"`, `"MEX"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and result retrieval |
 
 ### Testing
 Test money remittance transactions on the TEST/DEMO merchant or staging device the same way as standard sales.

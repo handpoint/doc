@@ -7,7 +7,7 @@ Processes a card-not-present transaction where the cardholder provides card deta
 
 | Mode | How it works | Terminal required | Who holds card data |
 |---|---|---|---|
-| **MOTO on terminal** | REST API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
+| **MOTO on terminal** | Cloud API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
 | **MOTO back-office** | A `cardToken` from a supported token provider is sent via REST API or Android SDK. No terminal or card entry required. | ❌ None | Token provider (never the ISV) |
 
 :::info No raw card data
@@ -22,46 +22,49 @@ Use for call centres, phone order systems, or recurring billing where the cardho
 1. The card token must come from a token provider supported by the merchant's acquirer.
 2. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 3. **MOTO on terminal**: the PAX device must be running the Android SDK in integrated mode. The terminal entry screen collects card details and tokenizes internally.
-4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required.
+4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required. Uses the `/moto/sale` endpoint — not `/transactions`.
+5. **MOTO refund**: no card or terminal is required. The refund is submitted directly to the gateway using the card token. Valid up to **12 months** after the original MOTO sale date.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 **MOTO on terminal** — terminal shows card entry screen (PAX in integrated mode):
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "moToSale",
+  "amount": "1000",
   "currency": "USD",
-  "motoChannel": true,
-  "terminal_serial_number": "123456789"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
 
-**MOTO back-office** — card token submitted directly, no terminal:
+**MOTO back-office** — card token submitted directly, no terminal required:
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/moto/sale
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "amount": "10.00",
   "currency": "USD",
-  "motoChannel": true,
-  "cardToken": "YOUR_STORED_CARD_TOKEN"
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
 }
 ```
+
+For back-office MOTO, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -77,7 +80,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD)
 
 ```kotlin
 val options = MoToOptions()
-options.setCardToken("YOUR_STORED_CARD_TOKEN")
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ```
 
@@ -85,24 +88,24 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the REST API back-office endpoint with a card token."
-  useInstead="REST API (back-office)"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
 />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the REST API back-office endpoint with a card token."
-  useInstead="REST API (back-office)"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or REST API for back-office MOTO."
-  useInstead="Android SDK (PAX) or REST API"
+  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or Cloud API for back-office MOTO."
+  useInstead="Android SDK (PAX) or Cloud API"
 />
 
 </TabItem>
@@ -110,23 +113,26 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 
 ### Parameters
 
-**MOTO on terminal** (terminal serial number, no card token):
+**MOTO on terminal** (`POST /transactions`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit |
+| `operation` | string | Yes | Must be `"moToSale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `motoChannel` | boolean | Yes | Must be `true` |
-| `terminal_serial_number` | string | Yes | PAX terminal — triggers card entry screen |
+| `serial_number` | string | Yes | PAX terminal — triggers card entry screen |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No | UUID v4 for idempotency |
 
-**MOTO back-office** (card token, no terminal):
+**MOTO back-office** (`POST /moto/sale`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit |
+| `amount` | string | Yes | Amount in major currency units, e.g. `"10.00"` for $10.00 |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `motoChannel` | boolean | Yes | Must be `true` |
-| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN. |
+| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
+| `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
+| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 

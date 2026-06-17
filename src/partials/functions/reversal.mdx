@@ -4,61 +4,79 @@
 Voids a sale before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
 
 ### When to use it
-Use when a sale needs to be cancelled before the batch closes. This is always preferable to a refund for same-day cancellations — faster and fee-free. Do NOT use after settlement — send a Refund instead.
+Use when a sale needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a refund for same-day cancellations — faster and fee-free. **No card present required** — reversal is sent electronically using the original transaction reference. Do NOT use after settlement — send a Refund instead.
 
 ### Implementation notes
 
-1. Reversal only works on the current open batch. Once the batch closes (auto or manual), only a refund is possible.
-2. Full amount only — partial reversals are a separate operation (`partial-reversal`), supported only on TSYS US.
-3. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
-4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
+1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
+2. **No card present required.** Reversal is an electronic operation referencing the original `transactionID`. The cardholder does not need to return to the terminal.
+3. Full amount only — partial reversals are a separate operation (`partial-reversal`), supported only on TSYS US.
+4. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
+5. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "REVERSAL",
-  "original_transaction_reference": "abc-123-def"
+  "operation": "saleReversal",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
+
+`originalTransactionId` is the `transactionID` from the original sale result. `amount` and `currency` must match the original sale. Do not include a `transactionReference` — this is a subsequent operation linked to the original sale's reference.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.reversal("abc-123-def")  // originalTransactionReference from sale result
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.reversal("abc-123-def")
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.voidWithCard(true)
-// Note: pass the original transaction reference if available
+heftClient.saleVoidWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 ```javascript
-handpoint.reversal(
-  { originalTransactionId: "abc-123-def" },
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: "USD",
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
 );
@@ -71,7 +89,12 @@ handpoint.reversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the original sale |
+| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
 
 ### Errors
 
@@ -82,4 +105,48 @@ handpoint.reversal(
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
 ### Testing
-Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
+
+Test reversals on the TEST/DEMO merchant or staging device. The most important edge case is cut-off timing.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off (success) | Complete a sale, send reversal same day — verify `AUTHORISED` with no card prompt |
+| After cut-off (failure) | Close the batch manually, then attempt reversal — verify `ORIGINAL_NOT_FOUND` and that your UI routes to Refund |
+| Already reversed | Send the same reversal twice — verify idempotent response on second call |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hapi.saleReversal()` same day — verify no card prompt, `finStatus == AUTHORISED` |
+| After cut-off | Close batch, then call `hapi.saleReversal()` — verify `DECLINED` or error in `endOfTransaction` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `heftClient.saleVoidWithAmount:currency:transaction:` same day — verify success |
+| After cut-off | Close batch, attempt void — verify failure in delegate |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `handpoint.saleReversal()` same day — verify `AUTHORISED` |
+| After cut-off | Close batch, attempt reversal — verify error |
+
+</TabItem>
+</Tabs>
+
+For full step-by-step scenarios, see [Testing Edge Cases](/reference/testing-edge-cases#reversal).

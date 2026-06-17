@@ -11,27 +11,31 @@ Use when the final amount is lower than the authorised amount and the batch is s
 1. Supported for **TSYS (US and Canada)**. Not available on other acquirers.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
 3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
-4. Available via REST API and Android SDK (PAX). Not supported on HiLite or iOS paths.
+4. Available via Cloud API and Android SDK (PAX). Not supported on HiLite or iOS paths.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "PARTIALREVERSAL",
-  "amount": 800,
+  "operation": "saleReversal",
+  "amount": "800",
   "currency": "USD",
-  "original_transaction_reference": "abc-123-def"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
+
+Send `amount` less than the original authorised amount. The gateway recognises this as a partial reversal. Do not include a `transactionReference` — this is a subsequent operation linked to the original sale's reference.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -41,9 +45,9 @@ Pass the new (reduced) amount to `saleReversal` — the SDK sends a partial reve
 ```kotlin
 // Partial reversal — amount is the new final charge, not a delta
 hapi.saleReversal(
-    BigInteger("800"),         // new final amount (minor units)
+    BigInteger("800"),                               // new final amount (minor units)
     Currency.USD,
-    "abc-123-def"              // originalTransactionId
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"          // originalTransactionID from original sale
 )
 ```
 
@@ -52,7 +56,7 @@ hapi.saleReversal(
 
 <NotSupported
   reason="Partial reversal is not available on HiLite. The HiLite BT path does not support partial reversals."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -60,15 +64,15 @@ hapi.saleReversal(
 
 <NotSupported
   reason="Partial reversal is not available on iOS HiLite."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="Partial reversal via Cordova is not confirmed. Use REST API or Android SDK (PAX) directly."
-  useInstead="REST API or Android SDK (PAX)"
+  reason="Partial reversal via Cordova is not confirmed. Use Cloud API or Android SDK (PAX) directly."
+  useInstead="Cloud API or Android SDK (PAX)"
 />
 
 </TabItem>
@@ -78,9 +82,12 @@ hapi.saleReversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | New final amount (not a delta). Must be less than original authorised amount. |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `original_transaction_reference` | string | Yes | Reference from the original sale |
+| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `amount` | string | Yes | New final amount as a string (not a delta). Must be less than original authorised amount |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
 
 ### Errors
 

@@ -1,0 +1,312 @@
+/**
+ * Single source of truth for all acquirer capabilities.
+ *
+ * Edit this file to update capabilities — both the individual acquirer pages
+ * and the full-matrix page will reflect the changes automatically.
+ *
+ * Path values: "public" = supported, "not-supported" = not supported, omit = not applicable.
+ */
+
+const P = 'public';
+const N = 'not-supported';
+const ALL5  = () => ({ 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': P, 'cordova': P });
+const NONE5 = () => ({ 'cloud-api': N, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N, 'cordova': N });
+
+/** Display order for capability rows in tables. */
+export const DISPLAY_ORDER = [
+  'sale', 'refund', 'reversal', 'partial-reversal', 'tip-adjustment',
+  'pre-auth', 'pre-auth-capture-reversal', 'moto', 'tokenization',
+  'batching', 'money-remittance', 'void',
+];
+
+/** Human-readable labels for each capability. */
+export const CAPABILITY_LABELS = {
+  'sale':                      'Sale',
+  'refund':                    'Refund',
+  'reversal':                  'Reversal',
+  'partial-reversal':          'Partial Reversal',
+  'tip-adjustment':            'Tip Adjustment',
+  'pre-auth':                  'Pre-Authorization',
+  'pre-auth-capture-reversal': 'Pre-Auth Capture Reversal',
+  'moto':                      'MOTO',
+  'tokenization':              'Tokenization',
+  'batching':                  'Batch Operations',
+  'money-remittance':          'Money Remittance',
+  'void':                      'Void',
+};
+
+/** Human-readable labels for each integration path. */
+export const PATH_LABELS = {
+  'cloud-api':       'Cloud API',
+  'android-pax':     'Android (PAX)',
+  'android-hilite':  'Android (HiLite)',
+  'ios-hilite':      'iOS (HiLite)',
+  'cordova':         'Cordova',
+  'back-office':     'REST API (Back Office)',
+  'paysafe-portal':  'Paysafe Portal',
+};
+
+export const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova'];
+export const BACK_OFFICE_PATHS  = ['back-office'];
+export const PORTAL_PATHS       = ['paysafe-portal'];
+
+const PAYSAFE_PORTAL_NOTE =
+  'Paysafe Portal refund: Use `eftTransactionID` from `TransactionResult` as Paysafe\'s ' +
+  '`MerchantRefNum`. Wait 24h for settlement, retrieve the auth by MerchantRefNum, then submit ' +
+  'the refund using Paysafe\'s TXN ID. Processed directly via the Paysafe Cards API — ' +
+  'Handpoint has no record of portal-processed transactions.';
+
+/**
+ * Full acquirer data.
+ * - caps: per-operation, per-path support. Keys that exist in caps render as rows in tables.
+ *   Include all-NONE5 entries for operations you want shown as explicitly unsupported.
+ * - notes: per-operation note shown in the Notes column of the full-matrix table.
+ * - portalNote: shown as a callout below the per-acquirer table when non-null.
+ */
+export const ACQUIRERS = [
+  // ─────────────────────────────────────────────────────────────────────────
+  // TSYS — US, Canada
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'tsys',
+    name: 'TSYS',
+    subtitle: 'US, Canada · VISA MC Discover',
+    caps: {
+      sale:                        ALL5(),
+      refund:                      ALL5(),
+      reversal:                    { ...ALL5(), 'back-office': P },
+      'partial-reversal':          { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      'tip-adjustment':            { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'back-office': P },
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      moto:                        { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      tokenization:                { ...ALL5(), 'back-office': P },
+      batching:                    { 'cloud-api': P, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+    },
+    notes: {
+      sale:                        'Card must be read by terminal.',
+      refund:                      'Card must be read by terminal.',
+      'partial-reversal':          'TSYS US and Canada.',
+      'tip-adjustment':            'Does not require a card read — available via Back Office. iOS HiLite: not supported.',
+      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
+      'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office. Pre-settlement only. Partial capture reversal supported.',
+      moto:                        'Via PAX screen entry (on-terminal) or ProCharge/EPI card token (Back Office — no reader). Both keep ISV and merchant out of PCI scope. Must be enabled in Handpoint Portal (TMS).',
+      batching:                    'US + Canada. Must be enabled in Handpoint Portal (TMS).',
+    },
+    portalNote: null,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PAYSAFE + Interac — Canada
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'tsys-tns',
+    name: 'PAYSAFE + Interac',
+    subtitle: 'Canada · VISA MC Discover Interac',
+    caps: {
+      sale:               ALL5(),
+      refund:             { ...ALL5(), 'paysafe-portal': P },
+      reversal:           { ...ALL5(), 'back-office': P },
+      'partial-reversal': NONE5(),
+      'tip-adjustment':   { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'back-office': P },
+      'pre-auth':         NONE5(),
+      moto:               NONE5(),
+      tokenization:       ALL5(),
+      batching:           NONE5(),
+      void:               ALL5(),
+    },
+    notes: {
+      sale:               'Card must be read by terminal.',
+      refund:             'Interac cards: not available via Handpoint. Paysafe Portal: CNP refund — see note below.',
+      reversal:           'Interac cards: not available.',
+      'tip-adjustment':   'TSYS-routed cards only. iOS HiLite: not supported.',
+      'pre-auth':         'Not supported — Paysafe restriction.',
+      moto:               'Not supported — Paysafe restriction.',
+      tokenization:       'TSYS-routed cards only.',
+      batching:           'Not supported — Paysafe restriction.',
+      void:               'Interac cards only. Card must be present. Show VOID in ISV UI, not Refund.',
+    },
+    portalNote: PAYSAFE_PORTAL_NOTE,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TNS — Canada · Interac only
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'tns',
+    name: 'TNS (Interac)',
+    subtitle: 'Canada · Interac only',
+    caps: {
+      sale:               ALL5(),
+      'partial-reversal': NONE5(),
+      'tip-adjustment':   NONE5(),
+      moto:               NONE5(),
+      tokenization:       NONE5(),
+      void:               ALL5(),
+    },
+    notes: {
+      void: 'Full amount only. Card must be present. Before settlement.',
+    },
+    portalNote: null,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // PAYSAFE — US
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'paysafe-tsys',
+    name: 'PAYSAFE',
+    subtitle: 'US · VISA MC AMEX Discover',
+    caps: {
+      sale:               ALL5(),
+      refund:             { ...ALL5(), 'paysafe-portal': P },
+      reversal:           { ...ALL5(), 'back-office': P },
+      'partial-reversal': NONE5(),
+      'tip-adjustment':   NONE5(),
+      'pre-auth':         NONE5(),
+      moto:               NONE5(),
+      tokenization:       NONE5(),
+      batching:           NONE5(),
+    },
+    notes: {
+      sale:               'Card must be read by terminal.',
+      refund:             'Paysafe Portal: CNP refund — see note below.',
+      'tip-adjustment':   'Not supported — Paysafe restriction.',
+      'pre-auth':         'Not supported — Paysafe restriction.',
+      moto:               'Not supported — Paysafe restriction.',
+      tokenization:       'Not supported — Paysafe restriction.',
+      batching:           'Not supported — Paysafe restriction.',
+    },
+    portalNote: PAYSAFE_PORTAL_NOTE,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // EmerchantPay — EU (OMNIPAY)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'omnipay-emp',
+    name: 'EmerchantPay',
+    subtitle: 'EU · VISA MC AMEX UnionPay',
+    caps: {
+      sale:                        ALL5(),
+      refund:                      ALL5(),
+      reversal:                    { ...ALL5(), 'back-office': P },
+      'partial-reversal':          NONE5(),
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      moto:                        { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N },
+      tokenization:                ALL5(),
+      'money-remittance':          ALL5(),
+    },
+    notes: {
+      sale:                        'Card must be read by terminal.',
+      refund:                      'Card must be read by terminal.',
+      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
+      'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
+      moto:                        'Via PAX screen entry or ProCharge/EPI card token. Requires MOTO enablement.',
+      'money-remittance':          'AMEX routing: separate MID required.',
+    },
+    portalNote: null,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Lloyds — EU (OMNIPAY)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'omnipay-lloyds',
+    name: 'Lloyds',
+    subtitle: 'EU · VISA MC AMEX UnionPay',
+    caps: {
+      sale:                        ALL5(),
+      refund:                      ALL5(),
+      reversal:                    { ...ALL5(), 'back-office': P },
+      'partial-reversal':          NONE5(),
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      moto:                        { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N },
+      tokenization:                ALL5(),
+    },
+    notes: {
+      sale:                        'Card must be read by terminal.',
+      refund:                      'Card must be read by terminal.',
+      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
+      'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
+      moto:                        'Via PAX screen entry or ProCharge/EPI card token. Requires MOTO enablement.',
+    },
+    portalNote: null,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Paystrax — EU (OMNIPAY)
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'omnipay-paystrax',
+    name: 'Paystrax',
+    subtitle: 'EU · VISA MC AMEX UnionPay',
+    caps: {
+      sale:                        ALL5(),
+      refund:                      ALL5(),
+      reversal:                    { ...ALL5(), 'back-office': P },
+      'partial-reversal':          NONE5(),
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      moto:                        { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N },
+      tokenization:                ALL5(),
+    },
+    notes: {
+      sale:                        'Card must be read by terminal.',
+      refund:                      'Card must be read by terminal.',
+      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
+      'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
+      moto:                        'Via PAX screen entry or ProCharge/EPI card token. Requires MOTO enablement.',
+    },
+    portalNote: null,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // TEYA (Borgun) — EU
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'teya',
+    name: 'TEYA (Borgun)',
+    subtitle: 'EU · VISA MC',
+    caps: {
+      sale:               ALL5(),
+      refund:             ALL5(),
+      reversal:           { ...ALL5(), 'back-office': P },
+      'partial-reversal': NONE5(),
+      tokenization:       ALL5(),
+      batching:           NONE5(),
+      'money-remittance': NONE5(),
+    },
+    notes: {},
+    portalNote: null,
+  },
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // VANTIV (Worldpay) — US
+  // ─────────────────────────────────────────────────────────────────────────
+  {
+    id: 'vantiv',
+    name: 'VANTIV (Worldpay)',
+    subtitle: 'US · VISA MC Discover JCB',
+    caps: {
+      sale:               ALL5(),
+      refund:             ALL5(),
+      reversal:           { ...ALL5(), 'back-office': P },
+      'partial-reversal': NONE5(),
+      'tip-adjustment':   { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'back-office': P },
+      'pre-auth':         { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
+      batching:           NONE5(),
+      'money-remittance': NONE5(),
+    },
+    notes: {
+      'tip-adjustment': 'Does not require a card read — available via Back Office. iOS HiLite: not supported.',
+      'pre-auth':       'Includes increase/decrease, capture, void hold.',
+    },
+    portalNote: null,
+  },
+];
+
+/** Lookup map by acquirer id — use in MDX pages: `CAPS_BY_ID['tsys']` */
+export const CAPS_BY_ID = Object.fromEntries(ACQUIRERS.map(a => [a.id, a.caps]));

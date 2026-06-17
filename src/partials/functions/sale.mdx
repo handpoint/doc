@@ -12,26 +12,32 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 2. The SDK returns an `OperationStartResult` synchronously with a `transactionReference`. The actual result arrives asynchronously via the events listener/callback.
 3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
+5. **`transactionReference` (Cloud API):** Send a unique UUID v4 on **original transactions only** (Sale, MOTO Sale, Pre-Authorization, unlinked Refund). Do not send a new `transactionReference` on subsequent operations (Reversal, linked Refund, Pre-Auth Capture, Void). The gateway uses this value to group all linked operations — query `GET /transactions/{transactionReference}/status/all` on `transactions.handpoint.com` to retrieve the full operation chain. HiLite integration paths do not support `transactionReference`.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "sale",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "customerReference": "order-5248",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
+
+The `transactionReference` must be a unique UUID v4 per request — use it to retrieve the result via `GET /transaction-result/{transactionResultId}` if no `callbackUrl` is provided.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -42,7 +48,7 @@ hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
 override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
-    if (result.type == TransactionResultType.APPROVED) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
 }
@@ -57,7 +63,7 @@ hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
 override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
-    if (result.type == TransactionResultType.APPROVED) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
 }
@@ -68,12 +74,12 @@ override fun endOfTransaction(result: TransactionResult, transactionReference: T
 
 ```swift
 // Swift — iOS app connected to HiLite via Bluetooth
-heftClient.saleWithAmount(1000, currency: "USD", cardholder: true)
+heftClient.saleWithAmount(1000, currency: "USD")
 
 // Result arrives in your delegate:
 func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
     if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
-        // store info.xml for the transaction record
+        // store the transactionID from info.xml for potential reversal
     }
 }
 ```
@@ -86,8 +92,8 @@ func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseI
 handpoint.sale(
   { amount: 1000, currency: "USD" },
   function(result) {
-    if (result.type === "APPROVED") {
-      // store result.transactionId for potential reversal
+    if (result.finStatus === "AUTHORISED") {
+      // store result.transactionID for potential reversal
     }
   },
   function(error) { console.error("Sale failed:", error); }
@@ -101,9 +107,13 @@ handpoint.sale(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit (cents). `1000` = $10.00 |
+| `operation` | string | Yes (Cloud API) | Must be `"sale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string. `"1000"` = $10.00 |
 | `currency` | string | Yes | ISO 4217 currency code. e.g. `"USD"`, `"GBP"`, `"EUR"` |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal. Not required for SDK paths (terminal already connected). |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Required for status queries. Send on **original transactions only** (Sale, MOTO Sale, Pre-Auth, unlinked Refund) — not on subsequent operations. Not supported on HiLite paths |
+| `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 
@@ -115,4 +125,55 @@ handpoint.sale(
 | `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
 
 ### Testing
-Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../get-started/development-hardware#trigger-amounts). All other amounts process as approved.
+
+Use trigger amounts on a TEST/DEMO merchant or staging device — see [Trigger amounts](../get-started/development-hardware#trigger-amounts). All other amounts process as approved.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Declined | Use a trigger amount for `DECLINED` |
+| Network drop — recover via `/status` | Send with `transactionReference`, disconnect before result arrives, then query `GET /transactions/{ref}/status` |
+| Duplicate request | Send the same `transactionReference` twice — verify only one charge |
+| Timeout chain (~5 min) | On the terminal, allow all contactless/chip retries to exhaust, then complete via swipe; verify your callback listener stays active |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Declined | Use a trigger amount |
+| Card fallback (contactless → chip → swipe) | Tap with an incompatible card 3× → insert chip and remove quickly 3× → swipe successfully |
+| PIN retries | Enter wrong PIN twice, correct on third attempt — verify up to 90s total |
+| App restart recovery | Force-close app mid-transaction; relaunch → call `startRecovery()` → verify result arrives with `recoveredTransaction == true` |
+| "See Phone" timeout | Tap with Apple Pay / Google Pay; do not complete biometric on phone — verify 120s timeout |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Declined | Use a trigger amount |
+| Bluetooth drop | Disable Bluetooth mid-transaction; re-enable and reconnect — verify result is delivered |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Declined | Use a trigger amount |
+| Bluetooth drop | Disable Bluetooth mid-transaction; re-enable — verify delegate receives result |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Declined | Use a trigger amount |
+| Error callback | Use a trigger amount for `COMMUNICATION_ERROR` — verify your error callback fires |
+
+</TabItem>
+</Tabs>
+
+For complete step-by-step reproduction instructions including worst-case timeout testing, see [Testing Edge Cases](/reference/testing-edge-cases).

@@ -7,8 +7,6 @@ const sidebars = {
       collapsible: false,
       items: [
         'get-started/index',
-        'get-started/authentication',
-        'get-started/development-hardware',
       ],
     },
   ],
@@ -16,7 +14,7 @@ const sidebars = {
   acquirersSidebar: [
     {
       type: 'category',
-      label: 'Acquirers',
+      label: 'Functionalities',
       collapsible: false,
       items: [
         {
@@ -39,19 +37,15 @@ const sidebars = {
             'acquirers/teya',
           ],
         },
-      ],
-    },
-  ],
-
-  backOfficeSidebar: [
-    {
-      type: 'category',
-      label: 'Back Office',
-      collapsible: false,
-      items: [
-        'back-office/rest-api-no-reader',
-        'back-office/transaction-feed-api',
-        'back-office/tms-apis',
+        {
+          type: 'category',
+          label: 'Back Office',
+          items: [
+            'back-office/rest-api-no-reader',
+            'back-office/transaction-feed-api',
+            'back-office/tms-apis',
+          ],
+        },
       ],
     },
   ],
@@ -62,6 +56,11 @@ const sidebars = {
       label: 'Reference',
       collapsible: false,
       items: [
+        'reference/authentication',
+        'reference/development-hardware',
+        'reference/pre-authorization-guide',
+        'reference/transaction-recovery',
+        'reference/testing-edge-cases',
         'reference/full-matrix',
         'reference/acquirer-capabilities-matrix',
         'reference/devices',

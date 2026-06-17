@@ -3,9 +3,9 @@ import {useHistory, useLocation} from '@docusaurus/router';
 import {ACQUIRERS} from '@site/src/data/acquirers';
 
 const PATHS = [
-  {value: 'rest-api',       label: 'REST API'},
+  {value: 'cloud-api',      label: 'Cloud API'},
   {value: 'android-pax',    label: 'Android (PAX)'},
-  {value: 'android-hilite', label: 'Android (HiLite)'},
+  {value: 'android-hilite', label: 'Android (HiLite)', sdkVersion: '7.1004.3'},
   {value: 'ios-hilite',     label: 'iOS (HiLite)'},
   {value: 'cordova',        label: 'Cordova'},
 ];
@@ -86,10 +86,15 @@ export default function GlobalFilters() {
   };
 
   const handleAcquirerChange = (slug) => {
-    if (!slug) return;
     setSelectedAcquirer(slug);
-    if (typeof window !== 'undefined') localStorage.setItem(ACQUIRER_KEY, slug);
-    history.push(`/acquirers/${slug}`);
+    if (typeof window !== 'undefined') {
+      if (slug) localStorage.setItem(ACQUIRER_KEY, slug);
+      else localStorage.removeItem(ACQUIRER_KEY);
+      window.dispatchEvent(new CustomEvent('handpoint:acquirerChanged', {detail: {slug}}));
+    }
+    // On the full-matrix page, filter in-place instead of navigating
+    if (location.pathname.includes('full-matrix')) return;
+    if (slug) history.push(`/acquirers/${slug}`);
   };
 
   return (
@@ -104,7 +109,7 @@ export default function GlobalFilters() {
           onChange={(e) => handleAcquirerChange(e.target.value)}
           aria-label="Select acquirer"
         >
-          <option value="">— select —</option>
+          <option value="">ALL</option>
           {ACQUIRERS.map(a => (
             <option key={a.slug} value={a.slug}>{a.name}</option>
           ))}
@@ -125,6 +130,11 @@ export default function GlobalFilters() {
             <option key={p.value} value={p.value}>{p.label}</option>
           ))}
         </select>
+        {PATHS.find(p => p.value === selectedPath)?.sdkVersion && (
+          <span className="navbar-filter-version">
+            Last stable SDK v{PATHS.find(p => p.value === selectedPath).sdkVersion}
+          </span>
+        )}
       </div>
 
     </div>

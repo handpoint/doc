@@ -11,12 +11,12 @@ capabilities:
   refund: true
   reversal: true
 integration-paths:
-  - rest-api
+  - cloud-api
   - android-pax
   - android-hilite
   - ios-hilite
   - cordova
-last-reviewed: "2026-06-03"
+last-reviewed: "2026-06-12"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -25,12 +25,13 @@ import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
+import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"tip-adjustment":{"rest-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
+export const _caps = CAPS_BY_ID['paysafe-tsys'];
 
 <AcquirerPageHeader currentSlug="paysafe-tsys" />
 
-## Capabilities
+## Functionalities
 
 <CapabilitySummary capabilities={_caps} />
 
@@ -61,20 +62,25 @@ Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "sale",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "customerReference": "order-5248",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
+
+The `transactionReference` must be a unique UUID v4 per request — use it to retrieve the result via `GET /transaction-result/{transactionResultId}` if no `callbackUrl` is provided.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -85,7 +91,7 @@ hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
 override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
-    if (result.type == TransactionResultType.APPROVED) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
 }
@@ -100,7 +106,7 @@ hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
 override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
-    if (result.type == TransactionResultType.APPROVED) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
 }
@@ -111,12 +117,12 @@ override fun endOfTransaction(result: TransactionResult, transactionReference: T
 
 ```swift
 // Swift — iOS app connected to HiLite via Bluetooth
-heftClient.saleWithAmount(1000, currency: "USD", cardholder: true)
+heftClient.saleWithAmount(1000, currency: "USD")
 
 // Result arrives in your delegate:
 func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
     if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
-        // store info.xml for the transaction record
+        // store the transactionID from info.xml for potential reversal
     }
 }
 ```
@@ -129,8 +135,8 @@ func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseI
 handpoint.sale(
   { amount: 1000, currency: "USD" },
   function(result) {
-    if (result.type === "APPROVED") {
-      // store result.transactionId for potential reversal
+    if (result.finStatus === "AUTHORISED") {
+      // store result.transactionID for potential reversal
     }
   },
   function(error) { console.error("Sale failed:", error); }
@@ -144,9 +150,13 @@ handpoint.sale(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit (cents). `1000` = $10.00 |
+| `operation` | string | Yes (Cloud API) | Must be `"sale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string. `"1000"` = $10.00 |
 | `currency` | string | Yes | ISO 4217 currency code. e.g. `"USD"`, `"GBP"`, `"EUR"` |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal. Not required for SDK paths (terminal already connected). |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
+| `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 
@@ -170,8 +180,8 @@ Use for returning goods or services after settlement has occurred. For cancellat
 
 ### Implementation notes
 
-1. **Linked refund** (recommended): includes `originalTransactionReference` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
-2. **Unlinked refund**: omit `originalTransactionReference` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
+1. **Linked refund** (recommended): includes `originalTransactionId` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
+2. **Unlinked refund**: omit `originalTransactionId` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
 4. The cardholder's card must be present for card-present refunds.
 
@@ -183,21 +193,25 @@ Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "REFUND",
-  "amount": 1000,
+  "operation": "refund",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789",
-  "original_transaction_reference": "abc-123-def"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
+
+Omit `originalTransactionId` for an unlinked (standalone) refund.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -206,7 +220,7 @@ Content-Type: application/json
 hapi.refund(
     BigInteger("1000"),
     Currency.USD,
-    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
 ```
 
@@ -217,7 +231,7 @@ hapi.refund(
 hapi.refund(
     BigInteger("1000"),
     Currency.USD,
-    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
 ```
 
@@ -225,8 +239,11 @@ hapi.refund(
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.refundWithAmount(1000, currency: "USD", cardholder: true)
-// Pass originalTransactionId if available for linked refund
+// Linked refund — pass the transaction ID from the original sale
+heftClient.refundWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+heftClient.refundWithAmount(1000, currency: "USD")
 ```
 
 </TabItem>
@@ -237,7 +254,7 @@ handpoint.refund(
   {
     amount: 1000,
     currency: "USD",
-    originalTransactionId: "abc-123-def"  // omit for unlinked refund
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // omit for unlinked refund
   },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
@@ -251,10 +268,13 @@ handpoint.refund(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Refund amount in smallest currency unit |
+| `operation` | string | Yes (Cloud API) | Must be `"refund"` |
+| `amount` | string | Yes | Refund amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal |
-| `original_transaction_reference` | string | No | Links refund to original sale. Recommended. |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | No | Links refund to original sale. Recommended. Value is the `transactionID` from the original sale result |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
 
 ### Errors
 
@@ -291,47 +311,65 @@ Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "REVERSAL",
-  "original_transaction_reference": "abc-123-def"
+  "operation": "saleReversal",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
+
+`originalTransactionId` is the `transactionID` from the original sale result. `amount` and `currency` must match the original sale.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.reversal("abc-123-def")  // originalTransactionReference from sale result
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.reversal("abc-123-def")
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.voidWithCard(true)
-// Note: pass the original transaction reference if available
+heftClient.saleVoidWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 ```javascript
-handpoint.reversal(
-  { originalTransactionId: "abc-123-def" },
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: "USD",
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
 );
@@ -344,7 +382,13 @@ handpoint.reversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the original sale |
+| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
 
 ### Errors
 

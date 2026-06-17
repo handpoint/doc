@@ -1,39 +1,18 @@
 ---
 id: index
-title: Choose your acquirer
-sidebar_label: Choose your acquirer
+title: Get Started
+sidebar_label: Get Started
 sidebar_position: 1
-description: Select your acquirer to see the payment functions available for your integration.
+description: Select your market and integration type to see which Handpoint payment functions and SDKs are available.
 ---
 
-# Choose your acquirer
+import IntegrationWizard from '@site/src/components/IntegrationWizard';
 
-Each Handpoint integration is tied to an acquiring bank or payment processor. Select yours to see which payment functions are available and how to implement them.
+# Start your integration
 
-## United States
+Select your market and integration type to see available SDKs and acquirers.
 
-| Acquirer | Card Brands | Key capabilities |
-|---|---|---|
-| [TSYS](../acquirers/tsys) | VISA, MC, Discover | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth, MOTO, Batching |
-| [PAYSAFE](../acquirers/paysafe-tsys) | VISA, MC, AMEX, Discover, Interac | Sale, Refund, Reversal |
-| [VANTIV (Worldpay)](../acquirers/vantiv) | VISA, MC, Discover | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth |
-
-## Canada
-
-| Acquirer | Card Brands | Key capabilities |
-|---|---|---|
-| [TSYS](../acquirers/tsys) | VISA, MC, Discover | Sale, Refund, Reversal, Tip Adjustment, Pre-Auth, MOTO, Batching |
-| [PAYSAFE + Interac](../acquirers/tsys-tns) | VISA, MC, Discover, Interac | TSYS capabilities + Interac void |
-| [TNS (Interac)](../acquirers/tns) | Interac | Sale, Void |
-
-## Europe
-
-| Acquirer | Card Brands | Key capabilities |
-|---|---|---|
-| [EmerchantPay](../acquirers/omnipay-emp) | VISA, MC, AMEX | Sale, Refund, Reversal, Pre-Auth, MOTO, Money Remittance |
-| [Lloyds](../acquirers/omnipay-lloyds) | VISA, MC, AMEX | Sale, Refund, Reversal, Pre-Auth, MOTO |
-| [Paystrax](../acquirers/omnipay-paystrax) | VISA, MC, AMEX | Sale, Refund, Reversal, Pre-Auth, MOTO |
-| [TEYA (Borgun)](../acquirers/teya) | VISA, MC | Sale, Refund, Reversal |
+<IntegrationWizard />
 
 :::tip AI agents
 Fetch `/llms.txt` for a machine-readable capability index before loading individual acquirer pages.

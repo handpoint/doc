@@ -8,39 +8,38 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 
 ### Implementation notes
 
-1. **To void a tip:** send `tipAmount: 0`. There is no separate cancel call. The last value sent always wins.
+1. **To void a tip:** send `amount: 0`. There is no separate cancel call. The last value sent always wins.
 2. **Deadline:** before batch close. For TSYS, auto-close is typically 11pm EST. After close, only a refund is possible.
 3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
 4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
-5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via REST API. The integration path used for the sale does not constrain the tip adjustment path.
+5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
 6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-7. iOS HiLite does not support card-present tip adjustment. Use REST API.
+7. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/tipAdjustment
+POST https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/tip-adjustment
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "originalTransactionId": "abc-123-def",
-  "tipAmount": 900
+  "amount": 9.00
 }
 ```
 
-To void a tip, send `"tipAmount": 0`.
+The `transactionID` from the original sale goes in the URL path. To void a tip, send `"amount": 0`.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
+hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 // To void a tip: pass BigInteger("0")
 ```
 
@@ -48,7 +47,7 @@ hapi.tipAdjustment("abc-123-def", BigInteger("900"))
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
+hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 // To void a tip: pass BigInteger("0")
 ```
 
@@ -57,7 +56,7 @@ hapi.tipAdjustment("abc-123-def", BigInteger("900"))
 
 <NotSupported
   reason="Tip adjustment is not supported on iOS HiLite. HiLite is a card-present Bluetooth device; tip adjustment requires a server-side call."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -65,7 +64,7 @@ hapi.tipAdjustment("abc-123-def", BigInteger("900"))
 
 ```javascript
 handpoint.tipAdjustment(
-  { originalTransactionId: "abc-123-def", tipAmount: 900 },
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241", tipAmount: 900 },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
 );
@@ -76,10 +75,20 @@ handpoint.tipAdjustment(
 
 ### Parameters
 
+**Cloud API** — `POST /transactions/{transactionID}/tip-adjustment`:
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `originalTransactionId` | string | Yes | Transaction ID from the original sale |
-| `tipAmount` | integer | Yes | Tip amount in smallest currency unit. `0` to void an existing tip. |
+| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result |
+| `amount` | number | Yes | Tip amount in major currency units (e.g. `9.00` for $9.00). `0` to void an existing tip |
+
+**Android SDK** — `tipAdjustment(tipAmount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
+| `currency` | `Currency` | Currency of the original transaction |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
 
 ### Errors
 

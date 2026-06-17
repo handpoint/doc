@@ -21,20 +21,24 @@ See also: [Interac VOID — implementation guide](/reference/interac-void)
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "VOID",
-  "original_transaction_reference": "abc-123-def"
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "CAD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
 
-The gateway detects that the original transaction was Interac/TNS and maps to the correct void protocol automatically.
+The gateway detects that the original transaction was Interac/TNS and maps to the correct void protocol automatically. Do not include a `transactionReference` — this is a subsequent operation.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -43,7 +47,11 @@ The gateway detects that the original transaction was Interac/TNS and maps to th
 // Call refund() — the gateway detects the original was an Interac/TNS
 // transaction and maps this to a TNS VOID automatically.
 // Show "VOID" in your UI, not "Refund".
-hapi.refund(BigInteger("originalAmount"), Currency.CAD, "abc-123-def")
+hapi.refund(
+    BigInteger("1000"),                              // full original amount
+    Currency.CAD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"          // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
@@ -51,22 +59,31 @@ hapi.refund(BigInteger("originalAmount"), Currency.CAD, "abc-123-def")
 
 ```kotlin
 // Same as Android PAX — call refund(), gateway maps to TNS VOID.
-hapi.refund(BigInteger("originalAmount"), Currency.CAD, "abc-123-def")
+hapi.refund(
+    BigInteger("1000"),
+    Currency.CAD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
 ```
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.voidWithCard(true)
+heftClient.saleVoidWithAmount(1000, currency: "CAD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 ```javascript
-handpoint.reversal(
-  { originalTransactionId: "abc-123-def" },
+// Call saleReversal — gateway maps to TNS VOID for Interac transactions.
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: "CAD",
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -79,7 +96,12 @@ handpoint.reversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the original Interac sale |
+| `operation` | string | Yes (Cloud API) | Must be `"refund"` |
+| `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
+| `currency` | string | Yes | Must be `"CAD"` for Interac |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original Interac sale result |
 
 ### Errors
 

@@ -10,26 +10,30 @@ Captures the funds from a previously created pre-authorization (completion).
 3. After capture, a standard refund process applies if the cardholder requests a return.
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/preauthorization/capture
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "PREAUTHORISATIONCAPTURE",
-  "amount": 9500,
-  "currency": "USD",
-  "original_transaction_reference": "pre-auth-abc-123"
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "capturedAmount": "9500"
 }
 ```
+
+`originalGuid` is the `transactionID` from the pre-authorization result.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.USD)
+hapi.preAuthorizationCapture(
+    BigInteger("9500"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
+)
 ```
 
 </TabItem>
@@ -47,7 +51,7 @@ hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.US
 
 ```javascript
 handpoint.preAuthorizationCapture(
-  { originalTransactionId: "pre-auth-abc-123", amount: 9500, currency: "USD" },
+  { amount: 9500, currency: "USD", originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -58,6 +62,46 @@ handpoint.preAuthorizationCapture(
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Actual capture amount (may differ from pre-auth) |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+| `originalGuid` | string | Yes (Cloud API) | `transactionID` from the pre-authorization result (UUID v4) |
+| `capturedAmount` | string | Yes (Cloud API) | Actual capture amount in smallest currency unit as a string |
+| `tipAmount` | string | No (Cloud API) | Optional tip amount in smallest currency unit as a string |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture full hold amount | `capturedAmount` = original Pre-Auth amount — verify `AUTHORISED` |
+| Capture partial amount | `capturedAmount` < original amount — verify settled amount in portal |
+| Capture with tip | Include `tipAmount` — verify total settled = `capturedAmount + tipAmount` |
+| Invalid `originalGuid` | Use a random UUID — verify `ORIGINAL_NOT_FOUND` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture | `hapi.preAuthorizationCapture(amount, currency, originalTransactionID)` |
+| Partial capture | Pass `captureAmount` less than original hold |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture | `handpoint.preAuthorizationCapture()` with `originalTransactionID` |
+
+</TabItem>
+</Tabs>

@@ -5,16 +5,18 @@ Releases a pre-authorization hold without capturing funds.
 **When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always void unused pre-auths — unreleased holds affect cardholder available credit.
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "VOIDPREAUTHORISATION",
-  "original_transaction_reference": "pre-auth-abc-123"
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
 
@@ -22,7 +24,7 @@ Content-Type: application/json
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.preAuthorizationVoid("pre-auth-abc-123")
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>
@@ -39,8 +41,8 @@ hapi.preAuthorizationVoid("pre-auth-abc-123")
 <TabItem value="cordova" label="Cordova">
 
 ```javascript
-handpoint.preAuthorizationVoid(
-  { originalTransactionId: "pre-auth-abc-123" },
+handpoint.preAuthorizationReversal(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -51,4 +53,45 @@ handpoint.preAuthorizationVoid(
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorizationReversal"` |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization result |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Void before capture | Create Pre-Auth → send Void — verify `AUTHORISED` and no settlement in portal |
+| Void after capture | Create → Capture → Void — verify whether acquirer supports post-capture void |
+| Invalid reference | Use a random `originalTransactionId` — verify `ORIGINAL_NOT_FOUND` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hapi.preAuthorizationVoid(amount, currency, originalTransactionID)` before capture |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `handpoint.preAuthorizationVoid()` with `originalTransactionID` |
+
+</TabItem>
+</Tabs>

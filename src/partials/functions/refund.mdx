@@ -8,29 +8,49 @@ Use for returning goods or services after settlement has occurred. For cancellat
 
 ### Implementation notes
 
-1. **Linked refund** (recommended): includes `originalTransactionReference` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
-2. **Unlinked refund**: omit `originalTransactionReference` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
+1. **Linked refund** (recommended): includes `originalTransactionId` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
+2. **Unlinked refund**: omit `originalTransactionId` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement. Include a `transactionReference` UUID v4 on unlinked refunds so you can query status via the status endpoint.
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
-4. The cardholder's card must be present for card-present refunds.
+4. **Card present required (per merchant configuration).** The cardholder must present their payment method at the terminal. Per merchant configuration, the **same card used in the original sale** must be presented. Physical card insert and mobile wallet (Apple Pay, Google Pay, Samsung Pay) generate **different PAN tokens** — if same-card verification is enabled and the original sale was a physical card insert, a wallet tap at refund time will produce a different token and the linked refund will be declined (and vice versa). Advise the cardholder to use the same payment method they used for the original purchase.
+5. Refunds are valid up to **12 months** after the original sale date.
+6. **`transactionReference` (Cloud API):** Do NOT include on linked refunds (subsequent operation). Include on unlinked refunds (original operation). HiLite paths do not support `transactionReference`.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
+**Linked refund** (subsequent operation — no `transactionReference`):
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "REFUND",
-  "amount": 1000,
+  "operation": "refund",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789",
-  "original_transaction_reference": "abc-123-def"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+**Unlinked refund** (original operation — include `transactionReference`):
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
 
@@ -41,7 +61,7 @@ Content-Type: application/json
 hapi.refund(
     BigInteger("1000"),
     Currency.USD,
-    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
 ```
 
@@ -52,7 +72,7 @@ hapi.refund(
 hapi.refund(
     BigInteger("1000"),
     Currency.USD,
-    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
 ```
 
@@ -60,8 +80,11 @@ hapi.refund(
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.refundWithAmount(1000, currency: "USD", cardholder: true)
-// Pass originalTransactionId if available for linked refund
+// Linked refund — pass the transaction ID from the original sale
+heftClient.refundWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+heftClient.refundWithAmount(1000, currency: "USD")
 ```
 
 </TabItem>
@@ -72,7 +95,7 @@ handpoint.refund(
   {
     amount: 1000,
     currency: "USD",
-    originalTransactionId: "abc-123-def"  // omit for unlinked refund
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // omit for unlinked refund
   },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
@@ -86,10 +109,13 @@ handpoint.refund(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Refund amount in smallest currency unit |
+| `operation` | string | Yes (Cloud API) | Must be `"refund"` |
+| `amount` | string | Yes | Refund amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal |
-| `original_transaction_reference` | string | No | Links refund to original sale. Recommended. |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | No | Links refund to original sale (linked refund). Do NOT combine with `transactionReference` |
+| `transactionReference` | string | No (Cloud API) | UUID v4. **Unlinked refunds only** — omit on linked refunds. Not supported on HiLite paths |
 
 ### Errors
 
@@ -101,4 +127,53 @@ handpoint.refund(
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
 ### Testing
+
 Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../get-started/development-hardware#trigger-amounts) to simulate declined or timeout responses.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund (same card) | Complete a sale, note `transactionID`, send linked refund — present same card |
+| Mismatched payment method | Sell via physical card insert, refund by tapping same account via Apple Pay — expect decline if merchant requires same card |
+| Amount exceeds original | Send linked refund with `amount` > original sale amount — expect `AMOUNT_EXCEEDS_ORIGINAL` |
+| Unlinked refund | Omit `originalTransactionId`, include `transactionReference` — present any card |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hapi.refund(amount, currency, originalTransactionID)` — present same card |
+| Same card mismatch | Original sale via physical card; refund tap via wallet — verify decline |
+| Unlinked refund | `hapi.refund(amount, currency)` with no `originalTransactionID` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | Same as Android PAX |
+| Unlinked refund | Same as Android PAX |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `heftClient.refundWithAmount:currency:transaction:` — present same card |
+| Unlinked refund | `heftClient.refundWithAmount:currency:` with no `transaction` parameter |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `handpoint.refund()` with `originalTransactionID` |
+| Amount exceeds original | Pass amount > original — verify `finStatus === "DECLINED"` |
+
+</TabItem>
+</Tabs>
+
+For full step-by-step scenarios including the wallet vs physical card mismatch test, see [Testing Edge Cases](/reference/testing-edge-cases#refund).

@@ -20,15 +20,44 @@ Use when you need to settle at a specific time rather than waiting for automatic
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
+**Batch Close:**
 ```http
-POST https://cloud.handpoint.com/batchClose
+POST https://cloud.handpoint.com/batch/close
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "terminal_serial_number": "123456789"
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
+}
+```
+
+**Batch Summary:**
+```http
+POST https://cloud.handpoint.com/batch/summary
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
+}
+```
+
+**Batch Detail:**
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
 }
 ```
 
@@ -37,7 +66,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation. The terminal does not initiate batch close."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -45,7 +74,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -53,7 +82,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -61,7 +90,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -71,7 +100,10 @@ Content-Type: application/json
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `terminal_serial_number` | string | Yes | Terminal to close the batch for |
+| `serialNumber` | string | Yes | Terminal serial number |
+| `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `batchNumber` | string | Yes | The batch number to close or query |
+| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 

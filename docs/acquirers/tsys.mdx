@@ -18,12 +18,12 @@ capabilities:
   batching: true
   pre-auth-capture-reversal: true
 integration-paths:
-  - rest-api
+  - cloud-api
   - android-pax
   - android-hilite
   - ios-hilite
   - cordova
-last-reviewed: "2026-06-03"
+last-reviewed: "2026-06-12"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -32,17 +32,18 @@ import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
+import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
 
-export const _caps = {"sale":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"partial-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tip-adjustment":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"rest-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"rest-api":"public","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth-capture-reversal":{"rest-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"}};
+export const _caps = CAPS_BY_ID['tsys'];
 
 <AcquirerPageHeader currentSlug="tsys" />
 
-## Capabilities
+## Functionalities
 
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583.
+Batch auto-closes ~11pm EST (host-capture) and must be enabled per merchant in Handpoint Portal (TMS). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583. MOTO (Back Office) operations require merchant MOTO onboarding with TSYS and MOTO enablement in Handpoint Portal (TMS).
 :::
 
 ## Sale
@@ -68,20 +69,25 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "sale",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "customerReference": "order-5248",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
+
+The `transactionReference` must be a unique UUID v4 per request — use it to retrieve the result via `GET /transaction-result/{transactionResultId}` if no `callbackUrl` is provided.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -92,7 +98,7 @@ hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
 override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
-    if (result.type == TransactionResultType.APPROVED) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
 }
@@ -107,7 +113,7 @@ hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
 override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
-    if (result.type == TransactionResultType.APPROVED) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
 }
@@ -118,12 +124,12 @@ override fun endOfTransaction(result: TransactionResult, transactionReference: T
 
 ```swift
 // Swift — iOS app connected to HiLite via Bluetooth
-heftClient.saleWithAmount(1000, currency: "USD", cardholder: true)
+heftClient.saleWithAmount(1000, currency: "USD")
 
 // Result arrives in your delegate:
 func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
     if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
-        // store info.xml for the transaction record
+        // store the transactionID from info.xml for potential reversal
     }
 }
 ```
@@ -136,8 +142,8 @@ func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseI
 handpoint.sale(
   { amount: 1000, currency: "USD" },
   function(result) {
-    if (result.type === "APPROVED") {
-      // store result.transactionId for potential reversal
+    if (result.finStatus === "AUTHORISED") {
+      // store result.transactionID for potential reversal
     }
   },
   function(error) { console.error("Sale failed:", error); }
@@ -151,9 +157,13 @@ handpoint.sale(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit (cents). `1000` = $10.00 |
+| `operation` | string | Yes (Cloud API) | Must be `"sale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string. `"1000"` = $10.00 |
 | `currency` | string | Yes | ISO 4217 currency code. e.g. `"USD"`, `"GBP"`, `"EUR"` |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal. Not required for SDK paths (terminal already connected). |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
+| `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 
@@ -177,8 +187,8 @@ Use for returning goods or services after settlement has occurred. For cancellat
 
 ### Implementation notes
 
-1. **Linked refund** (recommended): includes `originalTransactionReference` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
-2. **Unlinked refund**: omit `originalTransactionReference` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
+1. **Linked refund** (recommended): includes `originalTransactionId` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
+2. **Unlinked refund**: omit `originalTransactionId` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
 4. The cardholder's card must be present for card-present refunds.
 
@@ -190,21 +200,25 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "REFUND",
-  "amount": 1000,
+  "operation": "refund",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789",
-  "original_transaction_reference": "abc-123-def"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
+
+Omit `originalTransactionId` for an unlinked (standalone) refund.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -213,7 +227,7 @@ Content-Type: application/json
 hapi.refund(
     BigInteger("1000"),
     Currency.USD,
-    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
 ```
 
@@ -224,7 +238,7 @@ hapi.refund(
 hapi.refund(
     BigInteger("1000"),
     Currency.USD,
-    "abc-123-def"  // originalTransactionReference — omit for unlinked refund
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
 ```
 
@@ -232,8 +246,11 @@ hapi.refund(
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.refundWithAmount(1000, currency: "USD", cardholder: true)
-// Pass originalTransactionId if available for linked refund
+// Linked refund — pass the transaction ID from the original sale
+heftClient.refundWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+heftClient.refundWithAmount(1000, currency: "USD")
 ```
 
 </TabItem>
@@ -244,7 +261,7 @@ handpoint.refund(
   {
     amount: 1000,
     currency: "USD",
-    originalTransactionId: "abc-123-def"  // omit for unlinked refund
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // omit for unlinked refund
   },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
@@ -258,10 +275,13 @@ handpoint.refund(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Refund amount in smallest currency unit |
+| `operation` | string | Yes (Cloud API) | Must be `"refund"` |
+| `amount` | string | Yes | Refund amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal |
-| `original_transaction_reference` | string | No | Links refund to original sale. Recommended. |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | No | Links refund to original sale. Recommended. Value is the `transactionID` from the original sale result |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
 
 ### Errors
 
@@ -298,47 +318,65 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "REVERSAL",
-  "original_transaction_reference": "abc-123-def"
+  "operation": "saleReversal",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
+
+`originalTransactionId` is the `transactionID` from the original sale result. `amount` and `currency` must match the original sale.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.reversal("abc-123-def")  // originalTransactionReference from sale result
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.reversal("abc-123-def")
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
 ```
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.voidWithCard(true)
-// Note: pass the original transaction reference if available
+heftClient.saleVoidWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 ```javascript
-handpoint.reversal(
-  { originalTransactionId: "abc-123-def" },
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: "USD",
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
 );
@@ -351,7 +389,13 @@ handpoint.reversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the original sale |
+| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
 
 ### Errors
 
@@ -377,7 +421,7 @@ Use when the final amount is lower than the authorised amount and the batch is s
 1. Supported for **TSYS (US and Canada)**. Not available on other acquirers.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
 3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
-4. Available via REST API and Android SDK (PAX). Not supported on HiLite or iOS paths.
+4. Available via Cloud API and Android SDK (PAX). Not supported on HiLite or iOS paths.
 
 :::note TSYS
 Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583.
@@ -387,20 +431,25 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "PARTIALREVERSAL",
-  "amount": 800,
+  "operation": "saleReversal",
+  "amount": "800",
   "currency": "USD",
-  "original_transaction_reference": "abc-123-def"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 }
 ```
+
+Send `amount` less than the original authorised amount. The gateway recognises this as a partial reversal.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -410,9 +459,9 @@ Pass the new (reduced) amount to `saleReversal` — the SDK sends a partial reve
 ```kotlin
 // Partial reversal — amount is the new final charge, not a delta
 hapi.saleReversal(
-    BigInteger("800"),         // new final amount (minor units)
+    BigInteger("800"),                               // new final amount (minor units)
     Currency.USD,
-    "abc-123-def"              // originalTransactionId
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"          // originalTransactionID from original sale
 )
 ```
 
@@ -421,7 +470,7 @@ hapi.saleReversal(
 
 <NotSupported
   reason="Partial reversal is not available on HiLite. The HiLite BT path does not support partial reversals."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -429,15 +478,15 @@ hapi.saleReversal(
 
 <NotSupported
   reason="Partial reversal is not available on iOS HiLite."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="Partial reversal via Cordova is not confirmed. Use REST API or Android SDK (PAX) directly."
-  useInstead="REST API or Android SDK (PAX)"
+  reason="Partial reversal via Cordova is not confirmed. Use Cloud API or Android SDK (PAX) directly."
+  useInstead="Cloud API or Android SDK (PAX)"
 />
 
 </TabItem>
@@ -447,9 +496,13 @@ hapi.saleReversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | New final amount (not a delta). Must be less than original authorised amount. |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `original_transaction_reference` | string | Yes | Reference from the original sale |
+| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `amount` | string | Yes | New final amount as a string (not a delta). Must be less than original authorised amount |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+| `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and result retrieval |
 
 ### Errors
 
@@ -472,13 +525,13 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 
 ### Implementation notes
 
-1. **To void a tip:** send `tipAmount: 0`. There is no separate cancel call. The last value sent always wins.
+1. **To void a tip:** send `amount: 0`. There is no separate cancel call. The last value sent always wins.
 2. **Deadline:** before batch close. For TSYS, auto-close is typically 11pm EST. After close, only a refund is possible.
 3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
 4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
-5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via REST API. The integration path used for the sale does not constrain the tip adjustment path.
+5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
 6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-7. iOS HiLite does not support card-present tip adjustment. Use REST API.
+7. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
 
 :::note TSYS
 Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583.
@@ -488,26 +541,25 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/tipAdjustment
+POST https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/tip-adjustment
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "originalTransactionId": "abc-123-def",
-  "tipAmount": 900
+  "amount": 9.00
 }
 ```
 
-To void a tip, send `"tipAmount": 0`.
+The `transactionID` from the original sale goes in the URL path. To void a tip, send `"amount": 0`.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
+hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 // To void a tip: pass BigInteger("0")
 ```
 
@@ -515,7 +567,7 @@ hapi.tipAdjustment("abc-123-def", BigInteger("900"))
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.tipAdjustment("abc-123-def", BigInteger("900"))
+hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 // To void a tip: pass BigInteger("0")
 ```
 
@@ -524,7 +576,7 @@ hapi.tipAdjustment("abc-123-def", BigInteger("900"))
 
 <NotSupported
   reason="Tip adjustment is not supported on iOS HiLite. HiLite is a card-present Bluetooth device; tip adjustment requires a server-side call."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -532,7 +584,7 @@ hapi.tipAdjustment("abc-123-def", BigInteger("900"))
 
 ```javascript
 handpoint.tipAdjustment(
-  { originalTransactionId: "abc-123-def", tipAmount: 900 },
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241", tipAmount: 900 },
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
 );
@@ -543,10 +595,20 @@ handpoint.tipAdjustment(
 
 ### Parameters
 
+**Cloud API** — `POST /transactions/{transactionID}/tip-adjustment`:
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `originalTransactionId` | string | Yes | Transaction ID from the original sale |
-| `tipAmount` | integer | Yes | Tip amount in smallest currency unit. `0` to void an existing tip. |
+| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result |
+| `amount` | number | Yes | Tip amount in major currency units (e.g. `9.00` for $9.00). `0` to void an existing tip |
+
+**Android SDK** — `tipAdjustment(tipAmount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
+| `currency` | `Currency` | Currency of the original transaction |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
 
 ### Errors
 
@@ -596,18 +658,20 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "PREAUTHORISATION",
-  "amount": 10000,
+  "operation": "preAuthorization",
+  "amount": "10000",
   "currency": "USD",
-  "terminal_serial_number": "123456789"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
 
@@ -634,7 +698,7 @@ hapi.preAuthorization(BigInteger("10000"), Currency.USD)
 ```javascript
 handpoint.preAuthorization(
   { amount: 10000, currency: "USD" },
-  function(result) { /* store result.transactionId for capture */ },
+  function(result) { /* store result.transactionID for capture */ },
   function(error) { console.error(error); }
 );
 ```
@@ -646,9 +710,12 @@ handpoint.preAuthorization(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Authorisation amount in smallest currency unit |
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorization"` |
+| `amount` | string | Yes | Authorisation amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `terminal_serial_number` | string | Yes (REST) | Target terminal |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and result retrieval |
 
 ### Pre-Authorization Capture
 
@@ -662,26 +729,30 @@ Captures the funds from a previously created pre-authorization (completion).
 3. After capture, a standard refund process applies if the cardholder requests a return.
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/preauthorization/capture
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "PREAUTHORISATIONCAPTURE",
-  "amount": 9500,
-  "currency": "USD",
-  "original_transaction_reference": "pre-auth-abc-123"
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "capturedAmount": "9500"
 }
 ```
+
+`originalGuid` is the `transactionID` from the pre-authorization result.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.USD)
+hapi.preAuthorizationCapture(
+    BigInteger("9500"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
+)
 ```
 
 </TabItem>
@@ -699,7 +770,7 @@ hapi.preAuthorizationCapture("pre-auth-abc-123", BigInteger("9500"), Currency.US
 
 ```javascript
 handpoint.preAuthorizationCapture(
-  { originalTransactionId: "pre-auth-abc-123", amount: 9500, currency: "USD" },
+  { amount: 9500, currency: "USD", originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -710,9 +781,9 @@ handpoint.preAuthorizationCapture(
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Actual capture amount (may differ from pre-auth) |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+| `originalGuid` | string | Yes (Cloud API) | `transactionID` from the pre-authorization result (UUID v4) |
+| `capturedAmount` | string | Yes (Cloud API) | Actual capture amount in smallest currency unit as a string |
+| `tipAmount` | string | No (Cloud API) | Optional tip amount in smallest currency unit as a string |
 
 ### Void Pre-Authorization
 
@@ -721,16 +792,18 @@ Releases a pre-authorization hold without capturing funds.
 **When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always void unused pre-auths — unreleased holds affect cardholder available credit.
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "VOIDPREAUTHORISATION",
-  "original_transaction_reference": "pre-auth-abc-123"
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
 
@@ -738,7 +811,7 @@ Content-Type: application/json
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.preAuthorizationVoid("pre-auth-abc-123")
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>
@@ -755,8 +828,8 @@ hapi.preAuthorizationVoid("pre-auth-abc-123")
 <TabItem value="cordova" label="Cordova">
 
 ```javascript
-handpoint.preAuthorizationVoid(
-  { originalTransactionId: "pre-auth-abc-123" },
+handpoint.preAuthorizationReversal(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -767,7 +840,10 @@ handpoint.preAuthorizationVoid(
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `original_transaction_reference` | string | Yes | Reference from the Pre-Authorization |
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorizationReversal"` |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization result |
 
 ### Pre-Authorization Capture Reversal
 
@@ -784,16 +860,18 @@ Reverses a completed pre-authorization capture — releasing the funds withheld 
 4. **Android SDK:** The same `preAuthorizationReversal()` method is used for both voiding the hold (pre-capture) and reversing the capture (post-capture). The gateway determines the correct action based on the state of the original transaction.
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "VOIDPREAUTHORISATIONCAPTURE",
-  "original_transaction_reference": "pre-auth-capture-abc-123"
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
 
@@ -804,12 +882,12 @@ The same `preAuthorizationReversal()` method is used regardless of whether the o
 
 ```kotlin
 // Works for both: releasing a hold (pre-capture) AND reversing a capture (post-capture)
-hapi.preAuthorizationReversal("original-transaction-id")
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
 
-// With options
+// With customer reference
 val options = Options()
-options.customerReference = "CustomerReference"
-hapi.preAuthorizationReversal("original-transaction-id", options)
+options.customerReference = "my-order-ref-123"
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
 ```
 
 </TabItem>
@@ -817,7 +895,7 @@ hapi.preAuthorizationReversal("original-transaction-id", options)
 
 <NotSupported
   reason="Pre-Authorization Capture Reversal is not available on the HiLite Bluetooth path."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -825,7 +903,7 @@ hapi.preAuthorizationReversal("original-transaction-id", options)
 
 <NotSupported
   reason="Pre-Authorization Capture Reversal is not available on the iOS HiLite path."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -848,7 +926,7 @@ Processes a card-not-present transaction where the cardholder provides card deta
 
 | Mode | How it works | Terminal required | Who holds card data |
 |---|---|---|---|
-| **MOTO on terminal** | REST API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
+| **MOTO on terminal** | Cloud API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
 | **MOTO back-office** | A `cardToken` from a supported token provider is sent via REST API or Android SDK. No terminal or card entry required. | ❌ None | Token provider (never the ISV) |
 
 :::info No raw card data
@@ -863,7 +941,7 @@ Use for call centres, phone order systems, or recurring billing where the cardho
 1. The card token must come from a token provider supported by the merchant's acquirer.
 2. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
 3. **MOTO on terminal**: the PAX device must be running the Android SDK in integrated mode. The terminal entry screen collects card details and tokenizes internally.
-4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required.
+4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required. Uses the `/moto/sale` endpoint — not `/transactions`.
 
 :::note TSYS
 Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583.
@@ -873,39 +951,41 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 **MOTO on terminal** — terminal shows card entry screen (PAX in integrated mode):
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "moToSale",
+  "amount": "1000",
   "currency": "USD",
-  "motoChannel": true,
-  "terminal_serial_number": "123456789"
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
 
-**MOTO back-office** — card token submitted directly, no terminal:
+**MOTO back-office** — card token submitted directly, no terminal required:
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/moto/sale
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "amount": "10.00",
   "currency": "USD",
-  "motoChannel": true,
-  "cardToken": "YOUR_STORED_CARD_TOKEN"
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
 }
 ```
+
+For back-office MOTO, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -921,7 +1001,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD)
 
 ```kotlin
 val options = MoToOptions()
-options.setCardToken("YOUR_STORED_CARD_TOKEN")
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ```
 
@@ -929,24 +1009,24 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the REST API back-office endpoint with a card token."
-  useInstead="REST API (back-office)"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
 />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the REST API back-office endpoint with a card token."
-  useInstead="REST API (back-office)"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or REST API for back-office MOTO."
-  useInstead="Android SDK (PAX) or REST API"
+  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or Cloud API for back-office MOTO."
+  useInstead="Android SDK (PAX) or Cloud API"
 />
 
 </TabItem>
@@ -954,23 +1034,26 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 
 ### Parameters
 
-**MOTO on terminal** (terminal serial number, no card token):
+**MOTO on terminal** (`POST /transactions`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit |
+| `operation` | string | Yes | Must be `"moToSale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `motoChannel` | boolean | Yes | Must be `true` |
-| `terminal_serial_number` | string | Yes | PAX terminal — triggers card entry screen |
+| `serial_number` | string | Yes | PAX terminal — triggers card entry screen |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No | UUID v4 for idempotency |
 
-**MOTO back-office** (card token, no terminal):
+**MOTO back-office** (`POST /moto/sale`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer | Yes | Amount in smallest currency unit |
+| `amount` | string | Yes | Amount in major currency units, e.g. `"10.00"` for $10.00 |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `motoChannel` | boolean | Yes | Must be `true` |
-| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN. |
+| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
+| `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
+| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 
@@ -996,7 +1079,8 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 1. The token is acquirer-specific and non-portable — a token from TSYS cannot be used with another acquirer.
 2. Two flows are available: **tokenize-only** (card is read, token returned, no charge) and **sale-and-tokenize** (card is charged and tokenized in one step).
 3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
-4. For future charges using the token, use the REST API with the token in place of card details.
+4. For future charges using the token, use the Cloud API `/moto/sale` endpoint with the token in place of card details.
+5. You can also retrieve a token from a previously completed transaction (within 12 months) via `GET /transactions/{transactionID}/token`.
 
 :::note TSYS
 Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583.
@@ -1006,33 +1090,41 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
 **Tokenize only (no charge):**
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "TOKENIZE",
-  "terminal_serial_number": "123456789"
+  "operation": "tokenizeCard",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578"
 }
 ```
 
 **Sale and tokenize (charge + token in one step):**
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "saleAndTokenizeCard",
+  "amount": "1000",
   "currency": "USD",
-  "terminal_serial_number": "123456789",
-  "tokenize": true
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
+```
+
+**Retrieve token from a previous transaction:**
+```http
+GET https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/token
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 </TabItem>
@@ -1063,6 +1155,9 @@ hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
 ```swift
 // Tokenize only
 heftClient.tokenizeCard()
+
+// Sale and tokenize
+heftClient.saleAndTokenizeCardWithAmount(1000, currency: "USD")
 ```
 
 </TabItem>
@@ -1084,16 +1179,19 @@ handpoint.tokenizeCard(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `terminal_serial_number` | string | Yes (REST) | Target terminal for card read |
-| `tokenize` | boolean | No (REST) | Set `true` on a Sale to also tokenize |
+| `operation` | string | Yes (Cloud API) | `"tokenizeCard"` for tokenize-only, `"saleAndTokenizeCard"` for sale+tokenize |
+| `amount` | string | Yes (saleAndTokenizeCard) | Amount in smallest currency unit as a string |
+| `currency` | string | Yes (saleAndTokenizeCard) | ISO 4217 currency code |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 
 ### Response fields
 
 | Field | Description |
 |---|---|
-| `cardToken` | The token to store. Use for future charges. |
+| `cardToken` | The token to store. Use for future charges via `/moto/sale` |
 | `cardTokenProvider` | Which token provider issued the token (e.g. `TSYS`, `PAYSAFE`) |
-| `cardExpiryDate` | Token expiry (matches card expiry) |
+| `expiryDateMMYY` | Token expiry (matches card expiry) |
 
 ### Errors
 
@@ -1130,15 +1228,44 @@ Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS 
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="Cloud API">
 
+**Batch Close:**
 ```http
-POST https://cloud.handpoint.com/batchClose
+POST https://cloud.handpoint.com/batch/close
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "terminal_serial_number": "123456789"
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
+}
+```
+
+**Batch Summary:**
+```http
+POST https://cloud.handpoint.com/batch/summary
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
+}
+```
+
+**Batch Detail:**
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
 }
 ```
 
@@ -1147,7 +1274,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation. The terminal does not initiate batch close."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -1155,7 +1282,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -1163,7 +1290,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -1171,7 +1298,7 @@ Content-Type: application/json
 
 <NotSupported
   reason="Batch close is a server-side operation."
-  useInstead="REST API"
+  useInstead="Cloud API"
 />
 
 </TabItem>
@@ -1181,7 +1308,10 @@ Content-Type: application/json
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `terminal_serial_number` | string | Yes | Terminal to close the batch for |
+| `serialNumber` | string | Yes | Terminal serial number |
+| `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `batchNumber` | string | Yes | The batch number to close or query |
+| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
 
 ### Errors
 
