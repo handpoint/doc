@@ -169,7 +169,7 @@ npm run docusaurus docs:version:android "Android SDK 7.1013.0"
 Automatically, it will create the new folder for this version (version-Android SDK 7.1011.0) in `android_versioned_docs`. 
 
 ```console
-npm run docusaurus docs:version:restapi "REST API 2.27.0"
+npm run docusaurus docs:version:restapi "REST API 2.29.0"
 ```
 
 **To see it published you will have to restart docusaurus.**

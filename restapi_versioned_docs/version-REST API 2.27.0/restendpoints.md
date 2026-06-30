@@ -1415,9 +1415,8 @@ Typical fields (see [MotoRefundRequest](restobjects#motoRefundRequest) for full 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be refunded (e.g. `"1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"`).
 * `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in MAJOR units (e.g. `"5.00"` for $5.00). Must be a positive integer string.
 * `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code (e.g. `"EUR"`, `"USD"`).
-* Optional: `customerReference`, `transactionReference`.
+* Optional: `customerReference`.
 
-Supports full and partial refunds, depending on acquirer configuration.
 
 #### Returns
 
@@ -1442,8 +1441,7 @@ curl -X POST \
     "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67",
     "amount": "5.00", // 5 => 5.00
     "currency": "EUR",
-    "customerReference": "refund-98765",
-    "transactionReference": "a1fe8db5-69a4-4b4d-a704-94ac2570f9b0"
+    "customerReference": "refund-98765"
   }' \
   "https://cloud.handpoint.io/moto/refund"
 ```
