@@ -1383,7 +1383,7 @@ This endpoint allows to Cancel/Void/Reverse a previous transaction without a rea
 | `Body: originalGuid` <span class="badge badge--primary">Required</span>   <br />*String*    | The GUID of the previously completed transaction to reverse. |
 | `Body: amount` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Decimal amount in String, ISO 4217; Required for partial-reversals. *Only if your acquirer supports partial-reversals*. |
 | `Body: currency` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Required for partial-reversals *Only if your acquirer supports partial-reversals*. |
-| `Body: messageReasonCode` <span class="badge badge--secondary">Optional</span>   <br />*String*    | default: CUSTOMER_CANCELLATION. See [allowed values](restapi/restobjects.md#messageReasonCode)|
+| `Body: messageReasonCode` <span class="badge badge--secondary">Optional</span>   <br />*String*    | default: CUSTOMER_CANCELLATION. See [allowed values](restobjects.md#messageReasonCode)|
 
 **Returns**
 
