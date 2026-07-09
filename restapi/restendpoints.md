@@ -1385,13 +1385,16 @@ This endpoint allows to Cancel/Void/Reverse a previous transaction without a rea
 | `Body: amount` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Decimal amount in String, ISO 4217; Required for partial-reversals. *Only if your acquirer supports partial-reversals*. |
 | `Body: currency` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Required for partial-reversals *Only if your acquirer supports partial-reversals*. |
 | `Body: messageReasonCode` <span class="badge badge--secondary">Optional</span>   <br />*String*    | default: CUSTOMER_CANCELLATION. See [allowed values](restobjects.md#messageReasonCode)|
+| `Body: timestamp` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Timestamp in `YYYYMMDDHHmmssSSS` format (17 characters). Defaults to the current server time when not provided. |
 
 **Returns**
 
-| Response      | Response Code |
-| ----------- | ----------- |
-| [DeferredTokenizationResponse](restobjects.md#deferredTokenizationResponse) | Response code 200. |
-| **BadRequest** | Response code 400. Returned when the transaction type is not eligible for deferred tokenization. |
+| Result | Notes |
+| ------ | ----- |
+| `200` | Reversal accepted and processed. Response body is a [ViscusReversalResponse](restobjects.md#viscusReversalResponse) object. |
+| `400` | Business rule error from the gateway (for example, the transaction was already reversed, or a partial-reversal `amount` exceeds the original amount). Returned as `BadRequestError` with `error.code` and `error.details`. |
+| `403` | Forbidden — the API key does not belong to a merchant. Partner keys are not accepted by this endpoint. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) — missing `originalGuid`, invalid `messageReasonCode` enum value, or invalid `currency` length. |
 
 **Code Example**
 
