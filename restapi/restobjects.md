@@ -1052,9 +1052,9 @@ The exact shape is very similar across these operations; some fields (such as `o
 
 ## Reversal {#reversal}
 
-### ViscusReversalRequest {#viscusReversalRequest}
+### ReversalRequest {#reversalRequest}
 
-`ViscusReversalRequest` <span class="badge badge--info">Object</span>
+`ReversalRequest` <span class="badge badge--info">Object</span>
 
 Object used by the [`POST /v1/reversal`](restendpoints#reversal) endpoint to reverse any reversible transaction. Only `originalGuid` is required; all other fields are optional and default to sensible values when not provided.
 
@@ -1150,9 +1150,9 @@ curl --location --request POST 'https://cloud.handpoint.io/reversal' \
 
 ---
 
-### ViscusReversalResponse {#viscusReversalResponse}
+### ReversalResponse {#reversalResponse}
 
-`ViscusReversalResponse` <span class="badge badge--info">Object</span>
+`ReversalResponse` <span class="badge badge--info">Object</span>
 
 Object returned by [`POST /v1/reversal`](restendpoints#reversal) when the reversal is accepted and processed by the gateway.
 

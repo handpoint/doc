@@ -1391,7 +1391,7 @@ This endpoint allows to Cancel/Void/Reverse a previous transaction without a rea
 
 | Result | Notes |
 | ------ | ----- |
-| `200` | Reversal accepted and processed. Response body is a [ViscusReversalResponse](restobjects.md#viscusReversalResponse) object. |
+| `200` | Reversal accepted and processed. Response body is a [ReversalResponse](restobjects.md#reversalResponse) object. |
 | `400` | Business rule error from the gateway (for example, the transaction was already reversed, or a partial-reversal `amount` exceeds the original amount). Returned as `BadRequestError` with `error.code` and `error.details`. |
 | `403` | Forbidden — the API key does not belong to a merchant. Partner keys are not accepted by this endpoint. |
 | `422` | Payload validation error (`VALIDATION_FAILED`) — missing `originalGuid`, invalid `messageReasonCode` enum value, or invalid `currency` length. |
