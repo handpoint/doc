@@ -881,3 +881,427 @@ a.button--primary:hover {
     width: 100%;
   }
 }
+
+/* ── Step progress indicator ─────────────────── */
+
+.wizard-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 36px;
+  padding: 0 8px;
+  overflow-x: auto;
+}
+
+.wizard-stepper__step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.wizard-stepper__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s;
+}
+
+.wizard-stepper__step--done .wizard-stepper__dot {
+  background: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.wizard-stepper__step--active .wizard-stepper__dot {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ifm-color-primary) 25%, transparent);
+}
+
+.wizard-stepper__step--pending .wizard-stepper__dot {
+  background: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary-darkest);
+}
+
+.wizard-stepper__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ifm-color-secondary-darkest);
+  white-space: nowrap;
+}
+
+.wizard-stepper__step--active .wizard-stepper__label {
+  color: var(--ifm-color-primary);
+}
+
+.wizard-stepper__step--done .wizard-stepper__label {
+  color: var(--ifm-color-primary);
+}
+
+.wizard-stepper__line {
+  flex: 1;
+  height: 2px;
+  min-width: 20px;
+  margin: 0 6px;
+  margin-bottom: 22px;
+  transition: background 0.2s;
+}
+
+.wizard-stepper__line--done {
+  background: var(--ifm-color-primary);
+}
+
+.wizard-stepper__line--pending {
+  background: var(--ifm-color-secondary);
+}
+
+/* ── Acquirer card grid ───────────────────────── */
+
+.wizard-cards--acquirer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.wizard-cards--acquirer .wizard-card {
+  min-width: 160px;
+  max-width: 220px;
+  flex: 1;
+}
+
+/* ── Features note ───────────────────────────── */
+
+.wizard-features-note {
+  font-size: 0.88rem;
+  color: var(--ifm-color-secondary-darkest);
+  margin-bottom: 24px;
+  padding: 10px 14px;
+  background: var(--ifm-color-secondary);
+  border-radius: 6px;
+}
+
+/* ── Feature groups ───────────────────────────── */
+
+.wizard-feature-group {
+  border: 1px solid var(--ifm-color-secondary);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.wizard-feature-group__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary-darkest);
+}
+
+.wizard-feature-group__icon {
+  font-size: 1rem;
+}
+
+/* ── Feature rows ─────────────────────────────── */
+
+.wizard-feature-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ifm-color-secondary);
+  cursor: pointer;
+  transition: background 0.12s;
+  user-select: none;
+}
+
+.wizard-feature-row:last-child {
+  border-bottom: none;
+}
+
+.wizard-feature-row--required {
+  cursor: default;
+  background: color-mix(in srgb, var(--ifm-color-primary) 4%, transparent);
+}
+
+.wizard-feature-row--unavailable {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.wizard-feature-row--active:not(.wizard-feature-row--required) {
+  background: color-mix(in srgb, var(--ifm-color-primary) 6%, transparent);
+}
+
+.wizard-feature-row:not(.wizard-feature-row--required):not(.wizard-feature-row--unavailable):hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 8%, transparent);
+}
+
+.wizard-feature-row__toggle {
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.wizard-feature-row__dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--ifm-color-secondary-darkest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.65rem;
+  font-weight: 700;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.wizard-feature-row__dot--required {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.wizard-feature-row__dot--on {
+  background: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+  color: #fff;
+}
+
+.wizard-feature-row__dot--off {
+  background: transparent;
+  border-color: var(--ifm-color-secondary-darkest);
+  color: transparent;
+}
+
+.wizard-feature-row__body {
+  flex: 1;
+}
+
+.wizard-feature-row__name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 3px;
+}
+
+.wizard-feature-row__desc {
+  font-size: 0.8rem;
+  color: var(--ifm-color-secondary-darkest);
+  line-height: 1.45;
+}
+
+/* ── Feature badges ───────────────────────────── */
+
+.wizard-feature-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.wizard-feature-badge--required {
+  background: color-mix(in srgb, var(--ifm-color-primary) 15%, transparent);
+  color: var(--ifm-color-primary);
+}
+
+.wizard-feature-badge--na {
+  background: var(--ifm-color-secondary);
+  color: var(--ifm-color-secondary-darkest);
+}
+
+/* ── Step nav buttons ─────────────────────────── */
+
+.wizard-step-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  gap: 12px;
+}
+
+.wizard-back-btn,
+.wizard-next-btn,
+.wizard-restart-btn {
+  padding: 9px 20px;
+  border-radius: 6px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.wizard-back-btn {
+  background: var(--ifm-color-secondary);
+  color: var(--ifm-font-color-base);
+}
+
+.wizard-back-btn:hover {
+  opacity: 0.75;
+}
+
+.wizard-next-btn {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  margin-left: auto;
+}
+
+.wizard-next-btn:hover {
+  opacity: 0.88;
+}
+
+.wizard-restart-btn {
+  background: var(--ifm-color-secondary);
+  color: var(--ifm-font-color-base);
+}
+
+.wizard-restart-btn:hover {
+  opacity: 0.75;
+}
+
+/* ── Footer note ──────────────────────────────── */
+
+.wizard-footer-note {
+  font-size: 0.82rem;
+  color: var(--ifm-color-secondary-darkest);
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+/* ── Plan summary chips ───────────────────────── */
+
+.wizard-plan-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.wizard-plan-chip {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+.wizard-plan-chip--region {
+  background: color-mix(in srgb, var(--ifm-color-primary) 10%, transparent);
+  color: var(--ifm-color-primary);
+}
+
+.wizard-plan-chip--path {
+  background: color-mix(in srgb, #6c63ff 10%, transparent);
+  color: #6c63ff;
+}
+
+.wizard-plan-chip--acquirer {
+  background: color-mix(in srgb, var(--ifm-color-success) 15%, transparent);
+  color: color-mix(in srgb, var(--ifm-color-success) 80%, var(--ifm-font-color-base));
+}
+
+/* ── Plan section labels ──────────────────────── */
+
+.wizard-plan-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ifm-color-secondary-darkest);
+  margin-bottom: 10px;
+  margin-top: 28px;
+}
+
+/* ── Validation tests ─────────────────────────── */
+
+.wizard-validation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wizard-validation-item {
+  padding: 12px 16px;
+  border-radius: 6px;
+  border-left: 3px solid var(--ifm-color-primary);
+  background: var(--ifm-color-secondary);
+}
+
+.wizard-validation-item__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.wizard-validation-item__desc {
+  font-size: 0.82rem;
+  color: var(--ifm-color-secondary-darkest);
+  line-height: 1.5;
+}
+
+/* ── Doc links ────────────────────────────────── */
+
+.wizard-doc-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wizard-doc-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1px solid color-mix(in srgb, var(--ifm-color-primary) 30%, transparent);
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+
+.wizard-doc-link:hover {
+  background: color-mix(in srgb, var(--ifm-color-primary) 8%, transparent);
+  text-decoration: none;
+}
+
+/* ── Responsive ───────────────────────────────── */
+
+@media (max-width: 640px) {
+  .wizard-stepper__label {
+    display: none;
+  }
+
+  .wizard-stepper__line {
+    min-width: 12px;
+  }
+
+  .wizard-cards--acquirer .wizard-card {
+    min-width: unset;
+    max-width: unset;
+    flex: 0 0 calc(50% - 6px);
+  }
+
+  .wizard-step-nav {
+    flex-wrap: wrap;
+  }
+
+  .wizard-next-btn {
+    margin-left: 0;
+    flex: 1;
+  }
+}
