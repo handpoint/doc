@@ -49,6 +49,30 @@ Balance available on the card.
   }
 ````
 
+## Billing
+
+`Billing` <span class="badge badge--info">Object</span>
+
+Billing address used for Address Verification Service (AVS). The billing object is optional and can only be used with the `moToSale` and `moToPreAuthorization` operations; it is ignored for `moToRefund` and `moToReversal`. When present, it is forwarded to the payment terminal as-is and included by the terminal in the authorization request sent to the acquirer. When omitted and AVS is enabled on the device's configuration template, the terminal prompts the operator for the billing details instead.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `zipCode` <span class="badge badge--primary">Required</span> <br />*String* | Billing postal/ZIP code of the cardholder. |
+| `address`  <br />*String*   | Billing street address of the cardholder. |
+
+**Code example**
+
+````json
+{
+    "billing": {
+        "zipCode": "SW1A 1AA",
+        "address": "10 Downing Street"
+    }
+}
+````
+
 ## Bypass Options
 
 
@@ -601,6 +625,7 @@ An object to store information about the request sent to the payment terminal.
 | `receipt` <br />*String*  | HTML receipt, following the format defined in Html Print Format, or url to locate the receipt, it can be found in the response of a Transaction Request, in the fields merchantReceipt or customerReceipt. **REQUIRED** for operations: printReceipt. The receipts are usually received as URLs in the transaction result from the terminal but note that if the terminal is not able to upload the receipt to the Handpoint cloud servers and generate a URL then the HTML formatted receipt will be delivered to your software. It is important to be able to manage both formats. |
 | `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
 | `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations.        |
+| `billing`  <br />[*Billing*](#billing)   | Billing address used for Address Verification Service (AVS). The billing object is optional and can only be used with the moToSale and moToPreAuthorization operations; it is ignored for moToRefund and moToReversal. When omitted and AVS is enabled on the device's configuration template, the terminal prompts the operator for the billing details instead.        |
 | `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
 | `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
