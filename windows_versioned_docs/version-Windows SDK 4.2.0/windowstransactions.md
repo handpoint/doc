@@ -605,7 +605,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 `StopCurrentTransaction` <span class="badge badge--info">Method</span>
 
-This method attempts to cancel the current transaction on the payment terminal. Note that operations can only be cancelled before requests are sent to the gateway. There is a flag called [cancelAllowed](windowobjects#status-info) in the currentTransactionStatus event that can be used to check if the transaction is in a state allowing the transaction to be cancelled.
+This method attempts to cancel the current transaction on the payment terminal. Note that operations can only be cancelled before requests are sent to the gateway. There is a flag called [cancelAllowed](windowobjects#statusInfo) in the currentTransactionStatus event that can be used to check if the transaction is in a state allowing the transaction to be cancelled.
 
 
 **Code example**
@@ -683,7 +683,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+| *[OperationStartResult](windowsobjects.md#OperationStartResult)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Pre-Auth Increase/Decrease
@@ -741,7 +741,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+| *[OperationStartResult](windowsobjects.md#OperationStartResult)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 
 ## Pre-Auth Capture
@@ -877,7 +877,7 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+| *[OperationStartResult](windowsobjects.md#OperationStartResult)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
 
 ## Pre-Auth/Capture Reversal
 
@@ -930,4 +930,4 @@ This event is invoked when the transaction is completed, it contains the transac
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| *[OperationStartResult](windowsobjects.md#OperationStartResul)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
+| *[OperationStartResult](windowsobjects.md#OperationStartResult)*| Object containing information about the financial operation performed. Most specifically the `transactionReference` which **must** be saved on your end in case you do not get back the transaction result object at the end of the transaction. The `transactionReference` will allow you to query the Handpoint Gateway directly to know the outcome of the transaction in case it is not delivered as planned by the terminal at the end of the transaction.|
