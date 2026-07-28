@@ -97,6 +97,74 @@ yarn build
 
 Static output goes to `build/`. Serve it locally with `yarn serve`.
 
+## Legacy / New documentation toggle
+
+During the transition period both portal versions are served from this project simultaneously.
+
+| Path | Content |
+|---|---|
+| `/` | New portal (this branch) |
+| `/legacy/` | Legacy portal (built from `dev` branch at commit `a2e635a`) |
+
+A **Legacy \| New** pill appears in the top-right of the new-docs navbar. Every legacy page has a matching floating pill (top-right) so users can switch back.
+
+### How `static/legacy/` was built
+
+```bash
+# 1. Checkout the dev branch in a temporary worktree
+git worktree add /tmp/legacy-docs-build dev
+
+# 2. Patch baseUrl so all asset paths resolve under /legacy/
+sed -i "s|baseUrl: '/'|baseUrl: '/legacy/'|" /tmp/legacy-docs-build/docusaurus.config.js
+
+# 3. Install and build
+cd /tmp/legacy-docs-build && yarn install --frozen-lockfile && yarn build
+
+# 4. Post-process: fix absolute /img/ paths that bypass Docusaurus baseUrl,
+#    and inject the floating Legacy|New toggle into every HTML page
+#    (see the PowerShell script used in the original setup — ask Claude Code to redo it)
+
+# 5. Copy build output into this project
+cp -r /tmp/legacy-docs-build/build/* static/legacy/
+
+# 6. Clean up
+git worktree remove /tmp/legacy-docs-build --force
+```
+
+### Refreshing the legacy snapshot
+
+If `dev` gets significant updates during the transition period, re-run the steps above to regenerate `static/legacy/`, then commit and push.
+
+### Removing the toggle once migration is complete
+
+When the new portal is the sole version and the legacy toggle is no longer needed:
+
+1. **Delete the static snapshot**
+   ```bash
+   rm -rf static/legacy/
+   ```
+
+2. **Remove the navbar item** from `docusaurus.config.js`:
+   ```js
+   // delete this line:
+   { type: 'custom-VersionToggle', position: 'right' },
+   ```
+
+3. **Delete the component files**
+   ```bash
+   rm src/theme/NavbarItem/VersionToggle.jsx
+   ```
+
+4. **Unregister from ComponentTypes** — remove these two lines from `src/theme/NavbarItem/ComponentTypes.js`:
+   ```js
+   import VersionToggle from '@site/src/theme/NavbarItem/VersionToggle';
+   'custom-VersionToggle': VersionToggle,
+   ```
+
+5. **Remove the CSS block** labelled `Version Toggle (Legacy / New)` from `src/css/custom.css`.
+
+6. Commit and push. The 153 MB of legacy static files will be gone from the working tree; git history will still contain them. If you need to scrub them from history entirely, use `git filter-repo --path static/legacy/ --invert-paths`.
+
 ## AI-readable index
 
 `static/llms.txt` is generated automatically and lists every acquirer with their supported capabilities and page URL. AI agents fetch this first to find the right acquirer page without reading every page.
