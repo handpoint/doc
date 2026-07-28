@@ -1,0 +1,773 @@
+{
+	"info": {
+		"_postman_id": "5ef46b32-777a-4f6d-9ad2-6137814d0eb5",
+		"name": "Handpoint API REST Delivery",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3069504"
+	},
+	"item": [
+		{
+			"name": "Initialize",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API KEY"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/initialize",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"initialize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping Device",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your Api Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"pingDevice\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"Your callbackUrl\",\n        \"token\":\"123456789\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sale",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"sale\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callbackUrl\",\n        \"token\":\"123456789\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MotoSale",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"motoSale\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callbackUrl\",\n        \"token\":\"123456789\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Moto PreAuth",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"moToPreAuthorization\",\n        \"amount\":\"1000\",\n        \"currency\":\"USD\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callbackUrl\",\n        \"token\":\"123456789\"\n        \n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sale and Tokenize",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your Api Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"saleAndTokenizeCard\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"Your callbackUrl\",\n        \"token\":\"123456789\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sale Reversal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Introduce your API KEY"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"saleReversal\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Introduce your device Serial Number\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"Introduce your callbackUrl\",\n        \"token\":\"123456789\",\n        \"originalTransactionId\":\"Introduce original transactionID\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sale Partial Approval (US feature)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API KEY"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"sale\",\n        \"amount\":\"3757\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"YourDeviceSN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"YourCallbackUrl\",\n        \"token\":\"123456789\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refund (NOT Linked Refund)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API KEY",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"refund\",\n        \"amount\":\"1000\",\n        \"currency\":\"USD\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"yourDeviceSN\",\n        \"callbackUrl\":\"yourCallbackURL\",\n        \"token\":\"1234556\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refund (Linked Refund)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API KEY",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"refund\",\n        \"amount\":\"1000\",\n        \"currency\":\"USD\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"callbackUrl\":\"yourcallbackURL\",\n        \"token\":\"1234556\",\n        \"originalTransactionId\": \"Introduce original transactionID\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refund Reversal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your Api Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"refundReversal\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"Your callbackUrl\",\n        \"token\":\"123456789\",\n        \"originalTransactionId\":\"your original trx ID\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tokenize Card",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API KEY"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"tokenizeCard\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"Your callbackUrl\",\n        \"token\":\"123456789\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"update\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"your device serial_number\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"Your callbackUrl\",\n        \"token\":\"123456789\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTransactionResult",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://cloud.handpoint.com/transaction-result/0812345678-11223344556677",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transaction-result",
+						"0812345678-11223344556677"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "StopCurrentTransaction",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"stopCurrentTransaction\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"yourDeviceSN\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Tip-Adjustment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCloud",
+						"value": "Your API Key"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 1.23\n}"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions/your-GUID-here/tip-adjustment",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions",
+						"your-GUID-here",
+						"tip-adjustment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "printReceipt Bitmap",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "yourAPIKey"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"printReceipt\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"yourDeviceSN\",\n        \"customerReference\": \"yourCustomerReference\",\n        \"receipt\":\"<html><body><img src='data:image/bmp;base64,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'></body></html>\",\n        \"callbackUrl\":\"yourCallbackUrl\",\n        \"token\":\"123456789\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "printReceipt Custom Receipt",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "yourAPIKey"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"printReceipt\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"yourCustomerReference\",\n        \"receipt\":\"<html>\\n<head></head>\\n<body>\\n    <header>\\n        <img class=\\\"center\\\" src=\\\"\\\" />\\n        <div id=\\\"merchant_name\\\">\\n            <p class=\\\"large bold center\\\">Test Receipt</p>\\n        </div>\\n                <div id=\\\"merchant_location\\\">\\n            <p class=\\\"center\\\">London</p>\\n        </div>\\n                <div id=\\\"datetime\\\" class=\\\"separator solid\\\" style=\\\"margin-top: 10px; height: 2px; margin-bottom: 10px;\\\"></div>\\n        <div>\\n            <label class=\\\"left\\\">28/10/22</label>\\n            <span class=\\\"right\\\">16:45</span>\\n        </div>\\n            </header>\\n    <main>\\n        <div id=\\\"response\\\">\\n            <p class=\\\"large bold center\\\">AUTORIZADA:</p>\\n        </div>\\n        <div id=\\\"error_response_message\\\">\\n            <p class=\\\"large bold center\\\"></p>\\n        </div>\\n                        <div id=\\\"txn_type\\\">\\n            <p class=\\\"large bold center\\\">VENTA</p>\\n        </div>\\n                <div id=\\\"amount\\\">\\n            <label class=\\\"left\\\">Cantidad: </label>\\n            <span class=\\\"large right\\\">USD 110.00</span>\\n        </div>\\n                <div class=\\\"separator dotted\\\" style=\\\"margin-top: 10px; height: 2px; margin-bottom: 10px;\\\"></div>\\n        <div id=\\\"mid\\\">\\n            <label class=\\\"left bold\\\">MID</label>\\n            <span class=\\\"right\\\">****3344</span>\\n        </div>\\n                <div id=\\\"tid\\\">\\n            <label class=\\\"left bold\\\">TID</label>\\n            <span class=\\\"right\\\">*****9951</span>\\n        </div>\\n                <div id=\\\"card_number\\\">\\n            <label class=\\\"left bold\\\">Visa Debit</label>\\n            <span class=\\\"right\\\">**** **** **** 2907</span>\\n        </div>\\n                <div id=\\\"entry\\\">\\n            <label class=\\\"left bold\\\">SIST. LECTURA</label>\\n            <span class=\\\"right\\\">Chip</span>\\n        </div>\\n                <div id=\\\"cvm\\\">\\n            <label class=\\\"left bold\\\">CVM</label>\\n            <span class=\\\"right\\\">VERIFICADO POR DISPOSITIVO</span>\\n        </div>\\n                <div id=\\\"auth_code\\\">\\n            <label class=\\\"left bold\\\">COD. AUTORIZ.</label>\\n            <span class=\\\"right\\\">123456</span>\\n        </div>\\n                <div id=\\\"tender_type\\\">\\n            <label class=\\\"left bold\\\">Tipo de pago</label>\\n            <span class=\\\"right\\\">DÉBITO</span>\\n        </div>\\n                <div class=\\\"separator dotted\\\" style=\\\"margin-top: 10px; height: 2px; margin-bottom: 10px;\\\"></div>\\n            <div>\\n                <p class=\\\"left bold\\\">GUID</p>\\n            </div>\\n            <div id=\\\"guid\\\">\\n                <p class=\\\"small left\\\">46c50750-56cf-11ed-bae9-335a2b81aa23</p>\\n            </div>\\n                <div class=\\\"separator dotted\\\" style=\\\"margin-top: 10px; height: 2px; margin-bottom: 10px;\\\"></div>\\n        <div id=\\\"receipt_type_description\\\">\\n            <p class=\\\"center\\\">** COPIA COMPRADOR **</p>\\n        </div>\\n                <div class=\\\"separator solid\\\" style=\\\"margin-top: 10px; height: 2px; margin-bottom: 10px;\\\"></div>\\n        <div>\\n            <p class=\\\"center bold\\\">EMV Details</p>\\n        </div>\\n                <div id=\\\"aid\\\">\\n            <label class=\\\"small left bold\\\">AID</label>\\n            <span class=\\\"left\\\">A0000000031010</span>\\n        </div>\\n                <div id=\\\"tvr\\\">\\n            <label class=\\\"small left bold\\\">TVR</label>\\n            <span class=\\\"left\\\">0080008000</span>\\n        </div>\\n                <div id=\\\"iad\\\">\\n            <label class=\\\"small left bold\\\">IAD</label>\\n            <span class=\\\"left\\\">06150A03A4A802</span>\\n        </div>\\n                <div id=\\\"tsi\\\">\\n            <label class=\\\"small left bold\\\">TSI</label>\\n            <span class=\\\"left\\\">E800</span>\\n        </div>\\n                <div id=\\\"arc\\\">\\n            <label class=\\\"small left bold\\\">ARC</label>\\n            <span class=\\\"left\\\">0000</span>\\n        </div>\\n                <div class=\\\"separator solid\\\" style=\\\"margin-top: 10px; height: 2px; margin-bottom: 10px;\\\"></div>\\n                    </main>\\n    <footer>\\n        <div class=\\\"separator\\\" style=\\\"margin-top: 20px; margin-bottom: 20px;\\\"></div>\\n    </footer>\\n</body>\\n</html> \",\n        \"callbackUrl\":\"yourCallbackUrl\",\n        \"token\":\"123456789\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetTransactionStatus",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": "Your API Key"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://transactions.handpoint.com/transactions/00000000-0000-0000-0000-000000000000/status/",
+					"protocol": "https",
+					"host": [
+						"transactions",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions",
+						"00000000-0000-0000-0000-000000000000",
+						"status",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PreAuth",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"preAuthorization\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callback URL\",\n        \"token\":\"123456789\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions/5b252fa0-903a-11ed-a4db-1d97852dd668/tip-adjustment",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions",
+						"5b252fa0-903a-11ed-a4db-1d97852dd668",
+						"tip-adjustment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PreAuth Increase",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"preAuthorizationIncrease\",\n        \"amount\":\"1000\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"0821599465\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callback URL\",\n        \"token\":\"12343264757\",\n        \"originalTransactionId\":\"00000000-0000-0000-0000-000000000000\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions/",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PreAuth Capture",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"preAuthorizationCapture\",\n        \"amount\":\"100\",\n        \"currency\":\"EUR\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callback URL\",\n        \"token\":\"12343264757\",\n        \"originalTransactionId\":\"00000000-0000-0000-0000-000000000000\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "PreAuth Reversal",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "ApiKeyCLoud",
+						"value": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"operation\":\"preAuthorizationReversal\",\n        \"terminal_type\":\"PAXA920\",\n        \"serial_number\":\"Your device SN\",\n        \"customerReference\": \"op15248\",\n        \"callbackUrl\":\"your callback URL\",\n        \"token\":\"12343264757\",\n        \"originalTransactionId\":\"00000000-0000-0000-0000-000000000000\",\n        \"transactionReference\": \"00000000-0000-0000-0000-000000000000\"\n        }"
+				},
+				"url": {
+					"raw": "https://cloud.handpoint.com/transactions",
+					"protocol": "https",
+					"host": [
+						"cloud",
+						"handpoint",
+						"com"
+					],
+					"path": [
+						"transactions"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

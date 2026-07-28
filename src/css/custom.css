@@ -1,26 +1,28 @@
 /* ──────────────────────────────────────────────
    Handpoint Brand Colours
-   Primary blue: #1B67B2   Dark blue: #0F3F6E
-   Purple:       #6B3FA0   Orange:    #F5821F
-   Black:        #1A1A1A
+   Orange:  #F5821F   Orange dark: #C46010
+   Blue:    #1B67B2   Dark blue:   #0F3F6E
+   Purple:  #6B3FA0   Black:       #1A1A1A
    ────────────────────────────────────────────── */
 
 :root {
-  --ifm-color-primary:          #1B67B2;
-  --ifm-color-primary-dark:     #185EA0;
-  --ifm-color-primary-darker:   #165897;
-  --ifm-color-primary-darkest:  #0F3F6E;
-  --ifm-color-primary-light:    #1E70BC;
-  --ifm-color-primary-lighter:  #2077C5;
-  --ifm-color-primary-lightest: #3388D4;
+  --ifm-color-primary:          #F5821F;
+  --ifm-color-primary-dark:     #D96E14;
+  --ifm-color-primary-darker:   #C46010;
+  --ifm-color-primary-darkest:  #9E4D0C;
+  --ifm-color-primary-light:    #F79035;
+  --ifm-color-primary-lighter:  #F89D4D;
+  --ifm-color-primary-lightest: #FAB476;
 
+  --handpoint-blue:          #1B67B2;
+  --handpoint-blue-dark:     #0F3F6E;
   --handpoint-orange:        #F5821F;
-  --handpoint-orange-dark:   #D96E14;
+  --handpoint-orange-dark:   #C46010;
   --handpoint-purple:        #6B3FA0;
   --handpoint-dark:          #1A1A1A;
 
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(27, 103, 178, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(245, 130, 31, 0.1);
 
   /* Header component tokens */
   --header-bg:         #EFF4FA;
@@ -31,13 +33,13 @@
 }
 
 [data-theme='dark'] {
-  --ifm-color-primary:          #5DA0E0;
-  --ifm-color-primary-dark:     #4A8ECF;
-  --ifm-color-primary-darker:   #3E82C7;
-  --ifm-color-primary-darkest:  #2B6AAD;
-  --ifm-color-primary-light:    #70B2E9;
-  --ifm-color-primary-lighter:  #7BBCED;
-  --ifm-color-primary-lightest: #9CCDF4;
+  --ifm-color-primary:          #F79035;
+  --ifm-color-primary-dark:     #E07E25;
+  --ifm-color-primary-darker:   #C97020;
+  --ifm-color-primary-darkest:  #A35818;
+  --ifm-color-primary-light:    #F9A050;
+  --ifm-color-primary-lighter:  #FAB06A;
+  --ifm-color-primary-lightest: #FCC490;
 
   --header-bg:         #1C2A3A;
   --header-border:     #2C3F55;
@@ -166,6 +168,57 @@
 /* Hide on small screens */
 @media (max-width: 996px) {
   .navbar-global-filters {
+    display: none;
+  }
+}
+
+/* ── Version Toggle (Legacy / New) ──────────── */
+
+.navbar-version-toggle {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 20px;
+  padding: 2px;
+  gap: 0;
+  margin-left: 0.25rem;
+}
+
+.navbar-version-toggle__option {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 11px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 18px;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none !important;
+  transition: background 0.15s, color 0.15s;
+  cursor: pointer;
+  line-height: 1.6;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.navbar-version-toggle__option:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  text-decoration: none !important;
+}
+
+.navbar-version-toggle__option--active {
+  background: var(--handpoint-orange);
+  color: #fff !important;
+  cursor: default;
+}
+
+.navbar-version-toggle__option--active:hover {
+  background: var(--handpoint-orange);
+}
+
+@media (max-width: 996px) {
+  .navbar-version-toggle {
     display: none;
   }
 }
@@ -696,6 +749,15 @@ a.button--primary:hover {
   box-shadow: 0 0 0 3px rgba(27, 103, 178, 0.15);
 }
 
+.wizard-card--ecomm {
+  border-left: 3px solid #0ea5e9;
+}
+
+.wizard-card--ecomm.wizard-card--selected {
+  border-color: #0ea5e9 !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.18);
+}
+
 .wizard-card__icon {
   font-size: 1.5em;
   margin-bottom: 8px;
@@ -930,6 +992,18 @@ a.button--primary:hover {
   color: var(--ifm-color-secondary-darkest);
 }
 
+.wizard-stepper__step--clickable {
+  cursor: pointer;
+}
+
+.wizard-stepper__step--clickable:hover .wizard-stepper__dot {
+  opacity: 0.75;
+}
+
+.wizard-stepper__step--clickable:hover .wizard-stepper__label {
+  text-decoration: underline;
+}
+
 .wizard-stepper__label {
   font-size: 0.7rem;
   font-weight: 600;
@@ -1126,6 +1200,18 @@ a.button--primary:hover {
   color: var(--ifm-color-secondary-darkest);
 }
 
+.wizard-feature-badge--token-req {
+  background: color-mix(in srgb, #6B3FA0 12%, transparent);
+  color: #6B3FA0;
+}
+
+.wizard-feature-row__token-note {
+  font-size: 0.78rem;
+  color: #6B3FA0;
+  margin-top: 4px;
+  font-style: italic;
+}
+
 /* ── Step nav buttons ─────────────────────────── */
 
 .wizard-step-nav {
@@ -1216,6 +1302,26 @@ a.button--primary:hover {
   color: color-mix(in srgb, var(--ifm-color-success) 80%, var(--ifm-font-color-base));
 }
 
+.wizard-plan-chip--ecomm {
+  background: color-mix(in srgb, #0ea5e9 12%, transparent);
+  color: #0369a1;
+}
+
+[data-theme='dark'] .wizard-plan-chip--ecomm {
+  background: color-mix(in srgb, #38bdf8 12%, transparent);
+  color: #38bdf8;
+}
+
+.wizard-plan-chip--token {
+  background: color-mix(in srgb, #6B3FA0 12%, transparent);
+  color: #6B3FA0;
+}
+
+[data-theme='dark'] .wizard-plan-chip--token {
+  background: color-mix(in srgb, #c49ae0 12%, transparent);
+  color: #c49ae0;
+}
+
 /* ── Plan section labels ──────────────────────── */
 
 .wizard-plan-section-label {
@@ -1247,6 +1353,16 @@ a.button--primary:hover {
   font-size: 0.88rem;
   font-weight: 700;
   margin-bottom: 4px;
+}
+
+.wizard-validation-item__token-req {
+  font-size: 0.8rem;
+  color: #6B3FA0;
+  margin-bottom: 5px;
+  padding: 4px 8px;
+  background: color-mix(in srgb, #6B3FA0 8%, transparent);
+  border-radius: 4px;
+  border-left: 3px solid #6B3FA0;
 }
 
 .wizard-validation-item__desc {

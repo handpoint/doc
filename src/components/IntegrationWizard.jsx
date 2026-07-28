@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from '@docusaurus/Link';
-import { ACQUIRERS } from '@site/src/data/acquirerCaps';
+import { ACQUIRERS as BASE_ACQUIRERS } from '@site/src/data/acquirerCaps';
 
 // ─── Region & Path data ───────────────────────────────────────────────────────
 
@@ -9,13 +9,43 @@ const REGIONS = [
     value: 'us-canada',
     label: 'US & Canada',
     flag: '🇺🇸',
-    desc: 'TSYS · PAYSAFE · PAYSAFE + Interac · TNS (Interac) · VANTIV',
+    desc: 'TSYS · EPI (TSYS) · PAYSAFE · PAYSAFE + Interac · TNS (Interac) · Worldpay (Vantiv)',
   },
   {
     value: 'eu',
     label: 'Europe',
     flag: '🇪🇺',
-    desc: 'EmerchantPay · Lloyds · Paystrax · TEYA (Borgun)',
+    desc: 'Card present: EmerchantPay · Paystrax · TEYA (Borgun) · eCommerce via Handpoint Commerce API',
+  },
+];
+
+const PAYMENT_MODES = [
+  {
+    value: 'card-present',
+    label: 'Card Present (In-Person)',
+    icon: '💳',
+    desc: 'Physical card reader — PAX terminal or HiLite Bluetooth device. Customer taps, dips, or swipes at checkout.',
+  },
+  {
+    value: 'ecomm',
+    label: 'eCommerce (Card Not Present)',
+    icon: '🌐',
+    desc: 'Online checkout — no card reader required. Powered by Handpoint Commerce API (Smartboard). Available for EU merchants only.',
+  },
+];
+
+const ECOMM_TYPES = [
+  {
+    value: 'hosted',
+    label: 'Hosted (Web Payment Form)',
+    icon: '🔗',
+    desc: 'Customer redirected to Handpoint\'s secure hosted checkout page to enter card details. 3DS v2 handled automatically. PCI SAQ A — no card data touches your server.',
+  },
+  {
+    value: 'direct',
+    label: 'Direct API (Server-to-Server)',
+    icon: '⚡',
+    desc: 'Your server calls the Commerce API directly. Full control over checkout UX. Requires 3DS v2 browser data collection and ACS redirect handling. Higher PCI scope — consult your QSA.',
   },
 ];
 
@@ -27,21 +57,95 @@ const PATHS = [
   { value: 'back-office',    label: 'Back Office API',  icon: '🏦',  desc: 'Server-side only — reversals, tip adjustments, MOTO, and pre-auth captures with no terminal.' },
 ];
 
-// ─── Acquirer → region mapping (derived from subtitle) ───────────────────────
+// ─── EPI acquirer — TSYS capabilities + ProCharge token provider ──────────────
+
+const _tsys = BASE_ACQUIRERS.find(a => a.id === 'tsys');
+const ACQUIRERS = [
+  ...BASE_ACQUIRERS.filter(a => a.id !== 'omnipay-lloyds'),
+  { id: 'epi', name: 'EPI (TSYS)', subtitle: 'US, Canada · VISA MC Discover', caps: _tsys.caps, notes: _tsys.notes, portalNote: null },
+].map(a => a.id === 'vantiv' ? { ...a, name: 'Worldpay (Vantiv)', subtitle: 'US · VISA MC Discover JCB' } : a);
+
+// ─── Acquirer → region mapping ────────────────────────────────────────────────
 
 const ACQUIRER_REGIONS = {
-  'tsys':            'us-canada',
-  'tsys-tns':        'us-canada',
-  'tns':             'us-canada',
-  'paysafe-tsys':    'us-canada',
-  'vantiv':          'us-canada',
-  'omnipay-emp':     'eu',
-  'omnipay-lloyds':  'eu',
-  'omnipay-paystrax':'eu',
-  'teya':            'eu',
+  'tsys':             'us-canada',
+  'epi':              'us-canada',
+  'tsys-tns':         'us-canada',
+  'tns':              'us-canada',
+  'paysafe-tsys':     'us-canada',
+  'vantiv':           'us-canada',
+  'omnipay-emp':      'eu',
+  'omnipay-lloyds':   'eu',
+  'omnipay-paystrax': 'eu',
+  'teya':             'eu',
 };
 
-// ─── Feature groups (adapted from ISV Config Form) ───────────────────────────
+// ─── Token providers (internal reference) ────────────────────────────────────
+// procharge: stores PAN + expiry → enables MOTO charges with stored token (EPI only)
+// paysafe:   Paysafe vault → card-present tokenization for Paysafe acquirers
+// tokenex:   third-party vault → card-present tokenization, supported by all acquirers
+
+const ACQUIRER_TOKEN_PROVIDERS = {
+  'tsys':             ['tokenex'],
+  'epi':              ['procharge', 'tokenex'],
+  'tsys-tns':         ['paysafe', 'tokenex'],
+  'tns':              ['tokenex'],
+  'paysafe-tsys':     ['paysafe', 'tokenex'],
+  'vantiv':           ['tokenex'],
+  'omnipay-emp':      ['tokenex'],
+  'omnipay-lloyds':   ['tokenex'],
+  'omnipay-paystrax': ['tokenex'],
+  'teya':             ['tokenex'],
+};
+
+const TOKEN_PROVIDERS = [
+  { value: 'procharge', label: 'ProCharge', icon: '🔐', desc: 'EPI\'s token service. Stores the full PAN and expiry date — enables card-not-present MOTO charges using stored tokens.' },
+  { value: 'paysafe',   label: 'Paysafe',   icon: '💳', desc: 'Paysafe\'s own vault. Supported for Paysafe acquirers — card-present tokenization and PCI-scope reduction.' },
+  { value: 'tokenex',   label: 'TokenEx',   icon: '🏦', desc: 'Third-party card vault. Supported by all acquirers — card-present tokenization and PCI-scope reduction.' },
+];
+
+// ─── eCommerce feature groups ─────────────────────────────────────────────────
+
+const ECOMM_FEATURE_GROUPS = [
+  {
+    id: 'ecomm-core',
+    label: 'Core Payments',
+    icon: '🌐',
+    features: [
+      { id: 'ecomm-sale', label: 'Online Sale',           required: true,  desc: 'Standard CNP charge — customer provides card details on the Handpoint hosted payment form or your own checkout page (Direct API).' },
+      { id: 'ecomm-3ds',  label: '3DS v2 Authentication', required: true,  desc: 'Mandatory for EU transactions under PSD2/SCA. Hosted: handled automatically. Direct API: requires browser fingerprint data collection (JS snippet) and ACS redirect/challenge handling.' },
+    ],
+  },
+  {
+    id: 'ecomm-refunds',
+    label: 'Refunds',
+    icon: '↩️',
+    features: [
+      { id: 'ecomm-refund', label: 'CNP Refund', required: false, desc: 'Refund a completed transaction by its transaction reference — no card re-presentation needed.' },
+    ],
+  },
+  {
+    id: 'ecomm-recurring',
+    label: 'Card Vaulting & Recurring',
+    icon: '🔄',
+    features: [
+      { id: 'ecomm-tokenize',  label: 'Card Tokenization',           required: false, desc: 'Store card details securely in the Handpoint Commerce API vault — reduces PCI scope and enables future charges without card re-entry.' },
+      { id: 'ecomm-recurring', label: 'Recurring Billing',           required: false, desc: 'Use a stored card token to charge a customer on a recurring schedule — subscriptions, memberships, installments.' },
+      { id: 'ecomm-cof',       label: 'Card-on-File (Unscheduled)',  required: false, desc: 'Charge a stored card for unscheduled merchant-initiated transactions — top-ups, reorders, one-click checkout.' },
+    ],
+  },
+  {
+    id: 'ecomm-advanced',
+    label: 'Authorization & Verification',
+    icon: '✅',
+    features: [
+      { id: 'ecomm-preauth', label: 'Pre-Authorization',         required: false, desc: 'Hold funds without capturing — used in travel/hospitality for booking deposits.' },
+      { id: 'ecomm-verify',  label: 'Card Verification (VERIFY)', required: false, desc: 'Validate a card is real and in-date without charging — used at enrollment or before a first subscription charge. Returns response code 85 on success.' },
+    ],
+  },
+];
+
+// ─── Card-present feature groups ─────────────────────────────────────────────
 
 const FEATURE_GROUPS = [
   {
@@ -53,9 +157,11 @@ const FEATURE_GROUPS = [
       { id: 'partial-approval', label: 'Partial Approval',           required: true,  capKey: null,               desc: 'Accept when card covers only part of the total. If unsupported by your flow, send an automatic reversal and show "declined — insufficient funds".' },
       { id: 'reversal',         label: 'Connection Loss & Reversal', required: true,  capKey: 'reversal',         desc: 'Auto-query and reverse on connection drop. Required for Handpoint certification.' },
       { id: 'refund',           label: 'Refund (Card Present)',      required: false, capKey: 'refund',           desc: 'Return funds with the card physically present — linked to original transaction or standalone.' },
+      { id: 'partial-reversal', label: 'Partial Reversal',           required: false, capKey: 'partial-reversal', desc: 'Reduce the authorized amount before settlement — e.g. when a customer returns part of an order before the batch closes.' },
       { id: 'pre-auth',         label: 'Pre-Authorization',          required: false, capKey: 'pre-auth',         desc: 'Hold + increase + capture flow. Used in hotels, car rental, restaurants with tabs.' },
       { id: 'moto-entry',       label: 'MOTO Entry (on terminal)',   required: false, capKey: 'moto',             desc: 'Staff keys card details on terminal keypad for a customer who is NOT present — phone or mail order CNP.' },
-      { id: 'debit-only',       label: 'Debit-Only Acceptance',      required: false, capKey: null,               desc: 'Restrict terminal to debit cards only — credit transactions declined. Configured in TMS.' },
+      { id: 'money-remittance', label: 'Money Remittance',           required: false, capKey: 'money-remittance', paths: ['cloud-api', 'android-pax'], desc: 'Process money transfer transactions via PAX terminal. AMEX routing requires a separate MID — contact Handpoint to configure.' },
+      { id: 'debit-only',       label: 'Debit-Only Acceptance',      required: false, capKey: null,               desc: 'Restrict merchant to debit cards only — all terminals under the merchant decline credit transactions. Configured at the merchant level in TMS.' },
     ],
   },
   {
@@ -72,13 +178,12 @@ const FEATURE_GROUPS = [
     label: 'Backoffice & Remote',
     icon: '🏢',
     features: [
-      { id: 'auto-refund',   label: 'Automatic Refund (GUID)',        required: false, capKey: 'refund',                   desc: 'Refund via original transaction GUID — no terminal, no card re-presentation. The equivalent of a MOTO refund in the REST API.' },
-      { id: 'moto-remote',   label: 'MOTO Remote (Phone / Mail)',     required: false, capKey: 'moto',                     desc: 'Charge a card provided by phone or mail — fully server-side, no reader involved.' },
-      { id: 'moto-token',    label: 'MOTO with Stored Token',         required: false, capKey: 'moto',                     desc: 'Charge a customer using a stored card token instead of entering card details.' },
-      { id: 'recurring',     label: 'Recurring / Subscription',       required: false, capKey: 'moto',                     desc: 'Scheduled charges using a stored token — retrieve token from transaction GUID, then charge on schedule.' },
-      { id: 'cof',           label: 'Card-on-File Charge',            required: false, capKey: 'moto',                     desc: 'Unscheduled charge of a returning customer using their stored card token.' },
-      { id: 'preauth-retry', label: 'Pre-Auth Capture Retry',         required: false, capKey: 'pre-auth-capture-reversal', desc: 'Retry a failed capture using the original auth GUID — no customer re-presence needed.' },
-      { id: 'txn-feed',      label: 'TXN Feed API Reconciliation',    required: false, capKey: null,                       desc: 'Query, reconcile, and export transactions via the Handpoint TXN Feed API.' },
+      { id: 'auto-refund',   label: 'MOTO Refund (GUID)',              required: false, capKey: 'refund',                   desc: 'Refund via original transaction GUID — no terminal, no card re-presentation.' },
+      { id: 'moto-token',    label: 'MOTO Charge with Card Token',     required: false, capKey: 'moto', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date to enable card-not-present charges.', desc: 'Charge a customer using a stored card token — covers recurring billing, card-on-file, and unscheduled MOTO scenarios. The token must come from a provider that stores full PAN and expiry (ProCharge for EPI, or Cygma).' },
+      { id: 'token-guid',    label: 'Get Token from Transaction GUID', required: false, capKey: 'tokenization',             desc: 'Retrieve a card token from any past transaction using its GUID — no new terminal interaction.' },
+      { id: 'preauth-retry', label: 'Pre-Auth Capture Retry',          required: false, capKey: 'pre-auth-capture-reversal', desc: 'Retry a failed capture using the original auth GUID — no customer re-presence needed.' },
+      { id: 'batching',      label: 'Batch / EOD Settlement',          required: false, capKey: 'batching',                  desc: 'Manually trigger end-of-day batch settlement instead of relying on automatic settlement. Must be enabled in TMS.' },
+      { id: 'txn-feed',      label: 'TXN Feed API Reconciliation',     required: false, capKey: null,                        desc: 'Query, reconcile, and export transactions via the Handpoint TXN Feed API.' },
     ],
   },
   {
@@ -86,9 +191,8 @@ const FEATURE_GROUPS = [
     label: 'Card Storage & Tokenization',
     icon: '🔑',
     features: [
-      { id: 'token-guid',    label: 'Get Token from Transaction GUID', required: false, capKey: 'tokenization', desc: 'Retrieve a card token from any past transaction using its GUID — no new terminal interaction.' },
-      { id: 'token-only',    label: 'Tokenize Card Only',              required: false, capKey: 'tokenization', desc: 'Card tapped/dipped at terminal, stored without charging — enrollment, subscription sign-up.' },
-      { id: 'sale-tokenize', label: 'Sale & Tokenize (Atomic)',         required: false, capKey: 'tokenization', desc: 'Single call for payment + tokenization. If the token provider fails, the entire transaction fails.' },
+      { id: 'token-only',    label: 'Tokenize Card Only',      required: false, capKey: 'tokenization', desc: 'Card tapped/dipped at terminal, stored without charging — enrollment, subscription sign-up.' },
+      { id: 'sale-tokenize', label: 'Sale & Tokenize (Atomic)', required: false, capKey: 'tokenization', desc: 'Single call for payment + tokenization. If the token provider fails, the entire transaction fails.' },
     ],
   },
   {
@@ -96,9 +200,9 @@ const FEATURE_GROUPS = [
     label: 'Special Cards & Acquirer Features',
     icon: '🏷️',
     features: [
-      { id: 'closed-loop', label: 'Closed-Loop / Badge Cards', required: false, capKey: null,  desc: 'Whitelisted PAN ranges return the actual card number — used for employee badges, merchant-issued gift cards, loyalty cards.' },
-      { id: 'paysafe-sdk', label: 'Paysafe Android SDK Differences', required: false, capKey: null, desc: 'Pre-auth, MOTO, and partial reversals not supported. Void replaces next-day reversal for Interac.' },
-      { id: 'interac',     label: 'Interac (Canada)',           required: false, capKey: null,  desc: 'Interac has special requirements around fallback handling and void timing — see Dev Center for Interac compliance documentation.' },
+      { id: 'closed-loop',    label: 'Closed-Loop / Badge Cards', required: false, capKey: null,               desc: 'Whitelisted PAN ranges return the actual card number — used for employee badges, merchant-issued gift cards, loyalty cards.' },
+      { id: 'vantiv-omnitoken', label: 'Worldpay Omnitoken',      required: false, capKey: null, acquirers: ['vantiv'], desc: 'Acquirer-level token returned by Worldpay (Vantiv) in every transaction result. Scoped to a rollup ID — same card returns the same token across all merchants under the same rollup. Must be enabled at the merchant level directly with Worldpay.' },
+      { id: 'interac',        label: 'Interac (Canada)',           required: false, capKey: null, region: 'us-canada', acquirers: ['tsys-tns', 'tns'], desc: 'Interac has special requirements around fallback handling and void timing — see Dev Center for Interac compliance documentation.' },
     ],
   },
 ];
@@ -182,6 +286,43 @@ const PATH_PREREQS = {
   },
 };
 
+// ─── eCommerce prerequisites by integration type ──────────────────────────────
+
+const ECOMM_PREREQS = {
+  hosted: {
+    auth: [
+      'Request a merchantID from Handpoint Integration Support.',
+      'A merchantSecret is provided with the merchantID — used for SHA512 request signing.',
+      'Signature: SHA512 of all request fields sorted by key, URL-encoded, then concatenated with the secret.',
+      'Staging: https://commerce-api.handpoint.com/hosted/ — test cards provided by support.',
+    ],
+    setup: [
+      'No terminal or card reader required.',
+      'Define a redirectURL (customer return page) and an optional callbackURL (server-side notification).',
+      '3DS v2 is handled automatically by Handpoint — no browser data collection needed on your end.',
+      'PCI SAQ A compliant — no card data ever reaches your server.',
+    ],
+    authLink: '/ecomm/authentication',
+    setupLink: '/ecomm/hosted',
+  },
+  direct: {
+    auth: [
+      'Request a merchantID from Handpoint Integration Support.',
+      'A merchantSecret is provided with the merchantID — used for SHA512 request signing.',
+      'Signature: SHA512 of all request fields sorted by key, URL-encoded, then concatenated with the secret.',
+      'Staging: https://commerce-api.handpoint.com/direct/ — test cards provided by support.',
+    ],
+    setup: [
+      'No terminal or card reader required.',
+      'Collect browser fingerprint data using a JS snippet on your checkout page (required for 3DS v2).',
+      'Handle the 3DS ACS redirect: persist threeDSRef, then submit the completion request after ACS posts back.',
+      'PCI DSS scope depends on your card collection method — consult your QSA.',
+    ],
+    authLink: '/ecomm/authentication',
+    setupLink: '/ecomm/direct',
+  },
+};
+
 // ─── Validation tests per feature ────────────────────────────────────────────
 
 const FEATURE_TESTS = {
@@ -189,33 +330,50 @@ const FEATURE_TESTS = {
   'reversal':         { label: 'Connection Loss Recovery', test: 'Simulate a connection drop mid-transaction. Your software must query transaction status on reconnect and send an automatic reversal when the outcome is ambiguous. This test also covers app-crash recovery.' },
   'pre-auth':         { label: 'Pre-Auth Lifecycle', test: 'Execute the full lifecycle: initial hold → increase → capture. Also test a pre-auth reversal (release without capturing). Verify the terminal is correctly freed after each step.' },
   'tip-adj':          { label: 'Tip Adjustment', test: 'Perform a backoffice tip adjustment on a completed transaction. Confirm the feature is unavailable on any transaction that already included an on-screen tip.' },
-  'moto-remote':      { label: 'MOTO Transaction', test: 'Complete a phone-order charge entirely through your software — no terminal interaction, no card reader.' },
-  'moto-token':       { label: 'MOTO with Token', test: 'Retrieve a token from a past transaction GUID, then process a MOTO charge using that token in place of raw card details.' },
-  'recurring':        { label: 'Recurring Charge', test: 'Retrieve a card token from a GUID, store it, then process a MOTO charge on a schedule. Verify that the charge works without any terminal interaction.' },
-  'auto-refund':      { label: 'Automatic Refund', test: 'Refund a transaction using only its GUID — confirm no terminal or card re-presentation is required.' },
+  'moto-token':       { label: 'MOTO Charge with Card Token', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date.', test: 'Retrieve a card token from a past transaction GUID, then process a MOTO charge using that token. Verify the charge succeeds without any terminal interaction, and that it works for both a one-off card-on-file charge and a scheduled recurring charge.' },
+  'partial-reversal': { label: 'Partial Reversal', test: 'Process a sale, then send a partial reversal to reduce the authorized amount before settlement. Confirm the terminal displays the updated amount and the batch reflects the reduced value.' },
+  'batching':         { label: 'Batch / EOD Settlement', test: 'Trigger a manual end-of-day batch close via the Back Office API. Confirm all open transactions are settled and the batch report is returned.' },
+  'vantiv-omnitoken': { label: 'Worldpay Omnitoken', test: 'Confirm the Omnitoken is present in the transaction result after a completed sale. Verify the merchant has been activated for Omnitoken directly with Worldpay and that the correct rollup ID is configured — tokens are scoped per rollup, not per individual merchant.' },
+  'auto-refund':      { label: 'MOTO Refund (GUID)', test: 'Refund a transaction using only its GUID — confirm no terminal or card re-presentation is required.' },
   'sale-tokenize':    { label: 'Atomic Sale & Tokenize', test: 'Simulate a token provider failure during a sale — confirm the entire transaction is declined, not just the tokenization step.' },
   'token-guid':       { label: 'Deferred Token Retrieval', test: 'Retrieve a token from the GUID of a completed transaction that was not originally tokenized at time of sale.' },
   'debit-only':       { label: 'Debit-Only Restriction', test: 'Present a credit card to a terminal configured for debit-only — confirm the terminal declines the card and prompts for debit.' },
 };
 
+const ECOMM_FEATURE_TESTS = {
+  'ecomm-3ds':       { label: '3DS v2 Challenge Flow', test: 'Process a transaction that triggers a 3DS challenge (new card or high-risk amount). Hosted: verify the customer is redirected to the ACS and returned to your redirectURL with the correct result. Direct API: verify browser data collection is complete, the threeDSURL redirect is handled, and the completion request with threeDSRef and threeDSResponse is submitted correctly.' },
+  'ecomm-refund':    { label: 'CNP Refund', test: 'Refund a completed transaction using only its transaction reference. Confirm no card re-presentation is required and the amount is correctly credited.' },
+  'ecomm-tokenize':  { label: 'Card Tokenization', test: 'Use the VERIFY action to validate and store a card. Retrieve the resulting token and confirm it can be used for a subsequent charge without re-collecting card details.' },
+  'ecomm-recurring': { label: 'Recurring Charge', test: 'Process an initial transaction to obtain a token, then process two subsequent recurring charges using only the stored token. Verify no card re-entry is required for subsequent charges.' },
+  'ecomm-verify':    { label: 'Card Verification (VERIFY)', test: 'Submit a VERIFY action for a test card. Confirm the card is validated without funds being captured and the response returns code 85 (verification successful).' },
+  'ecomm-preauth':   { label: 'Pre-Authorization', test: 'Authorize a hold using the pre-auth action, then capture the final amount. Verify the hold appears and the capture settles correctly.' },
+  'ecomm-cof':       { label: 'Card-on-File Charge', test: 'Use a stored card token to process a merchant-initiated unscheduled charge. Confirm the charge succeeds without any customer interaction or card re-entry.' },
+};
+
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
-const STEP_LABELS = ['Region', 'Integration', 'Acquirer', 'Features', 'Your Plan'];
-
-function StepIndicator({ currentStep }) {
+function StepIndicator({ stepLabels, currentStep, onStepClick }) {
   return (
     <div className="wizard-stepper">
-      {STEP_LABELS.map((label, i) => {
+      {stepLabels.map((label, i) => {
         const status = i < currentStep ? 'done' : i === currentStep ? 'active' : 'pending';
+        const clickable = i < currentStep;
         return (
           <React.Fragment key={i}>
-            <div className={`wizard-stepper__step wizard-stepper__step--${status}`}>
+            <div
+              className={`wizard-stepper__step wizard-stepper__step--${status}${clickable ? ' wizard-stepper__step--clickable' : ''}`}
+              onClick={() => clickable && onStepClick(i)}
+              onKeyDown={e => e.key === 'Enter' && clickable && onStepClick(i)}
+              role={clickable ? 'button' : undefined}
+              tabIndex={clickable ? 0 : undefined}
+              title={clickable ? `Go back to ${label}` : undefined}
+            >
               <div className="wizard-stepper__dot">
                 {status === 'done' ? '✓' : i + 1}
               </div>
               <div className="wizard-stepper__label">{label}</div>
             </div>
-            {i < STEP_LABELS.length - 1 && (
+            {i < stepLabels.length - 1 && (
               <div className={`wizard-stepper__line wizard-stepper__line--${i < currentStep ? 'done' : 'pending'}`} />
             )}
           </React.Fragment>
@@ -255,6 +413,42 @@ function FeatureRow({ feature, pathId, acquirer, enabled, onToggle }) {
           {feature.label}
           {feature.required && <span className="wizard-feature-badge wizard-feature-badge--required">Required</span>}
           {unavailable && <span className="wizard-feature-badge wizard-feature-badge--na">Not on this path</span>}
+          {feature.tokenProviderNote && !unavailable && <span className="wizard-feature-badge wizard-feature-badge--token-req">🔑 Token required</span>}
+        </div>
+        <div className="wizard-feature-row__desc">{feature.desc}</div>
+        {feature.tokenProviderNote && !unavailable && (
+          <div className="wizard-feature-row__token-note">Requires: {feature.tokenProviderNote}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── eCommerce feature toggle row (no capKey greyout logic) ──────────────────
+
+function EcommFeatureRow({ feature, enabled, onToggle }) {
+  return (
+    <div
+      className={[
+        'wizard-feature-row',
+        feature.required ? 'wizard-feature-row--required' : '',
+        enabled && !feature.required ? 'wizard-feature-row--active' : '',
+      ].filter(Boolean).join(' ')}
+      onClick={() => !feature.required && onToggle(feature.id)}
+      role={feature.required ? undefined : 'checkbox'}
+      aria-checked={feature.required ? true : enabled}
+      tabIndex={feature.required ? undefined : 0}
+      onKeyDown={e => e.key === 'Enter' && !feature.required && onToggle(feature.id)}
+    >
+      <div className="wizard-feature-row__toggle">
+        <div className={`wizard-feature-row__dot ${feature.required ? 'wizard-feature-row__dot--required' : enabled ? 'wizard-feature-row__dot--on' : 'wizard-feature-row__dot--off'}`}>
+          {feature.required || enabled ? '✓' : ''}
+        </div>
+      </div>
+      <div className="wizard-feature-row__body">
+        <div className="wizard-feature-row__name">
+          {feature.label}
+          {feature.required && <span className="wizard-feature-badge wizard-feature-badge--required">Required</span>}
         </div>
         <div className="wizard-feature-row__desc">{feature.desc}</div>
       </div>
@@ -271,13 +465,20 @@ function isFeatureSupported(feature, pathId, acquirer) {
   return cap[pathId] === 'public';
 }
 
-function getValidationTests(enabledFeatures) {
-  return enabledFeatures
-    .filter(id => FEATURE_TESTS[id])
-    .map(id => FEATURE_TESTS[id]);
+function isFeatureAvailableForAcquirer(feature, acquirer) {
+  if (!feature.capKey || !acquirer) return true;
+  const cap = acquirer.caps[feature.capKey];
+  if (!cap) return false;
+  return Object.values(cap).some(v => v === 'public');
 }
 
-function getDocLinks(pathId, enabledFeatures) {
+function getValidationTests(enabledFeatures, testMap) {
+  return enabledFeatures
+    .filter(id => testMap[id])
+    .map(id => testMap[id]);
+}
+
+function getCPDocLinks(pathId, enabledFeatures) {
   const links = [
     { label: 'Authentication guide', to: '/reference/authentication' },
     { label: 'Transaction result object', to: '/reference/transaction-result-object' },
@@ -286,10 +487,10 @@ function getDocLinks(pathId, enabledFeatures) {
   if (enabledFeatures.some(f => ['pre-auth', 'preauth-retry'].includes(f))) {
     links.push({ label: 'Pre-Authorization guide', to: '/reference/pre-authorization-guide' });
   }
-  if (enabledFeatures.some(f => ['token-guid', 'token-only', 'sale-tokenize', 'moto-token', 'recurring', 'cof'].includes(f))) {
+  if (enabledFeatures.some(f => ['token-guid', 'token-only', 'sale-tokenize', 'moto-token'].includes(f))) {
     links.push({ label: 'Tokenization reference', to: '/reference/tokenization' });
   }
-  if (enabledFeatures.some(f => ['moto-remote', 'moto-token', 'moto-entry', 'tip-adj', 'auto-refund', 'preauth-retry'].includes(f))) {
+  if (enabledFeatures.some(f => ['moto-token', 'moto-entry', 'tip-adj', 'auto-refund', 'preauth-retry'].includes(f))) {
     links.push({ label: 'Back Office API reference', to: '/reference/back-office' });
   }
   links.push({ label: 'Full capability matrix', to: '/reference/full-matrix' });
@@ -297,44 +498,157 @@ function getDocLinks(pathId, enabledFeatures) {
   return links;
 }
 
+function getEcommDocLinks(ecommType, enabledFeatures) {
+  const links = [
+    { label: 'Commerce API overview', to: '/ecomm/overview' },
+    { label: 'Authentication & signing', to: '/ecomm/authentication' },
+  ];
+  if (ecommType === 'hosted') links.push({ label: 'Hosted (HPF) integration guide', to: '/ecomm/hosted' });
+  if (ecommType === 'direct') links.push({ label: 'Direct API integration guide', to: '/ecomm/direct' });
+  if (enabledFeatures.some(f => f.startsWith('ecomm-') && ['ecomm-3ds'].includes(f))) {
+    links.push({ label: '3DS v2 implementation guide', to: '/ecomm/3dsv2' });
+  }
+  if (enabledFeatures.some(f => ['ecomm-tokenize', 'ecomm-recurring', 'ecomm-cof'].includes(f))) {
+    links.push({ label: 'Card vaulting & recurring billing', to: '/ecomm/tokenization' });
+  }
+  links.push({ label: 'Response codes reference', to: '/ecomm/response-codes' });
+  links.push({ label: 'Test cards & sandbox', to: '/ecomm/test-cards' });
+  return links;
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
+const SESSION_KEY  = 'hp-wizard-state';
+const LS_PATH_KEY  = 'docusaurus.tab.integration-path';
+const LS_ACQ_KEY   = 'handpoint.selected.acquirer';
+
+// Navbar paths don't include 'back-office' — clear the filter in that case.
+const NAVBAR_PATH_VALUES = new Set(['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova']);
+
+function syncNavbar(type, value) {
+  if (typeof window === 'undefined') return;
+  if (type === 'path') {
+    const navValue = NAVBAR_PATH_VALUES.has(value) ? value : '';
+    if (navValue) localStorage.setItem(LS_PATH_KEY, navValue);
+    else localStorage.removeItem(LS_PATH_KEY);
+    window.dispatchEvent(new CustomEvent('handpoint:pathChanged', { detail: { path: navValue || null } }));
+  } else if (type === 'acquirer') {
+    if (value) localStorage.setItem(LS_ACQ_KEY, value);
+    else localStorage.removeItem(LS_ACQ_KEY);
+    window.dispatchEvent(new CustomEvent('handpoint:acquirerChanged', { detail: { slug: value } }));
+  }
+}
+
+function loadSession() {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return {};
+    const s = JSON.parse(raw);
+    if (s.features) s.features = new Set(s.features);
+    return s;
+  } catch { return {}; }
+}
+
+function saveSession(state) {
+  try {
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify({
+      ...state,
+      features: [...state.features],
+    }));
+  } catch {}
+}
+
 export default function IntegrationWizard() {
-  const [step, setStep]             = useState(0);
-  const [region, setRegion]         = useState(null);
-  const [pathId, setPathId]         = useState(null);
-  const [acquirerId, setAcquirerId] = useState(null);
-  const [features, setFeatures]     = useState(new Set());
+  const saved = loadSession();
 
-  const acquirer = ACQUIRERS.find(a => a.id === acquirerId) || null;
-  const prereqs  = PATH_PREREQS[pathId] || null;
+  const [step, setStep]               = useState(saved.step ?? 0);
+  const [region, setRegion]           = useState(saved.region ?? null);
+  const [paymentMode, setPaymentMode] = useState(saved.paymentMode ?? null);
+  const [ecommType, setEcommType]     = useState(saved.ecommType ?? null);
+  const [pathId, setPathId]           = useState(saved.pathId ?? null);
+  const [acquirerId, setAcquirerId]   = useState(saved.acquirerId ?? null);
+  const [features, setFeatures]       = useState(saved.features ?? new Set());
 
+  const persist = (patch) => saveSession({ step, region, paymentMode, ecommType, pathId, acquirerId, features, ...patch });
+
+  // ── Path helpers ──────────────────────────────────────────────────────────
+
+  const isEU     = region === 'eu';
+  const isEComm  = isEU && paymentMode === 'ecomm';
+  const isCP     = !isEU || paymentMode === 'card-present';
+
+  // EU adds a "Payment Type" step between Region and Integration/eComm
+  // EU + Card Present: Region(0) → PayType(1) → Integration(2) → Acquirer(3) → Features(4) → Plan(5)
+  // EU + eComm:        Region(0) → PayType(1) → eCommSetup(2) → Features(3) → Plan(4)
+  // US/Canada:         Region(0) → Integration(1) → Acquirer(2) → Features(3) → Plan(4)
+
+  const stepLabels = useMemo(() => {
+    if (!isEU) return ['Region', 'Integration', 'Acquirer', 'Features', 'Your Plan'];
+    if (isEComm) return ['Region', 'Payment Type', 'eComm Setup', 'Features', 'Your Plan'];
+    return ['Region', 'Payment Type', 'Integration', 'Acquirer', 'Features', 'Your Plan'];
+  }, [isEU, isEComm]);
+
+  const maxStep = stepLabels.length - 1;
+
+  // EU shifts all card-present steps forward by 1
+  const offset = isEU ? 1 : 0;
+
+  const showPaymentTypeStep  = step === 1 && isEU;
+  const showIntegrationStep  = step === 1 + offset && isCP;
+  const showAcquirerStep     = step === 2 + offset && isCP;
+  const showFeaturesStep     = (step === 3 + offset && isCP) || (step === 3 && isEComm);
+  const showECommSetupStep   = step === 2 && isEComm;
+  const showPlanStep         = (step === 4 + offset && isCP) || (step === 4 && isEComm);
+
+  // ── Derived data ──────────────────────────────────────────────────────────
+
+  const acquirer        = ACQUIRERS.find(a => a.id === acquirerId) || null;
+  const prereqs         = PATH_PREREQS[pathId] || null;
+  const ecommPrereqs    = ecommType ? ECOMM_PREREQS[ecommType] : null;
   const regionAcquirers = ACQUIRERS.filter(a => ACQUIRER_REGIONS[a.id] === region);
 
-  // All required feature IDs pre-seeded
-  const allRequiredIds = FEATURE_GROUPS.flatMap(g => g.features.filter(f => f.required).map(f => f.id));
-  const enabledFeatures = [...new Set([...allRequiredIds, ...features])];
+  const allRequiredCPIds = FEATURE_GROUPS.flatMap(g => g.features.filter(f => f.required).map(f => f.id));
+  const allRequiredEcommIds = ECOMM_FEATURE_GROUPS.flatMap(g => g.features.filter(f => f.required).map(f => f.id));
+
+  const enabledFeatures = isEComm
+    ? [...new Set([...allRequiredEcommIds, ...features])]
+    : [...new Set([...allRequiredCPIds, ...features])];
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+
+  const goTo = (s) => { setStep(s); persist({ step: s }); };
+  const next = () => { setStep(s => { const n = Math.min(s + 1, maxStep); persist({ step: n }); return n; }); };
+  const back = () => { setStep(s => { const n = Math.max(s - 1, 0); persist({ step: n }); return n; }); };
+
+  const selectRegion = (v) => {
+    setRegion(v);
+    setPaymentMode(null);
+    setAcquirerId(null);
+    setEcommType(null);
+    persist({ region: v, paymentMode: null, acquirerId: null, ecommType: null });
+  };
 
   const toggleFeature = (id) => {
     setFeatures(prev => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
+      persist({ features: next });
       return next;
     });
   };
 
-  const goTo = (s) => setStep(s);
-  const next = () => setStep(s => Math.min(s + 1, 4));
-  const back = () => setStep(s => Math.max(s - 1, 0));
-
-  const selectRegion = (v) => {
-    setRegion(v);
-    setAcquirerId(null);
+  const restart = () => {
+    setStep(0); setRegion(null); setPaymentMode(null); setEcommType(null);
+    setPathId(null); setAcquirerId(null); setFeatures(new Set());
+    saveSession({ step: 0, region: null, paymentMode: null, ecommType: null, pathId: null, acquirerId: null, features: new Set() });
+    syncNavbar('path', null); syncNavbar('acquirer', null);
   };
+
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <div className="integration-wizard">
-      <StepIndicator currentStep={step} />
+      <StepIndicator stepLabels={stepLabels} currentStep={step} onStepClick={goTo} />
 
       {/* ── STEP 0: Region ── */}
       {step === 0 && (
@@ -358,8 +672,31 @@ export default function IntegrationWizard() {
         </div>
       )}
 
-      {/* ── STEP 1: Integration Path ── */}
-      {step === 1 && (
+      {/* ── STEP 1 (EU only): Payment Type — Card Present vs eCommerce ── */}
+      {showPaymentTypeStep && (
+        <div className="wizard-step wizard-step--reveal">
+          <div className="wizard-step-label">How will your merchants accept payments?</div>
+          <div className="wizard-cards wizard-cards--usecase">
+            {PAYMENT_MODES.map(m => (
+              <div
+                key={m.value}
+                className={`wizard-card${paymentMode === m.value ? ' wizard-card--selected' : ''}${m.value === 'ecomm' ? ' wizard-card--ecomm' : ''}`}
+                onClick={() => { setPaymentMode(m.value); persist({ paymentMode: m.value }); next(); }}
+                role="button" tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && (setPaymentMode(m.value), persist({ paymentMode: m.value }), next())}
+              >
+                <div className="wizard-card__icon">{m.icon}</div>
+                <div className="wizard-card__title">{m.label}</div>
+                <div className="wizard-card__desc">{m.desc}</div>
+              </div>
+            ))}
+          </div>
+          <button className="wizard-back-btn" onClick={back}>← Back</button>
+        </div>
+      )}
+
+      {/* ── Integration Path (step 1 for US, step 2 for EU+CP) ── */}
+      {showIntegrationStep && (
         <div className="wizard-step wizard-step--reveal">
           <div className="wizard-step-label">How will your software integrate?</div>
           <div className="wizard-cards wizard-cards--usecase">
@@ -367,9 +704,9 @@ export default function IntegrationWizard() {
               <div
                 key={p.value}
                 className={`wizard-card${pathId === p.value ? ' wizard-card--selected' : ''}`}
-                onClick={() => { setPathId(p.value); next(); }}
+                onClick={() => { setPathId(p.value); persist({ pathId: p.value }); syncNavbar('path', p.value); next(); }}
                 role="button" tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && (setPathId(p.value), next())}
+                onKeyDown={e => e.key === 'Enter' && (setPathId(p.value), persist({ pathId: p.value }), syncNavbar('path', p.value), next())}
               >
                 <div className="wizard-card__icon">{p.icon}</div>
                 <div className="wizard-card__title">{p.label}</div>
@@ -381,8 +718,8 @@ export default function IntegrationWizard() {
         </div>
       )}
 
-      {/* ── STEP 2: Acquirer ── */}
-      {step === 2 && (
+      {/* ── Acquirer (step 2 for US, step 3 for EU+CP) ── */}
+      {showAcquirerStep && (
         <div className="wizard-step wizard-step--reveal">
           <div className="wizard-step-label">Which acquirer will you work with?</div>
           <div className="wizard-cards wizard-cards--acquirer">
@@ -390,9 +727,9 @@ export default function IntegrationWizard() {
               <div
                 key={a.id}
                 className={`wizard-card${acquirerId === a.id ? ' wizard-card--selected' : ''}`}
-                onClick={() => { setAcquirerId(a.id); next(); }}
+                onClick={() => { setAcquirerId(a.id); persist({ acquirerId: a.id }); syncNavbar('acquirer', a.id); next(); }}
                 role="button" tabIndex={0}
-                onKeyDown={e => e.key === 'Enter' && (setAcquirerId(a.id), next())}
+                onKeyDown={e => e.key === 'Enter' && (setAcquirerId(a.id), persist({ acquirerId: a.id }), syncNavbar('acquirer', a.id), next())}
               >
                 <div className="wizard-card__title">{a.name}</div>
                 <div className="wizard-card__desc">{a.subtitle}</div>
@@ -400,14 +737,40 @@ export default function IntegrationWizard() {
             ))}
           </div>
           <p className="wizard-footer-note">
-            Not sure which acquirer? <Link to="/reference/full-matrix">View the full capability matrix →</Link>
+            Not sure which acquirer? <Link to="/reference/full-matrix" target="_blank" rel="noopener noreferrer">View the full capability matrix →</Link>
           </p>
           <button className="wizard-back-btn" onClick={back}>← Back</button>
         </div>
       )}
 
-      {/* ── STEP 3: Features ── */}
-      {step === 3 && (
+      {/* ── eComm Setup — Hosted vs Direct (step 2 for EU+eComm) ── */}
+      {showECommSetupStep && (
+        <div className="wizard-step wizard-step--reveal">
+          <div className="wizard-step-label">How will your integration connect to the Commerce API?</div>
+          <p className="wizard-features-note">
+            Both options use the same <strong>Handpoint Commerce API</strong> endpoint. The difference is where card data is collected and who handles 3DS.
+          </p>
+          <div className="wizard-cards wizard-cards--usecase">
+            {ECOMM_TYPES.map(t => (
+              <div
+                key={t.value}
+                className={`wizard-card${ecommType === t.value ? ' wizard-card--selected' : ''}`}
+                onClick={() => { setEcommType(t.value); persist({ ecommType: t.value }); next(); }}
+                role="button" tabIndex={0}
+                onKeyDown={e => e.key === 'Enter' && (setEcommType(t.value), persist({ ecommType: t.value }), next())}
+              >
+                <div className="wizard-card__icon">{t.icon}</div>
+                <div className="wizard-card__title">{t.label}</div>
+                <div className="wizard-card__desc">{t.desc}</div>
+              </div>
+            ))}
+          </div>
+          <button className="wizard-back-btn" onClick={back}>← Back</button>
+        </div>
+      )}
+
+      {/* ── Features — Card Present path ── */}
+      {showFeaturesStep && isCP && (
         <div className="wizard-step wizard-step--reveal">
           <div className="wizard-step-label">Which payment features does your integration need?</div>
           <p className="wizard-features-note">
@@ -420,12 +783,50 @@ export default function IntegrationWizard() {
                 <span className="wizard-feature-group__icon">{group.icon}</span>
                 {group.label}
               </div>
+              {group.features
+                .filter(f => !f.region    || f.region === region)
+                .filter(f => !f.paths     || f.paths.includes(pathId))
+                .filter(f => !f.acquirers || f.acquirers.includes(acquirerId))
+                .filter(f => f.required   || isFeatureAvailableForAcquirer(f, acquirer))
+                .map(feature => (
+                  <FeatureRow
+                    key={feature.id}
+                    feature={feature}
+                    pathId={pathId}
+                    acquirer={acquirer}
+                    enabled={features.has(feature.id) || feature.required}
+                    onToggle={toggleFeature}
+                  />
+                ))}
+            </div>
+          ))}
+          <div className="wizard-step-nav">
+            <button className="wizard-back-btn" onClick={back}>← Back</button>
+            <button className="wizard-next-btn" onClick={next}>See your plan →</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Features — eCommerce path ── */}
+      {showFeaturesStep && isEComm && (
+        <div className="wizard-step wizard-step--reveal">
+          <div className="wizard-step-label">Which eCommerce features does your integration need?</div>
+          <p className="wizard-features-note">
+            Required items are always enabled.{' '}
+            {ecommType === 'hosted'
+              ? '3DS v2 and security handled automatically by Handpoint — no extra implementation needed.'
+              : 'Direct API requires 3DS v2 browser data collection and ACS redirect handling.'}
+          </p>
+          {ECOMM_FEATURE_GROUPS.map(group => (
+            <div key={group.id} className="wizard-feature-group">
+              <div className="wizard-feature-group__header">
+                <span className="wizard-feature-group__icon">{group.icon}</span>
+                {group.label}
+              </div>
               {group.features.map(feature => (
-                <FeatureRow
+                <EcommFeatureRow
                   key={feature.id}
                   feature={feature}
-                  pathId={pathId}
-                  acquirer={acquirer}
                   enabled={features.has(feature.id) || feature.required}
                   onToggle={toggleFeature}
                 />
@@ -439,12 +840,11 @@ export default function IntegrationWizard() {
         </div>
       )}
 
-      {/* ── STEP 4: Plan ── */}
-      {step === 4 && prereqs && (
+      {/* ── Plan — Card Present path ── */}
+      {showPlanStep && isCP && prereqs && (
         <div className="wizard-step wizard-step--reveal">
           <div className="wizard-step-label">Your integration plan</div>
 
-          {/* Summary chips */}
           <div className="wizard-plan-summary">
             <span className="wizard-plan-chip wizard-plan-chip--region">
               {REGIONS.find(r => r.value === region)?.flag} {REGIONS.find(r => r.value === region)?.label}
@@ -457,7 +857,6 @@ export default function IntegrationWizard() {
             </span>
           </div>
 
-          {/* Before you build */}
           <div className="wizard-plan-section-label">Before you build</div>
           <div className="wizard-nextsteps">
             <div className="wizard-nextstep-card">
@@ -478,14 +877,18 @@ export default function IntegrationWizard() {
             </div>
           </div>
 
-          {/* Validation tests */}
-          {getValidationTests(enabledFeatures).length > 0 && (
+          {getValidationTests(enabledFeatures, FEATURE_TESTS).length > 0 && (
             <>
               <div className="wizard-plan-section-label">Validation tests for certification</div>
               <div className="wizard-validation-list">
-                {getValidationTests(enabledFeatures).map(t => (
+                {getValidationTests(enabledFeatures, FEATURE_TESTS).map(t => (
                   <div key={t.label} className="wizard-validation-item">
                     <div className="wizard-validation-item__name">{t.label}</div>
+                    {t.tokenProviderNote && (
+                      <div className="wizard-validation-item__token-req">
+                        🔑 <strong>Token provider required:</strong> {t.tokenProviderNote}
+                      </div>
+                    )}
                     <div className="wizard-validation-item__desc">{t.test}</div>
                   </div>
                 ))}
@@ -493,15 +896,13 @@ export default function IntegrationWizard() {
             </>
           )}
 
-          {/* Doc links */}
           <div className="wizard-plan-section-label">Relevant documentation</div>
           <div className="wizard-doc-links">
-            {getDocLinks(pathId, enabledFeatures).map(l => (
+            {getCPDocLinks(pathId, enabledFeatures).map(l => (
               <Link key={l.to} className="wizard-doc-link" to={l.to}>{l.label} →</Link>
             ))}
           </div>
 
-          {/* Acquirer capabilities table */}
           {acquirer && (
             <>
               <div className="wizard-plan-section-label" style={{ marginTop: '36px' }}>
@@ -533,12 +934,76 @@ export default function IntegrationWizard() {
 
           <div className="wizard-step-nav" style={{ marginTop: '32px' }}>
             <button className="wizard-back-btn" onClick={back}>← Back</button>
-            <button className="wizard-restart-btn" onClick={() => { setStep(0); setRegion(null); setPathId(null); setAcquirerId(null); setFeatures(new Set()); }}>
-              Start over
-            </button>
+            <button className="wizard-restart-btn" onClick={restart}>Start over</button>
           </div>
         </div>
       )}
+
+      {/* ── Plan — eCommerce path ── */}
+      {showPlanStep && isEComm && ecommPrereqs && (
+        <div className="wizard-step wizard-step--reveal">
+          <div className="wizard-step-label">Your eCommerce integration plan</div>
+
+          <div className="wizard-plan-summary">
+            <span className="wizard-plan-chip wizard-plan-chip--region">
+              {REGIONS.find(r => r.value === region)?.flag} {REGIONS.find(r => r.value === region)?.label}
+            </span>
+            <span className="wizard-plan-chip wizard-plan-chip--path">
+              {ECOMM_TYPES.find(t => t.value === ecommType)?.icon} {ECOMM_TYPES.find(t => t.value === ecommType)?.label}
+            </span>
+            <span className="wizard-plan-chip wizard-plan-chip--ecomm">
+              🌐 Commerce API
+            </span>
+          </div>
+
+          <div className="wizard-plan-section-label">Before you build</div>
+          <div className="wizard-nextsteps">
+            <div className="wizard-nextstep-card">
+              <div className="wizard-nextstep-card__title">🔐 Authentication & signing</div>
+              <ul className="wizard-nextstep-card__list">
+                {ecommPrereqs.auth.map((p, i) => <li key={i}>{p}</li>)}
+              </ul>
+              <Link className="wizard-nextstep-card__link" to={ecommPrereqs.authLink}>Authentication guide →</Link>
+            </div>
+            <div className="wizard-nextstep-card">
+              <div className="wizard-nextstep-card__title">⚙️ Integration setup</div>
+              <ul className="wizard-nextstep-card__list">
+                {ecommPrereqs.setup.map((p, i) => <li key={i}>{p}</li>)}
+              </ul>
+              <Link className="wizard-nextstep-card__link" to={ecommPrereqs.setupLink}>
+                {ecommType === 'hosted' ? 'Hosted integration guide' : 'Direct API guide'} →
+              </Link>
+            </div>
+          </div>
+
+          {getValidationTests(enabledFeatures, ECOMM_FEATURE_TESTS).length > 0 && (
+            <>
+              <div className="wizard-plan-section-label">Validation tests for certification</div>
+              <div className="wizard-validation-list">
+                {getValidationTests(enabledFeatures, ECOMM_FEATURE_TESTS).map(t => (
+                  <div key={t.label} className="wizard-validation-item">
+                    <div className="wizard-validation-item__name">{t.label}</div>
+                    <div className="wizard-validation-item__desc">{t.test}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          <div className="wizard-plan-section-label">Relevant documentation</div>
+          <div className="wizard-doc-links">
+            {getEcommDocLinks(ecommType, enabledFeatures).map(l => (
+              <Link key={l.to} className="wizard-doc-link" to={l.to}>{l.label} →</Link>
+            ))}
+          </div>
+
+          <div className="wizard-step-nav" style={{ marginTop: '32px' }}>
+            <button className="wizard-back-btn" onClick={back}>← Back</button>
+            <button className="wizard-restart-btn" onClick={restart}>Start over</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

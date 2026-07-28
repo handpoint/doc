@@ -49,6 +49,7 @@ const config = {
           { type: 'docSidebar', sidebarId: 'acquirersSidebar', label: 'Functionalities', position: 'left' },
           { type: 'docSidebar', sidebarId: 'referenceSidebar', label: 'Reference', position: 'left' },
           { type: 'docSidebar', sidebarId: 'releaseNotesSidebar', label: 'Release Notes', position: 'left' },
+          { type: 'custom-VersionToggle', position: 'right' },
         ],
       },
       prism: {
