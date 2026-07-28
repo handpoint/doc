@@ -1376,6 +1376,10 @@ curl -X GET \
 
 This endpoint allows to Cancel/Void/Reverse a previous transaction without a reader.
 
+:::info
+Note that any reversal using this endpoint will be associated in Analytics to the original device, and this transaction won't show in the Handpoint Payments App (since it's not processed by the App in the Payment Device)
+:::
+
 **Parameters**
 
 | Parameter      | Notes |
@@ -1930,6 +1934,30 @@ curl -X POST \
 **Responses**
 
 <Tabs>
+<TabItem value="200" label="200 OK">
+
+```json
+{
+    "@type": "sale",
+    "httpStatus": 200,
+    "acquirerTid": "VT000000023751",
+    "amount": "20.00",
+    "approvalCode": "TAS075",
+    "batchNumber": "1",
+    "cardTypeName": "MASTERCARD",
+    "currency": "USD",
+    "expiryDateMMYY": "1225",
+    "guid": "65289350-631f-11f1-9e88-671da9fb0fb7",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "APPROVAL",
+    "maskedCardNumber": "************5439",
+    "serverDateTime": "20260608094951749",
+    "terminalDateTime": "20260608094951000"
+}
+```
+
+</TabItem>
+
 <TabItem value="400-cvv" label="400 CVV required (3107)">
 
 ```json
@@ -2060,6 +2088,31 @@ curl -X POST \
 **Responses**
 
 <Tabs>
+<TabItem value="200" label="200 OK">
+
+```json
+{
+    "@type": "refund",
+    "httpStatus": 200,
+    "acquirerTid": "123456789",
+    "amount": "11.00",
+    "approvalCode": "123456",
+    "cardTypeName": "Visa",
+    "currency": "EUR",
+    "expiryDateMMYY": "0529",
+    "guid": "ad16fbc0-8764-11f1-a47e-6df6451d705a",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "Approved or completed successfully",
+    "maskedCardNumber": "************1234",
+    "serverDateTime": "20260724133629564",
+    "terminalDateTime": "20260724133629000",
+    "transactionReference": "941d6f18-a65e-4f9e-bca3-9f4423bc4a9b",
+    "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"
+}
+```
+
+</TabItem>
+
 <TabItem value="400-currency" label="400 Currency mismatch (3210)">
 
 ```json
@@ -2132,7 +2185,6 @@ Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for f
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
 * `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00). Must be a positive integer string.
 * `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
-* Optional merchant references: `customerReference`, `transactionReference`.
 
 #### Returns
 

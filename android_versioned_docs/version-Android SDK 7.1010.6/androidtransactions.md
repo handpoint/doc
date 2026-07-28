@@ -1334,7 +1334,7 @@ The **`tokenizedOperation`** method allows integrators to provide a specific ope
 
 ---
 
-## Cloud Tokenized Payments Operations
+## Cloud Tokenized Payments Operations{#cloudTokenizedPaymentsOperations}
 
 `cloudTokenizedPaymentsOperations`
 
