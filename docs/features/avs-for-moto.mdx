@@ -5,9 +5,6 @@ sidebar_label: "AVS for MOTO"
 description: "Attach the cardholder's billing address to a MOTO transaction so the acquirer can use it during authorization."
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
 # AVS for MOTO
 
 Attach the cardholder's billing address to a MOTO Sale, Pre-Authorization, or Refund, so the acquirer can use it during authorization.
@@ -20,10 +17,10 @@ Available via **Android SDK** and **Cloud API**. For now, only on **TSYS**.
 
 MOTO transactions carry more fraud risk than card-present ones — there's no chip, no PIN, no physical card to inspect. Address Verification Service (AVS) is the acquirer's way of checking a piece of the cardholder's billing information against what the issuer has on file for that card, alongside the card number and CVV. It's one of the standard risk signals issuers and acquirers use when deciding whether to approve a MOTO transaction, on top of the usual authorization checks.
 
-This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request. What the acquirer and issuer do with it, and whether it affects the approve/decline decision, happens entirely on their side — the SDK and API don't surface that back to you today.
+This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request. The issuer/acquirer checks it and returns an AVS result as part of the transaction response — see [What comes back](#what-comes-back).
 
-:::caution No match result today
-Sending billing data doesn't produce a result you can branch on — there's no address-match field in the response yet. See [What comes back](#what-comes-back) before building any logic against it.
+:::caution Response field pending confirmation
+The AVS result is included in the issuer/acquirer response, but the exact field name and possible values in the SDK/API response haven't been confirmed yet. This page will be updated once confirmed — don't build decision logic against a specific field/value until then.
 :::
 
 AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't apply to card-present transactions, and MOTO must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
@@ -37,14 +34,14 @@ AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't app
 
 ## Configuration
 
-AVS availability is driven by a Console parameter.
+AVS for MOTO is enabled per merchant on the backend by Handpoint — there's no self-service toggle for it today.
 
-| Key | Type | Access | Description |
-|---|---|---|---|
-| `avsForMoto` | boolean | read-only | "AVS for MOTO" in the Console parameter catalog. Default `false`. Requires `motoEnabled = true`. This is the Console-side name only — the native SDK reads the same setting under a different key, `"AVS"` (see [Code](#code)). |
+| Key | Type | Description |
+|---|---|---|
+| `avsForMoto` | boolean | Internal flag Handpoint sets per merchant. Default `false`. Requires `motoEnabled = true`. The native SDK reads the same setting under a different key, `"AVS"` (see [Code](#code)). |
 
 :::note
-Read-only from the ISV side — the Console UI doesn't support changing it yourself, so treat the value as configured by Handpoint rather than something your integration sets. Read it to adapt your own UI (for example, hide billing fields when AVS isn't enabled), but don't build a settings screen around it. It doesn't control the on-device prompt — that's `enableAvsFields`, set per transaction.
+You can't set this yourself — it's configured by Handpoint on the backend. Read it (via the SDK key `"AVS"`) to adapt your own UI, for example hiding billing fields when AVS isn't enabled for the merchant. It doesn't control the on-device prompt — that's `enableAvsFields`, set per transaction.
 :::
 
 ## Handling cardholder data
@@ -66,129 +63,20 @@ This applies to Sale and Pre-Authorization only — Refund never shows the on-de
 
 ## Code
 
+Code samples live with the rest of the MOTO implementation for each integration path, not here:
+
+- **Android SDK** — see [MOTO on the TSYS page](/acquirers/tsys#moto-mail-order--telephone-order), Android (PAX) tab, for how to attach `Billing` and use `enableAvsFields`.
+- **Cloud API** — see the same [MOTO section](/acquirers/tsys#moto-mail-order--telephone-order), Cloud API tab, for the `billing` payload shape.
+
 :::caution Pending SDK verification
-The Android SDK samples below (`Billing`, `enableAvsFields`, `MoToOptions.billing`) are transcribed from the AVS integration guide draft and haven't been cross-checked against the `hapi-android` source. Every other MOTO sample in this repo only shows `hapi.motoSale(BigInteger, Currency)` — `motoPreauthorization` and `motoRefund` as separate methods, and a `billing` field on `MoToOptions`, have no precedent elsewhere in this codebase. Confirm the real method names, parameter types, and `MoToOptions` fields against the `hapi-android` source before an integrator relies on this section.
+Those samples are transcribed from the AVS integration guide draft and haven't been cross-checked against the `hapi-android` source. The only other MOTO sample in this repo shows `hapi.motoSale(BigInteger, Currency)` for Sale only — `motoPreauthorization` and `motoRefund` as separate methods, and a `billing` field on `MoToOptions`, have no precedent elsewhere in this codebase. Confirm the real method names, parameter types, and `MoToOptions` fields against the `hapi-android` source before an integrator relies on them.
 :::
-
-<Tabs groupId="integration-path">
-<TabItem value="android-pax" label="Android SDK">
-
-Build the `Billing` object:
-
-```kotlin
-val billing = Billing(
-    zipCode = customerZipCode,   // e.g. "10001" — required
-    address = customerAddress    // e.g. "123 Main St" — optional
-)
-```
-
-Leaving `billing` unset on `MoToOptions` is safe — it just means no billing data is attached to this transaction.
-
-Attach it to the operation you're calling:
-
-```kotlin
-// Sale
-val options = MoToOptions().apply { this.billing = billing }
-hapi.motoSale(amount, currency, options)
-
-// Pre-Authorization
-val options = MoToOptions().apply { this.billing = billing }
-hapi.motoPreauthorization(amount, currency, options)
-
-// Refund
-val options = MoToOptions().apply { this.billing = billing }
-hapi.motoRefund(amount, currency, originalTransactionId, options)
-```
-
-Or, to have the terminal ask for it instead of collecting it yourself:
-
-```kotlin
-val options = MoToOptions().apply {
-    enableAvsFields = true   // ignored if billing is already set above
-}
-hapi.motoSale(amount, currency, options)
-```
-
-:::note
-The on-device prompt appears only when `enableAvsFields` is `true` **and** `billing` is unset on the same `MoToOptions` — it doesn't depend on the `avsForMoto` / `"AVS"` Console parameter. If you set `billing` yourself, your values are used as-is and the prompt never appears.
-:::
-
-Optionally read the Console flag for your own UI logic (this doesn't control the prompt):
-
-```kotlin
-val avsEnabled = try {
-    configurationManager[configurationManager.getBooleanKey("AVS")]
-} catch (e: ConfigurationNotFoundException) {
-    false
-}
-```
-
-If you read it, keep it in sync with remote Console changes:
-
-```kotlin
-override fun newConfiguration(newValues: List<ConfigurationKeyValuePair<Any>>) {
-    if (newValues.any { it.key.name == "AVS" }) {
-        avsEnabled = configurationManager[configurationManager.getBooleanKey("AVS")]
-    }
-}
-```
-
-</TabItem>
-<TabItem value="cloud-api" label="Cloud API">
-
-Attach a `billing` object to the transaction payload. The same shape applies to `moToSale`, `moToRefund`, and `moToPreAuthorization`:
-
-```json
-POST https://cloud.handpoint.com/transactions
-{
-  "operation": "moToSale",
-  "serial_number": "2740013262",
-  "terminal_type": "PAXA920",
-  "amount": "322",
-  "currency": "USD",
-  "billing": {
-    "zipCode": "10001",
-    "address": "123 Main St"
-  }
-}
-```
-
-`zipCode` is the same field name on both the native SDK and the Cloud API payload.
-
-The request also accepts a top-level `enableAvsFields` boolean, mirroring the native SDK:
-
-```json
-POST https://cloud.handpoint.com/transactions
-{
-  "operation": "moToSale",
-  "serial_number": "2740013262",
-  "terminal_type": "PAXA920",
-  "amount": "322",
-  "currency": "USD",
-  "enableAvsFields": true
-}
-```
-
-:::note
-`enableAvsFields` triggers an on-device dialog on the native SDK — there's no device screen to show it on in a pure Cloud API integration, so its effect here isn't defined. Don't depend on it outside the native SDK flow.
-:::
-
-</TabItem>
-</Tabs>
 
 ## What comes back
 
-`TransactionResult` doesn't expose an address-match result — sending billing data doesn't add a field to branch on. The approve/decline outcome arrives the same way it does for any other MOTO transaction, on both the native SDK and Cloud API.
+The issuer/acquirer response for a MOTO transaction with billing data attached includes an AVS result, alongside the usual approve/decline outcome. The exact field name and possible values in `TransactionResult` and the REST response are being confirmed — this section will be updated with the real field and a code sample once that's settled.
 
-```kotlin
-// Inside your HapiEventHandler.transactionResultReady callback
-override fun transactionResultReady(result: TransactionResult, device: Device) {
-    // result reflects the usual approve/decline outcome.
-    // there is no address-match field to read here.
-}
-```
-
-Don't build decision logic against a match result — it doesn't exist in the response today.
+Until then, don't build decision logic against a specific field or value.
 
 ## Edge cases
 
@@ -197,7 +85,7 @@ Don't build decision logic against a match result — it doesn't exist in the re
 | `billing` is null / omitted | Transaction proceeds normally, no billing data sent. |
 | `zipCode` omitted, `address` supplied | Not a supported combination — `zipCode` is required whenever you construct a `Billing` object. |
 | `address` omitted, `zipCode` supplied | Valid — `address` is optional. |
-| `billing` supplied, AVS not enabled for the merchant | No special handling — the SDK forwards whatever billing you set regardless of this Console parameter (verified in `MoToRequestFactory`: billing is sent whenever it's present, with no check against `avsForMoto`). The parameter only matters if you choose to read it for your own UI logic — see the Android SDK sample under [Code](#code). |
+| `billing` supplied, AVS not enabled for the merchant | No special handling — the SDK forwards whatever billing you set regardless of this flag (verified in `MoToRequestFactory`: billing is sent whenever it's present, with no check against `avsForMoto`). The flag only matters if you choose to read it for your own UI logic — see [Code](#code). |
 | MOTO Refund with no billing set | Transaction proceeds without billing data. MOTO Refund has no on-device prompt under any circumstance, regardless of `enableAvsFields` — collect and set `billing` yourself if you need it on a refund. |
 | `enableAvsFields = true` but `billing` already set (native SDK) | The on-device prompt is suppressed — your billing values are used as-is. |
 
@@ -208,6 +96,6 @@ Store the following locally. Don't persist the raw billing address in clear text
 | Field to store | Source | Notes |
 |---|---|---|
 | `originalTransactionId` | `TransactionResult.transactionId` / API transaction id | Needed to link any later void or refund. |
-| `billingSent` | Whether you set billing on this transaction | Your own local flag — useful for reconciliation, since no result comes back today. |
+| `billingSent` | Whether you set billing on this transaction | Your own local flag — useful for reconciliation alongside the AVS result field, once its exact shape is confirmed. |
 | `billingZipCode` (optional) | Your local variable at transaction time | Store only what your reconciliation process needs. |
 | `billingAddress` | Not stored in clear text | Mask, truncate, or omit per your data retention policy. |
