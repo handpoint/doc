@@ -113,8 +113,11 @@ hapi.motoPreauthorization(BigInteger("1000"), Currency.USD)
 // Refund — no terminal interaction, submitted via token
 hapi.motoRefund(BigInteger("1000"), Currency.USD, originalTransactionId)
 
-// Reversal — no amount or currency required
+// Reversal — no amount or currency (voids full original amount)
 hapi.motoReversal(originalTransactionId)
+
+// Reversal with partial amount (SDK 7.1012.1+ only — amount and currency as strings)
+hapi.motoReversal("500", "USD", originalTransactionId)
 ```
 
 **Back-office** — card token via `MoToOptions`, no terminal entry:
