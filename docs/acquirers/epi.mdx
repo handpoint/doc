@@ -1066,6 +1066,71 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ### Testing
 Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).
 
+### Address Verification Service (AVS)
+
+EPI supports optional billing address verification on MOTO Sale, Pre-Authorization, and Refund — Android SDK (PAX) 7.1014.0+ and Cloud API. See [AVS for MOTO](/features/avs-for-moto) for full details on prerequisites, data handling, and edge cases.
+
+**Two ways to supply billing data — mutually exclusive per request:**
+
+| Method | When to use |
+|---|---|
+| Pass `Billing` programmatically | You collect postal code / address in your own UI |
+| Set `enableAvsFields = true` | Let the terminal prompt the cardholder for billing data |
+
+**Android SDK (PAX) — requires 7.1014.0 or later:**
+
+```kotlin
+// Programmatic — pass billing data you collected
+val billing = Billing(
+    zipCode = customerZipCode,   // required
+    address = customerAddress    // optional
+)
+val options = MoToOptions().apply { this.billing = billing }
+hapi.motoSale(amount, currency, options)
+
+// On-device prompt — terminal asks the cardholder for billing data
+val options = MoToOptions().apply { enableAvsFields = true }
+hapi.motoSale(amount, currency, options)
+```
+
+`billing` and `enableAvsFields` work the same way on `motoPreauthorization()` and `motoRefund()`. On Refund there is no on-device prompt — pass `billing` programmatically if needed.
+
+**Cloud API:**
+
+```json
+POST https://cloud.handpoint.com/transactions
+{
+  "operation": "moToSale",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "amount": "1000",
+  "currency": "USD",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+Or trigger an on-device entry dialog:
+
+```json
+{
+  "operation": "moToSale",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "amount": "1000",
+  "currency": "USD",
+  "enableAvsFields": true
+}
+```
+
+:::note `enableAvsFields` on Cloud API
+This triggers an on-device dialog on the PAX terminal (PAX-integrated mode only). It has no effect on back-office MOTO requests that go directly to `/moto/sale`.
+:::
+
+The AVS result is included in the authorization response alongside the standard approve/decline outcome.
+
 ## Tokenization
 
 ### What this does

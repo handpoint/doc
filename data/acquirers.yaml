@@ -81,6 +81,13 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+      avs-for-moto:
+        # EPI only. Android SDK 7.1014.0+; Cloud API.
+        # Not a Functionalities capability row — no entry in CAPABILITY_LABELS.
+        # Consumed by generate-acquirer-pages.js to inject the AVS callout in moto.mdx.
+        # Full detail: docs/features/avs-for-moto.mdx
+        cloud-api: public
+        android-pax: public
   tsys-tns:
     name: "PAYSAFE + Interac"
     geography: "Canada"

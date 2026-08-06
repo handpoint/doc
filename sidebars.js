@@ -51,6 +51,17 @@ const sidebars = {
     },
   ],
 
+  featuresSidebar: [
+    {
+      type: 'category',
+      label: 'Features',
+      collapsible: false,
+      items: [
+        'features/avs-for-moto',
+      ],
+    },
+  ],
+
   referenceSidebar: [
     {
       type: 'category',

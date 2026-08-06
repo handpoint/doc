@@ -1,0 +1,75 @@
+---
+id: avs-for-moto
+title: "AVS for MOTO"
+sidebar_label: "AVS for MOTO"
+description: "Attach the cardholder's billing address to a MOTO transaction so the acquirer can use it during authorization."
+---
+
+# AVS for MOTO
+
+Attach the cardholder's billing address to a MOTO Sale, Pre-Authorization, or Refund, so the acquirer can use it during authorization.
+
+:::info Availability
+Available via **Android SDK (PAX)** (7.1014.0 or later) and **Cloud API**. Currently only on **EPI**.
+:::
+
+## Overview
+
+MOTO transactions carry more fraud risk than card-present ones — there's no chip, no PIN, no physical card to inspect. Address Verification Service (AVS) is the acquirer's way of checking a piece of the cardholder's billing information against what the issuer has on file for that card, alongside the card number and CVV. It's one of the standard risk signals issuers and acquirers use when deciding whether to approve a MOTO transaction.
+
+This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request.
+
+The AVS result is included in the authorization response — the acquirer returns a result code indicating whether the postal code and/or street address matched the cardholder's records with their issuer.
+
+AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't apply to card-present transactions, and MOTO must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
+
+## Prerequisites
+
+- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for `Billing`, `zipCode`, and `address` on MOTO.
+- A more recent SDK release for the on-device prompt opt-in (`enableAvsFields` on `MoToOptions`) — pin to the latest release rather than 7.1014.0 if you need it.
+- MOTO enabled for the merchant (`motoEnabled = true`), regardless of who supplies the billing data.
+- Cloud API integrations target `POST /transactions` with `operation=moToSale`, `moToRefund`, or `moToPreAuthorization`.
+
+## Handling cardholder data
+
+:::note
+The billing address is personal data — don't store it in clear text or write it to application logs (mask or truncate if you display it). The postal code isn't subject to the same restriction and can be logged. Apply your own retention policy and don't keep it longer than necessary.
+:::
+
+## Collecting the billing address
+
+Two ways to get `zipCode` / `address`, mutually exclusive on the same request:
+
+| If you… | Do this |
+|---|---|
+| Have your own billing screen | Collect `zipCode` / `address` yourself and pass them via `Billing`. |
+| Don't want to build one | Set `enableAvsFields = true` and leave `billing` unset. The native card-entry screen asks for billing data before sending the transaction. |
+
+This applies to Sale and Pre-Authorization only — Refund never shows the on-device prompt, so set `billing` programmatically if you want it on a refund.
+
+## Code
+
+Implementation examples are in the [EPI — Address Verification Service (AVS)](/acquirers/epi#address-verification-service-avs) section, organized by integration path (Android SDK and Cloud API).
+
+## What comes back
+
+The authorization response includes an AVS result code from the acquirer alongside the standard approve/decline outcome. The result reflects whether the postal code and/or street address matched the issuer's records on file for the card. Refer to the Android SDK 7.1014.0 release notes for the specific field name in `TransactionResult`.
+
+## Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| `billing` is null / omitted | Transaction proceeds normally, no billing data sent. |
+| `zipCode` omitted, `address` supplied | Not a supported combination — `zipCode` is required whenever you construct a `Billing` object. |
+| `address` omitted, `zipCode` supplied | Valid — `address` is optional. |
+| MOTO Refund with no billing set | Transaction proceeds without billing data. MOTO Refund has no on-device prompt — pass `billing` programmatically if needed. |
+| `enableAvsFields = true` but `billing` already set (Android SDK) | The on-device prompt is suppressed — your billing values are used as-is. |
+
+## What to persist after a transaction
+
+| Field to store | Source | Notes |
+|---|---|---|
+| `originalTransactionId` | `TransactionResult.transactionId` | Needed to link any later void or refund. |
+| `billingSent` | Whether you set billing on this transaction | Your own local flag — useful for reconciliation. |
+| `billingZipCode` (optional) | Your local variable at transaction time | Store only what your reconciliation process needs. |
+| `billingAddress` | Not stored in clear text | Mask, truncate, or omit per your data retention policy. |
