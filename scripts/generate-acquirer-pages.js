@@ -121,7 +121,7 @@ function buildPage(slug, a) {
         if (avsCaps && isVisible(avsCaps)) {
           const supportedPaths = PATHS.filter(p => avsCaps[p] === 'public' || avsCaps[p] === 'coming-soon');
           const pathLabels = supportedPaths.map(p => PATH_LABELS[p]).join(' and ');
-          avsNote = `### AVS\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on ${pathLabels} only, for now.\n\nTurning it on for a merchant requires the \`avsForMoto\` Console parameter (read-only from the ISV side, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).\n:::\n`;
+          avsNote = `### Address Verification Service (AVS)\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on ${pathLabels} only, for now.\n\nTurning it on for a merchant requires the \`avsForMoto\` Console parameter (read-only from the ISV side, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).\n:::\n`;
         }
         content = content.replace('{/* AVS_FOR_MOTO_INJECTION_POINT */}', avsNote);
       }
