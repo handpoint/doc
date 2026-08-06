@@ -2,18 +2,17 @@
 
 Adjusts the held amount on an open pre-authorization before capture.
 
-**When to use:** When the expected final charge has changed after the initial hold was placed — for example, a hotel stay is extended (increase) or a car rental is returned early (decrease). Send before capture. Decrease is a partial release of the hold; increase raises the held amount (subject to acquirer support).
+**When to use:** When the expected final charge has changed after the initial hold was placed — for example, a hotel stay is extended (increase) or a car rental is returned early (decrease). Send before capture.
 
 **Implementation notes:**
-1. The adjustment amount replaces the held amount — it is not added to it. Send the new total you want held.
+1. `increaseAmount` is the **delta** — the amount to add to (or subtract from) the current hold, not the new total. To raise a $100 hold to $120, send `"increaseAmount": "20.00"`. To lower it to $80, send `"increaseAmount": "20.00"` with `"subtract": "1"`.
 2. Increase above the original amount is subject to acquirer and issuer limits. Check the acquirer capabilities matrix.
-3. Decrease is widely supported. Increase support varies — confirm with your acquirer before implementing.
-4. The `originalTransactionID` must be the `transactionID` from the pre-auth create result.
+3. The `originalTransactionID` must be the `transactionID` from the pre-auth create result.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-**Increase:**
+**Increase** — add to the current hold:
 ```http
 POST https://cloud.handpoint.com/preauthorization/increase
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -21,45 +20,41 @@ Content-Type: application/json
 
 {
   "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "amount": "12000"
+  "increaseAmount": "20.00"
 }
 ```
 
-**Decrease:**
+**Decrease** — subtract from the current hold by adding `subtract: "1"`:
 ```http
-POST https://cloud.handpoint.com/preauthorization/decrease
+POST https://cloud.handpoint.com/preauthorization/increase
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
   "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "amount": "8000"
+  "increaseAmount": "20.00",
+  "subtract": "1"
 }
 ```
 
-`amount` is the new total held amount in smallest currency unit. `originalGuid` is the `transactionID` from the pre-auth create result.
+Both operations use the same endpoint. `increaseAmount` is the delta in major units (decimal string). `originalGuid` is the `transactionID` from the pre-auth create result.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-// Increase or decrease the held amount by sending the new target amount
 hapi.preAuthorizationIncrease(
-    BigInteger("12000"),   // new held amount
+    BigInteger("2000"),   // delta amount in minor units
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
 )
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
-        // hold adjusted — new amount is now held
+        // hold adjusted
     }
 }
 ```
-
-:::note
-The Android SDK exposes `preAuthorizationIncrease()` for both increases and decreases. Pass the new intended hold amount — the SDK and gateway determine whether it is an increase or decrease relative to the current hold.
-:::
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
@@ -79,33 +74,36 @@ The Android SDK exposes `preAuthorizationIncrease()` for both increases and decr
 </TabItem>
 </Tabs>
 
-**Cloud API** — `POST /preauthorization/increase` and `POST /preauthorization/decrease`:
+**Cloud API** — `POST /preauthorization/increase`:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-auth create result |
-| `amount` | string | Yes | New held amount in smallest currency unit as a string |
+| `increaseAmount` | string | Yes | Delta amount in major units as a decimal string, e.g. `"20.00"` |
+| `subtract` | string | No | Pass `"1"` to subtract the delta (decrease the hold) instead of adding it |
+| `tipAmount` | string | No | Tip amount to add, in major units as a decimal string, e.g. `"2.00"` |
+| `customerReference` | string | No | Integrator-defined reference forwarded as-is to the gateway |
 
 **Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID)`:
 
 | Parameter | Type | Description |
 |---|---|---|
-| `amount` | `BigInteger` | New target held amount in minor currency units |
+| `amount` | `BigInteger` | Delta amount in minor currency units |
 | `currency` | `Currency` | Currency of the original pre-authorization |
 | `originalTransactionID` | `String` | `transactionID` from the pre-auth create result |
 
 ### Errors
 
-**Cloud API (`POST /preauthorization/increase` and `POST /preauthorization/decrease`)** — synchronous:
+**Cloud API (`POST /preauthorization/increase`)** — synchronous:
 
 | HTTP | `code` | `message` | Meaning | What to do |
 |---|---|---|---|---|
-| `400` | `5001` | `NullPointerException` | `originalGuid` not found | Verify the GUID is the `transactionID` from the pre-auth create result. Code `5001` for these endpoints always means the original transaction was not found |
+| `400` | `5001` | `NullPointerException` | `originalGuid` not found | Verify the GUID is the `transactionID` from the pre-auth create result. Code `5001` for this endpoint always means the original transaction was not found |
 | `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
-| `422` | `VALIDATION_FAILED` | Missing or wrong field name | For increase, the field is `increaseAmount` (not `amount`). For decrease, use `decreaseAmount` | See `details` array in response for the specific missing property |
+| `422` | `VALIDATION_FAILED` | Missing or wrong field name | The required field is `increaseAmount`, not `amount` | See `details` array in response for the specific missing property |
 
-:::note Field names
-The `POST /preauthorization/increase` endpoint requires `increaseAmount`, not `amount`. Sending `amount` results in a `422 VALIDATION_FAILED` error.
+:::note
+`increaseAmount` is required for both increase and decrease operations. Sending `amount` results in a `422 VALIDATION_FAILED` error. To decrease, send `increaseAmount` with `subtract: "1"`.
 :::
 
 ### Testing
@@ -115,16 +113,16 @@ The `POST /preauthorization/increase` endpoint requires `increaseAmount`, not `a
 
 | Scenario | How to trigger |
 |---|---|
-| Increase | Create pre-auth → `POST /preauthorization/increase` with larger amount — verify new hold amount |
-| Decrease | Create pre-auth → `POST /preauthorization/decrease` with smaller amount — verify reduced hold |
-| Capture after adjustment | Increase/decrease → capture — verify settled amount matches adjusted amount |
+| Increase | Create pre-auth → `POST /preauthorization/increase` with `increaseAmount` delta — verify new hold amount |
+| Decrease | Same endpoint, add `"subtract": "1"` — verify reduced hold |
+| Capture after adjustment | Increase/decrease → capture — verify settled amount matches adjusted total |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 | Scenario | How to trigger |
 |---|---|
-| Adjust | `hapi.preAuthorizationIncrease(newAmount, currency, originalTransactionID)` — verify `AUTHORISED` |
+| Adjust | `hapi.preAuthorizationIncrease(deltaAmount, currency, originalTransactionID)` — verify `AUTHORISED` |
 | Capture after adjust | Adjust → `hapi.preAuthorizationCapture()` — verify settled = adjusted amount |
 
 </TabItem>

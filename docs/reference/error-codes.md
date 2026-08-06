@@ -37,7 +37,9 @@ description: Error codes returned by the Handpoint API and SDK, with recovery gu
 | `5001` | `NullPointerException` | `originalGuid` not found (internal error surfaced for unknown GUIDs on these endpoints) | Verify the GUID is the `transactionID` from the pre-auth create result |
 
 :::note
-For `/preauthorization/increase`, the field must be `increaseAmount` (not `amount`). Sending `amount` results in a `422 VALIDATION_FAILED` error with `details[].info.missingProperty: "increaseAmount"`.
+`POST /preauthorization/increase` handles both increases and decreases. To decrease, include `"subtract": "1"` in the request body — there is no separate `/preauthorization/decrease` endpoint.
+
+The amount field is `increaseAmount` (not `amount`) and takes a decimal major-unit string (e.g. `"20.00"`). Sending `amount` results in a `422 VALIDATION_FAILED` error with `details[].info.missingProperty: "increaseAmount"`.
 :::
 
 ## Transaction result `finStatus` values — with-reader operations
