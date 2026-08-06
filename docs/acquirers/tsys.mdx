@@ -1020,10 +1020,6 @@ Content-Type: application/json
 
 `zipCode` is required whenever you include `billing`; `address` is optional. See [AVS for MOTO](/features/avs-for-moto) for enablement, the on-device prompt alternative (`enableAvsFields`), edge cases, and what to persist.
 
-:::caution Pending SDK verification
-Whether this same shape applies to MOTO back-office, `moToRefund`, or `moToPreAuthorization` hasn't been confirmed — those operations have no precedent for a `billing` field anywhere in this repo.
-:::
-
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
@@ -1061,10 +1057,6 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ```
 
 See [AVS for MOTO](/features/avs-for-moto) for enablement, edge cases, and what to persist.
-
-:::caution Pending SDK verification
-This uses `hapi.motoSale(BigInteger, Currency, MoToOptions)` with a `billing`/`enableAvsFields` field on `MoToOptions` that has no other precedent in this repo. Confirm against the real `hapi-android` source before relying on it.
-:::
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">

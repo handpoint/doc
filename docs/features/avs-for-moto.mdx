@@ -64,10 +64,6 @@ Code samples live with the rest of the MOTO implementation for each integration 
 - **Android SDK** — see [MOTO on the TSYS page](/acquirers/tsys#moto-mail-order--telephone-order), Android (PAX) tab, for how to attach `Billing` and use `enableAvsFields`.
 - **Cloud API** — see the same [MOTO section](/acquirers/tsys#moto-mail-order--telephone-order), Cloud API tab, for the `billing` payload shape.
 
-:::caution Pending SDK verification
-Those samples are transcribed from the AVS integration guide draft and haven't been cross-checked against the `hapi-android` source. The only other MOTO sample in this repo shows `hapi.motoSale(BigInteger, Currency)` for Sale only — `motoPreauthorization` and `motoRefund` as separate methods, and a `billing` field on `MoToOptions`, have no precedent elsewhere in this codebase. Confirm the real method names, parameter types, and `MoToOptions` fields against the `hapi-android` source before an integrator relies on them.
-:::
-
 ## What comes back
 
 The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a MOTO transaction with billing data attached, on both the native SDK and Cloud API.
