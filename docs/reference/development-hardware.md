@@ -25,7 +25,7 @@ PAX production firmware **rejects unsigned APKs**. A debug device accepts unsign
 
 :::info PAX debug vs production devices
 See the full guide on debug terminal injection and behaviour differences:
-[Manual Injection — PAX Debug Terminals (ONLY)](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5349212162/Manual+Injection+PAX+Debug+Terminals+ONLY)
+[Manual Injection — PAX Debug Terminals](/reference/manual-injection)
 :::
 
 :::caution
@@ -58,46 +58,72 @@ Cordova wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). Hardwa
 
 ## Testing with trigger amounts {#trigger-amounts}
 
-When testing against the **TEST/DEMO merchant** (HiLite devices) or a PAX device on the **staging environment**, use the following amounts (in **minor units** — cents/pence) to simulate specific gateway responses.
+When testing against the **TEST/DEMO merchant** (HiLite devices) or a PAX device on the **staging environment**, use the following amounts (in **minor units** — cents/pence) to simulate specific gateway responses. These are powered by **Viscus-Dummy**, the Handpoint mock server used in staging.
 
-### Tip Adjustment
-
-| Amount | Gateway response |
-|---|---|
-| `3784` | Issuer response code 05 — Not authorized |
-| `3768` | Request timeout |
+All other amounts process as approved transactions.
 
 ### General transaction behaviour
 
-| Amount | Gateway response |
+| Amount | Behaviour | HTTP status |
+|---|---|---|
+| `3779` | Issuer response code `01` — Refer to issuer | 403 |
+| `3784` | Issuer response code `05` — Not authorized | 403 |
+| `3793` | Issuer response code `04` — Pick up card | 403 |
+| `3757` | Partially approved | 200 |
+| `3768` | Request timeout | 408 |
+| `3741` | Unauthorized | 401 |
+
+### Tip Adjustment
+
+| Amount | Behaviour |
 |---|---|
-| `3779` | Issuer response code 01 — Refer to issuer |
-| `3784` | Issuer response code 05 — Not authorized |
-| `3793` | Issuer response code 04 — Pick up card |
-| `3757` | Partially approved |
+| `3784` | Issuer response code `05` — Not authorized |
 | `3768` | Request timeout |
-| `3741` | Unauthorized |
 
-### Withdrawal limit and issuer contact responses
+### SCA / Strong Customer Authentication
 
-| Amount | Gateway response |
-|---|---|
-| `6165` | `responseCode 61` — Exceeds withdrawal amount limit |
-| `155` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `165` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1101` | `responseCode 70` — Cardholder to contact issuer |
-| `1103` | `responseCode 70` — Cardholder to contact issuer |
-| `1109` | `responseCode 70` — Cardholder to contact issuer |
-| `1111` | `responseCode 70` — Cardholder to contact issuer |
-| `1102` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1104` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1110` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1112` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1114` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1115` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1116` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1117` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1118` | `responseCode 65` — Exceeds withdrawal frequency limit |
-| `1119` | `responseCode 65` — Exceeds withdrawal frequency limit |
+These amounts simulate issuer SCA challenges and withdrawal-limit responses. The test case code column maps to specific Viscus-Dummy test scenarios.
 
-All other amounts process as approved transactions against the TEST/DEMO merchant.
+| Amount | Test case | Response code | Description | SCA required | `actionCode` |
+|---|---|---|---|---|---|
+| `6165` | — | `61` | Exceeds withdrawal amount limit | No | `0065` |
+| `155` | `MCD_55_01_01` | `65` | Exceeds withdrawal frequency limit | **Yes** | `0065` |
+| `165` | `MCD_65_01_01` | `65` | Exceeds withdrawal frequency limit | No | `0065` |
+| `1102` | `T6_11_02` | `65` | Exceeds withdrawal frequency limit | No | `0065` |
+| `1104` | `T6_11_04` | `65` | Exceeds withdrawal frequency limit | No | `0065` |
+| `1110` | `T6_11_10` | `65` | Exceeds withdrawal frequency limit | No | `0065` |
+| `1112` | `T6_11_12` | `65` | Exceeds withdrawal frequency limit | No | `0065` |
+| `1114` | `T6_11_14` | `65` | Exceeds withdrawal frequency limit | No | `0065` |
+| `1115` | `T6_11_15` | `65` | Exceeds withdrawal frequency limit | **Yes** | `0065` |
+| `1116` | `T6_11_16` | `65` | Exceeds withdrawal frequency limit | **Yes** | `0065` |
+| `1117` | `T6_11_17` | `65` | Exceeds withdrawal frequency limit | **Yes** | `0065` |
+| `1118` | `T6_11_18` | `65` | Exceeds withdrawal frequency limit | **Yes** | `0065` |
+| `1119` | `T6_11_19` | `65` | Exceeds withdrawal frequency limit | **Yes** | `0065` |
+| `1101` | `T6_11_01` | `70` | Cardholder to contact issuer | **Yes** | `0070` |
+| `1103` | `T6_11_03` | `70` | Cardholder to contact issuer | **Yes** | `0070` |
+| `1109` | `T6_11_09` | `70` | Cardholder to contact issuer | **Yes** | `0070` |
+| `1111` | `T6_11_11` | `70` | Cardholder to contact issuer | **Yes** | `0070` |
+
+<details>
+<summary>EMV data for SCA test cases</summary>
+
+Some SCA test cases include specific EMV data injected by the mock server into the response. These are for low-level EMV testing only — most SDK integrations do not need to inspect this data.
+
+| Amount | Test case | `emvData` |
+|---|---|---|
+| `1102` | `T6_11_02` | `9F36020002910A5722F90461A4F0763141` |
+| `1104` | `T6_11_04` | `9F36020002910A960352251058DF033141` |
+| `1110` | `T6_11_10` | `9F36020002910A555EDC4A21F1F0723141` |
+| `1112` | `T6_11_12` | `9F36020002910A809B40BB8D6FCCFA3141` |
+| `1114` | `T6_11_14` | `9F36020002910A8D61FDF0BF292A3C3141` |
+| `1115` | `T6_11_15` | `9F36020002910A9895847308201C433730` |
+| `1116` | `T6_11_16` | `9F36020002910AA07A3E62227A64C93730` |
+| `1117` | `T6_11_17` | `9F36020002910A660923D5C65E19133730` |
+| `1118` | `T6_11_18` | `9F36020002910A8CEDCA1DF65591393730` |
+| `1119` | `T6_11_19` | `9F36020002910A3BD9FAC2CC9AB6B23730` |
+| `1101` | `T6_11_01` | `910AF820D48D879DA1DA37308A023730` |
+| `1103` | `T6_11_03` | `910ACE6DB89DB783C7DD37308A023730` |
+| `1109` | `T6_11_09` | `910A0427E4CB8DB1DB4A37308A023730` |
+| `1111` | `T6_11_11` | `910A0427E4CB8DB1DB4A37308A023730` |
+
+</details>

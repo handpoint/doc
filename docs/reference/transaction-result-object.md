@@ -562,57 +562,65 @@ See the **Android (PAX)** tab for the complete field reference — all fields ar
 
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-## iOS SDK — `ResponseInfo`
+## iOS SDK — `FinanceResponseInfo`
 
-The result is delivered via the `HeftClientDelegate` protocol.
+The result is delivered via the `HeftStatusReportDelegate` protocol.
 
 ```swift
-func heftClient(
-    _ client: HeftClient!,
-    didGetTransactionResponse info: ResponseInfo!
-) {
-    // statusCode == EFT_PP_STATUS_SUCCESS means the SDK communication succeeded.
-    // Always check finStatus for the actual payment outcome.
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
+    // statusCode is the SDK communication result — EFT_PP_STATUS_SUCCESS means
+    // the terminal transaction completed. Always check finStatus for the payment outcome.
     if info.statusCode == EFT_PP_STATUS_SUCCESS {
-        let finStatus = info.finStatus       // e.g. "AUTHORISED", "DECLINED"
-        let xml = info.xml                   // full result as XML string
-        let fields = info.userInfo           // [String: Any] dictionary of parsed fields
+        let finStatus = info.finStatus        // "AUTHORISED", "DECLINED", etc.
+        let txnId = info.eFTTransactionID     // store for reversals
+        let receipt = info.merchantReceipt
     }
 }
 ```
 
-### `ResponseInfo` properties
+### `FinanceResponseInfo` properties
 
-| Field | Type | Description |
+All fields are strings unless noted. Values are extracted from the terminal's XML response.
+
+| Property | Type | Description |
 |---|---|---|
-| `statusCode` | Int | `EFT_PP_STATUS_SUCCESS` (0x0001) on success, or an error code — see [status codes](#status-codes) below. |
-| `statusMessage` | String | Human-readable status. |
-| `xml` | String | Full transaction result serialised as an XML string. |
-| `userInfo` | [String: Any] | Dictionary of parsed result fields (see below). |
-
-### Key `userInfo` fields
-
-| Key | Type | Description |
-|---|---|---|
-| `EFTTransactionID` | String | UUID v4 — primary transaction identifier. |
-| `originalEFTTransactionID` | String | Original `EFTTransactionID` for refunds/reversals. |
-| `finStatus` | String | Primary result indicator — see [`finStatus` values](#finstatus-values-1) below. |
+| `statusCode` | Int | SDK communication code — `EFT_PP_STATUS_SUCCESS` (0x0001) on success. See [status codes](#status-codes) below. |
+| `status` | String | Raw status string from the terminal. |
+| `finStatus` | String | **Primary result indicator.** See [`finStatus` values](#finstatus-values-1) below. |
 | `type` | String | Transaction type: `"SALE"` `"REFUND"` `"REVERSAL"` etc. |
-| `authorisedAmount` | String | Authorised amount in minor units as a string. |
-| `totalAmount` | String | Total including tip. |
-| `tipAmount` | String | Tip amount. |
+| `eFTTransactionID` | String | UUID v4 — primary transaction identifier. Store for reversals and status queries. |
+| `originalEFTTransactionID` | String | Original `eFTTransactionID` for refunds and reversals. |
+| `eFTTimestamp` | String | Transaction timestamp. |
+| `statusMessage` | String | Human-readable status. |
+| `errorMessage` | String | Error detail on failure. |
+| `authorisedAmount` | NSInteger | Authorised amount in smallest currency unit. |
+| `requestedAmount` | String | Requested amount as a string. |
+| `totalAmount` | String | Total charged, including gratuity. |
+| `gratuityAmount` | String | Gratuity (tip) amount. |
+| `gratuityPercentage` | String | Gratuity as a percentage string. |
+| `dueAmount` | String | Outstanding amount after partial payment. |
 | `currency` | String | ISO 4217 currency code. |
-| `cardSchemeName` | String | Card network name. |
-| `maskedPan` | String | Masked card number. |
-| `cardEntryType` | String | `"ICC"` `"MSR"` `"CNP"` |
-| `verificationMethod` | String | `"NOT_REQUIRED"` `"PIN"` `"SIGNATURE"` etc. |
 | `authorisationCode` | String | Acquirer approval code. |
-| `rrn` | String | Retrieval Reference Number. |
+| `verificationMethod` | String | `"NOT_REQUIRED"` `"PIN"` `"SIGNATURE"` etc. |
+| `cardEntryType` | String | `"ICC"` `"MSR"` `"CNP"` |
+| `cardSchemeName` | String | Card network name. |
+| `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. |
+| `expiryDateMMYY` | String | Expiry in `MMYY` format. |
+| `cardToken` | String | Token — non-empty only on tokenize operations. |
+| `tenderType` | String | `"CREDIT"` `"DEBIT"` |
+| `paymentScenario` | String | `"CHIP"` `"CHIPCONTACTLESS"` `"MAGSTRIPE"` etc. |
+| `customerLanguagePref` | String | Card's language preference. |
 | `mid` | String | Merchant ID. |
 | `tid` | String | Terminal ID. |
 | `merchantReceipt` | String | HTML merchant receipt. |
 | `customerReceipt` | String | HTML customer receipt. |
-| `cardToken` | String | Card token (tokenization operations only). |
+| `customerReference` | String | Echoed-back merchant reference from request. |
+| `budgetNumber` | String | Budget/instalment number (SA acquirers). |
+| `chipTransactionReport` | String | Full chip transaction data. |
+| `balance` | String | Issuer-returned balance (prepaid/debit cards). |
+| `deviceStatus` | DeviceStatus | Terminal state at transaction time. |
+| `recoveredTransaction` | Bool | `true` if delivered via terminal recovery loop. |
+| `xml` | NSDictionary | Raw XML from the device parsed into a key-value dictionary. Internal — use the named properties above instead. |
 
 ### `finStatus` values
 

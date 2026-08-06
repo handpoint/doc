@@ -77,9 +77,9 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 heftClient.saleWithAmount(1000, currency: "USD")
 
 // Result arrives in your delegate:
-func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
     if info.statusCode == EFT_PP_STATUS_SUCCESS {
-        // store the transactionID from info.xml for potential reversal
+        // use info.eFTTransactionID, info.finStatus, info.merchantReceipt, etc.
     }
 }
 ```

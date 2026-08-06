@@ -60,7 +60,7 @@ HiLite uses Bluetooth — disconnection is detected automatically by the SDK and
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-The delegate fires `didGetTransactionResponse` when the result is received. If the app is backgrounded or killed mid-transaction:
+The delegate fires `responseFinanceStatus` when the result is received. If the app is backgrounded or killed mid-transaction:
 
 1. On foreground/restart, re-establish the HiLite connection.
 2. Query the last transaction reference against the TXN Feed API or support channel.

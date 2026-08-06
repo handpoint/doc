@@ -20,6 +20,10 @@ All Handpoint card-present integrations require a physical payment terminal.
 Please reference the [PCI SSC website](https://www.pcisecuritystandards.org) to adhere to all PCI and card brand guidelines for your terminal deployment.
 :::
 
+:::tip Filtering by market
+Use the Market filter above the gallery to show only devices deployed in a specific region. **Deployed with** rows and acquirer tags reflect observed production deployments (July 2026 transaction data) — all devices support all acquirers in principle.
+:::
+
 <DeviceGallery />
 
 ---
@@ -42,6 +46,7 @@ Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android 
 | **Connection** | Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Integration paths** | Android SDK (HiLite BT), iOS SDK (HiLite BT), Cordova |
+| **Deployed with** | Paysafe (US) |
 
 ---
 
@@ -60,6 +65,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.6.7+ |
+| **Deployed with** | Paysafe (US), EmerchantPay (EU) |
 
 ---
 
@@ -74,6 +80,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.6.7+ |
+| **Deployed with** | Paysafe (US), EmerchantPay (EU) |
 
 ---
 
@@ -209,6 +216,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.7.0+ |
+| **Deployed with** | TSYS (US) |
 
 ---
 
@@ -323,6 +331,7 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | **Connectivity** | IM25: Wi-Fi 2.4GHz, 4G · IM30: Wi-Fi 2.4GHz, Ethernet |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | IM25: v7.1009.5+ |
+| **Deployed with** | IM30: EmerchantPay (EU) |
 
 ---
 
