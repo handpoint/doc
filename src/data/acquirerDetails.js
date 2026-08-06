@@ -15,6 +15,10 @@ export const ACQUIRER_DETAILS = [
       "Discover"
     ],
     "capabilities": {
+      "avs-for-moto": {
+        "cloud-api": "public",
+        "android-pax": "public"
+      },
       "sale": {
         "cloud-api": "public",
         "android-pax": "public",
