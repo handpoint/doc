@@ -66,6 +66,10 @@ This applies to Sale and Pre-Authorization only — Refund never shows the on-de
 
 ## Code
 
+:::caution Pending SDK verification
+The Android SDK samples below (`Billing`, `enableAvsFields`, `MoToOptions.billing`) are transcribed from the AVS integration guide draft and haven't been cross-checked against the `hapi-android` source. Every other MOTO sample in this repo only shows `hapi.motoSale(BigInteger, Currency)` — `motoPreauthorization` and `motoRefund` as separate methods, and a `billing` field on `MoToOptions`, have no precedent elsewhere in this codebase. Confirm the real method names, parameter types, and `MoToOptions` fields against the `hapi-android` source before an integrator relies on this section.
+:::
+
 <Tabs groupId="integration-path">
 <TabItem value="android-pax" label="Android SDK">
 
@@ -135,12 +139,12 @@ override fun newConfiguration(newValues: List<ConfigurationKeyValuePair<Any>>) {
 Attach a `billing` object to the transaction payload. The same shape applies to `moToSale`, `moToRefund`, and `moToPreAuthorization`:
 
 ```json
-POST https://cloud.handpoint.io/transactions
+POST https://cloud.handpoint.com/transactions
 {
   "operation": "moToSale",
   "serial_number": "2740013262",
-  "terminal_type": "PAXA920MAX",
-  "amount": 322,
+  "terminal_type": "PAXA920",
+  "amount": "322",
   "currency": "USD",
   "billing": {
     "zipCode": "10001",
@@ -154,12 +158,12 @@ POST https://cloud.handpoint.io/transactions
 The request also accepts a top-level `enableAvsFields` boolean, mirroring the native SDK:
 
 ```json
-POST https://cloud.handpoint.io/transactions
+POST https://cloud.handpoint.com/transactions
 {
   "operation": "moToSale",
   "serial_number": "2740013262",
-  "terminal_type": "PAXA920MAX",
-  "amount": 322,
+  "terminal_type": "PAXA920",
+  "amount": "322",
   "currency": "USD",
   "enableAvsFields": true
 }
