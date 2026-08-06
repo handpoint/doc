@@ -32,61 +32,10 @@ Use for call centres, phone order systems, or recurring billing where the cardho
 ### Code
 
 <Tabs groupId="integration-path">
-<TabItem value="back-office" label="Back Office">
-
-Sends the card token directly to the gateway — no terminal or device required. Only an API key is needed.
-
-**Sale:**
-```http
-POST https://cloud.handpoint.com/moto/sale
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
-
-**Pre-Authorization:**
-```http
-POST https://cloud.handpoint.com/moto/preauthorization
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "638f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
-
-**Refund:**
-```http
-POST https://cloud.handpoint.com/moto/refund
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "transactionReference": "738f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
-
-`amount` is in **major currency units** (decimal string, e.g. `"10.00"` = $10.00). `transactionReference` is UUID v4 and used for idempotency.
-
-</TabItem>
 <TabItem value="cloud-api" label="Cloud API">
 
-Commands a PAX terminal to display a manual card entry screen. Terminal tokenizes and sends — PAX in integrated mode required.
+**With reader** — commands a PAX terminal to show a manual card entry screen. Results are async: poll `GET /transaction-result/{transactionResultId}`. Amount in **smallest currency unit**.
 
-**Sale:**
 ```http
 POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -102,39 +51,54 @@ Content-Type: application/json
 }
 ```
 
-**Pre-Authorization:**
+Use `"moToPreAuthorization"` or `"moToRefund"` in `operation` for pre-auth and refund. Add `"originalTransactionId"` on refunds.
+
+---
+
+**Without reader (back-office)** — submits a card token directly to the gateway. No device required, API key only. Amount in **major currency units** (decimal string).
+
+Sale:
 ```http
-POST https://cloud.handpoint.com/transactions
+POST https://cloud.handpoint.com/moto/sale
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "operation": "moToPreAuthorization",
-  "amount": "1000",
+  "amount": "10.00",
   "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "transactionReference": "3bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
 }
 ```
 
-**Refund:**
+Pre-Authorization:
 ```http
-POST https://cloud.handpoint.com/transactions
+POST https://cloud.handpoint.com/moto/preauthorization
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "operation": "moToRefund",
-  "amount": "1000",
+  "amount": "10.00",
   "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "638f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
 }
 ```
 
-`amount` is in **smallest currency unit** (integer string, e.g. `"1000"` = $10.00). Results are asynchronous — poll `GET /transaction-result/{transactionResultId}`.
+Refund:
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "738f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -164,24 +128,24 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Back Office tab."
-  useInstead="Back Office"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO without a reader, use the Cloud API back-office endpoints."
+  useInstead="Cloud API (back-office)"
 />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 <NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Back Office tab."
-  useInstead="Back Office"
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO without a reader, use the Cloud API back-office endpoints."
+  useInstead="Cloud API (back-office)"
 />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
 <NotSupported
-  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or the Back Office tab for card-token MOTO."
-  useInstead="Android SDK (PAX) or Back Office"
+  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or the Cloud API back-office endpoints for card-token MOTO without a reader."
+  useInstead="Android SDK (PAX) or Cloud API"
 />
 
 </TabItem>
@@ -190,7 +154,21 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ### Parameters
 
 <Tabs groupId="integration-path">
-<TabItem value="back-office" label="Back Office">
+<TabItem value="cloud-api" label="Cloud API">
+
+**With reader** (`POST /transactions`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | `"moToSale"`, `"moToPreAuthorization"`, or `"moToRefund"` |
+| `amount` | string | Yes | Amount in **smallest currency unit**, e.g. `"1000"` for $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | PAX terminal serial number — triggers card entry screen on device |
+| `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
+| `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
+
+**Without reader — back-office** (`POST /moto/sale`, `/moto/preauthorization`, `/moto/refund`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -200,19 +178,6 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 | `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
 | `transactionReference` | string | Recommended | UUID v4 for idempotency and status queries |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
-
-</TabItem>
-<TabItem value="cloud-api" label="Cloud API">
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `operation` | string | Yes | `"moToSale"`, `"moToPreAuthorization"`, or `"moToRefund"` |
-| `amount` | string | Yes | Amount in **smallest currency unit**, e.g. `"1000"` for $10.00 |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `serial_number` | string | Yes | PAX terminal serial number — triggers card entry screen |
-| `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
-| `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -228,17 +193,17 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
-Not applicable — see Back Office tab.
+Not applicable — see Cloud API tab for back-office mode.
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-Not applicable — see Back Office tab.
+Not applicable — see Cloud API tab for back-office mode.
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-Not applicable — see Back Office tab or Android SDK (PAX).
+Not applicable — see Cloud API tab for back-office mode, or Android SDK (PAX) for on-terminal.
 
 </TabItem>
 </Tabs>
