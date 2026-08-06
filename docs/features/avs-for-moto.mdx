@@ -17,7 +17,7 @@ Available via **Android SDK** and **Cloud API**. For now, only on **TSYS**.
 
 MOTO transactions carry more fraud risk than card-present ones — there's no chip, no PIN, no physical card to inspect. Address Verification Service (AVS) is the acquirer's way of checking a piece of the cardholder's billing information against what the issuer has on file for that card, alongside the card number and CVV. It's one of the standard risk signals issuers and acquirers use when deciding whether to approve a MOTO transaction, on top of the usual authorization checks.
 
-This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request. The issuer/acquirer checks it and returns an AVS result as part of the transaction response — see [What comes back](#what-comes-back).
+This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request.
 
 AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't apply to card-present transactions, and MOTO must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
 
