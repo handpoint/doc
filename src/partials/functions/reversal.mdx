@@ -47,6 +47,12 @@ hapi.saleReversal(
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
 )
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted — no card prompt, no settlement
+    }
+}
 ```
 
 </TabItem>
@@ -58,6 +64,12 @@ hapi.saleReversal(
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
 )
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted
+    }
+}
 ```
 
 </TabItem>

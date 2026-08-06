@@ -47,7 +47,7 @@ The `transactionReference` must be a unique UUID v4 per request — use it to re
 hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
-override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
@@ -62,7 +62,7 @@ override fun endOfTransaction(result: TransactionResult, transactionReference: T
 hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
-override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
@@ -114,6 +114,20 @@ handpoint.sale(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `transactionReference` | string | No (Cloud API) | UUID v4. Required for status queries. Send on **original transactions only** (Sale, MOTO Sale, Pre-Auth, unlinked Refund) — not on subsequent operations. Not supported on HiLite paths |
 | `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
+
+**Android SDK — `Options` fields** (pass as optional third argument to `hapi.sale()`):
+
+| Field | Type | Description |
+|---|---|---|
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult.customerReference` and forwarded to the acquirer |
+| `tipConfiguration` | `TipConfiguration?` | Pre-configure tip prompt shown on the terminal (percentages, amounts, or skip tip) |
+| `budgetNumber` | `String?` | Instalment / budget number (South African acquirers only) |
+| `pinBypass` | `Boolean` | `true` to offer a PIN bypass option to the cardholder (where acquirer-supported) |
+| `signatureBypass` | `Boolean` | `true` to skip signature capture (where acquirer-supported) |
+| `checkDuplicates` | `Boolean` | `true` to enable duplicate transaction detection on the gateway |
+| `merchantAuth` | `MerchantAuth?` | Override merchant ID / terminal ID for multi-MID support |
+| `metadata` | `Metadata?` | Custom key-value pairs echoed in the result and stored in the transaction feed |
+| `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Money remittance fields for regulated money transfer transactions |
 
 ### Errors
 

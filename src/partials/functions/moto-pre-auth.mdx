@@ -1,0 +1,83 @@
+### MOTO Pre-Authorization
+
+Places a pre-authorization hold via MOTO (Mail Order / Telephone Order), using a stored card token. No terminal entry or card presentation is required.
+
+**When to use:** For hotel or car rental reservations taken over the phone where the cardholder cannot be present. A card token must already exist from a prior tokenization.
+
+**Implementation notes:**
+1. Requires a card token — pass via `MoToOptions.cardToken`. Raw PAN is never accepted.
+2. The MOTO pre-auth flow supports the full pre-auth lifecycle: Increase / Decrease → Capture → Void.
+3. PAX-only — HiLite has no card entry screen and does not support MOTO pre-auth.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+<NotSupported
+  reason="MOTO Pre-Authorization via Cloud API is not documented. Use the Android SDK for PAX-based MOTO pre-auth."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+
+hapi.motoPreauthorization(BigInteger("10000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val preAuthID = result.transactionID  // store for capture / increase / void
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="MOTO operations require a PAX device in integrated mode."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="MOTO operations are PAX-only features."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="MOTO Pre-Authorization is not available via the Cordova plugin."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+**Android SDK** — `motoPreauthorization(amount, currency, options)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Pre-auth hold amount in minor currency units |
+| `currency` | `Currency` | Yes | ISO 4217 currency |
+| `options` | `MoToOptions` | No | Pass `cardToken` for back-office MOTO pre-auth |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| MOTO pre-auth | `hapi.motoPreauthorization()` with `cardToken` — verify `AUTHORISED`, no card prompt |
+| Capture | MOTO pre-auth → `hapi.preAuthorizationCapture(amount, currency, preAuthTransactionID)` |
+| Void | MOTO pre-auth → `hapi.preAuthorizationReversal(preAuthTransactionID)` |
+
+</TabItem>
+</Tabs>

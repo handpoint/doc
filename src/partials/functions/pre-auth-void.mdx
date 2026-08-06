@@ -74,7 +74,7 @@ handpoint.preAuthorizationReversal(
 
 | Scenario | How to trigger |
 |---|---|
-| Void | `hapi.preAuthorizationVoid(amount, currency, originalTransactionID)` before capture |
+| Void | `hapi.preAuthorizationReversal(originalTransactionID)` before capture |
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
@@ -91,7 +91,7 @@ Not supported on iOS HiLite.
 
 | Scenario | How to trigger |
 |---|---|
-| Void | `handpoint.preAuthorizationVoid()` with `originalTransactionID` |
+| Void | `handpoint.preAuthorizationReversal({ originalTransactionID: "..." })` before capture |
 
 </TabItem>
 </Tabs>

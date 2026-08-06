@@ -134,6 +134,13 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 | `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
 | `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
 
+**Android SDK** — `MoToOptions` fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `cardToken` | `String?` | Card token from a supported token provider |
+| `channel` | `MoToChannel?` | Distinguishes `MAIL_ORDER` from `TELEPHONE_ORDER` at the protocol level. Defaults to `null` (not specified). |
+
 ### Errors
 
 | Code | Meaning | Recovery |

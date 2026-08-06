@@ -23,6 +23,14 @@ Select your integration path to see the relevant changelog. Selecting a path her
 
 ## REST API
 
+### 2.27.0
+**Features**
+
+New endpoints for Pre-Authorization operations that do not require the card to be present, allowing Pre-Auth Increase/Decrease and Capture to be performed server-side without routing through the payment terminal:
+
+- `POST /preauthorization/increase` — increase or decrease a pre-authorization hold amount.
+- `POST /preauthorization/capture` — capture a pre-authorization without a terminal.
+
 ### 2.26.0
 **Features:**
 
@@ -101,8 +109,31 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 ## Android SDK — PAX
 
 :::info Latest version
-**7.1012.1** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
+**7.1013.1** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
 :::
+
+### 7.1013.1
+
+Maintenance release — dependency and version updates. No new APIs or behaviour changes.
+
+### 7.1013.0
+**New Features**
+
+- **Deferred Card Tokenization**: new `deferredTokenization(originalTransactionID)` method tokenizes a card against a previously completed transaction without requiring the cardholder to present the card again.
+- **MOTO duplicate check**: `duplicationCheck` parameter is now supported in MOTO operations (`motoSale`, `motoRefund`), preventing accidental duplicate charges on retry.
+- **MOTO partial approval**: MOTO transactions now correctly handle partial approval responses from the issuer.
+- **`NO_CURRENT_TRANSACTION_TO_CANCEL`** status added — `stopCurrentTransaction()` returns this status when called with no active transaction instead of a generic error.
+
+**Bug Fixes**
+
+- Pre-authorization reversal amount was not being correctly passed to the gateway in some scenarios — corrected.
+- MOTO transaction responses were returned as `UNDEFINED` for certain issuers — resolved.
+
+### 7.1012.3
+**Bug Fixes**
+
+- **Mastercard contactless declines**: Fixed an issue where Mastercard contactless transactions could be incorrectly declined due to missing EMV fields during the contactless flow.
+- **Reader parameter setup resilience**: Fixed an issue where a failure to SET a single EMV tag during reader initialization would abort the entire setup sequence. Remaining tags are now processed correctly even when an individual tag SET fails.
 
 ### 7.1012.1
 **New Features**
@@ -397,9 +428,76 @@ Money Remittance support. Mastercard MoneySend fields for money remittance merch
 
 ## iOS SDK — HiLite (Bluetooth)
 
-:::info
-Connects to HiLite (DATECS) devices via Bluetooth (external accessory protocol: `com.datecs.pinpad`). See [Development hardware](/get-started/development-hardware) for provisioning profile requirements.
+:::info Latest version
+**4.0.2** — connects to HiLite (DATECS/Datecs) readers via the MFi external accessory protocol (`com.datecs.pinpad`). Requires iOS 12.0+. Install via CocoaPods: `pod 'HandpointSDK', '~> 4.0.2'`. App Store distribution requires Apple MFi program approval. See [Development hardware](/get-started/development-hardware) for provisioning profile requirements.
 :::
+
+### 4.0.2
+**Fixes**
+
+- Fixed a crash caused by a vector index going out of bounds during transaction processing.
+- Corrected the minimum iOS version declaration in the podspec.
+
+### 4.0.1
+**Fixes**
+
+- Fixed acquirer parsing in the `Credential` object; `INTERAC` and `POSTBRIDGE` acquirers were not being resolved correctly in Multi MID configurations.
+
+### 4.0.0
+**Features**
+
+- **Multi MID support**: new `MerchantAuth` and `Credential` objects allow specifying a per-acquirer merchant ID (`mid`) and terminal ID (`tid`) at transaction time. Pass a `MerchantAuthOptions` (or `SaleOptions`) instance to any financial operation to override the terminal's default routing.
+- `mid` and `tid` fields added to `FinanceResponseInfo`, reflecting the acquirer routing used for the transaction.
+- Background stream validity check added — the SDK now verifies the MFi stream is still open before processing background operations, preventing spurious errors after the reader goes idle.
+- HiPro barcode scanner reliability fixes; scanner state is now correctly reset when a financial operation is cancelled mid-scan.
+
+### 3.3.1
+**Features**
+
+- `tenderType` field added to `FinanceResponseInfo`, indicating whether the transaction settled as credit, debit, or other tender.
+- Additional missing parameters populated in the transaction result for linked refund responses.
+
+### 3.3.0
+**Features**
+
+- **Linked Refund support**: `refundWithAmount:currency:transaction:` (and its `options:` overload) can now reference an original sale's transaction ID to perform a linked refund.
+- `paymentScenario` field added to `FinanceResponseInfo` (e.g., `CHIP`, `CONTACTLESS`, `SWIPE`, `MANUAL`).
+
+### 3.2.4
+**Fixes**
+
+- The SDK now automatically triggers `financeInit` when an invalid shared secret status is received from the reader, recovering the session without requiring manual reconnection.
+
+### 3.2.3
+**Fixes**
+
+- Build-system compatibility fixes for the CocoaPods new build system (Xcode 10+).
+
+### 3.2.2
+**Fixes**
+
+- Source file path references corrected; fixes failures under the CocoaPods new build system.
+
+### 3.2.1
+**Fixes**
+
+- Podspec version string corrected to match the tagged release.
+
+### 3.2.0
+**Features**
+
+- **Card tokenization**: `tokenizeCard` method introduced, allowing a card to be tokenized without a financial transaction.
+- `saleAndTokenizeCardWithAmount:currency:` method introduced, combining a sale with tokenization in a single operation.
+- Financial command timeout increased from 45 s to 120 s, reducing false timeouts on slow network connections.
+- Simulator stubs added for all tokenization methods, enabling development without a physical reader.
+
+### 3.1.6
+**Fixes**
+
+- Podspec source file glob corrected to match the project's directory layout; the previous path caused CocoaPods to fail to locate Objective-C++ source files.
+- Xcode 10 compatibility: project file and build scripts updated.
+
+---
 
 ### 2.2.0
 **Features**
@@ -475,9 +573,8 @@ Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for
 ### 4.12.3
 **Updates**
 
-- Updated to Android SDK 7.1004.3 (HiLite path) / 7.1011.0 (PAX path).
-- Updated to iOS SDK 2.2.0.
-- Fixed Android 14 Bluetooth permission handling (`BLUETOOTH_CONNECT`, `BLUETOOTH_SCAN`).
+- Updated to Android SDK **7.1012.1** (PAX path) and iOS SDK 2.2.0.
+- Fixed Android 14 Bluetooth permission handling: `BLUETOOTH_CONNECT` and `BLUETOOTH_SCAN` now declared alongside legacy permissions with correct `maxSdkVersion` removal.
 
 **Fixes**
 

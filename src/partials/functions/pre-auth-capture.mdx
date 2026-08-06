@@ -60,11 +60,25 @@ handpoint.preAuthorizationCapture(
 </TabItem>
 </Tabs>
 
+**Cloud API** — `POST /preauthorization/capture`:
+
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `originalGuid` | string | Yes (Cloud API) | `transactionID` from the pre-authorization result (UUID v4) |
-| `capturedAmount` | string | Yes (Cloud API) | Actual capture amount in smallest currency unit as a string |
-| `tipAmount` | string | No (Cloud API) | Optional tip amount in smallest currency unit as a string |
+| `originalGuid` | string | Yes | `transactionID` from the pre-authorization result (UUID v4) |
+| `capturedAmount` | string | Yes | Actual capture amount in smallest currency unit as a string |
+| `tipAmount` | string | No | Optional tip amount in smallest currency unit as a string |
+
+**Android SDK** — `preAuthorizationCapture(amount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Capture amount in minor currency units |
+| `currency` | `Currency` | Currency of the original pre-authorization |
+| `originalTransactionID` | `String` | `transactionID` from the pre-authorization result |
+
+:::note
+The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parameter. `tipAmount` is a Cloud API-only field.
+:::
 
 ### Testing
 

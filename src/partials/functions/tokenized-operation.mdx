@@ -1,0 +1,116 @@
+## Tokenized Operation (charge stored card)
+
+### What this does
+Processes a sale using a stored card token, without requiring the cardholder to present their card. The token represents a card that was previously tokenized in a card-present or online transaction.
+
+### When to use it
+Use for recurring charges, subscription billing, or any scenario where the cardholder has previously consented to card-on-file and a token exists. This is separate from MOTO — a tokenized operation does not require the `motoChannel` flag and is not classified as card-not-present by default.
+
+:::info Token provider required
+Handpoint does not issue card tokens directly. Tokens must come from a supported token provider (e.g. TSYS, Paysafe, Tokenex) whose de-tokenization service is integrated with your acquirer.
+:::
+
+### Implementation notes
+
+1. A card token must exist from a prior [Tokenization](/functions/tokenization) operation.
+2. The token must be from a provider supported by your acquirer.
+3. No terminal or card is required — the operation is submitted server-side.
+4. For on-terminal MOTO (operator types card details at the terminal), see [MOTO](/functions/moto).
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transaction
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "action": "SALE",
+  "amount": 1000,
+  "currency": "USD",
+  "cardToken": "TOKEN_FROM_PREVIOUS_TOKENIZATION"
+}
+```
+
+No `motoChannel` flag — this is a tokenized card-on-file sale, not a MOTO transaction.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+Use `MoToOptions.cardToken` to pass the stored token via the Android SDK:
+
+```kotlin
+val options = MoToOptions()
+options.cardToken = "TOKEN_FROM_PREVIOUS_TOKENIZATION"
+
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // charge accepted
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Tokenized operations without card present use the back-office MOTO path, which is PAX-only."
+  useInstead="Cloud API or Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Tokenized operations without card present are not supported on iOS HiLite."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Tokenized operations without card present are not available via the Cordova plugin."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+**Cloud API** — `POST /transaction`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | Must be `"SALE"` |
+| `amount` | number | Yes | Amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `cardToken` | string | Yes | Token from a supported token provider |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Successful tokenized charge | Obtain a valid token from a test tokenization → send with staging API key — verify `AUTHORISED` |
+| Invalid token | Send a malformed or expired token — verify `DECLINED` or `INVALID_TOKEN` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Charge stored token | `hapi.motoSale()` with valid `cardToken` in `MoToOptions` — verify `AUTHORISED`, no card prompt |
+
+</TabItem>
+</Tabs>

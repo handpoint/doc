@@ -1,0 +1,131 @@
+## Automatic Refund (no card present)
+
+### What this does
+Refunds a transaction back to the original card without requiring the cardholder to present their card. The gateway uses the original transaction reference to route the credit directly to the card used in the original sale.
+
+### When to use it
+Use when the cardholder is not present (call centre, e-commerce, back-office reconciliation). No terminal is required. The original transaction must be a card-present sale where Handpoint processed the transaction — the gateway retrieves the PAN internally using the original transaction ID.
+
+:::info Not the same as MOTO refund
+Automatic Refund uses the Handpoint gateway's stored transaction record to identify the card. You do not need a card token from a token provider. The original transaction must have been processed through Handpoint.
+:::
+
+### Implementation notes
+
+1. Pass the `originalTransactionID` (the `transactionID` from the original `endOfTransaction` result).
+2. Two overloads are available:
+   - **Full refund**: `automaticRefund(originalGuid)` — refunds the full original amount.
+   - **Partial refund**: `automaticRefund(amount, currency, originalGuid)` — refunds a specified amount.
+3. No card or terminal required — the operation is submitted directly to the gateway.
+4. Result arrives via the `endOfTransaction` callback on the Android SDK.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+<NotSupported
+  reason="The Automatic Refund operation (no-card-present refund using original transaction ID) is an Android SDK feature. For Cloud API back-office refunds, use the standard refund endpoint with the originalTransactionId field — card presence requirements depend on your merchant configuration."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**Full refund** (refunds the entire original amount):
+```kotlin
+hapi.automaticRefund("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // full amount refunded — no card required
+    }
+}
+```
+
+**Partial refund** (refunds a specified amount):
+```kotlin
+hapi.automaticRefund(
+    BigInteger("500"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // partial amount refunded
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Automatic Refund is a PAX-only back-office feature that submits directly to the gateway. HiLite requires card-present refunds."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Automatic Refund is a PAX-only back-office feature."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Automatic Refund is not available via the Cordova plugin. Use the Android SDK (PAX) directly."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+**Full refund** — `automaticRefund(originalGuid)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | `String` | Yes | `transactionID` from the original sale result |
+
+**Partial refund** — `automaticRefund(amount, currency, originalGuid)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Refund amount in minor currency units |
+| `currency` | `Currency` | Yes | Currency of the original sale |
+| `originalGuid` | `String` | Yes | `transactionID` from the original sale result |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Gateway declined the refund | Contact acquirer support |
+| `ORIGINAL_NOT_FOUND` | `originalGuid` not found | Verify the transaction ID |
+| `AMOUNT_EXCEEDS_ORIGINAL` | Partial refund amount exceeds original | Reduce amount |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Not applicable — use Android SDK.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Full refund | Complete a sale on TEST merchant → `hapi.automaticRefund(transactionID)` — verify `AUTHORISED`, no card prompt |
+| Partial refund | `hapi.automaticRefund(amount, currency, transactionID)` with `amount` less than original |
+| Invalid ID | Pass a random UUID as `originalGuid` — verify `ORIGINAL_NOT_FOUND` |
+
+</TabItem>
+</Tabs>

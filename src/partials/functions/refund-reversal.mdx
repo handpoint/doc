@@ -1,0 +1,84 @@
+### Refund Reversal
+
+Cancels a refund before settlement. Used when a refund was issued in error and needs to be voided before it reaches the cardholder.
+
+**When to use:** When a refund was sent in error within the same business day (before batch close). After settlement, the refund cannot be reversed — contact your acquirer.
+
+**Implementation notes:**
+1. `amount` and `currency` must match the original refund exactly.
+2. The `originalTransactionID` is the `transactionID` from the refund result — not the original sale.
+3. This is a PAX-only operation — HiLite does not support refund reversal.
+4. Not available on all acquirers — check the acquirer capabilities matrix.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+<NotSupported
+  reason="Refund Reversal is not available via the Cloud API. Use the Android SDK (PAX) directly."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.refundReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // transactionID from the refund result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // refund voided — credit will not reach cardholder
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Refund Reversal is a PAX-only feature."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Refund Reversal is a PAX-only feature."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Refund Reversal is not available via the Cordova plugin."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+**Android SDK** — `refundReversal(amount, currency, originalTransactionID)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount of the refund to reverse — must match original refund |
+| `currency` | `Currency` | Yes | Currency of the original refund |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the refund result |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Void a refund | Issue a refund → `hapi.refundReversal(amount, currency, refundTransactionID)` — verify `AUTHORISED` |
+| After settlement | Close batch → attempt refund reversal — verify `DECLINED` |
+
+</TabItem>
+</Tabs>

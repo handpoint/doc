@@ -1,0 +1,132 @@
+### Pre-Authorization Increase / Decrease
+
+Adjusts the held amount on an open pre-authorization before capture.
+
+**When to use:** When the expected final charge has changed after the initial hold was placed — for example, a hotel stay is extended (increase) or a car rental is returned early (decrease). Send before capture. Decrease is a partial release of the hold; increase raises the held amount (subject to acquirer support).
+
+**Implementation notes:**
+1. The adjustment amount replaces the held amount — it is not added to it. Send the new total you want held.
+2. Increase above the original amount is subject to acquirer and issuer limits. Check the acquirer capabilities matrix.
+3. Decrease is widely supported. Increase support varies — confirm with your acquirer before implementing.
+4. The `originalTransactionID` must be the `transactionID` from the pre-auth create result.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Increase:**
+```http
+POST https://cloud.handpoint.com/preauthorization/increase
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "amount": "12000"
+}
+```
+
+**Decrease:**
+```http
+POST https://cloud.handpoint.com/preauthorization/decrease
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "amount": "8000"
+}
+```
+
+`amount` is the new total held amount in smallest currency unit. `originalGuid` is the `transactionID` from the pre-auth create result.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Increase or decrease the held amount by sending the new target amount
+hapi.preAuthorizationIncrease(
+    BigInteger("12000"),   // new held amount
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // hold adjusted — new amount is now held
+    }
+}
+```
+
+:::note
+The Android SDK exposes `preAuthorizationIncrease()` for both increases and decreases. Pass the new intended hold amount — the SDK and gateway determine whether it is an increase or decrease relative to the current hold.
+:::
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<ComingSoon />
+
+</TabItem>
+</Tabs>
+
+**Cloud API** — `POST /preauthorization/increase` and `POST /preauthorization/decrease`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the pre-auth create result |
+| `amount` | string | Yes | New held amount in smallest currency unit as a string |
+
+**Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | New target held amount in minor currency units |
+| `currency` | `Currency` | Currency of the original pre-authorization |
+| `originalTransactionID` | `String` | `transactionID` from the pre-auth create result |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Increase | Create pre-auth → `POST /preauthorization/increase` with larger amount — verify new hold amount |
+| Decrease | Create pre-auth → `POST /preauthorization/decrease` with smaller amount — verify reduced hold |
+| Capture after adjustment | Increase/decrease → capture — verify settled amount matches adjusted amount |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Adjust | `hapi.preAuthorizationIncrease(newAmount, currency, originalTransactionID)` — verify `AUTHORISED` |
+| Capture after adjust | Adjust → `hapi.preAuthorizationCapture()` — verify settled = adjusted amount |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Not yet documented.
+
+</TabItem>
+</Tabs>

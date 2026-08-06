@@ -208,7 +208,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 |---|---|
 | `AUTHORISED` | Approved by the issuer. Funds captured (or held, for pre-auth). |
 | `DECLINED` | Declined by the issuer or gateway. |
-| `CANCELLED` | Cancelled by the cardholder at the terminal. |
+| `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
 | `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. |
@@ -292,7 +292,7 @@ The result is delivered asynchronously via the `Events.Required` interface.
 ```kotlin
 override fun endOfTransaction(
     result: TransactionResult,
-    transactionReference: TransactionReference
+    device: Device
 ) {
     when (result.finStatus) {
         FinancialStatus.AUTHORISED -> {
@@ -495,7 +495,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 |---|---|
 | `AUTHORISED` | Approved. |
 | `DECLINED` | Declined by issuer. |
-| `CANCELLED` | Cardholder cancelled. |
+| `CANCELLED` | Cardholder cancelled, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure. |
 | `UNDEFINED` | No result — call `hapi.getTransactionStatus(transactionReference)` to recover. |
 | `PARTIALLY_APPROVED` | Partially approved. |
@@ -536,7 +536,7 @@ Identical to Android (PAX) — the same `TransactionResult` class and `endOfTran
 ```kotlin
 override fun endOfTransaction(
     result: TransactionResult,
-    transactionReference: TransactionReference
+    device: Device
 ) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         val id = result.transactionID
@@ -613,7 +613,7 @@ func heftClient(
 | `DECLINED` | `EFT_FINANC_STATUS_TRANS_DECLINED` (0x02) | Declined by the issuer or gateway. |
 | `PROCESSED` | `EFT_FINANC_STATUS_TRANS_PROCESSED` (0x03) | Non-financial operation processed. |
 | `FAILED` | `EFT_FINANC_STATUS_TRANS_NOT_PROCESSED` (0x04) | Technical failure. |
-| `CANCELLED` | `EFT_FINANC_STATUS_TRANS_CANCELLED` (0x05) | Cancelled by the cardholder. |
+| `CANCELLED` | `EFT_FINANC_STATUS_TRANS_CANCELLED` (0x05) | Cancelled by the cardholder, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `PARTIALLY_APPROVED` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval. |
 | `UNDEFINED` | `EFT_FINANC_STATUS_UNDEFINED` (0x00) | No result received. |
 | `REFUNDED` | *(no iOS constant)* | May appear on status queries for refunded transactions. |

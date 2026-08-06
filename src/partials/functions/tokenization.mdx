@@ -63,8 +63,14 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 // Tokenize only
 hapi.tokenizeCard()
 
-// Sale and tokenize
-hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
+// Sale and tokenize — pass SaleAndTokenizeOptions to the standard sale() call
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+// The token is returned in endOfTransaction via result.cardToken
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken
+}
 ```
 
 </TabItem>
@@ -74,8 +80,9 @@ hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
 // Tokenize only
 hapi.tokenizeCard()
 
-// Sale and tokenize
-hapi.saleAndTokenizeCard(BigInteger("1000"), Currency.USD)
+// Sale and tokenize — pass SaleAndTokenizeOptions to the standard sale() call
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
 ```
 
 </TabItem>

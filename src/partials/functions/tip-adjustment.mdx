@@ -13,8 +13,9 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
 4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
 5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
-6. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-7. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
+6. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `Boolean` directly. There is no `endOfTransaction` callback for this operation. `true` = adjustment accepted by the gateway; `false` = rejected. Check the return value immediately after the call.
+7. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
+8. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
@@ -39,7 +40,12 @@ The `transactionID` from the original sale goes in the URL path. To void a tip, 
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
 // To void a tip: pass BigInteger("0")
 ```
 
@@ -47,7 +53,12 @@ hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-hapi.tipAdjustment(BigInteger("900"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
 // To void a tip: pass BigInteger("0")
 ```
 

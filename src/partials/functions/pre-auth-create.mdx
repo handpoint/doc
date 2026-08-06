@@ -90,6 +90,10 @@ handpoint.preAuthorization(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `transactionReference` | string | No (Cloud API) | UUID v4. Send on Pre-Auth create. Do not send on Capture, Void, or Increase. Enables status queries and groups all lifecycle operations. Not supported on HiLite paths |
 
+:::note Android SDK — multi-MID
+The Android SDK `preAuthorization()` accepts an optional `MerchantAuthOptions` (not plain `Options`) to override the merchant ID and terminal ID per acquirer. See [Multi-MID support](/reference/authentication#multi-mid) for details.
+:::
+
 ### Testing
 
 Test pre-auth on the TEST/DEMO merchant or staging device.
@@ -111,7 +115,7 @@ Test pre-auth on the TEST/DEMO merchant or staging device.
 |---|---|
 | Create | `hapi.preAuthorization()` — verify `AUTHORISED` in `endOfTransaction` |
 | Full lifecycle | Create → `hapi.preAuthorizationCapture()` — verify both results |
-| Void unused hold | Create → `hapi.preAuthorizationVoid()` — verify `AUTHORISED` and no capture |
+| Void unused hold | Create → `hapi.preAuthorizationReversal(originalTransactionID)` — verify `AUTHORISED` and no capture |
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">

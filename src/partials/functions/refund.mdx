@@ -63,6 +63,13 @@ hapi.refund(
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
+
+// Result arrives in your events listener:
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // refund accepted
+    }
+}
 ```
 
 </TabItem>
@@ -74,6 +81,13 @@ hapi.refund(
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result — omit for unlinked refund
 )
+
+// Result arrives in your events listener:
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // refund accepted
+    }
+}
 ```
 
 </TabItem>
