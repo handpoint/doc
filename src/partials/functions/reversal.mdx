@@ -11,7 +11,9 @@ Use when a sale needs to be cancelled before the batch closes (same business day
 1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
 2. **No card present required.** Reversal is an electronic operation referencing the original `transactionID`. The cardholder does not need to return to the terminal.
 3. Full amount only — partial reversals are a separate operation (`partial-reversal`), supported only on TSYS US.
-4. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
+4. **Two paths — different terminal requirements:**
+   - **REST API (Cloud API / back-office):** reversal is sent directly to the gateway. The terminal does not need to be online or connected.
+   - **Android SDK / iOS SDK:** reversal travels through the connected reader. The original terminal must be reachable over Bluetooth or the local network at the time of the call.
 5. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
@@ -20,6 +22,8 @@ Use when a sale needs to be cancelled before the batch closes (same business day
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
+
+The reversal is sent **directly to the gateway** — the terminal does not need to be online or connected.
 
 ```http
 POST https://cloud.handpoint.com/transactions
@@ -30,8 +34,6 @@ Content-Type: application/json
   "operation": "saleReversal",
   "amount": "1000",
   "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
   "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
@@ -99,14 +101,22 @@ handpoint.saleReversal(
 
 ### Parameters
 
+**Cloud API** — `POST /transactions` (direct gateway call, no terminal required):
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `operation` | string | Yes | Must be `"saleReversal"` |
 | `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
-| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+
+**Android SDK / iOS SDK** — reversal sent through the connected reader:
+
+| Name | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Currency of the original sale |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
 
 ### Errors
 
