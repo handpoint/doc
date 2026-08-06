@@ -10,7 +10,7 @@ description: "Attach the cardholder's billing address to a MOTO transaction so t
 Attach the cardholder's billing address to a MOTO Sale, Pre-Authorization, or Refund, so the acquirer can use it during authorization.
 
 :::info Availability
-Available via **Android SDK (PAX)** (7.1014.0 or later) and **Cloud API**. Currently only on **EPI**.
+Available via **Android SDK (PAX)** (7.1014.0 or later) and **Cloud API** (no app version requirement). Currently only on **EPI**. AVS must be enabled for the merchant by Handpoint — contact your integration engineer.
 :::
 
 ## Overview
@@ -19,16 +19,21 @@ MOTO transactions carry more fraud risk than card-present ones — there's no ch
 
 This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request.
 
-The AVS result is included in the authorization response — the acquirer returns a result code indicating whether the postal code and/or street address matched the cardholder's records with their issuer.
+When AVS is enabled for the merchant, the acquirer returns a result code in the authorization response indicating whether the postal code and/or street address matched the cardholder's records on file with their issuer. The billing data is always forwarded to the acquirer regardless of whether the merchant has AVS enabled — but the result code only appears in the response when the merchant's AVS is active.
 
 AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't apply to card-present transactions, and MOTO must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
 
 ## Prerequisites
 
-- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for `Billing`, `zipCode`, and `address` on MOTO.
+- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for the `Billing` class and `MoToOptions.billing`. App version 4.14.0 ships with SDK 7.1014.0.
 - A more recent SDK release for the on-device prompt opt-in (`enableAvsFields` on `MoToOptions`) — pin to the latest release rather than 7.1014.0 if you need it.
 - MOTO enabled for the merchant (`motoEnabled = true`), regardless of who supplies the billing data.
-- Cloud API integrations target `POST /transactions` with `operation=moToSale`, `moToRefund`, or `moToPreAuthorization`.
+- AVS enabled for the merchant by Handpoint — the `billing` object is always forwarded, but the AVS result code only appears in the response when the merchant has AVS active at the acquirer level.
+- Cloud API: `billing` is accepted on `POST /transactions` (`moToSale`, `moToRefund`, `moToPreAuthorization`) and on `POST /moto/sale` (back-office with `cardToken`) — no app version requirement for Cloud API.
+
+:::info App version and response fields
+App 4.14.0 (SDK 7.1014.0) adds `batchNumber`, `surcharge`, and `taxAmount` to the transaction result. These fields are absent on earlier app versions. AVS result field availability depends on merchant AVS enablement, not app version.
+:::
 
 ## Handling cardholder data
 
@@ -53,7 +58,11 @@ Implementation examples are in the [EPI — Address Verification Service (AVS)](
 
 ## What comes back
 
-The authorization response includes an AVS result code from the acquirer alongside the standard approve/decline outcome. The result reflects whether the postal code and/or street address matched the issuer's records on file for the card. Refer to the Android SDK 7.1014.0 release notes for the specific field name in `TransactionResult`.
+The approve/decline outcome (`finStatus`) arrives the same way as any other MOTO transaction. When AVS is enabled for the merchant, the acquirer also returns a result code in the response indicating how well the postal code and/or street address matched the issuer's records.
+
+:::note Field name pending confirmation
+Staging tests confirmed that the `billing` object is accepted and forwarded on all three operations (Sale, Pre-Authorization, Refund) via both Cloud API and back-office `/moto/sale`. However, the staging merchant does not have AVS enabled at the EPI level — so no AVS result field appeared in any response. The exact field name in `TransactionResult` that carries the AVS result code needs confirmation from the SDK or backend team once merchant AVS is active.
+:::
 
 ## Edge cases
 

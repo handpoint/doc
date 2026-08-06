@@ -1068,7 +1068,7 @@ Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office
 
 ### Address Verification Service (AVS)
 
-EPI supports optional billing address verification on MOTO Sale, Pre-Authorization, and Refund — Android SDK (PAX) 7.1014.0+ and Cloud API. See [AVS for MOTO](/features/avs-for-moto) for full details on prerequisites, data handling, and edge cases.
+EPI supports optional billing address verification on MOTO Sale, Pre-Authorization, and Refund — Android SDK (PAX) 7.1014.0+ and Cloud API (all versions). Back-office MOTO (`POST /moto/sale` with `cardToken`) also accepts `billing`. AVS must be enabled for the merchant by Handpoint. See [AVS for MOTO](/features/avs-for-moto) for prerequisites, data handling, and edge cases.
 
 **Two ways to supply billing data — mutually exclusive per request:**
 
@@ -1125,11 +1125,26 @@ Or trigger an on-device entry dialog:
 }
 ```
 
+**Back-office MOTO** (`POST /moto/sale` with `cardToken`) also accepts `billing` — no app version requirement:
+
+```json
+POST https://cloud.handpoint.com/moto/sale
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
 :::note `enableAvsFields` on Cloud API
-This triggers an on-device dialog on the PAX terminal (PAX-integrated mode only). It has no effect on back-office MOTO requests that go directly to `/moto/sale`.
+This triggers an on-device dialog on the PAX terminal (PAX-integrated mode only). It has no effect on back-office `/moto/sale` requests.
 :::
 
-The AVS result is included in the authorization response alongside the standard approve/decline outcome.
+When AVS is enabled for the merchant, the acquirer returns an AVS result code in the response alongside the standard approve/decline outcome.
 
 ## Tokenization
 
