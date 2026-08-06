@@ -133,12 +133,25 @@ handpoint.refund(
 
 ### Errors
 
-| Code | Meaning | Recovery |
-|---|---|---|
-| `DECLINED` | Issuer declined refund | Contact acquirer support |
-| `AMOUNT_EXCEEDS_ORIGINAL` | Refund amount exceeds original sale | Reduce amount |
-| `ORIGINAL_NOT_FOUND` | Provided reference not found | Verify reference; try unlinked refund |
-| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+Errors arrive in the polled result object (HTTP 200), not in the initial 202. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized based on the card or terminal locale.
+
+:::caution Amount validation happens after card presentation
+For linked refunds, the terminal prompts the cardholder to present their card **before** validating the refund amount against the original transaction. If the amount exceeds the original, the result is `finStatus: DECLINED` — but the cardholder has already tapped or inserted their card. Design your UX to pre-validate the amount on the ISV side before sending the request.
+:::
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | *(localized — do not match)* | Amount exceeds original sale amount | Reduce to at most the original `totalAmount` from the sale result |
+| `DECLINED` | *(localized — do not match)* | `originalTransactionId` not found or operation not reversible at gateway | Verify the GUID is the `transactionID` from the original sale result and the batch is still open |
+| `DECLINED` | *(issuer response)* | Issuer declined the refund | Contact acquirer support |
+| `FAILED` | *(any)* | Terminal or gateway error | Check `errorMessage`; retry if transient |
+
+**Immediate HTTP errors** (returned before the 202):
+
+| HTTP | `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal busy | Wait and retry with backoff |
 
 ### Testing
 

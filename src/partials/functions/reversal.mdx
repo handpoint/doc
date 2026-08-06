@@ -173,11 +173,29 @@ handpoint.saleReversal(
 
 ### Errors
 
-| Code | Meaning | Recovery |
-|---|---|---|
-| `ORIGINAL_NOT_FOUND` | Reference not found or batch already closed | Send a Refund instead |
-| `ALREADY_REVERSED` | Transaction already reversed | No action needed |
-| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+**Cloud API with reader** — errors arrive in the polled result object, not in the initial 202 response. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found in the open batch | Verify the GUID; if the batch has closed, send a Refund instead |
+| `DECLINED` | `PARTIAL_REVERSAL_AMOUNT_EXCEEDS_ORIGINAL_AMOUNT` | Reversal amount is greater than original sale | Use the exact original amount — partial reductions of the reversed amount are not supported here |
+| `FAILED` | `Transaction failed, error: Error getting advanced transaction status (transaction not found)...` | `originalTransactionId` not found (pre-auth reversal path) | Verify the GUID is the `transactionID` from the pre-auth create result |
+
+**Cloud API with reader** — immediate HTTP errors (returned before the 202):
+
+| HTTP | `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Missing or invalid API key | Check `ApiKeyCLoud` header value |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
+| `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 (version digit must be `4`, variant digit `8`/`9`/`a`/`b`) |
+
+**Cloud API without reader (`POST /reversal`)** — synchronous, errors are immediate:
+
+| HTTP | `code` | `message` | Meaning | What to do |
+|---|---|---|---|---|
+| `400` | `3153` | `Unable to find message to reverse.` | `originalGuid` not found | Verify the GUID is the `transactionID` from the original transaction result |
+| `400` | `3051` | `Already reversed` | Transaction has already been reversed | No further action needed; check your records |
+| `400` | `4066` | `Partial reversal amount exceeds original amount` | `amount` exceeds the original transaction amount | Reduce the amount to at most the original; omit `amount` entirely for a full reversal |
 
 ### Testing
 
