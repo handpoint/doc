@@ -30,8 +30,8 @@ AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't app
 
 ## Prerequisites
 
-- Handpoint Android SDK (hapi-android) **4.14.0 or later** for `Billing`, `zipCode`, and `address` on MOTO.
-- A more recent SDK release for the on-device prompt opt-in (`enableAvsFields` on `MoToOptions`) — this shipped recently; pin to the latest release rather than 4.14.0 if you need it.
+- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for `Billing`, `zipCode`, and `address` on MOTO.
+- A more recent SDK release for the on-device prompt opt-in (`enableAvsFields` on `MoToOptions`) — this shipped recently; pin to the latest release rather than 7.1014.0 if you need it.
 - MOTO enabled for the merchant (`motoEnabled = true`), regardless of who supplies the billing data.
 - Cloud API integrations target `POST /transactions` with `operation=moToSale`, `moToRefund`, or `moToPreAuthorization`.
 
