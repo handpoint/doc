@@ -14,9 +14,9 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 4. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
 5. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
 6. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
-7. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `Boolean` directly. There is no `endOfTransaction` callback for this operation. `true` = adjustment accepted by the gateway; `false` = rejected. Check the return value immediately after the call.
+7. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `FinancialStatus` directly (`AUTHORISED`, `DECLINED`, or `FAILED`). There is no `endOfTransaction` callback for this operation. Check the return value immediately after the call.
 8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-9. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
+9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
@@ -41,46 +41,52 @@ The `transactionID` from the original sale goes in the URL path. To void a tip, 
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
-val accepted: Boolean = hapi.tipAdjustment(
-    BigInteger("900"),
+// tipAdjustment returns FinancialStatus synchronously — no endOfTransaction callback fires
+val result: FinancialStatus = hapi.tipAdjustment(
+    BigDecimal("900"),  // 900 cents = $9.00
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 )
-// To void a tip: pass BigInteger("0")
+// To void a tip: pass BigDecimal("0")
 ```
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
-val accepted: Boolean = hapi.tipAdjustment(
-    BigInteger("900"),
+// tipAdjustment returns FinancialStatus synchronously — no endOfTransaction callback fires
+val result: FinancialStatus = hapi.tipAdjustment(
+    BigDecimal("900"),  // 900 cents = $9.00
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 )
-// To void a tip: pass BigInteger("0")
+// To void a tip: pass BigDecimal("0")
 ```
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-<NotSupported
-  reason="Tip adjustment is not supported on iOS HiLite. HiLite is a card-present Bluetooth device; tip adjustment requires a server-side call."
-  useInstead="Cloud API"
-/>
+```swift
+// Tip adjustment via server-side call using HapiRemoteService
+// Use transactionId (internal device number) from the original sale's responseFinanceStatus
+// NOT eFTTransactionID — they are different fields
+hapiRemoteService.tipAdjustment(
+    transaction: originalInfo.transactionId,
+    tipAmount: 900
+) { success in
+    if success {
+        // tip recorded
+    }
+}
+```
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-```javascript
-handpoint.tipAdjustment(
-  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241", tipAmount: 900 },
-  function(result) { /* handle result */ },
-  function(error) { console.error(error); }
-);
-```
+<NotSupported
+  reason="tipAdjustment is not implemented in the Cordova plugin — calling it has no effect on either Android or iOS. Use the Cloud API or Android SDK directly."
+  useInstead="Cloud API or Android SDK (PAX)"
+/>
 
 </TabItem>
 </Tabs>
@@ -98,7 +104,7 @@ handpoint.tipAdjustment(
 
 | Parameter | Type | Description |
 |---|---|---|
-| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
+| `tipAmount` | `BigDecimal` | Tip amount in minor units. `BigDecimal("0")` to void |
 | `currency` | `Currency` | Currency of the original transaction |
 | `originalTransactionID` | `String` | `transactionID` from the original sale result |
 

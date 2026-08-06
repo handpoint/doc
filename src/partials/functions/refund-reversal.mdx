@@ -7,16 +7,28 @@ Cancels a refund before settlement. Used when a refund was issued in error and n
 **Implementation notes:**
 1. `amount` and `currency` must match the original refund exactly.
 2. The `originalTransactionID` is the `transactionID` from the refund result — not the original sale.
-3. This is a PAX-only operation — HiLite does not support refund reversal.
+3. Android HiLite does not support refund reversal. iOS HiLite and Cloud API (via connected PAX terminal) do.
 4. Not available on all acquirers — check the acquirer capabilities matrix.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-<NotSupported
-  reason="Refund Reversal is not available via the Cloud API. Use the Android SDK (PAX) directly."
-  useInstead="Android SDK (PAX)"
-/>
+Routes through the connected PAX terminal. Asynchronous — poll `GET /transaction-result/{transactionResultId}`.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refundReversal",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -46,21 +58,53 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-<NotSupported
-  reason="Refund Reversal is a PAX-only feature."
-  useInstead="Android SDK (PAX)"
-/>
+```swift
+heftClient.refundVoidWithAmount(
+    1000,
+    currency: "USD",
+    transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // eFTTransactionID from the refund result
+)
+
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
+    if info.statusCode == EFT_PP_STATUS_SUCCESS {
+        // refund void accepted
+    }
+}
+```
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-<NotSupported
-  reason="Refund Reversal is not available via the Cordova plugin."
-  useInstead="Android SDK (PAX)"
-/>
+```javascript
+// Android only — iOS Cordova does not implement refundReversal
+handpoint.refundReversal(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      // refund voided
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
 
 </TabItem>
 </Tabs>
+
+**Cloud API** — `POST /transactions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"refundReversal"` |
+| `amount` | string | Yes | Amount in minor currency units — must match original refund exactly |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original refund |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Terminal serial number |
+| `originalTransactionId` | string | Yes | `transactionID` from the refund result |
 
 **Android SDK** — `refundReversal(amount, currency, originalTransactionID)`:
 
@@ -69,6 +113,22 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 | `amount` | `BigInteger` | Yes | Amount of the refund to reverse — must match original refund |
 | `currency` | `Currency` | Yes | Currency of the original refund |
 | `originalTransactionID` | `String` | Yes | `transactionID` from the refund result |
+
+**iOS HiLite** — `refundVoidWithAmount:currency:transaction:`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `NSInteger` | Amount in minor currency units — must match original refund |
+| `currency` | `NSString *` | ISO 4217 currency code string |
+| `transaction` | `NSString *` | `eFTTransactionID` from the refund result |
+
+**Cordova** — `handpoint.refundReversal(config, success, error)` — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | number | Amount in minor currency units |
+| `currency` | number | `handpoint.Currency.USD` (or other currency enum) |
+| `originalTransactionID` | string | `transactionID` from the refund result |
 
 ### Testing
 

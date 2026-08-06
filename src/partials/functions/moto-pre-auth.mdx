@@ -52,10 +52,18 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-<NotSupported
-  reason="MOTO Pre-Authorization is not available via the Cordova plugin."
-  useInstead="Android SDK (PAX)"
-/>
+```javascript
+// Android only — MOTO pre-auth via Cordova
+handpoint.motoPreauthorization(
+  { amount: 10000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      const preAuthID = result.transactionID;  // store for capture / increase / void
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
 
 </TabItem>
 </Tabs>

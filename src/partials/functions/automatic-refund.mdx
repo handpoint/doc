@@ -79,10 +79,27 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-<NotSupported
-  reason="Automatic Refund is not available via the Cordova plugin. Use the Android SDK (PAX) directly."
-  useInstead="Android SDK (PAX)"
-/>
+```javascript
+// Android only — full refund
+handpoint.automaticRefund(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") { /* refunded, no card required */ }
+  },
+  function(error) { console.error(error); }
+);
+
+// Partial refund — include amount and currency
+handpoint.automaticRefund(
+  {
+    amount: 500,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
 
 </TabItem>
 </Tabs>

@@ -80,7 +80,7 @@ heftClient.saleWithAmount(50000, currency: "USD")
 handpoint.sale(
   {
     amount: 50000,
-    currency: "USD",
+    currency: handpoint.Currency.USD,
     moneyRemittanceOptions: { fullName: "John Doe", countryCode: "USA" }
   },
   function(result) { /* handle */ },

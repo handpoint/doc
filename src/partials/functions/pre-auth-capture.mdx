@@ -19,7 +19,7 @@ Content-Type: application/json
 
 {
   "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "capturedAmount": "9500"
+  "capturedAmount": "95.00"
 }
 ```
 
@@ -51,7 +51,7 @@ hapi.preAuthorizationCapture(
 
 ```javascript
 handpoint.preAuthorizationCapture(
-  { amount: 9500, currency: "USD", originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  { amount: 9500, currency: handpoint.Currency.USD, originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
@@ -65,16 +65,17 @@ handpoint.preAuthorizationCapture(
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-authorization result (UUID v4) |
-| `capturedAmount` | string | Yes | Actual capture amount in smallest currency unit as a string |
-| `tipAmount` | string | No | Optional tip amount in smallest currency unit as a string |
+| `capturedAmount` | string | Yes | Capture amount in **major currency units** as a decimal string, e.g. `"95.00"` for $95.00 |
+| `tipAmount` | string | No | Optional tip amount in **major currency units** as a decimal string |
 
-**Android SDK** — `preAuthorizationCapture(amount, currency, originalTransactionID)`:
+**Android SDK** — `preAuthorizationCapture(amount, currency, originalTransactionID, options?)`:
 
 | Parameter | Type | Description |
 |---|---|---|
 | `amount` | `BigInteger` | Capture amount in minor currency units |
 | `currency` | `Currency` | Currency of the original pre-authorization |
 | `originalTransactionID` | `String` | `transactionID` from the pre-authorization result |
+| `options` | `Options?` | Optional — supports `customerReference` |
 
 :::note
 The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parameter. `tipAmount` is a Cloud API-only field.

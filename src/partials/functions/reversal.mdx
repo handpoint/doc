@@ -131,7 +131,7 @@ heftClient.saleVoidWithAmount(1000, currency: "USD", transaction: "01236fc0-8192
 handpoint.saleReversal(
   {
     amount: 1000,
-    currency: "USD",
+    currency: handpoint.Currency.USD,
     originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
   },
   function(result) { /* handle result */ },

@@ -94,8 +94,7 @@ Content-Type: application/json
 {
   "amount": "10.00",
   "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
 
@@ -113,6 +112,9 @@ hapi.motoPreauthorization(BigInteger("1000"), Currency.USD)
 
 // Refund — no terminal interaction, submitted via token
 hapi.motoRefund(BigInteger("1000"), Currency.USD, originalTransactionId)
+
+// Reversal — no amount or currency required
+hapi.motoReversal(originalTransactionId)
 ```
 
 **Back-office** — card token via `MoToOptions`, no terminal entry:
@@ -142,10 +144,32 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-<NotSupported
-  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or the Cloud API back-office endpoints for card-token MOTO without a reader."
-  useInstead="Android SDK (PAX) or Cloud API"
-/>
+```javascript
+// Android only — MOTO via Cordova
+
+// Sale
+handpoint.motoSale(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") { /* accepted */ }
+  },
+  function(error) { console.error(error); }
+);
+
+// Refund
+handpoint.motoRefund(
+  { amount: 1000, currency: handpoint.Currency.USD, originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+
+// Reversal — no amount or currency required
+handpoint.motoReversal(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
 
 </TabItem>
 </Tabs>
@@ -174,7 +198,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 | `amount` | string | Yes | Amount in **major currency units**, e.g. `"10.00"` for $10.00 |
 | `currency` | string | Yes | ISO 4217 currency code |
 | `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
-| `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
+| `originalGuid` | string | Refund only | GUID of the original MOTO sale to refund. Replaces `cardToken` on refunds — the gateway retrieves the card from the original transaction |
 | `transactionReference` | string | Sale / Pre-Auth | UUID v4 for idempotency. Do not include on refunds (linked operation) |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 
@@ -202,7 +226,26 @@ Not applicable — see Cloud API tab for back-office mode.
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-Not applicable — see Cloud API tab for back-office mode, or Android SDK (PAX) for on-terminal.
+**`handpoint.motoSale(config, success, error)`** — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | number | Amount in minor currency units |
+| `currency` | number | `handpoint.Currency.USD` (or other currency enum) |
+
+**`handpoint.motoRefund(config, success, error)`** — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | number | Refund amount in minor currency units |
+| `currency` | number | `handpoint.Currency.USD` |
+| `originalTransactionID` | string | `transactionID` from the original MOTO sale |
+
+**`handpoint.motoReversal(config, success, error)`** — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `originalTransactionID` | string | `transactionID` from the MOTO sale to reverse — no amount or currency |
 
 </TabItem>
 </Tabs>

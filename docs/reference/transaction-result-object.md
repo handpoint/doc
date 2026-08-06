@@ -382,6 +382,8 @@ result.customerReference        // ""
 result.budgetNumber             // ""
 result.batchNumber              // ""  (App 4.14.0 / SDK 7.1014.0+)
 result.metadata                 // null
+result.applicationLabel         // "VISA CREDIT"
+result.customData               // ""
 
 // --- Receipts ---
 result.merchantReceipt          // "<html>...</html>"
@@ -483,6 +485,8 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `batchNumber` | String | Batch number (App 4.14.0 / SDK 7.1014.0+). Empty string if not yet available or acquirer does not return it. |
 | `metadata` | Metadata? | Custom metadata echoed from request. |
 | `moneyRemittanceOptions` | MoneyRemittance? | Present if `moneyRemittanceOptions` were sent in request. |
+| `applicationLabel` | String | Application label from the card (e.g. `"VISA CREDIT"`). |
+| `customData` | String | Custom data field — can be used to pass additional information. |
 
 ### Receipts
 

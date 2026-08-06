@@ -85,7 +85,20 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </TabItem>
 <TabItem value="cordova" label="Cordova">
 
-<ComingSoon />
+```javascript
+// Android only — positive delta to increase, negative to decrease
+handpoint.preAuthorizationIncrease(
+  {
+    amount: 2000,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") { /* hold adjusted */ }
+  },
+  function(error) { console.error(error); }
+);
+```
 
 </TabItem>
 </Tabs>
@@ -111,13 +124,14 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 | `tipAmount` | string | No | Tip amount in major units as a decimal string, e.g. `"2.00"` |
 | `customerReference` | string | No | Integrator-defined reference forwarded as-is to the gateway |
 
-**Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID)`:
+**Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID, options?)`:
 
 | Parameter | Type | Description |
 |---|---|---|
 | `amount` | `BigInteger` | Delta in minor currency units. Pass a **negative** value to decrease |
 | `currency` | `Currency` | Currency of the original pre-authorization |
 | `originalTransactionID` | `String` | `transactionID` from the pre-auth create result |
+| `options` | `Options?` | Optional — supports `customerReference` |
 
 ### Errors
 

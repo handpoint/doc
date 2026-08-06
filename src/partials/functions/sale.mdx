@@ -90,7 +90,7 @@ func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
 ```javascript
 // JavaScript — Cordova plugin wrapping native Android/iOS SDK
 handpoint.sale(
-  { amount: 1000, currency: "USD" },
+  { amount: 1000, currency: handpoint.Currency.USD },
   function(result) {
     if (result.finStatus === "AUTHORISED") {
       // store result.transactionID for potential reversal

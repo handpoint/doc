@@ -70,7 +70,7 @@ hapi.preAuthorization(BigInteger("10000"), Currency.USD)
 
 ```javascript
 handpoint.preAuthorization(
-  { amount: 10000, currency: "USD" },
+  { amount: 10000, currency: handpoint.Currency.USD },
   function(result) { /* store result.transactionID for capture */ },
   function(error) { console.error(error); }
 );
