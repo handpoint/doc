@@ -39,6 +39,8 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "tipAmount": 0,
   "tipPercentage": 0,
   "dueAmount": 0,
+  "taxAmount": 0,
+  "surcharge": 0,
   "currency": "USD",
 
   "cardEntryType": "ICC",
@@ -73,8 +75,10 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "merchantAddress": "7800 Congress Ave STE 112 33487 Boca Raton",
   "customerReference": "",
   "budgetNumber": "",
+  "batchNumber": "",
   "originalEFTTransactionID": "",
   "metadata": null,
+  "customFields": null,
 
   "merchantReceipt": "<html>...</html>",
   "customerReceipt": "<html>...</html>",
@@ -130,6 +134,8 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipAmount` | integer | Tip amount. `0` if no tip. |
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
+| `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
+| `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 
 ### Card
@@ -175,8 +181,9 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `rrn` | string | Retrieval Reference Number — acquirer-assigned reference for this transaction. |
 | `customerReference` | string | Echoed-back value from `customerReference` in the request, if sent. |
 | `budgetNumber` | string | Budget/instalment number (South African acquirers). |
-| `originalEFTTransactionID` | string | Original `transactionID` for linked operations (refund, reversal, capture). |
+| `batchNumber` | string | Batch number returned by the acquirer (App 4.14.0 / REST API 2.28.0+). Empty string if not yet available or acquirer does not return it. |
 | `metadata` | object\|null | Custom metadata echoed from the request, if used. |
+| `customFields` | array\|null | Key-value pairs for acquirer-specific data. Present on terminal-initiated reversals — see [Terminal-Initiated Reversals](/reference/terminal-reversals) for the `messageReasonCode` values. `null` otherwise. |
 
 ### Receipts
 
@@ -335,6 +342,8 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
+result.taxAmount                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
+result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
 // --- Card ---
@@ -371,7 +380,7 @@ result.merchantName             // "DEMO MERCHANT"
 result.merchantAddress          // "7800 Congress Ave STE 112 33487 Boca Raton"
 result.customerReference        // ""
 result.budgetNumber             // ""
-result.batchNumber              // ""  (SDK v7.1012.1+)
+result.batchNumber              // ""  (App 4.14.0 / SDK 7.1014.0+)
 result.metadata                 // null
 
 // --- Receipts ---
@@ -426,6 +435,8 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
+| `taxAmount` | BigInteger | Tax amount (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `currency` | Currency | Currency enum. |
 
 ### Card
@@ -469,7 +480,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `rrn` | String | Retrieval Reference Number from acquirer. |
 | `customerReference` | String | Echoed-back `customerReference` from request. |
 | `budgetNumber` | String | Budget/instalment number (SA acquirers). |
-| `batchNumber` | String | Batch number (SDK v7.1012.1+). |
+| `batchNumber` | String | Batch number (App 4.14.0 / SDK 7.1014.0+). Empty string if not yet available or acquirer does not return it. |
 | `metadata` | Metadata? | Custom metadata echoed from request. |
 | `moneyRemittanceOptions` | MoneyRemittance? | Present if `moneyRemittanceOptions` were sent in request. |
 
@@ -574,7 +585,7 @@ func heftClient(
 
 | Field | Type | Description |
 |---|---|---|
-| `statusCode` | Int | `EFT_PROTOCOL_RESULT_SUCCESS` (0) or error code — see [status codes](#status-codes) below. |
+| `statusCode` | Int | `EFT_PP_STATUS_SUCCESS` (0x0001) on success, or an error code — see [status codes](#status-codes) below. |
 | `statusMessage` | String | Human-readable status. |
 | `xml` | String | Full transaction result serialised as an XML string. |
 | `userInfo` | [String: Any] | Dictionary of parsed result fields (see below). |
@@ -709,7 +720,7 @@ handpoint.sale(
 |---|---|
 | `AUTHORISED` | Approved by the issuer. |
 | `DECLINED` | Declined by the issuer or gateway. |
-| `CANCELLED` | Cancelled by the cardholder at the terminal. |
+| `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure. |
 | `UNDEFINED` | No result received — query the `/status` endpoint. |
 | `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. |

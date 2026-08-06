@@ -1,0 +1,521 @@
+---
+id: smartboard
+title: SmartBoard (eCommerce)
+description: "Handpoint SmartBoard: Europe-only Card-Not-Present payment gateway for eCommerce. Covers HPP, Direct, Hosted Payment Fields, 3DS v2 / SCA, recurring payments, and test credentials."
+geography: "EU"
+status: active
+last-reviewed: "2026-08-04"
+---
+
+# SmartBoard (eCommerce)
+
+SmartBoard is Handpoint's Card-Not-Present (CNP) payment gateway for European eCommerce. It is powered by the CardStream/P3 platform and is completely separate from Handpoint's card-present SDK stack. SmartBoard is available to merchants in the European Economic Area (EEA) and the UK.
+
+Merchants who already use a Handpoint card-present acquirer (EmerchantPay, Lloyds, etc.) can additionally use SmartBoard for online CNP transactions — no separate acquiring relationship is required because SmartBoard **is** the gateway.
+
+:::info Europe-only
+SmartBoard is available only to merchants operating in the European Economic Area, Monaco, or the United Kingdom. It is not available to US or non-European merchants.
+:::
+
+Full reference documentation is available at [developer-ecomm.handpoint.com](https://developer-ecomm.handpoint.com).
+
+---
+
+## Integration paths
+
+Choose the method that matches your PCI appetite and feature requirements.
+
+| Method | How it works | PCI scope | Supports 3DS | Supports recurring/MIT | Google Pay / Apple Pay |
+|---|---|---|---|---|---|
+| **Hosted Payment Page (HPP)** | Browser redirects to a Handpoint-hosted form; card data never touches your server | Lowest | Automatic — no extra code | CIT card-on-file only | No |
+| **Direct** | Server-to-server API — card data passes through your server | Higher | Manual `threeDSRedirectURL` flow required | Full MIT / standing orders | Yes (via separate flow) |
+| **Hosted Payment Fields (HPF)** | iFrame fields embedded in your page; card data posts directly to gateway | Low | Manual redirect flow required | Full MIT / standing orders | Yes |
+| **Batch** | Bulk file upload for deferred processing | Varies | Not applicable | Supported | No |
+
+**Quickest path:** Use HPP. It handles 3DS, card collection, and SCA entirely on Handpoint infrastructure. If you need recurring/MIT without cardholder involvement, or Google/Apple Pay, use Direct or HPF.
+
+---
+
+## Operations
+
+| Action | Description | HPP | Direct / HPF |
+|---|---|---|---|
+| `SALE` | Authorise and settle a payment | Yes | Yes |
+| `VERIFY` | Zero-value card check — no funds held | Yes | Yes |
+| `PREAUTH` | Authorise only; capture later via `SALE` with `xref` | Yes | Yes |
+| `REFUND` | Credit back to a previously settled transaction | No | Yes |
+| `CANCEL` | Void an unsettled authorisation | No | Yes |
+| `QUERY` | Retrieve the current state of a transaction | No | Yes |
+
+Transaction `type` values:
+
+| Value | Meaning | 3DS required (EU) |
+|---|---|---|
+| `1` | E-commerce (ECOM) — cardholder-initiated online | Yes |
+| `2` | MOTO — cardholder dictates details by phone/mail | No |
+| `9` | Continuous Authority (CA) — merchant-initiated recurring | No |
+
+---
+
+## Hosted Payment Page (HPP)
+
+### When to use
+
+HPP is the right choice when you want to accept online payments with minimal PCI burden and no 3DS complexity. Handpoint hosts the entire payment form and manages the 3DS challenge on your behalf. The cardholder is redirected back to your site once payment is complete.
+
+**Limitations:** HPP supports only `SALE`, `VERIFY`, and `PREAUTH`. Refunds, cancellations, and fully unattended recurring payments require a Direct or HPF integration. Google Pay and Apple Pay are not available via HPP.
+
+### How it works
+
+1. Your server renders an HTML form containing hidden fields that describe the transaction.
+2. The cardholder submits the form; their browser POSTs directly to the Handpoint HPP URL.
+3. Handpoint collects card details, runs 3DS, and processes the payment.
+4. The cardholder's browser is redirected to your `redirectURL` with the result as POST parameters.
+5. Optionally, Handpoint also POSTs the result to your `callbackURL` for server-side processing.
+
+### Key request fields
+
+| Field | Required | Description |
+|---|---|---|
+| `merchantID` | Yes | Your Merchant Account ID (provided during onboarding) |
+| `action` | Yes | `SALE`, `VERIFY`, or `PREAUTH` |
+| `type` | Yes | `1` (ECOM) or `2` (MOTO) |
+| `amount` | Yes | Integer in minor currency units (e.g. `1099` = £10.99) |
+| `currencyCode` | Yes | ISO 4217 numeric (e.g. `826` = GBP, `978` = EUR) |
+| `countryCode` | Yes | ISO 3166-1 numeric (e.g. `826` = UK) |
+| `redirectURL` | Yes | Fully-qualified URL where the browser is sent after payment |
+| `signature` | Yes* | SHA-512 HMAC of the sorted request fields — see [Signature calculation](#signature-calculation) |
+| `callbackURL` | No | Server-to-server POST copy of the response |
+| `orderRef` | No | Free-text order reference stored with the transaction |
+| `transactionUnique` | No | Your own unique transaction ID to prevent replay attacks |
+| `xref` | No | Cross-reference to a previous transaction (for card-on-file repeat purchases) |
+| `customerEmail` | No | Pre-populates the email field and enables customer receipt emails |
+
+*Signature is mandatory on most merchant accounts and strongly recommended on all.
+
+### Example — SALE form (HTML)
+
+```html
+<!-- HPP SALE: £10.01 in GBP. Replace merchantID and signature with your own values. -->
+<form
+  id="paynow"
+  method="post"
+  action="https://commerce-api.handpoint.com/hosted/modal/"
+  data-hostedforms-modal>
+
+  <input type="hidden" name="merchantID"        value="155928" />
+  <input type="hidden" name="action"            value="SALE" />
+  <input type="hidden" name="type"              value="1" />
+  <input type="hidden" name="currencyCode"      value="826" />
+  <input type="hidden" name="countryCode"       value="826" />
+  <input type="hidden" name="amount"            value="1001" />
+  <input type="hidden" name="orderRef"          value="order-12345" />
+  <input type="hidden" name="redirectURL"       value="https://yoursite.com/payment-result" />
+  <input type="hidden" name="callbackURL"       value="https://yoursite.com/payment-callback" />
+  <input type="hidden" name="transactionUnique" value="unique-id-abc123" />
+  <input type="hidden" name="signature"         value="<SHA-512 signature>" />
+
+  <input type="submit" value="Pay Now" />
+</form>
+
+<!-- Optional: load the lightbox library to show HPP as a modal overlay -->
+<script src="https://commerce-api.handpoint.com/sdk/web/v1/js/hostedforms.min.js"></script>
+```
+
+Remove `data-hostedforms-modal` and the `<script>` tag to redirect to a full-page HPP instead of a modal. The HPP can also be embedded in an `<iframe>`.
+
+### Example — HPP using the PHP SDK
+
+```php
+<?php
+require('gateway.php');
+use \P3\SDK\Gateway;
+
+Gateway::$merchantID     = '155928';       // your merchant ID
+Gateway::$merchantSecret = 'YourSecret';  // your signing secret
+
+$request = [
+    'action'            => 'SALE',
+    'type'              => 1,
+    'currencyCode'      => 826,
+    'countryCode'       => 826,
+    'amount'            => 1001,            // £10.01
+    'orderRef'          => 'order-12345',
+    'redirectURL'       => 'https://yoursite.com/payment-result',
+    'callbackURL'       => 'https://yoursite.com/payment-callback',
+    'transactionUnique' => uniqid(),
+];
+
+// Outputs a signed <form> pointing at the gateway's hosted page
+echo Gateway::hostedRequest($request, ['submitText' => 'Pay Now']);
+```
+
+### Response handling
+
+The gateway POSTs response fields to your `redirectURL`. Always verify the `signature` before trusting any field:
+
+```php
+<?php
+require('gateway.php');
+use \P3\SDK\Gateway;
+
+Gateway::$merchantSecret = 'YourSecret';
+
+try {
+    Gateway::verifyResponse($_POST);
+} catch (\RuntimeException $e) {
+    die('Invalid gateway response: ' . $e->getMessage());
+}
+
+if ($_POST['responseCode'] === 0) {
+    // Payment authorised — safe to fulfil the order
+    $xref = $_POST['xref'];  // store this for refunds / repeat charges
+    echo 'Payment approved. Auth code: ' . $_POST['authorisationCode'];
+} else {
+    echo 'Payment failed: ' . $_POST['responseMessage'];
+}
+```
+
+:::warning Use `callbackURL` for backend updates
+The browser redirect to `redirectURL` can be interrupted if the cardholder closes the tab. Use `callbackURL` for reliable server-to-server notification when updating your order management system.
+:::
+
+---
+
+## Direct Integration
+
+Direct integration is a server-to-server API. Your server sends card data (PAN, expiry, CVV) and receives an immediate response. Because card data passes through your server you take on additional PCI scope, but you gain full control over all transaction types and the checkout UX.
+
+**Endpoint:** `POST https://commerce-api.handpoint.com/direct/`
+
+All requests use `Content-Type: application/x-www-form-urlencoded`.
+
+### Key additional request fields (beyond HPP fields)
+
+| Field | Required | Description |
+|---|---|---|
+| `cardNumber` | Yes | Full PAN |
+| `cardExpiryMonth` | Yes | `MM` |
+| `cardExpiryYear` | Yes | `YY` |
+| `cardCVV` | Yes | 3–4 digit CVV |
+| `remoteAddress` | Yes (ECOM) | Cardholder's IP address — required for 3DS |
+| `threeDSRedirectURL` | Yes (ECOM) | HTTPS URL the ACS redirects back to after a 3DS challenge |
+| `customerAddress` | Recommended | For AVS checking |
+| `customerPostCode` | Recommended | For AVS checking |
+
+### Example — Direct SALE with 3DS (PHP)
+
+This example covers the full two-step flow: initial submission, then handling a 3DS challenge redirect.
+
+```php
+<?php
+session_start();
+require('gateway.php');
+use \P3\SDK\Gateway;
+
+Gateway::$merchantID     = '155928';
+Gateway::$merchantSecret = 'YourSecret';
+
+$pageUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+         . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+// --- Step 1: Initial submission ---
+if (!isset($_GET['acs'])) {
+    $req = [
+        'action'             => 'SALE',
+        'type'               => 1,              // ECOM
+        'currencyCode'       => 826,            // GBP
+        'countryCode'        => 826,
+        'amount'             => 1250,           // £12.50
+        'cardNumber'         => '4929421234600821',
+        'cardExpiryMonth'    => 12,
+        'cardExpiryYear'     => 26,
+        'cardCVV'            => '356',
+        'customerName'       => 'Jane Smith',
+        'customerEmail'      => 'jane@example.com',
+        'customerAddress'    => 'Flat 6 Primrose Rise, 347 Lavender Road, Northampton',
+        'customerPostCode'   => 'NN17 8YG',
+        'orderRef'           => 'ORDER-' . time(),
+        'transactionUnique'  => uniqid(),
+        'remoteAddress'      => $_SERVER['REMOTE_ADDR'],
+        'threeDSRedirectURL' => $pageUrl . '&acs=1',
+    ];
+
+    try {
+        $response = Gateway::directRequest($req);
+    } catch (\Exception $e) {
+        die('Gateway error: ' . $e->getMessage());
+    }
+
+    if ($response['responseCode'] === Gateway::RC_3DS_AUTHENTICATION_REQUIRED) {
+        // Store pending response and redirect cardholder to ACS
+        $_SESSION['pending_response'] = $response;
+        header('Location: ' . $response['threeDSURL']);
+        exit;
+    }
+}
+
+// --- Step 2: Resume after 3DS ACS redirect ---
+if (isset($_GET['acs'])) {
+    $pending = $_SESSION['pending_response'] ?? null;
+    unset($_SESSION['pending_response']);
+
+    if (!$pending) {
+        die('No pending transaction found');
+    }
+
+    $req = array_merge($pending, $_POST);
+    $req['threeDSRedirectURL'] = $pageUrl . '&acs=1';
+
+    try {
+        $response = Gateway::directRequest($req);
+    } catch (\Exception $e) {
+        die('3DS completion error: ' . $e->getMessage());
+    }
+}
+
+// --- Handle final response ---
+if (($response['responseCode'] ?? -1) === Gateway::RC_SUCCESS) {
+    echo 'Authorised. xref: ' . $response['xref'];
+} else {
+    echo 'Declined: ' . $response['responseMessage'];
+}
+```
+
+### Example — Direct SALE with curl
+
+```bash
+curl -X POST https://commerce-api.handpoint.com/direct/ \
+  -H 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode "merchantID=155928" \
+  --data-urlencode "action=SALE" \
+  --data-urlencode "type=1" \
+  --data-urlencode "currencyCode=826" \
+  --data-urlencode "countryCode=826" \
+  --data-urlencode "amount=1250" \
+  --data-urlencode "cardNumber=4929421234600821" \
+  --data-urlencode "cardExpiryMonth=12" \
+  --data-urlencode "cardExpiryYear=26" \
+  --data-urlencode "cardCVV=356" \
+  --data-urlencode "customerName=Jane Smith" \
+  --data-urlencode "orderRef=ORDER-001" \
+  --data-urlencode "transactionUnique=abc-123" \
+  --data-urlencode "remoteAddress=203.0.113.42" \
+  --data-urlencode "threeDSRedirectURL=https://yoursite.com/payment?acs=1" \
+  --data-urlencode "signature=<SHA-512 signature>"
+```
+
+Response fields are returned as `application/x-www-form-urlencoded`. Key fields: `responseCode` (0 = success), `xref` (store for refunds/repeat), `authorisationCode`, `threeDSURL` (present when 3DS challenge is required).
+
+---
+
+## Hosted Payment Fields (HPF)
+
+Hosted Payment Fields embed lightweight iFrame inputs for the card number, expiry date, and CVV directly in your checkout page. The sensitive field values are never available to your JavaScript — they are sent directly from the iFrame to the gateway.
+
+HPF gives you a fully custom checkout design while keeping card data off your server, similar to Stripe Elements. Use HPF instead of Direct when you want a native-feeling UI without the full PCI burden of handling raw PANs server-side, but need capabilities that HPP does not offer (recurring, digital wallets, REFUND/CANCEL actions).
+
+Contact Handpoint support to have HPF enabled and configured on your merchant account.
+
+---
+
+## 3DS / SCA
+
+### Overview
+
+3-D Secure version 2 (EMV 3DS) is **mandatory** for all ECOM (`type=1`) transactions processed in the EEA, UK, and Monaco under PSD2. The gateway supports both 3DS v1 and v2; v2 is strongly enforced and used by default.
+
+MOTO (`type=2`) and merchant-initiated transactions (`type=9`) are outside PSD2 scope and do not require 3DS.
+
+PSD2 countries include: Austria, Belgium, Bulgaria, Croatia, Cyprus, Czech Republic, Denmark, Estonia, Finland, France, Germany, Greece, Hungary, Iceland, Ireland, Italy, Latvia, Liechtenstein, Lithuania, Luxembourg, Malta, Monaco, Netherlands, Norway, Poland, Portugal, Romania, Slovakia, Slovenia, Spain, Sweden, and the UK.
+
+### HPP — zero extra work
+
+When using the Hosted Payment Page, 3DS is handled entirely by the gateway. No additional fields or redirect handling are required on your end.
+
+### Direct / HPF — redirect flow
+
+1. Submit the initial transaction including `remoteAddress` and `threeDSRedirectURL`.
+2. If the gateway returns `responseCode = 65802` (`RC_3DS_AUTHENTICATION_REQUIRED`), redirect the cardholder to `response['threeDSURL']`.
+3. The ACS authenticates the cardholder and redirects back to your `threeDSRedirectURL` with POST data.
+4. Merge the ACS POST data with your stored original response and resubmit to the Direct endpoint.
+5. The gateway returns the final authorisation result.
+
+### Key 3DS response fields
+
+| Field | Description |
+|---|---|
+| `threeDSEnabled` | `Y` if 3DS is enabled on the merchant account |
+| `threeDSEnrolled` | `Y` = enrolled, `N` = not enrolled, `U` = unable to verify |
+| `threeDSAuthenticated` | `Y` = authenticated, `A` = attempted, `N` = not authenticated, `R` = rejected |
+| `threeDSECI` | Electronic Commerce Indicator (`05`/`02` = full auth, `06`/`01` = attempted, `07`/`00` = not authenticated) |
+| `threeDSCAVV` | Cardholder Authentication Verification Value |
+| `threeDSXID` | Unique 3DS transaction identifier |
+
+### SCA exemptions
+
+Pass `scaExemption` in the request to request an exemption:
+
+| Value | Exemption type |
+|---|---|
+| `lowvalue` | Transaction below €30 (subject to cumulative velocity limits) |
+| `trusted` | Merchant is on the cardholder's trusted beneficiary list |
+| `risk` | Transaction Risk Analysis (TRA) — requires agreement with payment provider |
+| `corporate` | Secured corporate payment |
+| `delegated` | Delegated authentication by merchant |
+
+The issuing bank can refuse any exemption and soft-decline with `responseCode = 65` (SCA required). The gateway retries with 3DS automatically when configured to do so.
+
+---
+
+## Recurring payments
+
+### CIT vs MIT
+
+| Type | Initiator | SCA required | `type` | `rtAgreementType` |
+|---|---|---|---|---|
+| CIT — card-on-file | Consumer | Yes (ECOM) | `1` | `cardonfile` |
+| CIT — subscription sign-up | Consumer | Yes (ECOM) | `1` | `recurring` or `instalment` |
+| MIT — subsequent recurring | Merchant | No | `9` | `recurring` or `instalment` |
+| MIT — unscheduled COF | Merchant | No | `2` | `unscheduled` |
+| MIT — resubmission / reauth | Merchant | No | `2` | `resubmission` / `reauthorisation` |
+
+### First transaction (CIT)
+
+The initial consumer-initiated transaction must include `rtAgreementType`. Store the `xref` returned — it is required for all subsequent MITs.
+
+```php
+$req = [
+    'action'             => 'SALE',
+    'type'               => 1,               // ECOM — cardholder present
+    'amount'             => 999,
+    'currencyCode'       => 826,
+    'countryCode'        => 826,
+    'cardNumber'         => '5573471234567898',
+    'cardExpiryMonth'    => 6,
+    'cardExpiryYear'     => 27,
+    'cardCVV'            => '159',
+    'orderRef'           => 'SUB-SIGNUP',
+    'rtAgreementType'    => 'recurring',
+    'initiator'          => 'consumer',
+    'remoteAddress'      => $_SERVER['REMOTE_ADDR'],
+    'threeDSRedirectURL' => $pageUrl . '&acs=1',
+];
+
+$response   = Gateway::directRequest($req);
+$storedXref = $response['xref'];             // save this in your database
+```
+
+### Subsequent transaction (MIT)
+
+```php
+$req = [
+    'action'          => 'SALE',
+    'type'            => 9,               // Continuous Authority
+    'amount'          => 999,
+    'currencyCode'    => 826,
+    'countryCode'     => 826,
+    'orderRef'        => 'SUB-RENEWAL-2',
+    'xref'            => $storedXref,     // reference to the original CIT
+    'rtAgreementType' => 'recurring',
+    'initiator'       => 'merchant',
+];
+
+$response = Gateway::directRequest($req);
+```
+
+The `xref` chain can extend across multiple MITs. `xref` values expire after 13 months; card schemes may impose shorter limits.
+
+:::warning HPP limitation
+Full MIT / standing-order recurring (where the cardholder is not present at all) is **not** supported via the Hosted Payment Page. Use Direct or HPF for unattended recurring charges.
+:::
+
+---
+
+## Signature calculation
+
+All requests should be signed to prevent tampering. The signature is a SHA-512 hash of the URL-encoded request fields (sorted by ASCII key order) concatenated with your merchant secret.
+
+```php
+<?php
+/**
+ * Generate a SmartBoard request signature.
+ *
+ * @param array  $fields  Associative array of request fields (no 'signature' key)
+ * @param string $secret  Your merchant secret
+ * @return string         SHA-512 hex signature
+ */
+function signRequest(array $fields, string $secret): string {
+    ksort($fields);
+    $str = http_build_query($fields, '', '&');
+    $str = preg_replace('/%0D%0A|%0A%0D|%0D/i', '%0A', $str); // normalise line endings
+    return hash('SHA512', $str . $secret);
+}
+
+$fields = [
+    'merchantID'        => '155928',
+    'action'            => 'SALE',
+    'type'              => '1',
+    'currencyCode'      => '826',
+    'countryCode'       => '826',
+    'amount'            => '1001',
+    'orderRef'          => 'order-12345',
+    'transactionUnique' => 'abc-123',
+];
+
+$fields['signature'] = signRequest($fields, 'YourMerchantSecret');
+```
+
+The PHP SDK (`Gateway::directRequest` and `Gateway::hostedRequest`) handles signing automatically. Manual signing is only needed when building raw form posts or integrating in another language.
+
+---
+
+## Test credentials
+
+Test accounts are connected to a simulator and do not hit real acquiring networks. You receive a test `merchantID` and `merchantSecret` during onboarding.
+
+### Test cards
+
+| Scheme | Card number | CVV | Address |
+|---|---|---|---|
+| Mastercard Debit | `5573 4712 3456 7898` | `159` | Merevale Avenue, Leicester, LE10 2BU |
+| Visa Credit | `4929 4212 3460 0821` | `356` | Flat 6 Primrose Rise, 347 Lavender Road, Northampton, NN17 8YG |
+| Visa Credit | `4543 0599 9999 9982` | `110` | 76 Roseby Avenue, Manchester, M63X 7TH |
+| Mastercard Credit | `5301 2500 7000 0191` | `419` | 25 The Larches, Narborough, Leicester, LE10 2RT |
+| Amex | `3742 454554 00001` | `4887` | The Hunts Way, Southampton, SO18 1GW |
+
+Use any future expiry date. CVV and address values above return "matched" on AVS/CV2 checks.
+
+### Test amounts (minor currency units)
+
+| Amount range | Auth result |
+|---|---|
+| 100 – 2499 | Approved (`responseCode = 0`) |
+| 2500 – 4999 | Approved, rejected at settlement |
+| 5000 – 9999 | Referred (`responseCode = 1`) — resubmit with `authorisationCode` to approve |
+| 10000 – 14999 | Declined (`responseCode = 5`) |
+| 15000 – 19999 | Declined — keep card (`responseCode = 4`) |
+| 20000 – 24999 | SCA soft-decline (`responseCode = 65`), then approved after 3DS |
+
+Any amount outside these ranges returns `responseCode = 66311` (Invalid Test Amount).
+
+### 3DS simulation (expiry month)
+
+The simulator uses the card **expiry month** to control the 3DS outcome:
+
+| Expiry month | `threeDSAuthenticated` | Behaviour |
+|---|---|---|
+| `01` (January) | `Y` | Frictionless — fully authenticated |
+| `04` (April) | `A` | Attempted authentication |
+| `02` (February) | `N` | Not authenticated |
+| `12` (December) | `C` | Challenge — cardholder must complete ACS dialog |
+
+Use expiry month `12` to test the full 3DS redirect flow in development.
+
+---
+
+## Further reading
+
+- Full API reference: [developer-ecomm.handpoint.com](https://developer-ecomm.handpoint.com)
+- PHP SDK: available from Handpoint on request
+- Merchant Management System (MMS): configure AVS thresholds, 3DS policy, DCC, and email notifications per merchant account

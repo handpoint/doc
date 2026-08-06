@@ -173,7 +173,7 @@ handpoint.sale(
 | `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
 
 ### Testing
-Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../get-started/development-hardware#trigger-amounts). All other amounts process as approved.
+Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../reference/development-hardware#trigger-amounts). All other amounts process as approved.
 
 ## Refund
 
@@ -291,7 +291,7 @@ handpoint.refund(
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
 ### Testing
-Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../get-started/development-hardware#trigger-amounts) to simulate declined or timeout responses.
+Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../reference/development-hardware#trigger-amounts) to simulate declined or timeout responses.
 
 ## Reversal
 
@@ -718,7 +718,7 @@ Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All 
 :::
 
 ### When to use it
-Use for call centres, phone order systems, or recurring billing where the cardholder previously consented to card-on-file. A card token must exist before a MOTO transaction can be processed — tokens are obtained via the [Tokenization](/acquirers/tsys#tokenization) operation on the original card-present or online transaction.
+Use for call centres, phone order systems, or recurring billing where the cardholder previously consented to card-on-file. A card token must exist before a MOTO transaction can be processed — tokens are obtained via the [Tokenization](/acquirers/epi#tokenization) operation on the original card-present or online transaction.
 
 ### Implementation notes
 
@@ -848,7 +848,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 | `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
 
 ### Testing
-Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/tsys#tokenization).
+Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).
 
 ## Tokenization
 
