@@ -65,11 +65,11 @@ const PAYSAFE_PORTAL_NOTE =
  */
 export const ACQUIRERS = [
   // ─────────────────────────────────────────────────────────────────────────
-  // TSYS — US, Canada
+  // EPI (formerly TSYS) — US, Canada
   // ─────────────────────────────────────────────────────────────────────────
   {
-    id: 'tsys',
-    name: 'TSYS',
+    id: 'epi',
+    name: 'EPI',
     subtitle: 'US, Canada · VISA MC Discover',
     caps: {
       sale:                        ALL5(),

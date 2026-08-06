@@ -9,7 +9,7 @@ const REGIONS = [
     value: 'us-canada',
     label: 'US & Canada',
     flag: '🇺🇸',
-    desc: 'TSYS · EPI (TSYS) · PAYSAFE · PAYSAFE + Interac · TNS (Interac) · Worldpay (Vantiv)',
+    desc: 'EPI (TSYS) · Paysafe — Handpoint referral acquirers for North America',
   },
   {
     value: 'eu',
@@ -54,21 +54,16 @@ const PATHS = [
   { value: 'android-pax',    label: 'Android (PAX)',    icon: '📱',  desc: 'Native Android app running directly on the PAX payment device.' },
   { value: 'android-hilite', label: 'Android (HiLite)', icon: '🔵',  desc: 'Android phone or tablet paired with a HiLite Bluetooth card reader.' },
   { value: 'ios-hilite',     label: 'iOS (HiLite)',     icon: '📲',  desc: 'iPhone or iPad paired with a HiLite Bluetooth card reader.' },
-  { value: 'back-office',    label: 'Back Office API',  icon: '🏦',  desc: 'Server-side only — reversals, tip adjustments, MOTO, and pre-auth captures with no terminal.' },
+  { value: 'cordova',        label: 'Cordova',          icon: '🧩',  desc: 'Cordova/Ionic plugin wrapping the native Handpoint SDKs — shared JavaScript code that runs on PAX (Android), HiLite (Android), and HiLite (iOS).' },
 ];
 
-// ─── EPI acquirer — TSYS capabilities + ProCharge token provider ──────────────
+// ─── EPI acquirer ─────────────────────────────────────────────────────────────
 
-const _tsys = BASE_ACQUIRERS.find(a => a.id === 'tsys');
-const ACQUIRERS = [
-  ...BASE_ACQUIRERS.filter(a => a.id !== 'omnipay-lloyds'),
-  { id: 'epi', name: 'EPI (TSYS)', subtitle: 'US, Canada · VISA MC Discover', caps: _tsys.caps, notes: _tsys.notes, portalNote: null },
-].map(a => a.id === 'vantiv' ? { ...a, name: 'Worldpay (Vantiv)', subtitle: 'US · VISA MC Discover JCB' } : a);
+const ACQUIRERS = BASE_ACQUIRERS.filter(a => a.id !== 'omnipay-lloyds');
 
 // ─── Acquirer → region mapping ────────────────────────────────────────────────
 
 const ACQUIRER_REGIONS = {
-  'tsys':             'us-canada',
   'epi':              'us-canada',
   'tsys-tns':         'us-canada',
   'tns':              'us-canada',
@@ -175,15 +170,15 @@ const FEATURE_GROUPS = [
   },
   {
     id: 'backoffice',
-    label: 'Backoffice & Remote',
+    label: 'Back Office & Remote',
     icon: '🏢',
     features: [
-      { id: 'auto-refund',   label: 'MOTO Refund (GUID)',              required: false, capKey: 'refund',                   desc: 'Refund via original transaction GUID — no terminal, no card re-presentation.' },
-      { id: 'moto-token',    label: 'MOTO Charge with Card Token',     required: false, capKey: 'moto', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date to enable card-not-present charges.', desc: 'Charge a customer using a stored card token — covers recurring billing, card-on-file, and unscheduled MOTO scenarios. The token must come from a provider that stores full PAN and expiry (ProCharge for EPI, or Cygma).' },
-      { id: 'token-guid',    label: 'Get Token from Transaction GUID', required: false, capKey: 'tokenization',             desc: 'Retrieve a card token from any past transaction using its GUID — no new terminal interaction.' },
-      { id: 'preauth-retry', label: 'Pre-Auth Capture Retry',          required: false, capKey: 'pre-auth-capture-reversal', desc: 'Retry a failed capture using the original auth GUID — no customer re-presence needed.' },
-      { id: 'batching',      label: 'Batch / EOD Settlement',          required: false, capKey: 'batching',                  desc: 'Manually trigger end-of-day batch settlement instead of relying on automatic settlement. Must be enabled in TMS.' },
-      { id: 'txn-feed',      label: 'TXN Feed API Reconciliation',     required: false, capKey: null,                        desc: 'Query, reconcile, and export transactions via the Handpoint TXN Feed API.' },
+      { id: 'auto-refund',   label: 'MOTO Refund (GUID)',              required: false, pathIndependent: true, capKey: 'refund',                   desc: 'Refund via original transaction GUID using the REST API — no terminal or card re-presentation needed, regardless of your terminal integration path.' },
+      { id: 'moto-token',    label: 'MOTO Charge with Card Token',     required: false, pathIndependent: true, capKey: 'moto', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date to enable card-not-present charges.', desc: 'Charge a customer using a stored card token via the REST API — covers recurring billing, card-on-file, and unscheduled MOTO scenarios. The token must come from a provider that stores full PAN and expiry (ProCharge for EPI, or Cygma).' },
+      { id: 'token-guid',    label: 'Get Token from Transaction GUID', required: false, pathIndependent: true, capKey: 'tokenization',             desc: 'Retrieve a card token from any past transaction using its GUID via the REST API — no new terminal interaction.' },
+      { id: 'preauth-retry', label: 'Pre-Auth Capture Retry',          required: false, pathIndependent: true, capKey: 'pre-auth-capture-reversal', desc: 'Retry a failed pre-auth capture using the original auth GUID via the REST API — no customer re-presence needed.' },
+      { id: 'batching',      label: 'Batch / EOD Settlement',          required: false, pathIndependent: true, capKey: 'batching',                  desc: 'Manually trigger end-of-day batch settlement via the REST API instead of relying on automatic settlement. Must be enabled in TMS.' },
+      { id: 'txn-feed',      label: 'TXN Feed API Reconciliation',     required: false, pathIndependent: true, capKey: null,                        desc: 'Query, reconcile, and export transactions via the Handpoint TXN Feed API.' },
     ],
   },
   {
@@ -202,7 +197,7 @@ const FEATURE_GROUPS = [
     features: [
       { id: 'closed-loop',    label: 'Closed-Loop / Badge Cards', required: false, capKey: null,               desc: 'Whitelisted PAN ranges return the actual card number — used for employee badges, merchant-issued gift cards, loyalty cards.' },
       { id: 'vantiv-omnitoken', label: 'Worldpay Omnitoken',      required: false, capKey: null, acquirers: ['vantiv'], desc: 'Acquirer-level token returned by Worldpay (Vantiv) in every transaction result. Scoped to a rollup ID — same card returns the same token across all merchants under the same rollup. Must be enabled at the merchant level directly with Worldpay.' },
-      { id: 'interac',        label: 'Interac (Canada)',           required: false, capKey: null, region: 'us-canada', acquirers: ['tsys-tns', 'tns'], desc: 'Interac has special requirements around fallback handling and void timing — see Dev Center for Interac compliance documentation.' },
+      { id: 'interac',        label: 'Interac (Canada)',           required: false, capKey: null, region: 'us-canada', acquirers: ['paysafe-tsys', 'tsys-tns', 'tns'], desc: 'Interac debit acceptance for Canadian cardholders. Requires specific fallback handling, void timing, and acquirer-level Interac enablement. Paysafe: Interac is available but must be enabled separately — contact Handpoint. See Dev Center for full Interac compliance requirements.' },
     ],
   },
 ];
@@ -459,6 +454,8 @@ function EcommFeatureRow({ feature, enabled, onToggle }) {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function isFeatureSupported(feature, pathId, acquirer) {
+  // Back Office features are server-side REST API calls — always available regardless of terminal path
+  if (feature.pathIndependent) return true;
   if (!feature.capKey || !acquirer) return true;
   const cap = acquirer.caps[feature.capKey];
   if (!cap) return false;
@@ -605,7 +602,12 @@ export default function IntegrationWizard() {
   const acquirer        = ACQUIRERS.find(a => a.id === acquirerId) || null;
   const prereqs         = PATH_PREREQS[pathId] || null;
   const ecommPrereqs    = ecommType ? ECOMM_PREREQS[ecommType] : null;
-  const regionAcquirers = ACQUIRERS.filter(a => ACQUIRER_REGIONS[a.id] === region);
+  const US_ACQUIRERS = new Set(['epi', 'paysafe-tsys']);
+  const regionAcquirers = ACQUIRERS.filter(a => {
+    if (ACQUIRER_REGIONS[a.id] !== region) return false;
+    if (region === 'us-canada') return US_ACQUIRERS.has(a.id);
+    return true;
+  });
 
   const allRequiredCPIds = FEATURE_GROUPS.flatMap(g => g.features.filter(f => f.required).map(f => f.id));
   const allRequiredEcommIds = ECOMM_FEATURE_GROUPS.flatMap(g => g.features.filter(f => f.required).map(f => f.id));
@@ -954,6 +956,10 @@ export default function IntegrationWizard() {
             <span className="wizard-plan-chip wizard-plan-chip--ecomm">
               🌐 Commerce API
             </span>
+          </div>
+
+          <div className="wizard-plan-notice wizard-plan-notice--info">
+            ℹ️ Transactions processed through the Commerce API are visible in the Handpoint portal for up to <strong>13 months</strong>.
           </div>
 
           <div className="wizard-plan-section-label">Before you build</div>

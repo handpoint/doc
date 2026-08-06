@@ -3,19 +3,9 @@
 
 export const ACQUIRERS = [
   {
-    "slug": "tsys",
-    "name": "TSYS",
+    "slug": "epi",
+    "name": "EPI",
     "geography": "US, Canada"
-  },
-  {
-    "slug": "tsys-tns",
-    "name": "PAYSAFE + Interac",
-    "geography": "Canada"
-  },
-  {
-    "slug": "tns",
-    "name": "TNS (Interac)",
-    "geography": "Canada"
   },
   {
     "slug": "paysafe-tsys",
@@ -28,11 +18,6 @@ export const ACQUIRERS = [
     "geography": "EU"
   },
   {
-    "slug": "omnipay-lloyds",
-    "name": "Lloyds",
-    "geography": "EU"
-  },
-  {
     "slug": "omnipay-paystrax",
     "name": "Paystrax",
     "geography": "EU"
@@ -41,10 +26,5 @@ export const ACQUIRERS = [
     "slug": "teya",
     "name": "TEYA (Borgun)",
     "geography": "EU"
-  },
-  {
-    "slug": "vantiv",
-    "name": "VANTIV (Worldpay)",
-    "geography": "US"
   }
 ];

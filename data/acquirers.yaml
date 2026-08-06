@@ -9,15 +9,17 @@
 
 acquirers:
 
-  tsys:
-    name: "TSYS"
+  epi:
+    name: "EPI"
     geography: "US, Canada"
     status: active
     card-brands: [VISA, MC, Discover]
     interac: false
     notes: >
-      Batch auto-closes ~11pm EST (host-capture). Partial reversal available for
-      TSYS US and Canada — uses the MasterCard flag in ISO 8583.
+      EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial
+      reversal available for US and Canada — uses the MasterCard flag in ISO 8583.
+      Tip adjustment only available on transactions processed without an on-screen tip
+      (tip-at-table flow).
     capabilities:
       sale:
         cloud-api: public

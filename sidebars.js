@@ -20,7 +20,7 @@ const sidebars = {
         {
           type: 'category',
           label: 'United States',
-          items: ['acquirers/tsys', 'acquirers/paysafe-tsys', 'acquirers/vantiv'],
+          items: ['acquirers/epi', 'acquirers/paysafe-tsys'],
         },
         {
           type: 'category',
@@ -35,6 +35,7 @@ const sidebars = {
             'acquirers/omnipay-lloyds',
             'acquirers/omnipay-paystrax',
             'acquirers/teya',
+            'acquirers/smartboard',
           ],
         },
         {
@@ -58,8 +59,10 @@ const sidebars = {
       items: [
         'reference/authentication',
         'reference/development-hardware',
+        'reference/manual-injection',
         'reference/pre-authorization-guide',
         'reference/transaction-recovery',
+        'reference/terminal-reversals',
         'reference/testing-edge-cases',
         'reference/full-matrix',
         'reference/acquirer-capabilities-matrix',
@@ -67,6 +70,8 @@ const sidebars = {
         'reference/interac-void',
         'reference/transaction-result-object',
         'reference/error-codes',
+        'reference/validate-integration',
+        'reference/known-issues',
       ],
     },
   ],

@@ -1,0 +1,214 @@
+---
+title: Validate your integration
+sidebar_position: 10
+description: Certification checklist and validation tests for each Handpoint integration path. Covers transaction recovery, app timeouts, and required test scenarios per enabled operation.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Validate your integration
+
+Before going live, every Handpoint integration must pass a set of mandatory validation scenarios. The required tests depend on your integration path and the operations you have enabled.
+
+:::info Certification process
+Handpoint Integration Support reviews your results before issuing a production API key or merchant credentials. Run all required scenarios on a staging/DEMO merchant and document the outcomes. Contact your integration engineer to schedule a certification call.
+:::
+
+## Required for every integration
+
+These scenarios apply regardless of integration path or acquirer.
+
+### Transaction recovery on connection loss
+
+**What to test:** Simulate a connection drop mid-transaction. Your software must:
+1. Detect that no result was received (timeout, socket close, app backgrounded/killed).
+2. On reconnection, query the transaction status.
+3. If the outcome is unknown (`UNDEFINED` or no result), send an automatic reversal to avoid double-charges.
+4. Only present the "approved" or "declined" result to the cashier once you have a definitive outcome.
+
+**Why it is required:** A transaction that disappears mid-flight may have been authorised at the gateway. If you do not reverse it and the cardholder is not charged, you take a loss. If you retry without checking, you risk double-charging the cardholder.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+1. Send `POST /transactions` — note the `transactionResultId` from the 202 response.
+2. Drop the network before polling (use a proxy or airplane mode).
+3. Restore connectivity.
+4. Poll `GET /transaction-result/{transactionResultId}`:
+   - `AUTHORISED` → transaction succeeded — record and show approved.
+   - `DECLINED` / `FAILED` → transaction did not go through — show declined.
+   - No result / timeout → send `POST /transactions` with `operation: "saleReversal"` using the original `originalTransactionId`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+The SDK surfaces the `transactionReference` synchronously via `OperationStartResult` before the result arrives. Store it immediately.
+
+1. On `endOfTransaction` timeout or app kill: call `hapi.getTransactionStatus(transactionReference)`.
+2. If status is `UNDEFINED` or unavailable: call `hapi.saleReversal(amount, currency, originalTransactionID)`.
+3. Display the authorised or declined status once a definitive answer is received.
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+HiLite uses Bluetooth — disconnection is detected automatically by the SDK and the SDK retries delivery. If the SDK fires `endOfTransaction` with `finStatus: UNDEFINED`:
+
+1. Call `hapi.getTransactionStatus(transactionReference)`.
+2. If unresolvable: send a reversal to avoid a double-charge risk.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+The delegate fires `didGetTransactionResponse` when the result is received. If the app is backgrounded or killed mid-transaction:
+
+1. On foreground/restart, re-establish the HiLite connection.
+2. Query the last transaction reference against the TXN Feed API or support channel.
+3. If outcome is unknown: send a reversal.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Store the `transactionReference` from the `OperationStartResult` immediately on success of the `handpoint.sale()` call. If the result callback is never fired:
+
+1. Call `handpoint.getTransactionStatus({ transactionReference })`.
+2. If status is `UNDEFINED`: call `handpoint.saleReversal({ ... })`.
+
+</TabItem>
+</Tabs>
+
+### App timeout and terminal idle handling
+
+Handpoint does not enforce a global operation timeout — your application must implement one.
+
+**Required behaviour:**
+- Set a maximum wait time per operation appropriate to your UX (typical: 90–120 seconds for card-present, 60 seconds for back-office REST calls).
+- On timeout: do NOT silently abandon the transaction. Follow the transaction recovery flow above to determine the outcome before clearing the UI.
+- When the terminal is idle between transactions, ensure no orphan operation is pending. The terminal will reject new operations with `Device is busy (1001)` until the previous one completes or times out.
+
+| Integration path | How to implement timeout |
+|---|---|
+| Cloud API | Use an HTTP client timeout for initial POST. For polling, set a max poll duration and retry interval (recommended: poll every 2s, give up after 90s, then reverse). |
+| Android SDK | Override `deviceLogsReady()` or implement a countdown in your UI thread. Do not call a second operation until `endOfTransaction` fires. |
+| iOS SDK | Use a `DispatchWorkItem` or `Timer`. Cancel and reverse if no delegate response. |
+| Cordova | Use `setTimeout` in JavaScript wrapping the `handpoint.*` call. |
+
+### Partial approval handling
+
+Some prepaid cards are partially approved — the card covers only part of the requested amount. The terminal returns `PARTIALLY_APPROVED` with the approved amount in the result.
+
+**Required behaviour:**
+- Detect `finStatus === "PARTIALLY_APPROVED"`.
+- Display the approved amount to the cashier.
+- Prompt for split tender (second payment method for the remainder).
+- If split tender is not supported or the cardholder declines: send an automatic reversal for the partial amount.
+
+---
+
+## Per-operation validation scenarios
+
+Run the scenarios below for each operation your integration supports.
+
+### Sale
+
+| Scenario | Expected outcome |
+|---|---|
+| Standard card-present sale | `AUTHORISED`, receipt printed |
+| Cardholder cancels at terminal | `CANCELLED` in result; no charge |
+| Issuer declines | `DECLINED`; prompt for alternative card |
+| Connection dropped mid-sale | Recovery flow resolves to definitive outcome (see above) |
+
+### Refund
+
+| Scenario | Expected outcome |
+|---|---|
+| Linked refund — same card | `AUTHORISED`; funds returned |
+| Linked refund — card mismatched (if same-card enforcement enabled) | `DECLINED` — document this in your UX |
+| Amount exceeds original | `DECLINED` — validate amount ISV-side before sending |
+| After batch close | — `DECLINED` or gateway error; no reversal path; issue a standalone unlinked refund |
+
+### Reversal
+
+| Scenario | Expected outcome |
+|---|---|
+| Reversal — same-day, batch open | `AUTHORISED`; no interchange fee |
+| Reversal — batch closed | Error; route to Refund |
+| Double reversal | `ALREADY_REVERSED` (or `3051` on no-reader path) |
+| Wrong `originalTransactionId` | `DECLINED` or `ORIGINAL_NOT_FOUND` |
+
+### Tip Adjustment
+
+| Scenario | Expected outcome |
+|---|---|
+| Add tip on a sale with no on-screen tip | Success (Boolean `true` on Android SDK) |
+| Modify previously set tip | New value replaces old — verify in batch/portal |
+| Set tip to `0` to void | Tip removed from transaction |
+| Attempt after batch close | Rejected — issue a Refund for tip amount instead |
+| Attempt on transaction with on-screen tip (EPI/TSYS merchants) | Rejected — document this in your UX and prevent staff from attempting |
+
+### Pre-Authorization
+
+Run the full pre-auth lifecycle — do not certify pre-auth without testing all sub-operations:
+
+| Scenario | Expected outcome |
+|---|---|
+| Create pre-auth | `AUTHORISED`; hold placed; `transactionID` stored |
+| Increase hold | Hold raised by delta; verify in portal |
+| Decrease hold | Hold reduced by delta; verify in portal |
+| Capture at original amount | Settled; hold cleared |
+| Capture at reduced amount | Settled at reduced amount |
+| Void (release without capturing) | Hold released; no settlement |
+| Attempt capture after void | `3051 Already reversed` (no-reader) or `DECLINED` (with-reader) |
+| Attempt capture after capture | `3211` (no-reader) — already settled |
+| Expired `originalGuid` | `5001 NullPointerException` (no-reader) or `FAILED` (with-reader) |
+
+### Tokenization
+
+| Scenario | Expected outcome |
+|---|---|
+| Tokenize-only (no charge) | Token returned in result |
+| Sale-and-tokenize (atomic) | `AUTHORISED` + token returned |
+| Token provider failure during sale-and-tokenize | Entire transaction declined — verify no partial charge |
+| Deferred token retrieval from past GUID | Token returned via `GET /transactions/{id}/token` |
+| MOTO charge using stored token | `AUTHORISED` without any terminal interaction |
+
+### Batch (EPI/TSYS US only)
+
+| Scenario | Expected outcome |
+|---|---|
+| Manual batch close | `BATCH_CLOSED`; batch ID returned |
+| Double close | `BATCH_ALREADY_CLOSED` |
+| Batch summary after close | Summary returned with correct totals |
+| Tip adjustment after manual close | Rejected |
+
+---
+
+## Error codes to verify
+
+| Code | Trigger | Correct ISV response |
+|---|---|---|
+| `1001 Device is busy` | Send two operations simultaneously | Queue the second — do not retry immediately |
+| `3051 Already reversed` | Double reversal or void-after-capture | Log and suppress — no retry |
+| `3153 Unable to find message to reverse` | Wrong `originalGuid` on `POST /reversal` | Verify GUID; fall back to Refund |
+| `3211 Already settled` | Capture after capture | Check state via TXN Feed; issue Refund if needed |
+| `4066 Amount exceeds original` | Reversal/capture amount too high | Validate amount before sending |
+| `5001 NullPointerException` | Unknown `originalGuid` on preauth endpoints | Verify GUID from pre-auth create result |
+| `VALIDATION_FAILED (422)` | Wrong field name (e.g. `amount` instead of `increaseAmount`) | Check field names in request body |
+| `403 No valid key found` | Wrong or expired API key | Verify `ApiKeyCLoud` header |
+
+See [Error codes reference](/reference/error-codes) for the full list.
+
+---
+
+## Staging vs production checklist
+
+Before switching to production credentials:
+
+- [ ] All required scenarios pass on staging with DEMO merchant
+- [ ] Transaction recovery tested and verified
+- [ ] App timeout implemented — no silent abandonment on terminal hang
+- [ ] Partial approval handled (even if your UI shows "declined, try another card")
+- [ ] Acquirer-specific restrictions tested (e.g. EPI/TSYS tip adjustment restrictions)
+- [ ] Certification call completed with Handpoint Integration Support
+- [ ] Production API key / SSK received and stored securely (not hardcoded in app)
+- [ ] Staging credentials removed or feature-flagged out of production builds

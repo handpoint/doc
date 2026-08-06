@@ -58,6 +58,19 @@ handpoint.preAuthorizationReversal(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization result |
 
+### Errors
+
+Void is a with-reader operation — errors arrive in the polled result, not in the initial 202 response.
+
+| `finStatus` | Meaning | What to do |
+|---|---|---|
+| `DECLINED` / `FAILED` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `DECLINED` | Pre-auth has already been captured or voided — hold no longer exists | Check transaction state before voiding |
+
+:::note
+There is no separate "already voided" error code — attempting to void an already-captured or already-voided pre-auth returns a DECLINED or FAILED result. Always check the `finStatus` field in the polled result.
+:::
+
 ### Testing
 
 <Tabs groupId="integration-path">

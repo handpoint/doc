@@ -8,14 +8,15 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 
 ### Implementation notes
 
-1. **To void a tip:** send `amount: 0`. There is no separate cancel call. The last value sent always wins.
-2. **Deadline:** before batch close. For TSYS, auto-close is typically 11pm EST. After close, only a refund is possible.
-3. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
-4. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
-5. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
-6. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `Boolean` directly. There is no `endOfTransaction` callback for this operation. `true` = adjustment accepted by the gateway; `false` = rejected. Check the return value immediately after the call.
-7. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-8. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
+1. **Last adjustment wins.** Each call replaces the previous tip value — there is no accumulation. If the cardholder adds $2 and then changes it to $5, send $5 as the full tip. To void a tip that was already set, send `amount: 0`.
+2. **Deadline: before batch close.** The cut-off time is determined by your acquirer and the merchant's onboarding configuration, not by a fixed clock time. Contact your Handpoint integration engineer for the exact cut-off for your merchant. After close, the transaction has settled and only a post-settlement Refund is possible.
+3. **Acquirer-specific restriction — TSYS:** tip adjustment is only available on transactions where **no tip was collected on-screen during the original sale** (tip-at-table flow). If the original sale included an on-screen tip prompt, TSYS will reject the tip adjustment. For TSYS merchants using on-screen tips, use tip adjustment only when the sale was processed without a tip prompt.
+4. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
+5. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
+6. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
+7. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `Boolean` directly. There is no `endOfTransaction` callback for this operation. `true` = adjustment accepted by the gateway; `false` = rejected. Check the return value immediately after the call.
+8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
+9. iOS HiLite does not support card-present tip adjustment. Use Cloud API.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
