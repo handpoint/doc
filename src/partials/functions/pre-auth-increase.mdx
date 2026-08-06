@@ -5,14 +5,35 @@ Adjusts the held amount on an open pre-authorization before capture.
 **When to use:** When the expected final charge has changed after the initial hold was placed — for example, a hotel stay is extended (increase) or a car rental is returned early (decrease). Send before capture.
 
 **Implementation notes:**
-1. `increaseAmount` is the **delta** — the amount to add to (or subtract from) the current hold, not the new total. To raise a $100 hold to $120, send `"increaseAmount": "20.00"`. To lower it to $80, send `"increaseAmount": "20.00"` with `"subtract": "1"`.
-2. Increase above the original amount is subject to acquirer and issuer limits. Check the acquirer capabilities matrix.
-3. The `originalTransactionID` must be the `transactionID` from the pre-auth create result.
+1. The `amount` is the **delta** — the amount to add to (or subtract from) the current hold, not the new total. To raise a $100 hold to $120, send a delta of $20. To lower it to $80, send a delta of $20 with a decrease signal.
+2. The decrease mechanism differs by integration path — see the code tab for your path.
+3. Increase above the original amount is subject to acquirer and issuer limits. Check the acquirer capabilities matrix.
+4. The `originalTransactionID` must be the `transactionID` from the pre-auth create result.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-**Increase** — add to the current hold:
+**With reader** — routes through the terminal (`POST /transactions`). Amount in **minor units**; use a **negative** amount to decrease.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorizationIncrease",
+  "amount": "2000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+To decrease, pass a negative `amount`: `"amount": "-2000"`.
+
+**Without reader** — sent directly to the gateway (`POST /preauthorization/increase`). Amount in **major units** (decimal); use `subtract: "1"` to decrease.
+
 ```http
 POST https://cloud.handpoint.com/preauthorization/increase
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -24,29 +45,24 @@ Content-Type: application/json
 }
 ```
 
-**Decrease** — subtract from the current hold by adding `subtract: "1"`:
-```http
-POST https://cloud.handpoint.com/preauthorization/increase
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "increaseAmount": "20.00",
-  "subtract": "1"
-}
-```
-
-Both operations use the same endpoint. `increaseAmount` is the delta in major units (decimal string). `originalGuid` is the `transactionID` from the pre-auth create result.
+To decrease, add `"subtract": "1"` to the body.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
+// Increase — positive delta
 hapi.preAuthorizationIncrease(
-    BigInteger("2000"),   // delta amount in minor units
+    BigInteger("2000"),   // delta in minor units (e.g. $20.00)
     Currency.USD,
-    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+
+// Decrease — negative delta
+hapi.preAuthorizationIncrease(
+    BigInteger("-2000"),  // negative = decrease
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 )
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
@@ -74,36 +90,48 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </TabItem>
 </Tabs>
 
-**Cloud API** — `POST /preauthorization/increase`:
+**Cloud API with reader** — `POST /transactions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"preAuthorizationIncrease"` |
+| `amount` | string | Yes | Delta in **minor units** as a string. Use a negative value to decrease, e.g. `"-2000"` |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Terminal serial number |
+| `originalTransactionId` | string | Yes | `transactionID` from the pre-auth create result |
+
+**Cloud API without reader** — `POST /preauthorization/increase`:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-auth create result |
-| `increaseAmount` | string | Yes | Delta amount in major units as a decimal string, e.g. `"20.00"` |
-| `subtract` | string | No | Pass `"1"` to subtract the delta (decrease the hold) instead of adding it |
-| `tipAmount` | string | No | Tip amount to add, in major units as a decimal string, e.g. `"2.00"` |
+| `increaseAmount` | string | Yes | Delta in **major units** as a decimal string, e.g. `"20.00"` — always positive |
+| `subtract` | string | No | Pass `"1"` to subtract the delta (decrease) instead of adding it |
+| `tipAmount` | string | No | Tip amount in major units as a decimal string, e.g. `"2.00"` |
 | `customerReference` | string | No | Integrator-defined reference forwarded as-is to the gateway |
 
 **Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID)`:
 
 | Parameter | Type | Description |
 |---|---|---|
-| `amount` | `BigInteger` | Delta amount in minor currency units |
+| `amount` | `BigInteger` | Delta in minor currency units. Pass a **negative** value to decrease |
 | `currency` | `Currency` | Currency of the original pre-authorization |
 | `originalTransactionID` | `String` | `transactionID` from the pre-auth create result |
 
 ### Errors
 
-**Cloud API (`POST /preauthorization/increase`)** — synchronous:
+**Cloud API without reader (`POST /preauthorization/increase`)** — synchronous:
 
 | HTTP | `code` | `message` | Meaning | What to do |
 |---|---|---|---|---|
-| `400` | `5001` | `NullPointerException` | `originalGuid` not found | Verify the GUID is the `transactionID` from the pre-auth create result. Code `5001` for this endpoint always means the original transaction was not found |
+| `400` | `5001` | `NullPointerException` | `originalGuid` not found | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `400` | `3211` | *(pre-auth already settled)* | Pre-auth has already been captured or voided | Check transaction state before adjusting |
 | `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
 | `422` | `VALIDATION_FAILED` | Missing or wrong field name | The required field is `increaseAmount`, not `amount` | See `details` array in response for the specific missing property |
 
 :::note
-`increaseAmount` is required for both increase and decrease operations. Sending `amount` results in a `422 VALIDATION_FAILED` error. To decrease, send `increaseAmount` with `subtract: "1"`.
+The no-reader endpoint (`POST /preauthorization/increase`) requires `increaseAmount` (always positive) with an optional `subtract: "1"` for decrease. The with-reader endpoint (`POST /transactions`) uses a negative `amount` for decrease — there is no `subtract` field on that path.
 :::
 
 ### Testing
@@ -113,8 +141,10 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 | Scenario | How to trigger |
 |---|---|
-| Increase | Create pre-auth → `POST /preauthorization/increase` with `increaseAmount` delta — verify new hold amount |
-| Decrease | Same endpoint, add `"subtract": "1"` — verify reduced hold |
+| Increase (no reader) | Create pre-auth → `POST /preauthorization/increase` with `increaseAmount` delta — verify new hold amount |
+| Decrease (no reader) | Same endpoint, add `"subtract": "1"` — verify reduced hold |
+| Increase (with reader) | `POST /transactions` with `operation: "preAuthorizationIncrease"` and positive `amount` — terminal must be online |
+| Decrease (with reader) | Same, but `amount` is negative, e.g. `"-2000"` |
 | Capture after adjustment | Increase/decrease → capture — verify settled amount matches adjusted total |
 
 </TabItem>

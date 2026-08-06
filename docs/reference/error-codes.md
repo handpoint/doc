@@ -35,6 +35,7 @@ description: Error codes returned by the Handpoint API and SDK, with recovery gu
 | `code` | `message` | Meaning | What to do |
 |---|---|---|---|
 | `5001` | `NullPointerException` | `originalGuid` not found (internal error surfaced for unknown GUIDs on these endpoints) | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `3211` | *(pre-auth already settled)* | Pre-auth has already been captured or voided — adjustment no longer possible | Check transaction state before sending an increase/decrease |
 
 :::note
 `POST /preauthorization/increase` handles both increases and decreases. To decrease, include `"subtract": "1"` in the request body — there is no separate `/preauthorization/decrease` endpoint.
