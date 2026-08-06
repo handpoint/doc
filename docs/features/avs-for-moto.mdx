@@ -19,10 +19,6 @@ MOTO transactions carry more fraud risk than card-present ones — there's no ch
 
 This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale, Pre-Authorization, or Refund. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request. The issuer/acquirer checks it and returns an AVS result as part of the transaction response — see [What comes back](#what-comes-back).
 
-:::caution Response field pending confirmation
-The AVS result is included in the issuer/acquirer response, but the exact field name and possible values in the SDK/API response haven't been confirmed yet. This page will be updated once confirmed — don't build decision logic against a specific field/value until then.
-:::
-
 AVS only applies to MOTO — Sale, Pre-Authorization, and Refund. It doesn't apply to card-present transactions, and MOTO must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
 
 ## Prerequisites
@@ -74,9 +70,7 @@ Those samples are transcribed from the AVS integration guide draft and haven't b
 
 ## What comes back
 
-The issuer/acquirer response for a MOTO transaction with billing data attached includes an AVS result, alongside the usual approve/decline outcome. The exact field name and possible values in `TransactionResult` and the REST response are being confirmed — this section will be updated with the real field and a code sample once that's settled.
-
-Until then, don't build decision logic against a specific field or value.
+The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a MOTO transaction with billing data attached, on both the native SDK and Cloud API.
 
 ## Edge cases
 
@@ -96,6 +90,6 @@ Store the following locally. Don't persist the raw billing address in clear text
 | Field to store | Source | Notes |
 |---|---|---|
 | `originalTransactionId` | `TransactionResult.transactionId` / API transaction id | Needed to link any later void or refund. |
-| `billingSent` | Whether you set billing on this transaction | Your own local flag — useful for reconciliation alongside the AVS result field, once its exact shape is confirmed. |
+| `billingSent` | Whether you set billing on this transaction | Your own local flag — useful for reconciliation alongside the AVS result. |
 | `billingZipCode` (optional) | Your local variable at transaction time | Store only what your reconciliation process needs. |
 | `billingAddress` | Not stored in clear text | Mask, truncate, or omit per your data retention policy. |
