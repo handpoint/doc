@@ -95,7 +95,7 @@ The `transactionReference` must be a unique UUID v4 per request — use it to re
 hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
-override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
@@ -110,7 +110,7 @@ override fun endOfTransaction(result: TransactionResult, transactionReference: T
 hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
-override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }

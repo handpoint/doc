@@ -131,6 +131,18 @@ handpoint.refund(
 | `originalTransactionId` | string | No | Links refund to original sale (linked refund). Do NOT combine with `transactionReference` |
 | `transactionReference` | string | No (Cloud API) | UUID v4. **Unlinked refunds only** — omit on linked refunds. Not supported on HiLite paths |
 
+**Android SDK — `RefundOptions` fields** (pass as optional third argument to `hapi.refund()`):
+
+| Field | Type | Description |
+|---|---|---|
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult.customerReference` and forwarded to the acquirer |
+| `checkDuplicates` | `Boolean` | `true` (default) to enable duplicate transaction detection on the gateway |
+| `pinBypass` | `Boolean` | `true` to offer a PIN bypass option to the cardholder (where acquirer-supported) |
+| `signatureBypass` | `Boolean` | `true` to skip signature capture (where acquirer-supported) |
+| `merchantAuth` | `MerchantAuth?` | Override merchant ID / terminal ID for multi-MID support |
+| `metadata` | `Metadata?` | Custom key-value pairs echoed in the result and stored in the transaction feed |
+| `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Money remittance fields (`fullName`, `countryCode`) for regulated money transfer refunds |
+
 ### Errors
 
 Errors arrive in the polled result object (HTTP 200), not in the initial 202. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized based on the card or terminal locale.

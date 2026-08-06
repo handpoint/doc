@@ -1,7 +1,7 @@
 ---
 id: paysafe-tsys
 title: "PAYSAFE"
-description: "US card-present acquirer. Supports: sale, refund, reversal."
+description: "US card-present acquirer. Supports: sale, refund, reversal. Returns a Paysafe single-use token for Token Vault / eCommerce card-on-file flows."
 geography: "US"
 status: active
 card-brands: [VISA, MC, AMEX, Discover, Interac]
@@ -90,7 +90,7 @@ The `transactionReference` must be a unique UUID v4 per request — use it to re
 hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
-override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
@@ -105,7 +105,7 @@ override fun endOfTransaction(result: TransactionResult, transactionReference: T
 hapi.sale(BigInteger("1000"), Currency.USD)
 
 // Result arrives in your events listener:
-override fun endOfTransaction(result: TransactionResult, transactionReference: TransactionReference) {
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
     }
@@ -400,3 +400,128 @@ handpoint.saleReversal(
 
 ### Testing
 Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
+
+## Paysafe Token
+
+### What this does
+When a card-present sale is processed through Paysafe, Handpoint returns a **Paysafe single-use token** in the transaction result. This token represents the card used at the terminal and can be submitted to Paysafe's Token Vault to create a reusable card-on-file token for future card-not-present (eCommerce) charges — without requiring the cardholder to re-enter their card details online.
+
+This bridges card-present and eCommerce flows: a merchant can onboard a customer in person, store their card details securely in Paysafe's vault, and use the stored token for subsequent online charges (subscriptions, top-ups, deferred billing, etc.).
+
+### When to use it
+- Subscription or membership businesses that take the first payment in-person and charge recurring online
+- Marketplaces that want to register a card on file after a POS transaction
+- Any flow where a card-present sale should also authorise future card-not-present charges
+
+### Requirements
+- Merchant must be onboarded for the Paysafe Token Vault by Paysafe and Handpoint — contact your Handpoint integration manager to enable this.
+- The token is single-use: it must be exchanged with Paysafe's Token Vault API immediately after the sale to create a reusable multi-use token.
+- Standard Paysafe card-present onboarding is required in addition to Token Vault enablement.
+
+### Implementation notes
+
+1. Process a standard card-present sale as normal — no extra parameters needed on the Handpoint side.
+2. Inspect the `TransactionResult` for the `paysafeToken` field — this is the single-use token issued by Paysafe.
+3. Submit that token to the [Paysafe Token Vault API](https://developer.paysafe.com/en/payments/token-vault/) to create a reusable `paymentHandleToken`.
+4. Store the `paymentHandleToken` against the customer record — use it for all future eCommerce charges via Paysafe's Payments API.
+5. Tokens expire if not exchanged promptly — perform the Token Vault call synchronously in your `endOfTransaction` / result callback.
+
+### Finding the token in the transaction result
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+The token is returned in the transaction result object. Poll `GET /transaction-result/{transactionResultId}` or receive it via your `callbackUrl`:
+
+```json
+{
+  "finStatus": "AUTHORISED",
+  "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "paysafeToken": "<single-use-token-from-paysafe>",
+  ...
+}
+```
+
+Pass `paysafeToken` to Paysafe's Token Vault API to obtain a reusable `paymentHandleToken`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val paysafeToken = result.paysafeToken  // single-use Paysafe token
+        if (paysafeToken != null) {
+            // Submit to Paysafe Token Vault API to create a reusable paymentHandleToken
+            exchangeWithPaysafeTokenVault(paysafeToken)
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val paysafeToken = result.paysafeToken  // single-use Paysafe token
+        if (paysafeToken != null) {
+            exchangeWithPaysafeTokenVault(paysafeToken)
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
+    if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
+        // Parse the XML result — paysafeToken is included in the response fields
+        if let paysafeToken = info.paysafeToken {
+            // Submit to Paysafe Token Vault API
+            exchangeWithPaysafeTokenVault(paysafeToken)
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  { amount: 1000, currency: "USD" },
+  function(result) {
+    if (result.finStatus === "AUTHORISED" && result.paysafeToken) {
+      // Submit to Paysafe Token Vault API to create a reusable paymentHandleToken
+      exchangeWithPaysafeTokenVault(result.paysafeToken);
+    }
+  },
+  function(error) { console.error("Sale failed:", error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+### Paysafe Token Vault exchange (outline)
+
+Once you have the single-use token, exchange it with Paysafe's Token Vault to create a stored card-on-file:
+
+```http
+POST https://api.paysafe.com/paymenthub/v1/customers/{customerId}/paymenthandles
+Authorization: Basic YOUR_PAYSAFE_API_KEY
+Content-Type: application/json
+
+{
+  "merchantRefNum": "customer-card-001",
+  "paymentType": "CARD",
+  "singleUseCustomerToken": "<paysafeToken from Handpoint result>",
+  "billingDetails": { ... }
+}
+```
+
+The response includes a `paymentHandleToken` — store this and use it for all future card-not-present charges. Refer to [Paysafe's Token Vault documentation](https://developer.paysafe.com/en/payments/token-vault/) for the full API reference and authentication setup.

@@ -69,3 +69,19 @@ hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
 
 </TabItem>
 </Tabs>
+
+### Errors
+
+Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /transactions` with `operation: "preAuthorizationReversal"`). The HTTP 202 is always returned immediately; errors appear only in the polled result. Do not parse `statusMessage` for programmatic logic — it can be localized.
+
+| `finStatus` | Meaning | What to do |
+|---|---|---|
+| `DECLINED` | Pre-auth GUID not found, already fully reversed, or transaction already settled | Verify `originalTransactionId`; if settled, issue a Refund instead |
+| `FAILED` | Gateway or terminal error | Check `errorMessage`; if transient, retry; if persistent, contact support |
+
+**Immediate HTTP errors** (returned before the 202):
+
+| HTTP | `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal busy with another operation | Wait for the current operation to complete, then retry |

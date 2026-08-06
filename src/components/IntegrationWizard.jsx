@@ -81,7 +81,6 @@ const ACQUIRER_REGIONS = {
 // tokenex:   third-party vault → card-present tokenization, supported by all acquirers
 
 const ACQUIRER_TOKEN_PROVIDERS = {
-  'tsys':             ['tokenex'],
   'epi':              ['procharge', 'tokenex'],
   'tsys-tns':         ['paysafe', 'tokenex'],
   'tns':              ['tokenex'],

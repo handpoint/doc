@@ -308,5 +308,5 @@ export const ACQUIRERS = [
   },
 ];
 
-/** Lookup map by acquirer id — use in MDX pages: `CAPS_BY_ID['tsys']` */
+/** Lookup map by acquirer id — use in MDX pages: `CAPS_BY_ID['epi']` */
 export const CAPS_BY_ID = Object.fromEntries(ACQUIRERS.map(a => [a.id, a.caps]));

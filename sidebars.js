@@ -20,7 +20,7 @@ const sidebars = {
         {
           type: 'category',
           label: 'United States',
-          items: ['acquirers/epi', 'acquirers/paysafe-tsys'],
+          items: ['acquirers/epi', 'acquirers/paysafe-tsys', 'acquirers/vantiv'],
         },
         {
           type: 'category',
