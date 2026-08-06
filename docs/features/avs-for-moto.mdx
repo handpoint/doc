@@ -58,11 +58,11 @@ Implementation examples are in the [EPI — Address Verification Service (AVS)](
 
 ## What comes back
 
-The approve/decline outcome (`finStatus`) arrives the same way as any other MOTO transaction. When AVS is enabled for the merchant, the acquirer also returns a result code in the response indicating how well the postal code and/or street address matched the issuer's records.
+The approve/decline outcome (`finStatus`) arrives the same way as any other MOTO transaction.
 
-:::note Field name pending confirmation
-Staging tests confirmed that the `billing` object is accepted and forwarded on all three operations (Sale, Pre-Authorization, Refund) via both Cloud API and back-office `/moto/sale`. However, the staging merchant does not have AVS enabled at the EPI level — so no AVS result field appeared in any response. The exact field name in `TransactionResult` that carries the AVS result code needs confirmation from the SDK or backend team once merchant AVS is active.
-:::
+**Cloud API:** The AVS result code is not currently surfaced in the polled `TransactionResult` JSON response. Staging tests with AVS enabled on the merchant confirmed that `billing` is forwarded and EPI processes it, but the AVS result code from the ISO 8583 response is not mapped into the Cloud API JSON object. Do not build logic against an AVS result field on the Cloud API path — it is not there today.
+
+**Android SDK (native, 7.1014.0+):** The terminal processes the ISO 8583 authorization response directly. The AVS result code returned by EPI may be exposed in `TransactionResult` via a dedicated field — testing with the Android SDK native integration path is needed to confirm the field name and availability.
 
 ## Edge cases
 

@@ -1144,7 +1144,9 @@ POST https://cloud.handpoint.com/moto/sale
 This triggers an on-device dialog on the PAX terminal (PAX-integrated mode only). It has no effect on back-office `/moto/sale` requests.
 :::
 
-When AVS is enabled for the merchant, the acquirer returns an AVS result code in the response alongside the standard approve/decline outcome.
+:::note AVS result availability
+The `billing` object is forwarded to EPI on all paths. On the **Cloud API path**, the AVS result code from EPI is not currently returned in the polled `TransactionResult` JSON — only `finStatus` (approve/decline) is surfaced. On the **Android SDK native path** (7.1014.0+), the AVS result may be available directly in `TransactionResult` — consult the SDK changelog for the field name.
+:::
 
 ## Tokenization
 
