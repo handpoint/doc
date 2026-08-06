@@ -51,7 +51,7 @@ Same steps as Android (PAX) — trigger amounts work identically over the HiLite
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 1. Call `heftClient.saleWithAmount()` with a trigger amount for `DECLINED`.
-2. Verify `statusCode != EFT_PROTOCOL_RESULT_SUCCESS` in your delegate.
+2. Verify `statusCode != EFT_PP_STATUS_SUCCESS` in your delegate.
 3. Confirm terminal shows "Declined".
 
 </TabItem>
@@ -390,7 +390,7 @@ Same as Android PAX.
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 1. Call `heftClient.saleVoidWithAmount:currency:transaction:` same day.
-2. Verify no card prompt and `EFT_PROTOCOL_RESULT_SUCCESS` in delegate.
+2. Verify no card prompt and `EFT_PP_STATUS_SUCCESS` in delegate.
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">

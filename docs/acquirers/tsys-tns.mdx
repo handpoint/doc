@@ -124,7 +124,7 @@ heftClient.saleWithAmount(1000, currency: "USD")
 
 // Result arrives in your delegate:
 func heftClient(_ client: HeftClient!, didGetTransactionResponse info: ResponseInfo!) {
-    if info.statusCode == EFT_PROTOCOL_RESULT_SUCCESS {
+    if info.statusCode == EFT_PP_STATUS_SUCCESS {
         // store the transactionID from info.xml for potential reversal
     }
 }
