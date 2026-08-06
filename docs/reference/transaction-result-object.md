@@ -218,7 +218,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
-| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. |
+| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is an accepted alias for the same value. |
 | `REFUNDED` | Transaction was subsequently refunded. Returned on status queries for original transactions that have been fully refunded. |
 | `PROCESSED` | Operation processed (used for non-financial operations). |
 | `CAPTURED` | Pre-authorization was captured. |
@@ -513,7 +513,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `CANCELLED` | Cardholder cancelled, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure. |
 | `UNDEFINED` | No result — call `hapi.getTransactionStatus(transactionReference)` to recover. |
-| `PARTIALLY_APPROVED` | Partially approved. |
+| `PARTIALLY_APPROVED` | Partially approved — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is an accepted alias for the same value. |
 | `REFUNDED` | Transaction was refunded. |
 | `PROCESSED` | Non-financial operation processed. |
 | `CAPTURED` | Pre-auth captured. |

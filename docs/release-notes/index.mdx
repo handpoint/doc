@@ -119,7 +119,7 @@ Maintenance release — dependency and version updates. No new APIs or behaviour
 ### 7.1013.0
 **New Features**
 
-- **Deferred Card Tokenization**: new `deferredTokenization(originalTransactionID)` method tokenizes a card against a previously completed transaction without requiring the cardholder to present the card again.
+- **Deferred Card Tokenization**: `deferredTokenization(originalTransactionID)` — tokenizes a card against a previously completed transaction without requiring the cardholder to present the card again. *(Note: this feature is exposed as a REST API endpoint — see [REST API 2.26.0](/back-office/rest-api-no-reader). Confirm with your Handpoint integration engineer whether this is available via the Android SDK in your setup.)*
 - **MOTO duplicate check**: `duplicationCheck` parameter is now supported in MOTO operations (`motoSale`, `motoRefund`), preventing accidental duplicate charges on retry.
 - **MOTO partial approval**: MOTO transactions now correctly handle partial approval responses from the issuer.
 - **`NO_CURRENT_TRANSACTION_TO_CANCEL`** status added — `stopCurrentTransaction()` returns this status when called with no active transaction instead of a generic error.
