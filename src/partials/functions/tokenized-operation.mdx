@@ -33,7 +33,8 @@ Content-Type: application/json
   "action": "SALE",
   "amount": 1000,
   "currency": "USD",
-  "cardToken": "TOKEN_FROM_PREVIOUS_TOKENIZATION"
+  "cardToken": "TOKEN_FROM_PREVIOUS_TOKENIZATION",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
 }
 ```
 
@@ -94,6 +95,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 | `amount` | number | Yes | Amount in smallest currency unit |
 | `currency` | string | Yes | ISO 4217 currency code |
 | `cardToken` | string | Yes | Token from a supported token provider |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency and result polling |
 
 ### Testing
 

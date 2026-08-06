@@ -95,8 +95,7 @@ Content-Type: application/json
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "transactionReference": "738f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
 
@@ -176,7 +175,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 | `currency` | string | Yes | ISO 4217 currency code |
 | `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
 | `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
-| `transactionReference` | string | Recommended | UUID v4 for idempotency and status queries |
+| `transactionReference` | string | Sale / Pre-Auth | UUID v4 for idempotency. Do not include on refunds (linked operation) |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 
 </TabItem>
