@@ -9,6 +9,11 @@ id: restreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 2.28.0
+**Features:**
+
+New Endpoint without reader for /Reversal allowing more operations that don't require the card to be present to be performed without going through the reader.
+
 ## 2.27.0
 **Features:**
 

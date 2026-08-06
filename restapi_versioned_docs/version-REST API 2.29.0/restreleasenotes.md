@@ -10,9 +10,16 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 :::
 
 ## 2.29.0
+**Changes:**
+
+`NoTransactionToCancel` error (error code `1005`) is now returned from [`POST /transactions`](restendpoints.md#operation-requests) when a `stopCurrentTransaction` operation is attempted but there is no transaction currently in progress to cancel. Previously this case was reported as the generic `CancelOperationNotAllowed` error (`1003`).
+
+Change on the batch /close endpoint where batchNumber parameter is now *optional*
+
+## 2.28.0
 **Features:**
 
-New `NoTransactionToCancel` error (error code `1005`) is now returned from [`POST /transactions`](restendpoints.md#operation-requests) when a `stopCurrentTransaction` operation is attempted but there is no transaction currently in progress to cancel. Previously this case was reported as the generic `CancelOperationNotAllowed` error (`1003`).
+New Endpoint without reader for /Reversal allowing more operations that don't require the card to be present to be performed without going through the reader.
 
 ## 2.27.0
 **Features:**
