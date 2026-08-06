@@ -1,19 +1,18 @@
 ## Reversal
 
 ### What this does
-Voids a sale before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
+Voids a transaction before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
 
 ### When to use it
-Use when a sale needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a refund for same-day cancellations — faster and fee-free. **No card present required** — reversal is sent electronically using the original transaction reference. Do NOT use after settlement — send a Refund instead.
+Use when a transaction needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a refund for same-day cancellations — faster and fee-free. **No card present required** — reversal is sent electronically using the original transaction reference. Do NOT use after settlement — send a Refund instead.
 
 ### Implementation notes
 
 1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
 2. **No card present required.** Reversal is an electronic operation referencing the original `transactionID`. The cardholder does not need to return to the terminal.
-3. Full amount only — partial reversals are a separate operation (`partial-reversal`), supported only on TSYS US.
-4. **Three paths — different connectivity requirements and response shapes:**
+3. **Three paths — different connectivity requirements and response shapes:**
    - **Cloud API with reader** (`POST /transactions`): routes the reversal through the connected terminal. Terminal must be online. Asynchronous — poll `GET /transaction-result/{id}` for the result. Amount in minor units.
-   - **Cloud API without reader** (`POST /reversal`): sent directly to the gateway. Terminal does not need to be connected. **Synchronous** — result is in the response body. Amount in major units (decimal string). Different response schema from the standard transaction result.
+   - **Cloud API without reader** (`POST /reversal`): sent directly to the gateway. Works for **any transaction type** (sale, refund, pre-auth, MOTO, etc.). Terminal does not need to be connected. **Synchronous** — result is in the response body. Amount in major units (decimal string). Different response schema from the standard transaction result. Include `amount` and `currency` for partial reversals on merchants that support it — omit for a full reversal.
    - **Android SDK / iOS SDK**: reversal travels through the connected reader. The terminal must be reachable at the time of the call.
 5. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
@@ -49,7 +48,7 @@ Response:
 }
 ```
 
-**Without reader** — sent directly to the gateway. Terminal does not need to be connected. **Synchronous** — result is returned immediately. Amount in **major units** (decimal string).
+**Without reader** — sent directly to the gateway. Works for any transaction type. Terminal does not need to be connected. **Synchronous** — result is returned immediately. Amount in **major units** (decimal string).
 
 ```http
 POST https://cloud.handpoint.com/reversal
@@ -62,6 +61,8 @@ Content-Type: application/json
   "currency": "USD"
 }
 ```
+
+`amount` and `currency` are optional — omit them for a full reversal. Include them for a partial reversal on merchants that support it.
 
 Response:
 ```json
@@ -158,9 +159,9 @@ handpoint.saleReversal(
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `originalGuid` | string | Yes | `transactionID` from the original sale result |
-| `amount` | string | Yes | Amount in **major units** as a decimal string, e.g. `"12.00"` = $12.00 |
-| `currency` | string | Yes | ISO 4217 currency code |
+| `originalGuid` | string | Yes | `transactionID` from the original transaction (any type) |
+| `amount` | string | No | Amount to reverse in **major units** as a decimal string, e.g. `"12.00"`. Omit for a full reversal. Required for partial reversals on merchants that support it |
+| `currency` | string | No | ISO 4217 currency code. Required when `amount` is provided |
 
 **Android SDK / iOS SDK** — reversal sent through the connected reader:
 
