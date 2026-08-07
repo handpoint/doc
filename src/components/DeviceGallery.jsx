@@ -44,12 +44,14 @@ const DEVICES = [
     img: '/img/devices/PAXA920MAX.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['US', 'EU'],
   },
   {
     id: 'a930', name: 'PAX A930', family: 'PAX', tms: 'PAXA930',
     img: '/img/devices/PAXA930.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: true, ethernet: false,
+    markets: ['US', 'EU'],
   },
   {
     id: 'a910s', name: 'PAX A910 / A910S', family: 'PAX', tms: 'PAXA910 · PAXA910S',
@@ -70,6 +72,7 @@ const DEVICES = [
     img: '/img/devices/PAXA960.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['EU'],
   },
   // PAX countertop
   {
@@ -84,12 +87,14 @@ const DEVICES = [
     img: '/img/devices/PAXA800.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: true,
+    markets: ['US', 'EU'],
   },
   {
     id: 'a8700', name: 'PAX A8700', family: 'PAX', tms: 'PAXA8700',
     img: '/img/devices/PAXA8700.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
+    markets: ['EU'],
   },
   {
     id: 'a8900', name: 'PAX A8900', family: 'PAX', tms: 'PAXA8900',
@@ -103,6 +108,7 @@ const DEVICES = [
     img: '/img/devices/PAXA3700.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
+    markets: ['US'],
     note: 'Elys Workstation (A3700 + L1400 tablet) — recommended E800 replacement',
   },
   // PAX compact (no printer)
@@ -146,6 +152,7 @@ const DEVICES = [
     img: '/img/devices/PAXA30.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
+    markets: ['US', 'EU'],
   },
   // PAX biometric / ECR
   {
@@ -153,6 +160,7 @@ const DEVICES = [
     img: '/img/devices/PAXAR6.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
+    markets: ['EU'],
   },
   {
     id: 'e500', name: 'PAX E500', family: 'PAX', tms: 'PAXE500',
