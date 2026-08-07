@@ -489,7 +489,6 @@ function getCPDocLinks(pathId, enabledFeatures) {
   if (enabledFeatures.some(f => ['moto-token', 'moto-entry', 'tip-adj', 'auto-refund', 'preauth-retry'].includes(f))) {
     links.push({ label: 'Back Office API reference', to: '/reference/back-office' });
   }
-  links.push({ label: 'Full capability matrix', to: '/reference/full-matrix' });
   links.push({ label: 'Testing edge cases', to: '/reference/testing-edge-cases' });
   return links;
 }
@@ -738,7 +737,7 @@ export default function IntegrationWizard() {
             ))}
           </div>
           <p className="wizard-footer-note">
-            Not sure which acquirer? <Link to="/reference/full-matrix" target="_blank" rel="noopener noreferrer">View the full capability matrix →</Link>
+            Not sure which acquirer? Contact your Handpoint integration engineer or account manager.
           </p>
           <button className="wizard-back-btn" onClick={back}>← Back</button>
         </div>

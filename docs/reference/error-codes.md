@@ -72,6 +72,41 @@ These are returned in the initial POST before the 202 is issued:
 | `400` | `{"error":1005,"message":"No transaction to cancel"}` | `cancelRequest` was received but no transaction is active on the terminal | Verify the terminal state before sending a cancel |
 | `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 — version digit (position 13) must be `4`, variant digit (position 17) must be `8`, `9`, `a`, or `b` |
 
+## Error codes — MOTO back-office endpoints
+
+These errors are returned synchronously by the MOTO back-office endpoints (`POST /moto/sale`, `POST /moto/refund`). All return HTTP `400 Bad Request` with a structured error body:
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "<description>",
+    "code": "<code>",
+    "details": {
+      "errorCode": "<code>",
+      "description": "<description>",
+      "errorGuid": "<guid>",
+      "httpStatus": <status>
+    }
+  }
+}
+```
+
+### `POST /moto/sale` errors
+
+| `code` | `message` | Meaning | What to do |
+|---|---|---|---|
+| `3107` | `CVV required` | The merchant account has "CVV/CV2 input mandatory" configured for Card Not Present, but the MOTO no-reader endpoint cannot accept a CVV. | Contact Handpoint to disable mandatory CVV for this merchant's MOTO configuration, or use a terminal-based MOTO flow instead. |
+| `5252` | `Card token failure` | The `cardToken` in the request does not exist in the gateway — it is invalid, expired, or was never created. (`details.httpStatus` is `404` internally.) | Verify the token is valid; re-tokenize the card if the token has expired. |
+
+### `POST /moto/refund` errors
+
+| `code` | `message` | Meaning | What to do |
+|---|---|---|---|
+| `3209` | `The requested refund amount is greater than the initial sale amount` | `amount` in the refund request exceeds the amount of the original sale referenced by `originalGuid`. | Reduce the refund amount to at most the original sale amount. |
+| `3210` | `Original and linked currency do not match` | The `currency` in the refund request does not match the currency recorded on the original sale. | Use the same currency as the original sale. |
+
 ## UNDEFINED status
 
 `finStatus: UNDEFINED` means the terminal sent the transaction to the gateway but no result was received. The transaction **may or may not have been processed** — do not retry.

@@ -27,8 +27,9 @@ const PATH_LABELS = {
   'paysafe-portal':  'Paysafe Portal',
 };
 
-const BACK_OFFICE_PATHS = ['back-office'];
-const PORTAL_PATHS      = ['paysafe-portal'];
+const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova'];
+const BACK_OFFICE_PATHS  = ['back-office'];
+const PORTAL_PATHS       = ['paysafe-portal'];
 const STORAGE_KEY = 'docusaurus.tab.integration-path';
 
 function cellIcon(value) {
@@ -39,25 +40,28 @@ function cellIcon(value) {
 export default function CapabilitySummary({capabilities}) {
   const [selectedPath, setSelectedPath] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(STORAGE_KEY) || 'cloud-api';
+      return localStorage.getItem(STORAGE_KEY) || '';
     }
-    return 'cloud-api';
+    return '';
   });
 
   useEffect(() => {
     const handlePathChange = (e) => {
-      setSelectedPath(e.detail?.path || 'cloud-api');
+      // Use nullish coalescing so empty string ('all paths') isn't replaced by a default
+      setSelectedPath(e.detail?.path ?? '');
     };
     window.addEventListener('handpoint:pathChanged', handlePathChange);
     return () => window.removeEventListener('handpoint:pathChanged', handlePathChange);
   }, []);
 
-  // Selected card-present path + back-office always appended;
+  // Empty selectedPath means "All paths" — expand to all card-present columns
+  const cardPresentCols = selectedPath === '' ? CARD_PRESENT_PATHS : [selectedPath];
+
   // Paysafe Portal column only shown when this acquirer has at least one capability on that path
   const hasPortal = PORTAL_PATHS.some(p =>
     DISPLAY_ORDER.some(cap => capabilities[cap] && capabilities[cap][p] === 'public')
   );
-  const pathsToShow = [selectedPath, ...BACK_OFFICE_PATHS, ...(hasPortal ? PORTAL_PATHS : [])];
+  const pathsToShow = [...cardPresentCols, ...BACK_OFFICE_PATHS, ...(hasPortal ? PORTAL_PATHS : [])];
 
   // Only show capability rows supported on at least one visible path
   const visibleCaps = DISPLAY_ORDER.filter(cap => {

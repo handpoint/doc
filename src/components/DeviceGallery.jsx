@@ -9,6 +9,11 @@ const FILTERS = [
   {key: 'ethernet', label: 'Ethernet'},
 ];
 
+const MARKET_FILTERS = [
+  {key: 'US', label: 'United States'},
+  {key: 'EU', label: 'Europe'},
+];
+
 // Complete device catalogue with hardware specs and TMS codes
 const DEVICES = [
   // HiLite family
@@ -17,6 +22,7 @@ const DEVICES = [
     img: '/img/devices/HiLite.jpg',
     paths: 'Android (HiLite BT) · iOS (HiLite BT) · Cordova',
     printer: false, wifi24: false, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
+    markets: ['US'], acquirers: ['Paysafe'],
   },
   // PAX handheld with printer
   {
@@ -24,12 +30,14 @@ const DEVICES = [
     img: '/img/devices/PAXA920.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['US', 'EU'], acquirers: ['Paysafe', 'EmerchantPay'],
   },
   {
     id: 'a920pro', name: 'PAX A920 Pro', family: 'PAX', tms: 'PAXA920PRO',
     img: '/img/devices/PAXA920PRO.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['US', 'EU'], acquirers: ['Paysafe', 'EmerchantPay'],
   },
   {
     id: 'a920max', name: 'PAX A920 MAX', family: 'PAX', tms: 'PAXA920MAX',
@@ -54,6 +62,7 @@ const DEVICES = [
     img: '/img/devices/PAXA77.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['US'], acquirers: ['Paysafe'],
   },
   {
     id: 'a960', name: 'PAX A960', family: 'PAX', tms: 'PAXA960',
@@ -67,6 +76,7 @@ const DEVICES = [
     img: '/img/devices/PAXA80.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: true,
+    markets: ['EU'], acquirers: ['EmerchantPay'],
   },
   {
     id: 'a800', name: 'PAX A800', family: 'PAX', tms: 'PAXA800',
@@ -85,6 +95,7 @@ const DEVICES = [
     img: '/img/devices/PAXA8900.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
+    markets: ['EU'], acquirers: ['EmerchantPay'],
   },
   {
     id: 'a3700', name: 'PAX A3700', family: 'PAX', tms: 'PAXA3700',
@@ -106,24 +117,28 @@ const DEVICES = [
     img: '/img/devices/PAXA6650.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['US'], acquirers: ['Paysafe', 'TSYS'],
   },
   {
     id: 'a60', name: 'PAX A60', family: 'PAX', tms: 'PAXA60',
     img: '/img/devices/PAXA60.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['US'], acquirers: ['Paysafe'],
   },
   {
     id: 'a35', name: 'PAX A35', family: 'PAX', tms: 'PAXA35',
     img: '/img/devices/PAXA35.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
+    markets: ['US'], acquirers: ['TSYS'],
   },
   {
     id: 'a50', name: 'PAX A50 / A50S', family: 'PAX', tms: 'PAXA50 · PAXA50S',
     img: '/img/devices/PAXA50.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['EU'], acquirers: ['EmerchantPay'],
   },
   {
     id: 'a30', name: 'PAX A30', family: 'PAX', tms: 'PAXA30',
@@ -171,6 +186,7 @@ const DEVICES = [
     img: '/img/devices/PAXIM30.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: true,
+    markets: ['EU'], acquirers: ['EmerchantPay'],
   },
 ];
 
@@ -179,8 +195,20 @@ function FeatureBadge({active, label}) {
   return <span className="device-feature-badge">{label}</span>;
 }
 
+const MARKET_COLORS = {US: 'us', EU: 'eu'};
+const ACQUIRER_COLORS = {
+  'Paysafe': 'paysafe',
+  'TSYS': 'tsys',
+  'EmerchantPay': 'emp',
+  'Lloyds': 'lloyds',
+  'Paystrax': 'paystrax',
+  'TEYA': 'teya',
+  'Vantiv': 'vantiv',
+};
+
 export default function DeviceGallery() {
   const [activeFilters, setActiveFilters] = useState([]);
+  const [activeMarket, setActiveMarket] = useState('');
 
   const toggleFilter = (key) => {
     setActiveFilters(prev =>
@@ -189,15 +217,42 @@ export default function DeviceGallery() {
   };
 
   const visible = useMemo(() => {
-    if (activeFilters.length === 0) return DEVICES;
-    return DEVICES.filter(d => activeFilters.every(f => d[f] === true));
-  }, [activeFilters]);
+    return DEVICES.filter(d => {
+      if (activeFilters.length > 0 && !activeFilters.every(f => d[f] === true)) return false;
+      if (activeMarket && !(d.markets || []).includes(activeMarket)) return false;
+      return true;
+    });
+  }, [activeFilters, activeMarket]);
+
+  const anyFiltersActive = activeFilters.length > 0 || activeMarket !== '';
 
   return (
     <div className="device-gallery">
       {/* Filter bar */}
       <div className="device-filter-bar">
-        <span className="device-filter-label">Filter by feature:</span>
+        <span className="device-filter-label">Market:</span>
+        <div className="device-filter-buttons">
+          <button
+            className={`device-filter-btn${activeMarket === '' ? ' device-filter-btn--active' : ''}`}
+            onClick={() => setActiveMarket('')}
+          >
+            All
+          </button>
+          {MARKET_FILTERS.map(m => (
+            <button
+              key={m.key}
+              className={`device-filter-btn${activeMarket === m.key ? ' device-filter-btn--active' : ''}`}
+              onClick={() => setActiveMarket(activeMarket === m.key ? '' : m.key)}
+              aria-pressed={activeMarket === m.key}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="device-filter-bar">
+        <span className="device-filter-label">Hardware:</span>
         <div className="device-filter-buttons">
           {FILTERS.map(f => (
             <button
@@ -209,16 +264,16 @@ export default function DeviceGallery() {
               {f.label}
             </button>
           ))}
-          {activeFilters.length > 0 && (
+          {anyFiltersActive && (
             <button
               className="device-filter-clear"
-              onClick={() => setActiveFilters([])}
+              onClick={() => { setActiveFilters([]); setActiveMarket(''); }}
             >
               Clear
             </button>
           )}
         </div>
-        {activeFilters.length > 0 && (
+        {anyFiltersActive && (
           <span className="device-filter-count">
             {visible.length} of {DEVICES.length} devices
           </span>
@@ -246,6 +301,16 @@ export default function DeviceGallery() {
                 <FeatureBadge active={d.cellular5g} label="5G" />
                 <FeatureBadge active={d.ethernet}   label="Ethernet" />
               </div>
+              {d.markets && d.markets.length > 0 && (
+                <div className="device-card-markets">
+                  {d.markets.map(m => (
+                    <span key={m} className={`device-market-tag device-market-tag--${MARKET_COLORS[m] || 'default'}`}>{m}</span>
+                  ))}
+                  {(d.acquirers || []).map(a => (
+                    <span key={a} className={`device-acquirer-tag device-acquirer-tag--${ACQUIRER_COLORS[a] || 'default'}`}>{a}</span>
+                  ))}
+                </div>
+              )}
               {d.sdkMin && <div className="device-card-sdk">SDK {d.sdkMin}</div>}
               {d.note && <div className="device-card-note">{d.note}</div>}
             </div>

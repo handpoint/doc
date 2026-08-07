@@ -6,16 +6,16 @@ description: Step-by-step scenarios for verifying your integration handles every
 
 # Testing Edge Cases
 
-Step-by-step scenarios for verifying that your integration handles the full range of real-world edge cases. Run all tests against a **TEST/DEMO merchant** or staging device — no real money moves.
+Step-by-step scenarios for verifying that your integration handles the full range of real-world edge cases.
 
 ## Prerequisites
 
 | Requirement | Notes |
 |---|---|
-| Test merchant | Handpoint TEST/DEMO merchant — staging gateway, no real settlement |
-| Staging device | PAX device with the debug/staging build of the Handpoint app |
-| Trigger amounts | Specific amounts that force a particular gateway response — see [Development hardware](/get-started/development-hardware#trigger-amounts) |
-| `transactionReference` log | A store (DB, log) where you record every UUID v4 you send before sending it |
+| Simulator merchant | The merchant must be configured against the **Simulator (ViscusDummy) acquirer** in Handpoint TMS — this is what enables trigger amounts, prevents real settlement, and allows expired cards. The device itself (production or debug hardware) does not determine this — only the merchant's acquirer configuration does. Contact your Handpoint integration engineer to have a test merchant provisioned. |
+| Trigger amounts | Specific amounts that force a particular gateway response. Only work when the merchant is on the Simulator acquirer — see [Development hardware](/reference/development-hardware#trigger-amounts). |
+| Expired cards | Accepted on the Simulator acquirer — test cards can be past their expiry date. |
+| `transactionReference` log | A store (DB, log) where you record every UUID v4 you send before sending it. |
 
 ---
 

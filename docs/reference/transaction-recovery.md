@@ -55,6 +55,38 @@ The recovery loop restarts whenever the Handpoint application is restarted or `s
 
 **All 2xx HTTP response codes** from your `callbackUrl` are valid acknowledgements. Respond with any 2xx status to stop retries.
 
+### Push-notification payload schema
+
+The terminal POSTs the full **Transaction Result** object as JSON to your `callbackUrl`. The body is identical to the `200 OK` body from `GET /transaction-result/{transactionResultId}` — no fields are added or removed.
+
+```http
+POST https://your-server.example.com/handpoint/callback
+Content-Type: application/json
+AUTH-TOKEN: <your-token-value>
+AUTH_TOKEN: <your-token-value>
+
+{
+  "finStatus": "AUTHORISED",
+  "type": "SALE",
+  "totalAmount": 1000,
+  "currency": "USD",
+  "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+  "authorisationCode": "155884",
+  "cardSchemeName": "Visa",
+  "maskedCardNumber": "************1456",
+  "recoveredTransaction": false,
+  ...
+}
+```
+
+Two points specific to the push delivery:
+
+- **`token` is in headers, not in the body.** The `token` value from your original transaction request is echoed back in two HTTP request headers: `AUTH-TOKEN` and `AUTH_TOKEN` (both carry the same value). Use either header to authenticate the incoming request on your server — verify it matches the token you sent.
+- **`recoveredTransaction`** is `true` when the result was delivered via the auto-recovery loop (the terminal could not reach your server on the first attempt). On first-attempt delivery it is `false`.
+
+For the full list of fields in the Transaction Result object, see [Transaction Result Object](/reference/transaction-result-object).
+
 ---
 
 ## 2 — Poll for result: `GET /transaction-result/{transactionResultId}`

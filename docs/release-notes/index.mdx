@@ -19,7 +19,7 @@ Select your integration path to see the relevant changelog. Selecting a path her
 
 <Tabs groupId="integration-path">
 
-<TabItem value="rest-api" label="REST API">
+<TabItem value="cloud-api" label="REST API">
 
 ## REST API
 
@@ -129,7 +129,7 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 - Magstripe refunds declined due to invalid track2data format — resolved.
 
 :::caution Known issue — under investigation (SDKS-320)
-An issue has been identified affecting **PAX terminals without a MAGStripe module**. Only a subset of devices is impacted. Investigation is ongoing — a fix will be included in a future release. Also affects **Handpoint App 4.13.0**, which ships with this SDK version.
+An issue affecting **PAX terminals without a MAGStripe module** has been identified and is under investigation. Confirmed affected models: **PAX A50**, **PAX IM25**. A fix will be included in a future release. Do not use SDK 7.1013.1 (or Handpoint App 4.13.0) on terminals without MAGStripe module support. Also affects **Handpoint App 4.13.0** — see [Handpoint App release notes](/release-notes) (Handpoint App — PAX tab) for marketplace availability details.
 :::
 
 ### 7.1013.0
@@ -667,20 +667,209 @@ Uses Android SDK **7.1013.1**.
 
 - **Deferred Card Tokenization** — retrieve a card token from a previously completed card-present transaction without requiring the card to be presented again. Available via `deferredTokenization()` in the Android SDK.
 - **Duplicate check for MOTO operations** — prevents accidental duplicate charges on MOTO sale and refund retry.
-
-**Improvements**
-
-- Contactless reading reliability improvements.
+- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
+- **Cancel operation reason** — `cancelOperationNotAllowed` responses now include a reason so the Cloud API can distinguish between "no active transaction" and "cancel not allowed during this operation".
 
 **Bug Fixes**
 
-- `cardPan` operation caused an app crash in certain scenarios — resolved.
-- PIN bypass activation/deactivation behaved incorrectly — resolved.
-- Magstripe refunds declined due to invalid track2data format — resolved.
+- **Pre-auth reversal amount unit mismatch — regression from 4.12.1** (SDK fix, SDKS-213) — when a Cloud REST API caller sent a partial pre-auth reversal with the amount in minor units (e.g. `3000` for $30.00), the SDK forwarded the raw integer to the gateway without converting to major units, resulting in a 100× inflated reversal amount. Conversely, when the caller used major-unit decimals (e.g. `30.00`), the amount and currency were stripped from the IREQ message and the reversal was treated as a full reversal. Fixed by adding a unit-detection parser in `SdkApiReversalRequest` that converts to major-unit `BigDecimal` before forwarding to the gateway. Introduced by SDKS-201 (pre-auth reversal restructuring in 4.12.1).
+- **PIN bypass TMS gate broken** (SDK fix, SDKS-102) — `PaymentSDKHandler` read the PIN bypass configuration from the terminal's own self-configuration instead of from the TMS-delivered config object. This caused two failure modes: (1) when TMS permitted bypass (`bypassPin=1`), the terminal still demanded PIN entry because self-config had the flag off; (2) in Cloud mode, the per-request `pinBypass` field was applied inconsistently because the TMS gate was evaluated against the wrong source. Fixed by sourcing the bypass gate from the TMS config object and adding a `bypassAll` field for full CVM coverage. Correct hierarchy after fix: TMS policy is the outer gate; within that, Cloud mode per-request `pinBypass` takes precedence over the in-app setting; standalone mode uses the in-app setting.
 
 :::caution Known issue — under investigation (SDKS-320)
-An issue has been identified affecting **PAX terminals without a MAGStripe module**. Only a subset of devices is impacted. Investigation is ongoing — a fix will be included in a future release.
+An issue affecting **PAX terminals without a MAGStripe module** has been identified and is under investigation. Confirmed affected models: **PAX A50**, **PAX IM25**. A fix will be included in a future release. **Do not use this version on terminals without MAGStripe module support.**
+
+**Marketplace availability:**
+- **EMEA PaxStore** — version 4.13.0 has been removed from the EMEA marketplace pending a future release that includes the fix.
+- **US marketplace** — version 4.13.0 remains available. PAX terminals deployed in the US all include MAGStripe modules; however, the warning above applies to any device without a MAGStripe module.
 :::
+
+---
+
+### 4.12.3
+
+Uses Android SDK **7.1012.3**.
+
+**New Features**
+
+- PAX A3700 and PAX A6630 terminal models are now supported (carried forward from 4.11.0).
+- MOTO operation recovery — the app can recover the status of MOTO operations when the SDK cannot determine the outcome due to network connectivity issues (carried forward from 4.11.0).
+
+**Bug Fixes**
+
+- **Mastercard PayPass contactless declines — regression from 4.12.1** (SDK fix, SDKS-219) — the Mastercard contactless reader parameter setup loop called `Clss_SetTLVDataList_MC()` for each EMV tag in sequence and broke out of the loop on the first tag that failed to set. When the `aucMerchantID` field (tag 9F16) had a non-standard length and failed, tags further down the table — specifically 9F33 (Terminal Capabilities), 9F1A (Terminal Country Code), and 5F2A (Transaction Currency Code) — were never configured. With those tags absent from the authorization request (Field 55), acquirer hosts rejected the malformed payload with response code 30 (FORMAT ERROR). Observed as a 30–35% elevated decline rate for Mastercard PayPass contactless on Borgun. Fixed by removing the `break` so the loop always completes every entry regardless of individual SET failures. Visa contactless and all contact-chip flows were not affected.
+
+---
+
+### 4.11.0
+
+Uses Android SDK **7.1011.0**.
+
+**New Features**
+
+- PAX A3700 and PAX A6630 terminal models are now supported.
+- MOTO operation recovery — the SDK now supports recovery for MOTO operations in network-failure scenarios, enabling the app to recover transaction status when the SDK cannot determine the outcome in time.
+
+**Bug Fixes**
+
+- **Unattended mode state lost on device reboot** (app fix, API-19) — `UnattendedModeService` stored the active/inactive state only in memory. On reboot, initialization always read from the static compile-time config default, discarding any runtime toggle made by the operator. Fixed by persisting state to Ionic Storage on every toggle and reading from storage on boot, falling back to the config default only when no stored value exists.
+- **Transaction timeout and processing misalignment** (app + SDK fix, SDK-3981 / SDK-3980) — same fixes as 4.10.6 (app timeout extended to 240 s; SDK forced to HTTP/1.1 in `CrApiClient.kt`), carried forward into the 4.11.0 branch.
+
+---
+
+### 4.10.6
+
+Uses Android SDK **7.1010.6**.
+
+**New Features**
+
+- PAX A3700 reader support added.
+- Partial reversals are now supported.
+
+**Bug Fixes**
+
+- **Transaction timeout and processing misalignment** (app + SDK fix, SDK-3981 / SDK-3980) — two related fixes shipped together. *(1) App side:* the app's financial transaction timeout was 130 s, shorter than the worst-case card-present flow (delayed tip + card read retry + signature). The app marked the transaction FAILED while the SDK continued and received an AUTHORISED result from the acquirer — leaving a state mismatch. Fixed by extending the app timeout to 240 s. *(2) SDK side:* the SDK's OkHttp client used HTTP/2 by default. On mobile networks with a transparent proxy that mishandled HTTP/2 stream multiplexing, the gateway silently processed the transaction while the SDK received a `SocketTimeoutException`. Fixed by forcing HTTP/1.1 in `CrApiClient.kt`, eliminating the carrier proxy failure path.
+- **Automatic Printing toggle persisted wrong value** (app fix, EFTCLIENT-5370) — in `PrintingOptionsPage`, the Automatic Printing toggle was bound with both `[(ngModel)]` two-way binding and `checked="{{ ... }}"` string-interpolation (an attribute, not a DOM property). During Ionic/Angular component reconciliation, the attribute binding triggered an extra model write, causing the setter to fire twice on the `off → on` transition. The setter performed two backend API calls (reset timeout, then set flag) each time it fired, producing 3–4 racing requests; the API occasionally landed with the old (off) value. Fixed by switching to `[checked]` property binding and adding a re-entrancy guard in the setter.
+
+---
+
+### 4.10.0
+
+Uses Android SDK **7.1010.1**.
+
+**New Features**
+
+- PAX A8900 (full-screen version, without physical keypad) is now supported.
+- Transaction IDs are now included for non-EMV payment methods (e.g. cash and other alternative tender types).
+
+**Improvements**
+
+- Email field for digital receipts now accepts uppercase letters.
+- Customer receipts are now fully printed in the card's language when the language tag is available.
+
+**Bug Fixes**
+
+- **Double-charge on `IN_PROGRESS` gateway response** (SDK fix) — when the payment gateway returned `finStatus: "IN_PROGRESS"` in a slow-network scenario, the SDK threw a deserialization error because `IN_PROGRESS` was absent from the `FinancialStatus` enum. The app treated the error as a transaction failure and retried; if both the original and the retry completed, the cardholder was charged twice. Fixed by adding `IN_PROGRESS` to the `FinancialStatus` enum (Jira: SDK-3869). This issue was present in all app versions prior to 4.10.0.
+
+---
+
+### 4.9.4
+
+Uses Android SDK **7.1009.5**.
+
+**New Features**
+
+- PAX IM25 and PAX A8900 device support added.
+- **Get Transaction Status** — manual sync functionality for pending transactions on SmartPOS.
+
+**Improvements**
+
+- **Duplicate check dialog timeout reduced** (SDK change) — when a potential duplicate transaction is detected, the terminal shows a confirmation dialog ("SEND" / "CANCEL"). The auto-dismiss timeout was reduced from 120 s to 30 s to avoid leaving terminals in a waiting state for too long. The change is in the SDK (`DupeCheckMessageDialog.kt`).
+
+**Bug Fixes**
+
+- **Currency display for Cloud API pending transactions** (app fix) — the currency code field was read from the wrong property (`currencyCode` instead of `currency`) when queuing a transaction reference in the Get-Transaction-Status service. Affected Cloud API merchants only; the pending transaction list showed the wrong or missing currency. Fixed in `cloud.ts`.
+
+:::caution Known issue in this version — fixed in App 4.10.0
+In slow-network scenarios where the payment gateway returns `finStatus: "IN_PROGRESS"` before confirming a transaction, the SDK fails to deserialize the response (missing enum value) and the app retries. If both the original and the retry complete, the cardholder is charged twice. **Upgrade to App 4.10.0** (SDK 7.1010.1) to resolve this issue (Jira: SDK-3869).
+:::
+
+---
+
+### 4.8.3
+
+Uses Android SDK **7.1008.5**.
+
+**Improvements**
+
+- Login process redesigned to unify the response, remove sensitive data exposure, and improve user experience.
+
+---
+
+### 4.5.0
+
+Uses Android SDK **7.1005.0**.
+
+**New Features**
+
+- Money remittance support in Standalone mode.
+- Latvian language support for receipts.
+
+---
+
+### 4.4.4
+
+Uses Android SDK **7.1004.3**.
+
+**New Features**
+
+- Pre-authorization operations are now supported.
+
+</TabItem>
+
+<TabItem value="mpos-app" label="Handpoint App (mPOS)">
+
+## Handpoint mPOS App — HiLite & Datecs
+
+The Handpoint mPOS app runs on the merchant's Android phone or tablet and connects to a HiLite (Datecs) Bluetooth card reader to handle card-present transactions. It is a standalone app — no custom SDK integration required.
+
+**Distribution:**
+- **Android** — [Google Play](https://play.google.com/store/apps/details?id=com.handpoint.hipos) (`com.handpoint.hipos`)
+- **iOS** — [Apple App Store](https://apps.apple.com/app/id1450546788) (id1450546788)
+
+:::info Latest version
+**4.13.0** — available on Google Play and the Apple App Store. Uses Android SDK **7.1013.1** (Android) and iOS SDK **4.0.2** (iOS).
+:::
+
+:::note
+The mPOS app uses the same version numbering as the Handpoint Payments App (PAX SmartPOS). Both are built from the same codebase with platform-specific configurations.
+:::
+
+### 4.13.0
+
+**New Features**
+
+- **Deferred Card Tokenization** — retrieve a card token from a previously completed card-present transaction without requiring the card to be presented again.
+- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
+
+**Bug Fixes**
+
+- Pre-auth reversal amount displayed incorrectly when using partial pre-auth reversals — resolved.
+- Bluetooth connection stability improvements for Android 13+.
+
+:::caution Known issue — under investigation (SDKS-320)
+An issue affecting **PAX terminals without a MAGStripe module** does not affect the mPOS app and HiLite readers. HiLite readers always support MAGStripe.
+:::
+
+---
+
+### 4.12.1
+
+**New Features**
+
+- Get Transaction Status support — query transaction outcome after connectivity interruptions.
+
+**Bug Fixes**
+
+- Contactless reading reliability improvements.
+
+---
+
+### 4.11.0
+
+**New Features**
+
+- Bluetooth reconnection improvements for HiLite on Android 12+.
+
+**Bug Fixes**
+
+- Transaction history displayed incorrect placeholder values for pre-auth transactions — resolved.
+- Unintended disconnects during idle periods — resolved.
+
+---
+
+### 4.7.0 and earlier
+
+Refer to the Android SDK — HiLite and iOS SDK — HiLite release notes for underlying SDK changes that correspond to earlier mPOS app versions.
 
 </TabItem>
 

@@ -82,7 +82,7 @@ export default function GlobalFilters() {
       if (path) localStorage.setItem(PATH_KEY, path);
       else localStorage.removeItem(PATH_KEY);
     }
-    broadcast(path || null);
+    broadcast(path);
   };
 
   const handleAcquirerChange = (slug) => {
