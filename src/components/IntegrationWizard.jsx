@@ -15,7 +15,7 @@ const REGIONS = [
     value: 'eu',
     label: 'Europe',
     flag: '🇪🇺',
-    desc: 'Card present: EmerchantPay · Paystrax · TEYA (Borgun) · eCommerce via Handpoint Commerce API',
+    desc: 'Card present: EmerchantPay · Paystrax · eCommerce via Handpoint Commerce API',
   },
 ];
 
@@ -57,9 +57,7 @@ const PATHS = [
   { value: 'cordova',        label: 'Cordova',          icon: '🧩',  desc: 'Cordova/Ionic plugin wrapping the native Handpoint SDKs — shared JavaScript code that runs on PAX (Android), HiLite (Android), and HiLite (iOS).' },
 ];
 
-// ─── EPI acquirer ─────────────────────────────────────────────────────────────
-
-const ACQUIRERS = BASE_ACQUIRERS.filter(a => a.id !== 'omnipay-lloyds');
+const ACQUIRERS = BASE_ACQUIRERS;
 
 // ─── Acquirer → region mapping ────────────────────────────────────────────────
 
@@ -68,11 +66,9 @@ const ACQUIRER_REGIONS = {
   'tsys-tns':         'us-canada',
   'tns':              'us-canada',
   'paysafe-tsys':     'us-canada',
-  'vantiv':           'us-canada',
   'omnipay-emp':      'eu',
-  'omnipay-lloyds':   'eu',
   'omnipay-paystrax': 'eu',
-  'teya':             'eu',
+  'smartboard':       'eu',
 };
 
 // ─── Token providers (internal reference) ────────────────────────────────────
@@ -85,11 +81,8 @@ const ACQUIRER_TOKEN_PROVIDERS = {
   'tsys-tns':         ['paysafe', 'tokenex'],
   'tns':              ['tokenex'],
   'paysafe-tsys':     ['paysafe', 'tokenex'],
-  'vantiv':           ['tokenex'],
   'omnipay-emp':      ['tokenex'],
-  'omnipay-lloyds':   ['tokenex'],
   'omnipay-paystrax': ['tokenex'],
-  'teya':             ['tokenex'],
 };
 
 const TOKEN_PROVIDERS = [
@@ -195,7 +188,6 @@ const FEATURE_GROUPS = [
     icon: '🏷️',
     features: [
       { id: 'closed-loop',    label: 'Closed-Loop / Badge Cards', required: false, capKey: null,               desc: 'Whitelisted PAN ranges return the actual card number — used for employee badges, merchant-issued gift cards, loyalty cards.' },
-      { id: 'vantiv-omnitoken', label: 'Worldpay Omnitoken',      required: false, capKey: null, acquirers: ['vantiv'], desc: 'Acquirer-level token returned by Worldpay (Vantiv) in every transaction result. Scoped to a rollup ID — same card returns the same token across all merchants under the same rollup. Must be enabled at the merchant level directly with Worldpay.' },
       { id: 'interac',        label: 'Interac (Canada)',           required: false, capKey: null, region: 'us-canada', acquirers: ['paysafe-tsys', 'tsys-tns', 'tns'], desc: 'Interac debit acceptance for Canadian cardholders. Requires specific fallback handling, void timing, and acquirer-level Interac enablement. Paysafe: Interac is available but must be enabled separately — contact Handpoint. See Dev Center for full Interac compliance requirements.' },
     ],
   },
@@ -327,7 +319,6 @@ const FEATURE_TESTS = {
   'moto-token':       { label: 'MOTO Charge with Card Token', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date.', test: 'Retrieve a card token from a past transaction GUID, then process a MOTO charge using that token. Verify the charge succeeds without any terminal interaction, and that it works for both a one-off card-on-file charge and a scheduled recurring charge.' },
   'partial-reversal': { label: 'Partial Reversal', test: 'Process a sale, then send a partial reversal to reduce the authorized amount before settlement. Confirm the terminal displays the updated amount and the batch reflects the reduced value.' },
   'batching':         { label: 'Batch / EOD Settlement', test: 'Trigger a manual end-of-day batch close via the Back Office API. Confirm all open transactions are settled and the batch report is returned.' },
-  'vantiv-omnitoken': { label: 'Worldpay Omnitoken', test: 'Confirm the Omnitoken is present in the transaction result after a completed sale. Verify the merchant has been activated for Omnitoken directly with Worldpay and that the correct rollup ID is configured — tokens are scoped per rollup, not per individual merchant.' },
   'auto-refund':      { label: 'MOTO Refund (GUID)', test: 'Refund a transaction using only its GUID — confirm no terminal or card re-presentation is required.' },
   'sale-tokenize':    { label: 'Atomic Sale & Tokenize', test: 'Simulate a token provider failure during a sale — confirm the entire transaction is declined, not just the tokenization step.' },
   'token-guid':       { label: 'Deferred Token Retrieval', test: 'Retrieve a token from the GUID of a completed transaction that was not originally tokenized at time of sale.' },

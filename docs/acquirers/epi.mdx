@@ -1397,11 +1397,6 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 4. For future charges using the token, use the Cloud API `/moto/sale` endpoint with the token in place of card details.
 5. You can also retrieve a token from a previously completed transaction (within 12 months) via `GET /transactions/{transactionID}/token`.
 
-:::note EPI
-Batch close is ISV-initiated via the `/close` endpoint. Partial reversal is available on TSYS US and Canada.
-:::
-
-
 ### Code
 
 <Tabs groupId="integration-path">

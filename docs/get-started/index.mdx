@@ -10,9 +10,23 @@ import IntegrationWizard from '@site/src/components/IntegrationWizard';
 
 # Start your integration
 
-Select your market and integration type to see available SDKs and acquirers.
+Handpoint lets software vendors add card-present payments to any application. You connect your software to a PAX SmartPOS terminal or a HiLite Bluetooth reader; Handpoint handles authorization, routing, and settlement through your acquirer.
 
-<IntegrationWizard />
+## What can I build?
+
+| Use case | Integration path | Hardware |
+|---|---|---|
+| Cloud-commanded terminal (any language) | **REST API** | PAX terminal (via Handpoint Cloud) |
+| Native app running on the PAX terminal | **Android SDK (PAX)** | PAX SmartPOS |
+| Android app on a phone or tablet | **Android SDK (HiLite)** | HiLite Bluetooth reader |
+| iPhone or iPad app | **iOS SDK (HiLite)** | HiLite Bluetooth reader |
+| Cross-platform Cordova / Ionic app | **Cordova plugin** | PAX or HiLite |
+| Post-sale operations without a terminal | **Back Office REST API** | None — server-to-server |
+| Online checkout (EU merchants only) | **Commerce API** | None — card-not-present |
+
+Not sure which path fits? Use the wizard below — it asks three questions (region, integration type, acquirer), then generates a customized checklist of auth requirements, validation scenarios, and documentation links for your exact setup.
+
+---
 
 :::tip AI agents
 Fetch `/llms.txt` first — it contains the machine-readable acquirer × feature support matrix, per-path code guidance, and all reference page URLs. **Always determine the acquirer and integration path before generating implementation code** — not all features are supported by all acquirers, and SDK methods differ per integration path.
