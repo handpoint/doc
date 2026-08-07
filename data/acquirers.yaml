@@ -21,6 +21,14 @@ acquirers:
       Tip adjustment only available on transactions processed without an on-screen tip
       (tip-at-table flow).
     capabilities:
+      avs-for-moto:
+        # Draft feature — TSYS only, Android SDK (PAX) and Cloud API only for now.
+        # Not modeled as a Functionalities capability row on purpose: it has no
+        # entry in CapabilitySummary's CAPABILITY_LABELS, so it stays invisible
+        # in the acquirer table. Consumed only by generate-acquirer-pages.js to
+        # inject the callout in moto.mdx. Full detail lives in docs/features/avs-for-moto.mdx.
+        cloud-api: public
+        android-pax: public
       sale:
         cloud-api: public
         android-pax: public
