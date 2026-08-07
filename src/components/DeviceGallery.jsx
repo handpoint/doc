@@ -190,14 +190,14 @@ const DEVICES = [
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
     sdkMin: 'v7.1009.5+',
-    markets: ['EU'], acquirers: ['EmerchantPay'],
+    markets: ['US', 'EU'],
   },
   {
     id: 'im30', name: 'PAX IM30', family: 'PAX', tms: 'PAXIM30',
     img: '/img/devices/PAXIM30.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: true,
-    markets: ['EU'],
+    markets: ['US', 'EU'],
   },
 ];
 

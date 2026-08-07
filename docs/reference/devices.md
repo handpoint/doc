@@ -345,7 +345,7 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | | |
 |---|---|
 | **TMS device types** | `PAXIM25`, `PAXIM30` |
-| **Region** | Europe |
+| **Region** | US / Canada + Europe |
 | **Form factor** | Integrated module / OEM (no printer) |
 | **Connectivity** | IM25: Wi-Fi 2.4GHz, 4G · IM30: Wi-Fi 2.4GHz, Ethernet |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
