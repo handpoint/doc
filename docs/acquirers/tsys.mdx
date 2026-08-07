@@ -947,6 +947,16 @@ Use for call centres, phone order systems, or recurring billing where the cardho
 Batch auto-closes ~11pm EST (host-capture). Partial reversal available for TSYS US and Canada — uses the MasterCard flag in ISO 8583.
 :::
 
+### Address Verification Service (AVS)
+
+TSYS supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on Android SDK and Cloud API only, for now.
+
+Turning it on for a merchant requires `avsForMoto` (an internal flag Handpoint sets per merchant, default `false`) and `motoEnabled = true`.
+
+:::info
+Setup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).
+:::
+
 
 ### Code
 
@@ -987,6 +997,29 @@ Content-Type: application/json
 
 For back-office MOTO, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
 
+**AVS (optional)** — attach a `billing` object to a MOTO on terminal request (TSYS only):
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+`zipCode` is required whenever you include `billing`; `address` is optional. See [AVS for MOTO](/features/avs-for-moto) for enablement, the on-device prompt alternative (`enableAvsFields`), edge cases, and what to persist.
+
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
@@ -1004,6 +1037,26 @@ val options = MoToOptions()
 options.cardToken = "YOUR_STORED_CARD_TOKEN"
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ```
+
+**AVS (optional)** — attach a `Billing` object on MOTO on terminal (TSYS only):
+
+```kotlin
+val billing = Billing(
+    zipCode = customerZipCode,   // e.g. "10001" — required
+    address = customerAddress    // e.g. "123 Main St" — optional
+)
+val options = MoToOptions().apply { this.billing = billing }
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+Or let the terminal ask for it instead of collecting it yourself:
+
+```kotlin
+val options = MoToOptions().apply { enableAvsFields = true }
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+See [AVS for MOTO](/features/avs-for-moto) for enablement, edge cases, and what to persist.
 
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">

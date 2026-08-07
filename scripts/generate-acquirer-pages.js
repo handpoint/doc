@@ -114,6 +114,18 @@ function buildPage(slug, a) {
         ? `:::note ${a.name}\n${a.notes.trim()}\n:::\n`
         : '';
       content = content.replace('{/* ACQUIRER_NOTE_INJECTION_POINT */}', note);
+
+      if (partialName === 'moto') {
+        const avsCaps = caps['avs-for-moto'];
+        let avsNote = '';
+        if (avsCaps && isVisible(avsCaps)) {
+          const supportedPaths = PATHS.filter(p => avsCaps[p] === 'public' || avsCaps[p] === 'coming-soon');
+          const pathLabels = supportedPaths.map(p => PATH_LABELS[p]).join(' and ');
+          avsNote = `### Address Verification Service (AVS)\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on ${pathLabels} only, for now.\n\nTurning it on for a merchant requires \`avsForMoto\` (an internal flag Handpoint sets per merchant, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).\n:::\n`;
+        }
+        content = content.replace('{/* AVS_FOR_MOTO_INJECTION_POINT */}', avsNote);
+      }
+
       sections.push(content);
     }
   }
