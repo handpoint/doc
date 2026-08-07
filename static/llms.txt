@@ -12,12 +12,12 @@ Do NOT assume an acquirer or integration path. Ask first. Incorrect guidance wil
 
 ## Acquirers
 
-EPI (TSYS) | geography: US, Canada | sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal | cards: VISA, MC, Discover | url: /acquirers/epi
+EPI (TSYS) | geography: US, Canada | sale, refund, reversal, partial-reversal, tip-adjustment, pre-auth, remote-sale, tokenization, batching, pre-auth-capture-reversal | cards: VISA, MC, Discover | url: /acquirers/epi
 PAYSAFE + Interac | geography: Canada | sale, refund (non-Interac only), reversal (non-Interac only), tip-adjustment, tokenization, batching, void (Interac only) | cards: VISA, MC, Discover, Interac | interac: true | interac-restriction: Refund and Reversal NOT available for Interac transactions — use Void (card-present, full amount) | url: /acquirers/tsys-tns
 TNS (Interac) | geography: Canada | sale, void | cards: Interac | interac: true | url: /acquirers/tns
 PAYSAFE | geography: US | sale, refund, reversal | cards: VISA, MC, AMEX, Discover | url: /acquirers/paysafe-tsys
-EmerchantPay | geography: EU | sale, refund, reversal, pre-auth, pre-auth-capture-reversal, moto, tokenization, money-remittance | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-emp
-Paystrax | geography: EU | sale, refund, reversal, pre-auth, pre-auth-capture-reversal, moto, tokenization | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-paystrax
+EmerchantPay | geography: EU | sale, refund, reversal, pre-auth, pre-auth-capture-reversal, remote-sale, tokenization, money-remittance | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-emp
+Paystrax | geography: EU | sale, refund, reversal, pre-auth, pre-auth-capture-reversal, remote-sale, tokenization | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-paystrax
 Smartboard | geography: EU | ecommerce-only | url: /acquirers/smartboard
 
 ## Integration Paths
@@ -27,25 +27,27 @@ android-pax | Android SDK on-terminal | Native Android app embedded in PAX Smart
 android-hilite | Android SDK + HiLite BT | Android phone/tablet paired with HiLite (Datecs) Bluetooth reader. Same SDK as android-pax, ConnectionMethod.BLUETOOTH.
 ios-hilite | iOS SDK + HiLite BT | iPhone/iPad paired with HiLite (Datecs) Bluetooth reader. SDK: HandpointSDK CocoaPod.
 cordova | Cordova/Ionic plugin | Single JS API wrapping native Android SDK (PAX + HiLite) and iOS SDK (HiLite). cordova-plugin-handpoint.
-back-office | REST API (no reader) | Server-to-server REST API for MOTO, batch operations, reversals. No card reader required. Uses same cloud.handpoint.com base URL.
+back-office | REST API (no reader) | Server-to-server REST API for remote sale (card-not-present), batch operations, reversals. No card reader required. Uses same cloud.handpoint.com base URL.
 txn-feed | Transaction Feed API | Read-only event stream API. Available REGARDLESS of which card-present integration path is used. Not an alternative to card-present integration — it is a supplemental data API.
 
 ## Feature × Integration Path Support
 
-Sale: cloud-api ✅, android-pax ✅, android-hilite ✅, ios-hilite ✅, cordova ✅, back-office ❌ (use MOTO for card-not-present)
+Sale: cloud-api ✅, android-pax ✅, android-hilite ✅, ios-hilite ✅, cordova ✅, back-office ❌ (use Remote Sale for card-not-present)
 Refund: cloud-api ✅, android-pax ✅, android-hilite ✅, ios-hilite ✅, cordova ✅, back-office ✅ (linked refund only)
 Reversal: cloud-api ✅, android-pax ✅, android-hilite ✅, ios-hilite ✅, cordova ✅, back-office ✅
 Tip Adjustment: cloud-api ✅, android-pax ✅, android-hilite ✅, ios-hilite ❌, cordova ✅, back-office ✅ (TSYS+PAYSAFE+Interac)
 Pre-Authorization: cloud-api ✅, android-pax ✅, android-hilite ❌, ios-hilite ❌, cordova ✅ (PAX only), back-office ✅ (capture/increase/decrease only; initial pre-auth requires card-present)
 Partial Reversal: cloud-api ✅ (TSYS only), android-pax ✅ (TSYS only), android-hilite ❌, ios-hilite ❌, cordova ❌, back-office ✅ (TSYS only)
-MOTO (card-not-present): cloud-api ✅, android-pax ✅ (on-terminal screen), android-hilite ❌, ios-hilite ❌, cordova ❌, back-office ✅ (ProCharge/EPI token only)
+Remote Sale (card-not-present): cloud-api ✅, android-pax ✅ (on-terminal screen), android-hilite ❌, ios-hilite ❌, cordova ❌, back-office ✅ (card token only)
+Remote Refund (no reader): cloud-api ✅, android-pax ✅, android-hilite ❌, ios-hilite ❌, cordova ❌, back-office ✅
+Remote Reversal (no reader): cloud-api ✅, android-pax ❌, android-hilite ❌, ios-hilite ❌, cordova ❌, back-office ✅
 Tokenization: cloud-api ✅, android-pax ✅, android-hilite ✅, ios-hilite ✅, cordova ✅, back-office ❌
 Batch Operations: cloud-api ✅, android-pax ❌, android-hilite ❌, ios-hilite ❌, cordova ❌, back-office ✅
 
 ## Feature × Acquirer Support (selected)
 
 Partial Reversal: EPI (TSYS) ✅ | PAYSAFE ❌ | PAYSAFE+Interac ❌ | EmerchantPay ❌ | Paystrax ❌
-MOTO: EPI (TSYS) ✅ | EmerchantPay ✅ | Paystrax ✅ | PAYSAFE ❌
+Remote Sale: EPI (TSYS) ✅ | EmerchantPay ✅ | Paystrax ✅ | PAYSAFE ❌
 Pre-Auth: EPI (TSYS) ✅ | EmerchantPay ✅ | Paystrax ✅ | PAYSAFE ❌
 Batching: EPI (TSYS) ✅ | PAYSAFE+Interac ✅ | PAYSAFE ❌ | EmerchantPay ❌ | Paystrax ❌
 Tip Adjustment: EPI (TSYS) ✅ | PAYSAFE+Interac ✅ | EmerchantPay ❌ | Paystrax ❌
@@ -68,7 +70,7 @@ android-pax: endOfTransaction(TransactionResult, Device) callback. transactionRe
 android-hilite: endOfTransaction(TransactionResult, Device) callback. HiLite buffers result and delivers automatically on reconnect. getTransactionStatus NOT available on HiLite.
 ios-hilite: responseFinanceStatus(HeftClient, HeftActionResponseInfo) delegate method. finStatus = EFT_PP_STATUS_SUCCESS for approved.
 cordova: eventHandler receives endOfTransaction {event, data}. Also handles transactionResultReady and currentTransactionStatus.
-back-office: Same as cloud-api for MOTO operations.
+back-office: Same as cloud-api for remote sale operations.
 
 ## Reference Pages
 
@@ -76,11 +78,11 @@ back-office: Same as cloud-api for MOTO operations.
 /reference/android-sdk-setup — Gradle, AndroidManifest, init sequence, Settings class
 /reference/transaction-recovery — callbackUrl schema, polling, status endpoint, worst-case timeline
 /reference/transaction-result-object — full TransactionResult field reference
-/reference/error-codes — finStatus, HTTP codes, MOTO-specific codes
+/reference/error-codes — finStatus, HTTP codes, remote-sale-specific codes
 /reference/testing-edge-cases — trigger amounts, network drop, pre-auth lifecycle scenarios
 /reference/pre-authorization-guide — full pre-auth lifecycle with code examples
 /reference/acquirer-capabilities-matrix — per-acquirer feature support table
 /reference/cordova-events — full Cordova event system reference
 /back-office/transaction-feed-api — Transaction Feed API (always available alongside any integration)
-/back-office/rest-api-no-reader — MOTO, pre-auth capture, deferred tokenization (no reader)
+/back-office/rest-api-no-reader — remote sale, pre-auth capture, deferred tokenization (no reader)
 /back-office/device-commands — device control endpoints (reboot, locale, brightness, etc.)

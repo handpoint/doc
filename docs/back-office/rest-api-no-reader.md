@@ -8,13 +8,13 @@ description: Server-side operations that do not require a physical terminal.
 
 These operations are performed entirely server-side. **No terminal, no SDK, no hardware required.**
 
-:::info MOTO uses a card token — no raw card data
-Handpoint MOTO back-office does not accept raw PAN, expiry, or CVV. It requires a `cardToken` from a supported token provider (e.g. TSYS, Paysafe, Tokenex). The token must have been obtained via a prior [Tokenization](/acquirers/tsys#tokenization) operation. The token provider de-tokenizes internally — the ISV system never handles raw card data.
+:::info Remote Sale uses a card token — no raw card data
+Handpoint remote sale back-office does not accept raw PAN, expiry, or CVV. It requires a `cardToken` from a supported token provider (e.g. TSYS, Paysafe, Tokenex). The token must have been obtained via a prior [Tokenization](/acquirers/tsys#tokenization) operation. The token provider de-tokenizes internally — the ISV system never handles raw card data.
 
-MOTO can also be performed **on a PAX terminal** (terminal shows a card entry screen). That mode requires a PAX device in integrated mode and is documented on each acquirer's page.
+Remote Sale can also be performed **on a PAX terminal** (terminal shows a card entry screen). That mode requires a PAX device in integrated mode and is documented on each acquirer's page.
 :::
 
-## MOTO back-office (card token, no terminal)
+## Remote Sale back-office (card token, no terminal)
 
 Send a card token from a supported token provider. No terminal required.
 

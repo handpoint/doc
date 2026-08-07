@@ -222,7 +222,7 @@ handpoint.eventHandler(
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID. Pre-Authorization via Back Office (MOTO) requires merchant MOTO onboarding with EmerchantPay and MOTO enablement in Handpoint Portal (TMS).
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID. Pre-Authorization via Back Office (remote sale path) requires merchant remote sale onboarding with EmerchantPay and enablement in Handpoint Portal (TMS).
 :::
 
 ## Sale {#sale}
@@ -241,7 +241,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 
 :::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -343,6 +343,7 @@ handpoint.sale(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `transactionReference` | string | No (Cloud API) | UUID v4. Used to retrieve the result and avoid duplicate processing on retries |
 | `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
+| `tipAmount` | string | No (Cloud API) | Optional tip amount in smallest currency unit as a string |
 
 ### Errors
 
@@ -355,6 +356,143 @@ handpoint.sale(
 
 ### Testing
 Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../reference/development-hardware#trigger-amounts). All other amounts process as approved.
+
+## Remote Sale (Card Not Present) {#remote-sale}
+
+Use when the customer is not physically present — phone order, mail order, or recurring billing via a stored card token. Two modes: **on-terminal** (PAX shows a manual card entry screen) and **back-office** (card token submitted directly via REST API or SDK, no terminal required).
+
+:::info No raw card data
+Handpoint does not accept raw PAN, expiry, or CVV from the ISV system. All remote sale operations use a `cardToken` from a supported token provider (e.g. TokenEx). The token provider de-tokenizes at processing time — the ISV system never handles raw card data.
+:::
+
+### Implementation notes
+
+1. The card token must come from a token provider supported by the merchant's acquirer.
+2. Some acquirers restrict remote sales to specific merchant category codes (MCCs) — confirm with your acquirer.
+3. **On-terminal**: the PAX device must be in integrated mode. The entry screen collects and tokenizes card details internally.
+4. **Back-office**: pass the `cardToken` directly in the API request. Uses the `/moto/sale` endpoint — not `/transactions`.
+
+:::note EmerchantPay
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
+:::
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**On terminal** — PAX shows card entry screen (integrated mode):
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+**Back-office** — card token, no terminal required:
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
+
+For back-office, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**On terminal** — PAX device shows a manual card entry screen:
+
+```kotlin
+// Terminal shows card entry screen — operator types card details on the PAX device
+hapi.motoSale(BigInteger("1000"), Currency.USD)
+```
+
+**Back-office** — card token via `MoToOptions` (no terminal entry):
+
+```kotlin
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — on-terminal remote sale is a PAX-only feature. For back-office (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — on-terminal remote sale is a PAX-only feature. For back-office (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Remote sale via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal, or Cloud API for back-office."
+  useInstead="Android SDK (PAX) or Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+**On terminal** (`POST /transactions`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"moToSale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `serial_number` | string | Yes | PAX terminal — triggers card entry screen |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No | UUID v4 for idempotency |
+
+**Back-office** (`POST /moto/sale`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in major currency units, e.g. `"10.00"` for $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
+| `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
+| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask customer for another card or token |
+| `INVALID_TOKEN` | Card token not recognised | Verify token and token provider match the acquirer |
+| `MOTO_NOT_ENABLED` | Remote sale not enabled for this merchant | Contact Handpoint team |
+
+### Testing
+Test on-terminal using a PAX debug device on staging. Test back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/omnipay-emp#tokenization).
 
 ## Refund {#refund}
 
@@ -372,7 +510,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 4. The cardholder's card must be present for card-present refunds.
 
 :::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -474,6 +612,95 @@ handpoint.refund(
 ### Testing
 Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../reference/development-hardware#trigger-amounts) to simulate declined or timeout responses.
 
+## Remote Refund (No Reader) {#remote-refund}
+
+Refund a Remote Sale without a card reader. Uses a stored card token (unlinked) or the original transaction ID (linked) — no terminal required.
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Linked remote refund** — reference the original remote sale by transaction ID:
+
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+**Unlinked remote refund** — use card token only:
+
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN"
+}
+```
+
+`amount` is in major currency units (decimal string).
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Remote refund — card token via MoToOptions
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoRefund(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Remote refund requires no terminal — use the Cloud API /moto/refund endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Remote refund requires no terminal — use the Cloud API /moto/refund endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Remote refund via Cordova is not confirmed. Use Android SDK (PAX) or Cloud API."
+  useInstead="Android SDK (PAX) or Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Refund amount in major currency units (decimal string) |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `originalTransactionId` | string | One of | Links refund to original remote sale |
+| `cardToken` | string | One of | Unlinked refund — token from the token provider |
+| `transactionReference` | string | No | UUID v4 for idempotency |
+
+### Testing
+Test using the transaction ID from a previous Remote Sale on the TEST/DEMO merchant.
+
 ## Reversal {#reversal}
 
 ### What this does
@@ -490,7 +717,7 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 :::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -587,6 +814,76 @@ handpoint.saleReversal(
 ### Testing
 Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
 
+## Remote Reversal (No Reader) {#remote-reversal}
+
+Void a back-office Remote Sale before settlement without a card reader. For on-terminal Remote Sales (where the PAX showed a card entry screen), use the standard [Reversal](#reversal) path with the terminal's serial number instead.
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/saleReversal
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+`amount` must match the original Remote Sale amount exactly.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="Remote reversal (no reader) is only available via Cloud API. For on-terminal Remote Sales, use the standard saleReversal() with the terminal serial number."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Remote reversal requires no terminal — use the Cloud API /moto/saleReversal endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Remote reversal requires no terminal — use the Cloud API /moto/saleReversal endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Remote reversal via Cordova is not confirmed. Use Cloud API."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in major currency units — must match original |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `originalTransactionId` | string | Yes | `transactionID` from the original Remote Sale result |
+| `transactionReference` | string | No | UUID v4 for idempotency |
+
+### Testing
+Test using the transaction ID from a previous Remote Sale on the TEST/DEMO merchant or staging device.
+
 ## Pre-Authorization {#pre-auth}
 
 ### What this does
@@ -616,7 +913,7 @@ Supporting pre-auth means supporting the full lifecycle:
 5. **Capture Reversal** (voiding after capture, pre-settlement) is a separate capability, currently in development for TSYS only.
 
 :::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -882,155 +1179,6 @@ hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
 </TabItem>
 </Tabs>
 
-## MOTO (Mail Order / Telephone Order) {#moto}
-
-### What this does
-Processes a card-not-present transaction where the cardholder provides card details by phone or mail. The card is never physically read — a stored card token is used instead.
-
-### Two MOTO modes
-
-| Mode | How it works | Terminal required | Who holds card data |
-|---|---|---|---|
-| **MOTO on terminal** | Cloud API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
-| **MOTO back-office** | A `cardToken` from a supported token provider is sent via REST API or Android SDK. No terminal or card entry required. | ❌ None | Token provider (never the ISV) |
-
-:::info No raw card data
-Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All MOTO operations use a `cardToken` issued by a supported token provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes to PAN + expiry when processing the transaction — the ISV system never handles raw card data.
-:::
-
-### When to use it
-Use for call centres, phone order systems, or recurring billing where the cardholder previously consented to card-on-file. A card token must exist before a MOTO transaction can be processed — tokens are obtained via the [Tokenization](/acquirers/epi#tokenization) operation on the original card-present or online transaction.
-
-### Implementation notes
-
-1. The card token must come from a token provider supported by the merchant's acquirer.
-2. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
-3. **MOTO on terminal**: the PAX device must be running the Android SDK in integrated mode. The terminal entry screen collects card details and tokenizes internally.
-4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required. Uses the `/moto/sale` endpoint — not `/transactions`.
-
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
-
-**MOTO on terminal** — terminal shows card entry screen (PAX in integrated mode):
-
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "operation": "moToSale",
-  "amount": "1000",
-  "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
-}
-```
-
-**MOTO back-office** — card token submitted directly, no terminal required:
-
-```http
-POST https://cloud.handpoint.com/moto/sale
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
-
-For back-office MOTO, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-**MOTO on terminal** — the PAX device shows a manual card entry screen. This is a PAX-only feature:
-
-```kotlin
-// Terminal shows card entry screen — operator types card details on the PAX device
-hapi.motoSale(BigInteger("1000"), Currency.USD)
-```
-
-**MOTO back-office** — card token via `MoToOptions` (no terminal entry):
-
-```kotlin
-val options = MoToOptions()
-options.cardToken = "YOUR_STORED_CARD_TOKEN"
-hapi.motoSale(BigInteger("1000"), Currency.USD, options)
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
-  useInstead="Cloud API (back-office)"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
-  useInstead="Cloud API (back-office)"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or Cloud API for back-office MOTO."
-  useInstead="Android SDK (PAX) or Cloud API"
-/>
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-**MOTO on terminal** (`POST /transactions`):
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `operation` | string | Yes | Must be `"moToSale"` |
-| `amount` | string | Yes | Amount in smallest currency unit as a string |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `serial_number` | string | Yes | PAX terminal — triggers card entry screen |
-| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `transactionReference` | string | No | UUID v4 for idempotency |
-
-**MOTO back-office** (`POST /moto/sale`):
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `amount` | string | Yes | Amount in major currency units, e.g. `"10.00"` for $10.00 |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
-| `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
-| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `DECLINED` | Issuer declined | Ask customer for another card or token |
-| `INVALID_TOKEN` | Card token not recognised | Verify token and token provider match the acquirer |
-| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
-
-### Testing
-Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).
-
 ## Tokenization {#tokenization}
 
 ### What this does
@@ -1048,7 +1196,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 5. You can also retrieve a token from a previously completed transaction (within 12 months) via `GET /transactions/{transactionID}/token`.
 
 :::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 
@@ -1184,7 +1332,7 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 4. The recipient name and country code are included in the transaction result and appear on the receipt when present.
 
 :::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
+Settlement is processed automatically — manual batch close is not available. AMEX routing supported — merchant must obtain a separate AMEX MID.
 :::
 
 

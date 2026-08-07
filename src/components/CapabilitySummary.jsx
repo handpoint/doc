@@ -9,7 +9,7 @@ const CAPABILITY_LABELS = {
   'tip-adjustment':             'Tip Adjustment',
   'pre-auth':                   'Pre-Authorization',
   'pre-auth-capture-reversal':  'Pre-Auth Capture Reversal',
-  'moto':                       'MOTO (no reader)',
+  'remote-sale':                'Remote Sale (no reader)',
   'batching':       'Batch Operations (Close / Summary / Detail)',
   'money-remittance':           'Money Remittance',
   'void':                       'Void',

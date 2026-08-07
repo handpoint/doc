@@ -72,9 +72,9 @@ These are returned in the initial POST before the 202 is issued:
 | `400` | `{"error":1005,"message":"No transaction to cancel"}` | `cancelRequest` was received but no transaction is active on the terminal | Verify the terminal state before sending a cancel |
 | `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 — version digit (position 13) must be `4`, variant digit (position 17) must be `8`, `9`, `a`, or `b` |
 
-## Error codes — MOTO back-office endpoints
+## Error codes — Remote Sale back-office endpoints
 
-These errors are returned synchronously by the MOTO back-office endpoints (`POST /moto/sale`, `POST /moto/refund`). All return HTTP `400 Bad Request` with a structured error body:
+These errors are returned synchronously by the remote sale back-office endpoints (`POST /moto/sale`, `POST /moto/refund`). All return HTTP `400 Bad Request` with a structured error body:
 
 ```json
 {
@@ -97,7 +97,7 @@ These errors are returned synchronously by the MOTO back-office endpoints (`POST
 
 | `code` | `message` | Meaning | What to do |
 |---|---|---|---|
-| `3107` | `CVV required` | The merchant account has "CVV/CV2 input mandatory" configured for Card Not Present, but the MOTO no-reader endpoint cannot accept a CVV. | Contact Handpoint to disable mandatory CVV for this merchant's MOTO configuration, or use a terminal-based MOTO flow instead. |
+| `3107` | `CVV required` | The merchant account has "CVV/CV2 input mandatory" configured for Card Not Present, but the remote sale no-reader endpoint cannot accept a CVV. | Contact Handpoint to disable mandatory CVV for this merchant's remote sale configuration, or use a terminal-based (on-terminal) remote sale flow instead. |
 | `5252` | `Card token failure` | The `cardToken` in the request does not exist in the gateway — it is invalid, expired, or was never created. (`details.httpStatus` is `404` internally.) | Verify the token is valid; re-tokenize the card if the token has expired. |
 
 ### `POST /moto/refund` errors

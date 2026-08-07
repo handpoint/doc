@@ -358,6 +358,274 @@ handpoint.sale(
 ### Testing
 Use trigger amounts to simulate specific gateway responses (declined, timeout, etc.) on your TEST/DEMO merchant or staging device — see [Trigger amounts](../reference/development-hardware#trigger-amounts). All other amounts process as approved.
 
+## Remote Sale (Card Not Present) {#remote-sale}
+
+Use when the customer is not physically present — phone order, mail order, or recurring billing via a stored card token. Two modes: **on-terminal** (PAX shows a manual card entry screen) and **back-office** (card token submitted directly via REST API or SDK, no terminal required).
+
+:::info No raw card data
+Handpoint does not accept raw PAN, expiry, or CVV from the ISV system. All remote sale operations use a `cardToken` from a supported token provider (e.g. TSYS, Paysafe, TokenEx). The token provider de-tokenizes at processing time — the ISV system never handles raw card data.
+:::
+
+### Implementation notes
+
+1. The card token must come from a token provider supported by the merchant's acquirer.
+2. Some acquirers restrict remote sales to specific merchant category codes (MCCs) — confirm with your acquirer.
+3. **On-terminal**: the PAX device must be in integrated mode. The entry screen collects and tokenizes card details internally.
+4. **Back-office**: pass the `cardToken` directly in the API request. Uses the `/moto/sale` endpoint — not `/transactions`.
+
+### Address Verification Service (AVS)
+
+TSYS supports optional Address Verification (AVS) for Remote Sale, Pre-Authorization, and Refund — Android SDK and Cloud API only.
+
+Turning it on for a merchant requires `avsForMoto` (an internal flag Handpoint sets per merchant, default `false`) and `motoEnabled = true`.
+
+:::info
+Setup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).
+:::
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**On terminal** — PAX shows card entry screen (integrated mode):
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+**Back-office** — card token, no terminal required:
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
+
+For back-office, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
+
+**AVS (optional)** — attach a `billing` object to an on-terminal request (TSYS only):
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+`zipCode` is required whenever you include `billing`; `address` is optional. See [AVS for MOTO](/features/avs-for-moto) for enablement, the on-device prompt alternative (`enableAvsFields`), edge cases, and what to persist.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**On terminal** — PAX device shows a manual card entry screen:
+
+```kotlin
+// Terminal shows card entry screen — operator types card details on the PAX device
+hapi.motoSale(BigInteger("1000"), Currency.USD)
+```
+
+**Back-office** — card token via `MoToOptions` (no terminal entry):
+
+```kotlin
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+**AVS (optional)** — attach a `Billing` object (TSYS only):
+
+```kotlin
+val billing = Billing(
+    zipCode = customerZipCode,   // e.g. "10001" — required
+    address = customerAddress    // e.g. "123 Main St" — optional
+)
+val options = MoToOptions().apply { this.billing = billing }
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+Or let the terminal ask for it:
+
+```kotlin
+val options = MoToOptions().apply { enableAvsFields = true }
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+See [AVS for MOTO](/features/avs-for-moto) for enablement, edge cases, and what to persist.
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — on-terminal remote sale is a PAX-only feature. For back-office (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — on-terminal remote sale is a PAX-only feature. For back-office (no reader), use the Cloud API /moto/sale endpoint with a card token."
+  useInstead="Cloud API (back-office)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Remote sale via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal, or Cloud API for back-office."
+  useInstead="Android SDK (PAX) or Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+**On terminal** (`POST /transactions`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"moToSale"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `serial_number` | string | Yes | PAX terminal — triggers card entry screen |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No | UUID v4 for idempotency |
+
+**Back-office** (`POST /moto/sale`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in major currency units, e.g. `"10.00"` for $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
+| `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
+| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
+
+### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask customer for another card or token |
+| `INVALID_TOKEN` | Card token not recognised | Verify token and token provider match the acquirer |
+| `MOTO_NOT_ENABLED` | Remote sale not enabled for this merchant | Contact Handpoint team |
+
+### Testing
+Test on-terminal using a PAX debug device on staging. Test back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).
+
+### AVS full reference {#avs-reference}
+
+EPI supports optional billing address verification on Remote Sale, Pre-Authorization, and Refund — Android SDK (PAX) 7.1014.0+ and Cloud API (all versions). Back-office (`POST /moto/sale` with `cardToken`) also accepts `billing`. AVS must be enabled for the merchant by Handpoint — contact your EPI onboarding team or account manager.
+
+**Two ways to supply billing data — mutually exclusive per request:**
+
+| Method | When to use |
+|---|---|
+| Pass `Billing` programmatically | You collect postal code / address in your own UI |
+| Set `enableAvsFields = true` | Let the terminal prompt the cardholder for billing data |
+
+**Android SDK (PAX) — requires 7.1014.0 or later:**
+
+```kotlin
+// Programmatic — pass billing data you collected
+val billing = Billing(
+    zipCode = customerZipCode,   // required
+    address = customerAddress    // optional
+)
+val options = MoToOptions().apply { this.billing = billing }
+hapi.motoSale(amount, currency, options)
+
+// On-device prompt — terminal asks the cardholder for billing data
+val options = MoToOptions().apply { enableAvsFields = true }
+hapi.motoSale(amount, currency, options)
+```
+
+`billing` and `enableAvsFields` work the same way on `motoPreauthorization()` and `motoRefund()`. On Refund there is no on-device prompt — pass `billing` programmatically if needed.
+
+**Cloud API:**
+
+```json
+POST https://cloud.handpoint.com/transactions
+{
+  "operation": "moToSale",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "amount": "1000",
+  "currency": "USD",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+Or trigger an on-device entry dialog:
+
+```json
+{
+  "operation": "moToSale",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "amount": "1000",
+  "currency": "USD",
+  "enableAvsFields": true
+}
+```
+
+**Back-office** (`POST /moto/sale` with `cardToken`) also accepts `billing` — no app version requirement:
+
+```json
+POST https://cloud.handpoint.com/moto/sale
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+:::note `enableAvsFields` on Cloud API
+This triggers an on-device dialog on the PAX terminal (PAX-integrated mode only). It has no effect on back-office `/moto/sale` requests.
+:::
+
+:::note AVS result availability
+The `billing` object is forwarded to EPI on all paths. On the **Cloud API path**, the AVS result code from EPI is not currently returned in the polled `TransactionResult` JSON — only `finStatus` (approve/decline) is surfaced. On the **Android SDK native path** (7.1014.0+), the AVS result may be available directly in `TransactionResult` — consult the SDK changelog for the field name.
+:::
+
 ## Refund {#refund}
 
 ### What this does
@@ -372,11 +640,6 @@ Use for returning goods or services after settlement has occurred. For cancellat
 2. **Unlinked refund**: omit `originalTransactionId` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement.
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
 4. The cardholder's card must be present for card-present refunds.
-
-:::note EPI
-Batch close is ISV-initiated via the `/close` endpoint. Partial reversal is available on TSYS US and Canada.
-:::
-
 
 ### Code
 
@@ -475,6 +738,95 @@ handpoint.refund(
 
 ### Testing
 Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../reference/development-hardware#trigger-amounts) to simulate declined or timeout responses.
+
+## Remote Refund (No Reader) {#remote-refund}
+
+Refund a Remote Sale without a card reader. Uses a stored card token (unlinked) or the original transaction ID (linked) — no terminal required.
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Linked remote refund** — reference the original remote sale by transaction ID:
+
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+**Unlinked remote refund** — use card token only:
+
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN"
+}
+```
+
+`amount` is in major currency units (decimal string). AVS `billing` object is accepted — see [AVS full reference](#avs-reference).
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Linked remote refund — card token from MoToOptions
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoRefund(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Remote refund requires no terminal — use the Cloud API /moto/refund endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Remote refund requires no terminal — use the Cloud API /moto/refund endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Remote refund via Cordova is not confirmed. Use Android SDK (PAX) or Cloud API."
+  useInstead="Android SDK (PAX) or Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Refund amount in major currency units (decimal string) |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `originalTransactionId` | string | One of | Links refund to original remote sale |
+| `cardToken` | string | One of | Unlinked refund — token from the token provider |
+| `transactionReference` | string | No | UUID v4 for idempotency |
+
+### Testing
+Test using the transaction ID from a previous Remote Sale on the TEST/DEMO merchant.
 
 ## Reversal {#reversal}
 
@@ -588,6 +940,76 @@ handpoint.saleReversal(
 
 ### Testing
 Test reversals on the TEST/DEMO merchant or staging device before the batch closes. Use trigger amounts to simulate timeout responses.
+
+## Remote Reversal (No Reader) {#remote-reversal}
+
+Void a back-office Remote Sale before settlement without a card reader. For on-terminal Remote Sales (where the PAX showed a card entry screen), use the standard [Reversal](#reversal) path with the terminal's serial number instead.
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/saleReversal
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+`amount` must match the original Remote Sale amount exactly. `originalTransactionId` is the `transactionID` from the original Remote Sale result.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+<NotSupported
+  reason="Remote reversal (no reader) is only available via Cloud API. For on-terminal Remote Sales, use the standard saleReversal() with the terminal serial number."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Remote reversal requires no terminal — use the Cloud API /moto/saleReversal endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Remote reversal requires no terminal — use the Cloud API /moto/saleReversal endpoint directly."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Remote reversal via Cordova is not confirmed. Use Cloud API."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in major currency units — must match original |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `originalTransactionId` | string | Yes | `transactionID` from the original Remote Sale result |
+| `transactionReference` | string | No | UUID v4 for idempotency |
+
+### Testing
+Test using the transaction ID from a previous Remote Sale on the TEST/DEMO merchant or staging device.
 
 ## Partial Reversal {#partial-reversal}
 
@@ -1096,290 +1518,6 @@ hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
 
 </TabItem>
 </Tabs>
-
-## MOTO (Mail Order / Telephone Order) {#moto}
-
-### What this does
-Processes a card-not-present transaction where the cardholder provides card details by phone or mail. The card is never physically read — a stored card token is used instead.
-
-### Two MOTO modes
-
-| Mode | How it works | Terminal required | Who holds card data |
-|---|---|---|---|
-| **MOTO on terminal** | Cloud API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
-| **MOTO back-office** | A `cardToken` from a supported token provider is sent via REST API or Android SDK. No terminal or card entry required. | ❌ None | Token provider (never the ISV) |
-
-:::info No raw card data
-Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All MOTO operations use a `cardToken` issued by a supported token provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes to PAN + expiry when processing the transaction — the ISV system never handles raw card data.
-:::
-
-### When to use it
-Use for call centres, phone order systems, or recurring billing where the cardholder previously consented to card-on-file. A card token must exist before a MOTO transaction can be processed — tokens are obtained via the [Tokenization](/acquirers/epi#tokenization) operation on the original card-present or online transaction.
-
-### Implementation notes
-
-1. The card token must come from a token provider supported by the merchant's acquirer.
-2. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
-3. **MOTO on terminal**: the PAX device must be running the Android SDK in integrated mode. The terminal entry screen collects card details and tokenizes internally.
-4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required. Uses the `/moto/sale` endpoint — not `/transactions`.
-
-:::note EPI
-Batch close is ISV-initiated via the `/close` endpoint. Partial reversal is available on TSYS US and Canada.
-:::
-
-### Address Verification Service (AVS)
-
-TSYS supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on Android SDK and Cloud API only, for now.
-
-Turning it on for a merchant requires `avsForMoto` (an internal flag Handpoint sets per merchant, default `false`) and `motoEnabled = true`.
-
-:::info
-Setup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).
-:::
-
-
-### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
-
-**MOTO on terminal** — terminal shows card entry screen (PAX in integrated mode):
-
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "operation": "moToSale",
-  "amount": "1000",
-  "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
-}
-```
-
-**MOTO back-office** — card token submitted directly, no terminal required:
-
-```http
-POST https://cloud.handpoint.com/moto/sale
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
-
-For back-office MOTO, `amount` is in major currency units (decimal string). `transactionReference` is UUID v4 and used for idempotency.
-
-**AVS (optional)** — attach a `billing` object to a MOTO on terminal request (TSYS only):
-
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "operation": "moToSale",
-  "amount": "1000",
-  "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
-  "billing": {
-    "zipCode": "10001",
-    "address": "123 Main St"
-  }
-}
-```
-
-`zipCode` is required whenever you include `billing`; `address` is optional. See [AVS for MOTO](/features/avs-for-moto) for enablement, the on-device prompt alternative (`enableAvsFields`), edge cases, and what to persist.
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-**MOTO on terminal** — the PAX device shows a manual card entry screen. This is a PAX-only feature:
-
-```kotlin
-// Terminal shows card entry screen — operator types card details on the PAX device
-hapi.motoSale(BigInteger("1000"), Currency.USD)
-```
-
-**MOTO back-office** — card token via `MoToOptions` (no terminal entry):
-
-```kotlin
-val options = MoToOptions()
-options.cardToken = "YOUR_STORED_CARD_TOKEN"
-hapi.motoSale(BigInteger("1000"), Currency.USD, options)
-```
-
-**AVS (optional)** — attach a `Billing` object on MOTO on terminal (TSYS only):
-
-```kotlin
-val billing = Billing(
-    zipCode = customerZipCode,   // e.g. "10001" — required
-    address = customerAddress    // e.g. "123 Main St" — optional
-)
-val options = MoToOptions().apply { this.billing = billing }
-hapi.motoSale(BigInteger("1000"), Currency.USD, options)
-```
-
-Or let the terminal ask for it instead of collecting it yourself:
-
-```kotlin
-val options = MoToOptions().apply { enableAvsFields = true }
-hapi.motoSale(BigInteger("1000"), Currency.USD, options)
-```
-
-See [AVS for MOTO](/features/avs-for-moto) for enablement, edge cases, and what to persist.
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
-  useInstead="Cloud API (back-office)"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO (no reader), use the Cloud API /moto/sale endpoint with a card token."
-  useInstead="Cloud API (back-office)"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="MOTO via Cordova is not confirmed. Use Android SDK (PAX) directly for on-terminal MOTO, or Cloud API for back-office MOTO."
-  useInstead="Android SDK (PAX) or Cloud API"
-/>
-
-</TabItem>
-</Tabs>
-
-### Parameters
-
-**MOTO on terminal** (`POST /transactions`):
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `operation` | string | Yes | Must be `"moToSale"` |
-| `amount` | string | Yes | Amount in smallest currency unit as a string |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `serial_number` | string | Yes | PAX terminal — triggers card entry screen |
-| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `transactionReference` | string | No | UUID v4 for idempotency |
-
-**MOTO back-office** (`POST /moto/sale`):
-
-| Name | Type | Required | Description |
-|---|---|---|---|
-| `amount` | string | Yes | Amount in major currency units, e.g. `"10.00"` for $10.00 |
-| `currency` | string | Yes | ISO 4217 currency code |
-| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
-| `transactionReference` | string | No | UUID v4 for idempotency. Recommended |
-| `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
-
-### Errors
-
-| Code | Meaning | Recovery |
-|---|---|---|
-| `DECLINED` | Issuer declined | Ask customer for another card or token |
-| `INVALID_TOKEN` | Card token not recognised | Verify token and token provider match the acquirer |
-| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
-
-### Testing
-Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).
-
-### Address Verification Service (AVS)
-
-EPI supports optional billing address verification on MOTO Sale, Pre-Authorization, and Refund — Android SDK (PAX) 7.1014.0+ and Cloud API (all versions). Back-office MOTO (`POST /moto/sale` with `cardToken`) also accepts `billing`. AVS must be enabled for the merchant by Handpoint — contact your EPI onboarding team or account manager.
-
-**Two ways to supply billing data — mutually exclusive per request:**
-
-| Method | When to use |
-|---|---|
-| Pass `Billing` programmatically | You collect postal code / address in your own UI |
-| Set `enableAvsFields = true` | Let the terminal prompt the cardholder for billing data |
-
-**Android SDK (PAX) — requires 7.1014.0 or later:**
-
-```kotlin
-// Programmatic — pass billing data you collected
-val billing = Billing(
-    zipCode = customerZipCode,   // required
-    address = customerAddress    // optional
-)
-val options = MoToOptions().apply { this.billing = billing }
-hapi.motoSale(amount, currency, options)
-
-// On-device prompt — terminal asks the cardholder for billing data
-val options = MoToOptions().apply { enableAvsFields = true }
-hapi.motoSale(amount, currency, options)
-```
-
-`billing` and `enableAvsFields` work the same way on `motoPreauthorization()` and `motoRefund()`. On Refund there is no on-device prompt — pass `billing` programmatically if needed.
-
-**Cloud API:**
-
-```json
-POST https://cloud.handpoint.com/transactions
-{
-  "operation": "moToSale",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "amount": "1000",
-  "currency": "USD",
-  "billing": {
-    "zipCode": "10001",
-    "address": "123 Main St"
-  }
-}
-```
-
-Or trigger an on-device entry dialog:
-
-```json
-{
-  "operation": "moToSale",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "amount": "1000",
-  "currency": "USD",
-  "enableAvsFields": true
-}
-```
-
-**Back-office MOTO** (`POST /moto/sale` with `cardToken`) also accepts `billing` — no app version requirement:
-
-```json
-POST https://cloud.handpoint.com/moto/sale
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "billing": {
-    "zipCode": "10001",
-    "address": "123 Main St"
-  }
-}
-```
-
-:::note `enableAvsFields` on Cloud API
-This triggers an on-device dialog on the PAX terminal (PAX-integrated mode only). It has no effect on back-office `/moto/sale` requests.
-:::
-
-:::note AVS result availability
-The `billing` object is forwarded to EPI on all paths. On the **Cloud API path**, the AVS result code from EPI is not currently returned in the polled `TransactionResult` JSON — only `finStatus` (approve/decline) is surfaced. On the **Android SDK native path** (7.1014.0+), the AVS result may be available directly in `TransactionResult` — consult the SDK changelog for the field name.
-:::
 
 ## Tokenization {#tokenization}
 

@@ -32,14 +32,14 @@ Capabilities are driven by [src/data/acquirerCaps.js](../../src/data/acquirerCap
 ## Integration path capabilities
 
 :::info REST API — integrated mode
-REST API card-present operations require a PAX terminal running the Handpoint Android SDK initialised in **cloud/integrated mode**. The REST API sends commands to the Handpoint Cloud, which forwards them to the terminal. Back Office operations (reversal, tip adjustment, MOTO, pre-auth capture) are a separate capability — no terminal required.
+REST API card-present operations require a PAX terminal running the Handpoint Android SDK initialised in **cloud/integrated mode**. The REST API sends commands to the Handpoint Cloud, which forwards them to the terminal. Back Office operations (reversal, tip adjustment, remote sale, pre-auth capture) are a separate capability — no terminal required.
 :::
 
-| Integration path | Card-present ops | MOTO | Batch Operations | Partial Rev | Notes |
+| Integration path | Card-present ops | Remote Sale | Batch Operations | Partial Rev | Notes |
 |---|---|---|---|---|---|
 | **REST API** | ✅ All (PAX in integrated mode required) | ✅ On-terminal via PAX screen or ProCharge token — acquirer-dependent | ✅ Where acquirer supports | ✅ TSYS only | PAX debug → `.io`; PAX prod → `.com` |
 | **Android (PAX)** | ✅ All except batch | ✅ On-terminal (PAX shows card entry screen) — PAX only | ❌ | ✅ TSYS only | Runs natively on PAX terminal |
-| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no MOTO/batch/partial rev |
+| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no remote sale/batch/partial rev |
 | **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |
 | **Cordova** | ✅ Same as Android (PAX) for PAX; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Single JS API for both device types |
 | **REST API (Back Office)** | ❌ Sale and refund require card-present | ✅ TSYS + OMNIPAY via ProCharge token (no reader) | ✅ TSYS only | ✅ TSYS only | No terminal required. Reversal ✅ all acquirers. Tip adj ✅ TSYS, PAYSAFE+Interac. Pre-auth capture/increase/decrease ✅ TSYS + OMNIPAY (initial pre-auth must be card-present). |
@@ -66,7 +66,7 @@ Other acquirers (TSYS, PAYSAFE): JCB and UnionPay acceptance depends on acquirer
 |---|---|
 | **JCB on TSYS / PAYSAFE** | Platform supports it; verify acquirer agreement enables it per merchant |
 | **UnionPay on TSYS** | Platform supports it; verify acquirer agreement |
-| **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
+| **PAYSAFE pre-auth / Remote Sale** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
 
 ---
 

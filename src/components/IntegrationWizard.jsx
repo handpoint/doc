@@ -86,7 +86,7 @@ const ACQUIRER_TOKEN_PROVIDERS = {
 };
 
 const TOKEN_PROVIDERS = [
-  { value: 'procharge', label: 'ProCharge', icon: '🔐', desc: 'EPI\'s token service. Stores the full PAN and expiry date — enables card-not-present MOTO charges using stored tokens.' },
+  { value: 'procharge', label: 'ProCharge', icon: '🔐', desc: 'EPI\'s token service. Stores the full PAN and expiry date — enables card-not-present remote sale charges using stored tokens.' },
   { value: 'paysafe',   label: 'Paysafe',   icon: '💳', desc: 'Paysafe\'s own vault. Supported for Paysafe acquirers — card-present tokenization and PCI-scope reduction.' },
   { value: 'tokenex',   label: 'TokenEx',   icon: '🏦', desc: 'Third-party card vault. Supported by all acquirers — card-present tokenization and PCI-scope reduction.' },
 ];
@@ -146,7 +146,7 @@ const FEATURE_GROUPS = [
       { id: 'refund',           label: 'Refund (Card Present)',      required: false, capKey: 'refund',           desc: 'Return funds with the card physically present — linked to original transaction or standalone.' },
       { id: 'partial-reversal', label: 'Partial Reversal',           required: false, capKey: 'partial-reversal', desc: 'Reduce the authorized amount before settlement — e.g. when a customer returns part of an order before the batch closes.' },
       { id: 'pre-auth',         label: 'Pre-Authorization',          required: false, capKey: 'pre-auth',         desc: 'Hold + increase + capture flow. Used in hotels, car rental, restaurants with tabs.' },
-      { id: 'moto-entry',       label: 'MOTO Entry (on terminal)',   required: false, capKey: 'moto',             desc: 'Staff keys card details on terminal keypad for a customer who is NOT present — phone or mail order CNP.' },
+      { id: 'remote-sale-entry', label: 'Remote Sale (on terminal)',  required: false, capKey: 'remote-sale',       desc: 'Staff keys card details on terminal keypad for a customer who is NOT present — phone or mail order CNP.' },
       { id: 'money-remittance', label: 'Money Remittance',           required: false, capKey: 'money-remittance', paths: ['cloud-api', 'android-pax'], desc: 'Process money transfer transactions via PAX terminal. AMEX routing requires a separate MID — contact Handpoint to configure.' },
       { id: 'debit-only',       label: 'Debit-Only Acceptance',      required: false, capKey: null,               desc: 'Restrict merchant to debit cards only — all terminals under the merchant decline credit transactions. Configured at the merchant level in TMS.' },
     ],
@@ -165,8 +165,8 @@ const FEATURE_GROUPS = [
     label: 'Back Office & Remote',
     icon: '🏢',
     features: [
-      { id: 'auto-refund',   label: 'MOTO Refund (GUID)',              required: false, pathIndependent: true, capKey: 'refund',                   desc: 'Refund via original transaction GUID using the REST API — no terminal or card re-presentation needed, regardless of your terminal integration path.' },
-      { id: 'moto-token',    label: 'MOTO Charge with Card Token',     required: false, pathIndependent: true, capKey: 'moto', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date to enable card-not-present charges.', desc: 'Charge a customer using a stored card token via the REST API — covers recurring billing, card-on-file, and unscheduled MOTO scenarios. The token must come from a provider that stores full PAN and expiry (ProCharge for EPI, or Cygma).' },
+      { id: 'auto-refund',        label: 'Remote Refund (GUID)',                required: false, pathIndependent: true, capKey: 'refund',        desc: 'Refund via original transaction GUID using the REST API — no terminal or card re-presentation needed, regardless of your terminal integration path.' },
+      { id: 'remote-sale-token', label: 'Remote Sale with Card Token',         required: false, pathIndependent: true, capKey: 'remote-sale', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date to enable card-not-present charges.', desc: 'Charge a customer using a stored card token via the REST API — covers recurring billing, card-on-file, and remote sale scenarios. The token must come from a provider that stores full PAN and expiry (ProCharge for EPI, or Cygma).' },
       { id: 'token-guid',    label: 'Get Token from Transaction GUID', required: false, pathIndependent: true, capKey: 'tokenization',             desc: 'Retrieve a card token from any past transaction using its GUID via the REST API — no new terminal interaction.' },
       { id: 'preauth-retry', label: 'Pre-Auth Capture Retry',          required: false, pathIndependent: true, capKey: 'pre-auth-capture-reversal', desc: 'Retry a failed pre-auth capture using the original auth GUID via the REST API — no customer re-presence needed.' },
       { id: 'batching',      label: 'Batch / EOD Settlement',          required: false, pathIndependent: true, capKey: 'batching',                  desc: 'Manually trigger end-of-day batch settlement via the REST API instead of relying on automatic settlement. Must be enabled in TMS.' },
@@ -316,10 +316,10 @@ const FEATURE_TESTS = {
   'reversal':         { label: 'Connection Loss Recovery', test: 'Simulate a connection drop mid-transaction. Your software must query transaction status on reconnect and send an automatic reversal when the outcome is ambiguous. This test also covers app-crash recovery.' },
   'pre-auth':         { label: 'Pre-Auth Lifecycle', test: 'Execute the full lifecycle: initial hold → increase → capture. Also test a pre-auth reversal (release without capturing). Verify the terminal is correctly freed after each step.' },
   'tip-adj':          { label: 'Tip Adjustment', test: 'Perform a backoffice tip adjustment on a completed transaction. Confirm the feature is unavailable on any transaction that already included an on-screen tip.' },
-  'moto-token':       { label: 'MOTO Charge with Card Token', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date.', test: 'Retrieve a card token from a past transaction GUID, then process a MOTO charge using that token. Verify the charge succeeds without any terminal interaction, and that it works for both a one-off card-on-file charge and a scheduled recurring charge.' },
+  'remote-sale-token': { label: 'Remote Sale with Card Token', tokenProviderNote: 'ProCharge (EPI) or Cygma — token must store the full PAN and expiry date.', test: 'Retrieve a card token from a past transaction GUID, then process a remote sale using that token. Verify the charge succeeds without any terminal interaction, and that it works for both a one-off card-on-file charge and a scheduled recurring charge.' },
   'partial-reversal': { label: 'Partial Reversal', test: 'Process a sale, then send a partial reversal to reduce the authorized amount before settlement. Confirm the terminal displays the updated amount and the batch reflects the reduced value.' },
   'batching':         { label: 'Batch / EOD Settlement', test: 'Trigger a manual end-of-day batch close via the Back Office API. Confirm all open transactions are settled and the batch report is returned.' },
-  'auto-refund':      { label: 'MOTO Refund (GUID)', test: 'Refund a transaction using only its GUID — confirm no terminal or card re-presentation is required.' },
+  'auto-refund':       { label: 'Remote Refund (GUID)', test: 'Refund a transaction using only its GUID — confirm no terminal or card re-presentation is required.' },
   'sale-tokenize':    { label: 'Atomic Sale & Tokenize', test: 'Simulate a token provider failure during a sale — confirm the entire transaction is declined, not just the tokenization step.' },
   'token-guid':       { label: 'Deferred Token Retrieval', test: 'Retrieve a token from the GUID of a completed transaction that was not originally tokenized at time of sale.' },
   'debit-only':       { label: 'Debit-Only Restriction', test: 'Present a credit card to a terminal configured for debit-only — confirm the terminal declines the card and prompts for debit.' },
@@ -474,10 +474,10 @@ function getCPDocLinks(pathId, enabledFeatures) {
   if (enabledFeatures.some(f => ['pre-auth', 'preauth-retry'].includes(f))) {
     links.push({ label: 'Pre-Authorization guide', to: '/reference/pre-authorization-guide' });
   }
-  if (enabledFeatures.some(f => ['token-guid', 'token-only', 'sale-tokenize', 'moto-token'].includes(f))) {
+  if (enabledFeatures.some(f => ['token-guid', 'token-only', 'sale-tokenize', 'remote-sale-token'].includes(f))) {
     links.push({ label: 'Tokenization reference', to: '/reference/tokenization' });
   }
-  if (enabledFeatures.some(f => ['moto-token', 'moto-entry', 'tip-adj', 'auto-refund', 'preauth-retry'].includes(f))) {
+  if (enabledFeatures.some(f => ['remote-sale-token', 'remote-sale-entry', 'tip-adj', 'auto-refund', 'preauth-retry'].includes(f))) {
     links.push({ label: 'Back Office API reference', to: '/reference/back-office' });
   }
   links.push({ label: 'Testing edge cases', to: '/reference/testing-edge-cases' });

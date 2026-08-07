@@ -8,7 +8,7 @@ description: Full matrix of payment capabilities per acquirer. Verified against 
 
 # Acquirer capabilities matrix
 
-| Acquirer | Geography | Sale | Refund | Reversal | Partial Rev. | Tip Adj. | Pre-Auth | MOTO | Batch Ops | Money Rem. | Void |
+| Acquirer | Geography | Sale | Refund | Reversal | Partial Rev. | Tip Adj. | Pre-Auth | Remote Sale | Batch Ops | Money Rem. | Void |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | TSYS | US, Canada | ✅ | ✅ | ✅ | ✅ US | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
 | PAYSAFE + Interac | Canada | ✅ | ✅¹ | ✅¹ | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
