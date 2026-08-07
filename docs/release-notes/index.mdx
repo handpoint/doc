@@ -113,16 +113,26 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 :::
 
 ### 7.1013.1
+**New Features**
 
-Maintenance release — dependency and version updates. No new APIs or behaviour changes.
+- **Deferred Card Tokenization**: `deferredTokenization(originalTransactionID)` — new method in `Hapi.kt` that retrieves a card token from a previously completed card-present transaction, without requiring the card to be presented again. Pass the `EFTTransactionID` (UUID) from the original transaction result. Returns `Boolean` (command sent to device). The tokenization result is delivered via the `endOfTransaction` event. Requires a connected PAX device. Eligible source transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. See [Tokenization](/functions/tokenization).
+- **Duplicate check for MOTO operations**: `duplicationCheck` is now supported in `MoToOptions` for `motoSale` and `motoRefund`, preventing accidental duplicate charges on retry.
+
+**Improvements**
+
+- Contactless reading reliability improvements.
+
+**Bug Fixes**
+
+- `cardPan` operation caused an app crash in certain scenarios — resolved.
+- PIN bypass activation/deactivation behaved incorrectly — resolved.
+- Magstripe refunds declined due to invalid track2data format — resolved.
 
 ### 7.1013.0
 **New Features**
 
-- **Deferred Card Tokenization**: `deferredTokenization(originalTransactionID)` — tokenizes a card against a previously completed transaction without requiring the cardholder to present the card again. *(Note: this feature is exposed as a REST API endpoint — see [REST API 2.26.0](/back-office/rest-api-no-reader). Confirm with your Handpoint integration engineer whether this is available via the Android SDK in your setup.)*
-- **MOTO duplicate check**: `duplicationCheck` parameter is now supported in MOTO operations (`motoSale`, `motoRefund`), preventing accidental duplicate charges on retry.
 - **MOTO partial approval**: MOTO transactions now correctly handle partial approval responses from the issuer.
-- **`NO_CURRENT_TRANSACTION_TO_CANCEL`** status added — `stopCurrentTransaction()` returns this status when called with no active transaction instead of a generic error.
+- **`NO_CURRENT_TRANSACTION_TO_CANCEL`** status: `stopCurrentTransaction()` now returns this status when called with no active transaction instead of a generic error, allowing Cloud API to distinguish between "no transaction" and "cancel not allowed."
 
 **Bug Fixes**
 

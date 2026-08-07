@@ -175,21 +175,26 @@ These require dev team confirmation before the documentation can be considered f
 **iOS:** Calls `[self.api getPendingTransaction]` → `isTransactionResultPending` / `retrievePendingTransaction` — appears to work  
 **Question:** Is `getPendingTransaction` intentionally Android-unsupported? Should the docs note it is iOS-only?
 
-### 3.4 `deferredTokenization` — Android SDK or Cloud API? *(CONFIRMED — REST API only)*
+### 3.4 `deferredTokenization` — Android SDK and Cloud API *(RESOLVED)*
 
-**Android SDK source reality (all subdirs, all versions):** `deferredTokenization` does NOT exist anywhere in the Android SDK source — zero matches.
+**Both exist.** The earlier source search found zero matches because the local Android SDK clone is at 7.1013.0; `deferredTokenization` shipped in **7.1013.1** (SDKS-86, PR #2971, build date 2026-07-20).
 
-**Confirmed Cloud REST API endpoint (from legacy `restendpoints/index.html`):**
+**Android SDK 7.1013.1** — `Hapi.kt`:
+```kotlin
+fun deferredTokenization(originalTransactionID: String): Boolean
+fun deferredTokenization(originalTransactionID: String, options: Options): Boolean
 ```
-GET https://cloud.handpoint.com/transactions/{guid}/token
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-```
-- **Purpose:** Retrieve a `cardToken` from a previously completed card-present transaction — even if tokenisation was not enabled at the time of the original transaction.
-- **Eligible transaction types:** `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`
-- **Returns:** `DeferredTokenizationResponse` with the `cardToken`
-- **Errors:** HTTP 400 if the transaction type is not eligible
+- `originalTransactionID` = `EFTTransactionID` (UUID) from the original transaction — NOT the internal device `transactionID`
+- Returns `Boolean` (command sent to device successfully)
+- Result arrives via `endOfTransaction`
+- Requires a connected PAX device
 
-**Action needed:** The Android SDK 7.1013.0 release notes entry "Deferred Card Tokenization: new `deferredTokenization(originalTransactionID)` method" is factually incorrect — this is a Cloud REST endpoint, not an Android SDK method. Please correct the release notes to reference the REST API endpoint. The docs-v2 release notes entry has been updated with a clarifying note.
+**Cloud REST API** — `GET /transactions/{guid}/token`: server-side, no terminal required. Eligible types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`.
+
+**Docs corrected:**
+- Release notes: moved `deferredTokenization` from 7.1013.0 to 7.1013.1 with accurate description
+- `tokenization.mdx`: added `deferredTokenization()` Android SDK code + Cloud API `GET` endpoint with parameters
+- `tokenized-operation.mdx`: Cloud API tab uses documented `POST /moto/sale` (not the undocumented `POST /transaction` singular endpoint)
 
 ### 3.5 `motoReversal` with string amount/currency — units confirmed from source *(partially resolved)*
 
