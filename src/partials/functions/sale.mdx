@@ -13,6 +13,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 3. Always store the `transactionReference` immediately — you need it for any subsequent reversal.
 4. Amount is in the smallest currency unit (cents/pence). `1000` = $10.00 USD.
 5. **`transactionReference` (Cloud API):** Send a unique UUID v4 on **original transactions only** (Sale, MOTO Sale, Pre-Authorization, unlinked Refund). Do not send a new `transactionReference` on subsequent operations (Reversal, linked Refund, Pre-Auth Capture, Void). The gateway uses this value to group all linked operations — query `GET /transactions/{transactionReference}/status/all` on `transactions.handpoint.com` to retrieve the full operation chain. HiLite integration paths do not support `transactionReference`.
+6. **Cloud API with-reader requires the Handpoint Payments App.** The PAX terminal must have the Handpoint Payments App installed and running to receive and process Cloud API commands. Contact your Handpoint integration engineer for app installation or version confirmation. See [Handpoint App release notes](/release-notes#pax-app) for the app ↔ SDK version map.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 

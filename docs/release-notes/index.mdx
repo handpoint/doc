@@ -637,4 +637,43 @@ Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for
 
 </TabItem>
 
+<TabItem value="pax-app" label="Handpoint App (PAX)">
+
+## Handpoint Payments App — PAX
+
+The Handpoint Payments App must be **installed and running** on the PAX terminal for all Cloud API with-reader operations (`POST /transactions`). The app embeds the Android SDK — the app version determines which SDK version is active on the terminal.
+
+:::info App installation
+The Handpoint Payments App is distributed by Handpoint and installed on PAX terminals during merchant onboarding. Contact your Handpoint integration engineer for installation, updates, or to confirm the version running on your terminals.
+:::
+
+:::info Latest version
+**4.13.0** — uses Android SDK **7.1013.1**
+:::
+
+### 4.13.0
+
+Uses Android SDK **7.1013.1**.
+
+**New Features**
+
+- **Deferred Card Tokenization** — retrieve a card token from a previously completed card-present transaction without requiring the card to be presented again. Available via `deferredTokenization()` in the Android SDK.
+- **Duplicate check for MOTO operations** — prevents accidental duplicate charges on MOTO sale and refund retry.
+
+**Improvements**
+
+- Contactless reading reliability improvements.
+
+**Bug Fixes**
+
+- `cardPan` operation caused an app crash in certain scenarios — resolved.
+- PIN bypass activation/deactivation behaved incorrectly — resolved.
+- Magstripe refunds declined due to invalid track2data format — resolved.
+
+:::caution Known issue — under investigation (SDKS-320)
+An issue has been identified affecting **PAX terminals without a MAGStripe module**. Only a subset of devices is impacted. Investigation is ongoing — a fix will be included in a future release.
+:::
+
+</TabItem>
+
 </Tabs>
