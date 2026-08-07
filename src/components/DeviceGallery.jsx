@@ -22,7 +22,7 @@ const DEVICES = [
     img: '/img/devices/HiLite.jpg',
     paths: 'Android (HiLite BT) · iOS (HiLite BT) · Cordova',
     printer: false, wifi24: false, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
-    markets: ['US'], acquirers: ['Paysafe'],
+    markets: ['US', 'EU'], acquirers: ['Paysafe', 'Lloyds'],
   },
   // PAX handheld with printer
   {
@@ -56,6 +56,7 @@ const DEVICES = [
     img: '/img/devices/PAXA910S.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
+    markets: ['EU'], acquirers: ['EmerchantPay'],
   },
   {
     id: 'a77', name: 'PAX A77', family: 'PAX', tms: 'PAXA77',
@@ -76,7 +77,7 @@ const DEVICES = [
     img: '/img/devices/PAXA80.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: true,
-    markets: ['EU'], acquirers: ['EmerchantPay'],
+    markets: ['US', 'EU'], acquirers: ['EmerchantPay'],
   },
   {
     id: 'a800', name: 'PAX A800', family: 'PAX', tms: 'PAXA800',
@@ -131,7 +132,7 @@ const DEVICES = [
     img: '/img/devices/PAXA35.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
-    markets: ['US'], acquirers: ['TSYS'],
+    markets: ['US', 'EU'], acquirers: ['TSYS', 'EmerchantPay'],
   },
   {
     id: 'a50', name: 'PAX A50 / A50S', family: 'PAX', tms: 'PAXA50 · PAXA50S',
@@ -180,6 +181,7 @@ const DEVICES = [
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
     sdkMin: 'v7.1009.5+',
+    markets: ['EU'], acquirers: ['EmerchantPay'],
   },
   {
     id: 'im30', name: 'PAX IM30', family: 'PAX', tms: 'PAXIM30',

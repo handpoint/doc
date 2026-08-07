@@ -21,7 +21,7 @@ Please reference the [PCI SSC website](https://www.pcisecuritystandards.org) to 
 :::
 
 :::tip Filtering by market
-Use the Market filter above the gallery to show only devices deployed in a specific region. **Deployed with** rows and acquirer tags reflect observed production deployments (July 2026 transaction data) — all devices support all acquirers in principle.
+Use the Market filter above the gallery to show only devices deployed in a specific region. **Region** and **Deployed with** rows reflect observed production transactions (2023–2026 Handpoint data) — all devices support all acquirers in principle.
 :::
 
 <DeviceGallery />
@@ -43,10 +43,11 @@ Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android 
 | | |
 |---|---|
 | **TMS device type** | `MPED400` |
+| **Region** | US / Canada + Europe |
 | **Connection** | Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Integration paths** | Android SDK (HiLite BT), iOS SDK (HiLite BT), Cordova |
-| **Deployed with** | Paysafe (US) |
+| **Deployed with** | Paysafe (US), Lloyds (EU) |
 
 ---
 
@@ -61,6 +62,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA920` |
+| **Region** | US / Canada + Europe |
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -76,6 +78,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA920PRO` |
+| **Region** | US / Canada + Europe |
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -117,6 +120,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device types** | `PAXA910`, `PAXA910S` |
+| **Region** | Europe |
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -130,6 +134,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA80` |
+| **Region** | US / Canada + Europe |
 | **Form factor** | Countertop smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4GHz, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -171,6 +176,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA8900` |
+| **Region** | Europe |
 | **Form factor** | Countertop smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Ethernet, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -185,6 +191,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device types** | `PAXA6630`, `PAXA6650` |
+| **Region** | US / Canada (A6650 observed in production) |
 | **Form factor** | Handheld smart terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4/5GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -199,6 +206,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA60` |
+| **Region** | US / Canada |
 | **Form factor** | Compact handheld terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -212,11 +220,12 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA35` |
+| **Region** | US / Canada + Europe |
 | **Form factor** | Compact handheld terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4GHz, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.7.0+ |
-| **Deployed with** | TSYS (US) |
+| **Deployed with** | TSYS (US), EmerchantPay (EU) |
 
 ---
 
@@ -227,6 +236,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device types** | `PAXA50`, `PAXA50S` |
+| **Region** | Europe |
 | **Form factor** | Compact handheld terminal (no printer) |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -253,6 +263,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | | |
 |---|---|
 | **TMS device type** | `PAXA77` |
+| **Region** | US / Canada |
 | **Form factor** | Handheld smart terminal with printer |
 | **Connectivity** | Wi-Fi 2.4GHz, 4G, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
@@ -327,6 +338,7 @@ The PAX E800 has reached end of life. Now is the perfect time to upgrade to PAX'
 | | |
 |---|---|
 | **TMS device types** | `PAXIM25`, `PAXIM30` |
+| **Region** | Europe |
 | **Form factor** | Integrated module / OEM (no printer) |
 | **Connectivity** | IM25: Wi-Fi 2.4GHz, 4G · IM30: Wi-Fi 2.4GHz, Ethernet |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
