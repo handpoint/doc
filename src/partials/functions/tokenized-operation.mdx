@@ -32,9 +32,7 @@ For MOTO back-office charges using a stored token (no terminal), see [MOTO](/fun
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-:::warning Endpoint pending confirmation
-The Cloud API token-charge endpoint below is based on legacy documentation and has not been verified against the current gateway. Contact your Handpoint integration engineer before using this endpoint in production. The confirmed path for back-office token charges (no terminal required) is `POST /moto/sale` — see [MOTO](/functions/moto).
-:::
+Uses `POST /transaction` (singular) — the server-side no-reader endpoint. Note: this is a different endpoint and field convention from the with-reader `POST /transactions` (plural) which uses `"operation"`.
 
 ```http
 POST https://cloud.handpoint.com/transaction
@@ -45,10 +43,20 @@ Content-Type: application/json
   "action": "SALE",
   "amount": 1000,
   "currency": "USD",
-  "cardToken": "TOKEN_FROM_PREVIOUS_TOKENIZATION",
-  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+  "cardToken": "TOKEN_FROM_PREVIOUS_TOKENIZATION"
 }
 ```
+
+Amount is a **number in minor units** (e.g. `1000` = $10.00). Add `"motoChannel": true` to classify the transaction as MOTO — without it, the transaction is treated as a card-on-file charge.
+
+To retrieve a `cardToken` from a prior card-present transaction (without having enabled tokenisation at the time), use the deferred tokenization endpoint first:
+
+```http
+GET https://cloud.handpoint.com/transactions/{transactionGuid}/token
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+
+Returns the `cardToken` you can then pass into the charge above.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -129,6 +137,16 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
 </Tabs>
 
 ### Parameters
+
+**Cloud API** — `POST /transaction` (no-reader):
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `action` | string | Yes | Must be `"SALE"` |
+| `amount` | number | Yes | Amount in **minor units** as a number (e.g. `1000` = $10.00) |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `cardToken` | string | Yes | Token from a supported token provider or from `GET /transactions/{guid}/token` |
+| `motoChannel` | boolean | No | `true` to classify as a MOTO transaction. Omit for a card-on-file charge |
 
 **Android SDK** — `tokenizedOperation(amount, currency)` (two-phase):
 

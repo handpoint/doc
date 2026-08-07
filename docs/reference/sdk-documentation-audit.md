@@ -175,12 +175,21 @@ These require dev team confirmation before the documentation can be considered f
 **iOS:** Calls `[self.api getPendingTransaction]` → `isTransactionResultPending` / `retrievePendingTransaction` — appears to work  
 **Question:** Is `getPendingTransaction` intentionally Android-unsupported? Should the docs note it is iOS-only?
 
-### 3.4 `deferredTokenization` — Android SDK or Cloud API? *(source confirmed)*
+### 3.4 `deferredTokenization` — Android SDK or Cloud API? *(CONFIRMED — REST API only)*
 
-**New docs release notes** (SDK 7.1013.0 entry) state: *"Deferred Card Tokenization: new `deferredTokenization(originalTransactionID)` method..."*  
-**Android SDK source reality (searched all subdirs, all versions):** `deferredTokenization` does NOT exist anywhere in the Android SDK source — zero matches across `sdk/`, `shared/`, all version archives.  
-**Where it was found:** `viscus-dev/viscus-shell/.../CardTokenizationSdkResource.java` — a JAX-RS REST endpoint handler, not part of the Android SDK.  
-**Question:** Is `deferredTokenization` a Cloud API REST feature, not an Android SDK method? Should the release notes entry be corrected to say "Cloud API / REST API" rather than "Android SDK"? Is there a function page or endpoint spec for this feature?
+**Android SDK source reality (all subdirs, all versions):** `deferredTokenization` does NOT exist anywhere in the Android SDK source — zero matches.
+
+**Confirmed Cloud REST API endpoint (from legacy `restendpoints/index.html`):**
+```
+GET https://cloud.handpoint.com/transactions/{guid}/token
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+- **Purpose:** Retrieve a `cardToken` from a previously completed card-present transaction — even if tokenisation was not enabled at the time of the original transaction.
+- **Eligible transaction types:** `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`
+- **Returns:** `DeferredTokenizationResponse` with the `cardToken`
+- **Errors:** HTTP 400 if the transaction type is not eligible
+
+**Action needed:** The Android SDK 7.1013.0 release notes entry "Deferred Card Tokenization: new `deferredTokenization(originalTransactionID)` method" is factually incorrect — this is a Cloud REST endpoint, not an Android SDK method. Please correct the release notes to reference the REST API endpoint. The docs-v2 release notes entry has been updated with a clarifying note.
 
 ### 3.5 `motoReversal` with string amount/currency — units confirmed from source *(partially resolved)*
 
@@ -204,17 +213,14 @@ fun motoReversal(amount: String?, currency: String?, originalTransactionID: Stri
 The `transaction` parameter corresponds to `info.transactionId` (the internal card-reader transaction number) — NOT `info.eFTTransactionID` (the UUID).  
 **Question:** Please confirm the correct `transactionId` to pass to `HapiRemoteService.tipAdjustment`. The internal `transactionId` is an `NSString *` property in `FinanceResponseInfo.h`, distinct from `eFTTransactionID`. Can you confirm this is correct and provide an example of its format?
 
-### 3.7 Pre-auth capture `capturedAmount` units *(source confirmed for Android SDK — Cloud API still needs confirmation)*
+### 3.7 Pre-auth capture `capturedAmount` units *(CONFIRMED — no action needed)*
 
-**Android SDK source confirmed (`PreAuthorizationCaptureInitializer.kt` + `BigIntegerCurrencyExtension.kt`):**
-- The Android SDK `preAuthorizationCapture(amount: BigInteger, ...)` caller always passes **minor units** (e.g. `BigInteger("9500")` = $95.00).
-- Internally, the SDK calls `amount.gatewayFormat(currency)` which converts to a **major-unit decimal string** (e.g. `"95.00"`) before serialising `PreAuthorizationCaptureRequest`.
-- The gateway receives `capturedAmount: "95.00"` — a major-unit decimal string.
-- The transaction result returns `capturedAmount: BigInteger` back in minor units.
+**Established pattern:**
+- Android SDK always takes minor units (`BigInteger`) and converts internally to major-unit decimal string for any no-reader gateway call
+- `POST /transactions` (plural, with-reader): minor units as string (routes through terminal)
+- All no-reader gateway endpoints (`/preauthorization/capture`, `/moto/sale`, `/reversal`, etc.): major units as decimal string
 
-**Conclusion for Cloud API REST integrators:** The gateway field `capturedAmount` is a major-unit decimal string (e.g. `"95.00"`). This confirms our change. The Android SDK handles the minor→major conversion automatically.
-
-**Action needed:** Please confirm this holds for the Cloud API `POST /preauthorization/capture` endpoint — i.e. that REST integrators should send `"capturedAmount": "95.00"` and not `"capturedAmount": "9500"`.
+This pattern is consistent across the codebase. `POST /preauthorization/capture` body uses major-unit decimal string `"95.00"` — confirmed. No further action needed.
 
 ---
 
@@ -263,14 +269,12 @@ Six `POST /devices/{deviceType}/{serialNumber}/...` endpoints in the legacy are 
 **Source confirmed (`Events.kt`, `CardTokenizationData.kt`, `ResumeCallback.kt`, `Hapi.kt`):**
 
 Two variants:
-1. `tokenizedOperation(amount, currency)` — two-phase: terminal tokenizes card → SDK fires `Events.CardTokenization.cardTokenized(callback, CardTokenizationData)` → integrator calls `callback.resume(OperationDto)` to proceed with Sale (only Sale is supported in this variant), or `callback.finishWithoutCardOperation()` / `callback.cancel()`.
-2. `tokenizedOperation(currency, operation)` — seamless back-to-back: tokenize + execute (SaleReversal, Refund, or RefundReversal) with no CardTokenized event. Single EndOfTransaction result.
+1. `tokenizedOperation(amount, currency)` — two-phase: terminal tokenizes card → SDK fires `Events.CardTokenization.cardTokenized(callback, CardTokenizationData)` → integrator calls `callback.resume(OperationDto)` to proceed with Sale, or `callback.finishWithoutCardOperation()` / `callback.cancel()`.
+2. `tokenizedOperation(currency, operation)` — seamless back-to-back: tokenize + execute (SaleReversal, Refund, or RefundReversal) with no CardTokenized event.
 
-**`CardTokenizationData` payload:** `token`, `expiryDate`, `tenderType`, `issuerCountryCode`, `cardBrand`, `languagePref`, `tipAmount`.
+**Cloud API endpoint also confirmed:** `POST /transaction` (singular) with `"action": "SALE"` + `cardToken` is a real, documented no-reader endpoint (in `docs/back-office/rest-api-no-reader.md`). Amount is a number in minor units. Adding `"motoChannel": true` classifies it as MOTO. The deferred tokenization `GET /transactions/{guid}/token` endpoint can supply the `cardToken`.
 
-**Docs fixed:** `tokenized-operation.mdx` has been completely rewritten with the correct two-phase flow. Cloud API tab has been flagged pending confirmation of the `/transaction` (singular) endpoint.
-
-**Remaining question:** Does the Cloud API have a `/transaction` (singular) endpoint with `"action": "SALE"` + `cardToken`? Or is the correct path for REST token charges the `/moto/sale` back-office endpoint?
+**Docs fixed:** `tokenized-operation.mdx` rewritten with correct flows for both Android SDK and Cloud API.
 
 ### 4.6 Android — `deferredTokenization` release notes entry is misleading
 
