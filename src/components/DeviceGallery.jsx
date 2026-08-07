@@ -1,12 +1,13 @@
 import React, {useState, useMemo} from 'react';
 
 const FILTERS = [
-  {key: 'printer',  label: 'Printer'},
-  {key: 'wifi24',   label: 'Wi-Fi 2.4G'},
-  {key: 'wifi5',    label: 'Wi-Fi 5G'},
+  {key: 'printer',    label: 'Printer'},
+  {key: 'bluetooth',  label: 'Bluetooth'},
+  {key: 'wifi24',     label: 'Wi-Fi 2.4G'},
+  {key: 'wifi5',      label: 'Wi-Fi 5G'},
   {key: 'cellular4g', label: '4G'},
   {key: 'cellular5g', label: '5G'},
-  {key: 'ethernet', label: 'Ethernet'},
+  {key: 'ethernet',   label: 'Ethernet'},
 ];
 
 const MARKET_FILTERS = [
@@ -21,8 +22,8 @@ const DEVICES = [
     id: 'hilite', name: 'HiLite', family: 'HiLite (DATECS)', tms: 'MPED400',
     img: '/img/devices/HiLite.jpg',
     paths: 'Android (HiLite BT) · iOS (HiLite BT) · Cordova',
-    printer: false, wifi24: false, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
-    markets: ['US', 'EU'], acquirers: ['Paysafe', 'Lloyds'],
+    printer: false, bluetooth: true, wifi24: false, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
+    markets: ['US', 'EU'],
   },
   // PAX handheld with printer
   {
@@ -30,14 +31,14 @@ const DEVICES = [
     img: '/img/devices/PAXA920.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['US', 'EU'], acquirers: ['Paysafe', 'EmerchantPay'],
+    markets: ['US', 'EU'],
   },
   {
     id: 'a920pro', name: 'PAX A920 Pro', family: 'PAX', tms: 'PAXA920PRO',
     img: '/img/devices/PAXA920PRO.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['US', 'EU'], acquirers: ['Paysafe', 'EmerchantPay'],
+    markets: ['US', 'EU'],
   },
   {
     id: 'a920max', name: 'PAX A920 MAX', family: 'PAX', tms: 'PAXA920MAX',
@@ -58,14 +59,14 @@ const DEVICES = [
     img: '/img/devices/PAXA910S.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['EU'], acquirers: ['EmerchantPay'],
+    markets: ['EU'],
   },
   {
     id: 'a77', name: 'PAX A77', family: 'PAX', tms: 'PAXA77',
     img: '/img/devices/PAXA77.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['US'], acquirers: ['Paysafe'],
+    markets: ['US'],
   },
   {
     id: 'a960', name: 'PAX A960', family: 'PAX', tms: 'PAXA960',
@@ -101,7 +102,7 @@ const DEVICES = [
     img: '/img/devices/PAXA8900.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: true, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: true,
-    markets: ['EU'], acquirers: ['EmerchantPay'],
+    markets: ['EU'],
   },
   {
     id: 'a3700', name: 'PAX A3700', family: 'PAX', tms: 'PAXA3700',
@@ -124,28 +125,28 @@ const DEVICES = [
     img: '/img/devices/PAXA6650.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: true, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['US'], acquirers: ['Paysafe', 'TSYS'],
+    markets: ['US'],
   },
   {
     id: 'a60', name: 'PAX A60', family: 'PAX', tms: 'PAXA60',
     img: '/img/devices/PAXA60.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['US'], acquirers: ['Paysafe'],
+    markets: ['US'],
   },
   {
     id: 'a35', name: 'PAX A35', family: 'PAX', tms: 'PAXA35',
     img: '/img/devices/PAXA35.jpg',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: false,
-    markets: ['US', 'EU'], acquirers: ['TSYS', 'EmerchantPay'],
+    markets: ['US', 'EU'],
   },
   {
     id: 'a50', name: 'PAX A50 / A50S', family: 'PAX', tms: 'PAXA50 · PAXA50S',
     img: '/img/devices/PAXA50.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: true, cellular5g: false, ethernet: false,
-    markets: ['EU'], acquirers: ['EmerchantPay'],
+    markets: ['EU'],
   },
   {
     id: 'a30', name: 'PAX A30', family: 'PAX', tms: 'PAXA30',
@@ -196,7 +197,7 @@ const DEVICES = [
     img: '/img/devices/PAXIM30.png',
     paths: 'Android SDK (PAX) · REST API',
     printer: false, wifi24: true, wifi5: false, cellular4g: false, cellular5g: false, ethernet: true,
-    markets: ['EU'], acquirers: ['EmerchantPay'],
+    markets: ['EU'],
   },
 ];
 
@@ -206,15 +207,6 @@ function FeatureBadge({active, label}) {
 }
 
 const MARKET_COLORS = {US: 'us', EU: 'eu'};
-const ACQUIRER_COLORS = {
-  'Paysafe': 'paysafe',
-  'TSYS': 'tsys',
-  'EmerchantPay': 'emp',
-  'Lloyds': 'lloyds',
-  'Paystrax': 'paystrax',
-  'TEYA': 'teya',
-  'Vantiv': 'vantiv',
-};
 
 export default function DeviceGallery() {
   const [activeFilters, setActiveFilters] = useState([]);
@@ -305,6 +297,7 @@ export default function DeviceGallery() {
               <div className="device-card-tms">{d.tms}</div>
               <div className="device-card-features">
                 <FeatureBadge active={d.printer}    label="Printer" />
+                <FeatureBadge active={d.bluetooth}  label="Bluetooth" />
                 <FeatureBadge active={d.wifi24}     label="Wi-Fi 2.4G" />
                 <FeatureBadge active={d.wifi5}      label="Wi-Fi 5G" />
                 <FeatureBadge active={d.cellular4g} label="4G" />
@@ -315,9 +308,6 @@ export default function DeviceGallery() {
                 <div className="device-card-markets">
                   {d.markets.map(m => (
                     <span key={m} className={`device-market-tag device-market-tag--${MARKET_COLORS[m] || 'default'}`}>{m}</span>
-                  ))}
-                  {(d.acquirers || []).map(a => (
-                    <span key={a} className={`device-acquirer-tag device-acquirer-tag--${ACQUIRER_COLORS[a] || 'default'}`}>{a}</span>
                   ))}
                 </div>
               )}
