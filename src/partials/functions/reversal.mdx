@@ -154,6 +154,8 @@ handpoint.saleReversal(
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | Terminal serial number |
 | `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` |
+| `token` | string | No | Opaque value included alongside the result in the push notification. Only used when `callbackUrl` is set |
 
 **Cloud API without reader** — `POST /reversal`:
 

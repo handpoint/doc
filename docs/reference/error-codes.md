@@ -67,6 +67,9 @@ These are returned in the initial POST before the 202 is issued:
 |---|---|---|---|
 | `403` | `No valid key found in header` | Invalid or missing API key | Check the `ApiKeyCLoud` header value |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff (2–5s) |
+| `400` | `{"error":1002,"message":"Device not responding"}` | Terminal is connected but not acknowledging commands | Check physical terminal state; power-cycle if unresponsive |
+| `400` | `{"error":1003,"message":"Cancel operation not allowed"}` | `cancelRequest` was sent when no cancellable operation is in progress | Only call `cancelRequest` while an operation is actively running on the terminal |
+| `400` | `{"error":1005,"message":"No transaction to cancel"}` | `cancelRequest` was received but no transaction is active on the terminal | Verify the terminal state before sending a cancel |
 | `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 — version digit (position 13) must be `4`, variant digit (position 17) must be `8`, `9`, `a`, or `b` |
 
 ## UNDEFINED status

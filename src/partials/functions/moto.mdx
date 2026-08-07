@@ -116,7 +116,8 @@ hapi.motoRefund(BigInteger("1000"), Currency.USD, originalTransactionId)
 // Reversal — no amount or currency (voids full original amount)
 hapi.motoReversal(originalTransactionId)
 
-// Reversal with partial amount (SDK 7.1012.1+ only — amount and currency as strings)
+// Reversal with partial amount (SDK 7.1012.1+ only)
+// amount is a minor-unit integer string — "500" = 500 cents = $5.00
 hapi.motoReversal("500", "USD", originalTransactionId)
 ```
 

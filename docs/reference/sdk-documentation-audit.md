@@ -7,6 +7,7 @@ description: Findings from cross-SDK documentation audit. Source-verified errors
 # SDK Documentation Audit — Dev Team Review
 
 **Prepared:** 2026-08-06  
+**Last updated:** 2026-08-07 — additional Android SDK source verification complete.  
 **Scope:** docs-v2 vs. legacy docs, verified against SDK source code (iOS, Android, Cordova).  
 **Status:** Internal reference — not published to end users.
 
@@ -174,22 +175,28 @@ These require dev team confirmation before the documentation can be considered f
 **iOS:** Calls `[self.api getPendingTransaction]` → `isTransactionResultPending` / `retrievePendingTransaction` — appears to work  
 **Question:** Is `getPendingTransaction` intentionally Android-unsupported? Should the docs note it is iOS-only?
 
-### 3.4 `deferredTokenization` — Android SDK or Cloud API?
+### 3.4 `deferredTokenization` — Android SDK or Cloud API? *(source confirmed)*
 
 **New docs release notes** (SDK 7.1013.0 entry) state: *"Deferred Card Tokenization: new `deferredTokenization(originalTransactionID)` method..."*  
-**Android SDK source reality:** `deferredTokenization` does NOT exist as a method in `Android SDK\sdk\` or any versioned copy. Zero matches.  
+**Android SDK source reality (searched all subdirs, all versions):** `deferredTokenization` does NOT exist anywhere in the Android SDK source — zero matches across `sdk/`, `shared/`, all version archives.  
 **Where it was found:** `viscus-dev/viscus-shell/.../CardTokenizationSdkResource.java` — a JAX-RS REST endpoint handler, not part of the Android SDK.  
 **Question:** Is `deferredTokenization` a Cloud API REST feature, not an Android SDK method? Should the release notes entry be corrected to say "Cloud API / REST API" rather than "Android SDK"? Is there a function page or endpoint spec for this feature?
 
-### 3.5 `motoReversal` with string amount/currency — intentional?
+### 3.5 `motoReversal` with string amount/currency — units confirmed from source *(partially resolved)*
 
 SDK 7.1012.1 adds two new overloads:
 ```kotlin
 fun motoReversal(amount: String?, currency: String?, originalTransactionID: String?): OperationStartResult
 fun motoReversal(amount: String?, currency: String?, originalTransactionID: String?, options: MoToOptions): OperationStartResult
 ```
-**Unusual:** All other transaction operations use typed `BigInteger`/`Currency`. `motoReversal` uses `String?` for both amount and currency.  
-**Question:** Is this intentional? What format should amount and currency be in (e.g. `"500"` for $5.00 in minor units? `"5.00"` in major units? Currency as ISO code `"USD"` or numeric `"840"`)?
+**Source-confirmed format** (`MotoReversalTransaction.kt`):
+- `amount: String?` — a **minor-unit integer string** (e.g. `"500"` = 500 cents = $5.00). The SDK calls `.toBigInteger()` on this value, then applies `gatewayFormat()` to convert to the major-unit decimal string sent to the gateway.
+- `currency: String?` — an **ISO 4217 currency code string** (e.g. `"USD"`, `"EUR"`). Passed to `Currency.parse()` internally.
+- Both are nullable — when `null` or blank, no amount/currency is included in the reversal request (full reversal).
+
+**Remaining question:** Is this intentional design (String? instead of BigInteger/Currency as used everywhere else)? No KDoc comments exist on these overloads. This behaviour was discovered from source only — there is no developer-facing explanation in the SDK.
+
+**Docs updated:** `moto.mdx` now includes a comment clarifying `"500"` = 500 cents.
 
 ### 3.6 iOS `tipAdjustment` via `HapiRemoteService` — which `transactionId`?
 
@@ -197,10 +204,17 @@ fun motoReversal(amount: String?, currency: String?, originalTransactionID: Stri
 The `transaction` parameter corresponds to `info.transactionId` (the internal card-reader transaction number) — NOT `info.eFTTransactionID` (the UUID).  
 **Question:** Please confirm the correct `transactionId` to pass to `HapiRemoteService.tipAdjustment`. The internal `transactionId` is an `NSString *` property in `FinanceResponseInfo.h`, distinct from `eFTTransactionID`. Can you confirm this is correct and provide an example of its format?
 
-### 3.7 Pre-auth capture `capturedAmount` units
+### 3.7 Pre-auth capture `capturedAmount` units *(source confirmed for Android SDK — Cloud API still needs confirmation)*
 
-We changed the Cloud API `/preauthorization/capture` example from `"9500"` (minor units) to `"95.00"` (major units) based on the legacy example showing `"120.00"` and the pattern that all no-reader endpoints use major units.  
-**Action needed:** Please confirm whether `/preauthorization/capture` body uses major (decimal) or minor (integer as string) units for `capturedAmount` and `tipAmount`.
+**Android SDK source confirmed (`PreAuthorizationCaptureInitializer.kt` + `BigIntegerCurrencyExtension.kt`):**
+- The Android SDK `preAuthorizationCapture(amount: BigInteger, ...)` caller always passes **minor units** (e.g. `BigInteger("9500")` = $95.00).
+- Internally, the SDK calls `amount.gatewayFormat(currency)` which converts to a **major-unit decimal string** (e.g. `"95.00"`) before serialising `PreAuthorizationCaptureRequest`.
+- The gateway receives `capturedAmount: "95.00"` — a major-unit decimal string.
+- The transaction result returns `capturedAmount: BigInteger` back in minor units.
+
+**Conclusion for Cloud API REST integrators:** The gateway field `capturedAmount` is a major-unit decimal string (e.g. `"95.00"`). This confirms our change. The Android SDK handles the minor→major conversion automatically.
+
+**Action needed:** Please confirm this holds for the Cloud API `POST /preauthorization/capture` endpoint — i.e. that REST integrators should send `"capturedAmount": "95.00"` and not `"capturedAmount": "9500"`.
 
 ---
 
@@ -208,11 +222,16 @@ We changed the Cloud API `/preauthorization/capture` example from `"9500"` (mino
 
 These topics exist in the SDK/API but have no coverage in docs-v2 (or were only in the legacy).
 
-### 4.1 Cloud API — Push notification delivery (`callbackUrl` + `token`)
+### 4.1 Cloud API — Push notification delivery (`callbackUrl` + `token`) *(partially resolved)*
 
-**Missing from:** All operation parameter tables (sale, refund, reversal, etc.)  
-**Significance:** This is the primary result delivery mechanism for integrators who do not want to poll.  
-**What's needed:** `callbackUrl` and `token` fields need to be documented as optional parameters on all Cloud API operation requests, with explanation of the push-notification result delivery flow and the retry timing (5s for 100s, then exponential backoff).
+**Source confirmed (`CloudFinancialRequest.kt`):** `callbackUrl: String?` is a field the Android SDK reads from incoming cloud gateway commands. When set, `isRestApiRequest()` returns `true` and the SDK POSTs the transaction result to that URL.
+
+**Docs updated:** `callbackUrl` and `token` have been added as optional parameters to the Cloud API parameter tables in `sale.mdx`, `refund.mdx`, and `reversal.mdx`.
+
+**Remaining gap:** The full push-notification delivery flow (retry timing, payload schema) is still undocumented. What's needed:
+- Retry schedule (currently described in legacy as "5s for 100s then exponential backoff" — confirm this is still accurate)
+- Exact payload schema sent to `callbackUrl`
+- Does `token` appear at the top level of the payload, or nested?
 
 ### 4.2 Cloud API — Missing operations
 
@@ -237,15 +256,21 @@ Six `POST /devices/{deviceType}/{serialNumber}/...` endpoints in the legacy are 
 - `set-screen-brightness`
 - `set-reboot-time`
 
-### 4.5 Android — `tokenizedOperation` documented incorrectly
+### 4.5 Android — `tokenizedOperation` documented incorrectly *(RESOLVED)*
 
-**Current docs-v2 `tokenized-operation.mdx`:** Shows a back-office token charge using `MoToOptions.cardToken` via `hapi.motoSale()`.  
-**What `tokenizedOperation` actually is:** A two-phase SDK method that:
-1. Tokenizes the card on first call, fires `Events.CardTokenized` with a `ResumeCallback`
-2. Integrator processes the token (loyalty lookup, discount logic), then calls `resumeCallback.resume()` with the desired operation
-3. `Events.EndOfTransaction` fires with the final result
+**Was:** Android tab showed a back-office token charge using `MoToOptions.cardToken` via `hapi.motoSale()` — completely wrong flow.
 
-The SDK has four overloads (two take `amount/currency`, two take `currency/operation: OperationDto`). This needs a complete rewrite.
+**Source confirmed (`Events.kt`, `CardTokenizationData.kt`, `ResumeCallback.kt`, `Hapi.kt`):**
+
+Two variants:
+1. `tokenizedOperation(amount, currency)` — two-phase: terminal tokenizes card → SDK fires `Events.CardTokenization.cardTokenized(callback, CardTokenizationData)` → integrator calls `callback.resume(OperationDto)` to proceed with Sale (only Sale is supported in this variant), or `callback.finishWithoutCardOperation()` / `callback.cancel()`.
+2. `tokenizedOperation(currency, operation)` — seamless back-to-back: tokenize + execute (SaleReversal, Refund, or RefundReversal) with no CardTokenized event. Single EndOfTransaction result.
+
+**`CardTokenizationData` payload:** `token`, `expiryDate`, `tenderType`, `issuerCountryCode`, `cardBrand`, `languagePref`, `tipAmount`.
+
+**Docs fixed:** `tokenized-operation.mdx` has been completely rewritten with the correct two-phase flow. Cloud API tab has been flagged pending confirmation of the `/transaction` (singular) endpoint.
+
+**Remaining question:** Does the Cloud API have a `/transaction` (singular) endpoint with `"action": "SALE"` + `cardToken`? Or is the correct path for REST token charges the `/moto/sale` back-office endpoint?
 
 ### 4.6 Android — `deferredTokenization` release notes entry is misleading
 
@@ -266,17 +291,19 @@ The primary async result model for Cordova is the `eventHandler` callback (not t
 
 **Dev team action:** Which of these should be documented in the public-facing developer portal? Some may be internal or platform-specific.
 
-### 4.9 Error codes missing from `error-codes.md`
+### 4.9 Error codes missing from `error-codes.md` *(partially resolved)*
 
-| Code | Name | Missing from new docs |
+| Code | Name | Status |
 |---|---|---|
-| 1002 | DeviceNotResponding | ✓ |
-| 1003 | CancelOperationNotAllowed | ✓ |
-| 1005 | NoTransactionToCancel | ✓ |
-| 3107 | CVV required | ✓ |
-| 5252 | Card token failure | ✓ |
-| 3210 | Currency mismatch on MOTO refund | ✓ |
-| 3209 | Refund amount exceeds original | ✓ |
+| 1002 | DeviceNotResponding | ✅ Added |
+| 1003 | CancelOperationNotAllowed | ✅ Added |
+| 1005 | NoTransactionToCancel | ✅ Added |
+| 3107 | CVV required | ⚠️ Still missing — needs MOTO error section |
+| 5252 | Card token failure | ⚠️ Still missing — needs MOTO error section |
+| 3210 | Currency mismatch on MOTO refund | ⚠️ Still missing — needs MOTO error section |
+| 3209 | Refund amount exceeds original | ⚠️ Still missing — needs MOTO error section |
+
+**Action needed:** Add a MOTO-specific error table to `error-codes.md` (or `moto.mdx`) for codes 3107, 5252, 3210, 3209.
 
 ### 4.10 Android — SDK initialization guide absent
 
@@ -294,7 +321,8 @@ No page documents how to initialise the Android SDK in a new integration:
 
 Confirmed consistent and correct across all versions:
 
-- `FinancialStatus` enum: `AUTHORISED(1)`, `DECLINED(2)`, `PROCESSED(3)`, `FAILED(4)`, `CANCELLED(5)`, `PARTIALLY_APPROVED(6)` / `PARTIAL_APPROVAL(6)` (both names are valid aliases for the same value)
+- `FinancialStatus` enum: `AUTHORISED(1)`, `DECLINED(2)`, `PROCESSED(3)`, `FAILED(4)`, `CANCELLED(5)`, `PARTIALLY_APPROVED(6)` / `PARTIAL_APPROVAL(6)` (both names are valid aliases for the same value), `REFUNDED(8)`, `CAPTURED(9)`, `IN_PROGRESS(10)`, `AUTHORISED_DEFERRED(11)` — note: value 7 is skipped.
+- `TransactionType` enum uses string tags (not integers). Complete list confirmed from source: `UNDEFINED`, `SALE`, `VOID_SALE` ("SALE VOID"), `REFUND`, `VOID_REFUND` ("REFUND VOID"), `CANCEL_SALE`, `CANCEL_REFUND`, `TOKENIZE_CARD`, `TOKENIZED_OPERATION`, `CARD_PAN`, `SALE_AND_TOKENIZE_CARD`, `REVERSAL`, `UPDATE`, `PRINT_RECEIPT`, `TIP_ADJUSTMENT`, `PRE_AUTHORIZATION`, `PRE_AUTHORIZATION_INCREASE` ("PRE AUTHORIZATION INCREMENT"), `PRE_AUTHORIZATION_CAPTURE`, `MOTO_SALE`, `MOTO_CANCEL`, `MOTO_REFUND`, `MOTO_REVERSAL`, `MOTO_PREAUTHORIZATION`, `TRANSACTION_STATUS`.
 - `saleReversal`, `refundReversal` (Android) method signatures
 - `preAuthorizationReversal` with optional `Options`
 - `preAuthorization` taking `MerchantAuthOptions` (not plain `Options`)
@@ -303,7 +331,9 @@ Confirmed consistent and correct across all versions:
 - Cordova `refundReversal` works on Android (confirmed in `HandpointHelper.java`)
 - iOS `responseFinanceStatus` is the correct transaction result delegate method
 - `EFT_PP_STATUS_SUCCESS = 0x0001` is the correct iOS success constant
+- Android `tipAdjustment(tipAmount: BigInteger, currency: Currency, originalTransactionID: String): Boolean` — confirmed correct (legacy docs were wrong on both parameter and return types)
+- `capturedAmount` in Android SDK: caller passes minor units (`BigInteger`); SDK converts internally to major-unit decimal string for the gateway. Cloud API REST body field is a major-unit decimal string (e.g. `"95.00"`).
 
 ---
 
-*Generated from automated source-code audit of iOS SDK, Android SDK 7.1004.3 / 7.1009.5 / 7.1012.1, and Cordova plugin source.*
+*Generated from automated source-code audit of iOS SDK, Android SDK 7.1004.3 / 7.1009.5 / 7.1012.1, and Cordova plugin source. Additional Android SDK source verification completed 2026-08-07.*

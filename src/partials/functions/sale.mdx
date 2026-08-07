@@ -114,6 +114,8 @@ handpoint.sale(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `transactionReference` | string | No (Cloud API) | UUID v4. Required for status queries. Send on **original transactions only** (Sale, MOTO Sale, Pre-Auth, unlinked Refund) — not on subsequent operations. Not supported on HiLite paths |
 | `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
+| `callbackUrl` | string | No (Cloud API) | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` for the outcome |
+| `token` | string | No (Cloud API) | Opaque value included alongside the result in the push notification, for caller identification. Only used when `callbackUrl` is set |
 
 **Android SDK — `Options` fields** (pass as optional third argument to `hapi.sale()`):
 

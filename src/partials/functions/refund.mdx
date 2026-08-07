@@ -130,6 +130,8 @@ handpoint.refund(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `originalTransactionId` | string | No | Links refund to original sale (linked refund). Do NOT combine with `transactionReference` |
 | `transactionReference` | string | No (Cloud API) | UUID v4. **Unlinked refunds only** — omit on linked refunds. Not supported on HiLite paths |
+| `callbackUrl` | string | No (Cloud API) | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` for the outcome |
+| `token` | string | No (Cloud API) | Opaque value included alongside the result in the push notification, for caller identification. Only used when `callbackUrl` is set |
 
 **Android SDK — `RefundOptions` fields** (pass as optional third argument to `hapi.refund()`):
 
