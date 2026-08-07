@@ -643,8 +643,16 @@ Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for
 
 The Handpoint Payments App must be **installed and running** on the PAX terminal for all Cloud API with-reader operations (`POST /transactions`). The app embeds the Android SDK — the app version determines which SDK version is active on the terminal.
 
-:::info App installation
-The Handpoint Payments App is distributed by Handpoint and installed on PAX terminals during merchant onboarding. Contact your Handpoint integration engineer for installation, updates, or to confirm the version running on your terminals.
+To use Cloud API with-reader operations, three things must be in place:
+
+1. **Handpoint Payments App** installed on the PAX terminal.
+2. **Integrated mode** enabled in the app settings on the terminal (toggle in the app's configuration screen).
+3. **Integrated mode provisioned for the merchant** by Handpoint, with a **merchant API key** issued.
+
+Contact your Handpoint integration engineer to provision integrated mode and obtain the API key.
+
+:::info App installation and updates
+The Handpoint Payments App is distributed by Handpoint. Contact your Handpoint integration engineer for installation, app updates, or to confirm the version running on your terminals.
 :::
 
 :::info Latest version
