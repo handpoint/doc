@@ -167,7 +167,7 @@ Run the full pre-auth lifecycle — do not certify pre-auth without testing all 
 | Scenario | Expected outcome |
 |---|---|
 | Tokenize-only (no charge) | Token returned in result |
-| Sale-and-tokenize (atomic) | `AUTHORISED` + token returned |
+| Sale-and-tokenize | `AUTHORISED` + token returned |
 | Token provider failure during sale-and-tokenize | Entire transaction declined — verify no partial charge |
 | Deferred token retrieval from past GUID | Token returned via `GET /transactions/{id}/token` |
 | MOTO charge using stored token | `AUTHORISED` without any terminal interaction |

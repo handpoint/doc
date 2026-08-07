@@ -210,33 +210,6 @@ export const ACQUIRERS = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Lloyds — EU (OMNIPAY)
-  // ─────────────────────────────────────────────────────────────────────────
-  {
-    id: 'omnipay-lloyds',
-    name: 'Lloyds',
-    subtitle: 'EU · VISA MC AMEX UnionPay',
-    caps: {
-      sale:                        ALL5(),
-      refund:                      ALL5(),
-      reversal:                    { ...ALL5(), 'back-office': P },
-      'partial-reversal':          NONE5(),
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
-      moto:                        { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N },
-      tokenization:                ALL5(),
-    },
-    notes: {
-      sale:                        'Card must be read by terminal.',
-      refund:                      'Card must be read by terminal.',
-      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
-      'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
-      moto:                        'Via PAX screen entry or ProCharge/EPI card token. Requires MOTO enablement.',
-    },
-    portalNote: null,
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────
   // Paystrax — EU (OMNIPAY)
   // ─────────────────────────────────────────────────────────────────────────
   {
@@ -263,49 +236,6 @@ export const ACQUIRERS = [
     portalNote: null,
   },
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // TEYA (Borgun) — EU
-  // ─────────────────────────────────────────────────────────────────────────
-  {
-    id: 'teya',
-    name: 'TEYA (Borgun)',
-    subtitle: 'EU · VISA MC',
-    caps: {
-      sale:               ALL5(),
-      refund:             ALL5(),
-      reversal:           { ...ALL5(), 'back-office': P },
-      'partial-reversal': NONE5(),
-      tokenization:       ALL5(),
-      batching:           NONE5(),
-      'money-remittance': NONE5(),
-    },
-    notes: {},
-    portalNote: null,
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // VANTIV (Worldpay) — US
-  // ─────────────────────────────────────────────────────────────────────────
-  {
-    id: 'vantiv',
-    name: 'VANTIV (Worldpay)',
-    subtitle: 'US · VISA MC Discover JCB',
-    caps: {
-      sale:               ALL5(),
-      refund:             ALL5(),
-      reversal:           { ...ALL5(), 'back-office': P },
-      'partial-reversal': NONE5(),
-      'tip-adjustment':   { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'back-office': P },
-      'pre-auth':         { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
-      batching:           NONE5(),
-      'money-remittance': NONE5(),
-    },
-    notes: {
-      'tip-adjustment': 'Does not require a card read — available via Back Office. iOS HiLite: not supported.',
-      'pre-auth':       'Includes increase/decrease, capture, void hold.',
-    },
-    portalNote: null,
-  },
 ];
 
 /** Lookup map by acquirer id — use in MDX pages: `CAPS_BY_ID['epi']` */

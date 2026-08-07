@@ -369,8 +369,8 @@ Use for returning goods or services after settlement has occurred. For cancellat
 3. Amount is in the smallest currency unit. Partial refund: set `amount` less than the original transaction amount.
 4. The cardholder's card must be present for card-present refunds.
 
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. Batch close is not supported — Paysafe restriction. Interac (TNS) transactions settle independently.
+:::warning Interac — Refund not supported
+Refund is **not available** for Interac card transactions. The only post-sale option for Interac is **VOID** (card must be present, full amount). Show a **VOID** button in your ISV UI — never "Refund". For Paysafe-routed (non-Interac) cards, standard refund applies.
 :::
 
 
@@ -506,8 +506,8 @@ Use when a sale needs to be cancelled before the batch closes. This is always pr
 3. The original terminal must be connected. The reversal is sent to the same terminal that processed the original sale.
 4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. Batch close is not supported — Paysafe restriction. Interac (TNS) transactions settle independently.
+:::warning Interac — Reversal not supported
+Reversal is **not available** for Interac card transactions. The only post-sale option for Interac is **VOID** (card must be present, full amount). Show a **VOID** button in your ISV UI — never "Reverse". For Paysafe-routed (non-Interac) cards, standard reversal applies.
 :::
 
 

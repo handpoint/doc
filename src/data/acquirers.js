@@ -22,9 +22,4 @@ export const ACQUIRERS = [
     "name": "Paystrax",
     "geography": "EU"
   },
-  {
-    "slug": "teya",
-    "name": "TEYA (Borgun)",
-    "geography": "EU"
-  }
 ];

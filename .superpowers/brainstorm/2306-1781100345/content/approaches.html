@@ -1,0 +1,42 @@
+<h2>Get Started page — layout approach</h2>
+<p class="subtitle">Three ways to structure the guided integration selector</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Sequential wizard (Stripe-style)</h3>
+      <p>One question at a time. User picks <strong>Market → Use Case → Integration Path</strong>. Each answer reveals the next step. Final step shows filtered acquirers + capabilities for that exact combination.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Zero cognitive overload — only one decision at a time</li><li>Feels guided and intentional</li><li>URL can be shareable/bookmarkable per path</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>More clicks to reach content</li><li>Returning users have to re-select</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Single-page filter panel</h3>
+      <p>All three dropdowns/chips shown on one page (Market, Use Case, Path). Results filter live below as selections change. No page transitions — ISV sees everything at once and adjusts.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Fastest for users who know what they want</li><li>Easy to compare across options</li><li>One page, no back-navigation</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Busier initial render</li><li>Less guided — new ISVs may not know what to pick</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Progressive disclosure (hybrid)</h3>
+      <p>Large visual cards for <strong>Market</strong> at the top (Europe / US & Canada). Clicking one reveals <strong>Use Case</strong> cards below (POS Cloud / Handheld). Choosing that reveals the integration path recommendation + acquirer table — all on one scrollable page without leaving.</p>
+      <div class="pros-cons" style="margin-top:12px">
+        <div class="pros"><h4>Pros</h4><ul><li>Visually engaging — mirrors Stripe's card-based design</li><li>No page reload, content reveals in place</li><li>Choices remain visible as context while reading results</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>More complex to implement (animated reveal)</li><li>Selections don't persist across navigation</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:20px;color:#888;font-size:0.9em">My recommendation: <strong>C (Progressive disclosure)</strong> — most visually engaging and closest to Stripe's approach without requiring page routing. Click your preferred option, then respond in the terminal.</p>

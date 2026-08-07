@@ -24,7 +24,7 @@ Capabilities are driven by [src/data/acquirerCaps.js](../../src/data/acquirerCap
 <CrossAcquirerMatrix />
 
 ¹ TSYS partial reversal: available via Cloud API, Android (PAX), and Back Office (REST API).  
-² Pre-Auth Capture Reversal: TSYS + OMNIPAY (EmerchantPay, Lloyds, Paystrax). Cloud API + Android (PAX) for card-present; also via Back Office for increase/decrease and capture (initial pre-auth must be card-present). TSYS also supports partial capture reversal.  
+² Pre-Auth Capture Reversal: TSYS + OMNIPAY (EmerchantPay, Paystrax). Cloud API + Android (PAX) for card-present; also via Back Office for increase/decrease and capture (initial pre-auth must be card-present). TSYS also supports partial capture reversal.  
 ³ Void: PAYSAFE + Interac / TNS — Interac cards only, card must be physically present.
 
 ---
@@ -42,7 +42,7 @@ REST API card-present operations require a PAX terminal running the Handpoint An
 | **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no MOTO/batch/partial rev |
 | **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |
 | **Cordova** | ✅ Same as Android (PAX) for PAX; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Single JS API for both device types |
-| **REST API (Back Office)** | ❌ Sale and refund require card-present | ✅ TSYS + OMNIPAY via ProCharge token (no reader) | ✅ TSYS only | ✅ TSYS only | No terminal required. Reversal ✅ all acquirers. Tip adj ✅ TSYS, VANTIV, PAYSAFE+Interac. Pre-auth capture/increase/decrease ✅ TSYS + OMNIPAY (initial pre-auth must be card-present). |
+| **REST API (Back Office)** | ❌ Sale and refund require card-present | ✅ TSYS + OMNIPAY via ProCharge token (no reader) | ✅ TSYS only | ✅ TSYS only | No terminal required. Reversal ✅ all acquirers. Tip adj ✅ TSYS, PAYSAFE+Interac. Pre-auth capture/increase/decrease ✅ TSYS + OMNIPAY (initial pre-auth must be card-present). |
 
 ---
 
@@ -52,11 +52,11 @@ The Handpoint platform CardBrand enum (viscus-lib-core) defines these brands: **
 
 | Card brand | Where confirmed |
 |---|---|
-| JCB | VANTIV (Worldpay) — `VantivFieldFormatter` maps `"JC"` → `"JCB"` |
-| UnionPay | OMNIPAY (EmerchantPay, Lloyds, Paystrax) — `CardBrandValidator` and `PayFacIdValidator` handle UnionPay separately |
+| JCB | Platform supported; acceptance depends on acquirer agreement — verify per merchant |
+| UnionPay | OMNIPAY (EmerchantPay, Paystrax) — `CardBrandValidator` and `PayFacIdValidator` handle UnionPay separately |
 | Interac | TSYS Canada, PAYSAFE + Interac, TNS (Interac) |
 
-Other acquirers (TSYS, PAYSAFE, TEYA): JCB and UnionPay acceptance depends on acquirer agreement — verify with integration team per merchant.
+Other acquirers (TSYS, PAYSAFE): JCB and UnionPay acceptance depends on acquirer agreement — verify with integration team per merchant.
 
 ---
 
@@ -64,8 +64,8 @@ Other acquirers (TSYS, PAYSAFE, TEYA): JCB and UnionPay acceptance depends on ac
 
 | Item | Status |
 |---|---|
-| **JCB on TSYS / PAYSAFE / TEYA** | Platform supports it; verify acquirer agreement enables it per merchant |
-| **UnionPay on TSYS / VANTIV / TEYA** | Platform supports it; verify acquirer agreement |
+| **JCB on TSYS / PAYSAFE** | Platform supports it; verify acquirer agreement enables it per merchant |
+| **UnionPay on TSYS** | Platform supports it; verify acquirer agreement |
 | **PAYSAFE pre-auth / MOTO** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
 
 ---
