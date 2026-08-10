@@ -169,6 +169,30 @@ When the new portal is the sole version and the legacy toggle is no longer neede
 
 `static/llms.txt` is generated automatically and lists every acquirer with their supported capabilities and page URL. AI agents fetch this first to find the right acquirer page without reading every page.
 
+## Agent skills system
+
+`static/.well-known/skills/` contains machine-readable skill files for AI coding agents (Claude, Copilot, Cursor, etc.). Agents fetch these to get accurate, Handpoint-specific context before generating integration code. They are served publicly at `/.well-known/skills/`.
+
+The skills are plain Markdown files — no build step, no generator. Changes are live as soon as they are deployed.
+
+**Rule: when you update a doc page, also update the corresponding skill file.**
+
+| When you edit this doc… | Also update this skill file |
+|---|---|
+| `docs/acquirers/epi.mdx` | `static/.well-known/skills/acquirers/epi.md` |
+| `docs/acquirers/omnipay-emp.mdx` | `static/.well-known/skills/acquirers/emerchantpay.md` |
+| `docs/acquirers/omnipay-paystrax.mdx` | `static/.well-known/skills/acquirers/paystrax.md` |
+| `docs/acquirers/paysafe-tsys.mdx` | `static/.well-known/skills/acquirers/paysafe.md` |
+| `docs/back-office/rest-api-no-reader.md` | `static/.well-known/skills/paths/cloud-api.md` |
+| `docs/reference/android-sdk-setup.md` | `static/.well-known/skills/paths/android-pax.md` + `android-hilite.md` |
+| iOS SDK docs | `static/.well-known/skills/paths/ios-hilite.md` |
+| `docs/reference/cordova-events.md` | `static/.well-known/skills/paths/cordova.md` |
+| `docs/back-office/rest-api-no-reader.md` (remote sale / token section) | `static/.well-known/skills/optional/back-office.md` |
+| `docs/back-office/transaction-feed-api.md` | `static/.well-known/skills/optional/transaction-feed.md` |
+| Hardware, credentials, or merchant setup info changes | `static/.well-known/skills/optional/prerequisites.md` |
+
+For step-by-step instructions on adding a new acquirer, a new path, or a new optional skill, see [`static/.well-known/skills/README.md`](static/.well-known/skills/README.md).
+
 ## Tests
 
 ```bash

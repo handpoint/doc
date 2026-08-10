@@ -1,0 +1,129 @@
+{
+  "version": "1",
+  "provider": "Handpoint",
+  "description": "Handpoint agent skills — task-focused integration guides for AI agents building with the Handpoint payment APIs and SDKs.",
+  "docs": "https://developer.handpoint.com",
+  "llms": "https://developer.handpoint.com/llms.txt",
+  "entrypoint": "handpoint.md",
+  "agent_instructions": "Start by loading the entrypoint skill (handpoint.md). It will instruct you to ask the user for their acquirer and integration path, then load the two matching skills. Do not write any integration code before collecting this information and loading the appropriate skills. Load optional skills only when the user's task explicitly requires that operation.",
+  "workflow": {
+    "step_1": "Load handpoint.md — it contains instructions on what to ask the user",
+    "step_2": "Ask the user: which acquirer? (EPI / EmerchantPay / Paystrax / PAYSAFE)",
+    "step_3": "Ask the user: which integration path? (Cloud API / Android PAX / Android HiLite / iOS HiLite / Cordova)",
+    "step_4": "Load acquirers/{acquirer}.md and paths/{path}.md",
+    "step_5": "Load optional skills only when the user's task requires that specific operation"
+  },
+  "skills": {
+    "entrypoint": [
+      {
+        "id": "handpoint",
+        "title": "Handpoint — start here",
+        "description": "Entry point for all Handpoint integrations. Instructs the agent to ask the user for acquirer and integration path before loading the matching skills. Load this first.",
+        "path": "handpoint.md",
+        "tags": ["getting-started", "entrypoint", "workflow"]
+      }
+    ],
+    "acquirers": [
+      {
+        "id": "epi",
+        "title": "EPI — acquirer skill",
+        "description": "All EPI capabilities and constraints: mandatory batch close, post-sale tip adjustment, partial reversal, remote sale with AVS, pre-authorization, tokenization, and known error codes (ERR 005, 0601).",
+        "path": "acquirers/epi.md",
+        "region": "US, Canada",
+        "tags": ["epi", "tsys", "us", "canada", "batch-close", "tip-adjustment", "avs"]
+      },
+      {
+        "id": "emerchantpay",
+        "title": "EmerchantPay — acquirer skill",
+        "description": "All EmerchantPay capabilities: tipAmount in sale, automatic settlement, AMEX MID requirement, remote sale, pre-authorization, money remittance, tokenization.",
+        "path": "acquirers/emerchantpay.md",
+        "region": "Europe",
+        "tags": ["emerchantpay", "eu", "europe", "tip-in-sale", "auto-settlement", "amex"]
+      },
+      {
+        "id": "paystrax",
+        "title": "Paystrax — acquirer skill",
+        "description": "All Paystrax capabilities: tipAmount in sale, automatic settlement, AMEX MID requirement, remote sale, pre-authorization, tokenization. Same protocol as EmerchantPay.",
+        "path": "acquirers/paystrax.md",
+        "region": "Europe, Iceland",
+        "tags": ["paystrax", "eu", "europe", "iceland", "tip-in-sale", "auto-settlement"]
+      },
+      {
+        "id": "paysafe",
+        "title": "PAYSAFE — acquirer skill",
+        "description": "PAYSAFE capabilities and critical constraints: Interac VOID-only rule, no remote sale, no pre-auth, no partial reversal, Paysafe single-use tokenization, Paysafe Portal CNP refund flow.",
+        "path": "acquirers/paysafe.md",
+        "region": "US, Canada",
+        "tags": ["paysafe", "tsys", "tns", "us", "canada", "interac", "void-only"]
+      }
+    ],
+    "paths": [
+      {
+        "id": "cloud-api",
+        "title": "Cloud API (REST) — path skill",
+        "description": "Complete REST API integration: authentication, sale, refund, reversal, pre-auth, tip adjustment, batch close, polling, UNDEFINED handling, all endpoint reference.",
+        "path": "paths/cloud-api.md",
+        "tags": ["rest", "cloud-api", "http", "any-language", "pax", "polling"]
+      },
+      {
+        "id": "android-pax",
+        "title": "Android SDK — PAX on-device path skill",
+        "description": "Full Android SDK integration for apps running on PAX terminals: Gradle setup, initialization, sale, refund, reversal, pre-auth, tip adjustment, batch close, remote sale.",
+        "path": "paths/android-pax.md",
+        "tags": ["android", "sdk", "pax", "on-device", "kotlin", "java"]
+      },
+      {
+        "id": "android-hilite",
+        "title": "Android SDK — HiLite Bluetooth path skill",
+        "description": "Full Android SDK integration for apps paired with HiLite Bluetooth readers: BT setup, device discovery, connection lifecycle, all supported operations.",
+        "path": "paths/android-hilite.md",
+        "tags": ["android", "sdk", "hilite", "bluetooth", "kotlin", "java"]
+      },
+      {
+        "id": "ios-hilite",
+        "title": "iOS SDK — HiLite Bluetooth path skill",
+        "description": "Full iOS SDK integration for iPhone/iPad apps paired with HiLite Bluetooth readers: Swift setup, delegate methods, all supported operations.",
+        "path": "paths/ios-hilite.md",
+        "tags": ["ios", "swift", "sdk", "hilite", "bluetooth"]
+      },
+      {
+        "id": "cordova",
+        "title": "Cordova / Ionic plugin — path skill",
+        "description": "Full Cordova/Ionic plugin integration: installation, initialization, all operations via JavaScript API, event listeners for results.",
+        "path": "paths/cordova.md",
+        "tags": ["cordova", "ionic", "javascript", "cross-platform", "pax", "hilite"]
+      },
+      {
+        "id": "ecommerce",
+        "title": "eCommerce (SmartBoard) — online CNP payments path skill",
+        "description": "SmartBoard Card-Not-Present gateway for EU merchants. merchantID + merchantSecret credentials (separate system from card-present). HPP, HPF, Direct, Batch paths. 3DS mandatory for ECOM. Europe only (EEA, UK, Monaco).",
+        "path": "paths/ecommerce.md",
+        "region": "Europe (EEA, UK, Monaco)",
+        "tags": ["ecommerce", "smartboard", "cnp", "online", "hpp", "hpf", "direct", "3ds", "europe", "cardstream"]
+      }
+    ],
+    "optional": [
+      {
+        "id": "back-office",
+        "title": "Back-office operations — remote sale, tokenization, tip adjustment, batch close",
+        "description": "Load when the task involves remote sale (card token or on-terminal), back-office refund, tokenization, tip adjustment, or batch close via REST API without a terminal.",
+        "path": "optional/back-office.md",
+        "tags": ["remote-sale", "moto", "card-token", "tokenization", "tip-adjustment", "batch-close"]
+      },
+      {
+        "id": "transaction-feed",
+        "title": "Transaction Feed API — recovery, reconciliation, reporting",
+        "description": "Load when the task involves UNDEFINED transaction recovery, reconciliation, transaction history queries, or the Transaction Feed API.",
+        "path": "optional/transaction-feed.md",
+        "tags": ["transaction-feed", "recovery", "undefined", "reconciliation", "reporting"]
+      },
+      {
+        "id": "prerequisites",
+        "title": "Integration prerequisites — credentials, hardware, merchant setup",
+        "description": "Load when the user asks how to get set up for testing, what credentials are needed, what hardware to use, or how a test merchant is created. Covers all integration paths with the Handpoint Support / ISV responsibility split.",
+        "path": "optional/prerequisites.md",
+        "tags": ["prerequisites", "setup", "credentials", "hardware", "merchant", "nexus", "debug", "testing"]
+      }
+    ]
+  }
+}
