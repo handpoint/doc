@@ -115,18 +115,378 @@ HPP does not support fully unattended MIT recurring. Use Direct or HPF.
 
 ## Signature calculation
 
+Sign every request. Verify every callback. Never trust an unsigned response.
+
+**PHP:**
 ```php
-function signRequest(array $fields, string $secret): string {
-    ksort($fields);
+function sign(array $fields, string $secret): string {
+    ksort($fields);  // ASCII byte order — matches gateway sort
     $str = http_build_query($fields, '', '&');
     $str = preg_replace('/%0D%0A|%0A%0D|%0D/i', '%0A', $str);
     return hash('SHA512', $str . $secret);
 }
+
+function verifyResponse(array $response, string $secret): void {
+    $received = $response['signature'] ?? '';
+    unset($response['signature']);
+    // Handle partial signatures (gateway signs only certain fields on HPP responses)
+    if (strpos($received, '|') !== false) {
+        [$received, $fields] = explode('|', $received, 2);
+        $response = array_intersect_key($response, array_flip(explode(',', $fields)));
+    }
+    $expected = sign($response, $secret);
+    if (!hash_equals($expected, $received)) {
+        throw new RuntimeException('Invalid gateway signature');
+    }
+}
 ```
 
-Always verify the signature on incoming `redirectURL` and `callbackURL` responses before trusting any field.
+**Node.js:**
+```javascript
+const crypto = require('crypto');
 
-The PHP SDK (`Gateway::directRequest`, `Gateway::hostedRequest`) handles signing automatically.
+function sign(fields, secret) {
+    // Sort by key in byte (ASCII) order — same as PHP ksort
+    const sorted = Object.fromEntries(
+        Object.entries(fields).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    );
+    // URLSearchParams produces application/x-www-form-urlencoded (spaces → +)
+    let str = new URLSearchParams(sorted).toString();
+    str = str.replace(/%0D%0A|%0A%0D|%0D/gi, '%0A');
+    return crypto.createHash('sha512').update(str + secret).digest('hex');
+}
+
+function verifyResponse(response, secret) {
+    const { signature: received, ...rest } = response;
+    if (!received) throw new Error('Missing signature');
+    let fields = rest;
+    // Handle partial signatures
+    if (received.includes('|')) {
+        const [sig, fieldList] = received.split('|');
+        fields = Object.fromEntries(fieldList.split(',').map(k => [k, rest[k]]));
+        return crypto.timingSafeEqual(
+            Buffer.from(sign(fields, secret)), Buffer.from(sig)
+        );
+    }
+    const expected = sign(fields, secret);
+    if (!crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received))) {
+        throw new Error('Invalid gateway signature');
+    }
+}
+```
+
+---
+
+## PHP — HPP quick-start
+
+Complete server-side flow: build the form → render it → handle the callback.
+
+```php
+<?php
+// config.php — keep outside web root
+define('MERCHANT_ID',     getenv('HP_MERCHANT_ID'));
+define('MERCHANT_SECRET', getenv('HP_MERCHANT_SECRET'));
+define('HOSTED_URL',      'https://commerce-api.handpoint.com/hosted/');
+
+function sign(array $fields): string {
+    ksort($fields);
+    $str = http_build_query($fields, '', '&');
+    $str = preg_replace('/%0D%0A|%0A%0D|%0D/i', '%0A', $str);
+    return hash('SHA512', $str . MERCHANT_SECRET);
+}
+
+// checkout.php — renders the HPP form
+$request = [
+    'merchantID'   => MERCHANT_ID,
+    'action'       => 'SALE',
+    'type'         => 1,           // 1 = ECOM
+    'currencyCode' => 978,         // EUR
+    'countryCode'  => 276,         // DE
+    'amount'       => 1099,        // €10.99 in cents
+    'orderRef'     => 'order-' . bin2hex(random_bytes(8)),
+    'redirectURL'  => 'https://yoursite.com/payment/return',
+    'callbackURL'  => 'https://yoursite.com/payment/callback',
+];
+$request['signature'] = sign($request);
+
+echo '<form method="post" action="' . HOSTED_URL . '" data-hostedforms-modal>';
+foreach ($request as $k => $v) {
+    printf('<input type="hidden" name="%s" value="%s">', htmlspecialchars($k), htmlspecialchars($v));
+}
+echo '<button type="submit">Pay Now</button></form>';
+echo '<script src="https://commerce-api.handpoint.com/sdk/web/v1/js/hostedforms.min.js"></script>';
+```
+
+```php
+// callback.php — server-to-server POST from gateway (callbackURL)
+// Always respond 200; gateway retries on non-2xx
+$response = $_POST;
+$received = $response['signature'] ?? '';
+unset($response['signature']);
+
+// Handle partial signature (gateway signs only known-good fields on HPP callbacks)
+if (strpos($received, '|') !== false) {
+    [$received, $fieldList] = explode('|', $received, 2);
+    $response = array_intersect_key($response, array_flip(explode(',', $fieldList)));
+}
+ksort($response);
+$str = http_build_query($response, '', '&');
+$str = preg_replace('/%0D%0A|%0A%0D|%0D/i', '%0A', $str);
+if (!hash_equals(hash('SHA512', $str . MERCHANT_SECRET), $received)) {
+    http_response_code(400);
+    exit;
+}
+
+$code = (int)($_POST['responseCode'] ?? -1);
+if ($code === 0) {
+    $xref          = $_POST['xref'];          // store for future refunds
+    $transactionID = $_POST['transactionID']; // store for reconciliation
+    // update your order in the database
+}
+// Always return 200 — the gateway does not retry on success
+http_response_code(200);
+```
+
+---
+
+## Node.js — HPP quick-start
+
+```javascript
+// gateway.js — shared utilities
+const crypto = require('crypto');
+const https  = require('https');
+
+const MERCHANT_ID     = process.env.HP_MERCHANT_ID;
+const MERCHANT_SECRET = process.env.HP_MERCHANT_SECRET;
+const HOSTED_URL      = 'https://commerce-api.handpoint.com/hosted/';
+const DIRECT_URL      = 'https://commerce-api.handpoint.com/direct/';
+
+function sign(fields) {
+    const sorted = Object.fromEntries(
+        Object.entries(fields).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    );
+    let str = new URLSearchParams(sorted).toString();
+    str = str.replace(/%0D%0A|%0A%0D|%0D/gi, '%0A');
+    return crypto.createHash('sha512').update(str + MERCHANT_SECRET).digest('hex');
+}
+
+function verifyResponse(params) {
+    let { signature: received, ...rest } = params;
+    if (!received) throw new Error('Missing signature');
+    let fields = rest;
+    if (received.includes('|')) {
+        const [sig, fieldList] = received.split('|');
+        fields = Object.fromEntries(fieldList.split(',').map(k => [k, rest[k]]));
+        received = sig;
+    }
+    const expected = sign(fields);
+    if (!crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(received))) {
+        throw new Error('Invalid signature');
+    }
+    return rest;
+}
+
+// Express route — GET /checkout
+function checkoutHandler(req, res) {
+    const request = {
+        merchantID:   MERCHANT_ID,
+        action:       'SALE',
+        type:         1,
+        currencyCode: 978,
+        countryCode:  276,
+        amount:       1099,
+        orderRef:     'order-' + crypto.randomBytes(8).toString('hex'),
+        redirectURL:  'https://yoursite.com/payment/return',
+        callbackURL:  'https://yoursite.com/payment/callback',
+    };
+    request.signature = sign(request);
+
+    const inputs = Object.entries(request)
+        .map(([k, v]) => `<input type="hidden" name="${k}" value="${String(v).replace(/"/g, '&quot;')}">`)
+        .join('\n    ');
+
+    res.send(`<!doctype html><html><body>
+  <form method="post" action="${HOSTED_URL}" data-hostedforms-modal>
+    ${inputs}
+    <button type="submit">Pay Now</button>
+  </form>
+  <script src="https://commerce-api.handpoint.com/sdk/web/v1/js/hostedforms.min.js"></script>
+</body></html>`);
+}
+
+// Express route — POST /payment/callback (server-to-server from gateway)
+function callbackHandler(req, res) {
+    try {
+        const response = verifyResponse(req.body);
+        if (parseInt(response.responseCode, 10) === 0) {
+            // Payment authorised
+            const { transactionID, xref, orderRef } = response;
+            // store xref — required for refunds and recurring MITs
+        }
+    } catch {
+        return res.sendStatus(400);
+    }
+    res.sendStatus(200); // gateway retries on non-2xx
+}
+```
+
+---
+
+## Node.js — Direct request (SALE + 3DS)
+
+Use Direct when you need REFUND, CANCEL, QUERY, or full recurring MIT control. Card data passes through your server — ensure PCI DSS compliance or use HPF instead.
+
+```javascript
+async function directRequest(fields) {
+    const request = { merchantID: MERCHANT_ID, ...fields };
+    request.signature = sign(request);
+    const body = new URLSearchParams(request).toString();
+
+    return new Promise((resolve, reject) => {
+        const req = https.request(DIRECT_URL, {
+            method:  'POST',
+            headers: {
+                'Content-Type':   'application/x-www-form-urlencoded',
+                'Content-Length': Buffer.byteLength(body),
+            },
+        }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                const r = Object.fromEntries(new URLSearchParams(data));
+                r.responseCode = parseInt(r.responseCode, 10);
+                resolve(r);
+            });
+        });
+        req.on('error', reject);
+        req.write(body);
+        req.end();
+    });
+}
+
+// Step 1 — browser submits card form → server sends to gateway
+app.post('/checkout/direct', express.urlencoded({ extended: false }), async (req, res) => {
+    const response = await directRequest({
+        action:            'SALE',
+        type:              1,
+        currencyCode:      978,
+        countryCode:       276,
+        amount:            1099,
+        cardNumber:        req.body.cardNumber,
+        cardExpiryMonth:   req.body.expiryMonth,
+        cardExpiryYear:    req.body.expiryYear,
+        cardCVV:           req.body.cvv,
+        customerName:      req.body.name,
+        customerEmail:     req.body.email,
+        orderRef:          'order-' + crypto.randomBytes(6).toString('hex'),
+        remoteAddress:     req.ip,
+        threeDSRedirectURL:'https://yoursite.com/checkout/3ds?sid=' + req.sessionID,
+    });
+
+    req.session.pending = response;
+
+    if (response.responseCode === 65802) {
+        // 3DS challenge — redirect to ACS
+        return res.redirect(response.threeDSURL);
+    }
+    if (response.responseCode === 0) {
+        return res.redirect('/success?txn=' + response.transactionID);
+    }
+    res.redirect('/declined?msg=' + encodeURIComponent(response.responseMessage));
+});
+
+// Step 2 — browser returns from ACS; resubmit with 3DS response
+app.post('/checkout/3ds', express.urlencoded({ extended: false }), async (req, res) => {
+    const pending = req.session.pending;
+    if (!pending) return res.redirect('/checkout');
+
+    const response = await directRequest({
+        ...pending,
+        threeDSResponse: JSON.stringify(req.body),
+    });
+
+    delete req.session.pending;
+
+    if (response.responseCode === 0) {
+        return res.redirect('/success?txn=' + response.transactionID);
+    }
+    res.redirect('/declined');
+});
+```
+
+---
+
+## PHP — Direct request (SALE + 3DS)
+
+```php
+<?php
+require 'gateway.php';   // P3\SDK\Gateway from ecommdoc library
+use \P3\SDK\Gateway;
+
+Gateway::$merchantSecret = MERCHANT_SECRET;
+Gateway::$directUrl      = DIRECT_URL;
+
+// Session is required to persist state between 3DS redirect steps
+if (isset($_GET['sid'])) session_id($_GET['sid']);
+session_start();
+
+$pageUrl = (isset($_SERVER['HTTPS']) ? 'https://' : 'http://')
+    . $_SERVER['SERVER_NAME']
+    . preg_replace('/(sid=[^&]+&?)|(acs=1&?)/', '', $_SERVER['REQUEST_URI']);
+$pageUrl .= (strpos($pageUrl, '?') === false ? '?' : '&') . 'sid=' . session_id();
+
+// ACS posts back into an iframe; bubble the result to the parent window
+if (!empty($_GET['acs'])) {
+    echo silentPost($pageUrl, ['threeDSResponse' => $_POST], '_parent');
+    exit;
+}
+
+// Collect browser device info (required for 3DS v2)
+if (!isset($_POST['browserInfo'])) {
+    echo Gateway::collectBrowserInfo();
+    exit;
+}
+
+if (!isset($_POST['threeDSResponse'])) {
+    // Step 1 — initial request
+    $req = [
+        'action'            => 'SALE',
+        'type'              => 1,
+        'currencyCode'      => 978,
+        'countryCode'       => 276,
+        'amount'            => 1099,
+        'cardNumber'        => '5573471234567898',
+        'cardExpiryMonth'   => 12,  // 12 = simulate 3DS challenge
+        'cardExpiryYear'    => 26,
+        'cardCVV'           => '159',
+        'customerName'      => 'Test Customer',
+        'customerEmail'     => 'test@example.com',
+        'orderRef'          => 'order-' . bin2hex(random_bytes(4)),
+        'remoteAddress'     => $_SERVER['REMOTE_ADDR'],
+        'threeDSRedirectURL'=> $pageUrl . '&acs=1',
+    ];
+
+    $response = Gateway::directRequest($req);
+    $_SESSION['pending'] = $response;
+
+    if ((int)$response['responseCode'] === 65802) {
+        // 3DS required — redirect into iframe
+        echo silentPost($response['threeDSURL'], $response['threeDSRequest'] ?? []);
+        exit;
+    }
+} else {
+    // Step 2 — resubmit with ACS response
+    $response = Gateway::directRequest(
+        array_merge($_SESSION['pending'], ['threeDSResponse' => $_POST['threeDSResponse']])
+    );
+}
+
+if ((int)$response['responseCode'] === 0) {
+    echo 'Payment authorised. Transaction ID: ' . $response['transactionID'];
+} else {
+    echo 'Payment declined: ' . $response['responseMessage'];
+}
+```
 
 ---
 
