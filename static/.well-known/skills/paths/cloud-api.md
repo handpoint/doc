@@ -105,7 +105,19 @@ POST /transactions
 }
 ```
 
-Omit `originalTransactionId` for an unlinked refund (requires acquirer enablement). Same 202 → polling flow as sale. Terminal prompts cardholder to present card.
+Linked refund: `originalTransactionId` required — no `transactionReference` needed.
+
+Unlinked refund (requires acquirer enablement) — include `transactionReference` for recovery:
+```json
+{
+  "action": "REFUND",
+  "amount": 1000,
+  "currency": "USD",
+  "transactionReference": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+Same 202 → polling flow as sale. Terminal prompts cardholder to present card.
 
 ## Reversal (void)
 
@@ -128,8 +140,14 @@ Partial reversal (EPI only): add `"amount": 500` to the body.
 ## Pre-authorization (EPI, EmerchantPay, Paystrax)
 
 ```json
-// Create
-POST /transactions  { "action": "PREAUTH", "amount": 1000, "currency": "USD" }
+// Create — include transactionReference for recovery
+POST /transactions
+{
+  "action": "PREAUTH",
+  "amount": 1000,
+  "currency": "USD",
+  "transactionReference": "550e8400-e29b-41d4-a716-446655440000"
+}
 // → 202, poll as normal
 
 // Capture (synchronous)
