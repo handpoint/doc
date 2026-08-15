@@ -136,6 +136,71 @@ Load `optional/transaction-feed.md` for the full feed query and field reference.
 - If the device disconnects, call `hapi.startMonitoring()` again
 - HiLite auto-reconnects if it goes out of range temporarily
 
+## Logging
+
+Logging is required for integration validation. Use `android.util.Log` throughout.
+
+### Set SDK log level
+
+```kotlin
+// Call before the first transaction — levels: None, Info, Warning, Full, Debug
+hapi.setLogLevel(LogLevel.Debug)
+```
+
+### Log discovery, connection, and every operation
+
+```kotlin
+override fun deviceDiscoveryFinished(devices: List<Device>) {
+    Log.d("HandpointSDK", "deviceDiscoveryFinished: ${devices.map { "${it.name}/${it.address}" }}")
+    // Connect to the first available device
+    if (devices.isNotEmpty()) {
+        connectedDevice = devices[0]
+        Log.d("HandpointSDK", "connecting to: ${connectedDevice!!.name}")
+        hapi.connect(connectedDevice!!)
+    }
+}
+```
+
+Log before each operation:
+
+```kotlin
+Log.d("HandpointSDK", "sale: amount=$amount currency=$currency ref=$customerReference device=${connectedDevice?.name}")
+hapi.sale(amount, currency, options, connectedDevice)
+```
+
+### Log all SDK callbacks
+
+```kotlin
+override fun transactionResultReady(result: TransactionResult, device: Device) {
+    Log.d("HandpointSDK",
+        "transactionResultReady | " +
+        "finStatus=${result.finStatus} " +
+        "txId=${result.transactionID} " +
+        "amount=${result.amount} " +
+        "currency=${result.currency} " +
+        "card=${result.maskedCardNumber} " +
+        "scheme=${result.cardSchemeName} " +
+        "ref=${result.customerReference} " +
+        "error=${result.errorMessage} " +
+        "device=${device.name}"
+    )
+}
+```
+
+### Minimum fields to capture per result
+
+| Field | Why |
+|---|---|
+| `finStatus` | Outcome — must be `AUTHORISED` to fulfil order |
+| `transactionID` | Required for reversal and refund |
+| `amount` | Actual authorised amount in minor units |
+| `currency` | Currency |
+| `maskedCardNumber` | Cardholder match for UNDEFINED recovery |
+| `cardSchemeName` | Visa / Mastercard / Amex / etc. |
+| `customerReference` | Links to your order |
+| `errorMessage` | Non-empty on DECLINED or FAILED |
+| `device.name` / `device.address` | Which HiLite processed the transaction |
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`

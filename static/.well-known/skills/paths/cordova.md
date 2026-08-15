@@ -152,6 +152,111 @@ ApiKeyCLoud: YOUR_MERCHANT_API_KEY
 
 For feed-based recovery across a time window, load `optional/transaction-feed.md`.
 
+## Logging
+
+Logging is required for integration validation. Set log level before the first transaction and capture all events.
+
+### Set SDK log level
+
+```javascript
+// 0=None  1=Info  2=Full  3=Debug — call before first operation
+HAPI.setLogLevel({ level: 3 },
+  function() { console.log('[HP] log level set to Debug'); },
+  function(err) { console.error('[HP] setLogLevel failed:', err); }
+)
+```
+
+### Listen to SDK log stream
+
+The `onMessageLogged` event fires for every internal SDK message at or above the configured level:
+
+```javascript
+document.addEventListener('handpoint.onMessageLogged', function(e) {
+  console.log('[HP SDK level=' + e.detail.level + ']', e.detail.message)
+})
+```
+
+### Log all transaction events
+
+```javascript
+// Full transaction result — log the complete object
+document.addEventListener('handpoint.transactionResultReady', function(e) {
+  const r = e.detail.transactionResult
+  console.log('[HP] endOfTransaction:', JSON.stringify({
+    finStatus:          r.finStatus,
+    transactionID:      r.transactionID,
+    amount:             r.amount,
+    currency:           r.currency,
+    cardSchemeName:     r.cardSchemeName,
+    maskedCardNumber:   r.maskedCardNumber,
+    customerReference:  r.customerReference,
+    errorMessage:       r.errorMessage,
+    transactionReference: r.transactionReference
+  }))
+})
+
+// Mid-transaction status updates
+document.addEventListener('handpoint.currentTransactionStatus', function(e) {
+  const i = e.detail.info
+  console.log('[HP] txStatus:', i.status, '|', i.message, '| cancelAllowed:', i.cancelAllowed)
+})
+```
+
+### Log connection and discovery events
+
+```javascript
+document.addEventListener('handpoint.connectionStatusChanged', function(e) {
+  console.log('[HP] connectionStatus:', e.detail.status,
+    'device:', e.detail.device && e.detail.device.name)
+})
+
+document.addEventListener('handpoint.deviceDiscoveryFinished', function(e) {
+  console.log('[HP] devicesFound:', e.detail.devices.map(function(d) {
+    return d.name + '/' + d.address
+  }))
+})
+```
+
+### Fetch device logs (card reader side)
+
+```javascript
+HAPI.getDeviceLogs({}, function() {}, function(err) { console.error('[HP] getDeviceLogs:', err) })
+
+document.addEventListener('handpoint.deviceLogsReady', function(e) {
+  console.log('[HP] deviceLogs:', e.detail.logs)
+})
+```
+
+### Log before each operation
+
+```javascript
+console.log('[HP] sale: amount=1000 currency=USD ref=ORDER-123')
+HAPI.sale({ amount: 1000, currency: 'USD', customerReference: 'ORDER-123' }, success, error)
+```
+
+### Minimum fields to capture per result
+
+| Field | Why |
+|---|---|
+| `finStatus` | Outcome — must be `AUTHORISED` to fulfil order |
+| `transactionID` | Required for reversal and refund |
+| `amount` | Actual authorised amount (minor units) |
+| `currency` | Currency |
+| `maskedCardNumber` | Cardholder match for UNDEFINED recovery |
+| `cardSchemeName` | Visa / Mastercard / Amex / etc. |
+| `customerReference` | Links to your order |
+| `errorMessage` | Non-empty on DECLINED or FAILED |
+| `transactionReference` | Your idempotency UUID — links request to result |
+
+### errorCallback strings (immediate — before any event fires)
+
+| String | Meaning |
+|---|---|
+| `"Can't send <operation> operation to device"` | `OperationStartResult` was false — reader busy or not connected |
+| `"Can't send <operation> operation to device. Incorrect parameters"` | JSON parse error on your config object |
+| `"Handpoint SDK method not defined: <action>"` | Unknown method name — check plugin version |
+| `"Error initializing Handpoint SDK <error>"` | SDK init failed — check `sharedSecret` / `cloudApiKey` |
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`

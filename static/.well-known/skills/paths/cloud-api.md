@@ -197,6 +197,59 @@ POST /transactions
 
 Same 202 → polling flow. Requires remote sale enablement. Load `optional/back-office.md` for back-office (card token) remote sale.
 
+## Logging
+
+Logging is required for integration validation. Capture every request you send, every intermediate poll, and the full final result.
+
+### What to log on each request
+
+```
+→ POST /transactions
+  body: { "action":"SALE", "amount":1000, "currency":"USD",
+          "terminal_type":"PAXA920", "serial_number":"082104578",
+          "transactionReference":"550e8400-e29b-41d4-a716-446655440000" }
+
+← 202 { "statusMessage":"Operation Accepted",
+        "transactionResultId":"082104578-1786020446467" }
+
+→ GET /transaction-result/082104578-1786020446467  [poll attempt 1, t+3s]
+← 200 { "finStatus": null }   [still processing]
+
+→ GET /transaction-result/082104578-1786020446467  [poll attempt 2, t+6s]
+← 200 {
+    "finStatus": "AUTHORISED",
+    "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+    "amount": 1000,
+    "currency": "USD",
+    "cardSchemeName": "VISA",
+    "maskedCardNumber": "************1234",
+    "transactionReference": "550e8400-e29b-41d4-a716-446655440000",
+    "statusMessage": "AUTH CODE 123456"
+  }
+```
+
+### Minimum fields to capture per result
+
+| Field | Why |
+|---|---|
+| `finStatus` | Outcome — required for order fulfilment logic |
+| `transactionID` | Required for reversal and refund |
+| `amount` | Verify matches what was requested |
+| `currency` | Currency |
+| `cardSchemeName` | Card brand (Visa / Mastercard / Amex / etc.) |
+| `maskedCardNumber` | Cardholder match for recovery |
+| `transactionReference` | Your idempotency key — links request to result |
+| `statusMessage` | Human-readable detail; non-empty on DECLINED or FAILED |
+
+### Backoffice (no-reader) endpoints
+
+Synchronous — log the full request body and the complete response body immediately:
+
+```
+→ POST /moto/sale   body: { "amount":"10.00", "currency":"USD", "cardToken":"...", "transactionReference":"<uuid>" }
+← 200 { "finStatus":"AUTHORISED", "efttransactionID":"...", ... }
+```
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
