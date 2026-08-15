@@ -132,10 +132,13 @@ HAPI.endOfDay(successCallback, errorCallback)
 
 `UNDEFINED` means no result was received. **Do not retry** — the transaction may have processed.
 
+The `transactionReference` is returned by the gateway in the `transactionResultReady` result. Store it persistently alongside the `transactionID` for every original operation (sale, pre-auth, unlinked refund).
+
+**PAX path (CLOUD connectionMethod):** query by the stored `transactionReference`:
+
 ```javascript
-// Query by transactionReference you generated and persisted before the call
 HAPI.getTransactionStatus(
-  { transactionReference: 'your-uuid-v4' },
+  { transactionReference: 'stored-from-result' },
   function(result) {
     // result.finStatus === 'AUTHORISED' → processed; store result, do not retry
     // result.finStatus absent or UNDEFINED → safe to retry
@@ -144,13 +147,13 @@ HAPI.getTransactionStatus(
 )
 ```
 
-Alternatively query the Cloud API status endpoint directly:
+Or query the Cloud API status endpoint directly:
 ```http
 GET https://cloud.handpoint.com/status/{transactionReference}
 ApiKeyCLoud: YOUR_MERCHANT_API_KEY
 ```
 
-For feed-based recovery across a time window, load `optional/transaction-feed.md`.
+**HiLite Bluetooth path:** `getTransactionStatus()` is not supported. Use the Transaction Feed API — load `optional/transaction-feed.md` for the full query and field reference.
 
 ## Logging
 
@@ -246,7 +249,7 @@ HAPI.sale({ amount: 1000, currency: 'USD', customerReference: 'ORDER-123' }, suc
 | `cardSchemeName` | Visa / Mastercard / Amex / etc. |
 | `customerReference` | Links to your order |
 | `errorMessage` | Non-empty on DECLINED or FAILED |
-| `transactionReference` | Your idempotency UUID — links request to result |
+| `transactionReference` | Returned by the gateway in the result — store for `getTransactionStatus()` UNDEFINED recovery (sale, pre-auth, unlinked refund). **PAX path only** — not available on HiLite Bluetooth path; use Transaction Feed API there |
 
 ### errorCallback strings (immediate — before any event fires)
 

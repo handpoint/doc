@@ -60,7 +60,7 @@ val options = SaleOptions().apply {
     // tipAmount = BigInteger("150")
 }
 hapi.sale(BigInteger("1000"), Currency.USD, options)
-// Result in transactionResultReady
+// Result in transactionResultReady — store result.transactionReference for recovery
 ```
 
 ## Refund
@@ -188,6 +188,7 @@ override fun transactionResultReady(result: TransactionResult, device: Device) {
         "card=${result.maskedCardNumber} " +
         "scheme=${result.cardSchemeName} " +
         "ref=${result.customerReference} " +
+        "transactionRef=${result.transactionReference} " +
         "error=${result.errorMessage} " +
         "device=${device.name}"
     )
@@ -209,6 +210,7 @@ override fun endOfDayResult(result: String, device: Device) {
 | `maskedCardNumber` | Cardholder match for recovery |
 | `cardSchemeName` | Visa / Mastercard / Amex / etc. |
 | `customerReference` | Links to your order |
+| `transactionReference` | Returned by the gateway in the result — store for `hapi.getTransactionStatus()` UNDEFINED recovery. Applies to all original operations: sale, pre-auth, unlinked refund |
 | `errorMessage` | Non-empty on DECLINED or FAILED |
 | `device.name` / `device.serialNumber` | Terminal that processed the transaction |
 

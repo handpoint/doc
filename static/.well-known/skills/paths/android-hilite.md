@@ -200,6 +200,7 @@ override fun transactionResultReady(result: TransactionResult, device: Device) {
 | `customerReference` | Links to your order |
 | `errorMessage` | Non-empty on DECLINED or FAILED |
 | `device.name` / `device.address` | Which HiLite processed the transaction |
+| ~~`transactionReference`~~ | **Not available on HiLite** — `hapi.getTransactionStatus()` and `/status/{transactionReference}` are not supported. Use Transaction Feed API for UNDEFINED recovery instead |
 
 ## See also
 

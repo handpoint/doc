@@ -208,6 +208,8 @@ NSString  *cardScheme   = info.cardSchemeName;      // "Visa", "Mastercard", etc
 NSString  *maskedCard   = info.maskedCardNumber;    // for UNDEFINED recovery matching
 NSString  *errorMsg     = info.errorMessage;        // non-empty on DECLINED / FAILED
 NSString  *statusMsg    = info.statusMessage;       // human-readable result text
+// transactionReference is NOT available on HiLite — getTransactionStatus and /status/{ref} are
+// not supported. Use the Transaction Feed API for UNDEFINED recovery on this path.
 ```
 
 ### FinancialStatus values
