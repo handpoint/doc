@@ -318,6 +318,9 @@ acquirers:
       is VOID — full amount, card must be inserted or tapped, must occur before settlement.
       Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network.
       Pre-authorization is explicitly rejected (BAD_REQUEST).
+      Sale with Tip: confirmed in production (1,000+ Interac transactions) — tip is
+      included in the authorized total (F4); no separate tip breakdown field sent to TNS.
+      Tip adjustment is hard-blocked at the protocol validator.
     capabilities:
       sale:
         cloud-api: public
@@ -325,6 +328,13 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
       void:
         cloud-api: public
         android-pax: public
@@ -340,7 +350,7 @@ acquirers:
     interac: true
     notes: >
       Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and
-      pre-authorization are not available. Tip adjustment forthcoming.
+      pre-authorization are not available.
       Tokenization: single-use Paysafe token — requires merchant onboarding by
       Paysafe/Handpoint before use.
       Interac transactions follow TNS void-only rules — see Interac VOID guide.
@@ -365,6 +375,12 @@ acquirers:
             android-pax: public
             android-hilite: public
             ios-hilite: public
+            cordova: public
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
             cordova: public
       refund:
         cloud-api: public
@@ -401,10 +417,11 @@ acquirers:
             backoffice: public
       tip-adjustment:
         cloud-api: not-supported
-        android-pax: not-supported
-        android-hilite: not-supported
+        android-pax: public
+        android-hilite: public
         ios-hilite: not-supported
-        cordova: not-supported
+        cordova: public
+        backoffice: public
       tokenization:
         cloud-api: public
         android-pax: public
@@ -475,6 +492,12 @@ acquirers:
             android-pax: public
             android-hilite: public
             ios-hilite: public
+            cordova: public
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
             cordova: public
       refund:
         cloud-api: public
@@ -661,6 +684,12 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
@@ -744,6 +773,8 @@ acquirers:
       TEYA and Borgun share the same integration. Both names refer to the same acquirer
       configuration. Verified via viscus-borgun: tip adjustment, pre-auth, and MOTO are
       not implemented (return OPERATION_NOT_SUPPORTED / BAD_REQUEST).
+      Sale with Tip: confirmed in production — tip is included in the authorized total
+      (F4); tip breakdown field is not forwarded to the acquirer.
     capabilities:
       sale:
         cloud-api: public
@@ -751,6 +782,13 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
@@ -857,6 +895,13 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public

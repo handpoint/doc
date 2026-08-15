@@ -12,12 +12,13 @@ If you are building for merchants that process **Interac card** transactions, th
 | Operation | Support | Notes |
 |---|---|---|
 | **EMV Sale** | ✅ | All integration paths — [see Sale section](#sale) |
+| **Sale with Tip** | ✅ | Tip selection screen on terminal; tip is included in the authorized total (F4). No separate tip breakdown field is forwarded to TNS. Confirmed in production. |
 | **EMV VOID** | ✅ | Same-day, before settlement cut-off, card must be present — [see below](#interac-void) |
 | Remote Reversal | ❌ | Not available — card must be present at terminal; no back-office void path |
 | MOTO / Remote Sale | ❌ | Interac network does not support card-not-present |
 | Credit Refund | ❌ | Not available for Interac — use VOID (same-day) instead |
 | Pre-Authorization | ❌ | Explicitly rejected by Interac network |
-| Tip Adjustment | ❌ | Not supported |
+| Tip Adjustment | ❌ | Hard-blocked at the TNS protocol validator — post-sale tip modification is not possible on this route |
 | Key Entry Sale | ❌ | Not supported on Interac |
 
 ### EMV VOID {#interac-void}
