@@ -1,0 +1,113 @@
+#### What this does
+Reads the card at the terminal and stores it in the **TokenEx token vault** — a 3rd-party PCI-compliant token service. Handpoint returns a TokenEx token in the `cardToken` field. The token represents the card identity without storing the PAN in your system.
+
+#### When to use it
+Use for **loyalty programs** and **card-matching** flows — identifying that the same card is being used across multiple visits or transactions. TokenEx tokens let you correlate card-present transactions to a loyalty account or stored profile without ever handling PAN data.
+
+:::caution No detokenization — not for MOTO / remote charging
+TokenEx tokens cannot be detokenized through Handpoint. They **cannot** be used for back-office MOTO charges or remote sales. If you need card-not-present charging from a stored token, see the proCharge flavor (EPI acquirer) or Paysafe Single-Use Token flavor (Paysafe acquirer).
+:::
+
+#### Implementation notes
+
+1. **3rd-party vault:** TokenEx operates independently of Handpoint acquirers. The same TokenEx token can be issued regardless of which Handpoint acquirer processes the sale.
+2. **No detokenization:** The original PAN cannot be retrieved from a TokenEx token through Handpoint's APIs. TokenEx supports detokenization through its own APIs for clients with a direct TokenEx contract — this is outside the Handpoint integration.
+3. **Token stability:** The same card consistently maps to the same TokenEx token (within the same merchant configuration), making it reliable for card-matching and loyalty purposes.
+4. **Token scope:** Tokens are specific to the merchant configuration. Test tokens are not valid in production.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Tokenize only (no charge):**
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "tokenizeCard",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578"
+}
+```
+
+**Sale and tokenize (charge + token in one step):**
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleAndTokenizeCard",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The `cardToken` in the response is a TokenEx token. Match it to a loyalty profile or record it for card-correlation purposes.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken          // TokenEx token — store for loyalty/matching
+    val provider = result.cardTokenProvider  // "TOKENEX"
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.tokenizeCard()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.tokenizeCard()
+// Token returned in result.cardToken
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.tokenizeCard(
+  {},
+  function(result) { const token = result.cardToken; },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Response fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | TokenEx token — stable card identifier for loyalty / card-matching. Cannot be used for MOTO |
+| `cardTokenProvider` | `"TOKENEX"` |
+| `expiryDateMMYY` | Token expiry (matches card expiry) |
+
+#### Testing
+Test tokens are returned on the TEST/DEMO merchant or staging device. Use the TokenEx sandbox to verify card-matching behavior before testing on production.

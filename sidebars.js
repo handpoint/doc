@@ -1,14 +1,7 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   getStartedSidebar: [
-    {
-      type: 'category',
-      label: 'Get Started',
-      collapsible: false,
-      items: [
-        'get-started/index',
-      ],
-    },
+    'get-started/index',
   ],
 
   acquirersSidebar: [
@@ -24,18 +17,11 @@ const sidebars = {
       items: [
         {
           type: 'category',
-          label: 'United States',
+          label: 'North America',
           items: [
-            { type: 'doc', id: 'acquirers/epi',        label: 'EPI' },
-            { type: 'doc', id: 'acquirers/paysafe-tsys', label: 'PAYSAFE' },
-          ],
-        },
-        {
-          type: 'category',
-          label: 'Canada',
-          items: [
-            { type: 'doc', id: 'acquirers/tsys-tns', label: 'PAYSAFE + Interac' },
-            { type: 'doc', id: 'acquirers/tns',      label: 'TNS (Interac)' },
+            { type: 'doc', id: 'acquirers/epi',          label: 'EPI' },
+            { type: 'doc', id: 'acquirers/paysafe-tsys',  label: 'Paysafe' },
+            { type: 'doc', id: 'acquirers/tsys-tns',      label: 'Paysafe + Interac' },
           ],
         },
         {
@@ -77,11 +63,24 @@ const sidebars = {
       collapsible: false,
       items: [
         'reference/android-sdk-setup',
+        'reference/javascript-sdk-setup',
+        'reference/windows-sdk-setup',
         'reference/authentication',
         'reference/development-hardware',
         'reference/manual-injection',
         'reference/pre-authorization-guide',
-        'reference/transaction-recovery',
+        {
+          type: 'category',
+          label: 'Transaction Recovery',
+          items: [
+            'reference/transaction-recovery',
+            'reference/transaction-recovery-javascript-sdk',
+            'reference/transaction-recovery-cordova-sdk',
+            'reference/transaction-recovery-android-sdk',
+            'reference/transaction-recovery-cloud-api',
+            'reference/transaction-recovery-windows-sdk',
+          ],
+        },
         'reference/terminal-reversals',
         'reference/testing-edge-cases',
         'reference/acquirer-capabilities-matrix',
@@ -91,6 +90,7 @@ const sidebars = {
         'reference/error-codes',
         'reference/cordova-events',
         'reference/validate-integration',
+        'reference/validate-integration-android-sdk',
         'reference/known-issues',
       ],
     },

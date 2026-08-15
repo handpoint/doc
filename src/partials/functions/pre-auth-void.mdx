@@ -1,8 +1,14 @@
-### Void Pre-Authorization
+### Pre-Auth Reversal {#pre-auth-reversal}
+
+#### Pre-Auth Reversal
 
 Releases a pre-authorization hold without capturing funds.
 
-**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always void unused pre-auths — unreleased holds affect cardholder available credit.
+**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always reverse unused pre-auths — unreleased holds affect cardholder available credit.
+
+:::note Timing — not same-day restricted
+Reversing a pre-auth hold is **not** subject to the same-day cut-off that applies to sale reversals. You can reverse the hold at any point before it expires — typically **7–30 days** from the original authorization, depending on the card network and issuer. After expiry the hold is released automatically by the network. See [Pre-Authorization Hold Durations](/reference/pre-authorization-guide#hold-durations) for card-brand rules.
+:::
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -58,7 +64,7 @@ handpoint.preAuthorizationReversal(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization result |
 
-### Errors
+#### Errors
 
 Void is a with-reader operation — errors arrive in the polled result, not in the initial 202 response.
 
@@ -71,7 +77,7 @@ Void is a with-reader operation — errors arrive in the polled result, not in t
 There is no separate "already voided" error code — attempting to void an already-captured or already-voided pre-auth returns a DECLINED or FAILED result. Always check the `finStatus` field in the polled result.
 :::
 
-### Testing
+#### Testing
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">

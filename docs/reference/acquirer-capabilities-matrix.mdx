@@ -1,0 +1,63 @@
+---
+title: Acquirer capabilities matrix
+sidebar_position: 1
+description: Full matrix of payment capabilities per acquirer and integration path, driven from the acquirerCaps data layer.
+---
+
+import { ACQUIRERS, CAPABILITY_LABELS, DISPLAY_ORDER, PATH_LABELS, CARD_PRESENT_PATHS } from '@site/src/data/acquirerCaps';
+
+export function AcquirerMatrix() {
+  // Paths to show as columns (card-present + back-office)
+  const paths = [...CARD_PRESENT_PATHS, 'back-office'];
+
+  return (
+    <div style={{ overflowX: 'auto' }}>
+      {ACQUIRERS.map(acq => {
+        // Only show rows that have at least one supported path
+        const rows = DISPLAY_ORDER.filter(cap =>
+          acq.caps[cap] && paths.some(p => acq.caps[cap][p] === 'public')
+        );
+        if (rows.length === 0) return null;
+        return (
+          <div key={acq.id} style={{ marginBottom: '2rem' }}>
+            <h3 id={acq.id}>{acq.name} <small style={{ fontWeight: 400, color: 'var(--ifm-color-emphasis-600)' }}>— {acq.subtitle}</small></h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Capability</th>
+                  {paths.map(p => <th key={p}>{PATH_LABELS[p] || p}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(cap => (
+                  <tr key={cap}>
+                    <td>{CAPABILITY_LABELS[cap] || cap}</td>
+                    {paths.map(p => {
+                      const v = (acq.caps[cap] || {})[p];
+                      return <td key={p} style={{ textAlign: 'center' }}>{v === 'public' ? '✅' : v === 'not-supported' ? '❌' : '—'}</td>;
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {acq.portalNote && (
+              <p style={{ fontSize: '0.85rem', color: 'var(--ifm-color-emphasis-700)', marginTop: '0.5rem' }}>
+                <strong>Paysafe Portal note:</strong> {acq.portalNote}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+# Acquirer capabilities matrix
+
+<AcquirerMatrix />
+
+---
+
+**Legend:** ✅ Supported &nbsp;·&nbsp; ❌ Not supported &nbsp;·&nbsp; — Not applicable for this path/acquirer
+
+**Back Office** = REST API operations performed without a card reader (reversals, tip adjustment, pre-auth capture/increase/decrease, remote sale via card token, batch close, tokenization). Initial card-present operations (sale, pre-auth create) always require the terminal.

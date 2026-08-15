@@ -72,7 +72,7 @@ const ACQUIRER_REGIONS = {
 };
 
 // ─── Token providers (internal reference) ────────────────────────────────────
-// procharge: stores PAN + expiry → enables MOTO charges with stored token (EPI only)
+// procharge: stores PAN + expiry → enables remote sale charges with stored token (EPI only)
 // paysafe:   Paysafe vault → card-present tokenization for Paysafe acquirers
 // tokenex:   third-party vault → card-present tokenization, supported by all acquirers
 

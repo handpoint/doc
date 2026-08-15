@@ -15,56 +15,103 @@ acquirers:
     status: active
     card-brands: [VISA, MC, Discover]
     interac: false
+    reversal-partial: true
     notes: >
       EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial
       reversal available for US and Canada — uses the MasterCard flag in ISO 8583.
       Tip adjustment only available on transactions processed without an on-screen tip
       (tip-at-table flow).
     capabilities:
-      avs-for-moto:
-        # Draft feature — TSYS only, Android SDK (PAX) and Cloud API only for now.
-        # Not modeled as a Functionalities capability row on purpose: it has no
-        # entry in CapabilitySummary's CAPABILITY_LABELS, so it stays invisible
-        # in the acquirer table. Consumed only by generate-acquirer-pages.js to
-        # inject the callout in moto.mdx. Full detail lives in docs/features/avs-for-moto.mdx.
-        cloud-api: public
-        android-pax: public
       sale:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          emv-sale:
+            label: "EMV Sale"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          key-entry-sale:
+            label: "Key Entry Sale"
+            cloud-api: public
+            android-pax: public
+          moto-sale:
+            label: "Remote Sale (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
+          sale-and-tokenize:
+            label: "Sale with Tokenization"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          card-present:
+            label: "EMV Refund"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          moto-refund:
+            label: "Remote Refund (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
-      partial-reversal:
-        cloud-api: public
-        android-pax: public
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
+        backoffice: public
+        flavors:
+          reversal:
+            label: "Reversal"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          remote-reversal:
+            label: "Remote Reversal"
+            cloud-api: public
+            backoffice: public
       tip-adjustment:
-        cloud-api: public
+        cloud-api: not-supported
         android-pax: public
         android-hilite: public
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       pre-auth:
         cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       moto:
         cloud-api: public
         android-pax: public
@@ -77,18 +124,29 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          procharge:
+            label: "proCharge Token"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            backoffice: public
       batching:
-        cloud-api: public
+        cloud-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+        backoffice: public
       pre-auth-capture-reversal:
         cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+        backoffice: public
       avs-for-moto:
         # EPI only. Android SDK 7.1014.0+; Cloud API.
         # Not a Functionalities capability row — no entry in CAPABILITY_LABELS.
@@ -118,30 +176,90 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          emv-sale:
+            label: "EMV Sale"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          key-entry-sale:
+            label: "Key Entry Sale"
+            cloud-api: public
+            android-pax: public
+          moto-sale:
+            label: "Remote Sale (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
+          sale-and-tokenize:
+            label: "Sale with Tokenization"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          card-present:
+            label: "EMV Refund"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          moto-refund:
+            label: "Remote Refund (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
+        flavors:
+          reversal:
+            label: "Reversal"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          remote-reversal:
+            label: "Remote Reversal"
+            cloud-api: public
+            backoffice: public
       tip-adjustment:
-        cloud-api: public
+        cloud-api: not-supported
         android-pax: public
         android-hilite: public
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       pre-auth:
         cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       moto:
         cloud-api: public
         android-pax: public
@@ -154,13 +272,35 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          paysafe-token:
+            label: "Paysafe Single-Use Token"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          tokenex:
+            label: "TokenEx"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       batching:
-        cloud-api: public
+        cloud-api: not-supported
         android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+        backoffice: public
       void:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      interac:
         cloud-api: public
         android-pax: public
         android-hilite: public
@@ -170,7 +310,7 @@ acquirers:
   tns:
     name: "TNS (Interac)"
     geography: "Canada"
-    status: active
+    status: deprecated
     card-brands: [Interac]
     interac: true
     notes: >
@@ -211,18 +351,54 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          emv-sale:
+            label: "EMV Sale"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          sale-and-tokenize:
+            label: "Sale with Paysafe Token"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          card-present:
+            label: "EMV Refund"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
+        flavors:
+          reversal:
+            label: "Reversal"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          remote-reversal:
+            label: "Remote Reversal"
+            cloud-api: public
+            backoffice: public
       tip-adjustment:
         cloud-api: not-supported
         android-pax: not-supported
@@ -230,11 +406,26 @@ acquirers:
         ios-hilite: not-supported
         cordova: not-supported
       tokenization:
-        cloud-api: not-supported
-        android-pax: not-supported
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+        flavors:
+          paysafe-token:
+            label: "Paysafe Single-Use Token"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          tokenex:
+            label: "TokenEx"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
 
   omnipay-emp:
     name: "EmerchantPay"
@@ -253,30 +444,84 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+        backoffice: public
       sale:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          emv-sale:
+            label: "EMV Sale"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          key-entry-sale:
+            label: "Key Entry Sale"
+            cloud-api: public
+            android-pax: public
+          moto-sale:
+            label: "Remote Sale (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
+          sale-and-tokenize:
+            label: "Sale with Tokenization"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          card-present:
+            label: "EMV Refund"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          moto-refund:
+            label: "Remote Refund (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
+        flavors:
+          reversal:
+            label: "Reversal"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          remote-reversal:
+            label: "Remote Reversal"
+            cloud-api: public
+            backoffice: public
       pre-auth:
         cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       moto:
         cloud-api: public
         android-pax: public
@@ -289,6 +534,14 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          tokenex:
+            label: "TokenEx"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       money-remittance:
         cloud-api: public
         android-pax: public
@@ -299,7 +552,7 @@ acquirers:
   omnipay-lloyds:
     name: "Lloyds"
     geography: "EU"
-    status: active
+    status: deprecated
     card-brands: [VISA, MC, AMEX, UnionPay]
     interac: false
     notes: >
@@ -313,6 +566,7 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+        backoffice: public
       sale:
         cloud-api: public
         android-pax: public
@@ -331,6 +585,7 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
       tip-adjustment:
         cloud-api: not-supported
         android-pax: not-supported
@@ -343,6 +598,7 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       moto:
         cloud-api: public
         android-pax: public
@@ -373,24 +629,77 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
+        backoffice: public
       sale:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          emv-sale:
+            label: "EMV Sale"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          key-entry-sale:
+            label: "Key Entry Sale"
+            cloud-api: public
+            android-pax: public
+          moto-sale:
+            label: "Remote Sale (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
+          sale-and-tokenize:
+            label: "Sale with Tokenization"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          card-present:
+            label: "EMV Refund"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          moto-refund:
+            label: "Remote Refund (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
+        flavors:
+          reversal:
+            label: "Reversal"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+          remote-reversal:
+            label: "Remote Reversal"
+            cloud-api: public
+            backoffice: public
       tip-adjustment:
         cloud-api: not-supported
         android-pax: not-supported
@@ -403,6 +712,7 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       moto:
         cloud-api: public
         android-pax: public
@@ -415,11 +725,19 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        flavors:
+          tokenex:
+            label: "TokenEx"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
 
   teya:
     name: "TEYA (Borgun)"
     geography: "EU"
-    status: active
+    status: deprecated
     card-brands: [VISA, MC]
     interac: false
     notes: >
@@ -445,6 +763,7 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
       tokenization:
         cloud-api: public
         android-pax: public
@@ -508,6 +827,7 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
       moto:
         cloud-api: public
         android-pax: public
@@ -524,7 +844,7 @@ acquirers:
   vantiv:
     name: "VANTIV (Worldpay)"
     geography: "US"
-    status: active
+    status: deprecated
     card-brands: [VISA, MC, Discover, JCB]
     interac: false
     notes: >
@@ -549,18 +869,21 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        backoffice: public
       tip-adjustment:
-        cloud-api: public
+        cloud-api: not-supported
         android-pax: public
         android-hilite: public
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
       pre-auth:
         cloud-api: public
         android-pax: public
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        backoffice: public
 
   # Deprecated — retained for reference only, not published
   evo:

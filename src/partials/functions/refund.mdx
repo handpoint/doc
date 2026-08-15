@@ -1,12 +1,12 @@
 ## Refund
 
-### What this does
+#### What this does
 Returns funds to a cardholder's account, either linked to a specific original transaction or as a standalone credit.
 
-### When to use it
+#### When to use it
 Use for returning goods or services after settlement has occurred. For cancellations before settlement, use Reversal instead — it is faster and does not incur interchange fees. Partial refunds (amount less than original) are supported at the protocol level for all acquirers.
 
-### Implementation notes
+#### Implementation notes
 
 1. **Linked refund** (recommended): includes `originalTransactionId` — the gateway validates the original transaction and caps the refund at the original amount plus any tip.
 2. **Unlinked refund**: omit `originalTransactionId` — sends a standalone credit. Some acquirers restrict unlinked refunds; check your acquirer agreement. Include a `transactionReference` UUID v4 on unlinked refunds so you can query status via the status endpoint.
@@ -17,7 +17,7 @@ Use for returning goods or services after settlement has occurred. For cancellat
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -119,7 +119,7 @@ handpoint.refund(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -145,7 +145,7 @@ handpoint.refund(
 | `metadata` | `Metadata?` | Custom key-value pairs echoed in the result and stored in the transaction feed |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Money remittance fields (`fullName`, `countryCode`) for regulated money transfer refunds |
 
-### Errors
+#### Errors
 
 Errors arrive in the polled result object (HTTP 200), not in the initial 202. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized based on the card or terminal locale.
 
@@ -167,7 +167,7 @@ For linked refunds, the terminal prompts the cardholder to present their card **
 | `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal busy | Wait and retry with backoff |
 
-### Testing
+#### Testing
 
 Test against the TEST/DEMO merchant or staging device. Use [trigger amounts](../reference/development-hardware#trigger-amounts) to simulate declined or timeout responses.
 

@@ -1,0 +1,119 @@
+A **card-not-present sale** submitted directly to the gateway using a stored card token — no terminal or card reader required. The ISV system sends the charge via REST API or Android SDK using a token previously issued by a supported token provider.
+
+#### When to use it
+Use for recurring billing, subscription charges, or any scenario where you hold a card-on-file token from a prior tokenization or card-present transaction. A card token must already exist before this operation can be sent.
+
+#### How to obtain a card token
+
+| Method | How | When to use |
+|---|---|---|
+| **Sale & Tokenize** (`saleAndTokenizeCard`) | Charges the card and issues a token in one step | Only when getting the token alongside the sale is a hard requirement — if the tokenization step fails, the entire authorisation also fails |
+| **Tokenize Only** (`tokenizeCard`) | No charge — reads the card and stores a token | Loyalty enrolment, "save my card" flows, or any time you need a token without a payment |
+| **Deferred — GET token after sale** (recommended) | Do a regular sale, then call `GET /transactions/{id}/token` (Backoffice REST, no terminal needed) | Preferred for recurring billing — decouples the token from the sale; a tokenisation failure doesn't affect the transaction result |
+
+The deferred approach is recommended because the card-present sale completes independently. You call the backoffice token endpoint afterwards and store the token for future card-not-present charges.
+
+:::info No raw card data — tokens only
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
+:::
+
+{/* AVS_FOR_MOTO_INJECTION_POINT */}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+**Back-office sale** — no terminal required, amount in **major currency units**. Synchronous — the result is returned immediately; no polling or callback URL needed.
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
+
+Pre-Authorization (back-office):
+
+```http
+POST https://cloud.handpoint.com/moto/preauthorization
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "638f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Back-office MOTO — pass cardToken in options, no terminal entry screen. Asynchronous — result arrives in endOfTransaction
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+
+// Pre-authorization
+hapi.motoPreauthorization(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Android only
+handpoint.motoSale(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") { /* accepted */ }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Backoffice** (`POST /moto/sale`, `/moto/preauthorization`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00 (note: different from with-reader which uses minor units) |
+| `currency` | string | Yes | ISO 4217 code |
+| `cardToken` | string | Yes | Token from a supported provider — never a raw PAN |
+| `transactionReference` | string | Yes | UUID v4 for idempotency |
+| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+
+**Android SDK `MoToOptions` fields**:
+
+| Field | Type | Description |
+|---|---|---|
+| `cardToken` | `String?` | Card token for back-office MOTO — omit to show terminal entry screen instead |
+| `channel` | `MoToChannel?` | `MAIL_ORDER` or `TELEPHONE_ORDER` |
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Request another payment method from the customer |
+| `INVALID_TOKEN` | Token not recognised or expired | Verify token and token provider match acquirer |
+| `MOTO_NOT_ENABLED` | MOTO not provisioned for this merchant | Contact Handpoint team |

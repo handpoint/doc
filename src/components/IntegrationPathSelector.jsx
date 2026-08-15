@@ -4,12 +4,14 @@ import Link from '@docusaurus/Link';
 const STORAGE_KEY = 'docusaurus.tab.integration-path';
 
 const PATHS = [
-  { value: 'cloud-api',      tabValue: 'cloud-api',      label: 'REST API' },
-  { value: 'android-pax',    tabValue: 'android-pax',    label: 'Android (PAX)' },
-  { value: 'android-hilite', tabValue: 'android-hilite', label: 'Android (HiLite)' },
-  { value: 'ios-hilite',     tabValue: 'ios-hilite',     label: 'iOS (HiLite)' },
-  { value: 'cordova',        tabValue: 'cordova',        label: 'Cordova' },
-  { value: 'back-office',    tabValue: 'cloud-api',      label: 'Back Office' },
+  { value: 'cloud-api',        tabValue: 'cloud-api',        label: 'REST API' },
+  { value: 'android-pax',      tabValue: 'android-pax',      label: 'Android (PAX)' },
+  { value: 'android-hilite',   tabValue: 'android-hilite',   label: 'Android (HiLite)' },
+  { value: 'ios-hilite',       tabValue: 'ios-hilite',       label: 'iOS (HiLite)' },
+  { value: 'cordova',          tabValue: 'cordova',          label: 'Cordova' },
+  { value: 'javascript-sdk',   tabValue: 'javascript-sdk',   label: 'JavaScript SDK' },
+  { value: 'windows-sdk',      tabValue: 'windows-sdk',      label: 'Windows SDK' },
+  { value: 'back-office',      tabValue: 'cloud-api',        label: 'Back Office' },
 ];
 
 function getStoredValue() {

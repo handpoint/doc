@@ -1,9 +1,9 @@
 ## MOTO (Mail Order / Telephone Order)
 
-### What this does
+#### What this does
 Processes a card-not-present transaction where the cardholder provides card details by phone or mail. The card is never physically read — a stored card token is used instead.
 
-### Two MOTO modes
+#### Two MOTO modes
 
 | Mode | How it works | Terminal required | Who holds card data |
 |---|---|---|---|
@@ -14,10 +14,10 @@ Processes a card-not-present transaction where the cardholder provides card deta
 Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All MOTO operations use a `cardToken` issued by a supported token provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes to PAN + expiry when processing the transaction — the ISV system never handles raw card data.
 :::
 
-### When to use it
+#### When to use it
 Use for call centres, phone order systems, or recurring billing where the cardholder previously consented to card-on-file. A card token must exist before a MOTO transaction can be processed — tokens are obtained via the [Tokenization](/acquirers/epi#tokenization) operation on the original card-present or online transaction.
 
-### Implementation notes
+#### Implementation notes
 
 1. The card token must come from a token provider supported by the merchant's acquirer.
 2. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
@@ -29,7 +29,7 @@ Use for call centres, phone order systems, or recurring billing where the cardho
 
 {/* AVS_FOR_MOTO_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -178,7 +178,7 @@ handpoint.motoReversal(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -254,7 +254,7 @@ Not applicable — see Cloud API tab for back-office mode.
 </TabItem>
 </Tabs>
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
@@ -262,5 +262,5 @@ Not applicable — see Cloud API tab for back-office mode.
 | `INVALID_TOKEN` | Card token not recognised | Verify token and token provider match the acquirer |
 | `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
 
-### Testing
+#### Testing
 Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).

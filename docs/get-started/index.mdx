@@ -3,28 +3,184 @@ id: index
 title: Get Started
 sidebar_label: Get Started
 sidebar_position: 1
-description: Select your market and integration type to see which Handpoint payment functions and SDKs are available.
+description: Select your region and integration type to see which Handpoint payment functions, SDKs, and acquirers are available.
 ---
 
 import IntegrationWizard from '@site/src/components/IntegrationWizard';
 
 # Start your integration
 
-Handpoint lets software vendors add card-present payments to any application. You connect your software to a PAX SmartPOS terminal or a HiLite Bluetooth reader; Handpoint handles authorization, routing, and settlement through your acquirer.
+Handpoint lets software vendors add card-present and card-not-present payments to any application. Pick an integration path below, or use the wizard at the bottom to get a personalised checklist for your exact setup.
 
-## What can I build?
+## Card-present integrations
 
-| Use case | Integration path | Hardware |
+Your software connects to a PAX SmartPOS terminal or HiLite Bluetooth reader. Card data never reaches your application unmasked — Handpoint keeps you out of PCI scope.
+
+<div className="integration-types">
+
+<div className="integration-type-card">
+<div className="integration-type-card__img">
+<img src="/img/integration-types/cloud-integration.png" alt="Cloud Integration — POS connects through Handpoint Cloud to PAX terminal" />
+</div>
+
+### Cloud Integration — REST API
+
+The most common path for ISVs. Your server — in any language (Python, Node, PHP, .NET, …) — sends HTTP requests to the Handpoint Cloud, which relays payment commands to the PAX terminal over a secure channel. Only an API key is required; no Android or mobile SDK needed.
+
+The merchant connects the terminal to Wi-Fi and opens the Handpoint Payments App. From that point your software initiates sales, refunds, and reversals and receives transaction results in real time.
+
+**Hardware:** PAX SmartPOS &nbsp;·&nbsp; **PCI scope:** Out of scope
+
+[**Cloud API integration guide →**](/reference/cloud-api-integration-guide)
+
+</div>
+
+<div className="integration-type-card">
+<div className="integration-type-card__img">
+<img src="/img/integration-types/android-sdk-pax.png" alt="Android SDK on PAX — your POS app and Handpoint SDK run on the same PAX terminal" />
+</div>
+
+### Native Integration — Android SDK (PAX)
+
+Your Android application runs directly on the PAX SmartPOS terminal and embeds the Handpoint Android SDK. This all-in-one approach gives you complete control of the checkout experience — your POS UI and the payment flow live on the same device, with no separate payment application or external server required.
+
+The right choice when you want a tightly integrated terminal application and can target PAX hardware.
+
+**Hardware:** PAX SmartPOS &nbsp;·&nbsp; **PCI scope:** Out of scope
+
+[**Android SDK (PAX) integration guide →**](/reference/android-pax-integration-guide)
+
+</div>
+
+<div className="integration-type-card">
+<div className="integration-type-card__img">
+<img src="/img/integration-types/bluetooth-integration.png" alt="Bluetooth Integration — phone or tablet connects to HiLite card reader via Bluetooth" />
+</div>
+
+### Bluetooth Integration — Android / iOS SDK (HiLite)
+
+Your mobile app communicates with the HiLite Bluetooth card reader via the Handpoint Android or iOS SDK. The HiLite is Handpoint's ultra-portable reader — compact, battery-powered, and built for merchants on the move.
+
+Use this path when merchants need to accept payments away from a fixed counter: market stalls, table-side ordering, field sales, or any scenario where a full SmartPOS terminal is not practical.
+
+**Hardware:** HiLite Bluetooth reader &nbsp;·&nbsp; **PCI scope:** Out of scope
+
+[**Android (HiLite) integration guide →**](/reference/android-hilite-integration-guide) &nbsp;·&nbsp; [**iOS (HiLite) integration guide →**](/reference/ios-hilite-integration-guide)
+
+</div>
+
+</div>
+
+<div className="integration-types">
+
+<div className="integration-type-card">
+
+### JavaScript SDK
+
+An npm package that wraps the Handpoint Cloud API for Node.js and browser applications. The SDK manages connection, authentication, and result delivery via Pusher WebSocket — you call `hp.sale()`, `hp.refund()`, etc. and await the result Promise, without managing raw HTTP or WebSocket frames directly.
+
+Best suited for web-based POS, kiosk, and server-side Node.js applications that already run in a JavaScript environment.
+
+**Hardware:** PAX SmartPOS &nbsp;·&nbsp; **PCI scope:** Out of scope
+
+[**JavaScript SDK integration guide →**](/reference/javascript-sdk-integration-guide)
+
+</div>
+
+<div className="integration-type-card">
+
+### Windows SDK (.NET)
+
+A .NET SDK for Windows desktop POS applications. Connects to PAX SmartPOS terminals via the Handpoint Cloud — the same network path as the REST API — and exposes a strongly-typed C# interface with event callbacks (`EndOfTransaction`, `CurrentTransactionStatus`, etc.).
+
+Best suited for ISVs building .NET-based POS software on Windows who want a native SDK experience rather than raw REST calls.
+
+**Hardware:** PAX SmartPOS &nbsp;·&nbsp; **PCI scope:** Out of scope
+
+[**Windows SDK integration guide →**](/reference/windows-sdk-integration-guide)
+
+</div>
+
+</div>
+
+---
+
+## Standalone mode — no integration required
+
+Handpoint offers standalone payment applications for merchants who need to take payments without a connected POS system. Standalone terminals are fully functional out of the box, and can be **switched to integrated mode by a single toggle** — making it easy to ship hardware before your integration is ready.
+
+<div className="integration-types">
+
+<div className="integration-type-card">
+<div className="integration-type-card__img">
+<img src="/img/integration-types/standalone-smartpos-app.png" alt="Handpoint Payments App — standalone amount entry, card prompt, processing, authorised, and transaction history screens" />
+</div>
+
+### Standalone SmartPOS — Handpoint Payments App
+
+A full-featured payment application that runs on any PAX SmartPOS terminal. Merchants type in an amount and start processing immediately — no POS software connection required. Includes powerful analytics, end-of-day reports, and remote sale (MOTO).
+
+Ideal as a **fallback method**: if your POS system goes down, merchants continue processing on the standalone app without interruption.
+
+**Hardware:** PAX SmartPOS &nbsp;·&nbsp; **Integration required:** None
+
+</div>
+
+<div className="integration-type-card">
+<div className="integration-type-card__img">
+<img src="/img/integration-types/standalone-mpos-app.png" alt="Handpoint mPOS app on a phone connected via Bluetooth to HiLite reader" />
+</div>
+
+### Standalone mPOS — Handpoint App (HiLite)
+
+Available on Google Play and the Apple App Store. Pairs via Bluetooth with the HiLite reader and provides the same powerful standalone experience as the SmartPOS app — designed for occasional or mobile merchants who need to accept payments on the go.
+
+Supports **full white-label branding**: your logo, colours, and custom links. Send your assets to support@handpoint.com.
+
+**Hardware:** HiLite Bluetooth reader &nbsp;·&nbsp; **Integration required:** None
+
+</div>
+
+</div>
+
+<div className="integration-type-card integration-type-card--wide">
+<div className="integration-type-card__img integration-type-card__img--short">
+<img src="/img/integration-types/standalone-to-integrated.png" alt="Switching a PAX terminal from standalone to integrated mode via a settings toggle" />
+</div>
+
+**Standalone → Integrated in one step.** A single toggle in the app settings switches a PAX terminal from standalone to cloud-integrated mode. The terminal immediately starts accepting commands from your software via the REST API — no hardware change, no reflash, no on-site visit required.
+
+</div>
+
+---
+
+## E-Commerce -- Europe Only
+
+SmartBoard is Handpoint's online payment gateway for EU merchants. It supports six integration paths, from zero-code (Hosted Payment Page, Pay By Link) to full programmatic control (Direct Integration).
+
+<div className="integration-type-card integration-type-card--wide">
+<div className="integration-type-card__img integration-type-card__img--tall">
+<img src="/img/integration-types/ecommerce-europe.png" alt="SmartBoard e-commerce integration paths: Hosted Payment Page, Hosted Payment Fields, Direct Integration, Pay By Link, Shopping Carts, Mobile SDKs" />
+</div>
+
+| Path | PCI scope | 3-D Secure |
 |---|---|---|
-| Cloud-commanded terminal (any language) | **REST API** | PAX terminal (via Handpoint Cloud) |
-| Native app running on the PAX terminal | **Android SDK (PAX)** | PAX SmartPOS |
-| Android app on a phone or tablet | **Android SDK (HiLite)** | HiLite Bluetooth reader |
-| iPhone or iPad app | **iOS SDK (HiLite)** | HiLite Bluetooth reader |
-| Cross-platform Cordova / Ionic app | **Cordova plugin** | PAX or HiLite |
-| Post-sale operations without a terminal | **Back Office REST API** | None — server-to-server |
-| Online checkout (EU merchants only) | **Commerce API** | None — card-not-present |
+| **Hosted Payment Page** | Out of scope | Fully handled by Handpoint — no redirect work needed |
+| **Hosted Payment Fields** | Out of scope | You manage the 3DS redirect for more control |
+| **Direct Integration** | **In scope** | You manage the 3DS redirect; website captures card data |
+| **Pay By Link** | Out of scope | Link / QR / button with pre-filled amount and product info |
+| **Shopping Carts** | Out of scope | Drop-in modules for WooCommerce, Magento, Zencart, and more |
+| **Mobile SDKs** | Out of scope | Native Android / iOS in-app payments with card tokenisation |
 
-Not sure which path fits? Use the wizard below — it asks three questions (region, integration type, acquirer), then generates a customized checklist of auth requirements, validation scenarios, and documentation links for your exact setup.
+</div>
+
+---
+
+## Not sure which path fits?
+
+The wizard below asks three questions — region, integration type, acquirer — and generates a personalised checklist of authentication requirements, validation scenarios, and documentation links for your exact setup.
+
+<IntegrationWizard />
 
 ---
 

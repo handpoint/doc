@@ -1,12 +1,12 @@
 ## Sale
 
-### What this does
+#### What this does
 Authorises and captures a card-present payment in a single step.
 
-### When to use it
+#### When to use it
 Use for standard retail and hospitality transactions where the cardholder is present and the amount is known before the transaction starts. Do NOT use when the final amount may change after authorisation — use Pre-Authorization instead.
 
-### Implementation notes
+#### Implementation notes
 
 1. The terminal handles EMV chip, contactless, and magnetic stripe automatically — you do not specify the card entry method.
 2. The SDK returns an `OperationStartResult` synchronously with a `transactionReference`. The actual result arrives asynchronously via the events listener/callback.
@@ -21,7 +21,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -108,7 +108,7 @@ handpoint.sale(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -136,7 +136,7 @@ handpoint.sale(
 | `metadata` | `Metadata?` | Custom key-value pairs echoed in the result and stored in the transaction feed |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Money remittance fields for regulated money transfer transactions |
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
@@ -145,7 +145,7 @@ handpoint.sale(
 | `CANCELLED` | Cardholder cancelled at terminal | No action required |
 | `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
 
-### Testing
+#### Testing
 
 Use trigger amounts on a TEST/DEMO merchant or staging device — see [Trigger amounts](../reference/development-hardware#trigger-amounts). All other amounts process as approved.
 

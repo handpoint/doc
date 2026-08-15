@@ -1,12 +1,12 @@
 ## Tokenization
 
-### What this does
+#### What this does
 Stores a card on file and returns a token that can be used for future transactions without requiring the card to be present again.
 
-### When to use it
+#### When to use it
 Use for subscription billing, recurring payments, or "save my card" flows. The token replaces the PAN — your system never stores raw card data.
 
-### Implementation notes
+#### Implementation notes
 
 1. The token is acquirer-specific and non-portable — a token from TSYS cannot be used with another acquirer.
 2. Three flows are available: **tokenize-only** (card is read, token returned, no charge), **sale-and-tokenize** (card is charged and tokenized in one step), and **deferred tokenization** (token retrieved from a previously completed transaction where tokenization was not enabled at the time).
@@ -17,7 +17,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -127,7 +127,7 @@ handpoint.tokenizeCard(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 **Card-present tokenization** (`tokenizeCard` / `saleAndTokenizeCard`):
 
@@ -153,7 +153,7 @@ handpoint.tokenizeCard(
 |---|---|
 | `{transactionID}` | The `transactionID` (GUID) from the original card-present transaction |
 
-### Response fields
+#### Response fields
 
 | Field | Description |
 |---|---|
@@ -161,12 +161,12 @@ handpoint.tokenizeCard(
 | `cardTokenProvider` | Which token provider issued the token (e.g. `TSYS`, `PAYSAFE`) |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
 | `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
 | `CARD_READ_ERROR` | Terminal failed to read card | Retry; ask customer to try again |
 
-### Testing
+#### Testing
 Tokenization on the TEST/DEMO merchant or staging device returns a test token. Test tokens are not valid in the production environment.

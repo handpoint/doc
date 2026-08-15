@@ -44,7 +44,7 @@ When parsing the result, read **both** entries. The first (`4000`) confirms the 
 | `4352` | Chip card decline after host approval | The chip card itself declined after the host approved. Typically triggered by card risk management or EMV application logic reacting to the Issuer Authentication Data in the host response. |
 | `4353` | Signature timeout | The cardholder did not provide a signature within the required time after host approval. |
 | `4354` | Signature declined or partial approval rejected | Either the merchant declined the provided signature, or (for partial approvals) the cardholder rejected the partially approved amount. The terminal reverses the approved amount. |
-| `4580` | Processing error | A general processing error prevented completion after host approval. Also used to report problems in the MOTO transaction response. |
+| `4580` | Processing error | A general processing error prevented completion after host approval. Also used to report problems in the remote sale transaction response. |
 
 ---
 

@@ -1,6 +1,6 @@
 ## Tokenized Operation
 
-### What this does
+#### What this does
 
 **Android SDK:** Reads a card physically present at the terminal, tokenizes it, then allows you to inspect the token before deciding whether to proceed with a sale. The SDK pauses after tokenization and waits for the integrator to call `resume()` — giving you a chance to look up loyalty records, perform fraud checks, or adjust the tip before the charge goes through.
 
@@ -10,7 +10,7 @@
 These two integration paths have different semantics. The Android SDK `tokenizedOperation()` requires a card-present terminal. The Cloud API token charge is server-side only — no hardware needed.
 :::
 
-### When to use it
+#### When to use it
 
 - **Android SDK** — loyalty programs, tiered tip flows, or any scenario where you need to inspect the token or cardholder data before committing to the charge.
 - **Cloud API** — recurring billing or subscription charges against a card token obtained from a previous tokenization.
@@ -18,7 +18,7 @@ These two integration paths have different semantics. The Android SDK `tokenized
 For purely storing a card without charging it, see [Tokenization](/functions/tokenization).
 For MOTO back-office charges using a stored token (no terminal), see [MOTO](/functions/moto).
 
-### Implementation notes
+#### Implementation notes
 
 1. **Android SDK two-phase flow** — `tokenizedOperation(amount, currency)` triggers Phase 1. The SDK reads the card and fires the `Events.CardTokenization.cardTokenized()` callback with a `ResumeCallback` and the card's `CardTokenizationData`. Call `callback.resume(operationDto)` to proceed with the Sale in Phase 2, or `callback.cancel()` to abort.
 2. **Android SDK seamless variant** — `tokenizedOperation(currency, operation)` runs tokenization and the operation back-to-back with no pause. No `cardTokenized` event fires. Supported operations: SaleReversal, Refund, RefundReversal.
@@ -27,7 +27,7 @@ For MOTO back-office charges using a stored token (no terminal), see [MOTO](/fun
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -124,7 +124,7 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 **Cloud API** — `POST /moto/sale`:
 
@@ -162,7 +162,7 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
 | `callback.finishWithoutCardOperation()` | End the session without charging — token is still issued |
 | `callback.cancel()` | Cancel the operation entirely |
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
@@ -170,7 +170,7 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
 | `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
 | `DECLINED` | Issuer declined in Phase 2 | Ask cardholder for another card |
 
-### Testing
+#### Testing
 
 <Tabs groupId="integration-path">
 <TabItem value="android-pax" label="Android (PAX)">

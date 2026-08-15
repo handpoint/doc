@@ -1,0 +1,128 @@
+Returns funds to a cardholder's account for a card-present transaction. The cardholder must present their payment method at the terminal.
+
+**Linked refund** (recommended): includes `originalTransactionId` — the gateway validates the original transaction and caps the refund at the original amount. Include partial amounts for partial refunds.
+
+**Unlinked refund**: omit `originalTransactionId` — sends a standalone credit without referencing the original sale. Some acquirers restrict unlinked refunds; check your acquirer agreement.
+
+:::caution Same payment method
+Per merchant configuration, the **same card** used in the original sale must be presented. Physical card inserts and mobile wallet taps (Apple Pay, Google Pay) produce **different PAN tokens** — if same-card verification is enabled and the original sale was a physical insert, a wallet tap at refund time will decline. Advise the cardholder to use the same payment method they used at purchase.
+:::
+
+#### When to use it
+Use for returns after settlement has occurred. For cancellations of unsettled transactions, use Reversal — it is faster and incurs no interchange fees.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Linked refund** (no `transactionReference` — subsequent operation):
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+**Unlinked refund** (include `transactionReference` — original operation):
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Linked refund
+hapi.refund(BigInteger("1000"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund — omit the originalTransactionID argument
+hapi.refund(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Linked refund
+hapi.refund(BigInteger("1000"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+hapi.refund(BigInteger("1000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Linked refund
+heftClient.refundWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+heftClient.refundWithAmount(1000, currency: "USD")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Linked refund
+handpoint.refund(
+  { amount: 1000, currency: handpoint.Currency.USD, originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+
+// Unlinked refund — omit originalTransactionID
+handpoint.refund(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"refund"` |
+| `amount` | string | Yes | Refund amount in smallest currency unit. Can be less than original for partial refund |
+| `currency` | string | Yes | ISO 4217 code — must match original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model |
+| `originalTransactionId` | string | Linked only | `transactionID` from the original sale result. Do NOT combine with `transactionReference` |
+| `transactionReference` | string | Unlinked only (Cloud API) | UUID v4 — include on unlinked refunds; omit on linked refunds |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Amount exceeds original or issuer declined | Reduce amount to at most original `totalAmount`; contact acquirer support |
+| `ORIGINAL_NOT_FOUND` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the sale result |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |

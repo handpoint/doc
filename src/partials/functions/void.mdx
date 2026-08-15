@@ -1,12 +1,12 @@
 ## Void
 
-### What this does
+#### What this does
 Voids a transaction — used for Interac card transactions where standard reversal is not available.
 
-### When to use it
+#### When to use it
 Use specifically for Interac card transactions via TNS. For non-Interac transactions, use Reversal instead. The card must be physically present at the terminal. This must occur before settlement.
 
-### Implementation notes
+#### Implementation notes
 
 1. **Interac / TNS only.** For non-Interac cards, use Reversal instead.
 2. The card must be inserted or tapped at the terminal — card-not-present void is not supported by the Interac network.
@@ -18,7 +18,7 @@ See also: [Interac VOID — implementation guide](/reference/interac-void)
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -92,7 +92,7 @@ handpoint.saleReversal(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -103,7 +103,7 @@ handpoint.saleReversal(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `originalTransactionId` | string | Yes | `transactionID` from the original Interac sale result |
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
@@ -111,5 +111,5 @@ handpoint.saleReversal(
 | `ALREADY_SETTLED` | Transaction already settled | Credit refund is not available for Interac |
 | `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
 
-### Testing
+#### Testing
 Test void (Interac/TNS) on the TEST/DEMO merchant. A physical card must be present at the terminal — card must be inserted or tapped.

@@ -64,14 +64,14 @@ All other amounts process as approved transactions.
 
 ### General transaction behaviour
 
-| Amount | Behaviour | HTTP status |
-|---|---|---|
-| `3779` | Issuer response code `01` — Refer to issuer | 403 |
-| `3784` | Issuer response code `05` — Not authorized | 403 |
-| `3793` | Issuer response code `04` — Pick up card | 403 |
-| `3757` | Partially approved | 200 |
-| `3768` | Request timeout | 408 |
-| `3741` | Unauthorized | 401 |
+| Amount | Behaviour | `finStatus` | `statusMessage` |
+|---|---|---|---|
+| `3779` | Issuer response code `01` — Refer to issuer | `DECLINED` | `"Refer to card issuer"` |
+| `3784` | Issuer response code `05` — Not authorized | `DECLINED` | `"Transaction failed"` |
+| `3793` | Issuer response code `04` — Pick up card | `DECLINED` | `"Pick-up card"` |
+| `3757` | Partially approved — `totalAmount` < `requestedAmount` | `PARTIAL_APPROVAL` | `"Approved or completed successfully"` |
+| `3768` | Request timeout | `FAILED` | `"Error connecting to authorization provider"` |
+| `3741` | Processing error / unauthorized | `FAILED` | `"Processing error"` |
 
 ### Tip Adjustment
 
@@ -83,6 +83,14 @@ All other amounts process as approved transactions.
 ### SCA / Strong Customer Authentication
 
 These amounts simulate issuer SCA challenges and withdrawal-limit responses. The test case code column maps to specific Viscus-Dummy test scenarios.
+
+:::info SCA triggers do not necessarily decline the transaction
+These amounts cause the mock issuer to return a challenge response code (`61`, `65`, or `70`) to the terminal. The terminal then either:
+- Presents a cardholder verification prompt (PIN, contactless limit prompt, etc.) and, if completed, reports back **`AUTHORISED`** to your integration.
+- Or declines if the SCA step cannot be completed.
+
+**Monitor the terminal screen** during SCA tests — the interesting behaviour is what the device shows the cardholder, not just the final `finStatus`.
+:::
 
 | Amount | Test case | Response code | Description | SCA required | `actionCode` |
 |---|---|---|---|---|---|

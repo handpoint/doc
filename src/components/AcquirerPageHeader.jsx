@@ -8,6 +8,8 @@ const PATHS = [
   {value: 'android-hilite', label: 'Android (HiLite)'},
   {value: 'ios-hilite',     label: 'iOS (HiLite)'},
   {value: 'cordova',        label: 'Cordova'},
+  {value: 'javascript-sdk', label: 'JavaScript SDK'},
+  {value: 'windows-sdk',    label: 'Windows SDK'},
 ];
 
 const PATH_LABEL_MAP = Object.fromEntries(PATHS.map(p => [p.value, p.label]));

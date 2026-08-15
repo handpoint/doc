@@ -8,6 +8,8 @@ const PATHS = [
   {value: 'android-hilite', label: 'Android (HiLite)', sdkVersion: '7.1004.3'},
   {value: 'ios-hilite',     label: 'iOS (HiLite)'},
   {value: 'cordova',        label: 'Cordova'},
+  {value: 'javascript-sdk', label: 'JavaScript SDK'},
+  {value: 'windows-sdk',    label: 'Windows SDK'},
 ];
 
 const PATH_KEY     = 'docusaurus.tab.integration-path';
@@ -77,10 +79,20 @@ export default function GlobalFilters() {
 
   const handlePathChange = (value) => {
     const path = value || '';
+    const oldPath = selectedPath;
     setSelectedPath(path);
     if (typeof window !== 'undefined') {
       if (path) localStorage.setItem(PATH_KEY, path);
       else localStorage.removeItem(PATH_KEY);
+      // Dispatch StorageEvent so Docusaurus tab groupId sync fires on the same page
+      try {
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: PATH_KEY,
+          newValue: path || null,
+          oldValue: oldPath || null,
+          storageArea: window.localStorage,
+        }));
+      } catch (_) {}
     }
     broadcast(path);
   };

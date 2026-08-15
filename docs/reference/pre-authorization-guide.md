@@ -31,7 +31,7 @@ Do **not** use pre-auth for standard retail where the amount is known at the tim
 | Create | ✅ | ✅ | ❌ | ❌ | ✅ |
 | Increase / Decrease | ✅ | ✅ | ❌ | ❌ | ✅ |
 | Capture | ✅ | ✅ | ❌ | ❌ | ✅ |
-| Void hold | ✅ | ✅ | ❌ | ❌ | ✅ |
+| Pre-Auth Reversal | ✅ | ✅ | ❌ | ❌ | ✅ |
 | Capture Reversal | ✅ | ✅ | ❌ | ❌ | ❌ |
 
 HiLite paths (Android BT, iOS) do not support pre-authorization. Use the Cloud API from your server instead.
@@ -56,13 +56,13 @@ Create (AUTHORISED — hold placed)
   │   └── Refund (post-settlement)
   │       (standard refund after settlement)
   │
-  └── Void hold
+  └── Pre-Auth Reversal
       (release without charging)
 ```
 
 **Important constraints:**
-- The hold expires in **7–30 days** depending on the card network and issuer. Always capture or void before expiry.
-- Always void unused holds — unreleased pre-auths count against the cardholder's available credit.
+- The hold expires in **7–30 days** depending on the card network and issuer. Always capture or reverse before expiry.
+- Always reverse unused holds — unreleased pre-auths count against the cardholder's available credit.
 - The `transactionReference` you send on the Create links all subsequent operations and enables reconciliation via the `/status/all` endpoint.
 
 ---
@@ -284,7 +284,7 @@ handpoint.preAuthorizationCapture(
 
 ---
 
-## Step 3b — Void hold (release without capturing)
+## Step 3b — Pre-Auth Reversal (release without capturing)
 
 Releases the hold without charging the cardholder. Use when a booking is cancelled or the pre-auth is no longer needed.
 
@@ -343,10 +343,10 @@ Cancels a capture that was sent in error — **before the batch closes and funds
 
 The same `preAuthorizationReversal` operation is used for both Void hold (Step 3b) and Capture Reversal. The gateway determines the correct action based on the current state of the original transaction.
 
-**Partial capture reversal (TSYS only):** TSYS supports reversing part of a capture — for example, if you captured $95 but only $70 should have been charged, you can reverse $25 rather than the full capture amount. On all other acquirers, capture reversal is full-amount only.
+**Partial capture reversal (EPI only):** EPI supports reversing part of a capture — for example, if you captured $95 but only $70 should have been charged, you can reverse $25 rather than the full capture amount. On other acquirers, capture reversal is full-amount only.
 
-:::warning Acquirer support
-Not all acquirers support Capture Reversal. Supported on TSYS and OMNIPAY (EmerchantPay, Lloyds, Paystrax). Check the [acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) before implementing.
+:::info Acquirer support
+Not all acquirers support Capture Reversal. Check the [acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) for current support per acquirer and integration path.
 :::
 
 <Tabs groupId="integration-path">
@@ -442,7 +442,7 @@ See [Transaction Recovery & Status](/reference/transaction-recovery) for full do
 
 | Practice | Why |
 |---|---|
-| Always void unused pre-auths | Unreleased holds reduce the cardholder's available credit and may generate disputes |
+| Always reverse unused pre-auths | Unreleased holds reduce the cardholder's available credit and may generate disputes |
 | Capture before hold expiry (7–30 days) | Expired holds cannot be captured — you would need to re-initiate a new card interaction |
 | Store `transactionID` at every step | Capture and Void both require the `transactionID` from the most recent operation in the chain |
 | Store `transactionReference` from Create | Enables `/status/all` queries for the full chain at any time |
@@ -464,3 +464,63 @@ Capture        → originalTransactionId = "C" (or "A" if no increases)
 ```
 
 For the Cloud API Capture specifically, `originalGuid` always references the original pre-auth `transactionID`, not intermediate increases — confirm with your acquirer integration if in doubt.
+
+---
+
+## Hold durations by card network {#hold-durations}
+
+A pre-authorization hold expires automatically if not captured or voided within the card network's maximum timeframe. After expiry, the issuer releases the hold — but the authorization record remains, which can cause disputes if a capture is attempted late. **Always capture or void before expiry.**
+
+:::note Void hold timing
+Voiding a pre-auth hold is **not** subject to the same-day cut-off that applies to sale reversals or capture reversals. You can void the hold at any point before it expires. After expiry, the network releases it automatically — no void is needed (or possible).
+:::
+
+### Visa
+
+| Transaction type | Max processing timeframe | Amount tolerance |
+|---|---|---|
+| Card-absent with Extended Authorization indicator | 30 calendar days | Up to 15% |
+| Card-absent (standard) | 10 calendar days | Up to 15% |
+| Estimated auth — taxicabs (MCC 4121) | 5 calendar days | — |
+| Estimated auth — eating places (MCC 5812) | 5 calendar days | Up to 30% (CP and CNP) |
+| Estimated auth — fast food (MCC 5814) | 5 calendar days | Up to 30% (CP and CNP) |
+| Estimated auth — drinking places (MCC 5813) | 5 calendar days | — |
+| Estimated auth — beauty shops (MCC 7230) | 5 calendar days | — |
+| Estimated auth — spas / health clubs (MCC 7298) | 5 calendar days | — |
+| Estimated auth — caterers (MCC 5811) | 5 calendar days | — |
+| Grocery / superstore card-not-present (MCC 5411) | 7 calendar days | — |
+| Lodging | Duration of stay | — |
+| Vehicle rental | Duration of rental | — |
+| Truck rental | Duration of rental | — |
+| Cruise line | Duration of cruise | — |
+
+### Mastercard
+
+| Transaction type | Max processing timeframe | Amount tolerance |
+|---|---|---|
+| Card-absent with Extended Authorization indicator | 30 calendar days | None specified |
+| Card-absent (standard) | 10 calendar days | None specified |
+| Estimated auth — eating places (MCC 5812) | 5 calendar days | Up to 30% (CP and CNP) |
+| Estimated auth — fast food (MCC 5814) | 5 calendar days | Up to 30% (CP and CNP) |
+| Estimated auth — drinking places (MCC 5813) | 5 calendar days | — |
+| Estimated auth — beauty shops (MCC 7230) | 5 calendar days | — |
+| Estimated auth — spas (MCC 7298) | 5 calendar days | — |
+| Estimated auth — caterers (MCC 5811) | 5 calendar days | — |
+| Grocery card-not-present (MCC 5411) | 7 calendar days | — |
+| Lodging | Duration of stay | — |
+| Vehicle rental | Duration of rental | — |
+| Truck rental | Duration of rental | — |
+| Cruise line | Duration of cruise | — |
+| All other (general pre-auth) | 30 calendar days | Up to 15% (or USD 75, whichever greater, for some MCCs) |
+
+### Amex
+
+Amex authorizations generally follow issuer-specific rules. The default hold period is **7 calendar days** for most transaction types. Extended holds for lodging, car rental, and cruise lines follow the duration of the service.
+
+### Discover
+
+Discover follows card-not-present authorization hold rules similar to Visa. Standard CNP holds: **10 calendar days**. Extended authorization: up to **30 calendar days** with the appropriate indicator.
+
+---
+
+> **Source:** Visa Core Rules and Visa Product and Service Rules; Mastercard Transaction Processing Rules. Rules are subject to change — always verify with the current card network rulebooks for your region.

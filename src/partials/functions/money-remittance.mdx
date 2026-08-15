@@ -1,12 +1,12 @@
 ## Money Remittance
 
-### What this does
+#### What this does
 Processes a payment transaction flagged as a money transfer — subject to specific network rules for remittance transactions.
 
-### When to use it
+#### When to use it
 Use when processing money transfer payments (e.g. sending money to family abroad) where the merchant category code requires the remittance flag. Applies to MCC 4829 (Wire Transfer) and MCC 6540 (POI Funding). Do NOT use for standard retail — use Sale instead.
 
-### Implementation notes
+#### Implementation notes
 
 1. Money remittance requires two additional fields: the **recipient's full name** and their **country code** (ISO 3166-1 alpha-3, e.g. `"USA"`, `"GBR"`, `"MEX"`).
 2. Not all card brands support remittance in all geographies — verify with your acquirer.
@@ -15,7 +15,7 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -91,7 +91,7 @@ handpoint.sale(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -104,5 +104,5 @@ handpoint.sale(
 | `moneyRemittanceOptions.countryCode` | string | Yes | Recipient's country code in ISO 3166-1 alpha-3 format, e.g. `"USA"`, `"GBR"`, `"MEX"` |
 | `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and result retrieval |
 
-### Testing
+#### Testing
 Test money remittance transactions on the TEST/DEMO merchant or staging device the same way as standard sales.

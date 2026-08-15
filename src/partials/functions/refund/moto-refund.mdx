@@ -1,0 +1,77 @@
+A **card-not-present refund** submitted directly to the gateway — no terminal or card reader required. References the original MOTO sale by its GUID. Valid up to **12 months** after the original sale date.
+
+#### When to use it
+Use to refund a previously processed back-office MOTO or key-entry sale. The cardholder does not need to be present or provide their card again — the gateway retrieves the card from the original transaction.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Synchronous — the result is returned immediately. No terminal, no polling.
+
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+`originalGuid` is the `efttransactionID` (or `transactionID`) from the original MOTO sale result. Amount is in **major currency units** — `"10.00"` = $10.00. Do not include `transactionReference` on refunds (linked operation).
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// MOTO refund — no terminal interaction, submitted via token
+hapi.motoRefund(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from MOTO sale result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.motoRefund(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Backoffice** (`POST /moto/refund`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Refund amount in **major currency units** — `"10.00"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code |
+| `originalGuid` | string | Yes | `efttransactionID` from the original MOTO sale. The gateway retrieves the card token from the original transaction — do not pass `cardToken` on refunds |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Amount exceeds original or issuer declined | Reduce to at most the original amount |
+| `ORIGINAL_NOT_FOUND` | `originalGuid` not found | Verify the GUID is from the MOTO sale result |
+| `MOTO_NOT_ENABLED` | MOTO not provisioned | Contact Handpoint team |

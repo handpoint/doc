@@ -1,29 +1,29 @@
 ## Reversal
 
-### What this does
+#### What this does
 Voids a transaction before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
 
-### When to use it
+#### When to use it
 Use when a transaction needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a refund for same-day cancellations — faster and fee-free. **No card present required** — reversal is sent electronically using the original transaction reference. Do NOT use after settlement — send a Refund instead.
 
-### Implementation notes
+#### Implementation notes
 
 1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
 2. **No card present required.** Reversal is an electronic operation referencing the original `transactionID`. The cardholder does not need to return to the terminal.
 3. **Three paths — different connectivity requirements and response shapes:**
    - **Cloud API with reader** (`POST /transactions`): routes the reversal through the connected terminal. Terminal must be online. Asynchronous — poll `GET /transaction-result/{id}` for the result. Amount in minor units.
-   - **Cloud API without reader** (`POST /reversal`): sent directly to the gateway. Works for **any transaction type** (sale, refund, pre-auth, MOTO, etc.). Terminal does not need to be connected. **Synchronous** — result is in the response body. Amount in major units (decimal string). Different response schema from the standard transaction result. Include `amount` and `currency` for partial reversals on merchants that support it — omit for a full reversal.
+   - **Backoffice** (`POST /reversal`): sent directly to the gateway. Works for **any transaction type** (sale, refund, pre-auth, MOTO, etc.). Terminal does not need to be connected. **Synchronous** — result is in the response body. Amount in major units (decimal string). Different response schema from the standard transaction result. Include `amount` and `currency` for partial reversals on merchants that support it — omit for a full reversal.
    - **Android SDK / iOS SDK**: reversal travels through the connected reader. The terminal must be reachable at the time of the call.
 5. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-**With reader** — routes through the terminal (terminal must be online). Asynchronous: poll `GET /transaction-result/{transactionResultId}` for the outcome. Amount in minor units.
+Routes through the connected terminal. Asynchronous — poll `GET /transaction-result/{transactionResultId}` for the outcome. Amount in **minor units**.
 
 ```http
 POST https://cloud.handpoint.com/transactions
@@ -48,7 +48,10 @@ Response:
 }
 ```
 
-**Without reader** — sent directly to the gateway. Works for any transaction type. Terminal does not need to be connected. **Synchronous** — result is returned immediately. Amount in **major units** (decimal string).
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Direct to the gateway — works for any transaction type (sale, refund, pre-auth, MOTO, etc.). No terminal required. Synchronous — result returned immediately. Amount in **major units** (decimal string).
 
 ```http
 POST https://cloud.handpoint.com/reversal
@@ -62,7 +65,7 @@ Content-Type: application/json
 }
 ```
 
-`amount` and `currency` are optional — omit them for a full reversal. Include them for a partial reversal on merchants that support it.
+`amount` and `currency` are optional — omit for a full reversal. Include them for a partial reversal on merchants that support it.
 
 Response:
 ```json
@@ -142,7 +145,7 @@ handpoint.saleReversal(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 **Cloud API with reader** — `POST /transactions`:
 
@@ -157,7 +160,7 @@ handpoint.saleReversal(
 | `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` |
 | `token` | string | No | Opaque value included alongside the result in the push notification. Only used when `callbackUrl` is set |
 
-**Cloud API without reader** — `POST /reversal`:
+**Backoffice** — `POST /reversal`:
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -173,7 +176,7 @@ handpoint.saleReversal(
 | `currency` | `Currency` | Currency of the original sale |
 | `originalTransactionID` | `String` | `transactionID` from the original sale result |
 
-### Errors
+#### Errors
 
 **Cloud API with reader** — errors arrive in the polled result object, not in the initial 202 response. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized.
 
@@ -191,7 +194,7 @@ handpoint.saleReversal(
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
 | `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 (version digit must be `4`, variant digit `8`/`9`/`a`/`b`) |
 
-**Cloud API without reader (`POST /reversal`)** — synchronous, errors are immediate:
+**Backoffice (`POST /reversal`)** — synchronous, errors are immediate:
 
 | HTTP | `code` | `message` | Meaning | What to do |
 |---|---|---|---|---|
@@ -199,7 +202,7 @@ handpoint.saleReversal(
 | `400` | `3051` | `Already reversed` | Transaction has already been reversed | No further action needed; check your records |
 | `400` | `4066` | `Partial reversal amount exceeds original amount` | `amount` exceeds the original transaction amount | Reduce the amount to at most the original; omit `amount` entirely for a full reversal |
 
-### Testing
+#### Testing
 
 Test reversals on the TEST/DEMO merchant or staging device. The most important edge case is cut-off timing.
 
@@ -208,10 +211,19 @@ Test reversals on the TEST/DEMO merchant or staging device. The most important e
 
 | Scenario | How to trigger |
 |---|---|
-| With reader — success | Complete a sale, send `POST /transactions` same day — verify `AUTHORISED` via polling `GET /transaction-result/{id}` |
-| Without reader — success | Complete a sale, send `POST /reversal` with `originalGuid` + decimal amount — verify synchronous `issuerResponseCode: "00"` |
-| After cut-off | Close the batch, attempt either path — verify error response and route to Refund |
-| Already reversed | Send the same reversal twice — verify idempotent or `ALREADY_REVERSED` response |
+| Success | Complete a sale, send `POST /transactions` same day — verify `AUTHORISED` via polling `GET /transaction-result/{id}` |
+| After cut-off | Close the batch, attempt reversal — verify error response and route to Refund |
+| Already reversed | Send the same reversal twice — verify `ALREADY_REVERSED` response |
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+| Scenario | How to trigger |
+|---|---|
+| Success | Complete a sale, send `POST /reversal` with `originalGuid` + decimal amount — verify synchronous `issuerResponseCode: "00"` |
+| Pre-auth reversal | Complete a pre-auth, send `POST /reversal` with `originalGuid` — verify hold released |
+| After cut-off | Close the batch, attempt reversal — verify error response |
+| Already reversed | Send the same reversal twice — verify `Already reversed` (code `3051`) |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">

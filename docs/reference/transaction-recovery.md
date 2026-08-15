@@ -22,7 +22,7 @@ When you send a transaction to `POST /transactions`, the terminal processes the 
 
 ## How `transactionReference` works
 
-`transactionReference` is a UUID v4 that **you generate and include in original transaction requests** (Sale, MOTO Sale, Pre-Authorization, unlinked Refund). It acts as a stable key that:
+`transactionReference` is a UUID v4 that **you generate and include in original transaction requests** (Sale, Remote Sale, Pre-Authorization, unlinked Refund). It acts as a stable key that:
 
 - Links all subsequent operations (Reversal, Capture, Refund) to the original transaction
 - Enables status queries at any time via the `transactions.handpoint.com` API

@@ -15,6 +15,10 @@ Before going live, every Handpoint integration must pass a set of mandatory vali
 Handpoint Integration Support reviews your results before issuing a production API key or merchant credentials. Run all required scenarios on a staging/DEMO merchant and document the outcomes. Contact your integration engineer to schedule a certification call.
 :::
 
+:::tip SDK-specific validation pages
+Android SDK (PAX) integrations have additional requirements: build process (RC vs production SDK), PAX Store submission, merchant credential mapping, UI screen requirements, logging, and receipt handling. See the **[Android SDK — Validation & Certification](/reference/validate-integration-android-sdk)** page for the full checklist.
+:::
+
 ## Required for every integration
 
 These scenarios apply regardless of integration path or acquirer.
@@ -75,6 +79,55 @@ Store the `transactionReference` from the `OperationStartResult` immediately on 
 2. If status is `UNDEFINED`: call `handpoint.saleReversal({ ... })`.
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+Every financial method returns `{ transactionReference, transactionResult: Promise }`. Store the `transactionReference` before awaiting the Promise.
+
+1. If the Promise rejects or the result is unavailable after a page refresh/navigation: call `await hp.getTransactionStatus(transactionReference)`.
+2. `UNDEFINED` means the transaction is still in flight — poll again after a short delay.
+3. Any other status is final. If `AUTHORISED` arrives after you have already shown a failure to the operator, issue a reversal.
+
+```javascript
+const { transactionReference, transactionResult } = hp.sale(amount, currency);
+sessionStorage.setItem('pendingTxn', transactionReference);
+
+const result = await transactionResult;
+sessionStorage.removeItem('pendingTxn');
+// result.finStatus, result.responseText, result.originalTransactionID
+```
+
+On page load, check for a `pendingTxn` key in `sessionStorage` and recover before enabling the payment UI.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows SDK">
+
+The SDK fires `EndOfTransaction` asynchronously. Store `OperationStartResult.TransactionReference` immediately after calling any financial method, before the terminal begins processing.
+
+1. On reconnect, the SDK may fire `TransactionResultReady` with any missed result — reconcile it immediately.
+2. If `EndOfTransaction` has not fired after your timeout: call `hapi.GetTransactionStatus(transactionReference)`.
+3. `UNDEFINED` means still in progress — poll again. Any other `FinancialStatus` is final.
+4. If `AUTHORISED` arrives after you have already reported the transaction as failed: call `hapi.SaleReversal(amount, currency, originalTransactionID)` to avoid a double-charge.
+
+```csharp
+var op = hapi.Sale(new BigInteger("1000"), Currency.USD);
+if (!op.OperationStarted) { ShowError(); return; }
+db.SavePendingTransaction(op.TransactionReference);
+
+// Results arrive on the Events.Required interface:
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    db.Resolve(result.OriginalTransactionId, result.FinStatus);
+    GenerateReceipt(result);
+}
+
+public void TransactionResultReady(TransactionResult result, Device device)
+{
+    // Missed result from prior session — reconcile the same way
+    db.Resolve(result.OriginalTransactionId, result.FinStatus);
+}
+```
+
+</TabItem>
 </Tabs>
 
 ### App timeout and terminal idle handling
@@ -88,10 +141,12 @@ Handpoint does not enforce a global operation timeout — your application must 
 
 | Integration path | How to implement timeout |
 |---|---|
-| Cloud API | Use an HTTP client timeout for initial POST. For polling, set a max poll duration and retry interval (recommended: poll every 2s, give up after 90s, then reverse). |
-| Android SDK | Override `deviceLogsReady()` or implement a countdown in your UI thread. Do not call a second operation until `endOfTransaction` fires. |
-| iOS SDK | Use a `DispatchWorkItem` or `Timer`. Cancel and reverse if no delegate response. |
+| Cloud API | Use an HTTP client timeout for the initial POST. For polling, set a max poll duration and retry interval (recommended: poll every 2s, give up after 90s, then reverse). |
+| Android SDK | Implement a countdown in your UI thread. Do not call a second operation until `endOfTransaction` fires. Android SDK integrations must apply a **7-minute timeout**. |
+| iOS SDK | Use a `DispatchWorkItem` or `Timer`. Cancel and reverse if no delegate response within the timeout window. |
 | Cordova | Use `setTimeout` in JavaScript wrapping the `handpoint.*` call. |
+| JavaScript SDK | Wrap `transactionResult` with `Promise.race([transactionResult, new Promise((_, rej) => setTimeout(rej, 90000))])`. On timeout, call `hp.getTransactionStatus()` before clearing the UI. |
+| Windows SDK | Use a `System.Timers.Timer` or `CancellationTokenSource`. On expiry, do **not** cancel the SDK operation — call `hapi.GetTransactionStatus()` to determine outcome, then reverse if needed. |
 
 ### Partial approval handling
 

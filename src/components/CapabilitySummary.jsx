@@ -23,12 +23,15 @@ const PATH_LABELS = {
   'android-hilite':  'Android (HiLite)',
   'ios-hilite':      'iOS (HiLite)',
   'cordova':         'Cordova',
+  'javascript-sdk':  'JavaScript SDK',
+  'windows-sdk':     'Windows SDK',
   'back-office':     'REST API (Back Office)',
+  'backoffice':      'Backoffice',
   'paysafe-portal':  'Paysafe Portal',
 };
 
-const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova'];
-const BACK_OFFICE_PATHS  = ['back-office'];
+const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'javascript-sdk', 'windows-sdk'];
+const BACK_OFFICE_PATHS  = ['back-office', 'backoffice'];
 const PORTAL_PATHS       = ['paysafe-portal'];
 const STORAGE_KEY = 'docusaurus.tab.integration-path';
 
@@ -61,7 +64,7 @@ export default function CapabilitySummary({capabilities}) {
   const hasPortal = PORTAL_PATHS.some(p =>
     DISPLAY_ORDER.some(cap => capabilities[cap] && capabilities[cap][p] === 'public')
   );
-  const pathsToShow = [...cardPresentCols, ...BACK_OFFICE_PATHS, ...(hasPortal ? PORTAL_PATHS : [])];
+  const pathsToShow = [...new Set([...cardPresentCols, ...BACK_OFFICE_PATHS, ...(hasPortal ? PORTAL_PATHS : [])])];
 
   // Only show capability rows supported on at least one visible path
   const visibleCaps = DISPLAY_ORDER.filter(cap => {
@@ -125,7 +128,7 @@ export default function CapabilitySummary({capabilities}) {
       )}
       <p className="capability-summary-note">
         <small>
-          <strong>REST API (Back Office)</strong> — operations performed via REST API without a card reader. Sale and refund are <em>not</em> supported through Back Office — these require the card to be physically read by the terminal. Supported operations include: reversal, tip adjustment, pre-auth capture/increase/decrease (<em>initial pre-auth must be card-present</em>), MOTO (via PAX screen entry or ProCharge/EPI card token — keeps ISV and merchant out of PCI scope), batch operations, and tokenization. Requires merchant MOTO onboarding with the acquirer and MOTO enablement in Handpoint Portal (TMS) where applicable.
+          <strong>Backoffice</strong> — REST API operations sent directly to the payment gateway, bypassing the terminal SDK. Transactions do not appear in the device app transaction history. Reversal (<code>POST /reversal</code>) is available to all acquirers. Sale and refund require card-present at the terminal and are not available via Backoffice. Remote Sale (MOTO) is a separate server-side capability that requires merchant onboarding.
         </small>
       </p>
       {hasPortal && (

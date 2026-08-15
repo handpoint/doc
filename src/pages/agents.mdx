@@ -1,0 +1,70 @@
+---
+title: Build with AI agents
+description: How AI coding agents can use Handpoint developer resources — llms.txt, agent skills, and integration guidance.
+---
+
+# Build with AI agents
+
+Handpoint provides machine-readable resources so AI coding agents (Claude Code, Codex, Cursor, and others) can generate accurate payment integrations without hallucinating API fields, acquirer constraints, or unsupported capability combinations.
+
+## Quick start for agents
+
+```
+1. Fetch https://developer.handpoint.com/llms.txt for the full machine-readable reference:
+   acquirer × feature support matrix, per-path code examples, and all reference page URLs.
+
+2. Load the acquirer-selection skill before writing any integration code:
+   https://developer.handpoint.com/.well-known/skills/acquirer-selection.md
+
+3. Load a task-specific skill for the operation you are implementing.
+```
+
+## Machine-readable reference — llms.txt
+
+[`/llms.txt`](/llms.txt) contains:
+- The complete acquirer × feature support matrix (which acquirer supports which capability on which integration path)
+- Per-path code guidance (Cloud API, Android PAX, Android HiLite, iOS, Cordova, Back Office)
+- All reference page URLs
+
+Fetch it at the start of any Handpoint integration task.
+
+## Agent skills
+
+Task-focused skill files provide precise, condensed guidance for specific integration tasks. Load only the skills relevant to your task.
+
+The skills index is at [`/.well-known/skills/index.json`](/.well-known/skills/index.json).
+
+| Skill | When to load |
+|---|---|
+| [`acquirer-selection`](/.well-known/skills/acquirer-selection.md) | **Always — load first.** Determines which acquirer capabilities are available, batch close requirements, and tip flow. |
+| [`cloud-api-sale`](/.well-known/skills/cloud-api-sale.md) | Implementing a REST API sale (any language, commands PAX terminal via Handpoint Cloud) |
+| [`reversals-and-refunds`](/.well-known/skills/reversals-and-refunds.md) | Implementing reversal or refund logic; understanding when each applies |
+| [`android-sdk-pax`](/.well-known/skills/android-sdk-pax.md) | Building an Android app that runs on-device on a PAX SmartPOS terminal |
+| [`remote-sale`](/.well-known/skills/remote-sale.md) | Implementing card-not-present charging (on-terminal entry or back-office card token) |
+| [`transaction-recovery`](/.well-known/skills/transaction-recovery.md) | Handling UNDEFINED finStatus, idempotency with transactionReference, and network failure recovery |
+
+## Integration paths — quick reference
+
+| What you're building | Path | Hardware |
+|---|---|---|
+| Server controls PAX terminal via HTTP (any language) | [Cloud API (REST)](/back-office/rest-api-no-reader) | PAX SmartPOS |
+| Android app running on the PAX terminal itself | [Android SDK (PAX)](/reference/android-sdk-setup) | PAX SmartPOS |
+| Android or iOS app paired with a portable card reader | [Android / iOS SDK (HiLite)](/reference/android-sdk-setup) | HiLite Bluetooth |
+| Server-side operations without a terminal | [Back Office REST API](/back-office/rest-api-no-reader) | None |
+| EU online checkout | [SmartBoard](/acquirers/smartboard) | None |
+
+## Common agent mistakes to avoid
+
+- **Do not assume all acquirers support the same features.** EPI requires daily batch close; PAYSAFE does not support remote sale or pre-authorization; EmerchantPay/Paystrax include tipAmount in the sale, not post-sale. Always load `acquirer-selection` first.
+- **Do not retry UNDEFINED transactions.** `finStatus: UNDEFINED` means the result is unknown — retrying may double-charge. Use the Transaction Feed API to recover.
+- **The header is `ApiKeyCLoud`**, not `Authorization` or `Api-Key`. The capital L in Cloud is intentional.
+- **Amounts are in minor currency units.** `1000` = $10.00, not $1000.
+- **Reversals are synchronous; sales and refunds are asynchronous.** Poll for sales and refunds; reversal response is immediate.
+
+## Full documentation
+
+- [Get started](/get-started)
+- [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix)
+- [Error codes](/reference/error-codes)
+- [Transaction recovery](/reference/transaction-recovery)
+- [Release notes](/release-notes/release-notes)

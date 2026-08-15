@@ -1,28 +1,25 @@
-## Batch Operations
+## Batch Operations {#batching}
 
-The Batch Operations API provides three server-side endpoints for managing transaction batches: **Close** (triggers settlement), **Summary** (retrieves batch totals), and **Detail** (retrieves individual transaction list).
+Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
 
-### What this does
-Enables server-side batch management: close the current batch to trigger settlement, or query batch summary and details for reconciliation.
-
-### When to use it
+#### When to use it
 Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
 
-### Implementation notes
+#### Implementation notes
 
-1. **TSYS US only.** This operation is specific to host-capture acquirers. Most EU acquirers use SQS-based settlement that does not require manual batch close.
-2. After batch close, tip adjustments and reversals are no longer possible — only refunds.
+1. **TSYS US only.** Host-capture acquirers only. EU acquirers use automatic settlement and do not require manual batch close.
+2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
 3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
-4. This is a server-side operation only. Terminal paths cannot trigger a batch close.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+### Batch Close {#batch-close}
+
+Closes the current open batch and triggers settlement with the acquirer. Omit `batchNumber` to close the currently open batch.
 
 <Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
+<TabItem value="backoffice" label="Backoffice">
 
-**Batch Close:**
 ```http
 POST https://cloud.handpoint.com/batch/close
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -30,12 +27,20 @@ Content-Type: application/json
 
 {
   "serialNumber": "082104578",
-  "deviceType": "PAXA920",
-  "batchNumber": "001"
+  "deviceType": "PAXA920"
 }
 ```
 
-**Batch Summary:**
+</TabItem>
+</Tabs>
+
+### Batch Summary {#batch-summary}
+
+Retrieves aggregate totals for a batch — transaction count and net amounts by type.
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
 ```http
 POST https://cloud.handpoint.com/batch/summary
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -48,7 +53,16 @@ Content-Type: application/json
 }
 ```
 
-**Batch Detail:**
+</TabItem>
+</Tabs>
+
+### Batch Detail {#batch-detail}
+
+Retrieves the full list of individual transactions in a batch for reconciliation.
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
 ```http
 POST https://cloud.handpoint.com/batch/detail
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -62,54 +76,22 @@ Content-Type: application/json
 ```
 
 </TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-<NotSupported
-  reason="Batch close is a server-side operation. The terminal does not initiate batch close."
-  useInstead="Cloud API"
-/>
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<NotSupported
-  reason="Batch close is a server-side operation."
-  useInstead="Cloud API"
-/>
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<NotSupported
-  reason="Batch close is a server-side operation."
-  useInstead="Cloud API"
-/>
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-<NotSupported
-  reason="Batch close is a server-side operation."
-  useInstead="Cloud API"
-/>
-
-</TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `serialNumber` | string | Yes | Terminal serial number |
 | `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `batchNumber` | string | Yes | The batch number to close or query |
+| `batchNumber` | string | No (Batch Close) / Yes (Summary, Detail) | Batch number to close or query. Omit on Batch Close to target the currently open batch |
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
 | `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
 | `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
 
-### Testing
-Test batch close on the staging device (PAX debug). Batch close is a server-side REST API call and does not require card interaction.
+#### Testing
+Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.

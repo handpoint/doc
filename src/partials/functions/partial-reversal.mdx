@@ -1,12 +1,12 @@
 ## Partial Reversal
 
-### What this does
+#### What this does
 Reduces the authorised amount on a sale before settlement — the cardholder is charged only the reduced amount.
 
-### When to use it
+#### When to use it
 Use when the final amount is lower than the authorised amount and the batch is still open. Example: a pre-authorised $100 hotel stay costs only $80 at checkout. Do NOT attempt on closed batches — send a Refund instead.
 
-### Implementation notes
+#### Implementation notes
 
 1. Supported for **TSYS (US and Canada)**. Not available on other acquirers.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
@@ -15,7 +15,7 @@ Use when the final amount is lower than the authorised amount and the batch is s
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
-### Code
+#### Code
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -78,7 +78,7 @@ hapi.saleReversal(
 </TabItem>
 </Tabs>
 
-### Parameters
+#### Parameters
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -89,7 +89,7 @@ hapi.saleReversal(
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 | `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
 
-### Errors
+#### Errors
 
 | Code | Meaning | Recovery |
 |---|---|---|
@@ -97,5 +97,5 @@ hapi.saleReversal(
 | `OPERATION_NOT_SUPPORTED` | Acquirer does not support partial reversal | Use a full refund after settlement |
 | `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
 
-### Testing
+#### Testing
 Test partial reversals on the staging device (PAX debug) or TEST/DEMO merchant. Amount must be less than the original authorised amount.

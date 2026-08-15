@@ -48,6 +48,105 @@
   --header-select-bg:  #243344;
 }
 
+/* ── Flavor sections ─────────────────────────── */
+
+.flavor-section {
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-left: 3px solid var(--handpoint-blue);
+  border-radius: var(--ifm-global-radius);
+  margin-bottom: 0.75rem;
+  background: var(--ifm-background-surface-color);
+  overflow: hidden;
+}
+
+.flavor-section__summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.flavor-section__summary::-webkit-details-marker { display: none; }
+
+.flavor-section__summary::before {
+  content: '▶';
+  font-size: 0.6em;
+  color: var(--ifm-color-emphasis-500);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+  margin-right: 0.15rem;
+}
+
+.flavor-section[open] > .flavor-section__summary::before {
+  transform: rotate(90deg);
+}
+
+.flavor-section__description {
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-700);
+  font-weight: 500;
+}
+
+.flavor-section__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-left: auto;
+}
+
+.flavor-section__chip {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 0.1rem 0.45rem;
+  border-radius: 3px;
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-emphasis-700);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  white-space: nowrap;
+}
+
+.flavor-section__body {
+  padding: 0 1.25rem 1rem;
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* Not-supported state — shown when selected path doesn't support this flavor */
+.flavor-section--not-supported {
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 3px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  margin-bottom: 0.75rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  opacity: 0.6;
+}
+
+.flavor-section--not-supported .flavor-section__description {
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.flavor-section__not-supported-text {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--ifm-color-emphasis-500);
+}
+
+[data-theme='dark'] .flavor-section {
+  border-left-color: #5B9BD5;
+}
+
+[data-theme='dark'] .flavor-section__chip {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+}
+
 /* ── Navbar ──────────────────────────────────── */
 
 .navbar {
@@ -1759,4 +1858,80 @@ a.button--primary:hover {
   font-style: italic;
   border: 1px dashed var(--ifm-color-emphasis-300);
   border-radius: 6px;
+}
+
+/* ─── Get Started — integration type cards ────────────────────────────── */
+.integration-types {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.integration-type-card {
+  background: var(--ifm-background-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  padding: 1.2rem;
+}
+
+.integration-type-card:hover {
+  border-color: var(--ifm-color-primary);
+  box-shadow: 0 2px 10px rgba(27, 103, 178, 0.12);
+}
+
+/* Image container — bleeds to card edges, fixed height, image centered with contain */
+.integration-type-card__img {
+  height: 190px;
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: -1.2rem -1.2rem 1.2rem;
+}
+
+.integration-type-card__img--short { height: 130px; }
+.integration-type-card__img--tall  { height: 280px; }
+
+.integration-type-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 0.75rem;
+}
+
+/* Wide card — rendered outside the grid, spans full content width */
+.integration-type-card--wide {
+  margin-bottom: 1.5rem;
+}
+
+.integration-type-card h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 0.65rem;
+  color: var(--ifm-heading-color);
+}
+
+.integration-type-card p {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin: 0 0 0.5rem;
+}
+
+/* Metadata hardware/scope line */
+.integration-type-card p:last-child {
+  font-size: 0.8rem;
+  color: var(--ifm-color-content-secondary);
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.integration-type-card p:last-child strong {
+  color: var(--ifm-color-content-secondary);
+  font-weight: 600;
 }

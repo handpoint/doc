@@ -1,0 +1,234 @@
+#### What this does
+Voids a transaction before settlement, returning the full authorised amount to the cardholder without incurring interchange fees.
+
+#### When to use it
+Use when a transaction needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a refund for same-day cancellations — faster and fee-free. **No card present required** — reversal is sent electronically using the original transaction reference. Do NOT use after settlement — send a Refund instead.
+
+#### Implementation notes
+
+1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
+2. **No card present required.** Reversal is an electronic operation referencing the original `transactionID`. The cardholder does not need to return to the terminal.
+3. **Three paths — different connectivity requirements and response shapes:**
+   - **Cloud API with reader** (`POST /transactions`): routes the reversal through the connected terminal. Terminal must be online. Asynchronous — poll `GET /transaction-result/{id}` for the result. Amount in minor units.
+   - **Cloud API without reader** (`POST /reversal`): sent directly to the gateway. Works for **any transaction type** (sale, refund, pre-auth, MOTO, etc.). Terminal does not need to be connected. **Synchronous** — result is in the response body. Amount in major units (decimal string). Different response schema from the standard transaction result.
+   - **Android SDK / iOS SDK**: reversal travels through the connected reader. The terminal must be reachable at the time of the call.
+4. For Interac card transactions (TNS / TSYS + TNS): the only post-sale operation available is VOID (card must be present). Show a VOID button, not Refund or Reverse, for Interac transactions in your UI.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**With reader** — routes through the terminal (terminal must be online). Asynchronous: poll `GET /transaction-result/{transactionResultId}` for the outcome. Amount in minor units.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleReversal",
+  "amount": "1100",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "0821599465",
+  "originalTransactionId": "f2075470-9194-11f1-90c9-a73194216a3b"
+}
+```
+
+Response:
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "0821599465-1786020446467"
+}
+```
+
+**Without reader** — sent directly to the gateway. Works for any transaction type. Terminal does not need to be connected. **Synchronous** — result is returned immediately. Amount in **major units** (decimal string).
+
+```http
+POST https://cloud.handpoint.com/reversal
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "43935640-9195-11f1-90c9-a73194216a3b",
+  "amount": "12.00",
+  "currency": "USD"
+}
+```
+
+`amount` and `currency` are optional — omit them for a full reversal.
+
+Response:
+```json
+{
+  "httpStatus": 200,
+  "reversalGuid": "5158e150-9195-11f1-90c9-a73194216a3b",
+  "originalGuid": "43935640-9195-11f1-90c9-a73194216a3b",
+  "authorizationGuid": "43935640-9195-11f1-90c9-a73194216a3b",
+  "approvalCode": "123456",
+  "amount": "12.00",
+  "currency": "USD",
+  "cardTypeName": "Visa",
+  "maskedCardNumber": "************0936",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Successful",
+  "transactionReference": "813307b3-416f-436d-ab0b-63763e11bfba",
+  "customFields": { "entry": [{ "key": "messageReasonCode", "value": "4000" }] }
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted — no card prompt, no settlement
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.saleVoidWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Cloud API with reader** — `POST /transactions`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"saleReversal"` |
+| `amount` | string | Yes | Full original sale amount in **minor units** as a string, e.g. `"1100"` = $11.00 |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Terminal serial number |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` |
+| `token` | string | No | Opaque value included alongside the result in the push notification. Only used when `callbackUrl` is set |
+
+**Cloud API without reader** — `POST /reversal`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the original transaction (any type) |
+| `amount` | string | No | Amount to reverse in **major units** as a decimal string, e.g. `"12.00"`. Omit for a full reversal |
+| `currency` | string | No | ISO 4217 currency code. Required when `amount` is provided |
+
+**Android SDK / iOS SDK** — reversal sent through the connected reader:
+
+| Name | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Currency of the original sale |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+
+#### Errors
+
+**Cloud API with reader** — errors arrive in the polled result object, not in the initial 202 response.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found in the open batch | Verify the GUID; if the batch has closed, send a Refund instead |
+| `FAILED` | `Transaction failed, error: Error getting advanced transaction status (transaction not found)...` | `originalTransactionId` not found (pre-auth reversal path) | Verify the GUID is the `transactionID` from the pre-auth create result |
+
+**Cloud API without reader (`POST /reversal`)** — synchronous, errors are immediate:
+
+| HTTP | `code` | `message` | Meaning | What to do |
+|---|---|---|---|---|
+| `400` | `3153` | `Unable to find message to reverse.` | `originalGuid` not found | Verify the GUID is the `transactionID` from the original transaction result |
+| `400` | `3051` | `Already reversed` | Transaction has already been reversed | No further action needed; check your records |
+
+#### Testing
+
+Test reversals on the TEST/DEMO merchant or staging device. The most important edge case is cut-off timing.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| With reader — success | Complete a sale, send `POST /transactions` same day — verify `AUTHORISED` via polling `GET /transaction-result/{id}` |
+| Without reader — success | Complete a sale, send `POST /reversal` with `originalGuid` + decimal amount — verify synchronous `issuerResponseCode: "00"` |
+| After cut-off | Close the batch, attempt either path — verify error response and route to Refund |
+| Already reversed | Send the same reversal twice — verify idempotent or `ALREADY_REVERSED` response |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hapi.saleReversal()` same day — verify no card prompt, `finStatus == AUTHORISED` |
+| After cut-off | Close batch, then call `hapi.saleReversal()` — verify `DECLINED` or error in `endOfTransaction` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `heftClient.saleVoidWithAmount:currency:transaction:` same day — verify success |
+| After cut-off | Close batch, attempt void — verify failure in delegate |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `handpoint.saleReversal()` same day — verify `AUTHORISED` |
+| After cut-off | Close batch, attempt reversal — verify error |
+
+</TabItem>
+</Tabs>
+
+For full step-by-step scenarios, see [Testing Edge Cases](/reference/testing-edge-cases#reversal).

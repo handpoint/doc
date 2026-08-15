@@ -42,11 +42,13 @@ export const PATH_LABELS = {
   'android-hilite':  'Android (HiLite)',
   'ios-hilite':      'iOS (HiLite)',
   'cordova':         'Cordova',
+  'javascript-sdk':  'JavaScript SDK',
+  'windows-sdk':     'Windows SDK',
   'back-office':     'REST API (Back Office)',
   'paysafe-portal':  'Paysafe Portal',
 };
 
-export const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova'];
+export const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'javascript-sdk', 'windows-sdk'];
 export const BACK_OFFICE_PATHS  = ['back-office'];
 export const PORTAL_PATHS       = ['paysafe-portal'];
 
@@ -72,16 +74,16 @@ export const ACQUIRERS = [
     name: 'EPI',
     subtitle: 'US, Canada · VISA MC Discover',
     caps: {
-      sale:                        ALL5(),
-      refund:                      ALL5(),
-      reversal:                    { ...ALL5(), 'back-office': P },
-      'partial-reversal':          { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
-      'tip-adjustment':            { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'back-office': P },
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
-      'remote-sale':{ 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
-      tokenization:                { ...ALL5(), 'back-office': P },
-      batching:                    { 'cloud-api': P, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
+      sale:                        { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      refund:                      { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      reversal:                    { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'partial-reversal':          { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': N, 'windows-sdk': N, 'back-office': P },
+      'tip-adjustment':            { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'remote-sale':               { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      tokenization:                { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      batching:                    { 'cloud-api': P, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': N, 'windows-sdk': N, 'back-office': P },
     },
     notes: {
       sale:                        'Card must be read by terminal.',
@@ -104,16 +106,16 @@ export const ACQUIRERS = [
     name: 'PAYSAFE + Interac',
     subtitle: 'Canada · VISA MC Discover Interac',
     caps: {
-      sale:               ALL5(),
-      refund:             { ...ALL5(), 'paysafe-portal': P },
-      reversal:           { ...ALL5(), 'back-office': P },
-      'partial-reversal': NONE5(),
-      'tip-adjustment':   { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'back-office': P },
-      'pre-auth':         NONE5(),
-      'remote-sale':NONE5(),
-      tokenization:       ALL5(),
-      batching:           NONE5(),
-      void:               ALL5(),
+      sale:               { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      refund:             { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'paysafe-portal': P },
+      reversal:           { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'partial-reversal': { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'tip-adjustment':   { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'pre-auth':         { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'remote-sale':      { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      tokenization:       { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      batching:           { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      void:               { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
     },
     notes: {
       sale:               'Card must be read by terminal.',
@@ -130,27 +132,6 @@ export const ACQUIRERS = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // TNS — Canada · Interac only
-  // ─────────────────────────────────────────────────────────────────────────
-  {
-    id: 'tns',
-    name: 'TNS (Interac)',
-    subtitle: 'Canada · Interac only',
-    caps: {
-      sale:               ALL5(),
-      'partial-reversal': NONE5(),
-      'tip-adjustment':   NONE5(),
-      'remote-sale':NONE5(),
-      tokenization:       NONE5(),
-      void:               ALL5(),
-    },
-    notes: {
-      void: 'Full amount only. Card must be present. Before settlement.',
-    },
-    portalNote: null,
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────
   // PAYSAFE — US
   // ─────────────────────────────────────────────────────────────────────────
   {
@@ -158,15 +139,15 @@ export const ACQUIRERS = [
     name: 'PAYSAFE',
     subtitle: 'US · VISA MC AMEX Discover',
     caps: {
-      sale:               ALL5(),
-      refund:             { ...ALL5(), 'paysafe-portal': P },
-      reversal:           { ...ALL5(), 'back-office': P },
-      'partial-reversal': NONE5(),
-      'tip-adjustment':   NONE5(),
-      'pre-auth':         NONE5(),
-      'remote-sale':NONE5(),
-      tokenization:       NONE5(),
-      batching:           NONE5(),
+      sale:               { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      refund:             { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'paysafe-portal': P },
+      reversal:           { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'partial-reversal': { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'tip-adjustment':   { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'pre-auth':         { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'remote-sale':      { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      tokenization:       { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      batching:           { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
     },
     notes: {
       sale:               'Card must be read by terminal.',
@@ -188,15 +169,15 @@ export const ACQUIRERS = [
     name: 'EmerchantPay',
     subtitle: 'EU · VISA MC AMEX UnionPay',
     caps: {
-      sale:                        ALL5(),
-      refund:                      ALL5(),
-      reversal:                    { ...ALL5(), 'back-office': P },
-      'partial-reversal':          NONE5(),
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
-      'remote-sale':{ 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N },
-      tokenization:                ALL5(),
-      'money-remittance':          ALL5(),
+      sale:                        { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      refund:                      { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      reversal:                    { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'partial-reversal':          { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'remote-sale':               { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P },
+      tokenization:                { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      'money-remittance':          { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
     },
     notes: {
       sale:                        'Card must be read by terminal.',
@@ -217,14 +198,14 @@ export const ACQUIRERS = [
     name: 'Paystrax',
     subtitle: 'EU · VISA MC AMEX UnionPay',
     caps: {
-      sale:                        ALL5(),
-      refund:                      ALL5(),
-      reversal:                    { ...ALL5(), 'back-office': P },
-      'partial-reversal':          NONE5(),
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'back-office': P },
-      'remote-sale':{ 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N },
-      tokenization:                ALL5(),
+      sale:                        { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      refund:                      { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      reversal:                    { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'partial-reversal':          { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P },
+      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
+      'remote-sale':               { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P },
+      tokenization:                { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
     },
     notes: {
       sale:                        'Card must be read by terminal.',

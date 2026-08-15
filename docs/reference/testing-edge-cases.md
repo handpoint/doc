@@ -605,7 +605,7 @@ Run these on any integration path that supports `transactionReference` (Cloud AP
 | Check | Expected result |
 |---|---|
 | Send `transactionReference` on a Sale | Accepted; queryable via `/status` |
-| Send `transactionReference` on a MOTO Sale | Accepted; queryable via `/status` |
+| Send `transactionReference` on a Remote Sale | Accepted; queryable via `/status` |
 | Send `transactionReference` on a Pre-Auth create | Accepted; links all lifecycle operations |
 | Send `transactionReference` on an unlinked Refund | Accepted; queryable via `/status` |
 | Send `transactionReference` on a Reversal | Should be ignored or rejected — do not send |

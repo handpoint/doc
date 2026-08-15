@@ -84,6 +84,7 @@ const config = {
           ...(!isProduction ? [{ type: 'docSidebar', sidebarId: 'featuresSidebar', label: 'Features', position: 'left' }] : []),
           { type: 'docSidebar', sidebarId: 'referenceSidebar', label: 'Reference', position: 'left' },
           { type: 'docSidebar', sidebarId: 'releaseNotesSidebar', label: 'Release Notes', position: 'left' },
+          { href: '/agents', label: 'AI Agents', position: 'left' },
           { type: 'custom-VersionToggle', position: 'right' },
         ],
       },

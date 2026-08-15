@@ -1,0 +1,185 @@
+#### What this does
+Reads the card at the terminal and stores it in the **proCharge token vault** — a PCI-compliant service operated by EPI. The vault stores the PAN and expiry date (no CVV). Handpoint returns a `cardToken` your system can store for future card-not-present charges.
+
+#### When to use it
+Use when you want to charge a returning customer without requiring them to present their card again — subscriptions, recurring billing, "save my card" flows. The ISV stores only the opaque token; the PAN never leaves the EPI vault, keeping you out of PCI scope.
+
+#### How detokenization works
+When you send a MOTO sale with a proCharge `cardToken`, the Handpoint Gateway retrieves the PAN from the vault internally and forwards the authorisation to EPI — the ISV never sees the raw card number. Your system handles tokens only.
+
+#### Implementation notes
+
+1. **Token contents:** PAN + expiry date stored; CVV is never stored (PCI requirement).
+2. **Token scope:** proCharge tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
+3. **Deferred tokenization (recommended):** Retrieve a token from a previously completed transaction — no card re-swipe needed. Via Backoffice REST (`GET /transactions/{id}/token`) — no terminal required, synchronous. Via Android SDK (`hapi.deferredTokenization()`, SDK 7.1013.1+) — requires PAX device connected.
+4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#moto-sale) — Backoffice `POST /moto/sale` or Android SDK `hapi.motoSale()`.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Routes through the connected terminal (requires `terminal_type` and `serial_number`). Asynchronous — poll or use callback for the result.
+
+**Tokenize only (no charge):**
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "tokenizeCard",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578"
+}
+```
+
+**Sale and tokenize (charge + token in one step):**
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleAndTokenizeCard",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+**Retrieve token from a previous transaction (deferred tokenization):**
+
+Direct gateway call — no terminal or card reader required. Synchronous — the token is returned immediately in the response.
+
+```http
+GET https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/token
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+
+`{transactionID}` is the `transactionID` (GUID) from the original card-present transaction result.
+
+Eligible transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. Returns `cardToken` for use in `POST /moto/sale`.
+
+This is the **recommended way to obtain a token for recurring billing** — the original card-present sale completes independently, and the token is retrieved afterwards. A tokenisation failure never affects the original transaction.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+// Token arrives via endOfTransaction
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken        // store for future motoSale()
+    val provider = result.cardTokenProvider  // "EPI" / "PROCHARGE"
+}
+```
+
+**Deferred tokenization** (SDK 7.1013.1+) — retrieve token from a prior transaction, PAX device must be connected:
+```kotlin
+// eftTransactionID is the EFTTransactionID (UUID) from the original sale result
+// NOT transactionID (the internal card-reader number)
+hapi.deferredTokenization("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken  // use in hapi.motoSale()
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Tokenize only
+heftClient.tokenizeCard()
+
+// Sale and tokenize
+heftClient.saleAndTokenizeCardWithAmount(1000, currency: "USD")
+```
+
+Token is returned in the transaction result's `cardToken` field.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Tokenize only
+handpoint.tokenizeCard(
+  {},
+  function(result) { const token = result.cardToken; },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Card-present tokenization:**
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"tokenizeCard"` for tokenize-only, `"saleAndTokenizeCard"` for sale+tokenize |
+| `amount` | string | Yes (saleAndTokenizeCard) | Amount in smallest currency unit as a string |
+| `currency` | string | Yes (saleAndTokenizeCard) | ISO 4217 currency code |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+
+**Deferred tokenization — Android SDK** (`hapi.deferredTokenization(eftTransactionID)`):
+
+| Parameter | Type | Description |
+|---|---|---|
+| `eftTransactionID` | `String` | `EFTTransactionID` (UUID) from the original transaction — NOT `transactionID` |
+| **Returns** | `Boolean` | `true` if command sent to device; result arrives via `endOfTransaction` |
+
+**Deferred tokenization — Backoffice** (`GET /transactions/{transactionID}/token`):
+
+| Parameter | Description |
+|---|---|
+| `{transactionID}` | `transactionID` (GUID) from the original card-present transaction |
+
+#### Response fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | Opaque proCharge token. Store this — use for future MOTO charges |
+| `cardTokenProvider` | Token issuer — `"EPI"` or `"PROCHARGE"` |
+| `expiryDateMMYY` | Token expiry (matches card expiry) |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
+| `CARD_READ_ERROR` | Terminal failed to read card | Retry; ask customer to try again |
+
+#### Testing
+Test tokens are returned on the TEST/DEMO merchant or staging device. Test tokens are not valid in production and cannot be used in `POST /moto/sale` on a live merchant.

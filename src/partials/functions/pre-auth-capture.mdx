@@ -1,4 +1,6 @@
-### Pre-Authorization Capture
+### Capture {#pre-auth-capture}
+
+#### Pre-Authorization Capture
 
 Captures the funds from a previously created pre-authorization (completion).
 
@@ -10,7 +12,9 @@ Captures the funds from a previously created pre-authorization (completion).
 3. After capture, a standard refund process applies if the cardholder requests a return.
 
 <Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
+<TabItem value="backoffice" label="Backoffice">
+
+Direct to the gateway — no terminal required. Synchronous — result returned immediately.
 
 ```http
 POST https://cloud.handpoint.com/preauthorization/capture
@@ -60,7 +64,7 @@ handpoint.preAuthorizationCapture(
 </TabItem>
 </Tabs>
 
-**Cloud API** — `POST /preauthorization/capture`:
+**Backoffice** — `POST /preauthorization/capture`:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -81,9 +85,9 @@ handpoint.preAuthorizationCapture(
 The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parameter. `tipAmount` is a Cloud API-only field.
 :::
 
-### Errors
+#### Errors
 
-**Cloud API without reader (`POST /preauthorization/capture`)** — synchronous, errors are immediate:
+**Backoffice (`POST /preauthorization/capture`)** — synchronous, errors are immediate:
 
 | HTTP | `code` | `message` | Meaning | What to do |
 |---|---|---|---|---|
@@ -94,10 +98,10 @@ The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parame
 | `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
 | `422` | `VALIDATION_FAILED` | Missing required field | Request body is missing `originalGuid` or `capturedAmount` | See `details` array in response for the specific field |
 
-### Testing
+#### Testing
 
 <Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
+<TabItem value="backoffice" label="Backoffice">
 
 | Scenario | How to trigger |
 |---|---|

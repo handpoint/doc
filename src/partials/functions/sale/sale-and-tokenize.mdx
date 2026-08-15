@@ -1,0 +1,105 @@
+Store a **reusable card token** during the sale so future card-not-present charges can be made without the cardholder being present again. The token is returned in the `TransactionResult` and can be used for subsequent back-office MOTO sales.
+
+#### When to use it
+Use when onboarding a new customer in person — take the first payment as a normal card-present sale and simultaneously capture a card token for future recurring charges, subscriptions, or card-on-file billing.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Tokenization happens as a **separate operation** via the `/transactions` endpoint with `"operation": "tokenizeCard"`. The resulting token can then be used in back-office MOTO sales.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "tokenizeCard",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The token is returned in the `TransactionResult.cardToken` field. Store it and use it in subsequent `POST /moto/sale` requests.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Standalone tokenize — card is presented and tokenized without a charge
+hapi.tokenizeCard()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val token = result.cardToken  // store securely for future MOTO charges
+    }
+}
+
+// Or: sale that also returns a token (where acquirer supports it)
+// The cardToken field is populated on the sale result if tokenization is enabled for the merchant
+hapi.sale(BigInteger("1000"), Currency.USD)
+// result.cardToken will be non-null if the acquirer issued a token on this sale
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.tokenizeCard()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val token = result.cardToken
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.tokenizeCard()
+
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
+    if info.statusCode == EFT_PP_STATUS_SUCCESS {
+        let token = info.cardToken  // store securely
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.tokenizeCard(
+  { currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      const token = result.cardToken;  // store securely
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Result fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | Opaque token string issued by the acquirer's token provider. Store this — do not log or expose it. |
+| `finStatus` | `AUTHORISED` on success |
+
+#### Using the token for future charges
+
+Pass `cardToken` in the [Remote Sale (MOTO)](#moto-sale) flavor's `cardToken` field for subsequent card-not-present charges.
+
+:::caution Token scope
+Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.
+:::
