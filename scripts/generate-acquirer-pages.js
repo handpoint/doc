@@ -216,15 +216,12 @@ function buildFlavorBlock(capKey, flavorKey, flavorData, acquirer) {
           '<TabItem value="android-pax" label="Android (PAX)">',
           '',
           '```kotlin',
-          '// Option A — supply billing data programmatically',
           'val billing = Billing(zipCode = "10001", address = "123 Main St")',
           'val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", billing = billing)',
           'hapi.motoSale(BigInteger("1000"), Currency.USD, options)',
-          '',
-          '// Option B — terminal prompts for zip code on the card entry screen',
-          'val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", enableAvsFields = true)',
-          'hapi.motoSale(BigInteger("1000"), Currency.USD, options)',
           '```',
+          '',
+          'A token sale has no card entry screen, so `enableAvsFields` does nothing here — supply `billing` yourself.',
           '',
           '</TabItem>',
           '</Tabs>',
@@ -360,7 +357,7 @@ function buildPage(slug, a) {
           if (avsCaps && isVisible(avsCaps)) {
             const supportedPaths = PATHS.filter(p => avsCaps[p] === 'public' || avsCaps[p] === 'coming-soon');
             const pathLabels = supportedPaths.map(p => PATH_LABELS[p]).join(' and ');
-            avsNote = `### Address Verification Service (AVS)\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on ${pathLabels} only, for now.\n\nTurning it on for a merchant requires \`avsForMoto\` (an internal flag Handpoint sets per merchant, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).\n:::\n`;
+            avsNote = `### Address Verification Service (AVS)\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale and Pre-Authorization — on ${pathLabels} only, for now. Refunds and referenced operations never carry billing data.\n\nTurning it on for a merchant requires \`avsForMoto\` (an internal flag Handpoint sets per merchant, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/features/avs-for-moto).\n:::\n`;
           }
           content = content.replace('{/* AVS_FOR_MOTO_INJECTION_POINT */}', avsNote);
         }
