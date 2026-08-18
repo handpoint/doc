@@ -84,7 +84,7 @@ EPI supports AVS for card-not-present transactions. Include a `billing` object i
 }
 ```
 
-`zipCode` is required when `billing` is included (max 20 chars); `address` is optional (max 50). No control characters, and no run of 12+ digits in either field — an over-long or malformed value is rejected with HTTP 400 before it reaches the terminal.
+`zipCode` is required when `billing` is included (max 20 chars); `address` is optional (max 50). No control characters in either field — an over-long or malformed value is rejected with HTTP 400 before it reaches the terminal.
 
 AVS must be enabled per-merchant by Handpoint (`avsForMoto` internal flag). If it is disabled and `billing` is sent, the gateway rejects the transaction: error `4070`, `AVS is not enabled for this configuration`.
 

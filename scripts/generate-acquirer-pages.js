@@ -221,8 +221,6 @@ function buildFlavorBlock(capKey, flavorKey, flavorData, acquirer) {
           'hapi.motoSale(BigInteger("1000"), Currency.USD, options)',
           '```',
           '',
-          'A token sale has no card entry screen, so `enableAvsFields` does nothing here — supply `billing` yourself.',
-          '',
           '</TabItem>',
           '</Tabs>',
           '',

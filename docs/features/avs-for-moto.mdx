@@ -79,9 +79,8 @@ Two ways to get `zipCode` / `address`, mutually exclusive on the same `MoToOptio
 | At most 20 characters | `zipCode` | `Invalid billing.zipCode, maximum length is 20` |
 | At most 50 characters | `address` | `Invalid billing.address, maximum length is 50` |
 | No control characters | both | `Invalid billing.<field>, control characters are not allowed` |
-| No run of 12 or more digits | both | `Invalid billing.<field>, long digit sequences are not allowed` |
 
-There's no country-specific format check — the same fields have to carry postal codes and addresses from anywhere, so anything within these limits is accepted. The digit-run rule guards against a card number landing in a billing field; separators between digits are stripped before counting, so `4111 1111 1111 1111` is rejected too.
+There's no country-specific format check — the same fields have to carry postal codes and addresses from anywhere, so anything within these limits is accepted.
 
 The Android SDK doesn't check lengths before sending, but the gateway enforces the same 20 and 50 limits — validate on your side before you send.
 
