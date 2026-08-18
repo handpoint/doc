@@ -68,16 +68,15 @@ Error `5252` (Card token failure): token invalid or expired — re-tokenize.
 
 Load optional skill `optional/back-office.md` for full remote sale and remote refund flows.
 
-## AVS (address verification) — on remote sale
+## AVS (address verification) — MOTO sale and pre-auth only
 
-EPI supports AVS for card-not-present transactions. Include a `billing` object in the sale or motoSale request:
+EPI supports AVS for card-not-present transactions. Include a `billing` object in a `moToSale` or `moToPreAuthorization` request:
 
 ```json
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "moToSale",
+  "amount": "1000",
   "currency": "USD",
-  "motoChannel": true,
   "billing": {
     "address": "123 Main St",
     "zipCode": "10001"
@@ -85,9 +84,13 @@ EPI supports AVS for card-not-present transactions. Include a `billing` object i
 }
 ```
 
-`zipCode` is required when `billing` is included; `address` is optional.  
-AVS must be enabled per-merchant by Handpoint (`avsForMoto` internal flag).  
-AVS result is in `TransactionResult.avsResult`.
+`zipCode` is required when `billing` is included (max 20 chars); `address` is optional (max 50). No control characters in either field — an over-long or malformed value is rejected with HTTP 400 before it reaches the terminal.
+
+AVS must be enabled per-merchant by Handpoint (`avsForMoto` internal flag). If it is disabled and `billing` is sent, the gateway rejects the transaction: error `4070`, `AVS is not enabled for this configuration`.
+
+Never on refunds (linked or unlinked), reversals, captures or increases — `billing` is never inherited and is silently ignored on those operations. For a pre-auth, send it on the pre-authorization only; the capture carries none.
+
+AVS result is `addressVerification.resultCode` on the `POST /moto/sale` response (`FULL_MATCH`, `ZIP_MATCH`, `NO_MATCH`, …). It is not exposed on the Android SDK or on `POST /transactions`. Handpoint never acts on it — a mismatch does not decline.
 
 ## Pre-authorization
 

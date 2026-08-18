@@ -380,13 +380,8 @@ Content-Type: application/json
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-// Option A — supply billing data programmatically
 val billing = Billing(zipCode = "10001", address = "123 Main St")
 val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", billing = billing)
-hapi.motoSale(BigInteger("1000"), Currency.USD, options)
-
-// Option B — terminal prompts for zip code on the card entry screen
-val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", enableAvsFields = true)
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 ```
 
