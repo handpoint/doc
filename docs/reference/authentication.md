@@ -80,4 +80,4 @@ This means:
 
 The only requirement is that the back-office operation is supported by the acquirer for that transaction type. See the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix) for per-acquirer support.
 
-**See also:** [Multi-MID](/reference/multi-mid) — route transactions to different merchant accounts from a single API key and a single terminal.
+**See also:** [Multi-MID](/reference/multi-mid) — route transactions to different merchant accounts from a single credential, across any terminal assigned to the merchant.

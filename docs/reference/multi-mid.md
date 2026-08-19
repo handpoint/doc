@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 
 # Multi-MID
 
-Multi-MID lets a single Handpoint integration support multiple merchant accounts (MIDs) from one API key and one terminal. Each operation carries an `externalId` that Handpoint uses to route the transaction to the correct sub-merchant account.
+Multi-MID lets a single Handpoint integration support multiple merchant accounts (MIDs) from one credential. Any terminal assigned to the merchant can process against any of the configured sub-MIDs — the ISV selects which account to route to by including an `externalId` on each transaction request.
 
 :::info Availability
 Multi-MID is available via the **Cloud API** and **Android SDK (PAX)**. Contact your Handpoint Integration Engineer to enable sub-MIDs for a merchant.
