@@ -224,6 +224,31 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
 | `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
 
+#### Result
+
+Delivered to your `callbackUrl` (Cloud API), returned by `GET /transaction-result/{id}` (polling), or passed to `endOfTransaction()` / `responseFinanceStatus()` (Android/iOS/Cordova).
+
+```json
+{
+  "finStatus": "AUTHORISED",
+  "transactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+  "type": "SALE",
+  "statusMessage": "Approved",
+  "errorMessage": "",
+  "totalAmount": 1000,
+  "currency": "USD",
+  "cardSchemeName": "Visa",
+  "maskedCardNumber": "************0936",
+  "authorisationCode": "123456",
+  "issuerResponseCode": "00",
+  "merchantReceipt": "<html>…</html>",
+  "customerReceipt": "<html>…</html>"
+}
+```
+
+On `DECLINED`: `finStatus` is `"DECLINED"`, `totalAmount` is `0`, `authorisationCode` is `""`, and `errorMessage` contains the decline reason (e.g. `"Not Authorized"`). → [Full TransactionResult schema](/reference/transaction-result-object)
+
 
 </FlavorSection>
 
