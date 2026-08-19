@@ -3,14 +3,109 @@ id: index
 title: Get Started
 sidebar_label: Get Started
 sidebar_position: 1
-description: Select your region and integration type to see which Handpoint payment functions, SDKs, and acquirers are available.
+description: Build in-person payments around the way your merchants actually work. Start with the use case, then pick the right integration path.
 ---
 
 import IntegrationWizard from '@site/src/components/IntegrationWizard';
 
-# Start your integration
+# Build payments that fit the workflow
 
-Handpoint lets software vendors add card-present and card-not-present payments to any application. Pick an integration path below, or use the wizard at the bottom to get a personalised checklist for your exact setup.
+Your merchants didn't choose your software because they needed a card reader — they chose it to run their business better. Handpoint gives software companies the tools to build the physical payment experience their product and their merchants actually need: connect your software to a branded terminal, put your application directly on an Android payment device, or shape the transaction before, during, and after the card is presented.
+
+---
+
+## What you can do
+
+More than start a transaction. Handpoint gives your software ways to stay involved with the payment as part of the merchant workflow.
+
+| Capability | Details |
+|---|---|
+| **Sale, refund, void** | Standard card-present and card-not-present operations across all acquirers |
+| **Tip and tip adjustment** | On-screen tip prompt at checkout, or post-transaction tip adjustment from the back office |
+| **Pre-authorization** | Authorize a hold, capture later — for tabs, hotel check-ins, and service jobs |
+| **MOTO / remote sale** | Card-not-present payments without a terminal, for phone orders and back-office workflows |
+| **Multi-MID** | Route transactions to different merchant accounts using a single API key — one `externalId` per provider |
+| **Partial reversal** | Release part of an authorized amount without requiring the customer to re-present the card |
+| **Transaction feed** | Query and stream transaction data for reporting, reconciliation, and support tools |
+| **Payment tokens** | Return a token from an in-person transaction for eligible recurring or back-office workflows |
+
+For the full list of what each acquirer supports, see the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix). For a list of supported hardware, see [Supported Devices](/reference/devices).
+
+---
+
+## How do I get started?
+
+The right integration path depends on what your software and merchants are trying to accomplish — not just how you want to connect a card reader.
+
+:::tip You don't have to choose just one
+A single merchant can use different physical payment experiences on the same Handpoint platform. REST API at the counter. Android SDK at tableside. HiLite in the field. Cloud API for back-office MOTO. ISVs can combine integration paths within the same application or across different use cases of the same merchant.
+:::
+
+<div className="integration-types">
+
+<div className="integration-type-card">
+
+### Restaurant
+
+Build ordering and payment into one tableside workflow. Pre-authorize a tab, adjust the tip from the back office after the guest leaves, and run end-of-day reports from the transaction feed — without staff making extra trips to a counter terminal.
+
+**Best paths:** [Android SDK (PAX)](#native-integration----android-sdk-pax) for a native all-in-one experience, or [Cloud API](#cloud-integration----rest-api) for a server-led POS with a terminal alongside.
+
+</div>
+
+<div className="integration-type-card">
+
+### Clinic / Healthcare
+
+Multiple providers, one device. Map each doctor to their own merchant account using `externalId` — a single API key routes each transaction to the right MID automatically. Pair an Android PAX for card-present at the desk with Cloud API MOTO for phone payments, all reconciled via the transaction feed.
+
+**Best path:** [Cloud API](#cloud-integration----rest-api) or [Android SDK (PAX)](#native-integration----android-sdk-pax) with **Multi-MID**
+
+</div>
+
+<div className="integration-type-card">
+
+### Field service
+
+Your technician finishes the job, takes payment on the spot, and moves on — no invoice to send, chase, or reconcile. A HiLite reader connects to any Android or iOS phone over Bluetooth and fits in a pocket.
+
+**Best path:** [Android or iOS SDK (HiLite)](#bluetooth-integration----android--ios-sdk-hilite)
+
+</div>
+
+<div className="integration-type-card">
+
+### Retail / Counter POS
+
+Your POS runs on Windows, a browser, or a server? Cloud API initiates a sale on the PAX terminal over a single HTTP request — no Android development required. JavaScript and Windows SDKs provide typed wrappers in your preferred environment.
+
+**Best paths:** [Cloud API](#cloud-integration----rest-api), [JavaScript SDK](#javascript-sdk), or [Windows SDK](#windows-sdk-net)
+
+</div>
+
+<div className="integration-type-card">
+
+### Events / Self-service
+
+High-volume checkout in a tight window — stadium aisles, kiosks, self-service lanes. Android PAX combines your application, secure payment, and peripherals (printing, display) on one purpose-built device. Standalone mode lets the same hardware work without software integration during low-traffic periods.
+
+**Best path:** [Android SDK (PAX)](#native-integration----android-sdk-pax)
+
+</div>
+
+<div className="integration-type-card">
+
+### Back office & MOTO
+
+Take phone orders, process remote refunds, or run pre-authorizations without a terminal. Back-office operations — void, reversal, partial reversal — are available on all acquirers regardless of the card-present integration path you use. MOTO (remote sale) requires an acquirer that supports card-not-present.
+
+**Best path:** [Cloud API](#cloud-integration----rest-api) · **Acquirer:** EPI for MOTO
+
+</div>
+
+</div>
+
+---
 
 ## Card-present integrations
 
@@ -23,11 +118,13 @@ Your software connects to a PAX SmartPOS terminal or HiLite Bluetooth reader. Ca
 <img src="/img/integration-types/cloud-integration.png" alt="Cloud Integration — POS connects through Handpoint Cloud to PAX terminal" />
 </div>
 
-### Cloud Integration — REST API
+### Cloud Integration — REST API {#cloud-integration----rest-api}
 
 The most common path for ISVs. Your server — in any language (Python, Node, PHP, .NET, …) — sends HTTP requests to the Handpoint Cloud, which relays payment commands to the PAX terminal over a secure channel. Only an API key is required; no Android or mobile SDK needed.
 
 The merchant connects the terminal to Wi-Fi and opens the Handpoint Payments App. From that point your software initiates sales, refunds, and reversals and receives transaction results in real time.
+
+Give Handpoint your logo and brand details — the Handpoint Payments App can carry your brand without requiring your developers to build an on-terminal application.
 
 **Hardware:** PAX SmartPOS &nbsp;·&nbsp; **PCI scope:** Out of scope
 
@@ -40,11 +137,11 @@ The merchant connects the terminal to Wi-Fi and opens the Handpoint Payments App
 <img src="/img/integration-types/android-sdk-pax.png" alt="Android SDK on PAX — your POS app and Handpoint SDK run on the same PAX terminal" />
 </div>
 
-### Native Integration — Android SDK (PAX)
+### Native Integration — Android SDK (PAX) {#native-integration----android-sdk-pax}
 
 Your Android application runs directly on the PAX SmartPOS terminal and embeds the Handpoint Android SDK. This all-in-one approach gives you complete control of the checkout experience — your POS UI and the payment flow live on the same device, with no separate payment application or external server required.
 
-The right choice when you want a tightly integrated terminal application and can target PAX hardware.
+Build tableside ordering, mobile POS, field-service applications, ticketing, parking, and other purpose-built experiences on supported PAX Android terminals. The right choice when you want a tightly integrated terminal application and can target PAX hardware.
 
 **Hardware:** PAX SmartPOS &nbsp;·&nbsp; **PCI scope:** Out of scope
 
@@ -57,7 +154,7 @@ The right choice when you want a tightly integrated terminal application and can
 <img src="/img/integration-types/bluetooth-integration.png" alt="Bluetooth Integration — phone or tablet connects to HiLite card reader via Bluetooth" />
 </div>
 
-### Bluetooth Integration — Android / iOS SDK (HiLite)
+### Bluetooth Integration — Android / iOS SDK (HiLite) {#bluetooth-integration----android--ios-sdk-hilite}
 
 Your mobile app communicates with the HiLite Bluetooth card reader via the Handpoint Android or iOS SDK. The HiLite is Handpoint's ultra-portable reader — compact, battery-powered, and built for merchants on the move.
 
@@ -75,7 +172,7 @@ Use this path when merchants need to accept payments away from a fixed counter: 
 
 <div className="integration-type-card">
 
-### JavaScript SDK
+### JavaScript SDK {#javascript-sdk}
 
 An npm package that wraps the Handpoint Cloud API for Node.js and browser applications. The SDK manages connection, authentication, and result delivery via Pusher WebSocket — you call `hp.sale()`, `hp.refund()`, etc. and await the result Promise, without managing raw HTTP or WebSocket frames directly.
 
@@ -89,7 +186,7 @@ Best suited for web-based POS, kiosk, and server-side Node.js applications that 
 
 <div className="integration-type-card">
 
-### Windows SDK (.NET)
+### Windows SDK (.NET) {#windows-sdk-net}
 
 A .NET SDK for Windows desktop POS applications. Connects to PAX SmartPOS terminals via the Handpoint Cloud — the same network path as the REST API — and exposes a strongly-typed C# interface with event callbacks (`EndOfTransaction`, `CurrentTransactionStatus`, etc.).
 
@@ -154,7 +251,7 @@ Supports **full white-label branding**: your logo, colours, and custom links. Se
 
 ---
 
-## E-Commerce -- Europe Only
+## E-Commerce — Europe Only
 
 SmartBoard is Handpoint's online payment gateway for EU merchants. It supports six integration paths, from zero-code (Hosted Payment Page, Pay By Link) to full programmatic control (Direct Integration).
 
