@@ -205,12 +205,18 @@ The table below covers all payment operations supported on the Cloud API path. C
 | **Reversal** | On-device reversal (same-day, pre-settlement) | [EPI](/acquirers/epi#reversal) · [Paysafe](/acquirers/paysafe-tsys#reversal) · [Paysafe + Interac](/acquirers/tsys-tns#reversal) · [EmerchantPay](/acquirers/omnipay-emp#reversal) · [Paystrax](/acquirers/omnipay-paystrax#reversal) |
 | **Remote Reversal** | Back-office reversal via Cloud API (no terminal required) | [EPI](/acquirers/epi#remote-reversal) · [Paysafe](/acquirers/paysafe-tsys#remote-reversal) · [Paysafe + Interac](/acquirers/tsys-tns#remote-reversal) · [EmerchantPay](/acquirers/omnipay-emp#remote-reversal) · [Paystrax](/acquirers/omnipay-paystrax#remote-reversal) |
 | **Tip Adjustment** | Adjust tip after sale, before batch close | [EPI](/acquirers/epi#tip-adjustment) · [Paysafe + Interac](/acquirers/tsys-tns#tip-adjustment) |
-| **Pre-Authorization** | Create hold, capture, increase/decrease, pre-auth reversal | [EPI](/acquirers/epi#pre-auth) · [EmerchantPay](/acquirers/omnipay-emp#pre-auth) · [Paystrax](/acquirers/omnipay-paystrax#pre-auth) |
+| **Pre-Authorization** | Create hold (card-present); capture, increase/decrease, reversal, capture reversal are back-office (no terminal interaction) | [EPI](/acquirers/epi#pre-auth) · [EmerchantPay](/acquirers/omnipay-emp#pre-auth) · [Paystrax](/acquirers/omnipay-paystrax#pre-auth) |
 | **MOTO (Remote Sale)** | Card-not-present sale using a stored token | [EPI](/acquirers/epi#moto-sale) · [EmerchantPay](/acquirers/omnipay-emp#moto-sale) |
 | **Tokenization** | Store card for future charges, deferred token retrieval | [EPI](/acquirers/epi#tokenization) · [Paysafe](/acquirers/paysafe-tsys#tokenization) · [Paysafe + Interac](/acquirers/tsys-tns#tokenization) · [EmerchantPay](/acquirers/omnipay-emp#tokenization) · [Paystrax](/acquirers/omnipay-paystrax#tokenization) |
 | **Batch Operations** | Batch close, summary, detail (TSYS/EPI only) — Backoffice path | [EPI](/acquirers/epi#batch-close) · [Paysafe + Interac](/acquirers/tsys-tns#batch-close) |
 
 For the full acquirer × feature matrix across all integration paths: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix).
+
+:::tip Pre-authorization: only Create requires the terminal
+The initial Pre-Authorization Create goes through the PAX terminal — the cardholder presents their card and a hold is placed. Every subsequent operation in the lifecycle (increase/decrease, capture, pre-auth reversal, capture reversal) is a **back-office operation** submitted directly to the Handpoint API from your server. The cardholder does not need to be present and the terminal does not need to be actively attended. You can capture or release a hold hours or days later with a single API call.
+
+→ [Pre-Authorization Guide](/reference/pre-authorization-guide) — full lifecycle, code examples for all steps, and acquirer support matrix.
+:::
 
 ## Test amounts
 

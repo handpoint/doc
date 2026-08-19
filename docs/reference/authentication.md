@@ -79,3 +79,5 @@ This means:
 - **Multi-MID** back-office operations use the same API key with `externalId` to route to the correct sub-merchant account — see [Multi-MID](/reference/multi-mid).
 
 The only requirement is that the back-office operation is supported by the acquirer for that transaction type. See the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix) for per-acquirer support.
+
+**See also:** [Multi-MID](/reference/multi-mid) — route transactions to different merchant accounts from a single API key and a single terminal.
