@@ -45,7 +45,7 @@ const config = {
         docs: {
           sidebarPath: require.resolve('./sidebars.js'),
           routeBasePath: '/',
-          exclude: isProduction ? ['**/avs-for-moto.mdx'] : [],
+          exclude: [],
           ...(isProduction && {
             async sidebarItemsGenerator({ defaultSidebarItemsGenerator, docs, ...args }) {
               const items = await defaultSidebarItemsGenerator({ docs, ...args });
@@ -81,7 +81,6 @@ const config = {
           { type: 'custom-GlobalFilters', position: 'left' },
           { type: 'doc', docId: 'get-started/index', label: 'Get Started', position: 'left' },
           { type: 'docSidebar', sidebarId: 'acquirersSidebar', label: 'Functionalities', position: 'left' },
-          ...(!isProduction ? [{ type: 'docSidebar', sidebarId: 'featuresSidebar', label: 'Features', position: 'left' }] : []),
           { type: 'docSidebar', sidebarId: 'referenceSidebar', label: 'Reference', position: 'left' },
           { type: 'docSidebar', sidebarId: 'releaseNotesSidebar', label: 'Release Notes', position: 'left' },
           { href: '/agents', label: 'AI Agents', position: 'left' },

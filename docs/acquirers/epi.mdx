@@ -30,7 +30,6 @@ last-reviewed: "2026-08-15"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
-import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
@@ -44,7 +43,7 @@ export const _caps = {"sale":{"cloud-api":"public","android-pax":"public","andro
 <CapabilitySummary capabilities={_caps} />
 
 :::info Acquirer notes
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -52,7 +51,7 @@ EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversa
 
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -309,7 +308,7 @@ Requires `avsForMoto` and `motoEnabled = true` (both set per merchant by Handpoi
 </Tabs>
 
 :::info
-See [AVS for MOTO](/features/avs-for-moto) for prerequisites and edge cases.
+See [AVS for MOTO](/reference/avs-for-moto) for prerequisites and edge cases.
 :::
 
 
@@ -336,6 +335,70 @@ See [AVS for MOTO](/features/avs-for-moto) for prerequisites and edge cases.
 </FlavorSection>
 
 
+### Key Entry Pre-Authorization {#key-entry-pre-auth}
+
+<FlavorSection description="On-device · operator keys card number for a pre-auth" paths={["cloud-api","android-pax"]}>
+
+Same terminal flow as Key Entry Sale — the cashier types card details on the PAX terminal's touchscreen — but sends a pre-authorization instead of a sale. The authorized hold can be captured or released later.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToPreAuthorization",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "3cfe2fd3-34c2-5d78-a4e0-2e5b668f5e5f"
+}
+```
+
+Amount in **smallest currency unit**. The terminal shows a card entry screen.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Terminal shows manual card entry screen for a pre-authorization
+hapi.motoPreauthorization(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for capture or release later
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Address Verification (AVS)
+
+AVS applies to Key Entry Pre-Authorization the same way it applies to Key Entry Sale. The terminal can prompt for the cardholder's billing postal code after card entry, or you can pass it programmatically via `MoToOptions`.
+
+:::info
+See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, field reference, and edge cases.
+:::
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined the hold | Ask cardholder to provide another card |
+| `CANCELLED` | Operator cancelled on terminal | No action required |
+| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
+
+</FlavorSection>
+
+
 ### Remote Sale (MOTO) {#remote-sale}
 
 <FlavorSection description="Back-office · charges a stored card token" paths={["cloud-api","android-pax","cordova"]}>
@@ -352,7 +415,7 @@ Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV.
 
 #### Address Verification (AVS)
 
-EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint.
+EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, field reference, and edge cases.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -394,7 +457,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 </Tabs>
 
 :::info
-See [AVS for MOTO](/features/avs-for-moto) for prerequisites, full field reference, and edge cases.
+See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, full field reference, and edge cases.
 :::
 
 
@@ -737,7 +800,7 @@ handpoint.tokenizeCard(
 
 #### Using the token for future charges
 
-Pass `cardToken` in the [Remote Sale (MOTO)](#moto-sale) flavor's `cardToken` field for subsequent card-not-present charges.
+Pass `cardToken` in the [Remote Sale (MOTO)](#remote-sale) flavor's `cardToken` field for subsequent card-not-present charges.
 
 :::caution Token scope
 Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.
@@ -752,7 +815,7 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -982,7 +1045,7 @@ handpoint.motoRefund(
 
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -1478,7 +1541,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -1610,7 +1673,7 @@ Supporting pre-auth means supporting the full lifecycle:
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -1642,16 +1705,6 @@ Content-Type: application/json
 ```kotlin
 hapi.preAuthorization(BigInteger("10000"), Currency.USD)
 ```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<ComingSoon />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -1767,16 +1820,6 @@ hapi.preAuthorizationCapture(
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
 )
 ```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<ComingSoon />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -1900,16 +1943,6 @@ Content-Type: application/json
 ```kotlin
 hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-<ComingSoon />
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-<ComingSoon />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -2078,7 +2111,7 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 
@@ -2278,7 +2311,7 @@ Use when you need to settle at a specific time rather than waiting for automatic
 3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
 
 :::note EPI
-EPI (formerly TSYS). Batch auto-closes ~11pm EST (host-capture). Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
 :::
 
 

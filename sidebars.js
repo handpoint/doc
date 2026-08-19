@@ -47,15 +47,6 @@ const sidebars = {
     },
   ],
 
-  featuresSidebar: process.env.DOCS_ENV !== 'production' ? [
-    {
-      type: 'category',
-      label: 'Features',
-      collapsible: false,
-      items: ['features/avs-for-moto'],
-    },
-  ] : [],
-
   referenceSidebar: [
     {
       type: 'category',
@@ -69,6 +60,7 @@ const sidebars = {
         'reference/development-hardware',
         'reference/manual-injection',
         'reference/pre-authorization-guide',
+        'reference/avs-for-moto',
         {
           type: 'category',
           label: 'Transaction Recovery',
