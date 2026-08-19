@@ -137,7 +137,54 @@ Content-Type: application/json
 }
 ```
 
-The terminal processes the transaction. When complete, Handpoint POSTs the full `TransactionResult` object to your `callbackUrl`. Respond with any `2xx` to acknowledge receipt.
+The terminal processes the transaction. When complete, Handpoint POSTs the `TransactionResult` to your `callbackUrl` with the `AUTH-TOKEN` header set to your `token` value. Respond with any `2xx` to acknowledge receipt.
+
+**Callback payload — AUTHORISED:**
+
+```json
+{
+  "finStatus": "AUTHORISED",
+  "transactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
+  "transactionReference": "e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f",
+  "type": "SALE",
+  "statusMessage": "Approved",
+  "errorMessage": "",
+  "requestedAmount": 1000,
+  "totalAmount": 1000,
+  "currency": "USD",
+  "cardSchemeName": "Visa",
+  "maskedCardNumber": "************0936",
+  "authorisationCode": "123456",
+  "issuerResponseCode": "00",
+  "efttimestamp": 1781192438000,
+  "mid": "123456789010102",
+  "tid": "082104578",
+  "merchantReceipt": "<html>…</html>",
+  "customerReceipt": "<html>…</html>"
+}
+```
+
+**Callback payload — DECLINED:**
+
+```json
+{
+  "finStatus": "DECLINED",
+  "transactionID": "f3a10cd1-65ab-11f1-b4d2-aab210c7e31c",
+  "transactionReference": "e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f",
+  "type": "SALE",
+  "statusMessage": "Declined",
+  "errorMessage": "Not Authorized",
+  "requestedAmount": 1000,
+  "totalAmount": 0,
+  "currency": "USD",
+  "cardSchemeName": "Visa",
+  "maskedCardNumber": "************0936",
+  "authorisationCode": "",
+  "issuerResponseCode": "05"
+}
+```
+
+Store `transactionID` from every AUTHORISED result — you'll need it for reversals and tip adjustments. Use `transactionReference` to correlate with your own system's record. For the full schema (70+ fields including EMV data, tokenization, and device status): [Transaction result object →](/reference/transaction-result-object)
 
 :::warning SSL certificate requirement for callbacks
 Your `callbackUrl` must use a TLS certificate from a CA supported by Android 5–10 (the OS range running on PAX terminals). Self-signed certificates will not work. Standard certificates from Let's Encrypt, DigiCert, and similar CAs are supported.
@@ -181,6 +228,28 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 | `REFUNDED` | Refund processed | Final. |
 | `CAPTURED` | Pre-auth captured | Final. |
 | `PROCESSED` | Completed (tokenization, MOTO) | Final. |
+
+**Polling response — AUTHORISED:**
+
+```json
+{
+  "finStatus": "AUTHORISED",
+  "transactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
+  "transactionReference": "e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f",
+  "type": "SALE",
+  "statusMessage": "Approved",
+  "errorMessage": "",
+  "requestedAmount": 1000,
+  "totalAmount": 1000,
+  "currency": "USD",
+  "cardSchemeName": "Visa",
+  "maskedCardNumber": "************0936",
+  "authorisationCode": "123456",
+  "issuerResponseCode": "00"
+}
+```
+
+The polling endpoint returns the same `TransactionResult` shape as the callback payload. Stop polling as soon as `finStatus` is anything other than `IN_PROGRESS` or `UNDEFINED`.
 
 ## Transaction recovery
 
