@@ -60,6 +60,7 @@ const sidebars = {
         'reference/development-hardware',
         'reference/manual-injection',
         'reference/pre-authorization-guide',
+        'reference/multi-mid',
         'reference/avs-for-moto',
         {
           type: 'category',

@@ -68,3 +68,14 @@ Authentication for iOS HiLite integrations uses the same merchant-scoped credent
 **HiLite devices** (Android BT and iOS BT) connect via Bluetooth to the native SDK — they do not use the REST API or any HTTP endpoint. The merchant context (DEMO or live) is determined by the SSK/credentials configured in the SDK. There is no staging path for HiLite — testing is done against the DEMO merchant on production.
 
 Credentials are provisioned by Handpoint Integration Support for DEMO merchants. Live merchant credentials are provisioned per merchant via the TMS when the merchant goes live.
+
+## Back-office operations and integration path
+
+Back-office operations — tip adjustment, reversal, partial reversal, pre-authorization capture, and the transaction feed — are **always available regardless of the integration path** used for the original card-present transaction. They run server-side via the Handpoint Cloud API and require only the merchant API key.
+
+This means:
+- A sale initiated from an **Android SDK** app can have its tip adjusted via the **Cloud API** back office.
+- A sale from a **Cloud API** integration can have a partial reversal submitted via the same endpoint, even if the merchant also uses Android SDK terminals for other operations.
+- **Multi-MID** back-office operations use the same API key with `externalId` to route to the correct sub-merchant account — see [Multi-MID](/reference/multi-mid).
+
+The only requirement is that the back-office operation is supported by the acquirer for that transaction type. See the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix) for per-acquirer support.

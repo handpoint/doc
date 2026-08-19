@@ -81,6 +81,58 @@ Content-Type: application/json
 }
 ```
 
+## Pre-Authorization Capture
+
+Finalize a pre-authorization and charge the cardholder. No terminal or card interaction required — the capture is sent directly to the acquirer using the `transactionID` from the original pre-auth result.
+
+```http
+POST https://cloud.handpoint.com/preauthorization/capture
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "capturedAmount": "9500"
+}
+```
+
+`originalGuid` is the `transactionID` from the pre-authorization result. The captured amount can be less than (or on some acquirers, slightly more than) the original hold. To include a tip:
+
+```http
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "capturedAmount": "9500",
+  "tipAmount": "500"
+}
+```
+
+See [Pre-Authorization Guide](/reference/pre-authorization-guide) for the full lifecycle and acquirer support matrix.
+
+## Pre-Authorization Reversal and Capture Reversal
+
+Release an un-captured hold, or cancel a capture before settlement. Both operations use the same endpoint — the gateway determines the correct action based on the current state of the transaction.
+
+**Pre-Auth Reversal** (release hold without charging): pass the `transactionID` of the original pre-authorization.
+
+**Capture Reversal** (cancel a capture before batch close): pass the `transactionID` of the Capture result.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+:::note
+After the batch closes (settlement), a Capture Reversal is no longer possible. Use a standard Refund instead.
+:::
+
 ## Batch Close (TSYS only)
 
 Manually trigger settlement:

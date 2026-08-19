@@ -306,6 +306,132 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </FlavorSection>
 
 
+### Sale with Tip {#sale-and-tip}
+
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","cordova"]}>
+
+Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
+
+#### When to use it
+Use in hospitality environments (restaurants, taxis, salons) where tipping is expected at point of sale. The tip is collected at the terminal, included in the authorised amount, and settled together with the base sale — no second operation is needed.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "EUR",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "tipConfiguration": {
+    "baseAmount": "1000",
+    "tipPercentages": [10, 15, 20],
+    "enterAmountEnabled": true,
+    "skipEnabled": true,
+    "footer": "Thank you!"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val tipConfig = TipConfiguration(
+    baseAmount     = BigInteger("1000"),
+    tipPercentages = listOf(10, 15, 20),
+    enterAmountEnabled = true,
+    skipEnabled        = true,
+    footer         = "Thank you!"
+)
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.EUR, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.tipAmount — tip selected by cardholder
+        // result.totalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val tipConfig = TipConfiguration(
+    baseAmount     = BigInteger("1000"),
+    tipPercentages = listOf(10, 15, 20),
+    enterAmountEnabled = true,
+    skipEnabled        = true
+)
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.EUR, options)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.EUR,
+    tipConfiguration: {
+      baseAmount: 1000,
+      tipPercentages: [10, 15, 20],
+      enterAmountEnabled: true,
+      skipEnabled: true
+    }
+  },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      console.log("Tip:", result.tipAmount, "Total:", result.totalAmount);
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### TipConfiguration fields
+
+| Field | Type | Description |
+|---|---|---|
+| `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
+| `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
+| `footer` | string | Optional message shown at the bottom of the tip screen |
+
+#### Result fields
+
+| Field | Description |
+|---|---|
+| `tipAmount` | Tip amount chosen by the cardholder (minor units) |
+| `totalAmount` | Base amount + tip — what was authorised and will settle |
+
+</FlavorSection>
+
 ### Remote Sale (MOTO) {#remote-sale}
 
 <FlavorSection description="Back-office · charges a stored card token" paths={["cloud-api","android-pax","cordova"]}>
