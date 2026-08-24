@@ -175,6 +175,16 @@ function verifyResponse(response, secret) {
 }
 ```
 
+### ⚠️ Common bug: unescaped reserved characters in field values
+
+If an integration builds its query string by hand (string concatenation) instead of using a proper query-string/form-encoding function, it will usually encode spaces (`+` or `%20`) but forget to percent-encode other reserved characters — `&`, `=`, `#` — when they appear *inside a field value* (not just inside URLs). A company name like `Sutton Stone & Ceramics Ltd.` becomes `customerName=Sutton+Stone+&+Ceramics+Ltd.` with a literal, unescaped `&`.
+
+Since `&` is the field separator, this silently splits the value into two fields mid-string. The signature computed over this malformed string is internally consistent (hashing the same broken string twice gives the same result), but it can never match what the gateway computes, because the gateway parses `&` as a field separator too and reconstructs the fields differently. On HPP this surfaces as the generic "Sorry, we encountered an error…" page with zero diagnostic detail, since there's no page to render yet at the point signature validation fails.
+
+**Diagnosis:** ask for the exact raw string they hash (before hashing) and the resulting signature. If hashing their exact raw string reproduces their signature, their hashing step is fine — the bug is upstream, in whatever builds that raw string. Check every field value (not just fields that look like URLs) for a literal `&`, `=`, or `#`.
+
+**Fix:** percent-encode every field value with a real URL-encoding function (`http_build_query()` in PHP, `URLSearchParams` in Node — both already used in the code samples above) rather than hand-rolling string concatenation. This bug tends to surface intermittently — most values won't happen to contain `&`/`=`/`#`, so most transactions sign correctly and only specific customer names/addresses/order data trip it.
+
 ---
 
 ## PHP — HPP quick-start
