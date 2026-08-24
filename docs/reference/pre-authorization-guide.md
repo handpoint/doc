@@ -137,16 +137,31 @@ handpoint.preAuthorization(
 
 ---
 
-## Step 2 — Increase or Decrease the hold (optional)
+## Step 2 — Increase or Decrease the hold (optional) {#increase-decrease}
 
-Adjusts the held amount before capture. Useful when the final amount changes — for example, room service added during a hotel stay.
+Adjusts the held amount before capture — for example, a hotel stay extended (increase) or a car rental returned early (decrease).
 
-- Send the **new total hold amount**, not a delta.
-- The operation links to the original pre-auth via `originalTransactionId`.
+**Adjustments are cumulative deltas, not new totals.** The gateway keeps one running hold amount per pre-authorization and applies each adjustment to it. To raise a $100 hold to $120, send $20 — not $120. Two increases of $50 and $75 on a $100 hold leave a $225 hold.
+
+- Always reference the **original** pre-authorization `transactionID`. Adjustments are never chained to a previous increase.
+- There is no separate decrease operation — a decrease is an increase carrying a decrease signal. The signal differs by integration path; see the tab for yours.
+- The result returns `holdAmount`, the running total after this adjustment. Use it to confirm the new hold rather than recalculating it yourself. `increaseAmount` echoes the delta you sent and `originalAmount` is the amount approved on the Create.
+- A declined adjustment leaves the hold unchanged.
+- The gateway applies no upper limit to an increase. The ceiling comes from the acquirer, the issuer, and the card-scheme tolerances in [Hold durations by card network](#hold-durations).
+- A decrease that would take the hold to zero or below is rejected. To release the hold entirely, send a [Pre-Auth Reversal](#pre-auth-reversal) instead.
+- Once the pre-authorization has been captured or reversed, no further adjustment is accepted.
 - Do **not** include a `transactionReference` — this is a subsequent operation.
+
+:::info Acquirer support
+Increase / Decrease is not available on every acquirer. Confirm support for your acquirer before relying on it.
+:::
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
+
+Two paths are available.
+
+**With reader** — routes through the connected terminal. Amount in **minor units**; a **negative** amount decreases.
 
 ```http
 POST https://cloud.handpoint.com/transactions
@@ -155,7 +170,7 @@ Content-Type: application/json
 
 {
   "operation": "preAuthorizationIncrease",
-  "amount": "15000",
+  "amount": "2000",
   "currency": "USD",
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
@@ -163,18 +178,45 @@ Content-Type: application/json
 }
 ```
 
-For a decrease, use the same operation with a lower `amount` value.
+To decrease, send `"amount": "-2000"`.
+
+**Without reader** — sent straight to the gateway, no terminal involved, result returned synchronously. Amount in **major units** as a decimal string and always positive; add `"subtract": "1"` to decrease.
+
+```http
+POST https://cloud.handpoint.com/preauthorization/increase
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "increaseAmount": "20.00"
+}
+```
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the pre-auth Create result |
+| `increaseAmount` | string | Yes | Delta in major units, e.g. `"20.00"`. Always positive — the field name applies to decreases too |
+| `subtract` | string | No | `"1"` subtracts the delta instead of adding it |
+| `tipAmount` | string | No | Tip in major units |
+| `taxAmount` | string | No | Tax in major units |
+| `customerReference` | string | No | Integrator-defined reference, forwarded as-is |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
+Pass the delta in minor units. A **negative** value decreases.
+
 ```kotlin
-// Increase or decrease — pass the new total hold amount
+// Increase a $100 hold to $120
 hapi.preAuthorizationIncrease(
-    BigInteger("15000"),                            // new total hold amount
+    BigInteger("2000"),                             // delta, not the new total
     Currency.USD,
-    "01236fc0-8192-11eb-9aca-ad4b0e95f241"         // transactionID from original pre-auth
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"         // transactionID from the Create
 )
+
+// Decrease it back to $100
+hapi.preAuthorizationIncrease(BigInteger("-2000"), Currency.USD, "01236fc0-...")
 ```
 
 </TabItem>
@@ -193,7 +235,7 @@ Not supported on iOS HiLite.
 ```javascript
 handpoint.preAuthorizationIncrease(
   {
-    amount: 15000,
+    amount: 2000,                                   // delta in minor units; negative to decrease
     currency: "USD",
     originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
   },
@@ -205,11 +247,13 @@ handpoint.preAuthorizationIncrease(
 </TabItem>
 </Tabs>
 
+Adjustments are rejected with a dedicated error code when the pre-authorization has already been settled, or when a decrease would empty the hold — see [Error codes](/reference/error-codes#pre-auth-adjustment).
+
 ---
 
 ## Step 3a — Capture
 
-Finalizes the hold and charges the cardholder. Use the actual amount — it can be less than (or on some acquirers, slightly more than) the original hold.
+Finalizes the hold and charges the cardholder. Use the actual amount. It may be lower than the hold, but it must not exceed the current hold total — if the final charge is higher, [increase the hold](#increase-decrease) first.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -284,7 +328,7 @@ handpoint.preAuthorizationCapture(
 
 ---
 
-## Step 3b — Pre-Auth Reversal (release without capturing)
+## Step 3b — Pre-Auth Reversal (release without capturing) {#pre-auth-reversal}
 
 Releases the hold without charging the cardholder. Use when a booking is cancelled or the pre-auth is no longer needed.
 
@@ -337,7 +381,7 @@ handpoint.preAuthorizationReversal(
 
 ---
 
-## Step 4 — Capture Reversal (cancel a capture, pre-settlement)
+## Step 4 — Capture Reversal (cancel a capture, pre-settlement) {#capture-reversal}
 
 Cancels a capture that was sent in error — **before the batch closes and funds settle**. After settlement, only a Refund is possible.
 
@@ -427,7 +471,7 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
     "finStatus": "AUTHORISED",
     "totalAmount": 9500,
     "transactionID": "e5f6a7b8-8192-11eb-9aca-ad4b0e95f241",
-    "originalEFTTransactionID": "a2b3c4d5-8192-11eb-9aca-ad4b0e95f241"
+    "originalEFTTransactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
   }
 ]
 ```
@@ -444,26 +488,29 @@ See [Transaction Recovery & Status](/reference/transaction-recovery) for full do
 |---|---|
 | Always reverse unused pre-auths | Unreleased holds reduce the cardholder's available credit and may generate disputes |
 | Capture before hold expiry (7–30 days) | Expired holds cannot be captured — you would need to re-initiate a new card interaction |
-| Store `transactionID` at every step | Capture and Void both require the `transactionID` from the most recent operation in the chain |
+| Store the Create `transactionID` | Every increase, decrease, capture, and reversal references the original pre-auth — not the most recent operation |
 | Store `transactionReference` from Create | Enables `/status/all` queries for the full chain at any time |
 | Do not send `transactionReference` on Capture, Increase, or Void | Only on the original Create. Subsequent operations are linked via `originalTransactionId` |
 | Partial capture is usually allowed | Capture less than the hold amount when the final charge is lower — no need to void and re-charge |
+| Increase before capturing more than the hold | A capture above the current hold total is rejected — raise the hold first |
+| Release a hold with a reversal, not a decrease | A decrease to zero is rejected; only a Pre-Auth Reversal releases the hold in full |
 | After settlement, use Refund — not Capture Reversal | Capture Reversal only works before the batch closes |
 
 ---
 
-## Quick reference — `transactionID` chain
+## Quick reference — which `transactionID` to send
 
-Each subsequent operation must reference the **most recent preceding operation** — not the original pre-auth:
+Every follow-up operation references the **original** pre-authorization — never a previous increase:
 
 ```
-Create         → transactionID = "A"
-Increase       → originalTransactionId = "A",  transactionID = "B"
-Second Increase → originalTransactionId = "B", transactionID = "C"
-Capture        → originalTransactionId = "C" (or "A" if no increases)
+Create            → transactionID = "A"
+Increase          → originalTransactionId = "A",  transactionID = "B"
+Second Increase   → originalTransactionId = "A",  transactionID = "C"
+Capture           → originalGuid = "A"
+Pre-Auth Reversal → originalTransactionId = "A"
 ```
 
-For the Cloud API Capture specifically, `originalGuid` always references the original pre-auth `transactionID`, not intermediate increases — confirm with your acquirer integration if in doubt.
+Capture Reversal is the one exception: it references the `transactionID` of the **Capture** result — see [Step 4](#capture-reversal).
 
 ---
 

@@ -196,8 +196,8 @@ const preAuthTxnId = preAuth.eFTTransactionID;
 // Capture a pre-auth
 hp.preAuthorizationCapture(5000, 'USD', preAuthTxnId);
 
-// Increase a pre-auth hold before capture
-hp.preAuthorizationIncrease(6000, 'USD', preAuthTxnId);
+// Increase a pre-auth hold before capture — amount is the delta to add, not the new total
+hp.preAuthorizationIncrease(1000, 'USD', preAuthTxnId);
 
 // Void a pre-auth
 hp.preAuthorizationReversal(preAuthTxnId);
@@ -211,6 +211,8 @@ hp.tokenizeCard();
 // Sale + tokenise in one terminal interaction
 hp.saleAndTokenization(1250, 'USD');
 ```
+
+Pre-auth adjustments are cumulative deltas and always reference the original pre-auth ID — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 
 ### Tip adjustment
 

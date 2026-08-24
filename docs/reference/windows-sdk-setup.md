@@ -255,8 +255,8 @@ hapi.PreAuthorization(amount, Currency.USD);
 // Capture a pre-auth
 hapi.PreAuthorizationCapture(amount, Currency.USD, originalTransactionID: "TXN-PREAUTH");
 
-// Increase a pre-auth hold before capture
-hapi.PreAuthorizationIncrease(newAmount, Currency.USD, originalTransactionID: "TXN-PREAUTH");
+// Increase a pre-auth hold before capture — amount is the delta to add, not the new total
+hapi.PreAuthorizationIncrease(deltaAmount, Currency.USD, originalTransactionID: "TXN-PREAUTH");
 
 // Void a pre-auth
 hapi.PreAuthorizationReversal(originalTransactionID: "TXN-PREAUTH");
@@ -270,6 +270,8 @@ hapi.TokenizeCard();
 // Sale + tokenise in one terminal interaction
 hapi.SaleAndTokenizeCard(amount, Currency.USD);
 ```
+
+Pre-auth adjustments are cumulative deltas and always reference the original pre-auth ID — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 
 ### Tip adjustment
 
