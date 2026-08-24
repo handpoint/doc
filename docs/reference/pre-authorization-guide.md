@@ -152,8 +152,13 @@ Adjusts the held amount before capture — for example, a hotel stay extended (i
 - Once the pre-authorization has been captured or reversed, no further adjustment is accepted.
 - Do **not** include a `transactionReference` — this is a subsequent operation.
 
-:::info Acquirer support
-Increase / Decrease is not available on every acquirer. Confirm support for your acquirer before relying on it.
+:::info Card brand and acquirer support
+Increase / Decrease is not available on every acquirer. Confirm support for yours before relying on it.
+
+Two card-brand rules apply on every route, whatever the headline acquirer:
+
+- **Interac** (Canadian debit) never supports increase or decrease. Interac authorizations are routed to a debit-only protocol that rejects the operation — see [Interac VOID](/reference/interac-void).
+- **Amex** cards do not support increase or decrease when the merchant holds a separate Amex agreement, because the card is routed to the Amex protocol.
 :::
 
 <Tabs groupId="integration-path">
