@@ -42,7 +42,7 @@ description: Error codes returned by the Handpoint API and SDK, with recovery gu
 | `5001` | `400` | `NullPointerException` — internal error surfaced for unknown GUIDs on these endpoints | Verify the GUID is the `transactionID` from the pre-auth create result |
 
 :::note
-On `POST /preauthorization/increase` the amount field is `increaseAmount` (not `amount`) and takes a decimal major-unit string, e.g. `"20.00"`. Sending `amount` returns `422 VALIDATION_FAILED` with `details[].info.missingProperty: "increaseAmount"`.
+On `POST /preauthorization/increase` the amount field is `increaseAmount` (not `amount`) and takes a decimal major-unit string, e.g. `"20.00"`. Sending `amount` returns `422 VALIDATION_FAILED`.
 
 For how increases and decreases accumulate, which GUID to reference, and the per-path decrease signal, see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 :::
