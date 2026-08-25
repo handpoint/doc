@@ -183,8 +183,6 @@ Content-Type: application/json
 }
 ```
 
-To decrease, send `"amount": "-2000"`.
-
 **Without reader** — sent straight to the gateway, no terminal involved, result returned synchronously. Amount in **major units** as a decimal string and always positive; add `"subtract": "1"` to decrease.
 
 ```http
