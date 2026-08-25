@@ -183,6 +183,8 @@ Content-Type: application/json
 }
 ```
 
+To decrease, send `"amount": "-2000"` — on this path the sign **is** the decrease signal, and there is no `subtract` field. Zero is rejected either way.
+
 **Without reader** — sent straight to the gateway, no terminal involved, result returned synchronously. Amount in **major units** as a decimal string and always positive; add `"subtract": "1"` to decrease.
 
 ```http
@@ -200,10 +202,10 @@ Content-Type: application/json
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-auth Create result |
 | `increaseAmount` | string | Yes | Delta in major units, e.g. `"20.00"`. Always positive — the field name applies to decreases too |
-| `subtract` | string | No | `"1"` subtracts the delta instead of adding it |
-| `tipAmount` | string | No | Tip in major units |
-| `taxAmount` | string | No | Tax in major units |
+| `subtract` | string | No | `"1"` subtracts the delta instead of adding it. `"1"` is the only accepted value |
 | `customerReference` | string | No | Integrator-defined reference, forwarded as-is |
+
+An adjustment carries no tip or tax amount. Send those on the [Capture](#capture) instead.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -239,7 +241,7 @@ Not supported on iOS HiLite.
 handpoint.preAuthorizationIncrease(
   {
     amount: 2000,                                   // delta in minor units; negative to decrease
-    currency: "USD",
+    currency: handpoint.Currency.USD,
     originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
   },
   function(result) { /* handle */ },
@@ -254,7 +256,7 @@ Adjustments are rejected with a dedicated error code when the pre-authorization 
 
 ---
 
-## Step 3a — Capture
+## Step 3a — Capture {#capture}
 
 Finalizes the hold and charges the cardholder. Use the actual amount. It may be lower than the hold, but it must not exceed the current hold total — if the final charge is higher, [increase the hold](#increase-decrease) first.
 
