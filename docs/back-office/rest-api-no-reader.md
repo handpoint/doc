@@ -81,6 +81,25 @@ Content-Type: application/json
 }
 ```
 
+## Pre-Authorization Increase / Decrease
+
+Adjust the held amount on an open pre-authorization. No terminal or card interaction required.
+
+```http
+POST https://cloud.handpoint.com/preauthorization/increase
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "increaseAmount": "20.00"
+}
+```
+
+`increaseAmount` is the **delta** to add to the current hold, in major units — not the new total. Add `"subtract": "1"` to decrease instead; there is no separate decrease endpoint. `originalGuid` is always the `transactionID` of the original pre-authorization.
+
+See [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease) for the full rules, optional parameters, and the with-reader alternative.
+
 ## Pre-Authorization Capture
 
 Finalize a pre-authorization and charge the cardholder. No terminal or card interaction required — the capture is sent directly to the acquirer using the `transactionID` from the original pre-auth result.
