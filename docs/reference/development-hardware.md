@@ -42,6 +42,10 @@ A production PAX device can also be used for development. It processes real tran
 
 HiLite devices connect via Bluetooth. Request a HiLite device from your **referring partner**.
 
+:::info HiLite vs PAX capabilities
+HiLite supports a subset of PAX terminal operations. See [HiLite vs PAX — Capability Comparison](/reference/hilite-vs-pax) for the full matrix of what's available per SDK path and how Back Office operations can fill the gaps.
+:::
+
 HiLite devices connect via **Bluetooth** to the native Android or iOS SDK — they do not use the REST API. There is no staging path for HiLite; testing is done against a **TEST/DEMO merchant** configured in production, which uses a test acquirer that mocks real acquirer responses.
 
 When the merchant goes live, new unique credentials are issued for the live merchant account. The HiLite device continues to connect to the same production environment — the merchant type changes from DEMO to live.
@@ -60,7 +64,7 @@ Cordova wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). Hardwa
 
 When testing against the **TEST/DEMO merchant** (HiLite devices) or a PAX device on the **staging environment**, use the following amounts (in **minor units** — cents/pence) to simulate specific gateway responses. These are powered by **Viscus-Dummy**, the Handpoint mock server used in staging.
 
-All other amounts process as approved transactions.
+All other amounts process as approved transactions. ViscusDummy does not validate card numbers — any physical card or test card that can present chip, tap, or swipe to the terminal will be approved. The outcome is determined by the amount only.
 
 ### General transaction behaviour
 
@@ -135,3 +139,40 @@ Some SCA test cases include specific EMV data injected by the mock server into t
 | `1111` | `T6_11_11` | `910A0427E4CB8DB1DB4A37308A023730` |
 
 </details>
+
+---
+
+## Interac test card numbers {#interac-test-cards}
+
+Use these PANs when testing against a **TNSDummy staging merchant** configured for Interac debit processing. They are separate from the ViscusDummy trigger amounts — the two dummy servers are provisioned independently and are not interchangeable.
+
+| PAN | Type | Expected result |
+|---|---|---|
+| `001202000071200` | Interac debit | Approved |
+| `001202000071135` | Interac debit | Approved |
+
+### Constraints — read carefully before testing
+
+| Constraint | Value | Reason |
+|---|---|---|
+| **Required acquirer** | TNS + Interac (TNSDummy) | ViscusDummy has no Interac support |
+| **Card interface** | EMV chip insert only | Interac does not support contactless (NFC/tap), magnetic stripe, or MOTO/keyed-entry on these test PANs |
+| **Trigger amounts** | None — TNSDummy always approves | There are no decline-trigger amounts for Interac test cards |
+| **Currency** | CAD | Interac is a Canadian debit network |
+
+### Provisioning
+
+A TNSDummy Interac staging merchant is separate from the default DEMO/ViscusDummy merchant. Contact Handpoint Integration Support to provision one. Provide:
+
+- Your acquirer account: TNS
+- Network: Interac debit
+- Environment: staging
+
+### AI agent usage note
+
+To test Interac with the Cloud REST API or Android/iOS SDK:
+
+1. Use a staging `cloudApiKey` and `sharedSecret` issued against a TNSDummy **Interac** merchant — not the standard ViscusDummy DEMO merchant.
+2. Set `currency` to `"CAD"`.
+3. Present the test PAN via **chip insert** (EMV). Do not attempt tap or swipe — those entry modes will fail or fall back to a non-Interac path.
+4. Do not include a `transactionReference` on reversal, refund, or capture operations — only on the originating sale or pre-auth. See [Transaction recovery](/reference/transaction-recovery-android-sdk) for the correct field scoping.

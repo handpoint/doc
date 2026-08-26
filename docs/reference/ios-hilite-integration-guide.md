@@ -24,6 +24,10 @@ Choose this path for mobile merchants on iPhone or iPad who need to accept payme
 | Merchants need to accept payments away from a fixed counter | You need a fixed PAX terminal — use the [Cloud API](/reference/cloud-api-integration-guide) |
 | You want a compact, battery-powered reader | — |
 
+:::info Back-office operations are always available
+[Backoffice REST API](/reference/backoffice-integration-guide) operations — tip adjustment, reversals, refunds, MOTO charges, batch management, deferred tokenization — are available **alongside any integration path** you choose. They go server-side directly to the payment gateway with no terminal or SDK required. Subject only to acquirer support.
+:::
+
 ## Capabilities not available on HiLite
 
 - **Pre-authorization** — no on-device pre-auth flow
@@ -216,6 +220,39 @@ heftClient?.saleWithAmount(1000, currency: "GBP", cardholder: true)
 }
 ```
 
+## Transaction recovery
+
+:::warning No getTransactionStatus on iOS
+The iOS SDK does **not** have a `getTransactionStatus` method. Recovery must be performed server-side via the Cloud API. This makes pre-call persistence of the `transactionReference` mandatory — it is the only key your server can use to locate the transaction.
+:::
+
+Recovery flow when `responseFinanceStatus` does not fire (app backgrounded, Bluetooth drop, timeout):
+
+1. **Before every call**, generate a UUID v4 `transactionReference` and save it to your server.
+2. On timeout or app restart with a pending reference, your **server** calls:
+
+```http
+GET https://transactions.handpoint.com/transactions/{transactionReference}/status
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+
+3. Check `finStatus` in the response. If `UNDEFINED` or not yet returned, poll every 10 s.
+4. If `AUTHORISED` and your DB shows no completed record, send a reversal from your server:
+
+```http
+POST https://cloud.handpoint.com/reversal
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{ "originalGuid": "<transactionID from status response>" }
+```
+
+5. Clear the pending reference.
+
+The iOS app cannot recover directly — your backend must own the recovery path.
+
+→ Full recovery reference: [Back-office REST API](/reference/backoffice-integration-guide)
+
 ## Simulator test amounts
 
 When testing with the SDK simulator (`libheft.a` from `HeftSimulatorLibrary`):
@@ -227,6 +264,8 @@ When testing with the SDK simulator (`libheft.a` from `HeftSimulatorLibrary`):
 | `3000` | Signature Requested |
 | Any other | Approved |
 
+For production trigger amounts (DEMO terminal), see [Development Hardware: Testing with trigger amounts](/reference/development-hardware#trigger-amounts).
+
 ## Operations available
 
 | Operation | iOS HiLite support |
@@ -236,7 +275,9 @@ When testing with the SDK simulator (`libheft.a` from `HeftSimulatorLibrary`):
 | **Reversal** | ✅ |
 | **Tokenization** | ✅ |
 | **Pre-Authorization** | ❌ |
-| **Tip Adjustment** | ✅ (EPI only) |
+| **Tip Adjustment** | ✅\* remote API call (no device required) |
+
+\* `tipAdjustment()` in `HapiRemoteService` calls the Handpoint cloud API directly — not a device command. Requires `setupHandpointApiConnection(sharedSecret:)` to be called first. Alternatively, use the [Back Office REST API](/back-office/rest-api-no-reader) server-side with `ApiKeyCloud`. Acquirers: EPI, PAYSAFE+Interac (TSYS-routed cards only).
 
 Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `ios-hilite` column.
 
@@ -247,6 +288,8 @@ Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquir
 - [ ] Bluetooth discovery and Lightning direct-connect both tested (if supporting both reader types)
 - [ ] `didConnect` gate verified — no financial operations before callback fires
 - [ ] `responseFinanceStatus` handles all `statusMessage` values correctly
+- [ ] `transactionReference` generated and persisted to server before every call — required for server-side recovery (no `getTransactionStatus` on iOS SDK)
+- [ ] Server-side UNDEFINED recovery implemented and tested — `GET /transactions/{ref}/status` + auto-reversal
 - [ ] Background mode configured and app tested with screen locked during transaction
 
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)

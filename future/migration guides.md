@@ -1,0 +1,1 @@
+from toast/ dejavoo/ stripe/ broadPOS (PAX)

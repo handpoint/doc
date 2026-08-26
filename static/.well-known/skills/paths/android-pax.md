@@ -22,29 +22,40 @@ Latest version: https://developer.handpoint.com/release-notes/release-notes
 ## Initialization
 
 ```kotlin
-class MainActivity : AppCompatActivity(), Events.Required {
+class MainActivity : AppCompatActivity(), Events.SmartposRequired {
+    // Use Events.SmartposRequired for PAX on-device. Events.Required is for HiLite BT path.
 
     private lateinit var hapi: Hapi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hapi = HapiFactory.getHapiInstance(this)  // PAX on-device: no ConnectionMethod needed
-        hapi.init("YOUR_SHARED_SECRET")
-        // Optional: pass cloudApiKey to enable cloud listening mode (Pusher).
-        // This allows a remote server to initiate transactions on this on-device app
-        // via the Cloud API, bridging the PAX SDK and REST API paths.
-        // hapi.init("YOUR_SHARED_SECRET", "YOUR_CLOUD_API_KEY")
+
+        val credentials = HandpointCredentials(
+            sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132",
+            cloudApiKey  = "YOUR_CLOUD_API_KEY"  // omit if not using Cloud API / getTransactionStatus
+        )
+        hapi = HapiFactory.getHapiInstance(this, this, credentials)
+        // Do NOT call hapi.init() separately — credentials are passed to getHapiInstance.
     }
 
-    // Fires when any card-present operation completes
-    override fun transactionResultReady(result: TransactionResult, device: Device) {
+    // Fires when any card-present operation completes (sale, refund, reversal, pre-auth, etc.)
+    override fun endOfTransaction(result: TransactionResult, device: Device) {
         val status = result.finStatus           // FinancialStatus enum
         val txId   = result.transactionID       // store — needed for reversal/refund
         val token  = result.cardToken           // present if tokenization enabled
     }
 
-    // Not used on PAX on-device path (only needed for HiLite BT discovery)
-    override fun deviceDiscoveryFinished(devices: List<Device>) {}
+    // Fires when hapi.getTransactionStatus() returns (UNDEFINED recovery)
+    override fun transactionResultReady(result: TransactionResult, device: Device) { }
+
+    // SDK status callback — wait for InitialisationComplete before starting transactions
+    override fun currentTransactionStatus(statusInfo: StatusInfo, device: Device) {
+        if (statusInfo.status == StatusInfo.Status.InitialisationComplete) {
+            // Safe to call hapi.sale() and other financial operations now
+        }
+    }
+
+    override fun connectionStatusChanged(status: ConnectionStatus, device: Device) { }
 
     // Fires after hapi.endOfDay() — EPI only
     override fun endOfDayResult(result: String, device: Device) {}
@@ -60,7 +71,7 @@ val options = SaleOptions().apply {
     // tipAmount = BigInteger("150")
 }
 hapi.sale(BigInteger("1000"), Currency.USD, options)
-// Result in transactionResultReady — store result.transactionReference for recovery
+// Result arrives in endOfTransaction — store result.transactionID and result.transactionReference
 ```
 
 ## Refund
@@ -178,9 +189,10 @@ Apply the same pattern for refund, reversal, pre-auth, etc.
 ### Log all SDK callbacks
 
 ```kotlin
-override fun transactionResultReady(result: TransactionResult, device: Device) {
+// Main result callback — fires for all financial operations (sale, refund, reversal, pre-auth, etc.)
+override fun endOfTransaction(result: TransactionResult, device: Device) {
     Log.d("HandpointSDK",
-        "transactionResultReady | " +
+        "endOfTransaction | " +
         "finStatus=${result.finStatus} " +
         "txId=${result.transactionID} " +
         "amount=${result.amount} " +
@@ -192,6 +204,11 @@ override fun transactionResultReady(result: TransactionResult, device: Device) {
         "error=${result.errorMessage} " +
         "device=${device.name}"
     )
+}
+
+// Recovery callback — fires when hapi.getTransactionStatus() completes
+override fun transactionResultReady(result: TransactionResult, device: Device) {
+    Log.d("HandpointSDK", "transactionResultReady (recovery) | finStatus=${result.finStatus} txId=${result.transactionID}")
 }
 
 override fun endOfDayResult(result: String, device: Device) {

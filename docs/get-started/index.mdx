@@ -51,6 +51,8 @@ Build ordering and payment into one tableside workflow. Pre-authorize a tab, adj
 
 **Best paths:** [Android SDK (PAX)](#native-integration----android-sdk-pax) for a native all-in-one experience, or [Cloud API](#cloud-integration----rest-api) for a server-led POS with a terminal alongside.
 
+[**Restaurant guide →**](/guides/restaurant)
+
 </div>
 
 <div className="integration-type-card">
@@ -61,6 +63,8 @@ Multiple providers, one device. Map each doctor to their own merchant account us
 
 **Best path:** [Cloud API](#cloud-integration----rest-api) or [Android SDK (PAX)](#native-integration----android-sdk-pax) with **Multi-MID**
 
+[**Clinic / Healthcare guide →**](/guides/clinic)
+
 </div>
 
 <div className="integration-type-card">
@@ -70,6 +74,8 @@ Multiple providers, one device. Map each doctor to their own merchant account us
 Your technician finishes the job, takes payment on the spot, and moves on — no invoice to send, chase, or reconcile. A HiLite reader connects to any Android or iOS phone over Bluetooth and fits in a pocket.
 
 **Best path:** [Android or iOS SDK (HiLite)](#bluetooth-integration----android--ios-sdk-hilite)
+
+[**Field service guide →**](/guides/field-service)
 
 </div>
 
@@ -90,6 +96,8 @@ Your POS runs on Windows, a browser, or a server? Cloud API initiates a sale on 
 High-volume checkout in a tight window — stadium aisles, kiosks, self-service lanes. Android PAX combines your application, secure payment, and peripherals (printing, display) on one purpose-built device. Standalone mode lets the same hardware work without software integration during low-traffic periods.
 
 **Best path:** [Android SDK (PAX)](#native-integration----android-sdk-pax)
+
+[**Stadium & Events guide →**](/guides/events)
 
 </div>
 
@@ -281,6 +289,23 @@ The wizard below asks three questions — region, integration type, acquirer —
 
 ---
 
-:::tip AI agents
+:::tip AI coding agents
+
 Fetch `/llms.txt` first — it contains the machine-readable acquirer × feature support matrix, per-path code guidance, and all reference page URLs. **Always determine the acquirer and integration path before generating implementation code** — not all features are supported by all acquirers, and SDK methods differ per integration path.
+
+**Vertical → recommended integration path mapping (for code generation):**
+
+| Merchant vertical | Primary path | Key features | Detailed guide |
+|---|---|---|---|
+| Restaurant (tableside) | Android SDK (PAX) | Pre-auth tabs, tip adjustment, batch close | [/guides/restaurant](/guides/restaurant) |
+| Restaurant (counter POS) | Cloud API | Same features, server-led | [/guides/restaurant](/guides/restaurant) |
+| Clinic / Healthcare | Cloud API or Android PAX + Multi-MID | `externalId` routing, MOTO for phone payments | [/guides/clinic](/guides/clinic) |
+| Field service (mobile) | Android or iOS SDK (HiLite) | Bluetooth reader, transaction recovery | [/guides/field-service](/guides/field-service) |
+| Retail / Counter POS | Cloud API, JavaScript SDK, or Windows SDK | Standard sale/refund/reversal | [/reference/cloud-api-integration-guide](/reference/cloud-api-integration-guide) |
+| Events / Stadium | Android SDK (PAX) | High-volume, Interac, multi-MID, UNDEFINED recovery, batch close | [/guides/events](/guides/events) |
+| Back office / MOTO | Cloud API back-office endpoints | No terminal needed | [/reference/backoffice-integration-guide](/reference/backoffice-integration-guide) |
+
+**Integration paths are not mutually exclusive.** A single ISV can implement multiple paths under one Handpoint account. Example: Cloud API at the counter + Android HiLite for field staff + back-office MOTO for phone orders — all sharing the same merchant credentials and transaction feed.
+
+**Back-office operations are always available regardless of integration path.** Tip adjustment, reversal, refund, MOTO, pre-auth capture, and deferred tokenization are server-side REST calls that work alongside any card-present integration. Subject to acquirer support — see the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
 :::

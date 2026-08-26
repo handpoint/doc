@@ -29,6 +29,10 @@ No mobile SDK is required. No card data ever reaches your server unmasked — Ha
 | You serve multiple merchants from one backend | — |
 | You already have a web-based POS and want to avoid shipping a mobile app | — |
 
+:::info Back-office operations are always available
+[Backoffice REST API](/reference/backoffice-integration-guide) operations — tip adjustment, reversals, refunds, MOTO charges, batch management, deferred tokenization — are available **alongside any integration path** you choose. They go server-side directly to the payment gateway with no terminal or SDK required. Subject only to acquirer support.
+:::
+
 ## How it works
 
 ```
@@ -67,16 +71,48 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 - Multi-merchant POS systems must map each merchant to their own API key in your backend. API keys are never shared across merchants.
 - Credentials are provisioned by Handpoint Integration Support. See [Authentication](/reference/authentication) for the full credential reference.
 
+**Wrong or missing API key — HTTP 403:**
+```json
+{
+  "error": {
+    "statusCode": 403,
+    "name": "ForbiddenError",
+    "message": "No valid key found in header"
+  }
+}
+```
+
+To verify which terminals are assigned to your API key:
+```http
+GET https://cloud.handpoint.com/devices
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+Returns an array of `{ "serial_number", "terminal_type", "merchant_id_alpha" }`. If a terminal serial is absent from this list, requests to it will fail with error 1004.
+
 ## Environments & credentials
 
 | Terminal type | Base URL | Notes |
 |---|---|---|
-| PAX **debug** device | `https://cloud.handpoint.io` | Development environment only — for test hardware |
-| PAX **production** device (DEMO merchant) | `https://cloud.handpoint.com` | Test transactions against a simulated acquirer — funds not moved |
-| PAX **production** device (live merchant) | `https://cloud.handpoint.com` | Real transactions — live merchant credentials |
+| PAX **debug** device (Handpoint internal) | `https://cloud.handpoint.io` | Staging environment — watermark visible on screen |
+| PAX **production** device (DEMO merchant, ViscusDummy) | `https://cloud.handpoint.com` | **Recommended ISV testing path** — production terminals, no funds move |
+| PAX **production** device (live merchant) | `https://cloud.handpoint.com` | Live transactions — real acquirer, real funds |
 
-:::caution `.io` and `.com` credentials are not interchangeable
-Debug device credentials only work on `cloud.handpoint.io`. When a merchant goes live, Handpoint issues new production credentials — they do not inherit the DEMO merchant API key.
+### Recommended testing path — DEMO merchant on production
+
+Handpoint provides every ISV with a DEMO merchant account on the production environment (`https://cloud.handpoint.com`). The DEMO merchant uses the **ViscusDummy** simulated acquirer — transactions complete end-to-end, card data is processed, receipts are generated, but **no funds move** regardless of card type (live, expired, invalid).
+
+Benefits over the staging (`.io`) environment:
+- Uses production PAX terminals (no watermark)
+- Full EMV transaction flow — accurate behaviour
+- Any card works safely (your own personal cards, expired cards, etc.)
+- Trigger amounts available to force specific outcomes (DECLINED, CANCELLED, partial approval, etc.) — see [Test amounts](/reference/development-hardware#test-amounts)
+
+:::info Tokenization on DEMO merchant
+To test MOTO/remote sale (card token), ask your Handpoint Integration Support engineer to enable tokenization on your DEMO merchant. This is a one-time Handpoint-side setup — no ISV or merchant action required. In production, EPI manages token provider assignment for live merchants.
+:::
+
+:::caution Credentials are environment-specific
+Debug device API keys only work on `cloud.handpoint.io`. DEMO merchant API keys only work on `cloud.handpoint.com`. When a merchant goes live, Handpoint issues separate live credentials — they do not inherit the DEMO merchant API key.
 :::
 
 Not sure which type of terminal you have? See [Development hardware](/reference/development-hardware).
@@ -93,7 +129,7 @@ Contact your Handpoint Integration Support engineer to receive:
 
 The Handpoint Postman collection includes pre-built requests for every endpoint, with environment variables for your API key and terminal details.
 
-→ [Download Postman collection](/legacy/files/HandpointRESTAPI.postman_collection.zip)
+→ [Download Postman collection](/files/Handpoint_Cloud_API.postman_collection.json)
 
 ### 3. Set up your terminal
 
@@ -133,9 +169,12 @@ Content-Type: application/json
 ```json
 {
   "statusMessage": "Operation Accepted",
-  "transactionResultId": "082104578-1786020446467"
+  "transactionResultId": "082104578-1786020446467",
+  "transactionReference": "e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f"
 }
 ```
+
+`transactionReference` is echoed back only when you included it in the request body. `transactionResultId` is always present and is required for polling.
 
 The terminal processes the transaction. When complete, Handpoint POSTs the `TransactionResult` to your `callbackUrl` with the `AUTH-TOKEN` header set to your `token` value. Respond with any `2xx` to acknowledge receipt.
 
@@ -216,15 +255,29 @@ GET https://cloud.handpoint.com/transaction-result/082104578-1786020446467
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
+:::caution Two distinct HTTP responses
+- **HTTP 204 No Content** — transaction still processing. The response body is empty — do **not** attempt to parse JSON. Keep polling.
+- **HTTP 200 OK** — result ready. Parse JSON and read `finStatus`.
+
+In any language, check the HTTP status before calling `.json()` / `response.json()` / `JSON.parse()` — calling these on an empty 204 body throws an exception.
+:::
+
+```python
+# Correct pattern
+resp = requests.get(url, headers=headers)
+if resp.status_code == 204:
+    continue  # still processing
+result = resp.json()  # only on 200
+```
+
 | `finStatus` | Meaning | Action |
 |---|---|---|
-| `IN_PROGRESS` | Still processing on device or host | Keep polling (every 2 s) |
 | `UNDEFINED` | Result received but status unresolved | Keep polling |
 | `AUTHORISED` | Approved — card charged | Final. Do not retry. |
 | `DECLINED` | Declined by issuer | Final. Card not charged. Safe to retry. |
 | `FAILED` | Technical failure | Final. Card not charged. Safe to retry. |
 | `CANCELLED` | Cancelled at terminal | Final. Card not charged. Safe to retry. |
-| `PARTIALLY_APPROVED` | Partial amount approved (US only) | Wait 60 s, then collect split tender or reverse. |
+| `PARTIAL_APPROVAL` | Partial amount approved (US only) | Poll `transaction-result` until it resolves — cardholder is deciding at the terminal. See [Partial Approvals](/reference/partial-approval). |
 | `REFUNDED` | Refund processed | Final. |
 | `CAPTURED` | Pre-auth captured | Final. |
 | `PROCESSED` | Completed (tokenization, MOTO) | Final. |
@@ -257,11 +310,184 @@ Always persist your `transactionReference` to your database **before** sending t
 
 The recovery pattern:
 1. On application timeout (no callback received within your threshold — typically 90 s): mark the record as pending.
-2. Poll `GET /transactions/{transactionReference}` in the background every 10 s.
+2. Poll `GET https://transactions.handpoint.io/transactions/{transactionReference}/status` every 10 s.
 3. On `AUTHORISED` with no prior record: send an automatic reversal (`POST /transactions` with `operation: saleReversal`) to prevent a double-charge.
 4. On any other final status: clear the pending record.
 
 → Full implementation with code examples: [Transaction Recovery — Cloud API](/reference/transaction-recovery-cloud-api)
+
+## Edge cases
+
+### Partial approval
+
+In the US, an issuer may approve only part of the requested amount — for example, a $50.00 sale approved for $30.00 because the card's available balance is insufficient. The terminal prompts the cardholder to accept or decline the partial amount before returning a result.
+
+:::warning Do not trust `/status` during a partial approval
+`GET /transactions/{ref}/status` returns `AUTHORISED` as soon as the issuer responds — **before** the cardholder has accepted or declined. If the cardholder declines, the SDK auto-reverses and the final outcome is `CANCELLED`. Always poll `transaction-result` until it resolves; only escalate to `/status` if no result arrives after 2–3 minutes or if `finStatus` is `UNDEFINED`.
+:::
+
+When the cardholder **accepts**, `transaction-result` resolves with `finStatus: PARTIAL_APPROVAL`:
+
+```json
+{
+  "finStatus": "PARTIAL_APPROVAL",
+  "requestedAmount": 5000,
+  "totalAmount": 3000,
+  "currency": "USD",
+  "transactionID": "a4c21bd0-65ab-11f1-b4d2-aab210c7e31c",
+  "authorisationCode": "654321"
+}
+```
+
+`totalAmount` is the amount the issuer authorized (the partial). `requestedAmount` is the original sale amount. The remaining `requestedAmount − totalAmount` is uncollected.
+
+**Option 1 — Split tender:** Collect the remaining amount via a second payment method (cash, another card). Display `totalAmount` as the settled amount on the receipt.
+
+**Option 2 — Reverse the partial charge** (if your integration does not accept partial approvals):
+
+```http
+POST https://cloud.handpoint.com/reversal
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "a4c21bd0-65ab-11f1-b4d2-aab210c7e31c"
+}
+```
+
+`originalGuid` is the `transactionID` from the partial approval result. This endpoint is synchronous — HTTP 200 means the reversal was accepted; no polling needed.
+
+Use `totalAmount` (the approved partial) as the basis for the reversal — not `requestedAmount`. The issuer only authorized the partial amount. → See [Partial Approvals](/reference/partial-approval) for full details.
+
+When the cardholder **declines**, `transaction-result` resolves with `finStatus: CANCELLED` and the SDK automatically sends a reversal for `totalAmount`. No further action is required; do not save the transaction as a sale.
+
+→ Full flow diagrams, decision tree, and `/status/all` chain reference: [Partial Approvals](/reference/partial-approval)
+
+Do not ignore `PARTIAL_APPROVAL` — the cardholder was charged `totalAmount` and expects either a receipt or confirmation that the charge was reversed.
+
+### HTTP errors on the initial POST
+
+Errors returned immediately from `POST /transactions` (before the 202 Accepted) indicate the request was rejected by the Handpoint Cloud. No card interaction occurred — these are safe to retry with a **new** `transactionReference`.
+
+| HTTP status | Meaning | Action |
+|---|---|---|
+| `400 Bad Request` | Malformed JSON or invalid parameter value (e.g. `amount` is `"0"`) | Fix the request body before retrying |
+| `403 Forbidden` | Invalid or missing `ApiKeyCloud` header | Verify the API key and header name — the header is `ApiKeyCloud`, not `Authorization` |
+| `404 Not Found` | Terminal not found, not connected, or wrong `base_url` for this terminal type | Check `serial_number`, `terminal_type`, and `base_url`; ensure the terminal is online in the Payments App |
+| `409 Conflict` | A transaction is already in progress on this terminal | Wait for the current transaction to complete; do not send a new request |
+| `422 Unprocessable Entity` | Validation failed — required field missing or wrong type | Check the `details` array in the error body |
+| `5xx` | Handpoint Cloud temporarily unavailable | Retry with exponential back-off; no card interaction occurred |
+
+All HTTP errors use the same `error` wrapper:
+
+**403 — invalid API key:**
+```json
+{
+  "error": {
+    "statusCode": 403,
+    "name": "ForbiddenError",
+    "message": "No valid key found in header"
+  }
+}
+```
+
+**422 — missing required field:**
+```json
+{
+  "error": {
+    "statusCode": 422,
+    "name": "UnprocessableEntityError",
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "code": "VALIDATION_FAILED",
+    "details": [
+      {
+        "path": "",
+        "code": "required",
+        "message": "must have required property 'operation'",
+        "info": { "missingProperty": "operation" }
+      }
+    ]
+  }
+}
+```
+
+**400 — invalid amount:**
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Invalid amount (0 < amount < 999999999999)"
+  }
+}
+```
+
+**400 — device busy (error 1001):**
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "{\"error\":1001,\"message\":\"Device is busy\"}"
+  }
+}
+```
+Terminal is processing another operation. Wait 2–5 seconds and retry. Generate a **new** `transactionReference` on each retry.
+
+**400 — terminal not connected (error 1002):**
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "{\"error\":1002,\"message\":\"No device listening at the other end of the secure channel\"}"
+  }
+}
+```
+The terminal is powered off, not on Wi-Fi, or the Handpoint Payments App is not running. Check terminal status and retry once the device is back online.
+
+**400 — terminal not assigned to this merchant (error 1004):**
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "{\"error\":1004,\"message\":\"Auth not available: [object Object]\"}"
+  }
+}
+```
+The `serial_number` and `terminal_type` combination is not assigned to the merchant account associated with the `ApiKeyCloud` value. Call `GET /devices` to see which serials are valid for your API key. If the terminal is missing, contact Handpoint Integration Support.
+
+These are distinct from `finStatus: FAILED` in the result — an HTTP error means the terminal **never received** the command.
+
+### Callback authentication
+
+Validate every inbound callback before processing it. Check that the `AUTH-TOKEN` header matches the `token` you supplied in the original request:
+
+```python
+# Python / Flask
+@app.post("/handpoint/result")
+def handpoint_callback():
+    if request.headers.get("AUTH-TOKEN") != os.environ["HANDPOINT_WEBHOOK_TOKEN"]:
+        abort(401)
+    result = request.get_json()
+    handle_transaction_result(result)
+    return "", 200
+```
+
+An unauthenticated callback endpoint can produce phantom transaction records if a third party posts to it. Keep `token` out of your source code — load it from an environment variable.
+
+### Duplicate callbacks
+
+Handpoint may deliver the callback more than once if your server returns a non-2xx on the first attempt. Make your handler idempotent — deduplicate on `transactionReference` before creating any records. A second delivery of the same result should be a silent no-op.
+
+```python
+existing = db.get_transaction(result["transactionReference"])
+if existing:
+    return "", 200  # already processed — acknowledge and discard
+
+db.save_transaction(result)
+```
 
 ## Operations available on Cloud API
 
@@ -309,7 +535,7 @@ Before going live, every Cloud API integration must pass mandatory validation sc
 
 - [ ] Transaction recovery tested — connection dropped mid-transaction, outcome resolved via polling, automatic reversal sent on `AUTHORISED` without callback receipt
 - [ ] Application timeout implemented — no silent abandonment; polling triggered after threshold
-- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected, split tender or automatic reversal sent
+- [ ] Partial approval handled — `PARTIAL_APPROVAL` detected, split tender or automatic reversal sent for `totalAmount` (not `requestedAmount`)
 - [ ] Callback endpoint is idempotent — duplicate POSTs handled correctly using `transactionReference`
 - [ ] `transactionReference` persisted to DB before the POST, not after
 

@@ -27,6 +27,10 @@ Choose this path when your POS UI, checkout logic, and payment terminal are all 
 | You want to minimise network dependencies in the payment path | You need a Bluetooth card reader — use the [Android HiLite path](/reference/android-hilite-integration-guide) |
 | You're targeting PAX A920, A920 Pro, A77, or similar SmartPOS devices | You need iOS support — use the [iOS HiLite path](/reference/ios-hilite-integration-guide) |
 
+:::info Back-office operations are always available
+[Backoffice REST API](/reference/backoffice-integration-guide) operations — tip adjustment, reversals, refunds, MOTO charges, batch management, deferred tokenization — are available **alongside any integration path** you choose. They go server-side directly to the payment gateway with no terminal or SDK required. Subject only to acquirer support.
+:::
+
 ## How it works
 
 ```
@@ -243,14 +247,7 @@ hapi.getTransactionStatus(ref)
 
 ## Test amounts
 
-On a DEMO merchant or debug terminal:
-
-| Amount | Behaviour |
-|---|---|
-| `£37.79` | Issuer response code 01 — Refer to issuer |
-| `£37.84` | Issuer response code 05 — Not authorized |
-| `£37.93` | Issuer response code 04 — Pick up card |
-| Other amounts | Approved |
+On a DEMO merchant or debug terminal. Pass amounts in **minor units** (cents / pence) — e.g. `3779` not `37.79`. Use the full trigger table — including partial approval (3757) and timeout (3768) — from [Development Hardware: Testing with trigger amounts](/reference/development-hardware#trigger-amounts). Any amount not in the table approves.
 
 Funds are never moved on DEMO merchants.
 
@@ -259,9 +256,9 @@ Funds are never moved on DEMO merchants.
 **Required for every integration:**
 
 - [ ] `InitialisationComplete` gate implemented — no financial operations before SDK is ready
-- [ ] `transactionReference` persisted to DB before each operation starts
+- [ ] `transactionReference` persisted to DB before each operation starts — [scoping rules](/reference/transaction-reference)
 - [ ] Transaction recovery tested — app restarted mid-transaction, outcome recovered via `getTransactionStatus`
-- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected, split tender or automatic reversal sent
+- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
 - [ ] `OperationStartResult.operationStarted` checked before awaiting result
 
 → Full scenario checklist: [Validate your integration — Android SDK](/reference/validate-integration-android-sdk)

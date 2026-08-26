@@ -27,6 +27,10 @@ Choose this path when merchants need to accept payments away from a fixed counte
 | Merchants need to take payments on the move | You need a fixed counter with a networked terminal — use the [Cloud API](/reference/cloud-api-integration-guide) |
 | You want a compact, battery-powered card reader | You need iOS support — use the [iOS HiLite path](/reference/ios-hilite-integration-guide) |
 
+:::info Back-office operations are always available
+[Backoffice REST API](/reference/backoffice-integration-guide) operations — tip adjustment, reversals, refunds, MOTO charges, batch management, deferred tokenization — are available **alongside any integration path** you choose. They go server-side directly to the payment gateway with no terminal or SDK required. Subject only to acquirer support.
+:::
+
 ## Capabilities not available on HiLite
 
 - **Pre-authorization** — no on-device pre-auth flow on HiLite
@@ -226,10 +230,14 @@ Always persist `transactionReference` before starting a transaction.
 | **Refund** | ✅ |
 | **Reversal** | ✅ |
 | **Tokenization** | ✅ |
-| **Pre-Authorization** | ❌ (not supported on HiLite) |
-| **MOTO Sale** | ❌ (no keypad) |
-| **Tip Adjustment** | ✅ (EPI only) |
+| **Pre-Authorization** | ❌ HiLite SDK — ✅\* initial requires terminal; capture/increase via Back Office |
+| **MOTO Sale** | ❌ (no keypad) — ✅\* remote sale via Back Office (EPI/EMP, card token) |
+| **Tip Adjustment** | ✅ (EPI, PAYSAFE+Interac) |
+| **Partial Reversal** | ❌ HiLite SDK — ✅\* via Back Office REST API (EPI only) |
+| **stopCurrentTransaction** | ❌ (returns false silently — BluetoothConnection is not AndroidPaymentConnection) |
 | **Get Transaction Status** | ❌ (PAX only) |
+
+\* Available server-side via [Back Office REST API](/back-office/rest-api-no-reader) — no reader required.
 
 Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `android-hilite` column.
 

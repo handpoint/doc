@@ -83,8 +83,8 @@ hapi.getTransactionStatus(transactionReference)
 ## Recovery via Cloud API status endpoint
 
 ```http
-GET https://cloud.handpoint.com/status/{transactionReference}
-ApiKeyCLoud: YOUR_MERCHANT_API_KEY
+GET https://transactions.handpoint.com/transactions/{transactionReference}/status
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 ## transactionReference — the idempotency key

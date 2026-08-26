@@ -21,26 +21,30 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 
 ```json
 {
-  "transactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
-  "efttransactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
-  "efttimestamp": 1781192438000,
-  "transactionReference": "cd5c85cf-e8be-4a62-ba0a-3abd7362f610",
+  "transactionID": "9985dba0-9cbb-11f1-b018-b122502914b1",
+  "efttransactionID": "9985dba0-9cbb-11f1-b018-b122502914b1",
+  "efttimestamp": 1787246502000,
+  "transactionReference": "5ad2dcf3-56b8-4295-b73f-0628a45d21b9",
   "transactionOrigin": "CLOUD",
   "type": "SALE",
   "finStatus": "AUTHORISED",
-  "statusMessage": "Approved",
+  "statusMessage": "Aprobado o completado con éxito",
   "errorMessage": "",
   "multiLanguageStatusMessages": {},
   "multiLanguageErrorMessages": {},
   "recoveredTransaction": false,
 
-  "requestedAmount": 100,
-  "totalAmount": 100,
+  "requestedAmount": 1002,
+  "totalAmount": 1002,
   "tipAmount": 0,
   "tipPercentage": 0,
   "dueAmount": 0,
-  "taxAmount": 0,
-  "surcharge": 0,
+  "taxAmount": null,
+  "surcharge": {
+    "amount": 0,
+    "applied": false,
+    "reason": ""
+  },
   "currency": "USD",
 
   "cardEntryType": "ICC",
@@ -60,39 +64,41 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 
   "authorisationCode": "123456",
   "issuerResponseCode": "00",
-  "rrn": "0000611561639",
+  "rrn": "0000820374195",
 
   "aid": "A0000000031010",
+  "applicationLabel": "VISA CLASICA",
   "tvr": "0000000000",
-  "tsi": "0000",
+  "tsi": "",
   "iad": "06011203A00000",
   "arc": "0000",
   "chipTransactionReport": "",
 
-  "mid": "123456789010102",
-  "tid": "123456789010102",
-  "merchantName": "DEMO MERCHANT",
-  "merchantAddress": "7800 Congress Ave STE 112 33487 Boca Raton",
+  "mid": "630000026730",
+  "tid": "08215994",
+  "merchantName": "Postman Test1",
+  "merchantAddress": "Test Address 2 10111 London",
   "customerReference": "",
   "budgetNumber": "",
-  "batchNumber": "",
+  "batchNumber": "123",
   "originalEFTTransactionID": "",
   "metadata": null,
   "customFields": null,
+  "customData": "",
 
-  "merchantReceipt": "<html>...</html>",
-  "customerReceipt": "<html>...</html>",
+  "customerReceipt": "https://receipts.handpoint.io/receipts/9985dba0-9cbb-11f1-b018-b122502914b1/customer.html",
+  "merchantReceipt": "https://receipts.handpoint.io/receipts/9985dba0-9cbb-11f1-b018-b122502914b1/merchant.html",
   "signatureUrl": "",
 
   "deviceStatus": {
     "applicationName": "Payments",
-    "applicationVersion": "20.4.4.4",
+    "applicationVersion": "20.4.14.0-RC.66",
     "batteryCharging": "Not Charging",
-    "batteryStatus": "79",
-    "batterymV": "3908",
-    "bluetoothName": "PAXA920PRO",
-    "externalPower": "USB",
-    "serialNumber": "1850025030",
+    "batteryStatus": "59",
+    "batterymV": "3829",
+    "bluetoothName": "PAXA920",
+    "externalPower": "Unknown",
+    "serialNumber": "0821599465",
     "statusMessage": ""
   }
 }
@@ -164,6 +170,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | Field | Type | Description |
 |---|---|---|
 | `aid` | string | EMV Application Identifier (tag 9F06), e.g. `"A0000000031010"` for Visa. |
+| `applicationLabel` | string | Human-readable application name from the card chip, e.g. `"VISA CLASICA"` `"MASTERCARD"`. |
 | `tvr` | string | Terminal Verification Results (tag 95). 5-byte hex string. |
 | `tsi` | string | Transaction Status Information (tag 9B). 2-byte hex string. |
 | `iad` | string | Issuer Application Data (tag 9F10). |
@@ -218,10 +225,11 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
-| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is an accepted alias for the same value. |
+| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is a **alias** for the same value (integer 6 in all SDKs) — both names are emitted. |
 | `REFUNDED` | Transaction was subsequently refunded. Returned on status queries for original transactions that have been fully refunded. |
-| `PROCESSED` | Operation processed (used for non-financial operations). |
+| `PROCESSED` | Operation processed (used for non-financial operations — Start of Day, Host Init). |
 | `CAPTURED` | Pre-authorization was captured. |
+| `IN_PROGRESS` | Transaction is still being processed (Windows SDK only; also returned by `GET /transactions/{ref}/status` while in flight). |
 
 ---
 

@@ -123,6 +123,13 @@
         "description": "Load when the user asks how to get set up for testing, what credentials are needed, what hardware to use, or how a test merchant is created. Covers all integration paths with the Handpoint Support / ISV responsibility split.",
         "path": "optional/prerequisites.md",
         "tags": ["prerequisites", "setup", "credentials", "hardware", "merchant", "nexus", "debug", "testing"]
+      },
+      {
+        "id": "integration-checklist",
+        "title": "Integration compliance checklist — receipt, logging, recovery, reconciliation",
+        "description": "Load when reviewing an integration for certification readiness. Covers EMV receipt field requirements, logging retention policy, per-merchant API key management, page-refresh crash recovery code pattern, partial approval /status timing trap, and a reconciliation utility.",
+        "path": "optional/integration-checklist.md",
+        "tags": ["compliance", "receipt", "logging", "recovery", "reconciliation", "certification", "partial-approval"]
       }
     ]
   }

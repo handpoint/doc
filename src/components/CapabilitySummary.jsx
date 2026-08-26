@@ -1,4 +1,10 @@
 import React, {useState, useEffect} from 'react';
+import {
+  PATH_LABELS,
+  CARD_PRESENT_PATHS,
+  BACK_OFFICE_PATHS,
+  PORTAL_PATHS,
+} from '@site/src/data/acquirerCaps';
 
 // Capabilities shown in the summary table — tokenization is intentionally excluded
 const CAPABILITY_LABELS = {
@@ -17,22 +23,14 @@ const CAPABILITY_LABELS = {
 
 const DISPLAY_ORDER = Object.keys(CAPABILITY_LABELS);
 
-const PATH_LABELS = {
-  'cloud-api':       'Cloud API',
-  'android-pax':     'Android (PAX)',
-  'android-hilite':  'Android (HiLite)',
-  'ios-hilite':      'iOS (HiLite)',
-  'cordova':         'Cordova',
-  'javascript-sdk':  'JavaScript SDK',
-  'windows-sdk':     'Windows SDK',
-  'back-office':     'REST API (Back Office)',
-  'backoffice':      'Backoffice',
-  'paysafe-portal':  'Paysafe Portal',
+// The global integration-path selector offers one flat "Cordova" / "Windows SDK"
+// option each, but the underlying capability data models them as two distinct
+// connectivity modes. Expand the unified selection to both real data columns.
+const PATH_EXPANSION = {
+  'cordova':     ['cordova-pax', 'cordova-hilite'],
+  'windows-sdk': ['windows-sdk-pax', 'windows-sdk-bt'],
 };
 
-const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'javascript-sdk', 'windows-sdk'];
-const BACK_OFFICE_PATHS  = ['back-office', 'backoffice'];
-const PORTAL_PATHS       = ['paysafe-portal'];
 const STORAGE_KEY = 'docusaurus.tab.integration-path';
 
 function cellIcon(value) {
@@ -57,8 +55,11 @@ export default function CapabilitySummary({capabilities}) {
     return () => window.removeEventListener('handpoint:pathChanged', handlePathChange);
   }, []);
 
-  // Empty selectedPath means "All paths" — expand to all card-present columns
-  const cardPresentCols = selectedPath === '' ? CARD_PRESENT_PATHS : [selectedPath];
+  // Empty selectedPath means "All paths" — expand to all card-present columns.
+  // A unified Cordova/Windows SDK selection expands to its real split data columns.
+  const cardPresentCols = selectedPath === ''
+    ? CARD_PRESENT_PATHS
+    : (PATH_EXPANSION[selectedPath] || [selectedPath]);
 
   // Paysafe Portal column only shown when this acquirer has at least one capability on that path
   const hasPortal = PORTAL_PATHS.some(p =>

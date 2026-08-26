@@ -1,33 +1,79 @@
 # Handpoint Developer Documentation
-# Fetch the acquirer URL for full implementation detail.
-# Generated: 2026-08-15T09:33:01.152Z
+
+> Handpoint provides integrated payment acceptance for ISVs: a Cloud REST API for PAX SmartPOS terminals, native Android/iOS/Cordova/JavaScript/Windows SDKs, and back-office remote payment operations (remote sale, pre-auth capture, batch close). Supported acquirers: EPI (TSYS US/Canada), EmerchantPay, Paystrax, PAYSAFE, TNS.
+
+---
+
+## AI Agent Skills (machine-readable integration guides)
+
+Load these skills before writing integration code. The index tells you which skills to load for your acquirer and integration path.
+
+- [Skills Index](https://developer.handpoint.com/.well-known/skills/index.json): Structured JSON index of all available skills
+- [Entry Point](https://developer.handpoint.com/.well-known/skills/handpoint.md): Start here — workflow instructions for loading the right skills
+- [Cloud REST API Skill](https://developer.handpoint.com/.well-known/skills/paths/cloud-api.md): Complete Cloud API reference — authentication, all endpoints, polling, error handling, UNDEFINED recovery
+- [EPI Acquirer Skill](https://developer.handpoint.com/.well-known/skills/acquirers/epi.md): EPI-specific capabilities, batch close, tip adjustment, partial reversal, MOTO
+- [Back-Office Operations Skill](https://developer.handpoint.com/.well-known/skills/optional/back-office.md): Remote sale, card token charging, batch close, deferred tokenization
+- [Integration Compliance Checklist](https://developer.handpoint.com/.well-known/skills/optional/integration-checklist.md): Receipt requirements, logging, recovery patterns, reconciliation
+
+---
+
+## Getting Started
+
+- [Get Started](https://developer.handpoint.com/get-started): Integration wizard — choose your acquirer and path
+- [Authentication](https://developer.handpoint.com/reference/authentication): ApiKeyCloud header, staging vs production endpoints
+- [Development Hardware](https://developer.handpoint.com/reference/development-hardware): PAX debug devices, HiLite, ViscusDummy trigger amounts for testing
+
+---
+
+## Cloud REST API
+
+- [Cloud API Integration Guide](https://developer.handpoint.com/reference/cloud-api-integration-guide): Full narrative guide — POST /transactions, polling, finStatus, recovery
+- [Back-Office REST API (no reader)](https://developer.handpoint.com/back-office/rest-api-no-reader): Server-side operations — remote sale, pre-auth capture, batch close, tip adjustment
+- [MOTO — Card Not Present](https://developer.handpoint.com/reference/moto-guide): On-terminal keyed entry and remote card token MOTO flows
+- [Transaction Recovery — Cloud API](https://developer.handpoint.com/reference/transaction-recovery-cloud-api): UNDEFINED handling, /status endpoint, recovery flow
+
+---
 
 ## Acquirers
-EPI | geography: US, Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(procharge), batching, pre-auth-capture-reversal, avs-for-moto | cards: VISA, MC, Discover | url: /acquirers/epi
-PAYSAFE + Interac | geography: Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(paysafe-token+tokenex), batching, void, interac | cards: VISA, MC, Discover, Interac | interac: true | url: /acquirers/tsys-tns
-PAYSAFE | geography: US | sale(emv-sale+sale-and-tokenize), refund(card-present), reversal(reversal+remote-reversal), tokenization(paysafe-token+tokenex) | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe-tsys
-EmerchantPay | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), pre-auth, moto, tokenization(tokenex), money-remittance | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-emp
-Paystrax | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), pre-auth, moto, tokenization(tokenex) | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-paystrax
 
-## Integration paths
-cloud-api | cloud/integrated mode | PAX terminal commanded via Handpoint Cloud API
-android-pax | native on-terminal | PAX devices
-android-hilite | bluetooth | HiLite (DATECS) devices
-ios-hilite | bluetooth | HiLite (DATECS) devices
-cordova | native SDK wrapper | PAX + HiLite devices
+- [EPI (TSYS US/Canada)](https://developer.handpoint.com/acquirers/epi): Batch close, tip adjustment, partial reversal, AVS, pre-auth
+- [EmerchantPay](https://developer.handpoint.com/acquirers/omnipay-emp): EU acquirer, tip-in-sale, auto-settlement
+- [Paystrax](https://developer.handpoint.com/acquirers/omnipay-paystrax): EU/Iceland acquirer, same protocol as EmerchantPay
+- [PAYSAFE](https://developer.handpoint.com/acquirers/paysafe-tsys): Interac void-only rule, no partial reversal, Paysafe CNP portal
+- [Acquirer Capabilities Matrix](https://developer.handpoint.com/reference/full-matrix): Full matrix of capabilities per acquirer and integration path
 
-## Sale flavors
-emv-sale | chip or contactless card-present sale
-key-entry-sale | manual card number entry on PAX terminal screen
-moto-sale | back-office remote sale using stored card token, no reader required
-sale-and-tip | tip collected at terminal during sale
-sale-and-tokenize | card tokenized during sale for future card-not-present charges
+---
 
-## Refund flavors
-card-present | linked or unlinked refund with card present at terminal
-moto-refund | back-office remote refund using original transaction GUID, no reader required
+## SDK Integration Guides
+
+- [Android SDK — PAX](https://developer.handpoint.com/reference/android-pax-integration-guide): On-terminal app development
+- [Android SDK — HiLite Bluetooth](https://developer.handpoint.com/reference/android-hilite-integration-guide): Bluetooth reader integration
+- [iOS SDK — HiLite](https://developer.handpoint.com/reference/ios-hilite-integration-guide): iPhone/iPad Bluetooth reader integration
+- [Cordova / Ionic](https://developer.handpoint.com/reference/cordova-integration-guide): Cross-platform plugin
+- [JavaScript SDK](https://developer.handpoint.com/reference/javascript-sdk-integration-guide): Browser-based integration
+
+---
 
 ## Reference
-/reference/acquirer-capabilities-matrix
-/reference/transaction-result-object
-/reference/error-codes
+
+- [Error Codes](https://developer.handpoint.com/reference/error-codes): All error codes with meanings and recommended actions
+- [Transaction Result Object](https://developer.handpoint.com/reference/transaction-result-object): Full schema for finStatus, amounts, receipt fields, EMV data
+- [Partial Approval](https://developer.handpoint.com/reference/partial-approval): PARTIAL_APPROVAL finStatus, /status timing trap, correct reversal amount
+- [Receipt Compliance](https://developer.handpoint.com/reference/receipt-compliance): Required EMV receipt fields, delivery methods, known gaps
+- [Validate your Integration](https://developer.handpoint.com/reference/validate-integration): Pre-certification checklist, trigger amounts, per-operation test scenarios, reconciliation
+- [Testing Edge Cases](https://developer.handpoint.com/reference/testing-edge-cases): Step-by-step edge case scenarios per integration path
+- [Pre-Authorization Guide](https://developer.handpoint.com/reference/pre-authorization-guide): Full pre-auth lifecycle — create, increase, capture, void
+- [OpenAPI Specification](https://developer.handpoint.com/openapi.yaml): OpenAPI 3.1.0 YAML spec for all Cloud REST API endpoints — import into Postman, Insomnia, Stoplight, or code generators
+
+---
+
+## Key Facts for AI Agents
+
+- Staging: `https://cloud.handpoint.io` | Production: `https://cloud.handpoint.com`
+- Auth header: `ApiKeyCloud` (case-insensitive; one key per merchant)
+- POST /transactions → 202 Accepted → poll GET /transaction-result/{id} (204 = still processing, 200 = done)
+- POST /reversal → synchronous, HTTP 200, no finStatus in response, httpStatus is integer 200
+- POST /moto/sale → synchronous, HTTP 200, reversal key is in `guid` field (not transactionID)
+- POST /batch/close → synchronous, httpStatus is string "200" (differs from /reversal integer)
+- Amount fields: requestedAmount / totalAmount / tipAmount / dueAmount (no bare `amount` in result)
+- transactionReference: UUID v4 you generate; persist before sending; required for recovery via GET /transactions/{ref}/status

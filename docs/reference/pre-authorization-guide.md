@@ -141,12 +141,21 @@ handpoint.preAuthorization(
 
 Adjusts the held amount before capture. Useful when the final amount changes — for example, room service added during a hotel stay.
 
-- Send the **new total hold amount**, not a delta.
-- The operation links to the original pre-auth via `originalTransactionId`.
-- Do **not** include a `transactionReference` — this is a subsequent operation.
+**There are two different endpoints for this operation — choose based on whether the card needs to be re-presented:**
+
+| Scenario | Endpoint | Card required? | Acquirer support |
+|---|---|---|---|
+| Cardholder is present to tap/insert again | `POST /transactions` with `"operation": "preAuthorizationIncrease"` | Yes | All |
+| Back-office adjustment — no card re-tap | `POST /preauthorization/increase` | No | EPI only |
+
+Rules that apply to both:
+- Do **not** include a `transactionReference` — this is a subsequent operation, not an originating one.
+- The `originalTransactionId` / `originalGuid` must be the `transactionID` from the preceding step.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
+
+**Option A — Terminal-based (card present):**
 
 ```http
 POST https://cloud.handpoint.com/transactions
@@ -163,7 +172,22 @@ Content-Type: application/json
 }
 ```
 
-For a decrease, use the same operation with a lower `amount` value.
+`amount` is in **minor units** (cents). For a decrease, use the same endpoint with a lower `amount`.
+
+**Option B — Back-office (no card, EPI only):**
+
+```http
+POST https://cloud.handpoint.com/preauthorization/increase
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "increaseAmount": "150.00"
+}
+```
+
+`increaseAmount` is in **major units** (dollars, string format) — not `amount`. To decrease instead, add `"subtract": "1"` to the body. There is no separate `/preauthorization/decrease` endpoint — the same endpoint handles both.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -454,16 +478,33 @@ See [Transaction Recovery & Status](/reference/transaction-recovery) for full do
 
 ## Quick reference — `transactionID` chain
 
-Each subsequent operation must reference the **most recent preceding operation** — not the original pre-auth:
+The field that links operations differs by integration path:
+
+### Terminal-based (Android PAX SDK, Cordova, Cloud API `POST /transactions`)
+
+Each operation references the **most recent preceding transactionID** — not the original pre-auth:
 
 ```
-Create         → transactionID = "A"
-Increase       → originalTransactionId = "A",  transactionID = "B"
-Second Increase → originalTransactionId = "B", transactionID = "C"
-Capture        → originalTransactionId = "C" (or "A" if no increases)
+Create          → transactionID = "A"
+Increase        → originalTransactionId = "A"   → transactionID = "B"
+Second Increase → originalTransactionId = "B"   → transactionID = "C"
+Capture         → originalTransactionId = "C"   (most recent, not "A")
+Void            → originalTransactionId = "A"   (original pre-auth, or most recent step — confirm per acquirer)
 ```
 
-For the Cloud API Capture specifically, `originalGuid` always references the original pre-auth `transactionID`, not intermediate increases — confirm with your acquirer integration if in doubt.
+### Back-office Capture (`POST /preauthorization/capture`)
+
+`originalGuid` always references the **original pre-auth `transactionID`** ("A"), regardless of how many increases occurred:
+
+```
+Create          → transactionID = "A"
+Increase        → transactionID = "B"
+Back-office Capture → originalGuid = "A"   ← always the original pre-auth
+```
+
+:::caution Mixing paths
+If you started the pre-auth with a terminal operation but want to capture via the back-office endpoint (or vice versa), always use the `transactionID` from the Create result as `originalGuid` for the back-office capture. Do not chain through intermediate increase IDs when using `POST /preauthorization/capture`.
+:::
 
 ---
 

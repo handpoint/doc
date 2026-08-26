@@ -13,7 +13,9 @@ import TabItem from '@theme/TabItem';
 Multi-MID lets a single Handpoint integration support multiple merchant accounts (MIDs) from one credential. Any terminal assigned to the merchant can process against any of the configured sub-MIDs — the ISV selects which account to route to by including an `externalId` on each transaction request.
 
 :::info Availability
-Multi-MID is available via the **Cloud API** and **Android SDK (PAX)**. Contact your Handpoint Integration Engineer to enable sub-MIDs for a merchant.
+Multi-MID is available via the **Cloud API**, **Android SDK (PAX)**, and **iOS SDK (HiLite)**. Contact your Handpoint Integration Engineer to enable sub-MIDs for a merchant.
+
+**Not supported:** Android HiLite (MerchantAuth is silently ignored — never serialized to EFT frames), Windows SDK (null hardcoded — not implemented), Cordova plugin (no implementation for either PAX or HiLite).
 :::
 
 ## When to use it
@@ -102,6 +104,23 @@ For clinic-style flows on Android PAX, the typical pattern is:
 :::
 
 </TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+`MerchantAuth` is fully implemented in the iOS SDK via `HapiRemoteService`. The pattern mirrors the Android SDK.
+
+```swift
+let credential = Credential(acquirer: Acquirer.TSYS, mid: "SUB_MERCHANT_ID", tid: "SUB_TERMINAL_ID")
+let merchantAuth = MerchantAuth(credential: credential)
+
+let options = SaleOptions()
+options.merchantAuth = merchantAuth
+
+heftClient.sale(withAmount: 5000, currency: "USD", cardholder: .present, options: options)
+```
+
+The `Acquirer` enum values in the iOS SDK: `UNDEFINED`, `AMEX`, `BORGUN`, `EVO`, `OMNIPAY`, `POSTBRIDGE`, `INTERAC`, `TSYS`, `VANTIV`, `SANDBOX`.
+
+</TabItem>
 </Tabs>
 
 ---
@@ -125,6 +144,29 @@ Use the [Transaction Feed API](/back-office/transaction-feed-api) to filter tran
 - **Android SDK transactions** — filter by `merchantId` (the sub-MID value from `MerchantAuth`)
 
 This lets you generate per-doctor (or per-sub-merchant) settlement reports entirely from the feed, without building a separate ledger.
+
+---
+
+## Which operations support `externalId` {#scope}
+
+An AI agent or ISV must know exactly where to include `externalId`. The table below covers the Cloud API. For Android PAX, substitute `MerchantAuth` everywhere `externalId` is marked ✅.
+
+| Operation | Endpoint | `externalId` supported | Notes |
+|---|---|---|---|
+| Card-present sale | `POST /transactions` `"operation": "sale"` | ✅ | Include on every card-present request per provider |
+| Pre-authorization create | `POST /transactions` `"operation": "preAuthorization"` | ✅ | Routes the hold to the sub-MID |
+| Pre-auth increase/decrease (terminal) | `POST /transactions` `"operation": "preAuthorizationIncrease"` | ✅ | |
+| Pre-auth reversal (terminal) | `POST /transactions` `"operation": "preAuthorizationReversal"` | ✅ | |
+| Back-office capture | `POST /preauthorization/capture` | ✅ | Sub-MID routing preserved from original pre-auth — `externalId` not required but allowed |
+| Back-office increase | `POST /preauthorization/increase` | ✅ | |
+| Back-office MOTO sale | `POST /moto/sale` | ✅ | Pass `externalId` to route the MOTO charge to the correct provider |
+| Back-office MOTO refund | `POST /moto/refund` | ✅ (linked: optional) | Linked refunds inherit the MID from the original sale; include `externalId` on unlinked refunds |
+| Reversal | `POST /reversal` | ❌ | Reversal is linked to the original transaction's MID via `originalGuid` — no routing override needed |
+| Tip adjustment | `POST /transactions/{id}/tip-adjustment` | ❌ | Inherits MID from the original sale `transactionID` |
+| Deferred tokenization | `GET /transactions/{id}/token` | ❌ | Token retrieval is by transaction ID, not by MID |
+| Batch close | `POST /batch/close` | ❌ | Batch operations are per-terminal, not per sub-MID |
+
+**Key rule:** Include `externalId` on every **originating** operation (sale, MOTO sale, pre-auth create, unlinked refund) for a given provider. Subsequent operations (reversal, capture, linked refund) inherit the MID automatically from the original transaction.
 
 ---
 

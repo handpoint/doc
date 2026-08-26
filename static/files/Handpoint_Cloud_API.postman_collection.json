@@ -1,0 +1,848 @@
+{
+  "info": {
+    "_postman_id": "c3e7b8a1-2d4f-4e8a-9c6b-5a3d1e7f2c90",
+    "name": "Handpoint Cloud API",
+    "description": "Complete Handpoint Cloud REST API collection.\n\n**Setup**\n1. Set the `api_key` collection variable to your merchant API key (from Handpoint Integration Support).\n2. Set `serial_number` to your PAX terminal serial number (Payments App → Settings → About).\n3. Set `terminal_type` to your terminal model (e.g. `PAXA920`, `PAXA920PRO`, `PAXA35`).\n4. Choose an environment: **DEMO (Production)** for tests on a production PAX with a DEMO merchant, or **Staging** for a PAX debug device.\n\n**Environments vs. base_url**\n- `https://cloud.handpoint.com` — production PAX terminals (DEMO and live merchants)\n- `https://cloud.handpoint.io` — staging/debug PAX terminals only\n\n`.io` and `.com` credentials are not interchangeable. When a merchant goes live, new credentials are issued.\n\n**Transaction flow**\n1. `POST /transactions` → 202 Accepted + `transactionResultId`\n2. Terminal processes the card\n3. Result delivered via callback POST to your `callbackUrl`, OR poll `GET /transaction-result/{transactionResultId}`\n\nDocumentation: https://developer.handpoint.com",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://cloud.handpoint.com",
+      "type": "string",
+      "description": "Use https://cloud.handpoint.io for staging/debug terminals"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "type": "string",
+      "description": "Your merchant API key — set this before running any request"
+    },
+    {
+      "key": "terminal_type",
+      "value": "PAXA920",
+      "type": "string",
+      "description": "PAX terminal model. Common values: PAXA920, PAXA920PRO, PAXA35, PAXA77"
+    },
+    {
+      "key": "serial_number",
+      "value": "",
+      "type": "string",
+      "description": "Terminal serial number — found in Payments App > Settings > About"
+    },
+    {
+      "key": "callback_url",
+      "value": "",
+      "type": "string",
+      "description": "Your HTTPS endpoint to receive transaction results. Must use a CA-trusted TLS certificate (not self-signed)."
+    },
+    {
+      "key": "webhook_token",
+      "value": "my-secret-webhook-token",
+      "type": "string",
+      "description": "Echoed as the AUTH-TOKEN header in callbacks. Validate this on receipt."
+    },
+    {
+      "key": "transaction_result_id",
+      "value": "",
+      "type": "string",
+      "description": "Auto-populated from the last transaction's 202 response. Use in GET /transaction-result."
+    },
+    {
+      "key": "last_transaction_id",
+      "value": "",
+      "type": "string",
+      "description": "transactionID from the last AUTHORISED result. Use for reversals, tip adjustments, and captures."
+    },
+    {
+      "key": "transaction_reference",
+      "value": "",
+      "type": "string",
+      "description": "Auto-generated UUID per request. Persist this BEFORE the POST for recovery."
+    },
+    {
+      "key": "card_token",
+      "value": "",
+      "type": "string",
+      "description": "Card token returned from a Sale and Tokenize. Used for MOTO sales."
+    }
+  ],
+  "item": [
+    {
+      "name": "Card-Present",
+      "description": "Operations that require the cardholder to present their card at a connected PAX terminal.\n\nAll requests return 202 Accepted immediately. The terminal then processes the card and delivers the result via callback or polling.",
+      "item": [
+        {
+          "name": "Sale (with callback)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Auto-generate a UUID for transactionReference",
+                  "// IMPORTANT: persist this to your database BEFORE sending the request",
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) {",
+                  "    pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "    console.log('transactionResultId:', body.transactionResultId);",
+                  "    console.log('Now polling GET /transaction-result/{{transaction_result_id}}');",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"sale\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"customerReference\": \"order-5248\",\n  \"transactionReference\": \"{{transaction_reference}}\",\n  \"callbackUrl\": \"{{callback_url}}\",\n  \"token\": \"{{webhook_token}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Standard card-present sale. The terminal prompts the cardholder to tap, insert, or swipe.\n\n**amount** — smallest currency unit. `\"1000\"` = $10.00 USD or €10.00 EUR.\n\n**callbackUrl** — Handpoint POSTs the TransactionResult to this URL when the transaction completes. The response includes the AUTH-TOKEN header set to your `token` value. Validate this on receipt.\n\n**transactionReference** — UUID v4. Persist to your database BEFORE this POST — needed for recovery if your server crashes or the callback is not received.\n\nThe pre-request script auto-generates a UUID. The test script saves `transactionResultId` for use in the Get Transaction Result request."
+          },
+          "response": [
+            {
+              "name": "202 Accepted",
+              "status": "Accepted",
+              "code": 202,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionResultId\": \"082104578-1786020446467\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "Callback payload — AUTHORISED",
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" },
+                { "key": "AUTH-TOKEN", "value": "my-secret-webhook-token" }
+              ],
+              "body": "{\n  \"finStatus\": \"AUTHORISED\",\n  \"transactionID\": \"e6254050-65ab-11f1-a9af-ffa530c6e21f\",\n  \"transactionReference\": \"2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f\",\n  \"type\": \"SALE\",\n  \"statusMessage\": \"Approved\",\n  \"errorMessage\": \"\",\n  \"requestedAmount\": 1000,\n  \"totalAmount\": 1000,\n  \"currency\": \"USD\",\n  \"cardSchemeName\": \"Visa\",\n  \"maskedCardNumber\": \"************0936\",\n  \"authorisationCode\": \"123456\",\n  \"issuerResponseCode\": \"00\",\n  \"efttimestamp\": 1781192438000,\n  \"mid\": \"123456789010102\",\n  \"tid\": \"082104578\",\n  \"merchantReceipt\": \"<html>...</html>\",\n  \"customerReceipt\": \"<html>...</html>\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "Callback payload — DECLINED",
+              "status": "OK",
+              "code": 200,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" },
+                { "key": "AUTH-TOKEN", "value": "my-secret-webhook-token" }
+              ],
+              "body": "{\n  \"finStatus\": \"DECLINED\",\n  \"transactionID\": \"f3a10cd1-65ab-11f1-b4d2-aab210c7e31c\",\n  \"transactionReference\": \"2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f\",\n  \"type\": \"SALE\",\n  \"statusMessage\": \"Declined\",\n  \"errorMessage\": \"Not Authorized\",\n  \"requestedAmount\": 1000,\n  \"totalAmount\": 0,\n  \"currency\": \"USD\",\n  \"cardSchemeName\": \"Visa\",\n  \"maskedCardNumber\": \"************0936\",\n  \"authorisationCode\": \"\",\n  \"issuerResponseCode\": \"05\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Sale (polling, no callback)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) {",
+                  "    pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"sale\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"transactionReference\": \"{{transaction_reference}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Sale without a callbackUrl. Use the `transactionResultId` from the 202 response to poll `GET /transaction-result/{id}` until you get a final finStatus.\n\nPoll every 2 seconds. Stop when finStatus is anything other than IN_PROGRESS or UNDEFINED.\n\nSee the 'Get Transaction Result' request in this collection."
+          },
+          "response": [
+            {
+              "name": "202 Accepted",
+              "status": "Accepted",
+              "code": 202,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionResultId\": \"082104578-1786020446467\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Sale with Tip",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"sale\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"transactionReference\": \"{{transaction_reference}}\",\n  \"tipConfiguration\": {\n    \"baseAmount\": \"1000\",\n    \"tipPercentages\": [10, 15, 18, 20],\n    \"enterAmountEnabled\": true,\n    \"skipEnabled\": true,\n    \"footer\": \"Thank you for visiting!\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Sale with an on-screen tip prompt. The cardholder selects a tip percentage or enters a custom amount before the card is processed.\n\n**tipConfiguration fields:**\n- `baseAmount` — the pre-tip amount (matches `amount`)\n- `tipPercentages` — array of percentages offered on screen (1–4 values)\n- `enterAmountEnabled` — allow cardholder to type a custom tip amount\n- `skipEnabled` — show a 'No tip' option\n- `footer` — optional message shown on the tip screen\n\nThe `totalAmount` in the result includes the selected tip. `tipAmount` and `tipPercentage` are populated separately.\n\nAcquirer support: EPI, EmerchantPay, Paystrax (not all acquirers support tip at terminal — check the Acquirer Capabilities Matrix)."
+          },
+          "response": []
+        },
+        {
+          "name": "Sale and Tokenize",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"saleAndTokenizeCard\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"transactionReference\": \"{{transaction_reference}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Charges the card AND returns a `cardToken` for future card-not-present charges.\n\nThe token is in the TransactionResult as `cardToken` (and `cardTokenProvider` — e.g. `PAYSAFE` or `TOKENEX`). Store it against the customer record for subsequent MOTO sales.\n\nNote: tokenization must be enabled for your merchant by Handpoint Integration Support."
+          },
+          "response": [
+            {
+              "name": "Callback — AUTHORISED with token",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"finStatus\": \"AUTHORISED\",\n  \"transactionID\": \"e6254050-65ab-11f1-a9af-ffa530c6e21f\",\n  \"type\": \"SALE\",\n  \"totalAmount\": 1000,\n  \"currency\": \"USD\",\n  \"cardToken\": \"4111111111111111\",\n  \"cardTokenProvider\": \"PAYSAFE\",\n  \"expiryDateMMYY\": \"1027\",\n  \"maskedCardNumber\": \"************1111\",\n  \"cardSchemeName\": \"Visa\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Refund",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"refund\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"transactionReference\": \"{{transaction_reference}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "On-device refund — the cardholder must present their card at the terminal.\n\n**originalTransactionId** — the `transactionID` from the original AUTHORISED sale result. Required for a linked refund (recommended). Without it, the refund is unlinked.\n\n**amount** — can be less than the original amount for a partial refund. Cannot exceed the original amount.\n\nFor a refund without requiring the cardholder to be present, use Remote Reversal (back-office) instead."
+          },
+          "response": []
+        },
+        {
+          "name": "Reversal (on-device)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"saleReversal\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"transactionReference\": \"{{transaction_reference}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Same-day void of an AUTHORISED sale — must be sent before batch close. Routes through the connected terminal (appears in device transaction history).\n\nUse **Remote Reversal** (in the Back-Office folder) to reverse without the terminal being actively connected.\n\n**originalTransactionId** — the `transactionID` from the AUTHORISED sale result (saved from the `last_transaction_id` collection variable).\n\nCommon error: code `3051` means the transaction was already reversed."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Back-Office (no terminal required)",
+      "description": "Operations that run server-side — no terminal interaction, no cardholder present.\n\nThese are synchronous (return a result immediately, not 202 Accepted).\n\nAuthentication: same `ApiKeyCloud` header as card-present operations.",
+      "item": [
+        {
+          "name": "Remote Reversal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"saleReversal\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Reversal submitted directly to the Cloud — does not require the terminal to be actively connected.\n\nMust be sent before the daily batch close. After batch close, use a Refund instead.\n\nThe `serial_number` and `terminal_type` still identify which merchant/terminal the reversal belongs to."
+          },
+          "response": [
+            {
+              "name": "200 OK — reversed",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"agreementNumber\": \"123456789010102\",\n  \"cardToken\": \"\",\n  \"cardTokenizationGuid\": \"\",\n  \"expiryDateMMYY\": \"1027\",\n  \"httpStatus\": 200,\n  \"maskedCardNumber\": \"************0936\",\n  \"serverDateTime\": \"2025-06-10T15:32:00Z\",\n  \"transactionReference\": \"2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 — already reversed",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"code\": \"3051\",\n  \"message\": \"Transaction already reversed.\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 — not found",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"code\": \"3153\",\n  \"message\": \"Unable to find message to reverse.\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Partial Reversal",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"saleReversal\",\n  \"amount\": \"500\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Reverse only part of an authorised amount. The cardholder does not need to re-present their card.\n\nSet `amount` to the portion you want to release. The remaining `originalAmount - amount` stays authorised.\n\nAcquirer support varies — check the Acquirer Capabilities Matrix."
+          },
+          "response": []
+        },
+        {
+          "name": "Tip Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"tipAdjustment\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"tipAmount\": \"200\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Add a tip to an already-authorised sale, before batch close. The settlement amount is updated to `originalAmount + tipAmount`.\n\n**This is different from Sale with Tip** — Tip Adjustment is a post-auth back-office operation; Sale with Tip collects the tip at the terminal before authorisation.\n\nUse Tip Adjustment for tip-on-receipt / tip-at-table workflows where the customer writes their tip on a paper receipt and the server enters it later.\n\nAcquirer support: EPI (TSYS), Paysafe + Interac. Not available on EmerchantPay or Paystrax.\n\nMust be sent before the daily batch close."
+          },
+          "response": []
+        },
+        {
+          "name": "Remote Sale (MOTO)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"moToSale\",\n  \"amount\": \"1000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Card-not-present sale using a stored token from a previous Sale and Tokenize.\n\nNo terminal or cardholder required. Uses the stored card for a new charge.\n\n**cardToken** — obtained from a prior `saleAndTokenizeCard` result.\n\nFor key-entry MOTO (operator types card number), use the Key Entry Sale on the acquirer page instead.\n\nAcquirer support: EPI (TSYS), EmerchantPay. Not available on Paysafe or Paystrax."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pre-Authorization Flow",
+      "description": "Pre-authorization places a hold on the cardholder's funds without immediately settling. The full lifecycle:\n\n1. **Create** (card-present) — cardholder taps/inserts; hold placed\n2. **Increase / Decrease** (back-office) — adjust the hold amount\n3. **Capture** (back-office) — settle the final amount\n4. **Pre-Auth Reversal** (back-office) — release the hold without charging\n5. **Capture Reversal** (back-office) — undo a capture before settlement\n\nOnly Create requires the terminal. All subsequent steps are back-office API calls.",
+      "item": [
+        {
+          "name": "1. Pre-Auth Create (card-present)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "const uuid = () => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {",
+                  "  const r = Math.random() * 16 | 0;",
+                  "  return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);",
+                  "});",
+                  "pm.collectionVariables.set('transaction_reference', uuid());"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('202 Accepted', () => pm.response.to.have.status(202));",
+                  "if (pm.response.code === 202) {",
+                  "  const body = pm.response.json();",
+                  "  if (body.transactionResultId) pm.collectionVariables.set('transaction_result_id', body.transactionResultId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"preAuthorization\",\n  \"amount\": \"5000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"transactionReference\": \"{{transaction_reference}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Places a hold on the cardholder's funds. The cardholder must be present at the terminal.\n\nSave the `transactionID` from the AUTHORISED result — needed for all subsequent operations in the lifecycle.\n\nTypical uses: hotel check-in, restaurant tabs, car rental, medical procedures with uncertain final cost."
+          },
+          "response": []
+        },
+        {
+          "name": "2a. Pre-Auth Increase",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"preAuthorizationIncrease\",\n  \"amount\": \"7500\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Increase the hold amount. Back-office — no terminal or cardholder required.\n\n`amount` is the **new total hold amount**, not the increment. If the original hold was $50.00 and you want to increase to $75.00, send `\"amount\": \"7500\"`."
+          },
+          "response": []
+        },
+        {
+          "name": "2b. Pre-Auth Decrease",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"preAuthorizationDecrease\",\n  \"amount\": \"3000\",\n  \"currency\": \"USD\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Decrease the hold amount. Back-office — no terminal or cardholder required.\n\n`amount` is the **new total hold amount**."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Pre-Auth Capture",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"originalGuid\": \"{{last_transaction_id}}\",\n  \"capturedAmount\": \"4800\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/preauthorization/capture",
+              "host": ["{{base_url}}"],
+              "path": ["preauthorization", "capture"]
+            },
+            "description": "Settle a pre-authorization — charges the card for `capturedAmount` and releases the remaining hold.\n\nNote: this uses a **different endpoint** from other operations (`/preauthorization/capture`, not `/transactions`).\n\n`capturedAmount` can be less than the original hold. It cannot exceed the current hold amount."
+          },
+          "response": []
+        },
+        {
+          "name": "4a. Pre-Auth Reversal (release hold)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"preAuthorizationReversal\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Release the entire hold without charging the cardholder. Use when the service or transaction is cancelled.\n\nBack-office — no terminal or cardholder required."
+          },
+          "response": []
+        },
+        {
+          "name": "4b. Capture Reversal (undo capture)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"preAuthorizationCaptureReversal\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\",\n  \"originalTransactionId\": \"{{last_transaction_id}}\",\n  \"transactionReference\": \"new-uuid-here\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Reverse a capture before it settles in the batch. Use if a capture was sent in error.\n\nMust be sent before the daily batch close. Back-office — no terminal required."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Transaction Result",
+      "description": "Retrieve transaction outcomes by ID. Use when polling (no callbackUrl) or to recover a result after a server crash.",
+      "item": [
+        {
+          "name": "Get by transactionResultId",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/transaction-result/{{transaction_result_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["transaction-result", "{{transaction_result_id}}"]
+            },
+            "description": "Poll this endpoint after a transaction when no callbackUrl was provided.\n\n`transactionResultId` is in the 202 Accepted body (saved automatically by the test scripts in this collection).\n\nPoll every 2 seconds. Stop when `finStatus` is anything other than `IN_PROGRESS` or `UNDEFINED`.\n\nFinal statuses: AUTHORISED, DECLINED, FAILED, CANCELLED, PARTIALLY_APPROVED, REFUNDED, CAPTURED, PROCESSED."
+          },
+          "response": [
+            {
+              "name": "IN_PROGRESS",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"finStatus\": \"IN_PROGRESS\",\n  \"transactionID\": null,\n  \"statusMessage\": \"In Progress\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "AUTHORISED",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"finStatus\": \"AUTHORISED\",\n  \"transactionID\": \"e6254050-65ab-11f1-a9af-ffa530c6e21f\",\n  \"transactionReference\": \"2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f\",\n  \"type\": \"SALE\",\n  \"statusMessage\": \"Approved\",\n  \"errorMessage\": \"\",\n  \"requestedAmount\": 1000,\n  \"totalAmount\": 1000,\n  \"currency\": \"USD\",\n  \"cardSchemeName\": \"Visa\",\n  \"maskedCardNumber\": \"************0936\",\n  \"authorisationCode\": \"123456\",\n  \"issuerResponseCode\": \"00\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Get by transactionReference (recovery)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/transactions/{{transaction_reference}}",
+              "host": ["{{base_url}}"],
+              "path": ["transactions", "{{transaction_reference}}"]
+            },
+            "description": "Recovery endpoint — use when your server crashed, the callback was not received, or you need to look up a transaction by your own reference.\n\nThe `transactionReference` is the UUID v4 you sent in the original POST. This is why you persist it to your database before the request.\n\nIf the result is AUTHORISED and you have no prior record of it, send an automatic reversal to prevent a double-charge."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Batch Operations (EPI / TSYS only)",
+      "description": "Batch operations are only available on the EPI and Paysafe+Interac acquirers.\n\nThe batch contains all unsettled transactions for the day. Closing the batch triggers settlement with the acquirer.\n\nIf you do not explicitly close the batch, the acquirer closes it automatically at a configured cut-off time.",
+      "item": [
+        {
+          "name": "Batch Close",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"batchClose\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Manually trigger end-of-day batch settlement.\n\nAfter batch close, same-day reversals are no longer possible — use a Refund instead.\n\nEPI/TSYS only. Not applicable to EmerchantPay or Paystrax (those acquirers settle automatically)."
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Summary",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"batchSummary\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Returns a summary of the current open batch: total count, total amount by transaction type.\n\nUse before Batch Close to verify totals against your own records."
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Detail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "ApiKeyCloud", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"operation\": \"batchDetail\",\n  \"terminal_type\": \"{{terminal_type}}\",\n  \"serial_number\": \"{{serial_number}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/transactions",
+              "host": ["{{base_url}}"],
+              "path": ["transactions"]
+            },
+            "description": "Returns the full list of transactions in the current open batch, with individual amounts and reference numbers."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
