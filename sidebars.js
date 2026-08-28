@@ -64,6 +64,7 @@ const sidebars = {
       items: [
         'reference/android-sdk-setup',
         'reference/android-demo-app',
+        'reference/android-integration-walkthrough',
         'reference/javascript-sdk-setup',
         'reference/windows-sdk-setup',
         'reference/authentication',
