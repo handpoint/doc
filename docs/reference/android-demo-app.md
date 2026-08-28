@@ -338,7 +338,7 @@ This error means the Payments App on the terminal could not sync its configurati
 |---|---|---|
 | **SSK mismatch** | The SSK passed to `HandpointCredentials` differs from the one the Payments App was enrolled with | Verify the SSK in TMS matches `local.properties` |
 | **Device not enrolled** | Device serial is not assigned to any merchant in TMS | Assign the device to a merchant in TMS, then trigger a publish |
-| **Staging credential on production endpoint** | Device enrolled with staging credentials; SDK hitting production cloud | Use a device enrolled in the correct environment, or contact Handpoint to provision staging access |
+| **SDK version / cloud mismatch** | Stable SDK hits `gw1.handpoint.com` (production); RC SDK hits `cloud.handpoint.io` (staging). A stable build against a staging-enrolled device gets a 500 and never reaches `InitialisationComplete` | Use the **RC SDK version** for staging devices — rebuild and reinstall the APK |
 | **Payments App not updated** | TMS has a new config but the Payments App has not synced | Open Payments App → Settings → Sync, or power-cycle the device |
 
 ---
