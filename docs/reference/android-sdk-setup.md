@@ -55,7 +55,14 @@ Never submit an RC build to PAXStore or install it on a production device. RC ve
 
 ## ISV integration checklist
 
-Use this checklist before starting development and again before go-live. Handpoint provides a dedicated Slack channel once your integration is underway — use that as your primary support channel. Before integration starts, or if you don't have a channel yet, reach out via [support@handpoint.com](mailto:support@handpoint.com).
+### How the integration process starts
+
+1. **Send an integration request** to [support@handpoint.com](mailto:support@handpoint.com) describing your use case and target markets.
+2. **Scoping call** — Handpoint will discuss the integration path (Android SDK, Cloud API, etc.) and confirm supported acquirers and features.
+3. **Handpoint provisions your staging environment** — creates a test merchant in TMS Staging, assigns a debug device serial, and documents everything in a shared Slack Canva.
+4. **Dedicated Slack channel** — once provisioned, all integration support happens in this channel. It is the fastest way to reach the integration team throughout development and go-live.
+
+Use the checklist below as your reference throughout. If anything is unclear, ask in your Slack channel.
 
 ### Staging (development)
 
@@ -75,10 +82,11 @@ Use this checklist before starting development and again before go-live. Handpoi
 - [ ] **Serial number assigned in TMS Production** — device must be assigned to a production merchant at `tms.handpoint.com`.
 - [ ] **Stable SDK version** — use the latest stable release, not an RC. Nexus credentials are still required (same credentials as staging).
 - [ ] **Production merchant credentials** — SSK and (if applicable) Cloud API Key from the production TMS merchant record.
-- [ ] **Signed production build published to PAXStore**:
+- [ ] **Upload APK to PAXStore** — no APK signing is required by PAXStore. Upload the release APK directly:
   - EMEA: [paxemea.whatspos.com/developer](https://paxemea.whatspos.com/developer#/home)
   - US: [paxstore.us/developer](https://www.paxstore.us/developer)
-- [ ] **Notify Handpoint** — share your app's package name and PAXStore URL with Handpoint so they can request PAX app distribution approval for the correct marketplace.
+  - First-time submission approval typically takes **5–7 working days**. In the US, PAX offers a paid expedited review — contact the PAX US team if timeline is a concern.
+- [ ] **Notify Handpoint** — share your app's package name and PAXStore listing URL in your Slack channel so Handpoint can request PAX distribution approval for the correct marketplace.
 
 :::info Always confirm the latest SDK version with Handpoint
 The stable SDK version required for production depends on the capabilities your integration uses. Confirm with your Handpoint integration team (via your dedicated Slack channel or [support@handpoint.com](mailto:support@handpoint.com)) before go-live that you are on the correct stable build and that the features you tested in staging are available in that release.
