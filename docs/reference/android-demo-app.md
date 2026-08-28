@@ -37,21 +37,27 @@ HANDPOINT_CLOUD_API_KEY=YOUR_CLOUD_API_KEY
 
 ### 2. Expose through `BuildConfig` in `build.gradle.kts`
 
+Import `java.util.Properties` at the **top of the file** — inside `android { }` the identifier `java` resolves to the Gradle Java extension, not `java.util`.
+
 ```kotlin
+import java.util.Properties  // must be at top level
+
+// Load before the android { } block
+val localProps = Properties().also { props ->
+    rootProject.file("local.properties")
+        .takeIf { it.exists() }
+        ?.inputStream()?.use(props::load)
+}
+
 android {
     defaultConfig {
-        val props = java.util.Properties().also { props ->
-            rootProject.file("local.properties")
-                .takeIf { it.exists() }
-                ?.inputStream()?.use(props::load)
-        }
         buildConfigField(
             "String", "HANDPOINT_SHARED_SECRET",
-            "\"${props["HANDPOINT_SHARED_SECRET"] ?: "YOUR_SHARED_SECRET_KEY"}\""
+            "\"${localProps["HANDPOINT_SHARED_SECRET"] ?: "YOUR_SHARED_SECRET_KEY"}\""
         )
         buildConfigField(
             "String", "HANDPOINT_CLOUD_API_KEY",
-            "\"${props["HANDPOINT_CLOUD_API_KEY"] ?: "YOUR_CLOUD_API_KEY"}\""
+            "\"${localProps["HANDPOINT_CLOUD_API_KEY"] ?: "YOUR_CLOUD_API_KEY"}\""
         )
     }
 }

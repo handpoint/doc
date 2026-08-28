@@ -23,23 +23,28 @@ In your **app-level** `build.gradle`:
 
 ```groovy
 dependencies {
-    implementation 'com.handpoint.api:sdk:7.1013.1'
+    // Exclude paymentsdk from sdk to avoid duplicate class errors; add it directly.
+    // Do NOT exclude com.handpoint.api.shared — it provides Currency, TransactionResult, etc.
+    implementation('com.handpoint.api:sdk:7.1012.3') {
+        exclude group: 'com.handpoint.api', module: 'paymentsdk'
+    }
+    implementation 'com.handpoint.api:paymentsdk:7.1012.3'
 }
 ```
 
-For RC / staging builds, credentials for the Handpoint Nexus server are required — contact your Handpoint integration engineer.
+The Handpoint SDK is distributed via the Handpoint Nexus server — credentials are required even for stable releases. Contact your Handpoint integration engineer to obtain access.
 
-In your **top-level** `build.gradle`, add the Handpoint Maven repository alongside `mavenCentral()`:
+In your **top-level** `build.gradle`, add the Handpoint Maven repository:
 
 ```groovy
 allprojects {
     repositories {
         google()
         mavenCentral()
-        // Required for RC/SNAPSHOT builds only — credentials provided by Handpoint
         maven {
             name = "Handpoint Nexus"
-            url = uri("https://nexus.handpoint.com/repository/public")
+            url = uri("http://nexus.handpoint.ninja:8081/repository/public/")
+            allowInsecureProtocol = true  // required — Nexus endpoint is HTTP
             credentials {
                 username = 'PROVIDED_BY_HANDPOINT'
                 password = 'PROVIDED_BY_HANDPOINT'
@@ -47,6 +52,18 @@ allprojects {
         }
     }
 }
+```
+
+:::tip Keep credentials out of source control
+Store your Nexus username and password in `local.properties` (gitignored) and load them via `providers.gradleProperty()` in your Gradle scripts — never hardcode them.
+:::
+
+### JDK requirement
+
+**JDK 17 or 21 is required.** The Kotlin Gradle plugin cannot parse JDK 23+ version strings and will crash during configuration. If your `JAVA_HOME` points to a newer JDK (e.g. Android Studio's bundled JBR), pin the build JDK in `gradle.properties`:
+
+```properties
+org.gradle.java.home=/path/to/jdk-17
 ```
 
 ### defaultConfig flags
@@ -80,12 +97,16 @@ android {
         }
         resources {
             excludes += [
-                "META-INF/*",
+                "META-INF/INDEX.LIST",
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE*",
+                "META-INF/NOTICE*",
+                "META-INF/*.version",
+                "AndroidManifest.xml",
+                "resources.arsc",
                 "**/anim/*.xml",
                 "**/layout/*.xml",
                 "**/animator/*.xml",
-                "resources.arsc",
-                "AndroidManifest.xml"
             ]
         }
     }
@@ -98,11 +119,15 @@ android {
 android {
     packagingOptions {
         pickFirst '**/*.so'
-        exclude 'META-INF/*'
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/LICENSE*'
+        exclude 'META-INF/NOTICE*'
+        exclude 'META-INF/*.version'
+        exclude 'AndroidManifest.xml'
+        exclude 'resources.arsc'
         exclude '**/anim/*.xml'
         exclude '**/layout/*.xml'
-        exclude 'resources.arsc'
-        exclude 'AndroidManifest.xml'
         exclude '**/animator/*.xml'
     }
 }
