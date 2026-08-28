@@ -53,6 +53,39 @@ Never submit an RC build to PAXStore or install it on a production device. RC ve
 
 ---
 
+## ISV integration checklist
+
+Use this checklist before starting development and again before go-live. Contact [Handpoint integration support](mailto:support@handpoint.com) for anything you cannot resolve from this guide.
+
+### Staging (development)
+
+- [ ] **Supported PAX model in DEBUG mode** — obtain a debug device from Handpoint. Only debug-mode hardware can accept manually injected staging keys.
+- [ ] **Keys injected via hiKeyLoader** — install the hiKeyLoader app on the device and inject your staging SSK and Cloud API Key. This enrolls the device in TMS Staging.
+- [ ] **Serial number assigned in TMS Staging** — Handpoint must assign the device's serial number under a test/demo merchant in TMS Staging with the transaction types you need enabled (MOTO, Pre-Auth, Interac, etc.).
+- [ ] **RC SDK version** — use the RC version provided by Handpoint (not a stable release). RC builds target staging infrastructure.
+- [ ] **Nexus credentials** — required to resolve the RC dependency. Store as `nexusUsername` / `nexusPassword` in `local.properties` (never in source files).
+- [ ] **Merchant credentials**:
+  - **SSK** (required for all card-present operations)
+  - **Cloud API Key** (only needed for Keyed Entry / MOTO or Cloud REST API calls through the SDK)
+
+### Production (go-live)
+
+- [ ] **Production PAX device** — a non-debug device from your PAXStore account.
+- [ ] **Keys injected via PAXStore RKI** — production keys are injected remotely through the PAXStore portal (Remote Key Injection). No manual hiKeyLoader step.
+- [ ] **Serial number assigned in TMS Production** — device must be assigned to a production merchant at `tms.handpoint.com`.
+- [ ] **Stable SDK version** — use the latest stable release, not an RC. Nexus credentials are still required (same credentials as staging).
+- [ ] **Production merchant credentials** — SSK and (if applicable) Cloud API Key from the production TMS merchant record.
+- [ ] **Signed production build published to PAXStore**:
+  - EMEA: [paxemea.whatspos.com/developer](https://paxemea.whatspos.com/developer#/home)
+  - US: [paxstore.us/developer](https://www.paxstore.us/developer)
+- [ ] **Notify Handpoint** — share your app's package name and PAXStore URL with Handpoint so they can request PAX app distribution approval for the correct marketplace.
+
+:::info Always confirm the latest SDK version with Handpoint
+The stable SDK version required for production depends on the capabilities your integration uses. Contact Handpoint integration support before go-live to confirm you are on the correct stable build and that the features you have tested are available in that release.
+:::
+
+---
+
 ## 1. Add the Gradle dependency
 
 In your **app-level** `build.gradle`:
@@ -115,7 +148,9 @@ android {
         minSdkVersion 22          // Required — covers all supported PAX and Telpo models
         multiDexEnabled true      // Required
         ndk {
-            abiFilters "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
+            // armeabi-v7a covers all supported PAX models including the A6650.
+            // Do NOT add arm64-v8a here — see the PAX A6650 note below.
+            abiFilters "armeabi-v7a"
         }
     }
     compileOptions {
@@ -124,6 +159,15 @@ android {
     }
 }
 ```
+
+:::caution PAX A6650 — do not include `arm64-v8a` in abiFilters
+The Handpoint SDK ships `.so` libraries for `armeabi-v7a` only. If you include `arm64-v8a` in `abiFilters`, the build produces an APK with an **empty** `lib/arm64-v8a/` folder.
+
+- On **32-bit OS** A6650 devices: Android ignores the empty folder and loads `armeabi-v7a` — no crash.
+- On **64-bit OS** A6650 devices: Android sees the `arm64-v8a` folder, locks the process into 64-bit mode, then crashes when it cannot find the `.so` files.
+
+Fix: use only `"armeabi-v7a"` in `abiFilters`. This works on all A6650 variants and all other supported PAX models.
+:::
 
 ### Packaging block
 
