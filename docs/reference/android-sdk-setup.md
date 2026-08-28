@@ -92,6 +92,9 @@ In your **app-level** `build.gradle`:
 
 ```groovy
 dependencies {
+    // Required for Java 8+ API desugaring on older Android API levels.
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+
     // Exclude paymentsdk from sdk to avoid duplicate class errors; add it directly.
     // Do NOT exclude com.handpoint.api.shared — it provides Currency, TransactionResult, etc.
     //
@@ -101,6 +104,18 @@ dependencies {
         exclude group: 'com.handpoint.api', module: 'paymentsdk'
     }
     implementation 'com.handpoint.api:paymentsdk:VERSION'
+}
+```
+
+Also enable desugaring in `compileOptions`:
+
+```groovy
+android {
+    compileOptions {
+        isCoreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
 }
 ```
 
@@ -129,16 +144,42 @@ allprojects {
 ```
 
 :::tip Keep credentials out of source control
-Store your Nexus username and password in `local.properties` (gitignored) and load them via `providers.gradleProperty()` in your Gradle scripts — never hardcode them.
+Store your Nexus username and password in `local.properties` (gitignored). In `settings.gradle.kts`, load that file explicitly — `providers.gradleProperty()` reads `gradle.properties`, **not** `local.properties`:
+
+```kotlin
+import java.util.Properties
+
+val localProps = Properties().also { props ->
+    File(rootDir, "local.properties").takeIf { it.exists() }?.inputStream()?.use(props::load)
+}
+
+// then in the maven block:
+credentials {
+    username = localProps.getProperty("nexusUsername") ?: "PROVIDED_BY_HANDPOINT"
+    password = localProps.getProperty("nexusPassword") ?: ""
+}
+```
+
+Never put actual credential values in `gradle.properties` — that file is committed to source control.
 :::
 
 ### JDK requirement
 
-**JDK 17 or 21 is required.** The Kotlin Gradle plugin cannot parse JDK 23+ version strings and will crash during configuration. If your `JAVA_HOME` points to a newer JDK (e.g. Android Studio's bundled JBR), pin the build JDK in `gradle.properties`:
+**JDK 17 or 21 is required.** The Kotlin Gradle plugin cannot parse JDK 23+ version strings and will crash during Gradle configuration. If your `JAVA_HOME` points to a newer JDK (e.g. Android Studio's bundled JBR 25), the crash message is just the bare JDK version string — e.g.:
+
+```
+FAILURE: Build failed with an exception.
+* What went wrong:
+25.0.2
+```
+
+That version number *is* the error. Fix it by pinning the build JDK in `gradle.properties`:
 
 ```properties
 org.gradle.java.home=/path/to/jdk-17
 ```
+
+On Windows with Adoptium: `C\:\\Program Files\\Eclipse Adoptium\\jdk-17.0.20.101-hotspot`
 
 ### defaultConfig flags
 
@@ -224,15 +265,15 @@ android {
 
 ### Required on the `<application>` tag
 
+**AGP 6/7:** Add the attribute directly to the manifest:
+
 ```xml
 <application
     android:extractNativeLibs="true"
     ...>
 ```
 
-:::note AGP 8.x equivalent
-With AGP 8.x, use `jniLibs { useLegacyPackaging true }` in the packaging block instead — both achieve the same result.
-:::
+**AGP 8.x:** Do **not** add `android:extractNativeLibs` to the manifest — AGP 8.x generates a warning telling you to remove it. Use only the Gradle packaging block (`jniLibs { useLegacyPackaging = true }`), which has the same effect and is the correct AGP 8.x approach.
 
 ### Required on your main Activity
 
@@ -331,8 +372,11 @@ class MyActivity : AppCompatActivity(), Events.SmartposRequired {
             settings = settings
         )
 
-        // Connect to the terminal
-        val device = Device("Terminal", "1", "", ConnectionMethod.ANDROID_PAYMENT)
+        // Connect to the terminal.
+        // For ANDROID_PAYMENT the string arguments (name, address, port) are ignored
+        // by the SDK — pass any non-null values. The connection is made via the local
+        // Handpoint Payments App AIDL service, not a network address.
+        val device = Device("PAX", "", "", ConnectionMethod.ANDROID_PAYMENT)
         api.connect(device)
 
         // Alternatively, discover paired PAX devices:
