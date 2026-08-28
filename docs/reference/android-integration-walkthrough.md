@@ -141,24 +141,28 @@ app restarts → InitialisationComplete fires
 
 ### The 90-second rule
 
-**Poll `getTransactionStatus` for at least 90 seconds from the time the operation was started** (`firstSeenAt`), regardless of whether the device is online.
+**Poll `getTransactionStatus` for at least 90 seconds from when `UNDEFINED` is first received** in `endOfTransaction` — not from when the operation was started.
 
-Why 90 seconds: in the field, gateways have been observed processing transactions up to ~60 seconds after the SDK returns to the app. Stopping retries the moment `UNDEFINED` appears while online causes false failures — the gateway can still resolve the status seconds later.
+Why the distinction matters: a slow card-present flow (slow PIN entry, chip fallback retries, sluggish acquirer) can take 45–60 seconds before `endOfTransaction` even fires. If the window started at operation start, it could be nearly exhausted by the time you begin recovery polling. Starting it at first-UNDEFINED gives the full 90 seconds for the gateway to resolve — which has been observed to take up to ~60 seconds in the field.
+
+:::info Confirm the window with Handpoint
+The 90-second value is based on observed field data at time of writing. Some acquirers or network conditions may require a longer window. Confirm the recommended value with your Handpoint integration team before go-live.
+:::
 
 | Condition | Action |
 |---|---|
 | `finStatus == IN_PROGRESS` | Always retry (within backoff window) |
-| `finStatus == UNDEFINED` AND within 90s of `firstSeenAt` | Retry — gateway may still be processing |
+| `finStatus == UNDEFINED` AND within 90s of **first UNDEFINED** | Retry — gateway may still be processing |
 | `finStatus == UNDEFINED` AND past 90s AND **online** | Stop retrying. Outcome is unknown — surface to merchant for acquirer verification |
 | `finStatus == UNDEFINED` AND **offline** | Keep retrying until the device comes back online |
 
 ### Implementation
 
 ```kotlin
-// Stored with every started operation
+// Stored when operationStarted == true
 data class PendingTransaction(
     val ref: String,
-    val firstSeenAt: Long  // System.currentTimeMillis() when operationStarted == true
+    val undefinedFirstSeenAt: Long = 0L  // set when endOfTransaction fires with UNDEFINED
 )
 
 private val RECOVERY_WINDOW_MS = 90_000L
@@ -170,7 +174,8 @@ private fun recoverIfPending() {
 }
 
 private fun attemptRecovery(pending: PendingTransaction) {
-    val elapsed = System.currentTimeMillis() - pending.firstSeenAt
+    val t0 = pending.undefinedFirstSeenAt.takeIf { it > 0 } ?: System.currentTimeMillis()
+    val elapsed = System.currentTimeMillis() - t0
     val windowRemaining = RECOVERY_WINDOW_MS - elapsed
     val online = isNetworkAvailable()
 
@@ -190,24 +195,29 @@ private fun attemptRecovery(pending: PendingTransaction) {
 
 override fun transactionResultReady(result: TransactionResult, device: Device) {
     val fin = result.finStatus.toString()
-    val elapsed = System.currentTimeMillis() - pending.firstSeenAt
 
-    log("[Recovery] transactionResultReady finStatus=$fin elapsed=${elapsed}ms")
+    if (fin == "UNDEFINED" && pending.undefinedFirstSeenAt == 0L) {
+        // First UNDEFINED seen here (e.g. on app-restart recovery path)
+        pending = pending.copy(undefinedFirstSeenAt = System.currentTimeMillis())
+    }
+
+    val elapsed = if (pending.undefinedFirstSeenAt > 0)
+        System.currentTimeMillis() - pending.undefinedFirstSeenAt else 0L
+
+    log("[Recovery] transactionResultReady finStatus=$fin windowElapsed=${elapsed}ms")
 
     if (fin == "UNDEFINED" || fin == "IN_PROGRESS") {
-        // Keep polling — schedule next attempt with exponential backoff
         scheduleRecovery(pending, immediate = false)
         return
     }
 
-    // Terminal status received — clear recovery and handle result
     clearStorage()
     handleFinalResult(result)
 }
 ```
 
 :::caution Storage migration
-If you are adding recovery to an existing integration, existing queued transactions will not have a `firstSeenAt`. Set `firstSeenAt = System.currentTimeMillis()` as the default. This grants up to 90 additional seconds of polling for already-queued items — acceptable to avoid prematurely stopping retries.
+If you are adding recovery to an existing integration, existing queued transactions will not have `undefinedFirstSeenAt`. Set it to `System.currentTimeMillis()` when first loading from storage — this grants up to 90 additional seconds of polling for already-queued items rather than prematurely stopping retries.
 :::
 
 ---
