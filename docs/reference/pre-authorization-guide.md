@@ -468,7 +468,7 @@ See [Transaction Recovery & Status](/reference/transaction-recovery) for full do
 |---|---|
 | Always reverse unused pre-auths | Unreleased holds reduce the cardholder's available credit and may generate disputes |
 | Capture before hold expiry (7–30 days) | Expired holds cannot be captured — you would need to re-initiate a new card interaction |
-| Store `transactionID` at every step | Capture and Void both require the `transactionID` from the most recent operation in the chain |
+| Store `transactionID` at every step | Increases chain through the most recent ID; Capture and Void require the **original pre-auth** `transactionID` — live-device testing confirmed that passing an increase's ID to `preAuthorizationCapture()` returns `FAILED` |
 | Store `transactionReference` from Create | Enables `/status/all` queries for the full chain at any time |
 | Do not send `transactionReference` on Capture, Increase, or Void | Only on the original Create. Subsequent operations are linked via `originalTransactionId` |
 | Partial capture is usually allowed | Capture less than the hold amount when the final charge is lower — no need to void and re-charge |
@@ -482,14 +482,14 @@ The field that links operations differs by integration path:
 
 ### Terminal-based (Android PAX SDK, Cordova, Cloud API `POST /transactions`)
 
-Each operation references the **most recent preceding transactionID** — not the original pre-auth:
+Increases chain through the most recent ID. **Capture and Void always reference the original pre-auth `transactionID`** ("A") — not the most recent increase. Live-device testing on PAX A920 confirmed that passing an increase's `transactionID` to `preAuthorizationCapture()` returns `FAILED`:
 
 ```
 Create          → transactionID = "A"
 Increase        → originalTransactionId = "A"   → transactionID = "B"
 Second Increase → originalTransactionId = "B"   → transactionID = "C"
-Capture         → originalTransactionId = "C"   (most recent, not "A")
-Void            → originalTransactionId = "A"   (original pre-auth, or most recent step — confirm per acquirer)
+Capture         → originalTransactionId = "A"   (original pre-auth — not "C")
+Void            → originalTransactionId = "A"   (original pre-auth)
 ```
 
 ### Back-office Capture (`POST /preauthorization/capture`)

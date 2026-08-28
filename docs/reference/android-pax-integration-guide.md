@@ -245,6 +245,16 @@ hapi.getTransactionStatus(ref)
 | **Tip Adjustment** | EPI, Paysafe + Interac |
 | **Get Transaction Status** | All (PAX only) |
 
+## Utility methods — verified return values (PAX A920)
+
+| Method | Return | Notes |
+|---|---|---|
+| `stopCurrentTransaction()` | `false` when idle | Returns `false` when no transaction is in progress — only returns `true` when it successfully interrupts an active transaction. Do not interpret `false` as an error; check `OperationStartResult.operationStarted` instead. |
+| `getDeviceLogs()` | `false` on PAX | Returns `false` even when the call was accepted. Device log delivery goes through the `PrinterEvents` channel — implement `Events.PrinterEvents` and handle `onPrintFailure(PrintError.CantConnectToPrinter)` when no host printer is reachable. |
+| `update()` | `true` | Returns `true` immediately; update check runs asynchronously. |
+| `tipAdjustment()` | `true` | Fire-and-forget; no callback. |
+| `getTransactionStatus()` | `true` | Result delivered via `transactionResultReady()`. |
+
 ## Test amounts
 
 On a DEMO merchant or debug terminal. Pass amounts in **minor units** (cents / pence) — e.g. `3779` not `37.79`. Use the full trigger table — including partial approval (3757) and timeout (3768) — from [Development Hardware: Testing with trigger amounts](/reference/development-hardware#trigger-amounts). Any amount not in the table approves.

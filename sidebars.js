@@ -63,6 +63,7 @@ const sidebars = {
       collapsible: false,
       items: [
         'reference/android-sdk-setup',
+        'reference/android-demo-app',
         'reference/javascript-sdk-setup',
         'reference/windows-sdk-setup',
         'reference/authentication',
