@@ -17,6 +17,42 @@ The initialization pattern is the same for both. The difference is in how you co
 
 ---
 
+## Development vs production environments
+
+Handpoint has two separate environments, each requiring different hardware, credentials, and SDK builds:
+
+| | Development / Staging | Production |
+|---|---|---|
+| **Device type** | Debug device | Production device |
+| **Key injection** | Manual via **hiKeyLoader** app | Remote via **PAXStore RKI** |
+| **TMS environment** | Staging (`.io` domain) | Production (`.com` domain) |
+| **SDK version** | **RC build** (e.g. `7.1013.0-RC1`) | **Stable build** (e.g. `7.1012.3`) |
+| **App distribution** | Side-loaded via ADB | Deployed via PAXStore |
+| **Credentials** | Staging SSK + staging Cloud API Key | Production SSK + production Cloud API Key |
+
+**The two environments are not interchangeable.** A production device enrolled in production TMS will not accept staging credentials, and an RC SDK build should never be submitted to PAXStore.
+
+### Development workflow
+
+1. Obtain a **debug device** from Handpoint.
+2. Use the **hiKeyLoader** app to inject staging keys (SSK + cloudApiKey) into the device. This enrolls the device in staging TMS.
+3. Build your app using the **latest RC SDK version**. Contact your Handpoint integration engineer for the current RC version and Nexus credentials.
+4. Side-load your APK via ADB: `adb install app-debug.apk`
+5. Iterate until the integration is validated.
+
+### Production workflow
+
+1. Obtain a **production device** from your PAXStore account.
+2. Create a production merchant in TMS and obtain production credentials.
+3. Build your app with a **stable SDK version** using the standard Nexus or Maven Central dependency.
+4. Upload the signed APK to PAXStore and deploy via Remote Key Injection (RKI) from the PAXStore portal.
+
+:::caution RC versions are for development only
+Never submit an RC build to PAXStore or install it on a production device. RC versions connect to staging infrastructure and are not validated for live transaction processing.
+:::
+
+---
+
 ## 1. Add the Gradle dependency
 
 In your **app-level** `build.gradle`:
@@ -25,14 +61,19 @@ In your **app-level** `build.gradle`:
 dependencies {
     // Exclude paymentsdk from sdk to avoid duplicate class errors; add it directly.
     // Do NOT exclude com.handpoint.api.shared — it provides Currency, TransactionResult, etc.
-    implementation('com.handpoint.api:sdk:7.1012.3') {
+    //
+    // For development (debug device + staging): use the RC version provided by Handpoint.
+    // For production (PAXStore deployment): use the latest stable version.
+    implementation('com.handpoint.api:sdk:VERSION') {
         exclude group: 'com.handpoint.api', module: 'paymentsdk'
     }
-    implementation 'com.handpoint.api:paymentsdk:7.1012.3'
+    implementation 'com.handpoint.api:paymentsdk:VERSION'
 }
 ```
 
-The Handpoint SDK is distributed via the Handpoint Nexus server — credentials are required even for stable releases. Contact your Handpoint integration engineer to obtain access.
+**RC versions** (e.g. `7.1013.0-RC1`) are required for development with debug devices and staging TMS. They are only available on the Handpoint Nexus server — contact your Handpoint integration engineer for the current RC version and your Nexus credentials.
+
+**Stable versions** (e.g. `7.1012.3`) are used for production PAXStore builds. They resolve from the same Nexus server.
 
 In your **top-level** `build.gradle`, add the Handpoint Maven repository:
 

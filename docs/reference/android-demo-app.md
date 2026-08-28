@@ -9,9 +9,10 @@ description: A reference demo application for the Handpoint Android SDK covering
 The Handpoint Android Demo is a ready-to-run reference application for PAX SmartPOS terminals that demonstrates every SDK operation, all five acquirer configurations, automatic transaction recovery, and the Interac VOID flow.
 
 :::info What you need
-- A PAX terminal enrolled in Handpoint TMS
-- Your **Shared Secret Key** (SSK) and **Cloud API Key** — both provided by Handpoint for your merchant account
+- A PAX **debug device** with staging keys injected via the **hiKeyLoader** app (for development) — or a production device enrolled via PAXStore RKI (for production)
+- Your **Shared Secret Key** (SSK) and **Cloud API Key** from the appropriate TMS environment (staging or production)
 - Android Studio with Kotlin 2.1+ or Gradle from the command line
+- **RC SDK version** for staging/debug device testing; **stable SDK version** for production PAXStore builds — see [Development vs production environments](./android-sdk-setup.md#development-vs-production-environments)
 :::
 
 **Source code:** [github.com/handpoint/handpoint-android-demo](https://github.com/handpoint/handpoint-android-demo)
@@ -315,17 +316,18 @@ If your app switches between merchants at runtime, you must call the SDK initial
 
 ### Staging vs production
 
-Handpoint provides two environments for development and go-live:
-
-| Environment | TMS URL | Purpose |
+| | Staging | Production |
 |---|---|---|
-| **Staging** | TMS staging portal | Integration development, RC testing |
-| **Production** | TMS production portal | Live merchant transactions |
+| **TMS** | Staging portal (`.io`) | Production portal (`.com`) |
+| **Device** | Debug device | Production device |
+| **Key injection** | Manual via **hiKeyLoader** app | Remote via **PAXStore RKI** |
+| **SDK version** | **RC build** | **Stable build** |
+| **App install** | `adb install` | PAXStore deployment |
 
-**Staging credentials only work in the staging environment.** A staging SSK or Cloud API Key presented to the production SDK endpoint will fail. When developing, enroll your test device in staging TMS with staging credentials. Before going live, re-enroll the device (or migrate the merchant config) in production.
+**Staging credentials only work against staging infrastructure.** Presenting a staging SSK or Cloud API Key on a production-gateway-connected device will fail, and vice versa.
 
-:::info Test devices stay in staging
-Test devices used during integration or RC verification should remain enrolled in staging TMS. Never route test transactions through a production merchant.
+:::info Debug devices always stay in staging
+Debug devices are intended for development and RC validation only. Never enroll a debug device in production TMS or route live transactions through it.
 :::
 
 ### Diagnosing "Configuration update failed"
