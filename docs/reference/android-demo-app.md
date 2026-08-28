@@ -248,6 +248,99 @@ The demo polls for up to **90 seconds** with exponential backoff starting at 5 s
 
 ---
 
+## ISV integration: multi-merchant credential management
+
+This section is specifically for **ISVs** (Independent Software Vendors) who distribute one app to many merchants. If you are building a single-merchant app, the credential setup section above is sufficient.
+
+### Credentials are per-merchant, not per-ISV
+
+Each merchant enrolled with Handpoint receives a unique pair of credentials:
+
+| Credential | What it identifies | Where it lives |
+|---|---|---|
+| **Shared Secret Key (SSK)** | A single merchant in TMS. The Payments App on the device is enrolled with this value — it is the link between your app and that merchant's terminal. | TMS merchant record (`sharedSecret` field) |
+| **Cloud API Key** | The same merchant in the Handpoint Cloud (for MOTO / cloud-payment mode). Required for cloud-mode operations; SDK still initializes without it. | TMS merchant record (`cloudApiKey` field) |
+
+Two different merchants always have different SSKs. There is no ISV-level SSK.
+
+### TMS as the credential source of truth
+
+When Handpoint provisions a new merchant for you, that merchant is created in the TMS Partner Portal under your partner account. The SSK and Cloud API Key are stored on the merchant object and can be retrieved at any time:
+
+```
+GET /partner/partner/{partnerId}/merchant/{merchantId}?detail=merchantobject
+Authorization: Bearer <your-partner-token>
+```
+
+The response includes a `sharedSecret` field. This is the SSK your app must pass to `HandpointCredentials` for that merchant's terminal.
+
+### Backend mapping pattern
+
+ISVs need a backend service that maps each of your merchants to their Handpoint credentials. A typical pattern:
+
+```
+Your Backend
+├── merchants table
+│   ├── merchant_id        (your internal ID)
+│   ├── hp_shared_secret   (SSK from TMS — treat as a secret)
+│   └── hp_cloud_api_key   (Cloud API Key from TMS)
+│
+└── credential endpoint
+    GET /api/credentials?merchant_id=123
+    → { "sharedSecret": "...", "cloudApiKey": "..." }
+```
+
+At runtime, the Android app calls your backend to fetch the active merchant's credentials and passes them to the SDK:
+
+```kotlin
+// Fetch at login or merchant-switch time — NOT at app compile time
+val creds = yourBackend.getCredentials(activeMerchantId)
+
+val api = HapiFactory.getAsyncInterface(
+    delegate  = this,
+    context   = this,
+    credentials = HandpointCredentials(
+        sharedSecret = creds.sharedSecret,
+        cloudApiKey  = creds.cloudApiKey
+    )
+)
+api.connect(device)
+```
+
+This means a single APK can serve any merchant — you do not need to recompile per merchant or hardcode any credentials.
+
+:::caution Re-initialize the SDK when switching merchants
+If your app switches between merchants at runtime, you must call the SDK initialization sequence again with the new credentials. The SDK binds to the terminal's enrolled SSK at connection time — presenting the wrong SSK produces a `Configuration update failed` error.
+:::
+
+### Staging vs production
+
+Handpoint provides two environments for development and go-live:
+
+| Environment | TMS URL | Purpose |
+|---|---|---|
+| **Staging** | TMS staging portal | Integration development, RC testing |
+| **Production** | TMS production portal | Live merchant transactions |
+
+**Staging credentials only work in the staging environment.** A staging SSK or Cloud API Key presented to the production SDK endpoint will fail. When developing, enroll your test device in staging TMS with staging credentials. Before going live, re-enroll the device (or migrate the merchant config) in production.
+
+:::info Test devices stay in staging
+Test devices used during integration or RC verification should remain enrolled in staging TMS. Never route test transactions through a production merchant.
+:::
+
+### Diagnosing "Configuration update failed"
+
+This error means the Payments App on the terminal could not sync its configuration from Handpoint Cloud. Likely causes:
+
+| Cause | How to check | Fix |
+|---|---|---|
+| **SSK mismatch** | The SSK passed to `HandpointCredentials` differs from the one the Payments App was enrolled with | Verify the SSK in TMS matches `local.properties` |
+| **Device not enrolled** | Device serial is not assigned to any merchant in TMS | Assign the device to a merchant in TMS, then trigger a publish |
+| **Staging credential on production endpoint** | Device enrolled with staging credentials; SDK hitting production cloud | Use a device enrolled in the correct environment, or contact Handpoint to provision staging access |
+| **Payments App not updated** | TMS has a new config but the Payments App has not synced | Open Payments App → Settings → Sync, or power-cycle the device |
+
+---
+
 ## Best practices summary
 
 | Pattern | Recommendation |
