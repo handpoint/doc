@@ -55,7 +55,7 @@ Never submit an RC build to PAXStore or install it on a production device. RC ve
 
 ## ISV integration checklist
 
-Use this checklist before starting development and again before go-live. Contact [Handpoint integration support](mailto:support@handpoint.com) for anything you cannot resolve from this guide.
+Use this checklist before starting development and again before go-live. Handpoint provides a dedicated Slack channel once your integration is underway — use that as your primary support channel. Before integration starts, or if you don't have a channel yet, reach out via [support@handpoint.com](mailto:support@handpoint.com).
 
 ### Staging (development)
 
@@ -81,7 +81,7 @@ Use this checklist before starting development and again before go-live. Contact
 - [ ] **Notify Handpoint** — share your app's package name and PAXStore URL with Handpoint so they can request PAX app distribution approval for the correct marketplace.
 
 :::info Always confirm the latest SDK version with Handpoint
-The stable SDK version required for production depends on the capabilities your integration uses. Contact Handpoint integration support before go-live to confirm you are on the correct stable build and that the features you have tested are available in that release.
+The stable SDK version required for production depends on the capabilities your integration uses. Confirm with your Handpoint integration team (via your dedicated Slack channel or [support@handpoint.com](mailto:support@handpoint.com)) before go-live that you are on the correct stable build and that the features you tested in staging are available in that release.
 :::
 
 ---
