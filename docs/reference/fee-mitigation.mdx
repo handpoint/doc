@@ -1,0 +1,251 @@
+---
+title: "Fee Mitigation"
+sidebar_label: "Fee Mitigation"
+description: "The four programs that let a merchant recover the cost of card acceptance — surcharge, dual pricing, cash discount and admin fee — what each one means, which cards and operations it applies to, and what the receipt must show."
+---
+
+:::caution Under development
+This page describes a feature we are building. It is not available in the SDK or the API. Read it to
+plan an integration, and confirm availability with your Handpoint contact before you build against
+it.
+:::
+
+# Fee Mitigation
+
+A merchant pays a cost to accept a card. **Fee mitigation** lets the merchant move part of that
+cost to the customer, or reward a customer who pays another way.
+
+Handpoint supports four programs. A transaction carries **one** program. It never carries two.
+
+## The four programs
+
+| Program | What the customer sees | Tenders |
+|---|---|---|
+| **Surcharge** | The price, plus a separate fee for the use of a credit card | Credit cards only |
+| **Dual pricing** | Two prices: a cash price, and a higher card price | Every card |
+| **Cash discount** | The card price, and a lower price if they pay cash | Cash and e-gift only |
+| **Admin fee** | The price, plus a fee that applies to every payment method | Every tender |
+
+### Why the difference matters
+
+The difference between these programs is legal, not arithmetic. Two programs can charge the same
+money and follow different rules.
+
+- A **surcharge** is a fee. The card networks regulate it, and several US states prohibit it.
+- **Dual pricing** is a price, not a fee. The merchant posts two prices, so the card price is
+  simply the price. This is why dual pricing avoids the restrictions that apply to a surcharge.
+- A **cash discount** reduces the price when the customer pays cash. The card price is the standard
+  price.
+- An **admin fee** applies to every payment method. It is deliberately universal. A carve-out for
+  cash would turn it into a cash discount, and the rules would change.
+
+## Who calculates the fee
+
+**You calculate the fee. The gateway decides whether it applies.**
+
+Only your application knows the merchant configuration, the tax rate, and the rounding you printed
+on the customer's screen. So you send the amount you calculated, and the gateway never recalculates
+it.
+
+The gateway then makes one decision: does this program apply to this card? If it does not, the
+gateway removes the fee and tells you why.
+
+```
+Your application            The gateway
+─────────────────           ───────────
+calculate the fee    ──▶    check the card type
+                            apply, or drop and explain
+show the result      ◀──    return the outcome
+```
+
+## What the platform guarantees
+
+- The fee is calculated **before** the authorization.
+- The final transaction amount includes the fee.
+- A debit card never carries a surcharge.
+- The merchant configures the rules, and the platform enforces them.
+- The customer sees the final price before they confirm the payment.
+
+## Eligibility
+
+Two facts decide the outcome: the type of the card, and the type of the transaction.
+
+### Cards
+
+| Program | Cards |
+|---|---|
+| Surcharge | Credit only. Never debit, never prepaid |
+| Dual pricing | Every card |
+| Admin fee | Every card |
+| Cash discount | None. The gateway refuses it |
+
+**The gateway refuses a cash discount on a card transaction.** A card transaction under a cash
+discount program carries no fee, because the card price is the posted price. Such a request cannot
+be correct, so the gateway rejects it rather than accepting it quietly.
+
+### Dropped and refused are different
+
+| Outcome | What happens | Example |
+|---|---|---|
+| **Dropped** | The transaction continues. The gateway removes the fee, and the result says why | A surcharge on a debit card |
+| **Refused** | The transaction never reaches the acquirer. The gateway returns an error | A cash discount on a card |
+
+Always read the result. A dropped fee means the customer paid less than you asked for, and your
+receipt and your records must show the amount the gateway actually charged.
+
+### Transaction types
+
+| Transaction type | Surcharge | Dual pricing | Admin fee | Cash discount |
+|---|:---:|:---:|:---:|:---:|
+| Sale | ✅ | ✅ | ✅ | ❌ |
+| Sale with tip | ✅ | ✅ | ✅ | ❌ |
+| Sale with tokenization | ✅ | ✅ | ✅ | ❌ |
+| Remote sale (MOTO) | ✅ | ✅ | ✅ | ❌ |
+| Pre-authorization, create | ❌ | ❌ | ❌ | ❌ |
+| Pre-authorization, capture | ✅ | ❌ | ✅ | ❌ |
+| Remote pre-authorization, capture | ✅ | ❌ | ✅ | ❌ |
+| Refund | ❌ | ❌ | ❌ | ❌ |
+| Remote refund (MOTO) | ❌ | ❌ | ❌ | ❌ |
+| Reversal | Automatic | Automatic | Automatic | ❌ |
+| Capture reversal | Automatic | Automatic | Automatic | ❌ |
+| Tip adjustment | ❌ | ❌ | ❌ | ❌ |
+| Tokenization | ❌ | ❌ | ❌ | ❌ |
+| Batch operations | ❌ | ❌ | ❌ | ❌ |
+
+Four rules explain every ❌ in that table.
+
+**A pre-authorization carries no fee.** The fee belongs to the capture, because the capture sets the
+amount the customer pays. If you set a fee on a pre-authorization, the SDK removes it. Set it on the
+capture instead.
+
+**Dual pricing needs a cash price.** A pre-authorization has no cash alternative to price against, so
+dual pricing applies to a sale and to a remote sale only.
+
+**A refund carries no fee.** The card networks require a merchant to return the fee in proportion to
+the refund. The platform does not calculate that proportion, so you calculate it. Read the note
+below.
+
+**An operation with no amount carries no fee.** Tokenization, a tip adjustment and every batch
+operation set no transaction amount, so no fee can apply to them.
+
+**A reversal is automatic.** The reversal carries the same fee as the original transaction, because
+the acquirer requires the two values to match. You set nothing.
+
+:::warning A refund does not return the fee for you
+`RefundOptions` accepts a fee, because it inherits the field from the base options type. The gateway
+ignores it.
+
+Calculate the returned fee in your own application, and add it to the refund amount you send. A
+refund that does not return the fee in proportion breaks card network rules, and the merchant
+carries that risk.
+:::
+
+## Tax on the fee
+
+A merchant can calculate the fee before the tax, or after it. Both orders reach the same total.
+They do not reach the same tax.
+
+If you calculate the fee first, and then calculate the tax over the base plus the fee, part of that
+tax exists **only** because the fee exists. When the gateway drops the fee, it must remove that part
+of the tax too. If it does not, the customer pays tax on a fee they were never charged.
+
+Example. The base is 100.00. The fee is 3%. The tax is 20%, calculated over the base plus the fee.
+
+| | Fee | Tax | Total |
+|---|---|---|---|
+| You request | 3.00 | 20.60 | 123.60 |
+| The customer presents a debit card | 0.00 | 20.00 | 120.00 |
+
+You send the part of the tax that belongs to the fee, because only you know how you calculated it.
+When the fee applies, that figure changes nothing.
+
+:::note Level II data
+Level II purchasing-card data carries its own tax figure. The gateway reduces that figure by the
+same amount when it drops a fee. This keeps the interchange-qualifying tax correct, which is a
+separate concern from the amount the customer pays.
+:::
+
+## What reaches the card networks
+
+**Only a surcharge.** The acquirer protocol has one field for a fee, and its specification calls
+that field the surcharge. It has no representation for the other three programs.
+
+An admin fee and a dual price travel inside the transaction amount, and nothing else. Reporting
+either one as a surcharge would misstate a fee to the card networks.
+
+## The receipt
+
+The receipt is the only record a customer keeps, and the only one a regulator inspects. Each
+program has its own rule.
+
+| Program | The receipt shows |
+|---|---|
+| **Surcharge** | A separate line, clearly labelled. The card networks **require** it. Never inside the total, never mixed with the tax |
+| **Admin fee** | A separate line, with its own label |
+| **Dual pricing** | **No fee line.** The card price is the posted price |
+| **Cash discount** | Nothing. It is not a card transaction |
+
+:::warning Dual pricing prints no fee line, on purpose
+This looks like an omission. It is not. An itemised fee would present a price as a fee, and would
+undermine the model that makes dual pricing lawful. Do not add a fee line to a dual pricing receipt.
+:::
+
+## Compliance for a surcharge
+
+:::warning These obligations belong to the merchant
+Neither the SDK nor the terminal can discharge them. Confirm them with the merchant before you
+enable a surcharge.
+:::
+
+- The merchant tells the cardholder **before** the transaction. Signage at the entrance, and at the
+  point of sale.
+- The merchant gives the card networks and the acquirer **30 days notice** before the first
+  surcharge.
+- The maximum is **3%** of the transaction, or the actual cost of acceptance, whichever is lower.
+- A debit card or a prepaid card never carries a surcharge, even when the customer selects
+  "credit" at the terminal.
+- Several US states and Puerto Rico prohibit a surcharge.
+
+## Reporting
+
+Every fee is recorded, so a merchant can answer these questions:
+
+- How much did I collect in fees this month, and under which program?
+- On this transaction, did the platform charge a fee? If it did not, why not?
+- Which of my terminals run which program?
+- Can I export all of it?
+
+Four values reach the transaction list and the exported report: the fee amount, the program, whether
+the fee applied, and the tax attributed to the fee.
+
+A transaction with no fee shows empty values, never `0.00`. A fee of zero and no fee at all are
+different facts.
+
+## Scope
+
+**Supported:**
+
+- Card transactions.
+- Surcharge, admin fee and dual pricing.
+- The Android SDK on PAX terminals.
+
+**Not supported:**
+
+| Item | Reason |
+|---|---|
+| Cash and e-gift tenders | The gateway processes card transactions. Your point of sale handles cash |
+| Cash discount at the gateway | It applies to a cash tender, which never reaches the gateway |
+| The iOS, Windows and Cordova SDKs | The Android SDK carries the feature |
+| A recalculation of the fee on a partial refund | The platform does not calculate it. You do |
+| Routing that depends on the fee | Out of scope |
+| Rules for each BIN or each card brand | Out of scope |
+
+## Terms
+
+| Term | Meaning |
+|---|---|
+| Fee | The money the merchant adds, under any of the four programs |
+| Program | Which of the four rules applies |
+| Applied | The gateway charged the fee |
+| Dropped | The gateway removed the fee, and the transaction continued |
+| Refused | The gateway rejected the request, and the transaction stopped |

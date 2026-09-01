@@ -62,6 +62,7 @@ const sidebars = {
         'reference/pre-authorization-guide',
         'reference/multi-mid',
         'reference/avs-for-moto',
+        'reference/fee-mitigation',
         {
           type: 'category',
           label: 'Transaction Recovery',
