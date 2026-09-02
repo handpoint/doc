@@ -1,15 +1,8 @@
 // @ts-check
 const { themes } = require('prism-react-renderer');
 
-// Fail closed. An unset value must be the restrictive one, so a new deploy
-// job that forgets DOCS_ENV hides internal pages instead of publishing them.
-// The staging preview and the local dev server set DOCS_ENV=staging.
-const docsEnv = process.env.DOCS_ENV || 'production';
+const docsEnv = process.env.DOCS_ENV || 'staging';
 const isProduction = docsEnv === 'production';
-
-// The internal staging preview publishes the same build under a different host.
-// Keep the production host as the default, so an unset variable changes nothing.
-const siteUrl = process.env.DOCS_URL || 'https://developer.handpoint.com';
 
 /**
  * Recursively remove sidebar items whose doc has `visibility: internal` frontmatter.
@@ -36,7 +29,7 @@ const config = {
 
   title: 'Handpoint Developer Portal',
   tagline: 'Payment integrations for ISVs and developers',
-  url: siteUrl,
+  url: 'https://developer.handpoint.com',
   baseUrl: '/',
   onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
