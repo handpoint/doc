@@ -97,6 +97,31 @@ yarn build
 
 Static output goes to `build/`. Serve it locally with `yarn serve`.
 
+## Internal preview of this branch
+
+The `docs-v2` branch publishes to an internal preview site:
+
+- <https://developers-internal.handpoint.io>
+
+**You must be on the office VPN to open it.** Any other connection receives a
+403 and a page that says the VPN is required. Ask the infrastructure team to
+add your address if you are on the VPN and still see that page.
+
+A push to `docs-v2` publishes the site again through GitHub Actions. To publish
+by hand:
+
+```bash
+AWS_PROFILE=test ./scripts/deploy-staging.sh
+```
+
+The preview runs `DOCS_ENV=staging`, so it shows the pages marked
+`visibility: internal`. That is why the site stays behind the VPN.
+
+The infrastructure and its runbook live in the `handpoint-scripts` repository,
+under `aws/docs-v2/infra/`. This preview is separate from the public sites at
+`developer.handpoint.com` and `developer.handpoint.io`, which GitHub Pages
+serves from `main` and `dev`.
+
 ## Legacy / New documentation toggle
 
 During the transition period both portal versions are served from this project simultaneously.
