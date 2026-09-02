@@ -79,7 +79,7 @@ bucket world-readable. A public bucket lets a person bypass the WAF that Task 3 
 
 ---
 
-## Task 3: WAF Web ACL — block by default, permit the VPN IP set  [I]  ⏳ written, in review
+## Task 3: WAF Web ACL — block by default, permit the VPN IP set  [I]  ✅ DONE
 
 **Description:** Create a dedicated WAFv2 Web ACL with CLOUDFRONT scope. The ACL blocks every request
 by default. One rule permits the VPN egress CIDRs. Associate the ACL with the Task 2 distribution.
@@ -115,7 +115,7 @@ Do not use the shared ACL in `aws/waf`, because that ACL permits by default.
 
 ---
 
-## Task 4: Docusaurus URL override and local deploy script  [D]  ⏳ written, in review
+## Task 4: Docusaurus URL override and local deploy script  [D]  ✅ DONE
 
 **Description:** Make the `url` value configurable, so the staging build writes correct absolute
 URLs, sitemap entries, and canonical tags. Add a script that builds the site and copies it. This task
@@ -157,7 +157,7 @@ Jest was also absent from `node_modules` until I ran `yarn install --frozen-lock
 
 ---
 
-## Task 5: GitHub Actions OIDC role and deploy policy  [I]  ⏳ written, in review
+## Task 5: GitHub Actions OIDC role and deploy policy  [I]  ✅ DONE
 
 **Description:** Create an IAM role. GitHub Actions assumes the role from the `handpoint/doc`
 repository on the `docs-v2` branch. Model the role on
@@ -188,7 +188,7 @@ repository on the `docs-v2` branch. Model the role on
 
 ---
 
-## Task 6: GitHub Actions deploy job on push to `docs-v2`  [D]  ⏳ written, in review
+## Task 6: GitHub Actions deploy job on push to `docs-v2`  [D]  ✅ DONE
 
 **Description:** Add a `deploy-staging` job to `.github/workflows/deploy.yml`. A push to `docs-v2`
 starts the job. A manual dispatch also starts it. The existing GitHub Pages jobs for `main` and `dev`
@@ -220,7 +220,7 @@ triggers of the existing jobs.
 
 ---
 
-## Task 7: Runbook and README  [I] [D]  ⏳ written, in review
+## Task 7: Runbook and README  [I] [D]  ✅ DONE
 
 **Description:** Record how a person opens the site, how you grant access to a new office, and how
 you roll back. Without this record the WAF IPSet becomes private knowledge, and the first lockout
@@ -282,3 +282,29 @@ Raise these as separate tickets. Do not do this work inside this plan.
       points to GitHub Pages, so the distribution serves nothing and costs money
 - [ ] Renew the `*.handpoint.io` certificate. It uses EMAIL validation, expires **2026-12-16**, and
       serves **19** distributions
+
+---
+
+## Outcome
+
+| Item | Result |
+|---|---|
+| Infrastructure pull request | handpoint-scripts#906 |
+| Build and workflow pull request | doc#205 |
+| Jira | PRODUCT-190, with a QA testing plan |
+| Code review | APPROVE, after three rounds |
+| `terraform apply` | **Not run.** Checkpoint A is a human gate |
+
+The review raised 5 blockers across three rounds. Every one is fixed. The
+first was a content leak: without the `s3:ListBucket` grant, a CloudFront 403
+rule would have served the full documentation 404 page to every blocked
+visitor.
+
+## Tickets still to raise
+
+1. The Content-Security-Policy of SEC-670 blocks the Docusaurus theme script on
+   the live public sites.
+2. CloudFront and WAF access logs are not enabled.
+3. `visibility: internal` hides a sidebar entry but still writes the page.
+4. `package.json` on this branch has no `deploy` script, and the GitHub Pages
+   job runs `yarn deploy`. The first push to `dev` after the merge fails.
