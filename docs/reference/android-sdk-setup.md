@@ -433,6 +433,14 @@ class MyActivity : AppCompatActivity(), Events.SmartposRequired {
             settings
         )
 
+        // ⚠️ REQUIRED in SDK 7.1014.0+: explicitly register the delegate BEFORE connect().
+        // In RC builds, HapiFactory.getAsyncInterface() no longer auto-registers the listener.
+        // Without this call, connectionStatusChanged, currentTransactionStatus, and all other
+        // callbacks are silently dropped — the app stays at "INIT X" indefinitely.
+        // Do NOT call this inside a callback (e.g. currentTransactionStatus) — the delegate
+        // must be registered before any callbacks can fire.
+        api.registerEventsDelegate(this)
+
         // Connect to the terminal.
         // For ANDROID_PAYMENT the string arguments (name, address, port) are ignored
         // by the SDK — pass any non-null values.
@@ -691,11 +699,11 @@ Calling a financial operation (e.g. `api.sale()`) before `InitialisationComplete
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `sharedSecret` | `String` | Yes | Hex string shared between your app and the terminal. Unique per merchant. Obtained from Handpoint support. |
-| `cloudApiKey` | `String?` | Only for Cloud/integrated mode | The merchant API key used to authenticate Cloud REST API calls. Also required when integrated mode is enabled in the Handpoint Payments App. |
+| `cloudApiKey` | `String?` | Optional | Required only for: **keyed entry operations** (`motoSale`, `motoRefund`, etc.), **SDK-initiated transaction recovery** (`getTransactionStatus()`), and **cloud channel** (receiving Pusher-initiated transactions in integrated mode). Not required for card-present operations. |
 
 `HandpointCredentials` can be constructed with one or two arguments:
-- `HandpointCredentials(sharedSecret)` — card-present only; `cloudApiKey` defaults to `""`.
-- `HandpointCredentials(sharedSecret, cloudApiKey)` — required for MOTO (keyed entry), Cloud REST API, or when integrated mode is enabled.
+- `HandpointCredentials(sharedSecret)` — card-present only; keyed entry and cloud channel are disabled.
+- `HandpointCredentials(sharedSecret, cloudApiKey)` — enables keyed entry operations, SDK transaction recovery, and cloud channel.
 
 ## Common SDK types
 
@@ -753,6 +761,7 @@ if (api?.getTransactionStatus(ref) != true) {
 | `showSDKUIComponents` | `Boolean` | `false` | Controls UI on the **host app's Android screen** (not the PAX terminal display). When `true`, the SDK shows a "Please Wait" spinner dialog and toast status messages on the host app screen. When `false` (default), the SDK shows nothing on the host screen — your app handles status display via `currentTransactionStatus` callbacks. The PAX terminal's own PIN, signature, and duplicate-check screens are always shown by the terminal regardless of this setting. |
 | `receiptsAsURLs` (Kotlin) / `getReceiptsAsURLs()` (Java getter) | `Boolean` | `false` | Deliver receipts as cloud-hosted URLs. Set via `settings.receiptsAsURLs = true` in Kotlin or `settings.setReceiptsAsURLs(true)` in Java. URL format: `https://receipts.handpoint.com/receipts/{guid}/{merchant\|customer}.html`. **URLs return 404 immediately after `endOfTransaction`** — the SDK uploads asynchronously after the transaction completes. Implement `Events.ReceiptUploadingEvent` to receive `receiptsUploaded(guid, merchantUrl, customerUrl)` when the URLs are safe to fetch. `Events.ReceiptEvent.receiptIsReady` fires first (inline HTML immediately available) but the cloud URLs may not yet be accessible at that point. |
 | `locale` | `String` | `"en_US"` | SDK UI locale |
+| `softwareVersion` | `String` | `""` | Your app's version string reported to Handpoint for support and diagnostics. Use **3 numbers** (e.g. `"3.1.5"`). Handpoint prepends the first segment internally to form the full 4-part version — do not include a 4th number yourself. |
 
 ---
 
@@ -762,31 +771,55 @@ All financial operations return `OperationStartResult` (except where noted). Che
 
 **Amounts are always in minor units** (cents, pence, etc.) as `BigInteger`. 100 = $1.00 USD, 100 = £1.00 GBP.
 
+### Card-present operations
+
+Require a physical card interaction on the terminal (chip, contactless, or swipe).
+
 | Operation | Signature | Notes |
 |---|---|---|
 | Sale | `sale(amount, currency)` | Standard card-present sale |
 | Sale with options | `sale(amount, currency, options: SaleOptions)` | Tip, pinBypass, signatureBypass |
 | Sale and tokenize | `sale(amount, currency, options: SaleAndTokenizeOptions)` | Returns a card token alongside the result. `SaleAndTokenizeOptions` is a marker subclass of `SaleOptions` with no additional fields — `SaleAndTokenizeOptions()` with no args is sufficient. |
-| Sale reversal | `saleReversal(amount, currency, originalTransactionID)` | Reverses a completed sale |
-| Refund | `refund(amount, currency, originalTransactionID)` | Linked refund against original transaction |
-| Refund (unlinked) | `refund(amount, currency)` | Standalone refund with no original transaction |
-| Refund reversal | `refundReversal(amount, currency, originalTransactionID)` | Reverses a refund |
+| Tokenize card | `tokenizeCard()` | Card tokenization without a sale; result contains `cardToken` (opaque alphanumeric string managed by your token provider; the token itself typically does not expire, but the underlying card data — PAN, expiry — may become stale when the physical card is replaced) |
 | Pre-authorization | `preAuthorization(amount, currency)` | Holds funds; complete with `preAuthorizationCapture` |
+| Refund (unlinked) | `refund(amount, currency)` | Standalone refund — requires a card interaction on the terminal |
+
+### Reference-based operations
+
+No card interaction. Operate on a previously completed transaction by its ID, GUID, or token.
+
+| Operation | Signature | Notes |
+|---|---|---|
+| Sale reversal | `saleReversal(amount, currency, originalTransactionID)` | Reverses a completed sale — no card presented |
+| Refund (linked) | `refund(amount, currency, originalTransactionID)` | Linked refund against original transaction |
+| Refund reversal | `refundReversal(amount, currency, originalTransactionID)` | Reverses a previously issued refund |
 | Pre-auth capture | `preAuthorizationCapture(amount, currency, originalTransactionID)` or `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` | Captures a previously authorized hold. `Options` carries `customerReference` and `metadata` only. |
 | Pre-auth increase | `preAuthorizationIncrease(amount, currency, originalTransactionID)` | Increases an existing pre-auth hold before capture |
 | Pre-auth reversal | `preAuthorizationReversal(originalTransactionID)` or `preAuthorizationReversal(amount, currency, originalTransactionID)` | Cancels an uncaptured pre-auth hold. Amount and currency are optional — omit to cancel the full hold; include for a partial release. |
-| Tokenize card | `tokenizeCard()` | Card tokenization without a sale; result contains `cardToken` (opaque alphanumeric string managed by your token provider; the token itself typically does not expire, but the underlying card data — PAN, expiry — may become stale when the physical card is replaced) |
-| MOTO sale | `motoSale(amount, currency, options: MoToOptions)` | Mail/telephone-order (keyed entry) sale |
-| MOTO refund | `motoRefund(amount, currency, originalTransactionID, options: MoToOptions)` | MOTO refund against a prior MOTO sale |
-| MOTO reversal | `motoReversal(originalTransactionID)` or `motoReversal(originalTransactionID, options: MoToOptions)` or `motoReversal(amount: String?, currency: String?, originalTransactionID)` (partial) | Reverses a MOTO sale. ⚠️ **The partial-amount overload uses `String?` for amount and `String?` for currency** — not `BigInteger`/`Currency` like every other operation. Example: `motoReversal("100", "USD", originalId)` for a $1.00 partial reversal. Passing `BigInteger`/`Currency` types will cause a compile error or overload resolution failure. |
-| MOTO pre-auth | `motoPreauthorization(amount, currency)` or `motoPreauthorization(amount, currency, options: MoToOptions)` | MOTO pre-authorization. Note: lowercase 'a' — `motoPreauthorization`, not `motoPreAuthorization`. |
-| Stop transaction | `stopCurrentTransaction(): Boolean` | Cancels the in-progress card-present operation. Returns `true` if the stop was accepted. Fires `currentTransactionStatus(UserCancelled)` then `endOfTransaction(CANCELLED)`. Calling during recovery (while polling `getTransactionStatus`) is a no-op — there is no active card operation to cancel, so the SDK ignores it. |
 | Tip adjustment | `tipAdjustment(tipAmount, currency, originalTransactionID): Boolean` | See note below |
-| Print receipt | `printReceipt(receiptData: String): Boolean` | Prints inline HTML or a hosted URL. Returns `true` if the print was accepted. **If `settings.receiptsAsURLs = true`: do not call from `endOfTransaction`** — the URL is not ready for 4–8 s while S3 upload completes. Use `Events.ReceiptUploadingEvent.receiptsUploaded()` for the URL, or `Events.ReceiptEvent.receiptIsReady()` for inline HTML (~1.5 s after EOT, zero fetch). |
-| Disconnect | `disconnect()` | Cleanly disconnects from the terminal |
+| Automatic refund | `automaticRefund(originalTransactionID)` | Full refund by original transaction ID — no card interaction, no amount required. Useful for post-transaction refunds from a back-office flow. Result delivered via `endOfTransaction`. |
+
+### Keyed entry operations
+
+The cardholder keys their card details directly into the PAX terminal — no physical card read. **Requires merchant-level enablement** — contact Handpoint support. `cloudApiKey` must be present in `HandpointCredentials`.
+
+| Operation | Signature | Notes |
+|---|---|---|
+| Keyed entry sale | `motoSale(amount, currency, options: MoToOptions)` | Card details entered on terminal keypad |
+| Keyed entry refund | `motoRefund(amount, currency, originalTransactionID, options: MoToOptions)` | Refund against a prior keyed entry sale |
+| Keyed entry reversal | `motoReversal(originalTransactionID)` or `motoReversal(originalTransactionID, options: MoToOptions)` or `motoReversal(amount: String?, currency: String?, originalTransactionID)` (partial) | Reverses a keyed entry sale. ⚠️ **The partial-amount overload uses `String?` for amount and `String?` for currency** — not `BigInteger`/`Currency` like every other operation. Example: `motoReversal("100", "USD", originalId)` for a $1.00 partial reversal. Passing `BigInteger`/`Currency` types will cause a compile error or overload resolution failure. |
+| Keyed entry pre-auth | `motoPreauthorization(amount, currency)` or `motoPreauthorization(amount, currency, options: MoToOptions)` | Note: lowercase 'a' — `motoPreauthorization`, not `motoPreAuthorization`. |
+
+### Device and session management
+
+| Operation | Signature | Notes |
+|---|---|---|
 | Connect | `connect(device: Device)` | Connects (or reconnects) to a terminal; call again after `disconnect()` to reconnect |
-| Poll recovery | `getTransactionStatus(transactionReference: String): Boolean` | Submits a recovery query to the cloud; result arrives in `transactionResultReady()`. Returns `false` if the SDK rejected the request (not initialized, offline) — retry after backoff |
-| Signature result | `signatureResult(accepted: Boolean): Boolean` | **HiLite/Bluetooth only** — respond to the `Events.SignatureRequired.signatureRequired()` callback with the cardholder's acceptance or rejection. Not needed for PAX SmartPOS (the terminal handles signature internally). |
+| Disconnect | `disconnect()` | Cleanly disconnects from the terminal |
+| Stop transaction | `stopCurrentTransaction(): Boolean` | Cancels the in-progress operation. Returns `true` if the stop was accepted. Fires `currentTransactionStatus(UserCancelled)` then `endOfTransaction(CANCELLED)`. Calling during recovery (while polling `getTransactionStatus`) is a no-op. |
+| Poll recovery | `getTransactionStatus(transactionReference: String): Boolean` | Submits a cloud recovery query; result arrives in `transactionResultReady()`. Requires `cloudApiKey` in `HandpointCredentials`. Returns `false` if the SDK rejected the request (not initialized, offline) — retry after backoff. |
+| Print receipt | `printReceipt(receiptData: String): Boolean` | Prints inline HTML or a hosted URL. Returns `true` if the print was accepted. **If `settings.receiptsAsURLs = true`: do not call from `endOfTransaction`** — the URL is not ready for 4–8 s while S3 upload completes. Use `Events.ReceiptUploadingEvent.receiptsUploaded()` for the URL, or `Events.ReceiptEvent.receiptIsReady()` for inline HTML (~1.5 s after EOT, zero fetch). |
+| Signature result | `signatureResult(accepted: Boolean): Boolean` | **HiLite/Bluetooth only** — respond to the `Events.SignatureRequired.signatureRequired()` callback. Not needed for PAX SmartPOS (terminal handles signature internally). |
 
 :::note Reversals vs refunds
 `saleReversal` reverses a **sale** (cancels the auth before settlement, before the cardholder leaves). `refundReversal` reverses a **refund** (cancels a previously issued refund). Both require the original transaction ID and exact original amount. Reversal availability is acquirer-dependent — check your acquirer contract. Once a batch closes, use a refund instead of a reversal.

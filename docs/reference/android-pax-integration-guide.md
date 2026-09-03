@@ -61,9 +61,9 @@ Your app never handles raw card data — Handpoint keeps you out of PCI scope.
 | Credential | Purpose | Provisioned by |
 |---|---|---|
 | `sharedSecret` | Authenticates your app to the Payments App on the terminal | Handpoint Integration Support |
-| `cloudApiKey` | Enables `getTransactionStatus` recovery endpoint (optional but recommended) | Handpoint Integration Support |
+| `cloudApiKey` | Optional. Required for keyed entry operations, SDK-initiated transaction recovery (`getTransactionStatus()`), and cloud channel (integrated mode). Not required for card-present operations. | Handpoint Integration Support |
 
-The `sharedSecret` is a 64-character hex string unique to the merchant. The `cloudApiKey` is needed only for Cloud/bridge mode and transaction recovery polling.
+The `sharedSecret` is a 64-character hex string unique to the merchant. The `cloudApiKey` is not required for standard card-present integrations.
 
 ## Environments & credentials
 
