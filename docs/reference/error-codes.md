@@ -85,17 +85,21 @@ Read `error.details.body.error.errorCode` for programmatic identification. Do no
 | `3153` | `Unable to find message to reverse.` | `originalGuid` not found | Verify the GUID is the `transactionID` from the original transaction result |
 | `4066` | `Partial reversal amount exceeds original amount` | `amount` exceeds the original transaction amount | Reduce amount or omit `amount` for a full reversal |
 
-## Error codes — `POST /preauthorization/capture` and `POST /preauthorization/increase`
+## Error codes — `POST /preauthorization/capture` and `POST /preauthorization/increase` {#pre-auth-adjustment}
 
-| `code` | `message` | Meaning | What to do |
+| `code` | HTTP | Meaning | What to do |
 |---|---|---|---|
-| `5001` | `NullPointerException` | `originalGuid` not found (internal error surfaced for unknown GUIDs on these endpoints) | Verify the GUID is the `transactionID` from the pre-auth create result |
-| `3211` | *(pre-auth already settled)* | Pre-auth has already been captured or voided — adjustment no longer possible | Check transaction state before sending an increase/decrease |
+| `3156` | `404` | No pre-authorization found for the `originalGuid` | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `3207` | `400` | The referenced transaction is not a pre-authorization | Reference the Create, not an increase or a capture |
+| `3211` | `403` | The pre-authorization was declined, already captured, or already reversed | Check transaction state before adjusting or capturing |
+| `3212` | `403` | The decrease would take the hold to zero or below | Send a Pre-Auth Reversal to release the hold in full |
+| `3215` | `403` | The capture amount exceeds the current hold total | Increase the hold first, then capture |
+| `5001` | `400` | `NullPointerException` — internal error surfaced for unknown GUIDs on these endpoints | Verify the GUID is the `transactionID` from the pre-auth create result |
 
 :::note
-`POST /preauthorization/increase` handles both increases and decreases. To decrease, include `"subtract": "1"` in the request body — there is no separate `/preauthorization/decrease` endpoint.
+On `POST /preauthorization/increase` the amount field is `increaseAmount` (not `amount`) and takes a decimal major-unit string, e.g. `"20.00"`. Sending `amount` returns `422 VALIDATION_FAILED`.
 
-The amount field is `increaseAmount` (not `amount`) and takes a decimal major-unit string (e.g. `"20.00"`). Sending `amount` results in a `422 VALIDATION_FAILED` error with `details[].info.missingProperty: "increaseAmount"`.
+For how increases and decreases accumulate, which GUID to reference, and the per-path decrease signal, see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 :::
 
 ## Transaction result `finStatus` values — with-reader operations

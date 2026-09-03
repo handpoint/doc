@@ -19,6 +19,8 @@ The Handpoint gateway handles the protocol mapping automatically, but integrator
 2. What label to show in the ISV UI
 3. The constraint that the card must be present
 
+Interac also does **not support pre-authorization increase or decrease** — see [Increase or Decrease the hold](/reference/pre-authorization-guide#increase-decrease).
+
 ---
 
 ## SDK behaviour

@@ -1339,7 +1339,7 @@ Supporting pre-auth means supporting the full lifecycle:
 | Operation | Description |
 |---|---|
 | **Create** | Place the initial hold |
-| **Increase / Decrease** | Adjust the held amount before capture |
+| **Increase / Decrease** | Adjust the held amount before capture — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease) |
 | **Capture** | Finalise and charge the held amount |
 | **Pre-Auth Reversal** | Release the hold without charging (pre-capture) |
 | **Capture Reversal** | Cancel a completed capture (pre-settlement) — see separate section |
@@ -1348,7 +1348,7 @@ Supporting pre-auth means supporting the full lifecycle:
 
 1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture.
 2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
-3. Increase / Decrease adjusts the amount before capture. Supported wherever pre-auth is supported.
+3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
 :::note Paystrax
