@@ -540,7 +540,9 @@ Fields behave differently depending on the operation type. The following table s
 :::
 
 :::note[Linked vs unlinked refund]
-Both linked (`refund(amount, currency, originalTransactionId, ...)`) and unlinked (`refund(amount, currency)`) card-present refunds return `type: REFUND`. The only field that distinguishes them is `originalEFTTransactionID` — populated on linked, empty on unlinked. Many acquirers will decline unlinked card-present refunds; prefer linked refunds where the original transaction ID is available.
+Both linked (`refund(amount, currency, originalTransactionId, ...)`) and unlinked (`refund(amount, currency)`) card-present refunds return `type: REFUND`. The only field that distinguishes them is `originalEFTTransactionID` — populated on linked, empty on unlinked.
+
+Linking is a **Handpoint gateway** concept, not an acquirer-level one. If a merchant is configured in Handpoint to require linked refunds, the gateway declines an unlinked refund before forwarding it to the processor — the acquirer never sees the request. Whether this restriction applies is determined by the merchant's onboarding configuration in Handpoint.
 :::
 
 ---
