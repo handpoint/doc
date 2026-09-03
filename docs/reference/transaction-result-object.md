@@ -516,26 +516,31 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 Fields behave differently depending on the operation type. The following table summarises key differences, confirmed via live tests on a PAX A920 with SDK 7.1014.0-RC.73.
 
-| Field | Card-present Sale | MOTO Sale | Sale Reversal (`saleReversal`) | MOTO Refund / `automaticRefund` | Cancelled Sale |
-|---|---|---|---|---|---|
-| `transactionID` / `eFTTransactionID` | UUID v4 | UUID v4 | UUID v4 | UUID v4 | **Empty** (no acquirer contact) |
-| `transactionReference` | UUID v4 (SDK key) | UUID v4 (SDK key) | Empty | Empty | UUID v4 (set before card presented) |
-| `originalEFTTransactionID` | Empty | Empty | UUID v4 of the original | UUID v4 of the original | Empty |
-| `type` | `SALE` | `MOTO_SALE` | `VOID_SALE` | `MOTO_REFUND` | `SALE` |
-| `cardEntryType` | `ICC` / `MSR` | `CNP` | `UNDEFINED` | `CNP` | `UNDEFINED` |
-| `paymentScenario` | `CHIP` / `CHIPCONTACTLESS` / etc. | `MOTO` | `UNKNOWN` | `MOTO` | `UNKNOWN` |
-| `tenderType` | `CREDIT` / `DEBIT` | `NOT_SET` | `CREDIT` | `NOT_SET` | `NOT_SET` |
-| `batchNumber` | Populated | Populated | Populated | Populated | **Empty** |
-| `rrn` | Populated | **Empty** | Empty | **Empty** | Empty |
-| `mid` / `tid` / `merchantName` | Populated | **Empty** | Populated | **Empty** | Populated |
-| `aid` / `tvr` / `tsi` / `iad` | Populated (chip) / empty (contactless swipe) | **Empty** | **Empty** | **Empty** | **Empty** |
-| `arc` | Populated | Empty | `"0000"` | Empty | `"0000"` |
-| `issuerResponseCode` | `"00"` (approved) | `"00"` (approved) | `"00"` | Empty | Empty |
-| `cardTypeId` | Mirrors `maskedCardNumber` | **Empty** | Mirrors `maskedCardNumber` | **Empty** | **Empty** |
-| `statusMessage` | Acquirer status in card language | `"Successful"` | `"Approved or completed successfully"` | `"Successful"` | `"Transaction cancelled"` |
+| Field | Card-present Sale | Card-present Refund (linked or unlinked) | MOTO Sale | Sale Reversal (`saleReversal`) | MOTO Refund / `automaticRefund` | Cancelled Sale |
+|---|---|---|---|---|---|---|
+| `transactionID` / `eFTTransactionID` | UUID v4 | UUID v4 | UUID v4 | UUID v4 | UUID v4 | **Empty** |
+| `transactionReference` | UUID v4 (SDK key) | **Empty** | UUID v4 (SDK key) | Empty | Empty | UUID v4 |
+| `originalEFTTransactionID` | Empty | UUID v4 of original (linked) / empty (unlinked) | Empty | UUID v4 of the original | UUID v4 of the original | Empty |
+| `type` | `SALE` | `REFUND` | `MOTO_SALE` | `VOID_SALE` | `MOTO_REFUND` | `SALE` |
+| `cardEntryType` | `ICC` / `MSR` | `ICC` / `MSR` | `CNP` | `UNDEFINED` | `CNP` | `UNDEFINED` |
+| `paymentScenario` | `CHIP` / `CHIPCONTACTLESS` / etc. | `CHIP` / `CHIPCONTACTLESS` / etc. | `MOTO` | `UNKNOWN` | `MOTO` | `UNKNOWN` |
+| `tenderType` | `CREDIT` / `DEBIT` | `CREDIT` / `DEBIT` | `NOT_SET` | `CREDIT` | `NOT_SET` | `NOT_SET` |
+| `batchNumber` | Populated | **Empty** | Populated | Populated | Populated | **Empty** |
+| `rrn` | Populated | **Empty** | **Empty** | Empty | **Empty** | Empty |
+| `mid` / `tid` / `merchantName` | Populated | Populated | **Empty** | Populated | **Empty** | Populated |
+| `aid` / `tvr` / `iad` | Populated (chip/contactless) | Populated (chip/contactless) | **Empty** | **Empty** | **Empty** | **Empty** |
+| `tsi` | Populated (insert only) | Populated (insert only) | **Empty** | **Empty** | **Empty** | **Empty** |
+| `arc` | Populated | Populated | Empty | `"0000"` | Empty | `"0000"` |
+| `issuerResponseCode` | `"00"` | `"00"` | `"00"` | `"00"` | Empty | Empty |
+| `cardTypeId` | Mirrors `maskedCardNumber` | Mirrors `maskedCardNumber` | **Empty** | Mirrors `maskedCardNumber` | **Empty** | **Empty** |
+| `statusMessage` | Acquirer status in card language | Acquirer status in card language | `"Successful"` | `"Approved or completed successfully"` | `"Successful"` | `"Transaction cancelled"` |
 
-:::note
-`tsi` (Transaction Status Information, tag 9B) is only populated for **contact chip (ICC insert)** transactions. It is empty on contactless (NFC) transactions even though the chip is processed over the air.
+:::note[`tsi` and contactless transactions]
+`tsi` (Transaction Status Information, tag 9B) is only populated for **contact chip (ICC insert)** transactions. It is empty on contactless (NFC tap) transactions even though the EMV chip is processed over the air. All other EMV fields (`aid`, `tvr`, `iad`, `arc`) are populated on both insert and tap.
+:::
+
+:::note[Linked vs unlinked refund]
+Both linked (`refund(amount, currency, originalTransactionId, ...)`) and unlinked (`refund(amount, currency)`) card-present refunds return `type: REFUND`. The only field that distinguishes them is `originalEFTTransactionID` — populated on linked, empty on unlinked. Many acquirers will decline unlinked card-present refunds; prefer linked refunds where the original transaction ID is available.
 :::
 
 ---
