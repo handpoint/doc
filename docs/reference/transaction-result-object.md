@@ -249,7 +249,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `TOKENIZE_CARD` | Card tokenization only |
 | `SALE_AND_TOKENIZE_CARD` | Sale + tokenize |
 | `TIP_ADJUSTMENT` | Tip adjustment on an existing sale |
-| `VOID_SALE` | Interac / TNS void |
+| `VOID_SALE` | Sale reversal (`saleReversal()`). Tag string: `"SALE VOID"`. Also used for Interac / TNS void. |
 | `TRANSACTION_STATUS` | Status query result |
 | `UNDEFINED` | Unknown |
 
@@ -453,13 +453,13 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 | Field | Type | Description |
 |---|---|---|
-| `cardEntryType` | CardEntryType | `ICC` `MSR` `CNP` `UNDEFINED` |
-| `paymentScenario` | PaymentScenario | Detailed entry path — `CHIP` `CHIPCONTACTLESS` `MAGSTRIPE` etc. |
-| `tenderType` | TenderType | `CREDIT` `DEBIT` `NOT_SET` |
+| `cardEntryType` | CardEntryType | How the card was read. `ICC` `MSR` `CNP` (MOTO/keyed entry). `UNDEFINED` on reversals and cancelled transactions (no card presentation). |
+| `paymentScenario` | PaymentScenario | Detailed entry path — `CHIP` `CHIPCONTACTLESS` `MAGSTRIPE` `MOTO`. `UNKNOWN` on reversals and cancelled transactions. |
+| `tenderType` | TenderType | `CREDIT` `DEBIT` `NOT_SET` (MOTO and cancelled transactions). |
 | `verificationMethod` | VerificationMethod | `NOT_REQUIRED` `PIN` `SIGNATURE` `MOBILE_PASS_CODE` etc. |
 | `cardSchemeName` | String | Card network: `"Visa"` `"Mastercard"` `"Amex"` etc. |
-| `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. |
-| `cardTypeId` | String | Alternative masked PAN format. |
+| `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. 15-digit schemes (Amex) use 11 asterisks. |
+| `cardTypeId` | String | When populated, mirrors `maskedCardNumber` exactly. Empty for MOTO/CNP transactions. |
 | `expiryDateMMYY` | String | Expiry in `MMYY` format. |
 | `cardHolderName` | String | Cardholder name from chip. May be empty. |
 | `cardLanguagePreference` | String | Card's preferred language (IETF tag). |
@@ -483,11 +483,11 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 | Field | Type | Description |
 |---|---|---|
-| `mid` | String | Merchant ID. |
-| `tid` | String | Terminal ID. |
-| `merchantName` | String | Merchant name from terminal config. |
-| `merchantAddress` | String | Merchant address from terminal config. |
-| `rrn` | String | Retrieval Reference Number from acquirer. |
+| `mid` | String | Merchant ID. Empty for MOTO/cloud-processed operations. |
+| `tid` | String | Terminal ID. Empty for MOTO/cloud-processed operations. |
+| `merchantName` | String | Merchant name from terminal config. Empty for MOTO/cloud-processed operations. |
+| `merchantAddress` | String | Merchant address from terminal config. Empty for MOTO/cloud-processed operations. |
+| `rrn` | String | Retrieval Reference Number from acquirer. Empty for MOTO/CNP operations. |
 | `customerReference` | String | Echoed-back `customerReference` from request. |
 | `budgetNumber` | String | Budget/instalment number (SA acquirers). |
 | `batchNumber` | String | Batch number (App 4.14.0 / SDK 7.1014.0+). Empty string if not yet available or acquirer does not return it. |
@@ -512,6 +512,34 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 ---
 
+### Per-operation field population
+
+Fields behave differently depending on the operation type. The following table summarises key differences, confirmed via live tests on a PAX A920 with SDK 7.1014.0-RC.73.
+
+| Field | Card-present Sale | MOTO Sale | Sale Reversal (`saleReversal`) | MOTO Refund / `automaticRefund` | Cancelled Sale |
+|---|---|---|---|---|---|
+| `transactionID` / `eFTTransactionID` | UUID v4 | UUID v4 | UUID v4 | UUID v4 | **Empty** (no acquirer contact) |
+| `transactionReference` | UUID v4 (SDK key) | UUID v4 (SDK key) | Empty | Empty | UUID v4 (set before card presented) |
+| `originalEFTTransactionID` | Empty | Empty | UUID v4 of the original | UUID v4 of the original | Empty |
+| `type` | `SALE` | `MOTO_SALE` | `VOID_SALE` | `MOTO_REFUND` | `SALE` |
+| `cardEntryType` | `ICC` / `MSR` | `CNP` | `UNDEFINED` | `CNP` | `UNDEFINED` |
+| `paymentScenario` | `CHIP` / `CHIPCONTACTLESS` / etc. | `MOTO` | `UNKNOWN` | `MOTO` | `UNKNOWN` |
+| `tenderType` | `CREDIT` / `DEBIT` | `NOT_SET` | `CREDIT` | `NOT_SET` | `NOT_SET` |
+| `batchNumber` | Populated | Populated | Populated | Populated | **Empty** |
+| `rrn` | Populated | **Empty** | Empty | **Empty** | Empty |
+| `mid` / `tid` / `merchantName` | Populated | **Empty** | Populated | **Empty** | Populated |
+| `aid` / `tvr` / `tsi` / `iad` | Populated (chip) / empty (contactless swipe) | **Empty** | **Empty** | **Empty** | **Empty** |
+| `arc` | Populated | Empty | `"0000"` | Empty | `"0000"` |
+| `issuerResponseCode` | `"00"` (approved) | `"00"` (approved) | `"00"` | Empty | Empty |
+| `cardTypeId` | Mirrors `maskedCardNumber` | **Empty** | Mirrors `maskedCardNumber` | **Empty** | **Empty** |
+| `statusMessage` | Acquirer status in card language | `"Successful"` | `"Approved or completed successfully"` | `"Successful"` | `"Transaction cancelled"` |
+
+:::note
+`tsi` (Transaction Status Information, tag 9B) is only populated for **contact chip (ICC insert)** transactions. It is empty on contactless (NFC) transactions even though the chip is processed over the air.
+:::
+
+---
+
 ### `FinancialStatus` enum
 
 | Value | Description |
@@ -530,23 +558,23 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 ### `TransactionType` enum
 
-| Value | Tag string |
-|---|---|
-| `SALE` | `"SALE"` |
-| `REFUND` | `"REFUND"` |
-| `REVERSAL` | `"REVERSAL"` |
-| `PRE_AUTHORIZATION` | `"PRE AUTHORIZATION"` |
-| `PRE_AUTHORIZATION_INCREASE` | `"PRE AUTHORIZATION INCREMENT"` |
-| `PRE_AUTHORIZATION_CAPTURE` | `"PRE AUTHORIZATION CAPTURE"` |
-| `MOTO_SALE` | `"MOTO SALE"` |
-| `MOTO_REFUND` | `"MOTO REFUND"` |
-| `MOTO_REVERSAL` | `"MOTO REVERSAL"` |
-| `TOKENIZE_CARD` | `"TOKENIZE CARD"` |
-| `SALE_AND_TOKENIZE_CARD` | `"SALE AND TOKENIZE CARD"` |
-| `TIP_ADJUSTMENT` | `"TIP ADJUSTMENT"` |
-| `VOID_SALE` | `"SALE VOID"` |
-| `TRANSACTION_STATUS` | `"TRANSACTION STATUS"` |
-| `UNDEFINED` | `"UNDEFINED"` |
+| Value | Tag string | SDK method |
+|---|---|---|
+| `SALE` | `"SALE"` | `sale()` |
+| `REFUND` | `"REFUND"` | `refund()` (card-present) |
+| `REVERSAL` | `"REVERSAL"` | Terminal-initiated reversal |
+| `PRE_AUTHORIZATION` | `"PRE AUTHORIZATION"` | `preAuthorization()` |
+| `PRE_AUTHORIZATION_INCREASE` | `"PRE AUTHORIZATION INCREMENT"` | `preAuthorizationIncrease()` |
+| `PRE_AUTHORIZATION_CAPTURE` | `"PRE AUTHORIZATION CAPTURE"` | `preAuthorizationCapture()` |
+| `MOTO_SALE` | `"MOTO SALE"` | `motoSale()` |
+| `MOTO_REFUND` | `"MOTO REFUND"` | `motoRefund()` · `automaticRefund()` of a MOTO original |
+| `MOTO_REVERSAL` | `"MOTO REVERSAL"` | `motoReversal()` |
+| `TOKENIZE_CARD` | `"TOKENIZE CARD"` | `tokenizeCard()` |
+| `SALE_AND_TOKENIZE_CARD` | `"SALE AND TOKENIZE CARD"` | `saleAndTokenizeCard()` |
+| `TIP_ADJUSTMENT` | `"TIP ADJUSTMENT"` | `tipAdjustment()` |
+| `VOID_SALE` | `"SALE VOID"` | `saleReversal()` |
+| `TRANSACTION_STATUS` | `"TRANSACTION STATUS"` | `getTransactionStatus()` |
+| `UNDEFINED` | `"UNDEFINED"` | — |
 
 </TabItem>
 
