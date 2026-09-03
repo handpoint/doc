@@ -121,7 +121,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 |---|---|---|
 | `finStatus` | string | **Primary result indicator.** See [finStatus values](#finstatus-values) below. |
 | `type` | string | Transaction type. See [type values](#type-values) below. |
-| `statusMessage` | string | Human-readable status, in the terminal's configured language. |
+| `statusMessage` | string | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. For example, a Spanish-issued Visa card returns `"Aprobado o completado con éxito"` even if the terminal is configured in English. |
 | `errorMessage` | string | Error detail if `finStatus` is `FAILED` or `DECLINED`. Empty on success. |
 | `multiLanguageStatusMessages` | object | Map of locale code → localised status message. May be empty. |
 | `multiLanguageErrorMessages` | object | Map of locale code → localised error message. May be empty. |
@@ -350,7 +350,7 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
+result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+; null when not applicable)
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
@@ -426,7 +426,7 @@ result.deviceStatus.serialNumber        // "1850025030"
 |---|---|---|
 | `finStatus` | FinancialStatus | **Primary result indicator.** See [FinancialStatus](#financialstatus-enum) below. |
 | `type` | TransactionType | Transaction type. See [TransactionType](#transactiontype-enum) below. |
-| `statusMessage` | String | Human-readable status (localised). |
+| `statusMessage` | String | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. |
 | `errorMessage` | String | Error detail on failure. |
 | `multiLanguageStatusMessages` | Map&lt;SupportedLocales, String&gt; | Localised status messages map. |
 | `multiLanguageErrorMessages` | Map&lt;SupportedLocales, String&gt; | Localised error messages map. |
@@ -445,7 +445,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger | Tax amount (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `taxAmount` | BigInteger? | Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `currency` | Currency | Currency enum. |
 
