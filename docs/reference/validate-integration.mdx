@@ -36,13 +36,110 @@ These scenarios apply regardless of integration path or acquirer.
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-1. Send `POST /transactions` — note the `transactionResultId` from the 202 response.
-2. Drop the network before polling (use a proxy or airplane mode).
-3. Restore connectivity.
-4. Poll `GET /transaction-result/{transactionResultId}`:
-   - `AUTHORISED` → transaction succeeded — record and show approved.
-   - `DECLINED` / `FAILED` → transaction did not go through — show declined.
-   - No result / timeout → send `POST /transactions` with `operation: "saleReversal"` using the original `originalTransactionId`.
+**Step 1 — Persist state before sending (required)**
+
+Persist the `transactionReference` to durable storage (database or `localStorage`) **before** sending `POST /transactions`. If the page refreshes or the app crashes after the request is sent but before the result arrives, this is the only way to recover.
+
+```javascript
+// Generate and persist BEFORE the network call
+const txnRef = crypto.randomUUID();
+const pendingState = {
+  transactionReference: txnRef,
+  transactionResultId: null,   // filled after 202
+  startedAt: Date.now(),
+  amount: '1000',
+  currency: 'USD'
+};
+localStorage.setItem('hp_pending_txn', JSON.stringify(pendingState));
+
+// Send the transaction
+const resp = await fetch('https://cloud.handpoint.com/transactions', {
+  method: 'POST',
+  headers: { 'ApiKeyCloud': API_KEY, 'Content-Type': 'application/json' },
+  body: JSON.stringify({ operation: 'sale', amount: '1000', currency: 'USD',
+    terminal_type: 'PAXA920', serial_number: '082104578',
+    transactionReference: txnRef })
+});
+const { transactionResultId } = await resp.json(); // HTTP 202
+
+// Update state with resultId so we can resume polling after a crash
+pendingState.transactionResultId = transactionResultId;
+localStorage.setItem('hp_pending_txn', JSON.stringify(pendingState));
+```
+
+**Step 2 — Poll with correct 204/200 handling**
+
+```javascript
+async function pollResult(transactionResultId, maxAttempts = 30, intervalMs = 4000) {
+  for (let i = 0; i < maxAttempts; i++) {
+    await new Promise(r => setTimeout(r, intervalMs));
+    const resp = await fetch(`https://cloud.handpoint.com/transaction-result/${transactionResultId}`,
+      { headers: { 'ApiKeyCloud': API_KEY } });
+
+    if (resp.status === 204) continue;  // Still processing — do NOT call .json()
+    if (resp.status === 200) return await resp.json();  // Result ready
+    throw new Error(`Unexpected status ${resp.status}`);
+  }
+  return null;  // Timeout — trigger recovery
+}
+```
+
+**Step 3 — On page load, check for a pending transaction**
+
+```javascript
+async function recoverOnStartup() {
+  const raw = localStorage.getItem('hp_pending_txn');
+  if (!raw) return;  // No pending transaction
+
+  const pending = JSON.parse(raw);
+
+  // Option A: We have a resultId — resume polling first
+  if (pending.transactionResultId) {
+    const result = await pollResult(pending.transactionResultId);
+    if (result) {
+      handleFinalResult(result);
+      localStorage.removeItem('hp_pending_txn');
+      return;
+    }
+  }
+
+  // Option B: Poll timed out or we never got a resultId — query /status
+  const statusResp = await fetch(
+    `https://transactions.handpoint.com/transactions/${pending.transactionReference}/status`,
+    { headers: { 'ApiKeyCloud': API_KEY } }
+  );
+  const status = await statusResp.json();
+
+  if (status.finStatus === 'AUTHORISED') {
+    // ⚠️  If this could be a partial approval, wait 60s before saving — see partial approval note below
+    handleFinalResult(status);
+  } else if (status.finStatus === 'IN_PROGRESS') {
+    // Still running — resume polling if you have a resultId, or wait and re-query /status
+    scheduleStatusRetry(pending);
+  } else if (status.finStatus === 'UNDEFINED' || !status.finStatus) {
+    // Unknown outcome — auto-reverse to avoid double-charge risk
+    await fetch('https://cloud.handpoint.com/reversal', {
+      method: 'POST',
+      headers: { 'ApiKeyCloud': API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ originalGuid: status.transactionID || pending.transactionReference })
+    });
+  } else {
+    // DECLINED, CANCELLED, FAILED — no charge
+  }
+  localStorage.removeItem('hp_pending_txn');
+}
+```
+
+:::warning Partial approval `/status` timing trap
+If `/status` returns `finStatus: AUTHORISED` and `totalAmount < requestedAmount`, the cardholder may still be deciding on-terminal whether to accept or cancel the partial amount. Do **not** save this as a final result immediately. Wait 60 seconds for the normal `transaction-result` polling to deliver the true final result. If no `transaction-result` arrives in that window, re-query `/status` — the cardholder's decision will then be reflected. See [Partial Approvals](/reference/partial-approval) for full details.
+:::
+
+**Step 4 — Simulate failures**
+
+1. Send `POST /transactions` and kill the browser tab immediately after the 202 response.
+2. Reopen the tab — your `recoverOnStartup()` should detect the pending state in `localStorage`.
+3. Verify it correctly resolves to `AUTHORISED`, `DECLINED`, or initiates a recovery reversal.
+4. Verify `localStorage` is cleared after resolution — no orphaned pending state.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -64,11 +161,14 @@ HiLite uses Bluetooth — disconnection is detected automatically by the SDK and
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-The delegate fires `responseFinanceStatus` when the result is received. If the app is backgrounded or killed mid-transaction:
+The delegate fires `responseFinanceStatus` when the result is received. The iOS SDK does not have `getTransactionStatus` — recovery is server-side only.
 
-1. On foreground/restart, re-establish the HiLite connection.
-2. Query the last transaction reference against the TXN Feed API or support channel.
-3. If outcome is unknown: send a reversal.
+1. Before every call, save the `transactionReference` (UUID v4 you generate) to your server.
+2. On foreground/restart, re-establish the HiLite connection.
+3. Your server calls `GET https://transactions.handpoint.com/transactions/{transactionReference}/status` to check outcome.
+4. If `AUTHORISED` and your records show no completed transaction: send a `POST /reversal` from your server.
+
+→ See [iOS HiLite Integration Guide — Transaction recovery](/reference/ios-hilite-integration-guide#transaction-recovery)
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -156,7 +256,168 @@ Some prepaid cards are partially approved — the card covers only part of the r
 - Detect `finStatus === "PARTIALLY_APPROVED"`.
 - Display the approved amount to the cashier.
 - Prompt for split tender (second payment method for the remainder).
-- If split tender is not supported or the cardholder declines: send an automatic reversal for the partial amount.
+- If split tender is not supported or the cardholder declines: send an automatic reversal for the partial amount using `totalAmount` (not `requestedAmount`).
+
+:::caution Wait 60 seconds before reversing a partial approval
+After a partial approval, the card network needs time to confirm the partial charge. Wait at least 60 seconds before sending a reversal — an immediate reversal may race with the settlement.
+:::
+
+→ Full implementation details and reversal example: [Partial Approval guide](/reference/partial-approval)
+
+---
+
+## Merchant API key management
+
+`ApiKeyCloud` is **unique per merchant account**. Your integration must maintain a mapping from your internal merchant ID to the corresponding Handpoint API key. Never use a single shared API key across multiple merchant accounts.
+
+| Requirement | Detail |
+|---|---|
+| Per-merchant key storage | Store each merchant's API key in your backend, keyed to your merchant identifier. Do not store in frontend code or mobile app bundles. |
+| Staging vs production | Staging keys (`cloud.handpoint.io`) and production keys (`cloud.handpoint.com`) are separate. Ensure your environment config switches the key and the base URL together. |
+| Secure storage | API keys must not be logged in plain text, committed to source control, or returned to frontend clients. Treat them as secrets — store in a secrets manager or encrypted config. |
+| Key rotation | If a key is compromised, contact Handpoint Support immediately for rotation. |
+
+When onboarding a new merchant: receive their `ApiKeyCloud` from Handpoint (or via your portal integration), store it against the merchant record, and test with a DEMO/staging merchant before going live.
+
+---
+
+## Receipt compliance — EMV card scheme requirements
+
+Card schemes (Visa, Mastercard, Discover, Amex) require that a receipt be available to the cardholder **on demand** for every EMV transaction. Delivery method is your choice — email, SMS, printed receipt, or an in-app receipt screen.
+
+### Required fields
+
+Include the following in every customer receipt. Fields marked **conditional** are required only when present in the transaction result (non-empty, non-null).
+
+| Field | Source in result | Notes |
+|---|---|---|
+| Date and time | `terminalDateTime` (local) or `serverDateTime` (UTC) | Show in cardholder's local time |
+| Transaction type | `type` (`SALE`, `REFUND`, `REVERSAL`, etc.) | |
+| Outcome | `finStatus` + `statusMessage` (issuer text) | |
+| Amount charged | `totalAmount` (not `requestedAmount`) | Use `totalAmount` — on partial approvals these differ |
+| Currency | `currency` | ISO 4217 code |
+| Card scheme | `cardSchemeName` or `cardTypeName` | e.g. "Visa", "Mastercard" |
+| Masked card number | `maskedCardNumber` | Last 4 digits minimum |
+| Authorisation code | `authorisationCode` | Required for disputes |
+| Issuer response | `issuerResponseCode` + `issuerResponseText` | e.g. "00 / Successful" |
+| Transaction ID | `transactionID` | Required for support escalation |
+| Retrieval reference | `retrievalReferenceNumber` | Required for chargebacks |
+| AID | `applicationIdentifier` | **Conditional** — EMV chip only; absent for contactless/swipe |
+| TVR | `tvr` | **Conditional** — EMV chip only |
+| IAD | `iad` | **Conditional** — EMV chip only |
+| ARC | `arc` | **Conditional** — only include if non-empty |
+| Merchant name | Your merchant record | Full legal name |
+| Merchant address | Your merchant record | Full address |
+| MID | `acquirerMid` or your merchant record | Merchant ID at acquirer |
+| TID | `acquirerTid` | Terminal ID at acquirer |
+| `transactionReference` | `transactionReference` | For troubleshooting — suggested, not mandatory |
+| Serial number | Your config | Suggested for troubleshooting — links to device if disputed |
+
+### Receipt URL vs raw HTML
+
+The `merchantReceipt` and `customerReceipt` fields in the transaction result contain either:
+- A **hosted URL** (e.g. `https://receipts.handpoint.com/receipts/{id}/customer.html`) — fetch and display or link in email/SMS
+- **Raw HTML string** — rendered directly if the terminal could not upload to the receipt server (MOTO on-terminal, network issues)
+
+Your code must handle both. Check whether the value starts with `http` — if yes, fetch; if no, render as HTML.
+
+### Known issue — recovered transactions
+
+:::warning No receipt for recovered transactions
+When a transaction is recovered via `GET /transactions/{transactionReference}/status` (after a network failure or app crash), the result does not include `merchantReceipt` or `customerReceipt` URLs. You must build the receipt yourself from the fields in the `/status` response using the table above.
+:::
+
+### Testing receipt delivery
+
+| Scenario | Expected |
+|---|---|
+| Standard card-present sale | `merchantReceipt` and `customerReceipt` fields present and contain a URL or HTML |
+| MOTO on-terminal sale | Receipts delivered as raw HTML strings (no URL) |
+| Recovered transaction via `/status` | No receipt fields — ISV-built receipt required |
+| Email/SMS delivery | Cardholder receives receipt link within 30 seconds |
+| Printed receipt | All required EMV fields printed; no truncation |
+
+---
+
+## Logging requirements
+
+Handpoint Integration Support requires access to request/response logs to assist with dispute resolution and certification. Your integration must:
+
+| Requirement | Detail |
+|---|---|
+| Log all API requests | URL, HTTP method, request body (redact card numbers), timestamp |
+| Log all API responses | HTTP status code, response body, latency |
+| Log transaction references | Every UUID v4 you generate — before sending — with timestamp and merchant ID |
+| Minimum retention | 2 weeks (14 days). Longer is better for dispute resolution. |
+| API key handling | Log the header name (`ApiKeyCloud`) but **not** the key value — treat it as a secret |
+| Correlation | Each log entry must be linkable to the `transactionReference` and `transactionResultId` for the same operation |
+
+Logs should be available to your team on request during a support case. They are not automatically shared with Handpoint — you submit relevant excerpts when opening a ticket.
+
+---
+
+## Reconciliation — verify your stored results
+
+After going live, periodically verify that the `finStatus` values your system has stored match the authoritative records at Handpoint. This is especially important after any incident (outage, crash, recovery).
+
+### Single transaction check
+
+```bash
+# Verify the outcome stored for a specific transaction
+curl -s "https://transactions.handpoint.com/transactions/{transactionReference}/status" \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" | jq '{finStatus, transactionID, totalAmount}'
+```
+
+Compare the returned `finStatus` to what your system has on record for the same `transactionReference`. A mismatch means your stored record is incorrect — investigate and correct it.
+
+### Batch reconciliation pattern (JavaScript)
+
+```javascript
+async function reconcile(storedTransactions, apiKey) {
+  const mismatches = [];
+
+  for (const txn of storedTransactions) {
+    const resp = await fetch(
+      `https://transactions.handpoint.com/transactions/${txn.transactionReference}/status`,
+      { headers: { 'ApiKeyCloud': apiKey } }
+    );
+    const live = await resp.json();
+
+    if (live.finStatus !== txn.finStatus) {
+      mismatches.push({
+        transactionReference: txn.transactionReference,
+        stored: txn.finStatus,
+        live: live.finStatus,
+        liveTransactionID: live.transactionID
+      });
+    }
+  }
+
+  return mismatches;
+}
+
+// Usage
+const issues = await reconcile(
+  [
+    { transactionReference: 'uuid-1', finStatus: 'AUTHORISED' },
+    { transactionReference: 'uuid-2', finStatus: 'DECLINED' }
+  ],
+  process.env.HP_API_KEY
+);
+
+if (issues.length > 0) {
+  console.error('Reconciliation failures:', issues);
+  // Alert your operations team — each mismatch is a potential double-charge or missed payment
+}
+```
+
+### What to check
+
+| Mismatch | Likely cause | Action |
+|---|---|---|
+| Stored `DECLINED`, live `AUTHORISED` | Recovery flow did not save the result | Correct the record; verify the cardholder was charged; check fulfilment |
+| Stored `AUTHORISED`, live `CANCELLED` | Partial approval cancelled by cardholder; not reflected in your DB | Correct the record; verify no fulfilment happened; check for chargeback risk |
+| Stored `AUTHORISED`, live `UNDEFINED` | `/status` has no record (wrong reference, or gateway issue) | Re-query after 24h; escalate to Handpoint Support with the reference |
 
 ---
 
@@ -164,58 +425,84 @@ Some prepaid cards are partially approved — the card covers only part of the r
 
 Run the scenarios below for each operation your integration supports.
 
+:::info ViscusDummy trigger amounts
+All staging / DEMO merchant testing uses **ViscusDummy** — a mock acquirer where the transaction outcome is determined by the amount sent (in **minor units** — cents/pence). Any card that can tap, insert, or swipe will work; card numbers are not validated.
+
+| Amount | Outcome | `finStatus` |
+|---|---|---|
+| Any amount not listed | Approved | `AUTHORISED` |
+| `3784` | Issuer decline (not authorized) | `DECLINED` |
+| `3779` | Refer to card issuer | `DECLINED` |
+| `3793` | Pick up card | `DECLINED` |
+| `3757` | Partial approval (`totalAmount` < `requestedAmount`) | `PARTIAL_APPROVAL` |
+| `3768` | Request timeout | `FAILED` |
+| `3741` | Processing error | `FAILED` |
+
+→ Full list including SCA triggers: [Development hardware — trigger amounts](/reference/development-hardware#trigger-amounts)
+:::
+
 ### Sale
 
-| Scenario | Expected outcome |
-|---|---|
-| Standard card-present sale | `AUTHORISED`, receipt printed |
-| Cardholder cancels at terminal | `CANCELLED` in result; no charge |
-| Issuer declines | `DECLINED`; prompt for alternative card |
-| Connection dropped mid-sale | Recovery flow resolves to definitive outcome (see above) |
+| Scenario | Trigger | Expected outcome |
+|---|---|---|
+| Standard approved sale | Any non-trigger amount (e.g. `500`) | `AUTHORISED`; receipt URL or HTML present; `transactionID` stored |
+| Cardholder cancels at terminal | Any amount — press Cancel on terminal | `CANCELLED`; no charge; `transactionID` is empty string |
+| Issuer declines | `3784` | `DECLINED`; prompt for alternative card; `transactionID` is empty string |
+| Gateway timeout / FAILED | `3768` | `FAILED`; log `statusMessage`; do not retry automatically |
+| Partial approval | `3757` | `PARTIAL_APPROVAL`; display `totalAmount`; prompt split tender or reverse |
+| Connection dropped mid-sale | Any amount — drop network after 202 | Recovery flow resolves to definitive outcome (see above) |
+| Page refresh mid-poll | Any amount — refresh browser after 202 | `recoverOnStartup()` finds pending state; resumes polling; correct result stored |
+
+**Verify for every approved sale:**
+- `finStatus === "AUTHORISED"`
+- `transactionID` is a non-empty UUID
+- `merchantReceipt` / `customerReceipt` present (URL or HTML)
+- `transactionReference` in result matches what you sent
+- Your system persisted the result before clearing the UI
 
 ### Refund
 
-| Scenario | Expected outcome |
-|---|---|
-| Linked refund — same card | `AUTHORISED`; funds returned |
-| Linked refund — card mismatched (if same-card enforcement enabled) | `DECLINED` — document this in your UX |
-| Amount exceeds original | `DECLINED` — validate amount ISV-side before sending |
-| After batch close | — `DECLINED` or gateway error; no reversal path; issue a standalone unlinked refund |
+| Scenario | Trigger | Expected outcome |
+|---|---|---|
+| Linked refund — same card | Any amount + same card as original | `AUTHORISED`; funds returned |
+| Linked refund — card mismatched | Any amount + different card | `DECLINED` — document in your UX; instruct cardholder to use original card |
+| Amount exceeds original | Amount > original `totalAmount` | `DECLINED` — validate amount ISV-side before sending |
+| After batch close | Any amount — attempt after batch closed | `DECLINED` or gateway error; route to unlinked refund |
 
 ### Reversal
 
-| Scenario | Expected outcome |
-|---|---|
-| Reversal — same-day, batch open | `AUTHORISED`; no interchange fee |
-| Reversal — batch closed | Error; route to Refund |
-| Double reversal | `ALREADY_REVERSED` (or `3051` on no-reader path) |
-| Wrong `originalTransactionId` | `DECLINED` or `ORIGINAL_NOT_FOUND` |
+| Scenario | Trigger | Expected outcome |
+|---|---|---|
+| Remote reversal (`POST /reversal`) — batch open | `originalGuid` from same-day sale | `httpStatus: 200` (integer); `issuerResponseCode: "00"`; no `finStatus` |
+| Remote reversal — batch closed | Same as above after batch close | Error `3153` — route to Refund |
+| Double reversal | Same `originalGuid` twice | Error `3051 Already reversed` |
+| Wrong `originalGuid` | Random UUID | Error `3153` or equivalent |
+| On-terminal reversal — batch open | `originalTransactionId` from same-day sale | `AUTHORISED` polled result; no card required |
 
 ### Tip Adjustment
 
-| Scenario | Expected outcome |
-|---|---|
-| Add tip on a sale with no on-screen tip | Success (Boolean `true` on Android SDK) |
-| Modify previously set tip | New value replaces old — verify in batch/portal |
-| Set tip to `0` to void | Tip removed from transaction |
-| Attempt after batch close | Rejected — issue a Refund for tip amount instead |
-| Attempt on transaction with on-screen tip (EPI/TSYS merchants) | Rejected — document this in your UX and prevent staff from attempting |
+| Scenario | Trigger | Expected outcome |
+|---|---|---|
+| Add tip on approved sale | `transactionID` from a `3784`-excluded sale; call tip-adjustment | `{"statusMessage": "tip adjusted"}` |
+| Amount `0` — void tip | `amount: 0` in body | Tip removed from transaction |
+| Attempt after batch close | Call after `POST /batch/close` | Rejected — issue a Refund for the tip amount instead |
+| EPI: sale with on-screen tip already set | Pre-auth with tip; then tip-adjust | Rejected — document in your UX; prevent staff from attempting |
 
 ### Pre-Authorization
 
 Run the full pre-auth lifecycle — do not certify pre-auth without testing all sub-operations:
 
-| Scenario | Expected outcome |
-|---|---|
-| Create pre-auth | `AUTHORISED`; hold placed; `transactionID` stored |
-| Increase hold | Hold raised by delta; verify in portal |
-| Decrease hold | Hold reduced by delta; verify in portal |
-| Capture at original amount | Settled; hold cleared |
-| Capture at reduced amount | Settled at reduced amount |
-| Void (release without capturing) | Hold released; no settlement |
-| Attempt capture after void | `3051 Already reversed` (no-reader) or `DECLINED` (with-reader) |
-| Attempt capture after capture | `3211` (no-reader) — already settled |
-| Expired `originalGuid` | `5001 NullPointerException` (no-reader) or `FAILED` (with-reader) |
+| Scenario | Trigger | Expected outcome |
+|---|---|---|
+| Create pre-auth | Any non-trigger amount | `AUTHORISED`; hold placed; `transactionID` stored |
+| Increase hold | `increaseAmount` in major units | Hold raised; verify in portal |
+| Decrease hold | `increaseAmount` + `subtract: "1"` | Hold reduced; verify in portal |
+| Capture at original amount | `capturedAmount` = pre-auth amount | Settled; hold cleared; `preAuthorizationCaptureGuid` returned |
+| Capture at reduced amount | `capturedAmount` < pre-auth amount | Settled at reduced amount |
+| Void (release without capturing) | `preAuthorizationReversal` operation | Hold released; no settlement |
+| Attempt capture after void | `originalGuid` of voided pre-auth | Error `3051 Already reversed` (no-reader) |
+| Attempt capture after capture | `originalGuid` of already-captured pre-auth | Error `3211` (no-reader) — already settled |
+| Expired / unknown `originalGuid` | Random UUID | Error `5001` (no-reader) — gateway NPE (known issue CUS-832) |
 
 ### Tokenization
 
@@ -249,7 +536,7 @@ Run the full pre-auth lifecycle — do not certify pre-auth without testing all 
 | `4066 Amount exceeds original` | Reversal/capture amount too high | Validate amount before sending |
 | `5001 NullPointerException` | Unknown `originalGuid` on preauth endpoints | Verify GUID from pre-auth create result |
 | `VALIDATION_FAILED (422)` | Wrong field name (e.g. `amount` instead of `increaseAmount`) | Check field names in request body |
-| `403 No valid key found` | Wrong or expired API key | Verify `ApiKeyCLoud` header |
+| `403 No valid key found` | Wrong or expired API key | Verify `ApiKeyCloud` header |
 
 See [Error codes reference](/reference/error-codes) for the full list.
 
@@ -259,11 +546,31 @@ See [Error codes reference](/reference/error-codes) for the full list.
 
 Before switching to production credentials:
 
+**Core functionality**
 - [ ] All required scenarios pass on staging with DEMO merchant
-- [ ] Transaction recovery tested and verified
+- [ ] Transaction recovery tested and verified — page refresh / app crash mid-transaction resolves correctly
+- [ ] `transactionReference` persisted to durable storage **before** every API call
 - [ ] App timeout implemented — no silent abandonment on terminal hang
 - [ ] Partial approval handled (even if your UI shows "declined, try another card")
 - [ ] Acquirer-specific restrictions tested (e.g. EPI/TSYS tip adjustment restrictions)
+
+**Receipt compliance**
+- [ ] Receipts include all required EMV fields (AID, TVR, IAD, ARC when non-empty; authorisation code; retrieval reference; merchant name/address/MID/TID)
+- [ ] Receipt delivery tested for all your supported methods (email/SMS/print)
+- [ ] ISV-built receipt implemented for recovered transactions (no receipt URL on `/status` responses)
+- [ ] Receipt fields use `totalAmount` (not `requestedAmount`) as the displayed and settled amount
+
+**Merchant management**
+- [ ] Per-merchant `ApiKeyCloud` stored in your backend against merchant records — not hardcoded, not shared between merchants
+- [ ] Staging and production base URLs and API keys switched together in your environment config
+
+**Logging**
+- [ ] All API requests and responses logged with timestamps and `transactionReference`
+- [ ] Log retention confirmed at 14+ days
+- [ ] API key values not logged in plain text
+
+**Certification**
 - [ ] Certification call completed with Handpoint Integration Support
-- [ ] Production API key / SSK received and stored securely (not hardcoded in app)
+- [ ] Request/response log samples available for review
+- [ ] Production API key / SSK received and stored securely
 - [ ] Staging credentials removed or feature-flagged out of production builds

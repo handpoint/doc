@@ -1,0 +1,143 @@
+---
+id: clinic-guide
+title: Clinic / Healthcare
+sidebar_label: Clinic / Healthcare
+description: Route payments to per-provider merchant accounts using Multi-MID, mix card-present and MOTO flows, and reconcile by provider via the transaction feed.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Clinic and healthcare payments
+
+Healthcare practices often have multiple billing entities sharing the same front desk: individual providers with their own merchant accounts, or a mix of in-person and phone-based payment collection. This guide covers the Handpoint features that fit that model.
+
+---
+
+## Multi-MID: one integration, one device, multiple providers
+
+Multi-MID lets a single Handpoint integration route transactions to separate merchant accounts — one per doctor or billing entity — without separate API keys or separate terminals.
+
+**How it works:** Handpoint configures a main MID for the practice and sub-MIDs for each provider. Your software maps each provider to an `externalId` (Cloud API) or `MerchantAuth` (Android PAX) and includes it on every transaction.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "15000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "3c9de220-b14a-4a0c-9d2e-b3c1088e5a91",
+  "externalId": "dr-patel"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val merchantAuth = MerchantAuth(
+    acquirer = Acquirer.TSYS,
+    mid      = "DR_PATEL_SUB_MID",
+    tid      = "DR_PATEL_TID"
+)
+val options = SaleOptions()
+options.merchantAuth = listOf(merchantAuth)
+
+hapi.sale(BigInteger("15000"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
+Omit `externalId` / `MerchantAuth` to fall back to the practice's main MID.
+
+:::info Provisioning
+Sub-MIDs are configured by Handpoint Integration Support. Each provider needs a separate merchant account with the acquirer before a sub-MID can be created.
+:::
+
+See [Multi-MID Reference](/reference/multi-mid) for the full setup checklist and reconciliation guidance.
+
+---
+
+## Card-present at the desk
+
+For walk-in patients paying at the front desk, use either:
+
+- **Cloud API** — your practice management software initiates the transaction over HTTP; a PAX terminal sits at the desk and prompts the patient. No Android development required.
+- **Android SDK on PAX** — your check-in or billing application runs on the PAX terminal itself; the billing UI and card payment are on one device.
+
+Both paths support Multi-MID. The choice depends on where your POS software runs, not on the payment flow.
+
+---
+
+## Phone payments (MOTO)
+
+For patients who call in to pay, use a stored card token from a prior in-person transaction:
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "15000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "cardToken": "TOKEN_FROM_PRIOR_TOKENIZATION",
+  "externalId": "dr-patel",
+  "transactionReference": "new-uuid-here"
+}
+```
+
+The `externalId` field works the same on MOTO calls as on card-present transactions — provider routing is preserved regardless of payment channel.
+
+To obtain a `cardToken`, use a `saleAndTokenizeCard` operation during a card-present visit. The token is in the result as `cardToken`.
+
+:::info Acquirer requirement
+MOTO requires **EPI** for North American merchants. EmerchantPay supports MOTO for EU merchants. See the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
+:::
+
+---
+
+## Pre-authorization for uncertain procedure costs
+
+For procedures where the final cost is not known until after the visit (lab results, extended appointments, supply usage), pre-authorization places a hold at check-in and captures the actual amount when the visit closes.
+
+The patient presents their card at arrival; the front desk sends a `preAuthorization` through the terminal. When the provider codes the visit, your system captures the exact amount from the server — no card re-presentation required.
+
+```http
+# At check-in — card-present
+POST https://cloud.handpoint.com/transactions
+{ "operation": "preAuthorization", "amount": "30000", "externalId": "dr-patel", ... }
+
+# At checkout — back-office, no terminal
+POST https://cloud.handpoint.com/preauthorization/capture
+{ "originalGuid": "TRANSACTION_ID_FROM_PREAUTH", "capturedAmount": "27500" }
+```
+
+:::caution Hold expiry
+Card networks release holds in 7–30 days depending on the issuer. Always capture or release within that window, or the hold disappears and you cannot collect.
+:::
+
+See [Pre-Authorization Guide](/reference/pre-authorization-guide) for code examples and acquirer support.
+
+---
+
+## Reconciliation by provider
+
+Use the [Transaction Feed API](/back-office/transaction-feed-api) to produce per-provider reports:
+
+- **Cloud API transactions** — filter by `externalId`
+- **Android PAX transactions** — filter by `merchantId` (the sub-MID value)
+
+Both channels write to the same feed. A single query scoped to `externalId: "dr-patel"` returns every card-present and MOTO transaction for that provider, regardless of how it was taken — giving the clinic a unified settlement view without maintaining a separate ledger.

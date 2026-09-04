@@ -13,8 +13,8 @@ Handpoint provides machine-readable resources so AI coding agents (Claude Code, 
 1. Fetch https://developer.handpoint.com/llms.txt for the full machine-readable reference:
    acquirer × feature support matrix, per-path code examples, and all reference page URLs.
 
-2. Load the acquirer-selection skill before writing any integration code:
-   https://developer.handpoint.com/.well-known/skills/acquirer-selection.md
+2. Load the handpoint skill before writing any integration code:
+   https://developer.handpoint.com/.well-known/skills/handpoint.md
 
 3. Load a task-specific skill for the operation you are implementing.
 ```
@@ -36,12 +36,17 @@ The skills index is at [`/.well-known/skills/index.json`](/.well-known/skills/in
 
 | Skill | When to load |
 |---|---|
-| [`acquirer-selection`](/.well-known/skills/acquirer-selection.md) | **Always — load first.** Determines which acquirer capabilities are available, batch close requirements, and tip flow. |
-| [`cloud-api-sale`](/.well-known/skills/cloud-api-sale.md) | Implementing a REST API sale (any language, commands PAX terminal via Handpoint Cloud) |
-| [`reversals-and-refunds`](/.well-known/skills/reversals-and-refunds.md) | Implementing reversal or refund logic; understanding when each applies |
-| [`android-sdk-pax`](/.well-known/skills/android-sdk-pax.md) | Building an Android app that runs on-device on a PAX SmartPOS terminal |
-| [`remote-sale`](/.well-known/skills/remote-sale.md) | Implementing card-not-present charging (on-terminal entry or back-office card token) |
-| [`transaction-recovery`](/.well-known/skills/transaction-recovery.md) | Handling UNDEFINED finStatus, idempotency with transactionReference, and network failure recovery |
+| [`handpoint`](/.well-known/skills/handpoint.md) | **Always — load first.** Global context, architecture overview, and which path and acquirer skill to load next. |
+| [`paths/cloud-api`](/.well-known/skills/paths/cloud-api.md) | Implementing a REST API sale (any language, commands PAX terminal via Handpoint Cloud) |
+| [`paths/android-pax`](/.well-known/skills/paths/android-pax.md) | Building an Android app that runs on-device on a PAX SmartPOS terminal |
+| [`paths/android-hilite`](/.well-known/skills/paths/android-hilite.md) | Building an Android app paired with a HiLite Bluetooth reader |
+| [`paths/ios-hilite`](/.well-known/skills/paths/ios-hilite.md) | Building an iOS app paired with a HiLite Bluetooth reader |
+| [`acquirers/epi`](/.well-known/skills/acquirers/epi.md) | EPI (North America) — batch close schedule, tip adjustment, pre-auth support |
+| [`acquirers/paysafe`](/.well-known/skills/acquirers/paysafe.md) | Paysafe/TSYS (North America) — supported operations and constraints |
+| [`acquirers/emerchantpay`](/.well-known/skills/acquirers/emerchantpay.md) | EmerchantPay (Europe) — tip-in-sale, pre-auth, supported operations |
+| [`acquirers/paystrax`](/.well-known/skills/acquirers/paystrax.md) | Paystrax (Europe) — tip-in-sale, pre-auth, supported operations |
+| [`optional/back-office`](/.well-known/skills/optional/back-office.md) | Back-office operations — reversals, refunds, pre-auth capture, MOTO |
+| [`optional/transaction-feed`](/.well-known/skills/optional/transaction-feed.md) | Transaction reporting, reconciliation, and result recovery |
 
 ## Integration paths — quick reference
 
@@ -57,7 +62,7 @@ The skills index is at [`/.well-known/skills/index.json`](/.well-known/skills/in
 
 - **Do not assume all acquirers support the same features.** EPI requires daily batch close; PAYSAFE does not support remote sale or pre-authorization; EmerchantPay/Paystrax include tipAmount in the sale, not post-sale. Always load `acquirer-selection` first.
 - **Do not retry UNDEFINED transactions.** `finStatus: UNDEFINED` means the result is unknown — retrying may double-charge. Use the Transaction Feed API to recover.
-- **The header is `ApiKeyCLoud`**, not `Authorization` or `Api-Key`. The capital L in Cloud is intentional.
+- **The header is `ApiKeyCloud`**, not `Authorization` or `Api-Key`.
 - **Amounts are in minor currency units.** `1000` = $10.00, not $1000.
 - **Reversals are synchronous; sales and refunds are asynchronous.** Poll for sales and refunds; reversal response is immediate.
 

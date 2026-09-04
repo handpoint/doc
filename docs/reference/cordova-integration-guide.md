@@ -24,6 +24,10 @@ Choose this path when your team is already building in Cordova or Ionic and want
 | You need a single codebase for Android and iOS | You need iOS + HiLite — the [iOS HiLite path](/reference/ios-hilite-integration-guide) is the native option |
 | You're targeting PAX Cloud or HiLite Bluetooth | You need advanced pre-auth — not supported on HiLite via Cordova |
 
+:::info Back-office operations are always available
+[Backoffice REST API](/reference/backoffice-integration-guide) operations — tip adjustment, reversals, refunds, MOTO charges, batch management, deferred tokenization — are available **alongside any integration path** you choose. They go server-side directly to the payment gateway with no terminal or SDK required. Subject only to acquirer support.
+:::
+
 ## Capabilities not available on HiLite via Cordova
 
 - Pre-authorization
@@ -230,22 +234,17 @@ Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquir
 
 ## Test amounts
 
-| Amount | Behaviour |
-|---|---|
-| `3779` | Issuer — Refer to issuer |
-| `3784` | Issuer — Not authorized |
-| `3793` | Issuer — Pick up card |
-| Other | Approved |
+Pass amounts in **minor units** (cents / pence). Use the full trigger table — including partial approval (3757) and timeout (3768) — from [Development Hardware: Testing with trigger amounts](/reference/development-hardware#trigger-amounts). Any amount not in the table approves.
 
 ## Validation & certification
 
 **Required for every integration:**
 
-- [ ] `transactionReference` generated and persisted before each `HAPI.sale()` call
+- [ ] `transactionReference` generated and persisted before each `HAPI.sale()` call — [scoping rules](/reference/transaction-reference)
 - [ ] `handpoint.transactionResultReady` listener registered before any transaction starts
 - [ ] `UNDEFINED` recovery flow implemented and tested
 - [ ] App-restart recovery — pending reference polled on startup
-- [ ] Partial approval handled
+- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
 
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)
 

@@ -33,8 +33,9 @@ import NotSupported from '@site/src/components/NotSupported';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
+import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
 
-export const _caps = {"sale":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public","backoffice":"public"},"tip-adjustment":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"not-supported","cordova":"public"},"pre-auth":{"cloud-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"cloud-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"batching":{"cloud-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported","backoffice":"public"},"pre-auth-capture-reversal":{"cloud-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"avs-for-moto":{"cloud-api":"public","android-pax":"public"}};
+export const _caps = CAPS_BY_ID['epi'];
 
 <AcquirerPageHeader currentSlug="epi" />
 
@@ -591,7 +592,7 @@ handpoint.motoSale(
 
 ### Sale with Tip {#sale-and-tip}
 
-<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","cordova"]}>
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
 
@@ -692,6 +693,14 @@ handpoint.sale(
   function(error) { console.error(error); }
 );
 ```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Sale with Tip is not available on iOS HiLite. The saleWithAmount() method does not accept tip configuration parameters."
+  useInstead="Tip Adjustment (EPI only) — use HapiRemoteService.tipAdjustment() to add a tip after the sale completes, or switch to Cloud API / Android SDK (PAX) for on-screen tip collection."
+/>
 
 </TabItem>
 </Tabs>
@@ -1317,7 +1326,7 @@ Errors arrive in the polled result object, not in the initial 202. Check `finSta
 
 | HTTP | `message` | Meaning | What to do |
 |---|---|---|---|
-| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header value |
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
 
 #### Testing
@@ -1503,7 +1512,19 @@ curl --location --request POST 'https://cloud.handpoint.com/reversal' \
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-Errors arrive in the polled result — see [Reversal — Errors](#reversal).
+Errors arrive in the polled result object (`GET /transaction-result/{id}`) — not in the initial 202 response. Check `finStatus`. Do not parse `statusMessage` for programmatic logic; it can change.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found in the open batch — batch may have already closed | Verify the GUID; if the batch has closed, send a Refund instead |
+
+**Immediate HTTP errors** (returned before the 202, without polling):
+
+| HTTP | `error` / `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry with a short backoff |
+| `400` | `{"error":1002,"message":"No device listening at the other end of the secure channel"}` | Terminal offline or unreachable | Check terminal is powered on and connected; retry |
 
 </TabItem>
 <TabItem value="backoffice" label="Backoffice">
@@ -1525,7 +1546,12 @@ Synchronous — errors are returned immediately in the response body:
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-Same test scenarios as on-device Reversal — see [Reversal — Testing](#reversal).
+| Scenario | How to trigger |
+|---|---|
+| Success — full reversal | Complete a sale, note `transactionID`, send `POST /transactions` with `"operation": "reversal"` same day — poll until `finStatus: "AUTHORISED"` |
+| After batch close | Close the batch (`POST /batch/close`), attempt reversal — verify `finStatus: "DECLINED"` and `UNABLE_TO_FIND_MESSAGE_TO_REVERSE` in the polled result; route to Refund |
+| Already reversed | Send the same reversal a second time — verify error in polled result |
+| Terminal offline | Attempt reversal with terminal powered off — verify immediate 400 `error 1002` response |
 
 </TabItem>
 <TabItem value="backoffice" label="Backoffice">
@@ -1891,7 +1917,7 @@ The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parame
 | `400` | `4066` | `Partial reversal amount exceeds original amount` | `capturedAmount` exceeds the pre-auth hold amount | Reduce the capture amount |
 | `400` | `3051` | `Already reversed` | Pre-auth was already voided | Check your records — void and capture are mutually exclusive; you cannot capture after a void |
 | `400` | `3211` | *(pre-auth already settled)* | Pre-auth has already been captured — a second capture is not possible | Verify state via the TXN Feed API; if the first capture succeeded, issue a refund if needed |
-| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
+| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
 | `422` | `VALIDATION_FAILED` | Missing required field | Request body is missing `originalGuid` or `capturedAmount` | See `details` array in response for the specific field |
 
 #### Testing
@@ -2128,7 +2154,7 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 
 | HTTP | `message` | Meaning | What to do |
 |---|---|---|---|
-| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal busy with another operation | Wait for the current operation to complete, then retry |
 
 
@@ -2201,6 +2227,24 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 Eligible transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. Returns `cardToken` for use in `POST /moto/sale`.
+
+**Response — HTTP 200:**
+```json
+{
+  "httpStatus": "200",
+  "cardTokenizationGuid": "f1c7a940-9d4e-11f1-b6e7-ff5cc7596008",
+  "cardToken": "K33f40000000000093",
+  "maskedCardNumber": "************0936",
+  "expiryDateMMYY": "1027",
+  "serverDateTime": "20260821105621460",
+  "agreementNumber": "630000026730",
+  "transactionReference": "88ee3b00-9d4e-11f1-b6e7-ff5cc7596008"
+}
+```
+
+:::note Cancelled / reversed transactions
+A token can be retrieved from a cancelled or reversed transaction — the card is tokenized during the EMV read, before the authorization outcome. On a **partial approval that the cardholder declines** (terminal auto-reverses the partial charge), the final polled result has `finStatus: "CANCELLED"` and `transactionID` of the auto-reversal. Calling `/token` with the reversal's ID returns error `3112`. Instead, use `originalEFTTransactionID` from the polled result — that is the original SALE's ID and is eligible for deferred tokenization.
+:::
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -2312,6 +2356,7 @@ handpoint.tokenizeCard(
 
 | Code | Meaning | Recovery |
 |---|---|---|
+| `3112` | Transaction type is not eligible for deferred tokenization | Pass the SALE `transactionID`, not a reversal's. For a partial approval → cancel, use `originalEFTTransactionID` from the polled result, or the `type: "SALE"` entry in `/status/all` |
 | `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
 | `CARD_READ_ERROR` | Terminal failed to read card | Retry; ask customer to try again |
 

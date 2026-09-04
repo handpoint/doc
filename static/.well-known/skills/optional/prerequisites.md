@@ -22,7 +22,7 @@ The partner/acquirer provides two types of credentials depending on the integrat
 
 | Integration path | Processing credential | Analytics credential |
 |---|---|---|
-| REST API / Cloud API | `cloudApiKey` → `ApiKeyCLoud` header | — |
+| REST API / Cloud API | `cloudApiKey` → `ApiKeyCloud` header | — |
 | Android SDK — PAX | `sharedSecret` → `hapi.init()` | `cloudApiKey` → optional, enables cloud listening mode |
 | Android SDK — HiLite | `sharedSecret` → `hapi.init()` | `cloudApiKey` → txnFeedAPI only (not passed to SDK) |
 | iOS SDK — HiLite | `sharedSecret` → `HapiManager(apiKey:)` | `cloudApiKey` → txnFeedAPI only (not passed to SDK) |
@@ -30,7 +30,7 @@ The partner/acquirer provides two types of credentials depending on the integrat
 | Transaction Feed API | — | `cloudApiKey` → `Authorization: Bearer` header |
 | Windows SDK / JavaScript SDK | `cloudApiKey` | REST API wrappers — command the terminal via cloud |
 
-`cloudApiKey` and `ApiKeyCLoud` are the same credential — the REST API, txnFeedAPI, and deprecated wrappers all use the same key.
+`cloudApiKey` and `ApiKeyCloud` are the same credential — the REST API, txnFeedAPI, and deprecated wrappers all use the same key.
 
 The partner provides staging credentials for development and production credentials for go-live. These are separate — never use production credentials during development.
 
@@ -42,7 +42,7 @@ The partner provides staging credentials for development and production credenti
 
 **What the ISV needs:**
 - A PAX SmartPOS terminal with the Handpoint Payments App installed, connected to Wi-Fi
-- The `cloudApiKey` in the `ApiKeyCLoud` header — no other setup required
+- The `cloudApiKey` in the `ApiKeyCloud` header — no other setup required
 
 The terminal and Payments App setup is handled by the partner. The ISV only needs the API key.
 

@@ -1,0 +1,256 @@
+---
+id: events-guide
+title: Stadium & Events
+sidebar_label: Stadium & Events
+description: Build high-volume, multi-vendor payment flows for stadiums, festivals, and events — covering Android PAX on-device, Interac, multi-MID routing, network resilience, and end-of-event batch close.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Stadium & events payments
+
+Stadium concessions, music festivals, and large events share the same challenges: extreme transaction volume in compressed windows, patchy cellular coverage during busy periods, multiple vendors under one operator, and Interac in Canadian venues. This guide maps those requirements to Handpoint features.
+
+---
+
+## Integration path: Android SDK on PAX (recommended for events)
+
+| | Android SDK on PAX | Cloud API + PAX terminal |
+|---|---|---|
+| **Where your software runs** | On the PAX terminal itself | Your server |
+| **Network dependency** | Low — IPC on device, no server hop | High — every transaction hits your server |
+| **Resilience to poor signal** | High — SDK buffers locally | Moderate — requires server reachability |
+| **Multi-MID** | `MerchantAuth` per transaction | `externalId` per transaction |
+| **Best for** | Concession stands, roaming vendors, festivals | Fixed counters with reliable Wi-Fi |
+
+For event concessions with unreliable cellular, use the **Android SDK on PAX** — see [Android SDK (PAX) Integration Guide](/reference/android-pax-integration-guide). For fixed counters with stable Wi-Fi, the **Cloud API** also works — see [Cloud API Integration Guide](/reference/cloud-api-integration-guide).
+
+:::info Back-office operations are always available
+[Back-office REST API](/reference/backoffice-integration-guide) operations — reversals, refunds, tip adjustment, batch close, MOTO — work alongside any on-terminal integration. Run them server-side at end of event.
+:::
+
+---
+
+## High-volume transaction flow
+
+Events demand fast transactions. The Android SDK on PAX keeps the entire sale on-device — no network round-trip in the payment path.
+
+```kotlin
+// Amount in minor units — $15.00 = BigInteger("1500")
+val ref = UUID.randomUUID().toString()
+db.savePending(ref)
+
+val options = SaleOptions().apply {
+    transactionReference = ref
+    customerReference    = "STAND-7-ORDER-${System.currentTimeMillis()}"
+}
+val result: OperationStartResult = hapi.sale(BigInteger("1500"), Currency.USD, options)
+
+if (!result.operationStarted) {
+    // SDK busy — terminal is processing a previous transaction. Show error and wait.
+    showBusyError()
+    return
+}
+// Result arrives in endOfTransaction
+```
+
+:::warning Do not start a second transaction before endOfTransaction fires
+`OperationStartResult.operationStarted == true` means the SDK accepted the command — the terminal is processing. Do not call any other financial operation until `endOfTransaction` fires.
+:::
+
+### Reading the result
+
+```kotlin
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    db.clearPending(result.transactionReference ?: savedRef)
+
+    when (result.finStatus) {
+        FinancialStatus.AUTHORISED         -> fulfillOrder(result)
+        FinancialStatus.DECLINED           -> showDeclined()          // different card
+        FinancialStatus.CANCELLED          -> showCancelled()         // retry allowed
+        FinancialStatus.FAILED             -> showError(result.statusMessage)
+        FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+        else                               -> {}
+    }
+}
+```
+
+---
+
+## Multi-vendor and multi-MID routing
+
+Many events have multiple concession operators under a single gateway relationship, each needing their own merchant settlement. Use `MerchantAuth` to route each transaction to the correct sub-merchant.
+
+```kotlin
+val options = SaleOptions().apply {
+    transactionReference = UUID.randomUUID().toString()
+    merchantAuth = MerchantAuth(
+        merchantCode = "VENDOR_MERCHANT_CODE",
+        merchantPin  = "VENDOR_MERCHANT_PIN"
+    )
+}
+hapi.sale(BigInteger("1500"), Currency.USD, options)
+```
+
+Include `MerchantAuth` **only on originating operations** (sale, pre-auth create, MOTO). Do not include it on reversals or linked refunds — they inherit the routing from the original transaction automatically.
+
+→ Full rules: [Multi-MID guide](/reference/multi-mid)
+
+---
+
+## Interac — Canadian venues
+
+Interac Debit is available via the **Paysafe + Interac** acquirer on EPI-backed Canadian merchant accounts. Interac cards are chip-only — contactless Interac is not supported on all terminals.
+
+**Required for Interac:**
+- Acquirer: TSYS/TNS-backed Canadian merchant (Paysafe + Interac)
+- Terminal configured for Interac (provisioned by Handpoint)
+- Cardholder must insert card — tap is not accepted for Interac
+
+Interac test PANs (staging only — TNSDummy merchant, CHIP-only, CAD):
+
+| PAN | Notes |
+|---|---|
+| `001202000071200` | Standard Interac test card |
+| `001202000071135` | Standard Interac test card |
+
+These PANs work only on TNSDummy merchant accounts, require physical chip insertion (not tap/swipe), and only work with CAD currency.
+
+→ Full provisioning steps: [Development Hardware](/reference/development-hardware#interac-test-cards)
+
+---
+
+## Network resilience and UNDEFINED recovery
+
+Stadium Wi-Fi and cellular networks can saturate during peak times. If the terminal sends a transaction to the gateway but the result never arrives in `endOfTransaction`, you receive `UNDEFINED`.
+
+**Do not retry an UNDEFINED transaction without checking first.** The card may already have been charged.
+
+```kotlin
+// Save transactionReference before every operation
+val ref = UUID.randomUUID().toString()
+db.savePending(ref)
+
+// If endOfTransaction does not fire within 90 s, poll:
+fun recoverTransaction(ref: String) {
+    hapi.getTransactionStatus(ref)
+    // Result arrives in transactionResultReady callback
+}
+
+override fun transactionResultReady(result: TransactionResult, device: Device) {
+    when (result.finStatus) {
+        FinancialStatus.IN_PROGRESS,
+        FinancialStatus.UNDEFINED   -> {
+            // Still unknown — wait 10 s and poll again
+            Handler(Looper.getMainLooper()).postDelayed({
+                recoverTransaction(savedRef)
+            }, 10_000)
+        }
+        FinancialStatus.AUTHORISED -> {
+            // Confirmed approved — fulfill order
+            // Wait 60 s before reversing a PARTIALLY_APPROVED race scenario
+            fulfillOrder(result)
+        }
+        else -> {
+            // DECLINED, FAILED, CANCELLED — no charge
+            db.clearPending(result.transactionReference ?: savedRef)
+        }
+    }
+}
+
+// On app start, check for a pending reference from a prior session
+val pending = db.getPendingTransaction()
+if (pending != null) recoverTransaction(pending.ref)
+```
+
+→ Full recovery implementation: [Transaction Recovery — Android SDK](/reference/transaction-recovery-android-sdk)
+
+---
+
+## Partial approval handling
+
+Prepaid and gift cards may be partially approved — the card covers only part of the amount. At a concession stand, the cardholder pays the remainder with cash or another card.
+
+```kotlin
+FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+
+fun handlePartialApproval(result: TransactionResult) {
+    val approved  = result.totalAmount   // amount the card covered
+    val remaining = orderTotal - approved
+    // Prompt for split tender (cash / another card) for `remaining`
+    // If split tender not possible, reverse after 60 s:
+    // hapi.reversal(result.transactionID, result.totalAmount, ...)
+}
+```
+
+:::caution Use `totalAmount`, not `requestedAmount`
+When reversing a partial approval, use `result.totalAmount` (the amount actually authorised on the card) — not the original `requestedAmount`.
+:::
+
+→ [Partial Approval guide](/reference/partial-approval)
+
+---
+
+## End-of-event batch close (EPI only)
+
+Close the batch at the end of the event to settle all transactions. On Android PAX:
+
+```kotlin
+hapi.endOfDay()
+// Result arrives in endOfDayResult callback
+
+override fun endOfDayResult(result: String, device: Device) {
+    Log.d("HandpointSDK", "Batch close result: $result device=${device.name}")
+}
+```
+
+Via back-office REST (if you have multiple terminals):
+
+```http
+POST https://cloud.handpoint.com/batch/close
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{ "terminal_type": "PAXA920", "serial_number": "082104578" }
+```
+
+Call once per terminal at end of event. Missing batch close results in ERR 005 on the next settlement attempt.
+
+:::caution EPI and Paysafe+Interac only
+Batch close applies only to EPI and Paysafe+Interac acquirers. EmerchantPay and Paystrax settle automatically.
+:::
+
+---
+
+## Test amounts
+
+On a DEMO merchant, trigger specific outcomes by passing these amounts in **minor units**:
+
+| Amount | Outcome |
+|---|---|
+| `3757` | PARTIALLY_APPROVED |
+| `3768` | FAILED / timeout |
+| `3779` | DECLINED (refer to issuer) |
+| `3784` | DECLINED (not authorized) |
+| `3793` | DECLINED (pick up card) |
+| Any other | AUTHORISED |
+
+→ Full trigger table: [Development Hardware](/reference/development-hardware#trigger-amounts)
+
+---
+
+## Validation & certification checklist
+
+**Required for every events integration:**
+
+- [ ] `InitialisationComplete` gate — no sales before SDK is ready
+- [ ] `transactionReference` generated and persisted before every call — [scoping rules](/reference/transaction-reference)
+- [ ] `OperationStartResult.operationStarted` checked — show "terminal busy" if false
+- [ ] `UNDEFINED` recovery tested — simulate connection drop mid-transaction, verify polling and recovery
+- [ ] Partial approval handled — PARTIALLY_APPROVED detected; split tender or auto-reversal
+- [ ] Batch close tested at end of session (EPI only)
+- [ ] Multi-MID tested — `MerchantAuth` routes to correct sub-merchant (if using multi-vendor)
+- [ ] Interac chip insertion tested (if Canadian venue, Paysafe+Interac acquirer)
+
+→ [Validate your integration — Android SDK](/reference/validate-integration-android-sdk)

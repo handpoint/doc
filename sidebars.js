@@ -2,6 +2,15 @@
 const sidebars = {
   getStartedSidebar: [
     'get-started/index',
+    {
+      type: 'category',
+      label: 'Guides',
+      items: [
+        'guides/restaurant-guide',
+        'guides/clinic-guide',
+        'guides/field-service-guide',
+      ],
+    },
   ],
 
   acquirersSidebar: [
@@ -54,6 +63,8 @@ const sidebars = {
       collapsible: false,
       items: [
         'reference/android-sdk-setup',
+        'reference/android-demo-app',
+        'reference/android-integration-walkthrough',
         'reference/javascript-sdk-setup',
         'reference/windows-sdk-setup',
         'reference/authentication',
@@ -63,6 +74,7 @@ const sidebars = {
         'reference/multi-mid',
         'reference/avs-for-moto',
         'reference/fee-mitigation',
+        'reference/partial-approval',
         {
           type: 'category',
           label: 'Transaction Recovery',
@@ -83,9 +95,17 @@ const sidebars = {
         'reference/transaction-result-object',
         'reference/error-codes',
         'reference/cordova-events',
+        'reference/hilite-vs-pax',
+        'reference/moto-guide',
+        'reference/receipt-compliance',
         'reference/validate-integration',
         'reference/validate-integration-android-sdk',
         'reference/known-issues',
+        {
+          type: 'link',
+          label: 'OpenAPI Specification',
+          href: '/openapi.yaml',
+        },
       ],
     },
   ],

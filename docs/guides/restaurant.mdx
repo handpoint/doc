@@ -1,0 +1,145 @@
+---
+id: restaurant-guide
+title: Restaurant
+sidebar_label: Restaurant
+description: Build tableside ordering, tab management, and tip workflows for restaurant merchants — covering integration options, pre-auth for tabs, tip collection, and end-of-day close.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Restaurant payments
+
+Restaurants have more moving parts than a standard retail checkout: tabs that stay open across a meal, tips that may be entered after the guest leaves, and staff who need to move around the room without returning to a counter terminal. This guide covers the Handpoint features that match those workflows.
+
+---
+
+## Integration path: counter POS or tableside all-in-one
+
+| | Cloud API + PAX terminal | Android SDK on PAX |
+|---|---|---|
+| **Where your software runs** | Your server, any language | On the PAX terminal itself |
+| **Physical setup** | Counter POS with terminal alongside | One device: terminal is the POS |
+| **Tip adjustment** | Yes — back-office API call | Yes — back-office API call |
+| **Pre-auth (tab)** | Yes | Yes |
+| **Best for** | Existing POS software, web-based systems | Tableside ordering, all-in-one builds |
+
+If your POS is a server-side application (Python, PHP, Node.js, .NET), use the **Cloud API** — see [Cloud API Integration Guide](/reference/cloud-api-integration-guide). If you're building an application that lives on the PAX terminal itself, embed the **Android SDK** — see [Android SDK (PAX) Integration Guide](/reference/android-pax-integration-guide).
+
+---
+
+## Pre-authorization for tabs
+
+Use pre-authorization when a guest opens a tab and the final amount is unknown. The card is authorized for an estimated hold at the start; you capture the actual total — including tip — when the tab closes.
+
+**Lifecycle:**
+
+1. **Open tab** — guest presents card; a `preAuthorization` creates a hold. Card-present, requires terminal.
+2. **Close tab** — when the bill is ready, capture from your server with the final amount. Back-office, no terminal required.
+3. **Walk-away tab** — if the guest leaves without closing, release the hold with a `preAuthorizationReversal`.
+
+```http
+# Step 1 — Open tab (card-present)
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorization",
+  "amount": "5000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "3c9de220-b14a-4a0c-9d2e-b3c1088e5a91"
+}
+```
+
+```http
+# Step 2 — Capture at tab close (back-office, no terminal)
+POST https://cloud.handpoint.com/preauthorization/capture
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "capturedAmount": "4700",
+  "tipAmount": "800"
+}
+```
+
+`originalGuid` is the `transactionID` from the pre-auth result. Always capture or reverse before the hold expires — card networks release holds in **7–30 days** depending on the issuer.
+
+:::info Acquirer support
+Pre-auth is available on **EPI**, **EmerchantPay**, and **Paystrax**. See [Pre-Authorization Guide](/reference/pre-authorization-guide) for the full lifecycle including increase/decrease and capture reversal.
+:::
+
+---
+
+## Tip collection: two approaches
+
+### Sale with Tip — guest selects at the terminal
+
+The tip prompt is part of the checkout flow. The terminal presents percentage and custom tip options before the card is processed. The total (base + tip) is authorized in a single step.
+
+Use this when guests pay at a counter or handheld where they interact with the terminal directly.
+
+```json
+{
+  "operation": "sale",
+  "amount": "3800",
+  "currency": "USD",
+  "tipConfiguration": {
+    "baseAmount": "3800",
+    "tipPercentages": [15, 18, 20],
+    "enterAmountEnabled": true,
+    "skipEnabled": true,
+    "footer": "Thank you!"
+  }
+}
+```
+
+### Tip Adjustment — server enters tip from a paper receipt
+
+The sale closes at the base amount. After the guest leaves, the server enters the tip from the signed receipt and your system posts a back-office call before settlement.
+
+```http
+POST https://cloud.handpoint.com/transactions/e6254050-65ab-11f1-a9af-ffa530c6e21f/tip-adjustment
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "tipAmount": 800,
+  "currency": "USD"
+}
+```
+
+The path parameter (`e6254050-…`) is the `transactionID` from the original AUTHORISED sale result.
+
+:::caution Before batch close only
+Tip adjustments submitted after batch close are not applied. If you use EPI or Paysafe + Interac, automate the batch close at a fixed overnight time and enforce a cut-off window for tip entry.
+:::
+
+:::info Acquirer support
+Tip Adjustment is supported on **EPI** and **Paysafe + Interac**. For EU merchants on EmerchantPay or Paystrax, use Sale with Tip or pre-auth capture with `tipAmount` instead.
+:::
+
+---
+
+## End-of-day: batch close
+
+TSYS-backed merchants (EPI, Paysafe + Interac) need a batch close to trigger settlement. Send this at end of service or on a scheduled overnight job:
+
+```http
+POST https://cloud.handpoint.com/batch/close
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578"
+}
+```
+
+After batch close, same-day reversals are no longer possible — use a Refund instead. Tip adjustments submitted after batch close are silently dropped.
+
+EmerchantPay and Paystrax settle automatically — no batch close required.

@@ -43,7 +43,7 @@ New MOTO Operations (no reader) endpoints are now available, allowing MOTO (Mail
 
 - `POST /moto/sale` — performs a MOTO sale using a previously generated card token.
 - `POST /moto/refund` — performs a refund of a previous operation using its original identifier.
-- `POST /moto/reversal` — performs a reversal (void) of a previous operation using its original identifier.
+- `POST /moto/reversal` — performs a reversal (void) of a previous operation using its original identifier. **Deprecated in favor of `POST /reversal`** — use [`POST /reversal`](/back-office/rest-api-no-reader#remote-reversal) instead, which works for all transaction types (card-present, MOTO, pre-auth) with no additional requirements.
 
 New Batch Operations endpoints are now available, allowing you to remotely manage batches on a specific payment terminal using the Cloud API:
 

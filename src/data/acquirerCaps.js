@@ -5,12 +5,35 @@
  * and the full-matrix page will reflect the changes automatically.
  *
  * Path values: "public" = supported, "not-supported" = not supported, omit = not applicable.
+ *
+ * Cordova splits into cordova-pax (PAX/Cloud mode) and cordova-hilite (Bluetooth/HiLite mode).
+ * Windows SDK splits into windows-sdk-pax (Cloud/PAX) and windows-sdk-bt (Bluetooth/HiLite).
+ * Source-verified via Android SDK, iOS SDK, Cordova plugin, and Windows SDK source code.
  */
 
 const P = 'public';
 const N = 'not-supported';
-const ALL5  = () => ({ 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': P, 'cordova': P });
-const NONE5 = () => ({ 'cloud-api': N, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N, 'cordova': N });
+
+// All card-present paths — for operations supported everywhere
+const ALL = () => ({
+  'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': P,
+  'cordova-pax': P, 'cordova-hilite': P, 'javascript-sdk': P,
+  'windows-sdk-pax': P, 'windows-sdk-bt': P,
+});
+
+// PAX paths only — for ops that require a PAX terminal (not HiLite)
+const PAX_ONLY = () => ({
+  'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+  'cordova-pax': P, 'cordova-hilite': N, 'javascript-sdk': P,
+  'windows-sdk-pax': P, 'windows-sdk-bt': N,
+});
+
+// None supported
+const NONE = () => ({
+  'cloud-api': N, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N,
+  'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': N,
+  'windows-sdk-pax': N, 'windows-sdk-bt': N,
+});
 
 /** Display order for capability rows in tables. */
 export const DISPLAY_ORDER = [
@@ -37,18 +60,24 @@ export const CAPABILITY_LABELS = {
 
 /** Human-readable labels for each integration path. */
 export const PATH_LABELS = {
-  'cloud-api':       'Cloud API',
-  'android-pax':     'Android (PAX)',
-  'android-hilite':  'Android (HiLite)',
-  'ios-hilite':      'iOS (HiLite)',
-  'cordova':         'Cordova',
-  'javascript-sdk':  'JavaScript SDK',
-  'windows-sdk':     'Windows SDK',
-  'back-office':     'REST API (Back Office)',
-  'paysafe-portal':  'Paysafe Portal',
+  'cloud-api':        'Cloud API',
+  'android-pax':      'Android (PAX)',
+  'android-hilite':   'Android (HiLite)',
+  'ios-hilite':       'iOS (HiLite)',
+  'cordova-pax':      'Cordova (PAX)',
+  'cordova-hilite':   'Cordova (HiLite)',
+  'javascript-sdk':   'JavaScript SDK',
+  'windows-sdk-pax':  'Windows SDK (PAX)',
+  'windows-sdk-bt':   'Windows SDK (HiLite BT)',
+  'back-office':      'REST API (Back Office)',
+  'paysafe-portal':   'Paysafe Portal',
 };
 
-export const CARD_PRESENT_PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'javascript-sdk', 'windows-sdk'];
+export const CARD_PRESENT_PATHS = [
+  'cloud-api', 'android-pax', 'android-hilite', 'ios-hilite',
+  'cordova-pax', 'cordova-hilite', 'javascript-sdk',
+  'windows-sdk-pax', 'windows-sdk-bt',
+];
 export const BACK_OFFICE_PATHS  = ['back-office'];
 export const PORTAL_PATHS       = ['paysafe-portal'];
 
@@ -61,7 +90,7 @@ const PAYSAFE_PORTAL_NOTE =
 /**
  * Full acquirer data.
  * - caps: per-operation, per-path support. Keys that exist in caps render as rows in tables.
- *   Include all-NONE5 entries for operations you want shown as explicitly unsupported.
+ *   Include all-NONE entries for operations you want shown as explicitly unsupported.
  * - notes: per-operation note shown in the Notes column of the full-matrix table.
  * - portalNote: shown as a callout below the per-acquirer table when non-null.
  */
@@ -74,25 +103,49 @@ export const ACQUIRERS = [
     name: 'EPI',
     subtitle: 'US, Canada · VISA MC Discover',
     caps: {
-      sale:                        { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      refund:                      { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      reversal:                    { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'partial-reversal':          { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': N, 'windows-sdk': N, 'back-office': P },
-      'tip-adjustment':            { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'remote-sale':               { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      tokenization:                { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      batching:                    { 'cloud-api': P, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': N, 'windows-sdk': N, 'back-office': P },
+      sale:                        { ...ALL(), 'back-office': N },
+      refund:                      { ...ALL(), 'back-office': N },
+      reversal:                    { ...ALL(), 'back-office': P },
+      // Partial reversal: PAX paths only + back-office. Cordova HiLite / Windows BT / Android HiLite / iOS: N
+      'partial-reversal':          {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': N, 'javascript-sdk': N,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': P,
+      },
+      // Tip adjustment: remote HTTPS call — works on all except Cordova (dead stub in plugin).
+      // Windows BT also works (direct HTTPS bypass, not a device command).
+      'tip-adjustment':            {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': P,
+        'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': P, 'back-office': P,
+      },
+      // Pre-auth: requires PAX terminal for initial create. Capture/increase via Back Office.
+      'pre-auth':                  { ...PAX_ONLY() },
+      'pre-auth-capture-reversal': {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': P,
+      },
+      'remote-sale':               {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': P,
+      },
+      tokenization:                { ...ALL(), 'back-office': P },
+      batching:                    {
+        'cloud-api': P, 'android-pax': N, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': N,
+        'windows-sdk-pax': N, 'windows-sdk-bt': N, 'back-office': P,
+      },
     },
     notes: {
       sale:                        'Card must be read by terminal.',
       refund:                      'Card must be read by terminal.',
-      'partial-reversal':          'TSYS US and Canada.',
-      'tip-adjustment':            'Does not require a card read — available via Back Office. iOS HiLite: not supported.',
-      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
-      'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office. Pre-settlement only. Partial capture reversal supported.',
-      'remote-sale':               'Via PAX screen entry (on-terminal) or ProCharge/EPI card token (back-office, no reader). Keeps ISV and merchant out of PCI scope. Must be enabled in Handpoint Portal (TMS).',
+      'partial-reversal':          'TSYS US and Canada. Not available on HiLite paths. Use POST /reversal (Back Office) from any path.',
+      'tip-adjustment':            'Remote HTTPS call — not a device command. Not available in Cordova plugin (unimplemented stub). iOS SDK: uses HapiRemoteService.tipAdjustment() with sharedSecret; or use Back Office REST API with ApiKeyCloud. Windows SDK: direct HTTPS, works on both PAX and HiLite connections.',
+      'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Capture, increase, decrease, and void available via Back Office (no terminal).',
+      'pre-auth-capture-reversal': 'Capture and increase available via Back Office. Pre-settlement only. Partial capture reversal supported.',
+      'remote-sale':               'Via PAX screen entry (on-terminal) or ProCharge/EPI card token (Back Office, no reader). Keeps ISV and merchant out of PCI scope. Must be enabled in Handpoint Portal (TMS).',
       batching:                    'US + Canada. Must be enabled in Handpoint Portal (TMS).',
     },
     portalNote: null,
@@ -106,24 +159,28 @@ export const ACQUIRERS = [
     name: 'PAYSAFE + Interac',
     subtitle: 'Canada · VISA MC Discover Interac',
     caps: {
-      sale:               { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      refund:             { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'paysafe-portal': P },
-      reversal:           { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'partial-reversal': { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'tip-adjustment':   { 'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'pre-auth':         { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'remote-sale':      { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      tokenization:       { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      batching:           { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      void:               { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      sale:               { ...ALL(), 'back-office': N },
+      refund:             { ...ALL(), 'back-office': N, 'paysafe-portal': P },
+      reversal:           { ...ALL(), 'back-office': P },
+      'partial-reversal': { ...NONE() },
+      'tip-adjustment':   {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': P,
+        'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': P, 'back-office': P,
+      },
+      'pre-auth':         { ...NONE() },
+      'remote-sale':      { ...NONE() },
+      tokenization:       { ...ALL(), 'back-office': N },
+      batching:           { ...NONE() },
+      void:               { ...ALL(), 'back-office': N },
     },
     notes: {
       sale:               'Card must be read by terminal.',
       refund:             'Interac cards: not available via Handpoint. Paysafe Portal: CNP refund — see note below.',
       reversal:           'Interac cards: not available.',
-      'tip-adjustment':   'TSYS-routed cards only. iOS HiLite: not supported.',
+      'tip-adjustment':   'TSYS-routed cards only (not Interac/TNS). Not available in Cordova plugin (unimplemented stub). iOS SDK: uses HapiRemoteService with sharedSecret, or use Back Office REST API.',
       'pre-auth':         'Not supported — Paysafe restriction.',
-      'remote-sale':'Not supported — Paysafe restriction.',
+      'remote-sale':      'Not supported — Paysafe restriction.',
       tokenization:       'TSYS-routed cards only.',
       batching:           'Not supported — Paysafe restriction.',
       void:               'Interac cards only. Card must be present. Show VOID in ISV UI, not Refund.',
@@ -139,22 +196,22 @@ export const ACQUIRERS = [
     name: 'PAYSAFE',
     subtitle: 'US · VISA MC AMEX Discover',
     caps: {
-      sale:               { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      refund:             { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'paysafe-portal': P },
-      reversal:           { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'partial-reversal': { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'tip-adjustment':   { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'pre-auth':         { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'remote-sale':      { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      tokenization:       { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      batching:           { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
+      sale:               { ...ALL(), 'back-office': N },
+      refund:             { ...ALL(), 'back-office': N, 'paysafe-portal': P },
+      reversal:           { ...ALL(), 'back-office': P },
+      'partial-reversal': { ...NONE() },
+      'tip-adjustment':   { ...NONE() },
+      'pre-auth':         { ...NONE() },
+      'remote-sale':      { ...NONE() },
+      tokenization:       { ...NONE() },
+      batching:           { ...NONE() },
     },
     notes: {
       sale:               'Card must be read by terminal.',
       refund:             'Paysafe Portal: CNP refund — see note below.',
       'tip-adjustment':   'Not supported — Paysafe restriction.',
       'pre-auth':         'Not supported — Paysafe restriction.',
-      'remote-sale':'Not supported — Paysafe restriction.',
+      'remote-sale':      'Not supported — Paysafe restriction.',
       tokenization:       'Not supported — Paysafe restriction.',
       batching:           'Not supported — Paysafe restriction.',
     },
@@ -169,22 +226,30 @@ export const ACQUIRERS = [
     name: 'EmerchantPay',
     subtitle: 'EU · VISA MC AMEX UnionPay',
     caps: {
-      sale:                        { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      refund:                      { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      reversal:                    { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'partial-reversal':          { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'remote-sale':               { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P },
-      tokenization:                { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      'money-remittance':          { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      sale:                        { ...ALL(), 'back-office': N },
+      refund:                      { ...ALL(), 'back-office': N },
+      reversal:                    { ...ALL(), 'back-office': P },
+      'partial-reversal':          { ...NONE() },
+      'pre-auth':                  { ...PAX_ONLY() },
+      'pre-auth-capture-reversal': {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': P,
+      },
+      'remote-sale':               {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': N,
+      },
+      tokenization:                { ...ALL(), 'back-office': N },
+      'money-remittance':          { ...ALL(), 'back-office': N },
     },
     notes: {
       sale:                        'Card must be read by terminal.',
       refund:                      'Card must be read by terminal.',
-      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
+      'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Includes increase/decrease, capture, void hold.',
       'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
-      'remote-sale':               'Via PAX screen entry (on-terminal) or card token (back-office, no reader). Must be enabled by Handpoint.',
+      'remote-sale':               'Via PAX screen entry (on-terminal) or card token (Back Office, no reader). Must be enabled by Handpoint. Back-office remote card-token sale not available for EmerchantPay.',
       'money-remittance':          'AMEX routing: separate MID required.',
     },
     portalNote: null,
@@ -198,21 +263,29 @@ export const ACQUIRERS = [
     name: 'Paystrax',
     subtitle: 'EU · VISA MC AMEX UnionPay',
     caps: {
-      sale:                        { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      refund:                      { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
-      reversal:                    { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'partial-reversal':          { ...NONE5(), 'javascript-sdk': N, 'windows-sdk': N },
-      'pre-auth':                  { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': P, 'javascript-sdk': P, 'windows-sdk': P },
-      'pre-auth-capture-reversal': { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P, 'back-office': P },
-      'remote-sale':               { 'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N, 'cordova': N, 'javascript-sdk': P, 'windows-sdk': P },
-      tokenization:                { ...ALL5(), 'javascript-sdk': P, 'windows-sdk': P },
+      sale:                        { ...ALL(), 'back-office': N },
+      refund:                      { ...ALL(), 'back-office': N },
+      reversal:                    { ...ALL(), 'back-office': P },
+      'partial-reversal':          { ...NONE() },
+      'pre-auth':                  { ...PAX_ONLY() },
+      'pre-auth-capture-reversal': {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': N, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': P,
+      },
+      'remote-sale':               {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': N, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': N, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': N, 'back-office': N,
+      },
+      tokenization:                { ...ALL(), 'back-office': N },
     },
     notes: {
       sale:                        'Card must be read by terminal.',
       refund:                      'Card must be read by terminal.',
-      'pre-auth':                  'Initial pre-auth requires card-present. Includes increase/decrease, capture, void hold.',
+      'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Includes increase/decrease, capture, void hold.',
       'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
-      'remote-sale':               'Via PAX screen entry (on-terminal) or card token (back-office, no reader). Must be enabled by Handpoint.',
+      'remote-sale':               'On-terminal keyed entry (PAX screen) only — remote card-token sale not supported for Paystrax. Back-office linked MOTO refund and reversal (via POST /reversal) are supported; use POST /reversal rather than moto/reversal endpoint. Must be enabled by Handpoint.',
     },
     portalNote: null,
   },

@@ -4,11 +4,15 @@ on:
   pull_request:
     branches: [main, dev]
   push:
-    branches: [main, dev]
+    branches: [main, dev, docs-v2]
+  workflow_dispatch:
 
 jobs:
+  # Build check on pull requests. Unchanged behaviour: this ran on
+  # pull_request only, and the explicit test keeps it that way now that
+  # workflow_dispatch exists.
   test-deploy:
-    if: github.event_name != 'push'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -24,8 +28,11 @@ jobs:
       - name: Test build website
         run: yarn build
 
+  # Publishes the public documentation sites. Restricted to main and dev on
+  # purpose: the docs-v2 branch goes to the internal preview job below, and a
+  # GitHub Pages deploy would make its internal-only pages public.
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -45,9 +52,68 @@ jobs:
       - name: Deploy to GitHub Pages
         env:
           USE_SSH: true
+          # Explicit, even though it is now the default. This build is public,
+          # so it must never carry pages marked "visibility: internal".
+          DOCS_ENV: production
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
           yarn install --frozen-lockfile
           yarn generate
           yarn deploy
+
+  # Internal preview of the docs-v2 branch (Jira PRODUCT-190).
+  # Publishes to https://developers-internal.handpoint.io in the staging
+  # account. A WAF permits the office VPN only, so the site is not public.
+  deploy-staging:
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/docs-v2'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # Queue a later push instead of cancelling the running one. Cancelling
+    # could abort "aws s3 sync --delete" halfway and leave the site partly
+    # published, with no successful run to repair it.
+    concurrency:
+      group: deploy-staging-docs-v2
+      cancel-in-progress: false
+
+    permissions:
+      id-token: write   # required to assume the deploy role through OIDC
+      contents: read
+
+    env:
+      AWS_REGION: us-east-1
+      # Passing the id keeps the deploy role free of
+      # cloudfront:ListDistributions, which cannot be scoped to one resource.
+      # Set this repository variable from the stack output
+      # "docs_cloudfront_distribution_id".
+      DOCS_DISTRIBUTION_ID: ${{ vars.DOCS_DISTRIBUTION_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Assume the deploy role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # The script generates, builds, syncs and invalidates. CI and a local
+      # run therefore execute the same sequence.
+      - name: Build and publish
+        run: ./scripts/deploy-staging.sh
+
+      - name: Summary
+        run: |
+          echo "### Internal docs preview published" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "<https://developers-internal.handpoint.io>" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "You must be on the office VPN to open it." >> "$GITHUB_STEP_SUMMARY"

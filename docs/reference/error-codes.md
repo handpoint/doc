@@ -6,11 +6,66 @@ description: Error codes returned by the Handpoint API and SDK, with recovery gu
 
 # Error codes
 
-## How errors are surfaced — two different patterns
+## How errors are surfaced — three patterns
 
-**With-reader operations** (`POST /transactions`) are asynchronous. The initial response is always HTTP 202 `{"statusMessage":"Operation Accepted","transactionResultId":"..."}`. Errors appear only when you poll `GET /transaction-result/{transactionResultId}` — the poll always returns HTTP 200, and the error is in `finStatus` and `statusMessage`.
+Understanding which pattern an endpoint uses is the first step to handling errors correctly.
 
-**Without-reader operations** (`POST /reversal`, `POST /preauthorization/capture`, `POST /preauthorization/increase`) are synchronous. Errors are returned immediately as HTTP 4xx with a structured `error` body.
+### Pattern A — Asynchronous (with-reader)
+
+Applies to: `POST /transactions` (card-present sale, pre-auth, refund via terminal)
+
+The POST always returns HTTP `202`:
+```json
+{ "statusMessage": "Operation Accepted", "transactionResultId": "..." }
+```
+No error is returned at POST time. Poll `GET /transaction-result/{transactionResultId}` to get the outcome — the poll always returns HTTP `200`, and the error is encoded in `finStatus` and `statusMessage`.
+
+### Pattern B — Synchronous flat error (without-reader)
+
+Applies to: `POST /reversal`, `POST /preauthorization/capture`, `POST /preauthorization/increase`, `POST /moto/sale`, `POST /moto/refund`, `POST /transactions/{id}/tip-adjustment`
+
+Error shape:
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Human-readable description",
+    "code": "ERROR_CODE_HERE",
+    "details": { "...endpoint-specific": "data..." }
+  }
+}
+```
+Read `error.code` for programmatic error identification. `error.message` is human-readable but may be localized.
+
+### Pattern C — Synchronous nested error (deferred tokenization)
+
+Applies to: `GET /transactions/{id}/token`
+
+The outer HTTP status is `400`. The actual error code from the downstream Viscus system is **two levels deep**:
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "error": {
+          "errorCode": "3112",
+          "reason": "Transaction type is not eligible for deferred tokenization",
+          "httpStatus": "403",
+          "errorGuid": "..."
+        }
+      }
+    }
+  }
+}
+```
+Read `error.details.body.error.errorCode` for programmatic identification. Do not rely on `error.message` — it always reads `"Viscus operation failed"` regardless of the underlying error.
+
+---
 
 ## HTTP status codes — without-reader endpoints
 
@@ -69,12 +124,13 @@ These are returned in the initial POST before the 202 is issued:
 
 | HTTP | `message` | Meaning | What to do |
 |---|---|---|---|
-| `403` | `No valid key found in header` | Invalid or missing API key | Check the `ApiKeyCLoud` header value |
+| `403` | `No valid key found in header` | Invalid or missing API key | Check the `ApiKeyCloud` header value |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff (2–5s) |
-| `400` | `{"error":1002,"message":"Device not responding"}` | Terminal is connected but not acknowledging commands | Check physical terminal state; power-cycle if unresponsive |
+| `400` | `{"error":1002,"message":"No device listening at the other end of the secure channel"}` | Terminal is not connected to the Handpoint Cloud channel — powered off, not on Wi-Fi, or Payments App not running | Check terminal power, Wi-Fi, and that the Handpoint Payments App is open |
+| `400` | `{"error":1004,"message":"Auth not available: ..."}` | Terminal serial or `terminal_type` is not assigned to the merchant account for this API key | Verify the terminal is assigned in Handpoint Portal; check `GET /devices` to see which serials are valid for this API key |
 | `400` | `{"error":1003,"message":"Cancel operation not allowed"}` | `cancelRequest` was sent when no cancellable operation is in progress | Only call `cancelRequest` while an operation is actively running on the terminal |
 | `400` | `{"error":1005,"message":"No transaction to cancel"}` | `cancelRequest` was received but no transaction is active on the terminal | Verify the terminal state before sending a cancel |
-| `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 — version digit (position 13) must be `4`, variant digit (position 17) must be `8`, `9`, `a`, or `b` |
+| `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 — version digit (position 13) must be `4`, variant digit (position 17) must be `8`, `9`, `a`, or `b`. See [transactionReference usage](/reference/transaction-reference) |
 
 ## Error codes — Remote Sale back-office endpoints
 
@@ -110,6 +166,33 @@ These errors are returned synchronously by the remote sale back-office endpoints
 |---|---|---|---|
 | `3209` | `The requested refund amount is greater than the initial sale amount` | `amount` in the refund request exceeds the amount of the original sale referenced by `originalGuid`. | Reduce the refund amount to at most the original sale amount. |
 | `3210` | `Original and linked currency do not match` | The `currency` in the refund request does not match the currency recorded on the original sale. | Use the same currency as the original sale. |
+
+## Error codes — Deferred Tokenization (`GET /transactions/{id}/token`)
+
+Error shape: **Pattern C** (nested — read `error.details.body.error.errorCode`).
+
+EPI only. Requires a SALE `transactionID` — not a reversal ID, not a pre-auth ID.
+
+| `errorCode` | `reason` | Meaning | What to do |
+|---|---|---|---|
+| `3112` | `Transaction type is not eligible for deferred tokenization` | The `transactionID` in the URL is not a SALE. Common cause: using the reversal's `transactionID` after a partial-approval → cancel flow. | Use the SALE `transactionID`. On a partial-approval → cancel, the polled result's `transactionID` is the reversal — use `originalEFTTransactionID` from that result instead, or call `GET https://cloud.handpoint.com/{transactionReference}/status/all` and pick the entry where `type == "SALE"`. |
+| `TOKENIZATION_NOT_ENABLED` | `Not configured for this merchant` | Merchant does not have card tokenization enabled. | Contact Handpoint Integration Support to enable tokenization on the merchant account. |
+
+:::note Cancelled and reversed transactions are tokenizable
+A SALE that was later reversed or cancelled (e.g. partial approval declined by cardholder) can still be tokenized — the card was read and encrypted during EMV processing before the reversal. Use the original SALE `transactionID`, not the reversal's.
+:::
+
+## Error codes — Tip Adjustment (`POST /transactions/{id}/tip-adjustment`)
+
+Error shape: **Pattern B** (flat — read `error.code`). EPI only. Tip adjustment is available before the current batch closes.
+
+| Condition | HTTP | Behaviour | What to do |
+|---|---|---|---|
+| Batch already closed | `400` | Error returned — specific `code` depends on acquirer | Tip adjustments cannot be reversed after batch close; only pre-batch-close adjustments are possible |
+| `transactionID` not found | `400` | Error returned | Verify the `transactionID` matches the `transactionID` field in the original sale result (not `transactionReference`) |
+| Amount is `0` | `400` | Validation error | Send the tip amount as a non-zero integer in **major currency units** (e.g. `8` = $8.00, not cents) |
+
+On success: HTTP `200` with body `{"statusMessage": "tip adjusted"}`.
 
 ## UNDEFINED status
 

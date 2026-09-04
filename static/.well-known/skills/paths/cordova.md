@@ -149,8 +149,8 @@ HAPI.getTransactionStatus(
 
 Or query the Cloud API status endpoint directly:
 ```http
-GET https://cloud.handpoint.com/status/{transactionReference}
-ApiKeyCLoud: YOUR_MERCHANT_API_KEY
+GET https://transactions.handpoint.com/transactions/{transactionReference}/status
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 **HiLite Bluetooth path:** `getTransactionStatus()` is not supported. Use the Transaction Feed API — load `optional/transaction-feed.md` for the full query and field reference.

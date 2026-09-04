@@ -1,0 +1,109 @@
+---
+id: field-service-guide
+title: Field Service
+sidebar_label: Field Service
+description: Take card-present payment on the job site with a HiLite Bluetooth reader — pairing, offline behavior, refund flow, and transaction recovery for mobile connections.
+---
+
+# Field service payments
+
+A technician who collects payment on-site eliminates the invoice-chase cycle entirely. The HiLite Bluetooth reader pairs with any Android or iOS phone, fits in a pocket, and keeps the technician out of PCI scope without any card data touching the phone.
+
+---
+
+## Hardware and integration path
+
+**HiLite + Android or iOS SDK.** Your field service app runs on the technician's phone. The Handpoint Android or iOS SDK manages the Bluetooth connection to the HiLite reader. Chip, tap, and swipe are all supported.
+
+| | Android SDK (HiLite) | iOS SDK (HiLite) |
+|---|---|---|
+| **Connection** | Bluetooth | Bluetooth |
+| **Card-present sale/refund** | Yes | Yes |
+| **Pre-auth** | Not supported | Not supported |
+| **MOTO / back-office** | Not supported on-device | Not supported on-device |
+
+Integration guides: [Android (HiLite)](/reference/android-hilite-integration-guide) · [iOS (HiLite)](/reference/ios-hilite-integration-guide)
+
+---
+
+## Taking payment on the job
+
+```kotlin
+// Android — initiate the sale; result arrives in endOfTransaction()
+hapi.sale(BigInteger("19900"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    when (result.finStatus) {
+        FinancialStatus.AUTHORISED -> {
+            // store result.transactionID — needed for any future refund
+            // result.customerReceipt contains HTML for display or email
+        }
+        FinancialStatus.DECLINED -> {
+            // inform the technician; offer to retry with a different card
+        }
+        FinancialStatus.FAILED -> {
+            // see Transaction Recovery below
+        }
+        else -> { }
+    }
+}
+```
+
+Always store the `transactionID` from every `AUTHORISED` result. It is required to issue a refund later.
+
+---
+
+## Offline and intermittent connectivity
+
+The HiLite reader processes authorization over the phone's cellular or Wi-Fi connection. There is no offline queue — if the phone has no data connection when a sale is initiated, the authorization step will fail.
+
+**What to build:**
+- Check for connectivity before initiating a transaction and show a clear message to the technician if none is available.
+- Do not cache card data or attempt to replay transactions offline — the SDK does not support it, and storing card data would bring the device into PCI scope.
+- If a transaction result is ambiguous (connection dropped mid-transaction), use the recovery flow below before retrying.
+
+---
+
+## Transaction recovery for mobile connections
+
+Mobile data connections can drop between card tap and result delivery. Without recovery, you risk either charging the customer twice (if you retry an already-authorized transaction) or not charging at all (if you assume failure when the charge was approved).
+
+**Pattern:**
+
+1. Persist the `transactionReference` to local storage **before** calling `hapi.sale()`.
+2. If `endOfTransaction` is not called within your timeout threshold (90 seconds recommended), mark the transaction as pending.
+3. When connectivity is restored, query the result using the `transactionReference`.
+4. If the outcome is `AUTHORISED` and you have no prior record for that reference, send a reversal immediately to prevent a double charge.
+5. On any other final status, clear the pending record.
+
+```kotlin
+// Query by transactionReference after a timeout
+val recoveredResult = hapi.getTransactionResult(transactionReference)
+
+if (recoveredResult?.finStatus == FinancialStatus.AUTHORISED && !db.exists(transactionReference)) {
+    hapi.saleReversal(recoveredResult.totalAmount, recoveredResult.currency, recoveredResult.transactionID)
+}
+```
+
+→ [Transaction Recovery — Android SDK](/reference/transaction-recovery-android-sdk)
+
+---
+
+## Refund flow when back in the office
+
+HiLite refunds are card-present — the customer presents their card again at the reader:
+
+```kotlin
+// Linked refund — amount cannot exceed the original sale
+hapi.refund(BigInteger("19900"), Currency.USD, originalTransactionId)
+```
+
+Where `originalTransactionId` is the `transactionID` from the original AUTHORISED sale result.
+
+For billing disputes handled by a back-office team (customer not physically present), an unlinked refund from the Cloud API is available on supported acquirers — see [Back Office REST API](/back-office/rest-api-no-reader) and the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
+
+:::note Pre-auth not available on HiLite
+If your field service model requires holding an estimate and capturing the actual cost later (e.g., parts usage determined after the job), pre-authorization must be handled from your server via the Cloud API. The HiLite path does not support pre-auth on-device.
+
+See [Pre-Authorization Guide](/reference/pre-authorization-guide) for the server-side flow.
+:::

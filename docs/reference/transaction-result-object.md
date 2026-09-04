@@ -21,26 +21,30 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 
 ```json
 {
-  "transactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
-  "efttransactionID": "e6254050-65ab-11f1-a9af-ffa530c6e21f",
-  "efttimestamp": 1781192438000,
-  "transactionReference": "cd5c85cf-e8be-4a62-ba0a-3abd7362f610",
+  "transactionID": "9985dba0-9cbb-11f1-b018-b122502914b1",
+  "efttransactionID": "9985dba0-9cbb-11f1-b018-b122502914b1",
+  "efttimestamp": 1787246502000,
+  "transactionReference": "5ad2dcf3-56b8-4295-b73f-0628a45d21b9",
   "transactionOrigin": "CLOUD",
   "type": "SALE",
   "finStatus": "AUTHORISED",
-  "statusMessage": "Approved",
+  "statusMessage": "Aprobado o completado con éxito",
   "errorMessage": "",
   "multiLanguageStatusMessages": {},
   "multiLanguageErrorMessages": {},
   "recoveredTransaction": false,
 
-  "requestedAmount": 100,
-  "totalAmount": 100,
+  "requestedAmount": 1002,
+  "totalAmount": 1002,
   "tipAmount": 0,
   "tipPercentage": 0,
   "dueAmount": 0,
-  "taxAmount": 0,
-  "surcharge": 0,
+  "taxAmount": null,
+  "surcharge": {
+    "amount": 0,
+    "applied": false,
+    "reason": ""
+  },
   "currency": "USD",
 
   "cardEntryType": "ICC",
@@ -60,39 +64,41 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 
   "authorisationCode": "123456",
   "issuerResponseCode": "00",
-  "rrn": "0000611561639",
+  "rrn": "0000820374195",
 
   "aid": "A0000000031010",
+  "applicationLabel": "VISA CLASICA",
   "tvr": "0000000000",
-  "tsi": "0000",
+  "tsi": "",
   "iad": "06011203A00000",
   "arc": "0000",
   "chipTransactionReport": "",
 
-  "mid": "123456789010102",
-  "tid": "123456789010102",
-  "merchantName": "DEMO MERCHANT",
-  "merchantAddress": "7800 Congress Ave STE 112 33487 Boca Raton",
+  "mid": "630000026730",
+  "tid": "08215994",
+  "merchantName": "Postman Test1",
+  "merchantAddress": "Test Address 2 10111 London",
   "customerReference": "",
   "budgetNumber": "",
-  "batchNumber": "",
+  "batchNumber": "123",
   "originalEFTTransactionID": "",
   "metadata": null,
   "customFields": null,
+  "customData": "",
 
-  "merchantReceipt": "<html>...</html>",
-  "customerReceipt": "<html>...</html>",
+  "customerReceipt": "https://receipts.handpoint.io/receipts/9985dba0-9cbb-11f1-b018-b122502914b1/customer.html",
+  "merchantReceipt": "https://receipts.handpoint.io/receipts/9985dba0-9cbb-11f1-b018-b122502914b1/merchant.html",
   "signatureUrl": "",
 
   "deviceStatus": {
     "applicationName": "Payments",
-    "applicationVersion": "20.4.4.4",
+    "applicationVersion": "20.4.14.0-RC.66",
     "batteryCharging": "Not Charging",
-    "batteryStatus": "79",
-    "batterymV": "3908",
-    "bluetoothName": "PAXA920PRO",
-    "externalPower": "USB",
-    "serialNumber": "1850025030",
+    "batteryStatus": "59",
+    "batterymV": "3829",
+    "bluetoothName": "PAXA920",
+    "externalPower": "Unknown",
+    "serialNumber": "0821599465",
     "statusMessage": ""
   }
 }
@@ -115,7 +121,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 |---|---|---|
 | `finStatus` | string | **Primary result indicator.** See [finStatus values](#finstatus-values) below. |
 | `type` | string | Transaction type. See [type values](#type-values) below. |
-| `statusMessage` | string | Human-readable status, in the terminal's configured language. |
+| `statusMessage` | string | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. For example, a Spanish-issued Visa card returns `"Aprobado o completado con éxito"` even if the terminal is configured in English. |
 | `errorMessage` | string | Error detail if `finStatus` is `FAILED` or `DECLINED`. Empty on success. |
 | `multiLanguageStatusMessages` | object | Map of locale code → localised status message. May be empty. |
 | `multiLanguageErrorMessages` | object | Map of locale code → localised error message. May be empty. |
@@ -164,6 +170,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | Field | Type | Description |
 |---|---|---|
 | `aid` | string | EMV Application Identifier (tag 9F06), e.g. `"A0000000031010"` for Visa. |
+| `applicationLabel` | string | Human-readable application name from the card chip, e.g. `"VISA CLASICA"` `"MASTERCARD"`. |
 | `tvr` | string | Terminal Verification Results (tag 95). 5-byte hex string. |
 | `tsi` | string | Transaction Status Information (tag 9B). 2-byte hex string. |
 | `iad` | string | Issuer Application Data (tag 9F10). |
@@ -218,10 +225,11 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
-| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is an accepted alias for the same value. |
+| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is a **alias** for the same value (integer 6 in all SDKs) — both names are emitted. |
 | `REFUNDED` | Transaction was subsequently refunded. Returned on status queries for original transactions that have been fully refunded. |
-| `PROCESSED` | Operation processed (used for non-financial operations). |
+| `PROCESSED` | Operation processed (used for non-financial operations — Start of Day, Host Init). |
 | `CAPTURED` | Pre-authorization was captured. |
+| `IN_PROGRESS` | Transaction is still being processed (Windows SDK only; also returned by `GET /transactions/{ref}/status` while in flight). |
 
 ---
 
@@ -241,7 +249,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `TOKENIZE_CARD` | Card tokenization only |
 | `SALE_AND_TOKENIZE_CARD` | Sale + tokenize |
 | `TIP_ADJUSTMENT` | Tip adjustment on an existing sale |
-| `VOID_SALE` | Interac / TNS void |
+| `VOID_SALE` | Sale reversal (`saleReversal()`). Tag string: `"SALE VOID"`. Also used for Interac / TNS void. |
 | `TRANSACTION_STATUS` | Status query result |
 | `UNDEFINED` | Unknown |
 
@@ -342,7 +350,7 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
+result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+; null when not applicable)
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
@@ -418,7 +426,7 @@ result.deviceStatus.serialNumber        // "1850025030"
 |---|---|---|
 | `finStatus` | FinancialStatus | **Primary result indicator.** See [FinancialStatus](#financialstatus-enum) below. |
 | `type` | TransactionType | Transaction type. See [TransactionType](#transactiontype-enum) below. |
-| `statusMessage` | String | Human-readable status (localised). |
+| `statusMessage` | String | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. |
 | `errorMessage` | String | Error detail on failure. |
 | `multiLanguageStatusMessages` | Map&lt;SupportedLocales, String&gt; | Localised status messages map. |
 | `multiLanguageErrorMessages` | Map&lt;SupportedLocales, String&gt; | Localised error messages map. |
@@ -437,7 +445,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger | Tax amount (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `taxAmount` | BigInteger? | Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `currency` | Currency | Currency enum. |
 
@@ -445,13 +453,13 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 | Field | Type | Description |
 |---|---|---|
-| `cardEntryType` | CardEntryType | `ICC` `MSR` `CNP` `UNDEFINED` |
-| `paymentScenario` | PaymentScenario | Detailed entry path — `CHIP` `CHIPCONTACTLESS` `MAGSTRIPE` etc. |
-| `tenderType` | TenderType | `CREDIT` `DEBIT` `NOT_SET` |
+| `cardEntryType` | CardEntryType | How the card was read. `ICC` `MSR` `CNP` (MOTO/keyed entry). `UNDEFINED` on reversals and cancelled transactions (no card presentation). |
+| `paymentScenario` | PaymentScenario | Detailed entry path — `CHIP` `CHIPCONTACTLESS` `MAGSTRIPE` `MOTO`. `UNKNOWN` on reversals and cancelled transactions. |
+| `tenderType` | TenderType | `CREDIT` `DEBIT` `NOT_SET` (MOTO and cancelled transactions). |
 | `verificationMethod` | VerificationMethod | `NOT_REQUIRED` `PIN` `SIGNATURE` `MOBILE_PASS_CODE` etc. |
 | `cardSchemeName` | String | Card network: `"Visa"` `"Mastercard"` `"Amex"` etc. |
-| `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. |
-| `cardTypeId` | String | Alternative masked PAN format. |
+| `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. 15-digit schemes (Amex) use 11 asterisks. |
+| `cardTypeId` | String | When populated, mirrors `maskedCardNumber` exactly. Empty for MOTO/CNP transactions. |
 | `expiryDateMMYY` | String | Expiry in `MMYY` format. |
 | `cardHolderName` | String | Cardholder name from chip. May be empty. |
 | `cardLanguagePreference` | String | Card's preferred language (IETF tag). |
@@ -475,11 +483,11 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 | Field | Type | Description |
 |---|---|---|
-| `mid` | String | Merchant ID. |
-| `tid` | String | Terminal ID. |
-| `merchantName` | String | Merchant name from terminal config. |
-| `merchantAddress` | String | Merchant address from terminal config. |
-| `rrn` | String | Retrieval Reference Number from acquirer. |
+| `mid` | String | Merchant ID. Empty for MOTO/cloud-processed operations. |
+| `tid` | String | Terminal ID. Empty for MOTO/cloud-processed operations. |
+| `merchantName` | String | Merchant name from terminal config. Empty for MOTO/cloud-processed operations. |
+| `merchantAddress` | String | Merchant address from terminal config. Empty for MOTO/cloud-processed operations. |
+| `rrn` | String | Retrieval Reference Number from acquirer. Empty for MOTO/CNP operations. |
 | `customerReference` | String | Echoed-back `customerReference` from request. |
 | `budgetNumber` | String | Budget/instalment number (SA acquirers). |
 | `batchNumber` | String | Batch number (App 4.14.0 / SDK 7.1014.0+). Empty string if not yet available or acquirer does not return it. |
@@ -504,6 +512,41 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 ---
 
+### Per-operation field population
+
+Fields behave differently depending on the operation type. The following table summarises key differences, confirmed via live tests on a PAX A920 with SDK 7.1014.0-RC.73.
+
+| Field | Card-present Sale | Card-present Refund (linked or unlinked) | MOTO Sale | Sale Reversal (`saleReversal`) | MOTO Refund / `automaticRefund` | Cancelled Sale |
+|---|---|---|---|---|---|---|
+| `transactionID` / `eFTTransactionID` | UUID v4 | UUID v4 | UUID v4 | UUID v4 | UUID v4 | **Empty** |
+| `transactionReference` | UUID v4 (SDK key) | **Empty** | UUID v4 (SDK key) | Empty | Empty | UUID v4 |
+| `originalEFTTransactionID` | Empty | UUID v4 of original (linked) / empty (unlinked) | Empty | UUID v4 of the original | UUID v4 of the original | Empty |
+| `type` | `SALE` | `REFUND` | `MOTO_SALE` | `VOID_SALE` | `MOTO_REFUND` | `SALE` |
+| `cardEntryType` | `ICC` / `MSR` | `ICC` / `MSR` | `CNP` | `UNDEFINED` | `CNP` | `UNDEFINED` |
+| `paymentScenario` | `CHIP` / `CHIPCONTACTLESS` / etc. | `CHIP` / `CHIPCONTACTLESS` / etc. | `MOTO` | `UNKNOWN` | `MOTO` | `UNKNOWN` |
+| `tenderType` | `CREDIT` / `DEBIT` | `CREDIT` / `DEBIT` | `NOT_SET` | `CREDIT` | `NOT_SET` | `NOT_SET` |
+| `batchNumber` | Populated | **Empty** | Populated | Populated | Populated | **Empty** |
+| `rrn` | Populated | **Empty** | **Empty** | Empty | **Empty** | Empty |
+| `mid` / `tid` / `merchantName` | Populated | Populated | **Empty** | Populated | **Empty** | Populated |
+| `aid` / `tvr` / `iad` | Populated (chip/contactless) | Populated (chip/contactless) | **Empty** | **Empty** | **Empty** | **Empty** |
+| `tsi` | Populated (insert only) | Populated (insert only) | **Empty** | **Empty** | **Empty** | **Empty** |
+| `arc` | Populated | Populated | Empty | `"0000"` | Empty | `"0000"` |
+| `issuerResponseCode` | `"00"` | `"00"` | `"00"` | `"00"` | Empty | Empty |
+| `cardTypeId` | Mirrors `maskedCardNumber` | Mirrors `maskedCardNumber` | **Empty** | Mirrors `maskedCardNumber` | **Empty** | **Empty** |
+| `statusMessage` | Acquirer status in card language | Acquirer status in card language | `"Successful"` | `"Approved or completed successfully"` | `"Successful"` | `"Transaction cancelled"` |
+
+:::note[`tsi` and contactless transactions]
+`tsi` (Transaction Status Information, tag 9B) is only populated for **contact chip (ICC insert)** transactions. It is empty on contactless (NFC tap) transactions even though the EMV chip is processed over the air. All other EMV fields (`aid`, `tvr`, `iad`, `arc`) are populated on both insert and tap.
+:::
+
+:::note[Linked vs unlinked refund]
+Both linked (`refund(amount, currency, originalTransactionId, ...)`) and unlinked (`refund(amount, currency)`) card-present refunds return `type: REFUND`. The only field that distinguishes them is `originalEFTTransactionID` — populated on linked, empty on unlinked.
+
+Linking is a **Handpoint gateway** concept, not an acquirer-level one. If a merchant is configured in Handpoint to require linked refunds, the gateway declines an unlinked refund before forwarding it to the processor — the acquirer never sees the request. Whether this restriction applies is determined by the merchant's onboarding configuration in Handpoint.
+:::
+
+---
+
 ### `FinancialStatus` enum
 
 | Value | Description |
@@ -522,23 +565,23 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 ### `TransactionType` enum
 
-| Value | Tag string |
-|---|---|
-| `SALE` | `"SALE"` |
-| `REFUND` | `"REFUND"` |
-| `REVERSAL` | `"REVERSAL"` |
-| `PRE_AUTHORIZATION` | `"PRE AUTHORIZATION"` |
-| `PRE_AUTHORIZATION_INCREASE` | `"PRE AUTHORIZATION INCREMENT"` |
-| `PRE_AUTHORIZATION_CAPTURE` | `"PRE AUTHORIZATION CAPTURE"` |
-| `MOTO_SALE` | `"MOTO SALE"` |
-| `MOTO_REFUND` | `"MOTO REFUND"` |
-| `MOTO_REVERSAL` | `"MOTO REVERSAL"` |
-| `TOKENIZE_CARD` | `"TOKENIZE CARD"` |
-| `SALE_AND_TOKENIZE_CARD` | `"SALE AND TOKENIZE CARD"` |
-| `TIP_ADJUSTMENT` | `"TIP ADJUSTMENT"` |
-| `VOID_SALE` | `"SALE VOID"` |
-| `TRANSACTION_STATUS` | `"TRANSACTION STATUS"` |
-| `UNDEFINED` | `"UNDEFINED"` |
+| Value | Tag string | SDK method |
+|---|---|---|
+| `SALE` | `"SALE"` | `sale()` |
+| `REFUND` | `"REFUND"` | `refund()` (card-present) |
+| `REVERSAL` | `"REVERSAL"` | Terminal-initiated reversal |
+| `PRE_AUTHORIZATION` | `"PRE AUTHORIZATION"` | `preAuthorization()` |
+| `PRE_AUTHORIZATION_INCREASE` | `"PRE AUTHORIZATION INCREMENT"` | `preAuthorizationIncrease()` |
+| `PRE_AUTHORIZATION_CAPTURE` | `"PRE AUTHORIZATION CAPTURE"` | `preAuthorizationCapture()` |
+| `MOTO_SALE` | `"MOTO SALE"` | `motoSale()` |
+| `MOTO_REFUND` | `"MOTO REFUND"` | `motoRefund()` · `automaticRefund()` of a MOTO original |
+| `MOTO_REVERSAL` | `"MOTO REVERSAL"` | `motoReversal()` |
+| `TOKENIZE_CARD` | `"TOKENIZE CARD"` | `tokenizeCard()` |
+| `SALE_AND_TOKENIZE_CARD` | `"SALE AND TOKENIZE CARD"` | `saleAndTokenizeCard()` |
+| `TIP_ADJUSTMENT` | `"TIP ADJUSTMENT"` | `tipAdjustment()` |
+| `VOID_SALE` | `"SALE VOID"` | `saleReversal()` |
+| `TRANSACTION_STATUS` | `"TRANSACTION STATUS"` | `getTransactionStatus()` |
+| `UNDEFINED` | `"UNDEFINED"` | — |
 
 </TabItem>
 

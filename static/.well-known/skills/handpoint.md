@@ -48,7 +48,7 @@ Do **not** pre-load optional skills. Load them only when the user explicitly ask
 ## Key facts that apply to all acquirers and paths
 
 - **Amounts are always in minor currency units.** `1000` = $10.00 / £10.00 / €10.00 — not $1000.
-- **The API key header is `ApiKeyCLoud`** (capital L). Not `Authorization`, not `Api-Key`.
+- **The API key header is `ApiKeyCloud`**. Not `Authorization`, not `Api-Key`. HTTP headers are case-insensitive — `ApiKeyCloud` is the canonical spelling.
 - **Card data never reaches ISV code.** Handpoint keeps the ISV out of PCI scope on all card-present paths.
 - **`transactionID` from a result is the GUID for reversals and refunds.** Always store it.
 - **`transactionReference` is a UUID v4 the ISV generates.** Persist it before sending — used for recovery.

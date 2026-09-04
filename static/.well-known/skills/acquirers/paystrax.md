@@ -25,19 +25,22 @@ Paystrax and EmerchantPay share the same OMNIPAY integration protocol. Capabilit
 
 ## Settlement — automatic, no batch close
 
-Paystrax settles automatically. **Do not call `POST /close` or `hapi.endOfDay()`.**
+Paystrax settles automatically. **Do not call `POST /batch/close` or `hapi.endOfDay()`.**
 
 ## Tip — include in sale request body
 
 ```json
 POST /transactions
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "sale",
+  "amount": "1000",
   "currency": "EUR",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
   "tipAmount": 150
 }
 ```
+`tipAmount` is in minor currency units (150 = €1.50). `amount` is the pre-tip sale amount as a minor-unit string.
 
 Android SDK: set `options.tipAmount = BigInteger("150")` in `SaleOptions`.  
 Post-sale tip adjustment is **not** supported.
@@ -53,14 +56,15 @@ Remote sale requires merchant onboarding with Paystrax **and** enablement in Han
 **On-terminal entry** (PAX only):
 ```json
 POST /transactions
-{ "action": "SALE", "amount": 1000, "currency": "EUR", "motoChannel": true }
+{ "operation": "moToSale", "amount": "1000", "currency": "EUR", "terminal_type": "PAXA920", "serial_number": "082104578", "transactionReference": "<uuid-v4>" }
 ```
 
 **Back-office (card token — no terminal):**
 ```json
 POST https://cloud.handpoint.com/moto/sale
-{ "amount": 1000, "currency": "EUR", "cardToken": "STORED_TOKEN" }
+{ "amount": "10.00", "currency": "EUR", "cardToken": "STORED_TOKEN", "transactionReference": "<uuid-v4>" }
 ```
+`amount` is a major-unit decimal string — `"10.00"` = €10.00.
 
 Load optional skill `optional/back-office.md` for full remote sale and remote refund flows.
 

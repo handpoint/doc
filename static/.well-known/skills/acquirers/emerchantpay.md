@@ -24,7 +24,7 @@
 
 ## Settlement — automatic, no batch close
 
-EmerchantPay settles automatically. **Do not call `POST /close` or `hapi.endOfDay()`** — these are EPI-only operations and will error on EmerchantPay merchants.
+EmerchantPay settles automatically. **Do not call `POST /batch/close` or `hapi.endOfDay()`** — these are EPI-only operations and will error on EmerchantPay merchants.
 
 ## Tip — include in sale request body
 
@@ -33,16 +33,19 @@ EmerchantPay accepts the tip amount at sale time. Add `tipAmount` to the sale re
 ```json
 POST /transactions
 {
-  "action": "SALE",
-  "amount": 1000,
+  "operation": "sale",
+  "amount": "1000",
   "currency": "EUR",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
   "tipAmount": 150
 }
 ```
+`tipAmount` is in minor currency units (150 = €1.50). `amount` is the pre-tip sale amount as a minor-unit string.
 
 Android SDK: set `options.tipAmount = BigInteger("150")` in `SaleOptions` before calling `hapi.sale()`.
 
-Post-sale tip adjustment (`POST /tipAdjustment`) is **not** supported on EmerchantPay. Never call it for EmerchantPay merchants.
+Post-sale tip adjustment (`POST /transactions/{id}/tip-adjustment`) is **not** supported on EmerchantPay. Never call it for EmerchantPay merchants.
 
 ## AMEX routing
 
@@ -55,7 +58,7 @@ Remote sale requires merchant onboarding with EmerchantPay **and** enablement in
 **On-terminal entry** (PAX shows card entry screen — Cloud API or Android PAX only):
 ```json
 POST /transactions
-{ "action": "SALE", "amount": 1000, "currency": "EUR", "motoChannel": true }
+{ "operation": "moToSale", "amount": "1000", "currency": "EUR", "terminal_type": "PAXA920", "serial_number": "082104578", "transactionReference": "<uuid-v4>" }
 ```
 Android SDK: `hapi.motoSale(BigInteger("1000"), Currency.EUR, options)`  
 Not available on HiLite paths.
@@ -63,8 +66,9 @@ Not available on HiLite paths.
 **Back-office (card token — no terminal):**
 ```json
 POST https://cloud.handpoint.com/moto/sale
-{ "amount": 1000, "currency": "EUR", "cardToken": "STORED_TOKEN" }
+{ "amount": "10.00", "currency": "EUR", "cardToken": "STORED_TOKEN", "transactionReference": "<uuid-v4>" }
 ```
+`amount` is a major-unit decimal string — `"10.00"` = €10.00.  
 Token source: `cardToken` field in `TransactionResult` from a prior tokenization sale.
 
 Remote refund (back-office):

@@ -31,8 +31,9 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
+import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
 
-export const _caps = {"pre-auth-capture-reversal":{"cloud-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"sale":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"refund":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"reversal":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public","backoffice":"public"},"tip-adjustment":{"cloud-api":"not-supported","android-pax":"not-supported","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"pre-auth":{"cloud-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"public"},"moto":{"cloud-api":"public","android-pax":"public","android-hilite":"not-supported","ios-hilite":"not-supported","cordova":"not-supported"},"tokenization":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
+export const _caps = CAPS_BY_ID['omnipay-paystrax'];
 
 <AcquirerPageHeader currentSlug="omnipay-paystrax" />
 
@@ -332,7 +333,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 ### Sale with Tip {#sale-and-tip}
 
-<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","cordova"]}>
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment.
 
@@ -433,6 +434,14 @@ handpoint.sale(
   function(error) { console.error(error); }
 );
 ```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Sale with Tip is not available on iOS HiLite. The saleWithAmount() method does not accept tip configuration parameters."
+  useInstead="Cloud API or Android SDK (PAX)"
+/>
 
 </TabItem>
 </Tabs>
@@ -1070,7 +1079,7 @@ Errors arrive in the polled result object, not in the initial 202. Check `finSta
 
 | HTTP | `message` | Meaning | What to do |
 |---|---|---|---|
-| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header value |
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
 
 #### Testing
@@ -1256,7 +1265,19 @@ curl --location --request POST 'https://cloud.handpoint.com/reversal' \
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-Errors arrive in the polled result — see [Reversal — Errors](#reversal).
+Errors arrive in the polled result object (`GET /transaction-result/{id}`) — not in the initial 202 response. Check `finStatus`. Do not parse `statusMessage` for programmatic logic; it can change.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found in the open batch — batch may have already closed | Verify the GUID; if the batch has closed, send a Refund instead |
+
+**Immediate HTTP errors** (returned before the 202, without polling):
+
+| HTTP | `error` / `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry with a short backoff |
+| `400` | `{"error":1002,"message":"No device listening at the other end of the secure channel"}` | Terminal offline or unreachable | Check terminal is powered on and connected; retry |
 
 </TabItem>
 <TabItem value="backoffice" label="Backoffice">
@@ -1278,7 +1299,12 @@ Synchronous — errors are returned immediately in the response body:
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-Same test scenarios as on-device Reversal — see [Reversal — Testing](#reversal).
+| Scenario | How to trigger |
+|---|---|
+| Success — full reversal | Complete a sale, note `transactionID`, send `POST /transactions` with `"operation": "reversal"` same day — poll until `finStatus: "AUTHORISED"` |
+| After batch close | Close the batch, attempt reversal — verify `finStatus: "DECLINED"` and `UNABLE_TO_FIND_MESSAGE_TO_REVERSE` in the polled result; route to Refund |
+| Already reversed | Send the same reversal a second time — verify error in polled result |
+| Terminal offline | Attempt reversal with terminal powered off — verify immediate 400 `error 1002` response |
 
 </TabItem>
 <TabItem value="backoffice" label="Backoffice">
@@ -1539,7 +1565,7 @@ The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parame
 | `400` | `4066` | `Partial reversal amount exceeds original amount` | `capturedAmount` exceeds the pre-auth hold amount | Reduce the capture amount |
 | `400` | `3051` | `Already reversed` | Pre-auth was already voided | Check your records — void and capture are mutually exclusive; you cannot capture after a void |
 | `400` | `3211` | *(pre-auth already settled)* | Pre-auth has already been captured — a second capture is not possible | Verify state via the TXN Feed API; if the first capture succeeded, issue a refund if needed |
-| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
+| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
 | `422` | `VALIDATION_FAILED` | Missing required field | Request body is missing `originalGuid` or `capturedAmount` | See `details` array in response for the specific field |
 
 #### Testing
@@ -1786,7 +1812,7 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 
 | HTTP | `message` | Meaning | What to do |
 |---|---|---|---|
-| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header |
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal busy with another operation | Wait for the current operation to complete, then retry |
 
 
