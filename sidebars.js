@@ -89,8 +89,8 @@ const sidebars = {
           items: [
             'reference/pre-authorization-guide',
             'reference/partial-approval',
-            'reference/avs-for-moto',
             'reference/moto-guide',
+            'reference/avs-for-moto',
             'reference/multi-mid',
             'reference/fee-mitigation',
             'reference/interac-void',
