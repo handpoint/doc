@@ -73,6 +73,7 @@ const sidebars = {
         'reference/pre-authorization-guide',
         'reference/multi-mid',
         'reference/avs-for-moto',
+        'reference/fee-mitigation',
         'reference/partial-approval',
         {
           type: 'category',
