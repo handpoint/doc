@@ -32,29 +32,13 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
-
-export const _caps = CAPS_BY_ID['tsys-tns'];
 
 <AcquirerPageHeader currentSlug="tsys-tns" />
 
 ## Functionalities
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
-
 ## Sale {#sale}
-
-
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
 
 
 ### EMV Sale {#emv-sale}
@@ -710,11 +694,6 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 ## Refund {#refund}
 
 
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
-
 ### EMV Refund {#emv-refund}
 
 <FlavorSection description="On-device · card present at terminal" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -938,11 +917,6 @@ handpoint.motoRefund(
 
 
 ## Reversal {#reversal}
-
-
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
 
 
 ### Reversal {#reversal}
@@ -1353,11 +1327,6 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
 9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
 
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
-
 #### Code
 
 <Tabs groupId="integration-path">
@@ -1484,11 +1453,6 @@ Supporting pre-auth means supporting the full lifecycle:
 2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
 3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
-
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
 
 ### Create {#pre-auth-create}
 
@@ -1862,12 +1826,6 @@ Not supported on iOS HiLite.
 
 ## Tokenization {#tokenization}
 
-
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
-
 ### Paysafe Single-Use Token {#paysafe-token}
 
 <FlavorSection description="Paysafe · single-use token — for use on Paysafe APIs; consult Paysafe team" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -2149,11 +2107,7 @@ Use when you need to settle at a specific time rather than waiting for automatic
 1. **TSYS US only.** Host-capture acquirers only. EU acquirers use automatic settlement and do not require manual batch close.
 2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
 3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
-
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
+4. **Interac transactions are excluded.** Interac (TNS) transactions settle independently on TNS's own schedule and do not participate in the TSYS batch close — batch close commands apply to TSYS (non-Interac) transactions only.
 
 ### Batch Close {#batch-close}
 
@@ -2255,11 +2209,6 @@ Use specifically for Interac card transactions via TNS. For non-Interac transact
 5. **SDK behaviour:** the Android SDK method called is `refund()`. The Handpoint gateway detects that the original transaction was processed via TNS (Interac) and automatically maps the refund request to a TNS VOID internally. You do not call a separate void function.
 
 See also: [Interac VOID — implementation guide](/reference/interac-void)
-
-:::note PAYSAFE + Interac
-Gateway routes automatically: Interac cards go to TNS, all other cards go to TSYS. IMPORTANT for ISVs: for Interac card transactions, show a VOID button — not Refund or Reverse. The only post-sale operation for Interac transactions is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close is only available for TSYS (non-Interac) transactions. Interac (TNS) transactions settle independently and do not participate in the TSYS batch close.
-:::
-
 
 #### Code
 

@@ -23,19 +23,10 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
-
-export const _caps = {"sale":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"},"void":{"cloud-api":"public","android-pax":"public","android-hilite":"public","ios-hilite":"public","cordova":"public"}};
 
 <AcquirerPageHeader currentSlug="tns" />
 
 ## Functionalities
-
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-TNS processes Interac card-present transactions only. The only post-sale operation is VOID — full amount, card must be inserted or tapped, must occur before settlement. Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network. Pre-authorization is explicitly rejected (BAD_REQUEST).
-:::
 
 ## Sale
 
@@ -57,11 +48,7 @@ Use for standard retail and hospitality transactions where the cardholder is pre
    - **Integrated mode** enabled within the app settings on the terminal (toggle in the app's configuration screen).
    - **Integrated mode enabled for the merchant** by Handpoint, with a **merchant API key** issued. Contact your Handpoint integration engineer to provision integrated mode and obtain the API key.
    See [Handpoint App release notes](/release-notes#pax-app) for the app ↔ SDK version map.
-
-:::note TNS (Interac)
-TNS processes Interac card-present transactions only. The only post-sale operation is VOID — full amount, card must be inserted or tapped, must occur before settlement. Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network. Pre-authorization is explicitly rejected (BAD_REQUEST).
-:::
-
+7. Pre-authorization is not supported — requests are rejected with BAD_REQUEST.
 
 ### Code
 
@@ -258,11 +245,6 @@ Use specifically for Interac card transactions via TNS. For non-Interac transact
 5. **SDK behaviour:** the Android SDK method called is `refund()`. The Handpoint gateway detects that the original transaction was processed via TNS (Interac) and automatically maps the refund request to a TNS VOID internally. You do not call a separate void function.
 
 See also: [Interac VOID — implementation guide](/reference/interac-void)
-
-:::note TNS (Interac)
-TNS processes Interac card-present transactions only. The only post-sale operation is VOID — full amount, card must be inserted or tapped, must occur before settlement. Show VOID in your UI, not Refund. Credit refunds are not supported by Interac network. Pre-authorization is explicitly rejected (BAD_REQUEST).
-:::
-
 
 ### Code
 

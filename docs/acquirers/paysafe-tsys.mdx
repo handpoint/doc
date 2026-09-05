@@ -26,29 +26,13 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
-
-export const _caps = CAPS_BY_ID['paysafe-tsys'];
 
 <AcquirerPageHeader currentSlug="paysafe-tsys" />
 
 ## Functionalities
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
-
-
 ## Sale {#sale}
-
-
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
 
 
 ### EMV Sale {#emv-sale}
@@ -503,11 +487,6 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 ## Refund {#refund}
 
 
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
-
-
 ### EMV Refund {#emv-refund}
 
 <FlavorSection description="On-device · card present at terminal" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -647,11 +626,6 @@ handpoint.refund(
 
 
 ## Reversal {#reversal}
-
-
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
 
 
 ### Reversal {#reversal}
@@ -1046,11 +1020,6 @@ Synchronous — errors are returned immediately in the response body:
 ## Tokenization {#tokenization}
 
 
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
-
-
 ### Paysafe Single-Use Token {#paysafe-token}
 
 <FlavorSection description="Paysafe · single-use token — for use on Paysafe APIs; consult Paysafe team" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -1092,6 +1061,7 @@ The permanent `paymentToken` is what Paysafe intends for recurring billing and i
 3. **Not for MOTO.** Handpoint does not detokenize Paysafe single-use tokens. You cannot pass `cardToken` to `/moto/sale` on a Paysafe merchant — use the permanent vault token through Paysafe's own APIs instead.
 4. **Token scope:** Tokens are specific to the Paysafe merchant configuration. Test tokens (from `api.test.paysafe.com`) are not valid in production.
 5. **Consult Paysafe.** Work with the Paysafe team to confirm your merchant's Customer Vault setup and that the token format Handpoint returns is compatible with your integration before going live.
+6. **Requires merchant onboarding.** Paysafe tokenization must be activated for the merchant by Paysafe/Handpoint before use — contact your Handpoint integration engineer to provision this.
 
 :::note Team review pending
 The Paysafe vaulting flow described above is based on Paysafe's public Customer Vault API documentation. Please have the Handpoint team verify this matches the actual gateway implementation before publishing.

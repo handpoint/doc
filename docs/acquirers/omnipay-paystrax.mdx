@@ -29,29 +29,13 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
-
-export const _caps = CAPS_BY_ID['omnipay-paystrax'];
 
 <AcquirerPageHeader currentSlug="omnipay-paystrax" />
 
 ## Functionalities
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
 ## Sale {#sale}
-
-
-:::note Paystrax
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
 
 
 ### EMV Sale {#emv-sale}
@@ -701,11 +685,6 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 ## Refund {#refund}
 
 
-:::note Paystrax
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
 ### EMV Refund {#emv-refund}
 
 <FlavorSection description="On-device · card present at terminal" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -931,11 +910,6 @@ handpoint.motoRefund(
 ## Reversal {#reversal}
 
 
-:::note Paystrax
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
 ### Reversal {#reversal}
 
 <FlavorSection description="On-device · no card required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -951,6 +925,7 @@ Use when a transaction needs to be cancelled before the batch closes (same busin
 1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
 2. **No card present required.** Reversal references the original `transactionID` electronically — the cardholder does not need to return to the terminal.
 3. **Terminal must be online.** The SDK paths route the reversal through the connected reader — the terminal must be reachable at the time of the call.
+4. **Settlement is automatic.** Paystrax settles automatically — there is no manual batch close. The reversal window closes when the acquirer's automatic settlement runs.
 
 #### Code
 
@@ -1350,11 +1325,6 @@ Supporting pre-auth means supporting the full lifecycle:
 2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
 3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
-
-:::note Paystrax
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
 
 ### Create {#pre-auth-create}
 
@@ -1817,11 +1787,6 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 
 
 ## Tokenization {#tokenization}
-
-
-:::note Paystrax
-Settlement is processed automatically — manual batch close is not available. Tip adjustment implemented in code but not officially released. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
 
 
 ### TokenEx {#tokenex}

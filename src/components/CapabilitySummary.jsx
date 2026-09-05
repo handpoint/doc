@@ -46,7 +46,7 @@ export default function CapabilitySummary({capabilities}) {
     return '';
   });
 
-  useEffect(() => {
+useEffect(() => {
     const handlePathChange = (e) => {
       // Use nullish coalescing so empty string ('all paths') isn't replaced by a default
       setSelectedPath(e.detail?.path ?? '');

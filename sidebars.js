@@ -46,7 +46,6 @@ const sidebars = {
           type: 'category',
           label: 'Back Office',
           items: [
-            'back-office/rest-api-no-reader',
             'back-office/device-commands',
             'back-office/transaction-feed-api',
             'back-office/tms-apis',

@@ -31,29 +31,17 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
-
-export const _caps = CAPS_BY_ID['epi'];
 
 <AcquirerPageHeader currentSlug="epi" />
 
 ## Functionalities
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ## Sale {#sale}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### EMV Sale {#emv-sale}
@@ -848,9 +836,6 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 ## Refund {#refund}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### EMV Refund {#emv-refund}
@@ -1078,9 +1063,6 @@ handpoint.motoRefund(
 ## Reversal {#reversal}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### Reversal {#reversal}
@@ -1199,7 +1181,7 @@ Use when the final amount is lower than the authorised amount and the batch is s
 
 #### Implementation notes
 
-1. Requires **TMS enablement per merchant**. Contact your Handpoint integration engineer to enable partial reversal for a specific merchant account.
+1. **US and Canada merchants only.** Requires TMS enablement per merchant — contact your Handpoint integration engineer to enable partial reversal for a specific merchant account.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
 3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
 4. Available via Cloud API and Android SDK (PAX). Not supported on HiLite or iOS paths.
@@ -1591,9 +1573,6 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
 9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 #### Code
@@ -1723,9 +1702,6 @@ Supporting pre-auth means supporting the full lifecycle:
 3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### Create {#pre-auth-create}
@@ -2161,9 +2137,6 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 ## Tokenization {#tokenization}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### proCharge Token {#procharge}
@@ -2380,9 +2353,6 @@ Use when you need to settle at a specific time rather than waiting for automatic
 2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
 3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### Batch Close {#batch-close}
