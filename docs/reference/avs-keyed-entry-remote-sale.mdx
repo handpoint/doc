@@ -1,12 +1,12 @@
 ---
-title: "AVS for MOTO"
-sidebar_label: "AVS for MOTO"
-description: "Attach the cardholder's billing address to a MOTO transaction so the acquirer can use it during authorization."
+title: "AVS for Keyed Entry and Remote Sale"
+sidebar_label: "AVS for Keyed Entry and Remote Sale"
+description: "Attach the cardholder's billing address to a Remote Sale or Keyed Entry Sale so the acquirer can use it during authorization."
 ---
 
-# AVS for MOTO
+# AVS for Keyed Entry and Remote Sale
 
-Attach the cardholder's billing address to a MOTO Sale or Pre-Authorization, so the acquirer can use it during authorization.
+Attach the cardholder's billing address to a Remote Sale or Keyed Entry Pre-Authorization, so the acquirer can use it during authorization.
 
 :::info Availability
 Available via **Android SDK** and **Cloud API**. For now, only on **EPI**.
@@ -14,22 +14,22 @@ Available via **Android SDK** and **Cloud API**. For now, only on **EPI**.
 
 ## Overview
 
-MOTO transactions carry more fraud risk than card-present ones — there's no chip, no PIN, no physical card to inspect. Address Verification Service (AVS) is the acquirer's way of checking a piece of the cardholder's billing information against what the issuer has on file for that card, alongside the card number and CVV. It's one of the standard risk signals issuers and acquirers use when deciding whether to approve a MOTO transaction, on top of the usual authorization checks.
+Remote Sale and Keyed Entry Sale transactions carry more fraud risk than card-present ones — there's no chip, no PIN, no physical card to inspect. Address Verification Service (AVS) is the acquirer's way of checking a piece of the cardholder's billing information against what the issuer has on file for that card, alongside the card number and CVV. It's one of the standard risk signals issuers and acquirers use when deciding whether to approve a card-not-present transaction, on top of the usual authorization checks.
 
-This feature adds a `Billing` object — a postal code and, optionally, a street address — to a MOTO Sale or Pre-Authorization. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request.
+This feature adds a `Billing` object — a postal code and, optionally, a street address — to a Remote Sale or Remote Pre-Authorization. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request.
 
-AVS only applies to MOTO — Sale and Pre-Authorization. It doesn't apply to card-present transactions or MOTO Refund, and MOTO must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
+AVS applies to Remote Sale and Remote Pre-Authorization only. It doesn't apply to card-present transactions or Remote Refund, and remote sale must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
 
 ## Prerequisites
 
-- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for `Billing`, `zipCode`, and `address` on MOTO.
+- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for `Billing`, `zipCode`, and `address` on Remote Sale.
 - A more recent SDK release for the on-device prompt opt-in (`enableAvsFields` on `MoToOptions`) — this shipped recently; pin to the latest release rather than 7.1014.0 if you need it.
-- MOTO enabled for the merchant (`motoEnabled = true`), regardless of who supplies the billing data.
+- Remote Sale enabled for the merchant (`motoEnabled = true`), regardless of who supplies the billing data.
 - Cloud API integrations target `POST /transactions` with `operation=moToSale` or `moToPreAuthorization`.
 
 ## Configuration
 
-AVS for MOTO is enabled per merchant on the backend by Handpoint — there's no self-service toggle for it today.
+AVS for Remote Sale is enabled per merchant on the backend by Handpoint — there's no self-service toggle for it today.
 
 | Key | Type | Description |
 |---|---|---|
@@ -54,18 +54,18 @@ Two ways to get `zipCode` / `address`, mutually exclusive on the same `MoToOptio
 | Have your own billing screen | Collect `zipCode` / `address` yourself and pass them via `Billing`. Don't set `enableAvsFields` — it's ignored once `billing` is already set. |
 | Don't want to build one | Set `enableAvsFields = true` and leave `billing` unset. The native card-entry screen asks for `zipCode` / `address` before sending the transaction. |
 
-This applies to Sale and Pre-Authorization only — AVS is not supported on MOTO Refund.
+This applies to Remote Sale and Remote Pre-Authorization only — AVS is not supported on Remote Refund or Keyed Entry Refund.
 
 ## Code {#code}
 
-Code samples live with the rest of the MOTO implementation on the EPI acquirer page:
+Code samples live with the rest of the Remote Sale implementation on the EPI acquirer page:
 
-- **Remote Sale (MOTO)** — [EPI page, Remote Sale section](/acquirers/epi#remote-sale) — Android (PAX) and Cloud API tabs show how to attach `Billing` and use `enableAvsFields`.
-- **Remote Pre-Authorization (MOTO)** — documented in the same [Remote Sale section](/acquirers/epi#remote-sale) — Pre-Auth accepts the same `billing` / `enableAvsFields` options as Sale.
+- **Remote Sale** — [EPI page, Remote Sale section](/acquirers/epi#remote-sale) — Android (PAX) and Cloud API tabs show how to attach `Billing` and use `enableAvsFields`.
+- **Remote Pre-Authorization** — documented in the same [Remote Sale section](/acquirers/epi#remote-sale) — Pre-Auth accepts the same `billing` / `enableAvsFields` options as Sale.
 
 ## What comes back
 
-The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a MOTO transaction with billing data attached, on both the native SDK and Cloud API.
+The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a Remote Sale or Keyed Entry Sale with billing data attached, on both the native SDK and Cloud API.
 
 ## Edge cases
 

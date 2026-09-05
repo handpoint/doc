@@ -254,7 +254,7 @@ Commands a PAX terminal to display a **manual card entry screen** — the cashie
 Use for phone orders where the cardholder reads their card details aloud to a call centre agent, or in-person situations where the card cannot be read electronically. The PAX terminal must be present in your environment and running in integrated mode.
 
 :::info Card data stays on the terminal
-Unlike back-office MOTO (which uses a stored card token), key entry sale requires the PAX terminal to be physically present. The operator's system sends the command; the terminal's screen collects the card details.
+Unlike [Remote Sale](#remote-sale) (which uses a stored card token), key entry sale requires the PAX terminal to be physically present. The operator's system sends the command; the terminal's screen collects the card details.
 :::
 
 #### Code
@@ -322,7 +322,7 @@ Requires `avsForMoto` and `motoEnabled = true` (both set per merchant by Handpoi
 </Tabs>
 
 :::info
-See [AVS for MOTO](/reference/avs-for-moto) for prerequisites and edge cases.
+See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites and edge cases.
 :::
 
 
@@ -399,7 +399,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 AVS applies to Key Entry Pre-Authorization the same way it applies to Key Entry Sale. The terminal can prompt for the cardholder's billing postal code after card entry, or you can pass it programmatically via `MoToOptions`.
 
 :::info
-See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, field reference, and edge cases.
+See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites, field reference, and edge cases.
 :::
 
 #### Errors
@@ -429,7 +429,7 @@ Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV.
 
 #### Address Verification (AVS)
 
-EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, field reference, and edge cases.
+EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites, field reference, and edge cases.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -471,7 +471,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 </Tabs>
 
 :::info
-See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, full field reference, and edge cases.
+See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites, full field reference, and edge cases.
 :::
 
 
@@ -562,7 +562,7 @@ handpoint.motoSale(
 
 | Field | Type | Description |
 |---|---|---|
-| `cardToken` | `String?` | Card token for back-office MOTO — omit to show terminal entry screen instead |
+| `cardToken` | `String?` | Card token for Remote Sale — omit to show terminal entry screen instead |
 | `channel` | `MoToChannel?` | `MAIL_ORDER` or `TELEPHONE_ORDER` |
 | `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
 
@@ -975,11 +975,11 @@ handpoint.refund(
 </FlavorSection>
 
 
-### Remote Refund (MOTO) {#moto-refund}
+### Remote Refund {#remote-refund}
 
-<FlavorSection description="Back-office · linked to original MOTO sale" paths={["cloud-api","android-pax","cordova"]}>
+<FlavorSection description="Back-office · linked to original Remote Sale" paths={["cloud-api","android-pax","cordova"]}>
 
-A **card-not-present refund** submitted directly to the gateway — no terminal or card reader required. References the original MOTO sale by its GUID. Valid up to **12 months** after the original sale date.
+A **card-not-present refund** submitted directly to the gateway — no terminal or card reader required. References the original Remote Sale by its GUID. Valid up to **12 months** after the original sale date.
 
 #### When to use it
 Use to refund a previously processed back-office MOTO or key-entry sale. The cardholder does not need to be present or provide their card again — the gateway retrieves the card from the original transaction.
@@ -2141,7 +2141,7 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 
 ### proCharge Token {#procharge}
 
-<FlavorSection description="EPI · proCharge vault — MOTO detokenization by gateway; ISV stays out of PCI scope" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="EPI · proCharge vault — detokenization by gateway; ISV stays out of PCI scope" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 #### What this does
 Reads the card at the terminal and stores it in the **proCharge token vault** — a PCI-compliant service operated by EPI. The vault stores the PAN and expiry date (no CVV). Handpoint returns a `cardToken` your system can store for future card-not-present charges.
@@ -2157,7 +2157,7 @@ When you send a MOTO sale with a proCharge `cardToken`, the Handpoint Gateway re
 1. **Token contents:** PAN + expiry date stored; CVV is never stored (PCI requirement).
 2. **Token scope:** proCharge tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
 3. **Deferred tokenization:** You can retrieve a token from a previously completed transaction that was not tokenized at the time — no card re-swipe needed (Cloud API) or requires the PAX device to be connected (Android SDK 7.1013.1+).
-4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#moto-sale) — Cloud API `POST /moto/sale` or Android SDK `hapi.motoSale()`.
+4. **Future charges:** Use the `cardToken` in [Remote Sale](#remote-sale) — Cloud API `POST /moto/sale` or Android SDK `hapi.motoSale()`.
 
 #### Code
 
@@ -2321,7 +2321,7 @@ handpoint.tokenizeCard(
 
 | Field | Description |
 |---|---|
-| `cardToken` | Opaque proCharge token. Store this — use for future MOTO charges |
+| `cardToken` | Opaque proCharge token. Store this — use for future [Remote Sale](#remote-sale) charges |
 | `cardTokenProvider` | Token issuer — `"EPI"` or `"PROCHARGE"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 

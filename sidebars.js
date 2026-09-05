@@ -71,7 +71,7 @@ const sidebars = {
         'reference/manual-injection',
         'reference/pre-authorization-guide',
         'reference/multi-mid',
-        'reference/avs-for-moto',
+        'reference/avs-keyed-entry-remote-sale',
         'reference/fee-mitigation',
         'reference/partial-approval',
         {
