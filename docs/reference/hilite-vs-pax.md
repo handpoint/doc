@@ -53,7 +53,7 @@ Operations missing from HiLite SDKs can often be performed server-side via the [
 | No partial reversal on HiLite | `POST /reversal` with `amount` + `currency` (EPI only) |
 | No pre-auth capture on HiLite | `POST /preauthorization/capture` |
 | No pre-auth increase on HiLite | `POST /preauthorization/increase` |
-| No MOTO remote sale on HiLite | `POST /moto/sale` with card token (EPI, EmerchantPay) |
+| No Remote Sale on HiLite | `POST /moto/sale` with card token (EPI, EmerchantPay) |
 | No batch close on HiLite | `POST /batch/close` |
 | Tip adjustment on iOS (SDK method requires sharedSecret) | `POST /transactions/{id}/tip-adjustment` with `ApiKeyCloud` |
 

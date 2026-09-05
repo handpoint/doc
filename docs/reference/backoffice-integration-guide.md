@@ -62,7 +62,7 @@ See [Authentication](/reference/authentication) for the full credential referenc
 | Development | `https://cloud.handpoint.io` |
 | Production (DEMO + live) | `https://cloud.handpoint.com` |
 
-## MOTO Sale (card token, no terminal)
+## Remote Sale (card token, no terminal)
 
 Charge a card token obtained from a prior card-present transaction. The cardholder is not present — this is the primary use case for stored-card recurring billing.
 
@@ -138,7 +138,7 @@ Pass the **SALE** `transactionID` (GUID) from the original transaction result. E
 | `3112` | Transaction type not eligible for deferred tokenization | Use SALE `transactionID`, not the reversal's |
 | `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
 
-## MOTO Refund (card token, no terminal)
+## Remote Refund (card token, no terminal)
 
 Refund against an original remote sale by transaction ID (linked) or by card token (unlinked):
 
@@ -388,8 +388,8 @@ See [Remote Reversal](/acquirers/epi#remote-reversal) on the acquirer page for a
 
 | Operation | Endpoint | Acquirer support |
 |---|---|---|
-| **MOTO Sale** | `POST /moto/sale` | EPI, EmerchantPay, Paystrax |
-| **MOTO Refund** | `POST /moto/refund` | EPI, EmerchantPay, Paystrax |
+| **Remote Sale** | `POST /moto/sale` | EPI, EmerchantPay, Paystrax |
+| **Remote Refund** | `POST /moto/refund` | EPI, EmerchantPay, Paystrax |
 | **Deferred Tokenization** | `GET /transactions/{id}/token` | EPI |
 | **Tip Adjustment** | `POST /transactions/{id}/tip-adjustment` | EPI |
 | **Partial Reversal** | `POST /reversal` (with `amount` + `currency`) | EPI only (TMS-enabled) |
