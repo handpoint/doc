@@ -71,7 +71,7 @@ const sidebars = {
         'reference/manual-injection',
         'reference/pre-authorization-guide',
         'reference/multi-mid',
-        'reference/avs-keyed-entry-remote-sale',
+        'reference/avs',
         'reference/fee-mitigation',
         'reference/partial-approval',
         {

@@ -322,7 +322,7 @@ Requires `avsForMoto` and `motoEnabled = true` (both set per merchant by Handpoi
 </Tabs>
 
 :::info
-See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites and edge cases.
+See [AVS](/reference/avs) for prerequisites and edge cases.
 :::
 
 
@@ -399,7 +399,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 AVS applies to Key Entry Pre-Authorization the same way it applies to Key Entry Sale. The terminal can prompt for the cardholder's billing postal code after card entry, or you can pass it programmatically via `MoToOptions`.
 
 :::info
-See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites, field reference, and edge cases.
+See [AVS](/reference/avs) for prerequisites, field reference, and edge cases.
 :::
 
 #### Errors
@@ -429,7 +429,7 @@ Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV.
 
 #### Address Verification (AVS)
 
-EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites, field reference, and edge cases.
+EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS](/reference/avs) for prerequisites, field reference, and edge cases.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -471,7 +471,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 </Tabs>
 
 :::info
-See [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) for prerequisites, full field reference, and edge cases.
+See [AVS](/reference/avs) for prerequisites, full field reference, and edge cases.
 :::
 
 

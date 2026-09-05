@@ -264,7 +264,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 
 The AVS result is in `TransactionResult.avsResult`. Adding AVS does not change the response structure.
 
-→ Full AVS documentation: [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale)
+→ Full AVS documentation: [AVS](/reference/avs)
 
 ---
 
@@ -285,7 +285,7 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 ## Related pages
 
-- [AVS for Keyed Entry and Remote Sale](/reference/avs-keyed-entry-remote-sale) — billing address configuration and edge cases
+- [AVS](/reference/avs) — billing address configuration and edge cases
 - [Back-Office REST API](/back-office/rest-api-no-reader) — full endpoint reference for remote operations
 - [Transaction Recovery — Cloud API](/reference/transaction-recovery-cloud-api) — recovery flow for on-terminal MOTO timeouts
 - [EPI acquirer page](/acquirers/epi) — EPI-specific requirements and token provider details
