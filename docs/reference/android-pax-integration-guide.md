@@ -111,7 +111,7 @@ android {
         minSdkVersion 22
         multiDexEnabled true
         ndk {
-            abiFilters "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
+            abiFilters "armeabi-v7a"
         }
     }
     // AGP 7 / 8
