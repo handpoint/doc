@@ -237,7 +237,7 @@ Always persist `transactionReference` before starting a transaction.
 | **stopCurrentTransaction** | ❌ (returns false silently — BluetoothConnection is not AndroidPaymentConnection) |
 | **Get Transaction Status** | ❌ (PAX only) |
 
-\* Available server-side via [Back Office REST API](/back-office/rest-api-no-reader) — no reader required.
+\* Available server-side via [Remote Sale & Refund guide](/reference/moto-guide) — no reader required.
 
 Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `android-hilite` column.
 

@@ -65,12 +65,12 @@ Content-Type: application/json
 }
 ```
 
-:::warning transactionReference not echoed for on-terminal MOTO (known platform bug)
+:::warning transactionReference not echoed for on-terminal MOTO (known platform bug — CUS-837)
 The `transactionReference` you send is ignored by the Cloud API for `moToSale` — the returned result contains a system-generated reference that does not match your value. This means `GET /transactions/{transactionReference}/status` will not find the transaction.
 
 **Workaround:** Use `transactionResultId` to poll for the result. Store both `transactionResultId` and your internal order ID before sending. If the poll times out, query the Transaction Feed API by serial number and time window to locate the transaction manually.
 
-This bug has been escalated to Handpoint Engineering (reference: CUS ticket filed 2026-08-21).
+Status: open as of 2026-09-05 (Handpoint Engineering, CUS-837).
 :::
 
 **Poll for result:**
@@ -198,6 +198,7 @@ Synchronous — HTTP 200 on success. `finStatus` is not returned; check `httpSta
 |---|---|---|---|
 | `3107` | CVV required | Mandatory CVV configured for CNP — not supported on token endpoint | Contact Handpoint to disable mandatory CVV for this merchant |
 | `5252` | Card token failure | Token provider is **down or unreachable** — the stored token is valid | Retry later; if persistent, contact Handpoint to verify token provider availability |
+| `400 BadRequestError` | "Unable to perform Viscus operation" | Decline from the card network — cloudapi is wrapping a Viscus decline as a 400 instead of passing the decline response through (CUS-839, open) | Treat any 400 with this message as a possible decline; log the full response body |
 
 Error `5252` does **not** mean the token is invalid or expired. Tokens don't expire. It means the token provider (ProCharge, etc.) is temporarily unreachable. Retry the charge when the provider recovers.
 
@@ -286,6 +287,5 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ## Related pages
 
 - [AVS](/reference/avs) — billing address configuration and edge cases
-- [Back-Office REST API](/back-office/rest-api-no-reader) — full endpoint reference for remote operations
 - [Transaction Recovery — Cloud API](/reference/transaction-recovery-cloud-api) — recovery flow for on-terminal MOTO timeouts
 - [EPI acquirer page](/acquirers/epi) — EPI-specific requirements and token provider details

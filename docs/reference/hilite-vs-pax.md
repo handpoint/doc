@@ -46,7 +46,7 @@ Legend: ✅ Supported &nbsp;·&nbsp; ❌ Not supported &nbsp;·&nbsp; ✅\* See 
 
 ## What Back Office operations can fill the HiLite gaps
 
-Operations missing from HiLite SDKs can often be performed server-side via the [Back Office REST API](/back-office/rest-api-no-reader) with no terminal required:
+Operations missing from HiLite SDKs can often be performed server-side via the [Back Office integration guide](/reference/backoffice-integration-guide) with no terminal required:
 
 | HiLite gap | Back Office solution |
 |---|---|
@@ -107,7 +107,7 @@ For the full multi-path, multi-acquirer matrix see the [Acquirer capabilities ma
 ## Related pages
 
 - [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — full per-acquirer, per-path support table
-- [Back Office REST API](/back-office/rest-api-no-reader) — server-side operations that complement HiLite gaps
+- [Back Office integration guide](/reference/backoffice-integration-guide) — server-side operations that complement HiLite gaps
 - [Android HiLite integration guide](/reference/android-hilite-integration-guide)
 - [iOS HiLite integration guide](/reference/ios-hilite-integration-guide)
 - [Multi-MID](/reference/multi-mid) — `MerchantAuth` on Android and iOS

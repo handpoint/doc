@@ -34,7 +34,7 @@ New endpoints for Pre-Authorization operations that do not require the card to b
 ### 2.26.0
 **Features:**
 
-New [Deferred Tokenization Endpoint](/back-office/rest-api-no-reader) is now available, allowing a deferred tokenization on the following operations: sale, refund, preAuthorizationCapture, moToSale and moToRefund. This ensures that if a SaleAndTokenize operation fails due to issues with the token provider, the integrator can choose to de-couple these operations into 2, allowing authorizations to be processed and tokenizing using the transactionId (guid) of the original operation later on.
+New [Deferred Tokenization Endpoint](/reference/backoffice-integration-guide) is now available, allowing a deferred tokenization on the following operations: sale, refund, preAuthorizationCapture, moToSale and moToRefund. This ensures that if a SaleAndTokenize operation fails due to issues with the token provider, the integrator can choose to de-couple these operations into 2, allowing authorizations to be processed and tokenizing using the transactionId (guid) of the original operation later on.
 
 ### 2.25.0
 **Features:**
@@ -43,7 +43,7 @@ New MOTO Operations (no reader) endpoints are now available, allowing MOTO (Mail
 
 - `POST /moto/sale` — performs a MOTO sale using a previously generated card token.
 - `POST /moto/refund` — performs a refund of a previous operation using its original identifier.
-- `POST /moto/reversal` — performs a reversal (void) of a previous operation using its original identifier. **Deprecated in favor of `POST /reversal`** — use [`POST /reversal`](/back-office/rest-api-no-reader#remote-reversal) instead, which works for all transaction types (card-present, MOTO, pre-auth) with no additional requirements.
+- `POST /moto/reversal` — performs a reversal (void) of a previous operation using its original identifier. **Deprecated in favor of `POST /reversal`** — use [`POST /reversal`](/reference/moto-guide#reversing-a-remote-sale) instead, which works for all transaction types (card-present, MOTO, pre-auth) with no additional requirements.
 
 New Batch Operations endpoints are now available, allowing you to remotely manage batches on a specific payment terminal using the Cloud API:
 

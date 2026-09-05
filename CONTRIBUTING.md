@@ -227,4 +227,4 @@ The CSS enforces this hierarchy automatically — do not override heading sizes 
 - **Testing sections** describe how to trigger each scenario, not just that testing is possible.
 - **Links**: use meaningful link text (`[Remote Sale](#remote-sale)`, not `[here](#remote-sale)`).
 - **Dates** in frontmatter: ISO 8601 (`YYYY-MM-DD`).
-- **Amounts in code examples**: always in smallest currency unit (cents/pence) unless the field explicitly takes major units (`originalGuid` amount in Remote Refund is an exception — it uses major units).
+- **Amounts in code examples**: always in smallest currency unit (cents/pence) unless the field explicitly takes major units. Exception: `POST /moto/sale` and `POST /moto/refund` both take `amount` in **major units** as a decimal string (e.g. `"10.00"` = $10.00) — unlike the standard `POST /transactions` path which uses minor units.
