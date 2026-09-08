@@ -25,6 +25,7 @@ An object holding information about the result of a transaction.
 
 | Parameter      | Description |
 | ----------- | ----------- |
+| `addressVerification` <br />[*AddressVerification*](#address-verification)   | 		AVS (Address Verification Service) result, present only when the acquirer performed one.|
 | `aid`   <br />*String*  | 		Application Identifier of the card (EMV tag 9F06).|
 | `arc`  <br />*String*   | 		EMV Authorisation Response Code (EMV tag 8A).|
 | `authorisationCode`   <br />*String*  | 		Acquirer response code.|
@@ -86,6 +87,9 @@ An object holding information about the result of a transaction.
 
 ```json
 {
+  "addressVerification": {
+    "resultCode": "FULL_MATCH"
+  },
   "aid": "A0000000041010",
   "arc": "0000",
   "authorisationCode": "123456",
@@ -181,6 +185,36 @@ public enum Acquirer {	AMEX,
   SANDBOX
 }
 ```
+
+## Address Verification
+
+`AddressVerification` <span class="badge badge--info">Object</span>
+
+Address verification (AVS) result for a MoTo transaction, exposed on [TransactionResult](#25).
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `resultCode` <br />[*AvsResultCode*](#avs-result-code) | Outcome of the AVS check performed by the acquirer |
+
+**Code example**
+
+```json
+{
+  "resultCode": "FULL_MATCH"
+}
+```
+
+## Avs Result Code
+
+`AvsResultCode` <span class="badge badge--info">Enum</span>
+
+An enum representing the outcome of an Address Verification Service (AVS) check performed by the acquirer for a MoTo transaction.
+
+**Possible values**
+
+`FULL_MATCH` `EXACT_MATCH` `ADDRESS_MATCH` `ZIP_MATCH` `ZIP9_MATCH` `NO_MATCH` `UNSUPPORTED` `INTERNATIONAL` `RETRY` `UNAVAILABLE` `UNKNOWN`
 
 ## Balance
 
