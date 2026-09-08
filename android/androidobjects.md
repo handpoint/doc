@@ -217,6 +217,25 @@ An enum representing the balance sign.
 
 `POSITIVE_SIGN('C')` `NEGATIVE_SIGN('D')`
 
+## Billing
+
+`Billing` <span class="badge badge--info">Object</span>
+
+Billing address details attached to a MoTo transaction, used for Address Verification Service (AVS) checks.
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `zipCode` <span class="badge badge--primary">Required</span> <br />*String* | The billing postal/ZIP code |
+| `address` <br />*String* | The billing street address. Optional; used for AVS when provided |
+
+**Code example**
+
+```java
+Billing billing = new Billing("90210", "123 Main Street");
+```
+
 ## Card Brands{#cardBrands}
 
 `CardBrands` <span class="badge badge--info">Enum</span>
@@ -721,6 +740,8 @@ An object to store optional parameters for card not present (MoTo) transactions.
 | `cardToken`  <br />*String*  | From token providers who support PAN + Expiry de-tokenization|
 | `Tokenize`  <br />*Boolean*  | Flag to activate tokenization of the operation, if this flag is set, a token representing the PAN of the card will be sent back by the Handpoint sytems|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
+| `billing`  <br />[*Billing*](androidobjects.md#billing)   | Billing address details used for Address Verification Service (AVS) checks|
+| `enableAvsFields`  <br />*Boolean*   | Instructs the MoTo Dialog to request the AVS fields from the cardholder. Ignored if `billing` is already set|
 
 
 
@@ -737,6 +758,13 @@ options.setChannel(MoToChannel.TO);
 //Adding Money Remitance options
 MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
 MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
+
+//Adding AVS billing details directly
+Billing billing = new Billing("90210", "123 Main Street");
+options.setBilling(billing);
+
+//Or letting the MoTo Dialog collect the AVS fields from the cardholder instead
+options.setEnableAvsFields(true);
 ```
 
 ## Operation DTO

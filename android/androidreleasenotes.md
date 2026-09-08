@@ -30,6 +30,10 @@ dependencies {
 }
 ```
 
+**Features**
+
+Added support for Address Verification Service (AVS) checks on MoTo transactions. You can now pass the cardholder's billing details via [`MoToOptions.billing`](androidobjects.md#moto-options), or set [`MoToOptions.enableAvsFields`](androidobjects.md#moto-options) to have the MoTo Dialog collect them from the cardholder instead. See the [Billing](androidobjects.md#billing) object for details.
+
 ## 7.1012.3
 **Features**
 
