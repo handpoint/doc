@@ -229,6 +229,28 @@ Error shape: **Pattern B** (flat — read `error.code`). EPI only. Tip adjustmen
 
 On success: HTTP `200` with body `{"statusMessage": "tip adjusted"}`.
 
+## Error codes — Fee Mitigation
+
+The gateway refuses these requests **before** the authorization, so the transaction never reaches
+the acquirer. They apply to a sale, a Remote Sale and a pre-authorization capture that carries a
+`fee` object. See [Fee Mitigation](fee-mitigation.mdx) for the contract.
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `4258` `SURCHARGE_NOT_ENABLED` | The merchant is not configured to surcharge, and the request carries a surcharge — through `fee` with `mitigationProgram: surcharge`, or through the deprecated `surchargeAmount` | Ask Handpoint to enable surcharging for the merchant, or send no fee |
+| `4268` `FEE_SURCHARGE_AMOUNT_CONFLICT` | The request carries both `fee` and the deprecated `surchargeAmount`, and they disagree. Accepted only when `mitigationProgram` is `surcharge` **and** the two amounts match | Migrate the call site completely. Send one field or the other |
+| `4269` `FEE_TAX_ON_FEE_EXCEEDS_L2_TAX` | `fee.taxOnFee` is greater than the tax carried by `taxInformation.taxAmount` | Lower `taxOnFee`, or declare the full tax. Subtracting more tax than was declared would put a negative tax on the wire |
+| `FIELD_REQUIRED` | `fee.amount` or `fee.mitigationProgram` is missing | Send both. Neither one is optional |
+| `AMOUNT_FORMAT` | `fee.amount` or `fee.taxOnFee` is malformed or negative | Send a positive amount in the documented format |
+| `MITIGATION_PROGRAM_INVALID` | `fee.mitigationProgram` is not one of the four values | Send `surcharge`, `adminFee`, `cashDiscount` or `dualPricing`. The gateway never falls back to a default |
+
+A fee that the gateway **drops** is not an error. The transaction continues, and
+`fee.applied` is `false` with a `fee.reason` that explains it. See
+[why the fee was applied or dropped](fee-mitigation.mdx#reasons).
+
+The Android SDK checks the first three rules before it sends, and raises a verification error
+instead of starting a transaction.
+
 ## UNDEFINED status
 
 `finStatus: UNDEFINED` means the terminal sent the transaction to the gateway but no result was received. The transaction **may or may not have been processed** — do not retry.

@@ -50,6 +50,28 @@ On partial approvals, `requestedAmount` is what the customer owed and `totalAmou
 
 ---
 
+## Fee mitigation — one rule per program
+
+A transaction that carried a fee needs one more line, and the rule differs by program. Read
+`fee.mitigationProgram` and `fee.applied` on the result, then apply the matching row. See
+[Fee Mitigation](/reference/fee-mitigation) for the full contract.
+
+| Program | The receipt shows | Condition |
+|---|---|---|
+| Surcharge | A separate line, clearly labelled. The card networks **require** it. Never inside the total, never mixed with the tax | `fee.applied` is `true` |
+| Admin fee | A separate line, with its own label | `fee.applied` is `true` |
+| Dual pricing | **No fee line.** The card price is the posted price | Always |
+| Cash discount | Nothing. It is not a card transaction | Never reaches the gateway |
+
+The amount on the line is `fee.amount` from the result, in major units. A fee the gateway dropped
+(`fee.applied` is `false`) gets no line at all, because the customer never paid it.
+
+:::warning Dual pricing prints no fee line, on purpose
+This looks like an omission. It is not. An itemised fee would present a price as a fee, and would undermine the model that makes dual pricing lawful. Do not add a fee line to a dual pricing receipt.
+:::
+
+---
+
 ## Receipt language
 
 The two receipts render in different languages:
@@ -163,3 +185,4 @@ Historical analytics data (Transaction Feed API) has no specified retention limi
 - [MOTO — Card Not Present](/reference/moto-guide) — receipt format differences for MOTO paths
 - [Transaction Recovery — Cloud API](/reference/transaction-recovery-cloud-api) — recovery flow when no receipt URL is available
 - [Transaction Result Object](/reference/transaction-result-object) — full field schema
+- [Fee Mitigation](/reference/fee-mitigation) — the fee line each program requires

@@ -154,6 +154,17 @@ acquirers:
         # Full detail: docs/reference/avs-for-moto.mdx
         cloud-api: public
         android-pax: public
+      fee-mitigation:
+        # EPI only. Surcharge, admin fee and dual pricing. Under development.
+        # Not a Functionalities capability row — no entry in CAPABILITY_LABELS, and no
+        # partial: fee mitigation modifies an operation, it is not an operation. Same
+        # model as avs-for-moto and multi-mid.
+        # The acquirer protocol has one fee field, and it means surcharge — so only a
+        # surcharge reaches the card networks. Cash discount never reaches the gateway.
+        # Cloud API cannot send the fee object yet.
+        # Full detail: docs/reference/fee-mitigation.mdx
+        cloud-api: coming-soon
+        android-pax: public
   tsys-tns:
     name: "PAYSAFE + Interac"
     geography: "Canada"

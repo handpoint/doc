@@ -459,6 +459,7 @@ function buildLlmsTxt(acquirers) {
     '/reference/acquirer-capabilities-matrix',
     '/reference/transaction-result-object',
     '/reference/error-codes',
+    '/reference/fee-mitigation',
   );
   return lines.join('\n');
 }

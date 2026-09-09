@@ -762,6 +762,16 @@ This is validated during self-testing (trigger amount `3757`) and required for H
 | Polling `GET /transaction-result` before waiting at least 3 s after the 202 | Wait 3 s after 202, then poll every 4 s — hammering immediately returns 204 |
 | Calling `.json()` on a 204 response | 204 body is empty — only parse JSON on 200 |
 
+## Fee mitigation
+
+**Not available on this path yet.** `POST /transactions` carries the deprecated flat
+`surchargeAmount` only. It does not carry the `fee` object, so admin fee and dual pricing cannot be
+sent from the Cloud API. The terminal already accepts a nested `fee` object, so this path opens as
+soon as the Cloud API forwards one.
+
+Use the Android SDK on a PAX terminal for fee mitigation today. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`

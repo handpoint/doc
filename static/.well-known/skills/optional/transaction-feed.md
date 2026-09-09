@@ -71,6 +71,10 @@ Authorization: Bearer YOUR_TXNFEED_API_KEY
 | `customerReceipt` | Formatted receipt text |
 | `cardToken` | Present if tokenization enabled |
 
+**The feed carries no fee mitigation fields.** There is no fee amount, no program, and no applied
+flag. Persist the `fee` object from the transaction result in your own records. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
+
 ## Recovery via Android SDK
 
 On Android PAX or HiLite paths, use the SDK status method before querying the feed:

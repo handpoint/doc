@@ -27,10 +27,10 @@
       {
         "id": "epi",
         "title": "EPI — acquirer skill",
-        "description": "All EPI capabilities and constraints: mandatory batch close, post-sale tip adjustment, partial reversal, remote sale with AVS, pre-authorization, tokenization, and known error codes (ERR 005, 0601).",
+        "description": "All EPI capabilities and constraints: mandatory batch close, post-sale tip adjustment, partial reversal, remote sale with AVS, pre-authorization, tokenization, fee mitigation (surcharge, admin fee, dual pricing), and known error codes (ERR 005, 0601).",
         "path": "acquirers/epi.md",
         "region": "US, Canada",
-        "tags": ["epi", "tsys", "us", "canada", "batch-close", "tip-adjustment", "avs"]
+        "tags": ["epi", "tsys", "us", "canada", "batch-close", "tip-adjustment", "avs", "fee-mitigation"]
       },
       {
         "id": "emerchantpay",
@@ -68,9 +68,9 @@
       {
         "id": "android-pax",
         "title": "Android SDK — PAX on-device path skill",
-        "description": "Full Android SDK integration for apps running on PAX terminals: Gradle setup, initialization, sale, refund, reversal, pre-auth, tip adjustment, batch close, remote sale.",
+        "description": "Full Android SDK integration for apps running on PAX terminals: Gradle setup, initialization, sale, refund, reversal, pre-auth, tip adjustment, batch close, remote sale, fee mitigation.",
         "path": "paths/android-pax.md",
-        "tags": ["android", "sdk", "pax", "on-device", "kotlin", "java"]
+        "tags": ["android", "sdk", "pax", "on-device", "kotlin", "java", "fee-mitigation"]
       },
       {
         "id": "android-hilite",

@@ -63,6 +63,7 @@ Load these skills before writing integration code. The index tells you which ski
 - [Validate your Integration](https://developer.handpoint.com/reference/validate-integration): Pre-certification checklist, trigger amounts, per-operation test scenarios, reconciliation
 - [Testing Edge Cases](https://developer.handpoint.com/reference/testing-edge-cases): Step-by-step edge case scenarios per integration path
 - [Pre-Authorization Guide](https://developer.handpoint.com/reference/pre-authorization-guide): Full pre-auth lifecycle — create, increase, capture, void
+- [Fee Mitigation](https://developer.handpoint.com/reference/fee-mitigation): Surcharge, admin fee, dual pricing and cash discount — the Fee object, eligibility, receipt rules. EPI only, Android SDK on PAX, under development
 - [OpenAPI Specification](https://developer.handpoint.com/openapi.yaml): OpenAPI 3.1.0 YAML spec for all Cloud REST API endpoints — import into Postman, Insomnia, Stoplight, or code generators
 
 ---
