@@ -534,6 +534,35 @@ A class containing information about the status of the transaction.
 | `deviceStatus` <br />[*DeviceStatus*](#device-status) | A `DeviceStatus` object containing information about the payment terminal.        |
 
 
+## Tax Information
+
+`TaxInformation` <span class="badge badge--info">Object</span>
+
+Tax data sent as part of Level II purchasing data. Level II data is used for business-to-business and corporate card transactions, where it qualifies the transaction for Visa and Mastercard preferential interchange rates. It is optional, and can only be used with the `sale`, `moToSale` and `preAuthorizationCapture` operations of [`POST /transactions`](restendpoints#transactions), and with the [`POST /moto/sale`](restendpoints#moto-operations-no-reader) endpoint. It is ignored by every other operation.
+
+Level II data is always sent as a pair, the `taxInformation` object and the `purchaseOrderNumber` field. If only one of the two is sent, the gateway declines the transaction: error `4263` when the purchase order number is missing, error `4264` when the tax information is missing.
+
+Level II data must be enabled on the merchant's agreement with the acquirer. If it is not enabled, a transaction that carries Level II data is declined with error `4261`.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `taxAmount` <span class="badge badge--primary">Required</span> <br />*String* | Portion of the transaction amount that corresponds to tax, in the same denomination as the `amount` field of the request. It must be `0` when `taxExempt` is `true`, otherwise the transaction is declined with error `4262`. It must be greater than `0` when `taxExempt` is `false`, otherwise the transaction is declined with error `4266`. |
+| `taxExempt` <span class="badge badge--primary">Required</span> <br />*Boolean* | Set to `false` when local sales tax is applied to the transaction. Set to `true` when the transaction is tax-exempt. |
+
+**Code example**
+
+````json
+{
+    "taxInformation": {
+        "taxAmount": "250",
+        "taxExempt": false
+    },
+    "purchaseOrderNumber": "PO12345"
+}
+````
+
 ## Tender Type{#tenderType}
 
 `TenderType` <span class="badge badge--info">Enum</span>
@@ -626,6 +655,8 @@ An object to store information about the request sent to the payment terminal.
 | `tipConfiguration`  <br />[*TipConfiguration*](#tip-configuration)     | Configuration to enable tipping. At the time of sale, a tip menu will be shown to the cardholder with the predefined configuration. The tip configuration is optional and can only be used with the sale and saleAndTokenize operations.       |
 | `bypassOptions` <br />[*ByPassOptions*](#bypass-options)   | Configuration to enable the possibility of bypassing signature or pin. The bypass configuration is optional and can only be used with the sale, saleAndTokenize and refund operations.        |
 | `billing`  <br />[*Billing*](#billing)   | Billing address used for Address Verification Service (AVS). The billing object is optional and can only be used with the moToSale and moToPreAuthorization operations; it is ignored for moToRefund and moToReversal. When omitted and AVS is enabled on the device's configuration template, the terminal prompts the operator for the billing details instead.        |
+| `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Tax data sent as part of Level II purchasing data, used for business-to-business and corporate card transactions. Level II data is optional and can only be used with the sale, moToSale and preAuthorizationCapture operations. It must be sent together with purchaseOrderNumber, and it requires Level II data to be enabled on the merchant's agreement with the acquirer.        |
+| `purchaseOrderNumber`  <br />*String*   | Purchase order number assigned by the merchant, sent as part of Level II purchasing data. Maximum 25 characters, letters and digits only, otherwise the transaction is declined with error `4267`. It must be sent together with [taxInformation](#tax-information).        |
 | `merchantAuth`   <br />[*MerchantAuth*](#merchant-auth)   |Object used to store merchant authentication. it allows a transaction to be funded to a specific merchant account other than the default one. It is useful if a terminal is shared between multiple merchants, for example at an Hair Salon or a Doctor's office. The merchantAuth is optional and can only be used with the sale, saleAndTokenize and refund operations. For reversals, the credentials passed for the original sale will be automatically looked up by Handpoint and used to process the reversal.       |
 | `duplicate_check`   <br />*Boolean*   |Used to disable the duplicate payment check functionality. When a merchant is not 100% sure of the transaction outcome, they will reprocess the transaction leading to the cardholder being charged twice. In order to avoid this scenario, we are flagging the duplicate transaction and prompting a menu to the cardholder/merchant to confirm/cancel the second charge. This menu will automatically be prompted on the payment terminal if a suspicious charge is detected. We are only prompting the duplicate check menu in case the same card is used twice in a row to process a transaction for the same amount within a 5 minutes timeframe.<br></br><br></br>  ** The duplicate_check functionality is available for the following transaction types:** Sale, Sale and Tokenize, Sale Reversal, Refund, Refund Reversal, MoTo Sale, MoTo Refund and MoTo Reversal.<br /> <br></br>The `duplicate_check` service is **enabled to "true" by default**, if you want to disable it, you must explicitly pass the `duplicate_check` flag as part of the transaction request with the value "false".|
 | `metadata`  <br />[*Metadata*](#metadata)   | Object used to store metadata, this data will be echoed in the transaction result. <br /> Valid characters: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`|
@@ -905,6 +936,8 @@ Object used by the [`POST /moto/sale`](restendpoints#moto-operations-no-reader) 
 | `customerReference` <br />*String* | Merchant-defined reference for the operation. Useful for back-office reconciliation and reporting. |
 | `transactionReference` <br />*String* | Unique identifier for the transaction (for example, a UUID v4) generated by the integrator for traceability and reconciliation. |
 | `billing`  <br />[*Billing*](#billing)   | Billing address used for Address Verification Service (AVS). Optional; only applied when AVS is enabled on the merchant's agreement with the acquirer, otherwise the request is rejected. |
+| `taxInformation`  <br />[*TaxInformation*](#tax-information) | Tax data sent as part of Level II purchasing data, used for business-to-business and corporate card transactions. Optional; it must be sent together with `purchaseOrderNumber`, and only applied when Level II data is enabled on the merchant's agreement with the acquirer, otherwise the request is rejected. |
+| `purchaseOrderNumber` <br />*String* | Purchase order number assigned by the merchant, sent as part of Level II purchasing data. Maximum 25 characters, letters and digits only. It must be sent together with `taxInformation`. |
 
 **Code example**
 
@@ -918,7 +951,12 @@ Object used by the [`POST /moto/sale`](restendpoints#moto-operations-no-reader) 
   "billing": {
     "zipCode": "SW1A 1AA",
     "address": "10 Downing Street"
-  }
+  },
+  "taxInformation": {
+    "taxAmount": "2.50",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO12345"
 }
 ```
 
