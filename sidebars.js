@@ -67,6 +67,7 @@ const sidebars = {
         'reference/android-pax-integration-guide',
         'reference/android-cloud-api-integration-guide',
         'reference/android-hilite-integration-walkthrough',
+        'reference/cloud-api-integration-guide',
         'reference/javascript-sdk-setup',
         'reference/windows-sdk-setup',
         'reference/authentication',
