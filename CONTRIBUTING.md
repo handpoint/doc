@@ -156,7 +156,7 @@ Each `###` subsection inside a functionality follows this order. Omit sub-headin
 Wraps a code variant that applies to specific integration paths. The `paths` array controls which integration-path selections show this block. The `description` is the label shown in the collapsed summary row.
 
 ```jsx
-<FlavorSection description="On-device · chip, tap, or swipe" paths={["cloud-api","android-pax","android-hilite"]}>
+<FlavorSection description="On-device · chip, contactless, or magstripe" paths={["cloud-api","android-pax","android-hilite"]}>
 …
 </FlavorSection>
 ```

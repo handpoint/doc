@@ -66,7 +66,7 @@ A **DEMO merchant** is a Handpoint merchant account provisioned against **Viscus
 
 | | DEMO merchant |
 |---|---|
-| **Card requirements** | Any physical card — chip, tap, or swipe. **Interac cards are not supported** (ViscusDummy has no Interac routing) |
+| **Card requirements** | Any physical card — chip, contactless, or magstripe. **Interac cards are not supported** (ViscusDummy has no Interac routing) |
 | **Test card numbers** | None needed — response is determined by the **amount** alone |
 | **Funds movement** | None — approvals are simulated and do not settle |
 | **Environment** | Both staging and production support DEMO merchants |
@@ -84,7 +84,7 @@ ViscusDummy does not support Interac. Interac testing uses **TNSDummy**, a separ
 
 When testing against the **TEST/DEMO merchant** (HiLite devices) or a PAX device on the **staging environment**, use the following amounts (in **minor units** — cents/pence) to simulate specific gateway responses. These are powered by **Viscus-Dummy**, the Handpoint mock server used in staging.
 
-All other amounts process as approved transactions. ViscusDummy does not validate card numbers — any physical card or test card that can present chip, tap, or swipe to the terminal will be approved. The outcome is determined by the amount only.
+All other amounts process as approved transactions. ViscusDummy does not validate card numbers — any physical card or test card that can present chip, contactless, or magstripe to the terminal will be approved. The outcome is determined by the amount only.
 
 ### General transaction behaviour
 

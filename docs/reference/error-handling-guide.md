@@ -39,7 +39,7 @@ Set by the Handpoint gateway before the transaction reaches the acquirer. These 
 | `Invalid Merchant` | `1000` | Gateway | `externalId` in `merchantAuth` doesn't match any configured sub-MID |
 | `Error connecting to authorization provider` | — | Gateway | Timeout reaching the acquirer — no authorization attempt was made |
 | `Processing error` | — | Gateway | Internal processing failure before acquirer contact |
-| `Read card error` | — | Gateway | Terminal could not read the card (chip, tap, or swipe failed) |
+| `Read card error` | — | Gateway | Terminal could not read the card (chip, contactless, or magstripe read failed) |
 
 ### Acquirer responses (pass-through)
 

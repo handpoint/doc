@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 
 # MOTO — Card Not Present
 
-MOTO (Mail Order / Telephone Order) transactions allow merchants to accept card payments without the cardholder physically present — over the phone, via mail order, or through a recurring billing agreement. The card number is keyed in manually rather than read by a chip, tap, or swipe.
+MOTO (Mail Order / Telephone Order) transactions allow merchants to accept card payments without the cardholder physically present — over the phone, via mail order, or through a recurring billing agreement. The card number is keyed in manually rather than read by a chip, contactless, or magstripe.
 
 :::info Acquirer requirement
 MOTO must be enabled per merchant by Handpoint. Contact your Handpoint integration engineer before building MOTO features.

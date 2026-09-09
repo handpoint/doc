@@ -50,7 +50,7 @@ const CAPABILITY_HEADINGS = {
 // If 'anchor' is omitted the flavorKey itself is used as the anchor ID.
 const FLAVOR_DESCRIPTIONS = {
   sale: {
-    'emv-sale':          { description: 'On-device · chip, tap, or swipe' },
+    'emv-sale':          { description: 'On-device · chip, contactless, or magstripe' },
     'key-entry-sale':    { description: 'On-device · operator keys card number' },
     'moto-sale':         { description: 'Back-office · charges a stored card token', anchor: 'remote-sale' },
     'sale-and-tip':      { description: 'On-device · tip collected at checkout' },
