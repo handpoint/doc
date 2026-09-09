@@ -477,7 +477,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionResultId\": \"{{TXN_RESULT_ID}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}"
+              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}"
             },
             {
               "name": "200 — Poll: AUTHORISED (or use callbackUrl)",
@@ -1082,7 +1082,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"transactionResultId\": \"a1b2c3d4-0000-0000-0000-111122223333\",\n  \"statusMessage\": \"In Progress\"\n}\n// Poll transaction-result/{transactionResultId} until finStatus resolves."
+              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionResultId\": \"1850025030-1786020446467\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}"
             }
           ],
           "description": "**MasterCard only.** Standard sale with cross-border remittance metadata.\n\n| Field | Type | Description |\n|---|---|---|\n| `fullName` | string | Recipient full name |\n| `countryCode` | string | Recipient country — ISO 3166-1 alpha-3 (e.g. `\"GBR\"`, `\"USA\"`) |\n\n⚠️ An invalid `countryCode` may return `No device listening` instead of a validation error."
@@ -1631,7 +1631,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionResultId\": \"{{TXN_RESULT_ID}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}"
+              "body": "{\n  \"statusMessage\": \"Operation Accepted\",\n  \"transactionResultId\": \"{{TXN_RESULT_ID}}\"\n}"
             },
             {
               "name": "200 — Poll: In Progress",
