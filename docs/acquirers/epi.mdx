@@ -4,7 +4,7 @@ title: "EPI"
 description: "US, Canada card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal, avs-for-moto."
 geography: "US, Canada"
 status: active
-card-brands: [VISA, MC, Discover]
+card-brands: [VISA, MC, AMEX, Discover]
 interac: false
 capabilities:
   sale: true
@@ -31,34 +31,27 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
-
-export const _caps = CAPS_BY_ID['epi'];
 
 <AcquirerPageHeader currentSlug="epi" />
 
-## Functionalities
+**Geography:** US · Canada &nbsp;·&nbsp; **Cards:** <img src="/img/cards/visa.svg" alt="Visa" title="Visa" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/mastercard.svg" alt="Mastercard" title="Mastercard" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/amex.svg" alt="Amex" title="American Express" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/discover.svg" alt="Discover" title="Discover" height="22" style={{verticalAlign:'middle'}}/>
+EPI is Handpoint's primary North American acquirer. It supports the widest feature set across all integration paths — including tip adjustment, partial reversal, pre-authorization, Remote Sale (card token), and deferred tokenization. Typical users are US and Canadian ISVs building retail, restaurant, or healthcare POS systems where merchants need both card-present and card-not-present capabilities from a single acquirer.
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
+:::note Amex partial reversal
+Partial reversals are **not supported** on American Express transactions via EPI. Full reversal only.
 :::
 
+---
 
 ## Sale {#sale}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### EMV Sale {#emv-sale}
 
-<FlavorSection description="On-device · chip, tap, or swipe" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="On-device · chip, tap, or swipe" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
 
 Standard chip or contactless card-present payment — the cardholder taps, inserts, or swipes their card at the terminal. The terminal handles card entry mode automatically.
 
@@ -266,7 +259,7 @@ Commands a PAX terminal to display a **manual card entry screen** — the cashie
 Use for phone orders where the cardholder reads their card details aloud to a call centre agent, or in-person situations where the card cannot be read electronically. The PAX terminal must be present in your environment and running in integrated mode.
 
 :::info Card data stays on the terminal
-Unlike back-office MOTO (which uses a stored card token), key entry sale requires the PAX terminal to be physically present. The operator's system sends the command; the terminal's screen collects the card details.
+Unlike [Remote Sale](#remote-sale) (which uses a stored card token), key entry sale requires the PAX terminal to be physically present. The operator's system sends the command; the terminal's screen collects the card details.
 :::
 
 #### Code
@@ -334,7 +327,7 @@ Requires `avsForMoto` and `motoEnabled = true` (both set per merchant by Handpoi
 </Tabs>
 
 :::info
-See [AVS for MOTO](/reference/avs-for-moto) for prerequisites and edge cases.
+See [AVS](/reference/avs) for prerequisites and edge cases.
 :::
 
 
@@ -411,7 +404,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 AVS applies to Key Entry Pre-Authorization the same way it applies to Key Entry Sale. The terminal can prompt for the cardholder's billing postal code after card entry, or you can pass it programmatically via `MoToOptions`.
 
 :::info
-See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, field reference, and edge cases.
+See [AVS](/reference/avs) for prerequisites, field reference, and edge cases.
 :::
 
 #### Errors
@@ -435,13 +428,13 @@ A **card-not-present sale** submitted directly to the gateway using a stored car
 Use for recurring billing, subscription charges, or any scenario where you hold a card-on-file token from a prior tokenization or card-present transaction. A card token must already exist before this operation can be sent.
 
 :::info No raw card data — tokens only
-Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. ProCharge, Paysafe, TokenEx). The token provider de-tokenizes at processing time — the ISV never handles card data.
 :::
 
 
 #### Address Verification (AVS)
 
-EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, field reference, and edge cases.
+EPI supports an optional `billing` object on MOTO Sale — postal code (and optionally street address) are forwarded to the acquirer to reduce CNP fraud risk. Requires `avsForMoto` enabled per merchant by Handpoint. See [AVS](/reference/avs) for prerequisites, field reference, and edge cases.
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
@@ -483,7 +476,7 @@ hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 </Tabs>
 
 :::info
-See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, full field reference, and edge cases.
+See [AVS](/reference/avs) for prerequisites, full field reference, and edge cases.
 :::
 
 
@@ -574,7 +567,7 @@ handpoint.motoSale(
 
 | Field | Type | Description |
 |---|---|---|
-| `cardToken` | `String?` | Card token for back-office MOTO — omit to show terminal entry screen instead |
+| `cardToken` | `String?` | Card token for Remote Sale — omit to show terminal entry screen instead |
 | `channel` | `MoToChannel?` | `MAIL_ORDER` or `TELEPHONE_ORDER` |
 | `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
 
@@ -590,7 +583,7 @@ handpoint.motoSale(
 </FlavorSection>
 
 
-### Sale with Tip {#sale-and-tip}
+### Sale with Tip {#sale-with-tip}
 
 <FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
@@ -626,7 +619,7 @@ Content-Type: application/json
 }
 ```
 
-`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "SKIP" option.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -710,7 +703,8 @@ handpoint.sale(
 | Field | Type | Description |
 |---|---|---|
 | `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
-| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `headerName` | string | Header text shown on the tip screen. Defaults to `"Tip"` |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` — required |
 | `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
 | `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
 | `footer` | string | Optional message shown at the bottom of the tip screen |
@@ -723,7 +717,7 @@ handpoint.sale(
 | `totalAmount` | Base amount + tip — what was authorised and will settle |
 
 :::note Tip Adjustment vs Sale with Tip
-**Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. Use Sale with Tip when the cardholder is at the terminal; use Tip Adjustment for tip-at-table flows where you capture a signature and enter the tip later.
+**Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. Use Sale with Tip when the cardholder is at the terminal; use Tip Adjustment for tip-at-table flows where you capture a signature and enter the tip later. The two methods are **mutually exclusive** on the same transaction. See the [Tipping Guide](/reference/tipping-guide) for full details.
 :::
 
 
@@ -848,9 +842,6 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 ## Refund {#refund}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### EMV Refund {#emv-refund}
@@ -990,11 +981,11 @@ handpoint.refund(
 </FlavorSection>
 
 
-### Remote Refund (MOTO) {#moto-refund}
+### Remote Refund {#remote-refund}
 
-<FlavorSection description="Back-office · linked to original MOTO sale" paths={["cloud-api","android-pax","cordova"]}>
+<FlavorSection description="Back-office · linked to original Remote Sale" paths={["cloud-api","android-pax","cordova"]}>
 
-A **card-not-present refund** submitted directly to the gateway — no terminal or card reader required. References the original MOTO sale by its GUID. Valid up to **12 months** after the original sale date.
+A **card-not-present refund** submitted directly to the gateway — no terminal or card reader required. References the original Remote Sale by its GUID. Valid up to **12 months** after the original sale date.
 
 #### When to use it
 Use to refund a previously processed back-office MOTO or key-entry sale. The cardholder does not need to be present or provide their card again — the gateway retrieves the card from the original transaction.
@@ -1078,9 +1069,6 @@ handpoint.motoRefund(
 ## Reversal {#reversal}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### Reversal {#reversal}
@@ -1199,7 +1187,7 @@ Use when the final amount is lower than the authorised amount and the batch is s
 
 #### Implementation notes
 
-1. Requires **TMS enablement per merchant**. Contact your Handpoint integration engineer to enable partial reversal for a specific merchant account.
+1. **US and Canada merchants only.** Requires TMS enablement per merchant — contact your Handpoint integration engineer to enable partial reversal for a specific merchant account.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
 3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
 4. Available via Cloud API and Android SDK (PAX). Not supported on HiLite or iOS paths.
@@ -1403,7 +1391,6 @@ Cancels any unsettled transaction — sale, MOTO, pre-auth capture, or refund �
 1. **Backoffice** amount is in **major units** (decimal string) — e.g. `"11.00"` for $11.00. Cloud API uses minor units (integer string).
 2. Omit `amount` and `currency` for a full reversal. Include them only for a partial reversal (EPI only — requires TMS enablement per merchant).
 3. Do NOT include a `transactionReference` on either path — this is a subsequent operation linked to the original.
-4. **Interac cards (Paysafe + Interac gateway only):** Remote reversal is not available for Interac card transactions. Interac requires card-present at terminal. Use the on-device Reversal flow instead. Non-Interac cards on the same gateway work normally.
 
 #### Code
 
@@ -1583,7 +1570,7 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 
 1. **Last adjustment wins.** Each call replaces the previous tip value — there is no accumulation. If the cardholder adds $2 and then changes it to $5, send $5 as the full tip. To void a tip that was already set, send `amount: 0`.
 2. **Deadline: before batch close.** The cut-off time is determined by your acquirer and the merchant's onboarding configuration, not by a fixed clock time. Contact your Handpoint integration engineer for the exact cut-off for your merchant. After close, the transaction has settled and only a post-settlement Refund is possible.
-3. **Acquirer-specific restriction — TSYS:** tip adjustment is only available on transactions where **no tip was collected on-screen during the original sale** (tip-at-table flow). If the original sale included an on-screen tip prompt, TSYS will reject the tip adjustment. For TSYS merchants using on-screen tips, use tip adjustment only when the sale was processed without a tip prompt.
+3. **Acquirer restriction:** tip adjustment is only available on transactions where **no tip was collected on-screen during the original sale** (tip-at-table flow). If the original sale included an on-screen tip prompt, EPI will reject the tip adjustment — use tip adjustment only when the sale was processed without a tip prompt.
 4. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
 5. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
 6. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
@@ -1591,9 +1578,6 @@ Use in restaurant/hospitality flows where the cardholder adds a tip after the in
 8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
 9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 #### Code
@@ -1723,9 +1707,6 @@ Supporting pre-auth means supporting the full lifecycle:
 3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### Create {#pre-auth-create}
@@ -2161,14 +2142,11 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 ## Tokenization {#tokenization}
 
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### proCharge Token {#procharge}
 
-<FlavorSection description="EPI · proCharge vault — MOTO detokenization by gateway; ISV stays out of PCI scope" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="EPI · proCharge vault — detokenization by gateway; ISV stays out of PCI scope" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 #### What this does
 Reads the card at the terminal and stores it in the **proCharge token vault** — a PCI-compliant service operated by EPI. The vault stores the PAN and expiry date (no CVV). Handpoint returns a `cardToken` your system can store for future card-not-present charges.
@@ -2184,7 +2162,7 @@ When you send a MOTO sale with a proCharge `cardToken`, the Handpoint Gateway re
 1. **Token contents:** PAN + expiry date stored; CVV is never stored (PCI requirement).
 2. **Token scope:** proCharge tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
 3. **Deferred tokenization:** You can retrieve a token from a previously completed transaction that was not tokenized at the time — no card re-swipe needed (Cloud API) or requires the PAX device to be connected (Android SDK 7.1013.1+).
-4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#moto-sale) — Cloud API `POST /moto/sale` or Android SDK `hapi.motoSale()`.
+4. **Future charges:** Use the `cardToken` in [Remote Sale](#remote-sale) — Cloud API `POST /moto/sale` or Android SDK `hapi.motoSale()`.
 
 #### Code
 
@@ -2220,7 +2198,7 @@ Content-Type: application/json
 }
 ```
 
-**Retrieve token from a previous transaction (deferred tokenization — no terminal required):**
+**Get Card Token — retrieve token from a previous transaction (no terminal required):**
 ```http
 GET https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/token
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
@@ -2331,14 +2309,14 @@ handpoint.tokenizeCard(
 | `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
 
-**Deferred tokenization — Android SDK** (`hapi.deferredTokenization(eftTransactionID)`):
+**Get Card Token — Android SDK** (`hapi.deferredTokenization(eftTransactionID)`):
 
 | Parameter | Type | Description |
 |---|---|---|
 | `eftTransactionID` | `String` | `EFTTransactionID` (UUID) from the original transaction — NOT `transactionID` |
 | **Returns** | `Boolean` | `true` if command sent to device; result arrives via `endOfTransaction` |
 
-**Deferred tokenization — Cloud API** (`GET /transactions/{transactionID}/token`):
+**Get Card Token — Cloud API** (`GET /transactions/{transactionID}/token`):
 
 | Parameter | Description |
 |---|---|
@@ -2348,7 +2326,7 @@ handpoint.tokenizeCard(
 
 | Field | Description |
 |---|---|
-| `cardToken` | Opaque proCharge token. Store this — use for future MOTO charges |
+| `cardToken` | Opaque proCharge token. Store this — use for future [Remote Sale](#remote-sale) charges |
 | `cardTokenProvider` | Token issuer — `"EPI"` or `"PROCHARGE"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
@@ -2372,17 +2350,14 @@ Test tokens are returned on the TEST/DEMO merchant or staging device. Test token
 Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
 
 #### When to use it
-Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
+Use when you need to settle at a specific time rather than waiting for automatic batch close. Most EPI merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
 
 #### Implementation notes
 
-1. **TSYS US only.** Host-capture acquirers only. EU acquirers use automatic settlement and do not require manual batch close.
+1. **EPI only.** EU acquirers use automatic settlement and do not require manual batch close.
 2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
-3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
+3. Auto-close is the default at approximately 11pm EST. Manual close is an alternative, not an addition.
 
-:::note EPI
-EPI. Partial reversal available for US and Canada — uses the MasterCard flag in ISO 8583. Tip adjustment only available on transactions processed without an on-screen tip (tip-at-table flow).
-:::
 
 
 ### Batch Close {#batch-close}

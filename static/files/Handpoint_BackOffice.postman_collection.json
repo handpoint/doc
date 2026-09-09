@@ -1,0 +1,1269 @@
+{
+  "info": {
+    "name": "Handpoint Back-Office API",
+    "description": "Direct-to-gateway back-office operations compatible with **all** Handpoint integration paths (Android SDK, iOS SDK, PAX, Hilite, Cloud API).\n\nNone of these requests require a card reader or cardholder interaction — they go straight to the Handpoint gateway over HTTPS. Use them alongside any existing SDK integration to add reversal, remote charging, tip adjustment, batch management, and reporting capabilities.\n\n**Environment:** set `env` to `com` (production) or `io` (staging). All base URLs resolve as `cloud.handpoint.{{env}}` or `txnfeed.handpoint.{{env}}`.\n\n**GUID / originalGuid:** the transaction identifier returned by your SDK integration (Android: `transactionResult.EFTTransactionID`, iOS: `transactionResult.efttransactionID`, PAX/Cloud API: `efttransactionID` / `transactionID`). Set the `GUID` collection variable to use it across requests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "env",
+      "value": "com",
+      "description": "Domain suffix: com (production) or io (staging)"
+    },
+    {
+      "key": "api_key",
+      "value": "",
+      "description": "ApiKeyCloud — from Handpoint portal"
+    },
+    {
+      "key": "analytics_key",
+      "value": "",
+      "description": "AnalyticsApiKey — from Handpoint portal (Transaction Feed only)"
+    },
+    {
+      "key": "serial_number",
+      "value": "",
+      "description": "Terminal serial number — from List Devices"
+    },
+    {
+      "key": "currency",
+      "value": "EUR",
+      "description": "ISO 4217 currency code"
+    },
+    {
+      "key": "GUID",
+      "value": "",
+      "description": "Transaction GUID from your SDK (efttransactionID / EFTTransactionID). Set this before using Reversal or reporting requests."
+    },
+    {
+      "key": "CARD_TOKEN",
+      "value": "",
+      "description": "Card token from a tokenizeCard / saleAndTokenizeCard operation via your SDK. Required for Remote Sale."
+    }
+  ],
+  "item": [
+    {
+      "name": "Setup",
+      "description": "Verify credentials and retrieve the list of terminals assigned to the merchant account.\n\n**`serial_number`** is used by Batch Close, Batch Summary, and Tip Adjustment. Copy it from the List Devices response and set the `serial_number` collection variable.",
+      "item": [
+        {
+          "name": "List Devices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}",
+                "description": "Merchant API key."
+              }
+            ],
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/devices",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "Returns all PAX terminals assigned to this merchant API key.\n\nRun this first to confirm your credentials and discover `serial_number` and `terminal_type` values to use in transaction requests — both fields are required in `POST /transactions` and must exactly match what this endpoint returns.\n\n- HTTP 200 = valid key\n- HTTP 403 = wrong or missing `ApiKeyCloud` header\n- Terminal absent from list = error `1004` on transaction requests"
+          },
+          "response": [
+            {
+              "name": "200 OK — devices found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/devices",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "devices"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"serial_number\": \"1850025030\",\n    \"terminal_type\": \"PAXA920PRO\",\n    \"merchant_id_alpha\": \"mer20250115075454854\"\n  }\n]"
+            },
+            {
+              "name": "403 Forbidden — invalid API key",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "INVALID-KEY"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/devices",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "devices"
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\"error\":{\"statusCode\":403,\"name\":\"ForbiddenError\",\"message\":\"No valid key found in header\"}}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Back-Office Operations",
+      "description": "All requests in this folder go directly to the Handpoint gateway — no terminal, no cardholder interaction, no polling. Each returns a synchronous HTTP 200/400 response.\n\n**Amount units vary by endpoint:**\n- Reversal: major units decimal string (`\"10.00\"`) — or omit for full reversal\n- Remote Sale / Refund: major units decimal string (`\"10.00\"` = €10.00)\n- Tip Adjustment: major units **number** (`5` = $5.00, no quotes)\n- Pre-Auth Increase / Decrease / Capture: major units decimal string\n\n**Success check:** HTTP 200 + `httpStatus: 200` + `issuerResponseCode: \"00\"` (or `statusMessage: \"reversed\"` for Reversal). No `finStatus`.",
+      "item": [
+        {
+          "name": "Reversal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"originalGuid\": \"{{GUID}}\",         // guid from the original transaction (Poll Result / Get by GUID)\n  \"amount\": \"10.00\",                   // MAJOR units decimal string | required for partial reversal only; omit for full reversal\n  \"currency\": \"{{currency}}\"           // ISO 4217 | required for partial reversal only\n  //,\"messageReasonCode\": \"CUSTOMER_CANCELLATION\"   // optional — default: CUSTOMER_CANCELLATION\n  /*\n  messageReasonCode allowed values:\n  CUSTOMER_CANCELLATION, UNSPECIFIED_NO_ACTION_TAKEN, SUSPECTED_MALFUNCTION,\n  FORMAT_ERROR_NO_ACTION_TAKEN, COMPLETED_PARTIALLY, ORIGINAL_AMOUNT_INCORRECT,\n  RESPONSE_RECEIVED_TOO_LATE, CARD_ACCEPTOR_DEVICE_UNABLE_TO_COMPLETE_TRANSACTION,\n  DEPOSIT_OUT_OF_BALANCE, NO_CHECK_IN_ENVELOPE, PAYMENT_OUT_OF_BALANCE,\n  DEPOSIT_OUT_OF_BALANCE_APPLIED_CONTENTS, PAYMENT_OUT_OF_BALANCE_APPLIED_CONTENTS,\n  UNABLE_TO_DELIVER_MESSAGE_TO_POINT_OF_SERVICE, SUSPECTED_MALFUNCTION_CARD_RETAINED,\n  SUSPECTED_MALFUNCTION_CARD_RETURNED, SUSPECTED_MALFUNCTION_TRACK_3_NOT_UPDATED,\n  SUSPECTED_MALFUNCTION_NO_CASH_DISPENSED, TIMED_OUT_AT_TAKING_MONEY_NO_CASH_DISPENSED,\n  TIMED_OUT_AT_TAKING_CARD_CARD_RETAINED_AND_NO_CASH_DISPENSED,\n  INVALID_RESPONSE_NO_ACTION_TAKEN, TIMEOUT_WAITING_FOR_RESPONSE,\n  PREMATURE_CHIP_CARD_REMOVAL, CHIP_CARD_DECLINES_TRANSACTION, SIGNATURE_TIMEOUT,\n  MERCHANT_REVERSAL_SIGNATURE_DECLINED, NO_REVERSAL_REASON_CODE\n  */\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/reversal",
+              "protocol": "https",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "reversal"
+              ]
+            },
+            "description": "Reverses any transaction — sale, refund, or pre-authorization — synchronously, with no terminal or cardholder interaction required.\n\n**`originalGuid`:** the `guid` (or `efttransactionID`) from the original transaction result. Retrieve it from the Poll Result, the Get by GUID endpoint, or the `GUID` collection variable set automatically by the Poll Result test script.\n\n**Full reversal:** provide only `originalGuid`. The entire authorized amount is released.\n\n**Partial reversal:** include `amount` (major units decimal string, e.g. `\"10.00\"`) and `currency` (ISO 4217). Only the specified amount is reversed; the remainder stays settled.\n\n**`messageReasonCode`:** optional. Defaults to `CUSTOMER_CANCELLATION`. See body comments for the full list of allowed values.\n\n**Success:** HTTP 200 + `httpStatus: 200`. No `finStatus` — this is a synchronous operation. Check `statusMessage: \"reversed\"` to confirm.\n\nThis endpoint replaces `/moto/reversal`, `saleReversal`, `refundReversal`, and `preAuthorizationReversal` for all no-reader reversal scenarios."
+          },
+          "response": [
+            {
+              "name": "200 — Reversed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/reversal",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "reversal"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"originalGuid\": \"{{GUID}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"httpStatus\": 200,\n  \"acquirerTid\": \"ACQUIRER_TID\",\n  \"agreementNumber\": \"111111111113\",\n  \"amount\": \"10.00\",\n  \"approvalCode\": \"123456\",\n  \"batchNumber\": \"123\",\n  \"cardTypeName\": \"Visa\",\n  \"currency\": \"USD\",\n  \"customFields\": {\n    \"entry\": [\n      {\n        \"key\": \"messageReasonCode\",\n        \"value\": \"4000\"\n      },\n      {\n        \"key\": \"tenderType\",\n        \"value\": \"Credit\"\n      },\n      {\n        \"key\": \"issuerResponseCode\",\n        \"value\": \"00\"\n      }\n    ]\n  },\n  \"expiryDateMMYY\": \"1027\",\n  \"f25\": \"4000\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Successful\",\n  \"maskedCardNumber\": \"************0936\",\n  \"serverDateTime\": \"20260905204305446\",\n  \"terminalDateTime\": \"20260905204305352\",\n  \"transactionReference\": \"a4c08a13-1b93-4b7a-b955-8e4987616c4f\",\n  \"authorizationGuid\": \"60889f70-a96a-11f1-ba75-8b4e94e8f7fc\",\n  \"originalGuid\": \"60889f70-a96a-11f1-ba75-8b4e94e8f7fc\",\n  \"reversalGuid\": \"652fe060-a96a-11f1-9580-bb48a7acbc38\"\n}"
+            },
+            {
+              "name": "400 — Transaction already reversed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"originalGuid\": \"{{GUID}}\",         // guid from the original transaction (Poll Result / Get by GUID)\n  \"amount\": \"10.00\",                   // MAJOR units decimal string | required for partial reversal only; omit for full reversal\n  \"currency\": \"{{currency}}\"           // ISO 4217 | required for partial reversal only\n  //,\"messageReasonCode\": \"CUSTOMER_CANCELLATION\"   // optional — default: CUSTOMER_CANCELLATION\n  /*\n  messageReasonCode allowed values:\n  CUSTOMER_CANCELLATION, UNSPECIFIED_NO_ACTION_TAKEN, SUSPECTED_MALFUNCTION,\n  FORMAT_ERROR_NO_ACTION_TAKEN, COMPLETED_PARTIALLY, ORIGINAL_AMOUNT_INCORRECT,\n  RESPONSE_RECEIVED_TOO_LATE, CARD_ACCEPTOR_DEVICE_UNABLE_TO_COMPLETE_TRANSACTION,\n  DEPOSIT_OUT_OF_BALANCE, NO_CHECK_IN_ENVELOPE, PAYMENT_OUT_OF_BALANCE,\n  DEPOSIT_OUT_OF_BALANCE_APPLIED_CONTENTS, PAYMENT_OUT_OF_BALANCE_APPLIED_CONTENTS,\n  UNABLE_TO_DELIVER_MESSAGE_TO_POINT_OF_SERVICE, SUSPECTED_MALFUNCTION_CARD_RETAINED,\n  SUSPECTED_MALFUNCTION_CARD_RETURNED, SUSPECTED_MALFUNCTION_TRACK_3_NOT_UPDATED,\n  SUSPECTED_MALFUNCTION_NO_CASH_DISPENSED, TIMED_OUT_AT_TAKING_MONEY_NO_CASH_DISPENSED,\n  TIMED_OUT_AT_TAKING_CARD_CARD_RETAINED_AND_NO_CASH_DISPENSED,\n  INVALID_RESPONSE_NO_ACTION_TAKEN, TIMEOUT_WAITING_FOR_RESPONSE,\n  PREMATURE_CHIP_CARD_REMOVAL, CHIP_CARD_DECLINES_TRANSACTION, SIGNATURE_TIMEOUT,\n  MERCHANT_REVERSAL_SIGNATURE_DECLINED, NO_REVERSAL_REASON_CODE\n  */\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/reversal",
+                  "protocol": "https",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "reversal"
+                  ]
+                },
+                "description": "Reverses any transaction — sale, refund, or pre-authorization — synchronously, with no terminal or cardholder interaction required.\n\n**`originalGuid`:** the `guid` (or `efttransactionID`) from the original transaction result. Retrieve it from the Poll Result, the Get by GUID endpoint, or the `GUID` collection variable set automatically by the Poll Result test script.\n\n**Full reversal:** provide only `originalGuid`. The entire authorized amount is released.\n\n**Partial reversal:** include `amount` (major units decimal string, e.g. `\"10.00\"`) and `currency` (ISO 4217). Only the specified amount is reversed; the remainder stays settled.\n\n**`messageReasonCode`:** optional. Defaults to `CUSTOMER_CANCELLATION`. See body comments for the full list of allowed values.\n\n**Success:** HTTP 200 + `httpStatus: 200`. No `finStatus` — this is a synchronous operation. Check `statusMessage: \"reversed\"` to confirm.\n\nThis endpoint replaces `/moto/reversal`, `saleReversal`, `refundReversal`, and `preAuthorizationReversal` for all no-reader reversal scenarios."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"Transaction already reversed\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remote Sale — Back-Office Token (EPI only)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Back-office remote sale: no terminal required. Charges a stored cardToken directly.",
+                  "// EPI only — EmerchantPay and Paystrax do not support back-office card-token remote sale.",
+                  "var uuid = require('uuid');",
+                  "var uuidv4 = uuid.v4();",
+                  "console.log('transactionReference: ' + uuidv4);",
+                  "pm.collectionVariables.set('TXN_REF_ID', uuidv4);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Back-office sale returns HTTP 200 synchronously (no polling).",
+                  "// Success: check httpStatus === 200 (integer field in body).",
+                  "// The reversal GUID is in the 'guid' field (NOT 'transactionID').",
+                  "if (pm.response.code === 200) {",
+                  "    var body = pm.response.json();",
+                  "    if (body.guid) {",
+                  "        pm.collectionVariables.set('GUID', body.guid);",
+                  "        console.log('GUID for reversal set to:', body.guid);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/moto/sale",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "moto",
+                "sale"
+              ]
+            },
+            "description": "Charges a stored card token from your server — no terminal interaction, no cardholder present. EPI only.\n\n**`amount`:** **major units** as a decimal string — `\"10.00\"` = €10.00. NOT minor units. Do NOT send `\"1000\"` expecting €10.00.\n\n**`cardToken`:** obtained from a prior `saleAndTokenizeCard` or `GET /transactions/{id}/token`. Stored in the CARD_TOKEN collection variable.\n\n**`transactionReference`:** UUID v4. Include for idempotency.\n\n**Response:** HTTP 200 synchronous — no 202/polling. Check `httpStatus === 200` (integer field in body) for success. There is no `finStatus` field in this response.\n\n**Reversal GUID:** the `guid` field in the response — NOT `transactionID`. Use in `POST /reversal` with `originalGuid`.\n\n**Error `3107`:** Mandatory CVV is configured for this merchant's CNP — the token endpoint cannot supply CVV. Contact Handpoint to disable mandatory CVV.\n**Error `5252`:** Token provider (ProCharge) is temporarily down — the token is valid, retry later.\n\n**MOTO requirement:** Remote Sale uses the `/moto/sale` endpoint. **MOTO must be enabled for the merchant both in Handpoint and at the acquirer** before this endpoint will process successfully. Contact Handpoint support to enable MOTO."
+          },
+          "response": [
+            {
+              "name": "200 — Remote Sale approved",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/moto/sale",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "moto",
+                    "sale"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"@type\": \"sale\",\n  \"httpStatus\": 200,\n  \"acquirerTid\": \"ACQUIRER_TID\",\n  \"amount\": \"10.00\",\n  \"approvalCode\": \"123456\",\n  \"batchNumber\": \"123\",\n  \"cardTypeName\": \"Visa\",\n  \"currency\": \"USD\",\n  \"expiryDateMMYY\": \"1027\",\n  \"guid\": \"7cd7a1d0-a96a-11f1-ba75-8b4e94e8f7fc\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Successful\",\n  \"maskedCardNumber\": \"************0936\",\n  \"retrievalReferenceNumber\": \"0000905343689\",\n  \"serverDateTime\": \"20260905204345133\",\n  \"terminalDateTime\": \"20260905204344000\",\n  \"transactionReference\": \"c53f2112-30ca-41c4-b478-2f2828e30abc\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Remote Refund",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"originalGuid\": \"{{GUID}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/moto/refund",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "moto",
+                "refund"
+              ]
+            },
+            "description": "Processes a linked refund without requiring the card or terminal to be present. Refunds against an original transaction identified by its GUID.\n\n**Amount:** major units as a decimal string — `\"10.00\"` = €10.00. Different from the minor units used by `POST /transactions`.\n\n**`originalGuid`:** the `guid` / `efttransactionID` from the original sale result (set the `GUID` collection variable from Poll Result).\n\n**MOTO requirement:** Remote Refund uses the `/moto/refund` endpoint. **MOTO must be enabled for the merchant both in Handpoint and at the acquirer** before this endpoint will process successfully. Contact Handpoint support to enable MOTO.\n\n**Card-present alternative:** use **Refund — EMV Linked** (Card-Present) when the cardholder is present at the terminal.\n\n**Success:** HTTP 200 + `httpStatus: 200` + `issuerResponseCode: \"00\"`. No `finStatus`."
+          },
+          "response": [
+            {
+              "name": "200 — Refund approved",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/moto/refund",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "moto",
+                    "refund"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"originalGuid\": \"{{GUID}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"@type\": \"refund\",\n  \"httpStatus\": 200,\n  \"acquirerTid\": \"ACQUIRER_TID\",\n  \"amount\": \"10.00\",\n  \"approvalCode\": \"123456\",\n  \"batchNumber\": \"123\",\n  \"cardTypeName\": \"Visa\",\n  \"currency\": \"USD\",\n  \"expiryDateMMYY\": \"1027\",\n  \"guid\": \"b8dec230-a96a-11f1-9580-bb48a7acbc38\",\n  \"issuerResponseText\": \"Successful\",\n  \"maskedCardNumber\": \"************0936\",\n  \"serverDateTime\": \"20260905204525843\",\n  \"terminalDateTime\": \"20260905204525000\",\n  \"transactionReference\": \"4f3836a5-c68a-4c29-bdbd-2aecf647493e\",\n  \"originalGuid\": \"7cd7a1d0-a96a-11f1-ba75-8b4e94e8f7fc\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Tip Adjustment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 8\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/transactions/{{GUID}}/tip-adjustment",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "transactions",
+                "{{GUID}}",
+                "tip-adjustment"
+              ]
+            },
+            "description": "Adds a tip to a completed sale before the batch closes. EPI merchants only.\n\n**`GUID`:** the `transactionID` from the sale result (the GUID variable in this collection).\n\n**`amount`:** tip in **major currency units** as a number — NOT minor units. `5` = $5.00, `5.25` = $5.25. Do NOT send `500` expecting $5.00.\n\n**Constraints:**\n- Must be called before the day's batch closes (~11 PM EST for most EPI merchants)\n- Not available on HiLite paths or Cordova\n- Not available on EmerchantPay or Paystrax (use `amount` in the original sale request for those acquirers)\n- `transactionID` must come from a SALE — not a reversal or pre-auth\n\n**On success:** HTTP 200, body `{\"statusMessage\": \"tip adjusted\"}`.\n**On failure after batch close:** HTTP 400 with error specific to acquirer."
+          },
+          "response": [
+            {
+              "name": "200 — tip adjusted",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/transactions/{{GUID}}/tip-adjustment",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "{{GUID}}",
+                    "tip-adjustment"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"amount\": 8\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"statusMessage\": \"tip adjusted\"\n}"
+            },
+            {
+              "name": "400 — Batch already closed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"amount\": 5}"
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/transactions/04a25de0-3386-11f1-909c-f50efeae2190/tip-adjustment",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "04a25de0-3386-11f1-909c-f50efeae2190",
+                    "tip-adjustment"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"Tip adjustment not available — batch has closed\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Card Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              }
+            ],
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/transactions/{{GUID}}/token",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "transactions",
+                "{{GUID}}",
+                "token"
+              ]
+            },
+            "description": "**Preferred tokenization method:** retrieving a token via this endpoint is safer than `saleAndTokenizeCard` because it decouples the transaction approval from the tokenization step. If the token provider is unavailable at the time of the sale, `saleAndTokenizeCard` will fail the entire operation. With this endpoint, the sale completes normally and the token can be retrieved later from any approved transaction — no card re-swipe required.\n\nRetrieves a card token for a past `SALE` transaction without re-charging the cardholder. EPI only.\n\n**`GUID`:** must be the `transactionID` of a SALE-type transaction (not a reversal, refund, or pre-auth). The test script in Poll Result sets this automatically.\n\n**After a partial approval → cancel flow:** the polled `transactionID` is the reversal's ID, not the sale. Use `GET /transactions/{txnRef}/status/all` and pick the entry where `type == \"SALE\"` to find the correct GUID.\n\n**Error `3112`:** `transactionID` is not a SALE (e.g. you used a reversal ID).\n**Error `TOKENIZATION_NOT_ENABLED`:** tokenization is not configured for this merchant — contact Handpoint."
+          },
+          "response": [
+            {
+              "name": "200 — Token retrieved",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/transactions/{{GUID}}/token",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "{{GUID}}",
+                    "token"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"cardTokenizationGuid\": \"7e565290-a96a-11f1-ba75-8b4e94e8f7fc\",\n  \"cardToken\": \"1206598722\",\n  \"maskedCardNumber\": \"************0936\",\n  \"expiryDateMMYY\": \"1027\",\n  \"serverDateTime\": \"20260905204347641\",\n  \"agreementNumber\": \"111111111113\",\n  \"transactionReference\": \"7cd7a1d0-a96a-11f1-ba75-8b4e94e8f7fc\"\n}"
+            },
+            {
+              "name": "400 — Transaction not eligible (error 3112)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/transactions/{{GUID}}/token",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "{{GUID}}",
+                    "token"
+                  ]
+                },
+                "description": "**Preferred tokenization method:** retrieving a token via this endpoint is safer than `saleAndTokenizeCard` because it decouples the transaction approval from the tokenization step. If the token provider is unavailable at the time of the sale, `saleAndTokenizeCard` will fail the entire operation. With this endpoint, the sale completes normally and the token can be retrieved later from any approved transaction — no card re-swipe required.\n\nRetrieves a card token for a past `SALE` transaction without re-charging the cardholder. EPI only.\n\n**`GUID`:** must be the `transactionID` of a SALE-type transaction (not a reversal, refund, or pre-auth). The test script in Poll Result sets this automatically.\n\n**After a partial approval → cancel flow:** the polled `transactionID` is the reversal's ID, not the sale. Use `GET /transactions/{txnRef}/status/all` and pick the entry where `type == \"SALE\"` to find the correct GUID.\n\n**Error `3112`:** `transactionID` is not a SALE (e.g. you used a reversal ID).\n**Error `TOKENIZATION_NOT_ENABLED`:** tokenization is not configured for this merchant — contact Handpoint."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"{\\\"errorCode\\\":3112,\\\"message\\\":\\\"Transaction type is not eligible for deferred tokenization\\\"}\",\n    \"details\": {\n      \"body\": {\n        \"error\": {\n          \"errorCode\": 3112,\n          \"message\": \"Transaction type is not eligible\"\n        }\n      }\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Pre-Authorization (Back-Office)",
+          "description": "Back-office lifecycle steps for an existing pre-authorization hold.\n\n**Pre-Authorization Create** is a card-present operation handled by your SDK integration (Android SDK, iOS SDK, PAX, or Cloud API). Once the hold is placed, use these endpoints to adjust, capture, or reverse it — no terminal required.\n\n**`originalTransactionId`:** the `efttransactionID` / `EFTTransactionID` from the Pre-Auth Create result. Set this as your `GUID` collection variable.\n\n**Supported acquirers:** EPI, EmerchantPay, Paystrax.",
+          "item": [
+            {
+              "name": "Pre-Auth Increase / Decrease",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"originalGuid\": \"{{GUID}}\",\n  \"increaseAmount\": \"5.00\",\n  \"tipAmount\": \"0\",\n  \"subtract\": \"1\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/preauthorization/increase",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "preauthorization",
+                    "increase"
+                  ]
+                },
+                "description": "Adjust (increase or decrease) a pre-authorization hold amount before capture.\n**Synchronous back-office operation — no terminal required.** Returns HTTP 200 directly.\n\n| Field | Description |\n|-------|-------------|\n| `originalGuid` | `transactionID` from the Pre-Authorization Create result |\n| `increaseAmount` | Amount to adjust the hold by, in **major units** — e.g. `\"5.00\"` = $5.00 |\n| `tipAmount` | Tip component of the adjustment — typically `\"0\"` |\n| `subtract` | `\"1\"` to decrease the hold; increase by setting `increaseAmount` positively |\n\n**Error 3211:** Pre-auth already captured, voided, or not found."
+              },
+              "response": [
+                {
+                  "name": "200 — Hold increased",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "ApiKeyCloud",
+                        "value": "{{api_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "https://cloud.handpoint.{{env}}/preauthorization/increase",
+                      "protocol": "https",
+                      "host": [
+                        "cloud",
+                        "handpoint",
+                        "{{env}}"
+                      ],
+                      "path": [
+                        "preauthorization",
+                        "increase"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"originalGuid\": \"{{GUID}}\",\n  \"increaseAmount\": \"5.00\",\n  \"tipAmount\": \"0\",\n  \"subtract\": \"1\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"httpStatus\": 200,\n  \"customFields\": {\n    \"tenderType\": \"Credit\",\n    \"issuerResponseCode\": \"00\"\n  },\n  \"acquirerTid\": \"ACQUIRER_TID\",\n  \"actionCode\": \"0000\",\n  \"agreementNumber\": \"111111111113\",\n  \"approvalCode\": \"123456\",\n  \"batchNumber\": \"123\",\n  \"cardTypeName\": \"Visa\",\n  \"currency\": \"USD\",\n  \"expiryDateMMYY\": \"1027\",\n  \"holdAmount\": \"46.01\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Successful\",\n  \"maskedCardNumber\": \"************0936\",\n  \"nonce\": \"1788644145912\",\n  \"originalAmount\": \"51.01\",\n  \"preAuthorizationGuid\": \"b86659b0-a971-11f1-ba75-8b4e94e8f7fc\",\n  \"serverDateTime\": \"20260905213536923\",\n  \"terminalDateTime\": \"20260905213536908\",\n  \"increaseAmount\": \"5.00\",\n  \"preAuthorizationIncreaseGuid\": \"bb9d1ab0-a971-11f1-ba75-8b4e94e8f7fc\",\n  \"subtract\": \"1\"\n}"
+                },
+                {
+                  "name": "400 — Error 3211 (already captured/voided)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "ApiKeyCloud",
+                        "value": "{{api_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "https://cloud.handpoint.{{env}}/preauthorization/increase",
+                      "protocol": "https",
+                      "host": [
+                        "cloud",
+                        "handpoint",
+                        "{{env}}"
+                      ],
+                      "path": [
+                        "preauthorization",
+                        "increase"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"originalGuid\": \"{{GUID}}\",\n  \"increaseAmount\": \"5.00\",\n  \"tipAmount\": \"0\",\n  \"subtract\": \"1\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"Original pre-auth is voided, not approved or already captured\",\n    \"code\": \"3211\",\n    \"details\": {\n      \"errorCode\": \"3211\",\n      \"httpStatus\": 403,\n      \"reason\": \"Original pre-auth is voided, not approved or already captured\"\n    }\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Pre-Auth Capture",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"originalGuid\": \"{{GUID}}\",\n  \"capturedAmount\": \"45.00\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/preauthorization/capture",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "preauthorization",
+                    "capture"
+                  ]
+                },
+                "description": "Capture a previously authorised pre-authorization hold. **Synchronous back-office operation — no terminal required.** Returns HTTP 200 directly.\n\n| Field | Description |\n|-------|-------------|\n| `originalGuid` | `transactionID` from the Pre-Authorization Create result |\n| `capturedAmount` | Final capture amount in **major units** — e.g. `\"45.00\"` = $45.00. Must be ≤ the pre-auth hold amount. |"
+              },
+              "response": [
+                {
+                  "name": "200 — Captured",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "ApiKeyCloud",
+                        "value": "{{api_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "https://cloud.handpoint.{{env}}/preauthorization/capture",
+                      "protocol": "https",
+                      "host": [
+                        "cloud",
+                        "handpoint",
+                        "{{env}}"
+                      ],
+                      "path": [
+                        "preauthorization",
+                        "capture"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"originalGuid\": \"{{GUID}}\",\n  \"capturedAmount\": \"45.00\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"httpStatus\": 200,\n  \"customFields\": {\n    \"tenderType\": \"Credit\",\n    \"issuerResponseCode\": \"00\"\n  },\n  \"acquirerTid\": \"ACQUIRER_TID\",\n  \"actionCode\": \"0000\",\n  \"agreementNumber\": \"111111111113\",\n  \"approvalCode\": \"123456\",\n  \"batchNumber\": \"123\",\n  \"cardTypeName\": \"Visa\",\n  \"currency\": \"USD\",\n  \"expiryDateMMYY\": \"1027\",\n  \"holdAmount\": \"46.01\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Successful\",\n  \"maskedCardNumber\": \"************0936\",\n  \"nonce\": \"1788644145912\",\n  \"originalAmount\": \"51.01\",\n  \"preAuthorizationGuid\": \"b86659b0-a971-11f1-ba75-8b4e94e8f7fc\",\n  \"serverDateTime\": \"20260905213537899\",\n  \"terminalDateTime\": \"20260905213537876\",\n  \"capturedAmount\": \"45.00\",\n  \"preAuthorizationCaptureGuid\": \"bc3207b0-a971-11f1-ba75-8b4e94e8f7fc\"\n}"
+                },
+                {
+                  "name": "400 — Error 3211 (already captured/voided)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "ApiKeyCloud",
+                        "value": "{{api_key}}"
+                      }
+                    ],
+                    "url": {
+                      "raw": "https://cloud.handpoint.{{env}}/preauthorization/capture",
+                      "protocol": "https",
+                      "host": [
+                        "cloud",
+                        "handpoint",
+                        "{{env}}"
+                      ],
+                      "path": [
+                        "preauthorization",
+                        "capture"
+                      ]
+                    },
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"originalGuid\": \"{{GUID}}\",\n  \"capturedAmount\": \"45.00\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Error",
+                  "code": 400,
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"Original pre-auth is voided, not approved or already captured\",\n    \"code\": \"3211\",\n    \"details\": {\n      \"errorCode\": \"3211\",\n      \"httpStatus\": 403,\n      \"reason\": \"Original pre-auth is voided, not approved or already captured\"\n    }\n  }\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Batch Close (EPI only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serialNumber\": \"{{serial_number}}\",  // terminal serial number\n  \"deviceType\": \"{{terminal_type}}\"       // terminal model e.g. PAXA920\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/batch/close",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "batch",
+                "close"
+              ]
+            },
+            "description": "Triggers end-of-day settlement for EPI merchants. **Must be called once per business day.** Missing a batch close causes ERR 005 (batch number mismatch) on all subsequent day's transactions.\n\n**EPI only** — do NOT call for EmerchantPay or Paystrax merchants (they settle automatically and will return an error).\n\n**Field names:** `deviceType` and `serialNumber` (camelCase) — NOT `terminal_type` / `serial_number` (the snake_case names used by `/transactions`). This is a different field naming convention on the batch endpoint.\n\n**Timing:** call after the last transaction of the business day, before midnight. Typical EPI auto-close is ~11 PM EST if manual close is not sent.\n\n**For ViscusDummy / staging testing:** add `\"batchNumber\": \"123\"` to the body."
+          },
+          "response": [
+            {
+              "name": "200 — Batch Closed",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"serialNumber\": \"{{serial_number}}\",  // terminal serial number\n  \"deviceType\": \"{{terminal_type}}\"       // terminal model e.g. PAXA920\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/batch/close",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "batch",
+                    "close"
+                  ]
+                },
+                "description": "Triggers end-of-day settlement for EPI merchants. **Must be called once per business day.** Missing a batch close causes ERR 005 (batch number mismatch) on all subsequent day's transactions.\n\n**EPI only** — do NOT call for EmerchantPay or Paystrax merchants (they settle automatically and will return an error).\n\n**Field names:** `deviceType` and `serialNumber` (camelCase) — NOT `terminal_type` / `serial_number` (the snake_case names used by `/transactions`). This is a different field naming convention on the batch endpoint.\n\n**Timing:** call after the last transaction of the business day, before midnight. Typical EPI auto-close is ~11 PM EST if manual close is not sent.\n\n**For ViscusDummy / staging testing:** add `\"batchNumber\": \"123\"` to the body."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"customerReference\": {},\n  \"batchNumber\": \"123\",\n  \"transactionCount\": \"10\",\n  \"netAmount\": \"1000.00\",\n  \"closeBatchGuid\": \"f7ce3cd0-a967-11f1-9580-bb48a7acbc38\",\n  \"closedAt\": \"20260905202543010\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Batch closed\",\n  \"batchStatus\": \"CLOSED\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Batch Summary (EPI only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serialNumber\": \"{{serial_number}}\",  // terminal serial number\n  \"deviceType\": \"{{terminal_type}}\"       // terminal model e.g. PAXA920\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/batch/summary",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "batch",
+                "summary"
+              ]
+            },
+            "description": "Returns a summary of transactions in the current open batch (totals by card scheme). EPI only. Same field naming as Batch Close (`deviceType` / `serialNumber`).\n\n**Success indicator:** HTTP 200. No `finStatus` — check the HTTP status code. The body contains transaction totals for the open batch."
+          },
+          "response": [
+            {
+              "name": "200 — Batch Summary",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/batch/summary",
+                  "protocol": "https",
+                  "host": [
+                    "cloud",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "batch",
+                    "summary"
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"serialNumber\": \"{{serial_number}}\",\n  \"deviceType\": \"{{terminal_type}}\",\n  \"batchNumber\": \"123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"batchNumber\": \"123\",\n  \"transactionCount\": \"10\",\n  \"netAmount\": \"1000.00\",\n  \"closedAt\": \"20260905204527090\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Batch summary retrieved\",\n  \"batchSummaryGuid\": \"b99281d0-a96a-11f1-9580-bb48a7acbc38\",\n  \"batchStatus\": \"CLOSED\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Transaction Feed (Reporting)",
+      "description": "Query the Handpoint Transaction Feed to retrieve and search transaction history.\n\n**Header:** `AnalyticsApiKey` — set the `analytics_key` collection variable. This is a separate credential from `ApiKeyCloud`, available in the Handpoint portal.\n\n**`GUID`:** set the collection variable to look up a specific transaction by its gateway identifier.",
+      "item": [
+        {
+          "name": "Get Transaction by GUID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "AnalyticsApiKey",
+                "value": "{{analytics_key}}"
+              }
+            ],
+            "url": {
+              "raw": "https://txnfeed.handpoint.{{env}}/transactions/{{GUID}}",
+              "host": [
+                "txnfeed.handpoint.{{env}}"
+              ],
+              "path": [
+                "transactions",
+                "{{GUID}}"
+              ]
+            },
+            "description": "Retrieves a single transaction record from the feed by its `transactionID` (the GUID variable).\n\nUseful for UNDEFINED recovery when you have the `transactionID` but need to confirm settlement status."
+          },
+          "response": [
+            {
+              "name": "200 — Transaction detail",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "AnalyticsApiKey",
+                    "value": "{{api_key}}"
+                  }
+                ],
+                "url": {
+                  "raw": "https://txnfeed.handpoint.{{env}}/transactions/{{GUID}}",
+                  "protocol": "https",
+                  "host": [
+                    "txnfeed",
+                    "handpoint",
+                    "{{env}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    "{{GUID}}"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"approvalCode\": \"123456\",\n  \"responseText\": \"Successful\",\n  \"transactionReference\": \"37e24de0-6c03-4bd5-b338-c5bd922a5243\",\n  \"issuerRequestTimestamp\": \"20260905220203\",\n  \"routeName\": \"viscusdummy\",\n  \"status\": \"200\",\n  \"acquirerMid\": \"111111111113\",\n  \"merchantId\": \"mer20260115075454859\",\n  \"acquirerId\": \"tsys\",\n  \"locationZipCode\": \"10111\",\n  \"isSingleEmvMessage\": false,\n  \"expiryDateMMYY\": \"1232\",\n  \"@timestamp\": \"2026-09-05T22:03:10.071Z\",\n  \"batchNum\": \"123\",\n  \"cardTypeId\": \"Visa\",\n  \"protocolName\": \"ViscusDummy\",\n  \"isvId\": \"handpoint\",\n  \"cardTokenProvider\": \"procharge_production\",\n  \"serverDateTime\": \"20260905220203\",\n  \"issuerResponseTimestamp\": \"20260906000219\",\n  \"agreementNumber\": \"111111111113\",\n  \"type\": \"Card Not Present Sale\",\n  \"issuerRetrievalReferenceNumber\": \"0000905488838\",\n  \"transaction_id\": 24799591,\n  \"partnerId\": \"alex_test_partner\",\n  \"@version\": \"1\",\n  \"acquirerName\": \"TSYS\",\n  \"locationName\": \"Test Address 6\",\n  \"terminalLanguage\": \"en\",\n  \"merchantName\": \"Postman Test 3\",\n  \"issuerRequestAcquirerTid\": \"ACQUIRER_TID\",\n  \"amount\": \"17.01000\",\n  \"storeAndForward\": false,\n  \"isvName\": \"Handpoint\",\n  \"action\": \"MOTO_SALE_REQUEST\",\n  \"locationCity\": \"London\",\n  \"messageVersion\": 1,\n  \"deviceType\": \"VT\",\n  \"issuerResponseCode\": \"00\",\n  \"name\": \"Card Not Present Sale\",\n  \"country\": \"United Kingdom\",\n  \"paymentCode\": \"C\",\n  \"mcccode\": \"5974\",\n  \"guid\": \"6d8d98a0-a975-11f1-9580-bb48a7acbc38\",\n  \"timeZone\": \"CUT\",\n  \"referenceObject\": {},\n  \"currCode\": \"USD\",\n  \"terminalSerialNumber\": \"VT000000023500\",\n  \"maskedCardNumber\": \"496663******0936\",\n  \"protocolLookupName\": \"DummyProtocol\",\n  \"locationCountryA2\": \"GB\",\n  \"terminalDateTime\": \"20260906000219\",\n  \"locationStreet\": \"Test Address 4\",\n  \"paymentScenario\": \"MOTO\",\n  \"acquirerTid\": \"ACQUIRER_TID\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Search Transactions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "AnalyticsApiKey",
+                "value": "{{analytics_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startDate\": \"20260905000000\",     // format: YYYYMMDDHHmmss\n  \"endDate\": \"20260905235959\",       // format: YYYYMMDDHHmmss\n  \"time_zone\": \"+00:00\",             // UTC offset (+00:00, +01:00...) or IANA name e.g. Europe/London\n  \"dummy\": \"INCLUDE\",               // DEMO/test txns — values: NO (exclude) | INCLUDE | ONLY (test txns only)\n  \"filters\": [                       // filters are combined — add as many as needed\n    { \"field\": \"transactionReference\",  \"value\": \"{{TXN_REF_ID}}\" },\n    // { \"field\": \"cardTypeId\",         \"value\": \"Diners\" },\n    // { \"field\": \"amount\",             \"value\": \"26900.00000\" },\n    // { \"field\": \"maskedCardNumber\",   \"value\": \"379797*****2009\" },\n    // { \"field\": \"approvalCode\",       \"value\": \"vL491R\" },\n    // { \"field\": \"terminalSerialNumber\", \"value\": \"{{serial_number}}\" }\n  ],\n  \"limit\": 100                       // max results per page\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://txnfeed.handpoint.{{env}}/transactions/",
+              "host": [
+                "txnfeed.handpoint.{{env}}"
+              ],
+              "path": [
+                "transactions",
+                ""
+              ]
+            },
+            "description": "Searches the transaction feed by time range and optional filters. Primary use case: UNDEFINED recovery when `transactionReference` recovery is unavailable.\n\n**`startDate` / `endDate`:** format `yyyyMMddHHmmss` (e.g. `\"20260905120000\"`).\n\n**`time_zone`:** IANA timezone string (e.g. `\"Europe/London\"`, `\"America/New_York\"`, `\"UTC\"`).\n\n**`dummy`:** controls inclusion of test/simulator transactions:\n- `\"INCLUDE\"` — include both real and dummy transactions\n- `\"ONLY\"` — only dummy/simulator transactions\n- `\"NO\"` — only real transactions\n\n**Available `filters` fields:** `transactionReference`, `amount`, `maskedCardNumber`, `cardTypeId`, `approvalCode`, `terminalSerialNumber`\n\n**UNDEFINED recovery pattern:** filter by `terminalSerialNumber` + narrow time window (±5 min around the original request). Match by `transactionReference` to identify the specific transaction — do NOT match by amount alone (multiple transactions may share the same amount)."
+          },
+          "response": [
+            {
+              "name": "200 OK — results",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "AnalyticsApiKey",
+                    "value": "{{analytics_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"startDate\":\"20260905000000\",\"endDate\":\"20260905235959\",\"time_zone\":\"+00:00\",\"dummy\":\"INCLUDE\",\"filters\":[{\"field\":\"transactionReference\",\"value\":\"7a52d8e1-cafe-4b2f-9f3c-1234abcd5678\"}],\"limit\":100}"
+                },
+                "url": {
+                  "raw": "https://txnfeed.handpoint.{{env}}/transactions/",
+                  "host": [
+                    "txnfeed.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "transactions",
+                    ""
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"transactions\": [\n    {\n      \"transactionID\": \"04a25de0-3386-11f1-909c-f50efeae2190\",\n      \"transactionReference\": \"e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f\",\n      \"finStatus\": \"AUTHORISED\",\n      \"type\": \"SALE\",\n      \"totalAmount\": 1000,\n      \"currency\": \"EUR\",\n      \"cardSchemeName\": \"Visa\",\n      \"maskedCardNumber\": \"************0936\",\n      \"terminalSerialNumber\": \"1850025030\",\n      \"serverDateTime\": \"20260905120000000\"\n    }\n  ],\n  \"total\": 1\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

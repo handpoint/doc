@@ -17,7 +17,7 @@
 | tipAmount in sale request | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Pre-authorization | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
 | Remote sale (on-terminal) | ✅ | ✅ | ❌ | ❌ | ❌ | — |
-| Remote sale (back-office token) | — | — | — | — | — | ✅ |
+| Remote sale (back-office token) | — | — | — | — | — | ❌ |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Money remittance | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Batch close | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
@@ -110,5 +110,5 @@ Cloud API: `POST /transactions` with `action: "MONEYREMITTANCE"`
 
 - Load path skill for your integration: `paths/cloud-api.md` or `paths/android-pax.md` etc.
 - Remote sale and back-office: `optional/back-office.md`
-- EmerchantPay full docs: https://developer.handpoint.com/acquirers/omnipay-emp
+- EmerchantPay full docs: https://developer.handpoint.com/acquirers/emerchantpay
 - Error codes: https://developer.handpoint.com/reference/error-codes

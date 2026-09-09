@@ -308,4 +308,40 @@ Fetch `/llms.txt` first — it contains the machine-readable acquirer × feature
 **Integration paths are not mutually exclusive.** A single ISV can implement multiple paths under one Handpoint account. Example: Cloud API at the counter + Android HiLite for field staff + back-office MOTO for phone orders — all sharing the same merchant credentials and transaction feed.
 
 **Back-office operations are always available regardless of integration path.** Tip adjustment, reversal, refund, MOTO, pre-auth capture, and deferred tokenization are server-side REST calls that work alongside any card-present integration. Subject to acquirer support — see the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
+
+---
+
+**Critical facts for Cloud API code generation — common sources of incorrect code:**
+
+**Amount units differ by endpoint:**
+- `POST /transactions` → `amount` is **minor units** as a string (digits only, no decimal) — `"1000"` = $10.00
+- `POST /moto/sale`, `POST /moto/refund`, `POST /reversal` → `amount` is **major-unit decimal** — `"10.00"` = $10.00
+- Do not use the same amount-formatting logic for both endpoint families.
+
+**`finStatus` — complete enum (use this to generate exhaustive switch/match blocks):**
+```
+IN_PROGRESS   → not final, keep polling
+UNDEFINED     → not final, run recovery flow before retrying
+AUTHORISED    → final, approved
+DECLINED      → final, declined — do not retry without cardholder action
+FAILED        → final, technical failure — run recovery flow before retrying
+PARTIAL_APPROVAL → NOT final — terminal showing accept/decline prompt (US only); continue polling for 60s+ or until final transaction-result; can change to CANCELLED if declined
+CANCELLED     → final, cardholder cancelled
+PROCESSED     → final, non-financial operation complete (tokenizeCard)
+REFUNDED      → final, refund processed
+CAPTURED      → final, pre-auth captured
+```
+
+**`operation` — valid values for `POST /transactions`:**
+```
+sale, refund, saleAndTokenizeCard, tokenizeCard
+moToSale, moToRefund, moToPreAuthorization, moToReversal
+preAuthorization, preAuthorizationIncrease, preAuthorizationCapture, preAuthorizationReversal
+saleReversal, refundReversal
+stopCurrentTransaction, pingDevice, printReceipt
+```
+
+**Auth header:** `ApiKeyCloud: YOUR_API_KEY` (not `Authorization`, not `X-Api-Key`)
+
+**Full parameter tables with types, required/optional flags, and enum values:** [Cloud API — Operations Reference](/reference/cloud-api-operations#parameter-reference)
 :::

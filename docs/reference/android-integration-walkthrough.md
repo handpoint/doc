@@ -192,7 +192,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 `endOfTransaction` and `transactionResultReady` are complementary delivery paths. **`endOfTransaction` is always authoritative** — it does not need an idempotency guard. When it fires with a terminal `finStatus`, it cancels recovery (`recoveryHandler.removeCallbacks(…)`) before any further `getTransactionStatus` poll can be scheduled. The duplicate-delivery guard lives only in `transactionResultReady` (see [Recovery](#4-recovery)), where it catches the case where `endOfTransaction` delivered the result while a `getTransactionStatus` request was already in-flight.
 
 :::note Comparing `finStatus` — enum vs string
-For simple statuses guaranteed to be named constants in your SDK version (`AUTHORISED`, `PROCESSED`, `DECLINED`, `CANCELLED`, `FAILED`), `result.finStatus == FinancialStatus.AUTHORISED` is type-safe. For statuses that may not be exposed as named constants in all SDK versions (`UNDEFINED`, `IN_PROGRESS`, `AUTHORISED_DEFERRED`), use `.toString()`. For partial approvals, always use `.toString()` for both names — `PARTIALLY_APPROVED` and `PARTIAL_APPROVAL` are distinct values and the correct name varies by acquirer, so `result.finStatus == FinancialStatus.PARTIALLY_APPROVED` alone misses half the cases. Using `.toString()` everywhere is safe and is what the reference implementation does.
+For simple statuses guaranteed to be named constants in your SDK version (`AUTHORISED`, `PROCESSED`, `DECLINED`, `CANCELLED`, `FAILED`), `result.finStatus == FinancialStatus.AUTHORISED` is type-safe. For statuses that may not be exposed as named constants in all SDK versions (`UNDEFINED`, `IN_PROGRESS`, `AUTHORISED_DEFERRED`), use `.toString()`. For partial approvals, use `FinancialStatus.PARTIAL_APPROVAL`. Using `.toString()` everywhere is safe and is what the reference implementation does.
 
 `endOfTransaction` fires **at most once per transaction** — the SDK guarantees it does not retry delivery on the same terminal result. This is why `endOfTransaction` needs no idempotency guard against duplicate delivery: the SDK cannot call it twice for the same result. The idempotency guard in `transactionResultReady` exists for a different reason: catching the case where `endOfTransaction` has already resolved recovery before a concurrent `getTransactionStatus` response arrives.
 :::
@@ -206,7 +206,7 @@ For simple statuses guaranteed to be named constants in your SDK version (`AUTHO
 | `DECLINED` | Card declined by acquirer | Display `finStatus` + `errorMessage` + `statusMessage` to the merchant. The merchant decides whether it is a soft decline worth retrying — do not make this decision in code. |
 | `CANCELLED` | Cancelled by terminal or cardholder | Display the reason; safe to offer a retry |
 | `FAILED` | Terminal-level error | Display `errorMessage`; log the full result; do not retry automatically |
-| `PARTIALLY_APPROVED` / `PARTIAL_APPROVAL` | Card approved for less than requested (e.g. prepaid with insufficient balance). **Both names may appear** — acquirers vary which they return. These are distinct enum constants; check for both: `result.finStatus.toString().let { it == "PARTIALLY_APPROVED" \|\| it == "PARTIAL_APPROVAL" }` | Fulfil at the approved amount; prompt customer for remaining balance via another tender |
+| `PARTIAL_APPROVAL` | Card approved for less than requested (e.g. prepaid with insufficient balance). Use `FinancialStatus.PARTIAL_APPROVAL`. | Fulfil at the approved amount; prompt customer for remaining balance via another tender |
 | `REFUNDED` | Refund processed successfully | Record refund; print receipt |
 | `CAPTURED` | Pre-auth captured successfully | Fulfil order; print receipt |
 | `UNDEFINED` | Outcome unknown — internet may have been lost | **Do not show a payment result.** Start recovery. See the message below. |
@@ -243,7 +243,7 @@ The SDK provides two receipt formats and three delivery mechanisms. Choosing the
 
 | Print? | finStatus |
 |---|---|
-| ✓ Yes | `AUTHORISED`, `PROCESSED`, `REFUNDED`, `CAPTURED`, `PARTIALLY_APPROVED`, `PARTIAL_APPROVAL`, `AUTHORISED_DEFERRED` |
+| ✓ Yes | `AUTHORISED`, `PROCESSED`, `REFUNDED`, `CAPTURED`, `PARTIAL_APPROVAL`, `AUTHORISED_DEFERRED` |
 | ✗ No | `UNDEFINED`, `IN_PROGRESS` |
 | ⚠️ Acquirer-dependent | `DECLINED` — some acquirers return a non-null `customerReceipt` (a "declined" slip for the cardholder). Check your acquirer contract and print when present. `CANCELLED` and `FAILED` do not produce printable receipts. |
 
@@ -303,7 +303,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
     // DECLINED: some acquirers return a non-null customerReceipt (a declined slip) — include it
     // so it prints when present. CANCELLED and FAILED do not produce printable receipts.
     val shouldAttemptPrint = fin == "AUTHORISED" || fin == "PROCESSED" || fin == "REFUNDED" ||
-        fin == "CAPTURED" || fin == "PARTIALLY_APPROVED" || fin == "PARTIAL_APPROVAL" ||
+        fin == "CAPTURED" || fin == "PARTIAL_APPROVAL" ||
         fin == "AUTHORISED_DEFERRED" || fin == "DECLINED"
     if (shouldAttemptPrint) {
         result.customerReceipt?.let { receipt ->

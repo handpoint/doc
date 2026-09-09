@@ -6,6 +6,10 @@ description: Query and stream transaction data from the Handpoint analytics feed
 
 # Transaction Feed API
 
+:::info Available with any integration path
+The Transaction Feed API works alongside **any** card-present integration — Cloud API, Android SDK, iOS SDK, Windows SDK, or Cordova. It is a server-side API that talks directly to Handpoint's analytics backend; no terminal or SDK is required at query time.
+:::
+
 The Transaction Feed API provides access to processed transaction data via an Elasticsearch-backed query API.
 
 ## Base URL

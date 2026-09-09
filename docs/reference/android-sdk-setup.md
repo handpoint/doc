@@ -480,17 +480,15 @@ class MyActivity : AppCompatActivity(), Events.SmartposRequired {
         // complete recovery state machine — is in Section 5 of the Integration Walkthrough.
         //
         // Using .toString() for all finStatus values is safe, consistent, and is what
-        // the reference implementation (HpSdk.kt) does. Direct enum comparison is type-safe
-        // but requires both PARTIALLY_APPROVED and PARTIAL_APPROVAL, and fails silently for
-        // values absent in your SDK version (e.g. UNDEFINED, IN_PROGRESS in older builds).
+        // the reference implementation (HpSdk.kt) does. Direct enum comparison is type-safe;
+        // use FinancialStatus.PARTIAL_APPROVAL for partial approvals.
         val fin = result.finStatus.toString()
         when {
             fin == "AUTHORISED" || fin == "PROCESSED"     -> TODO("fulfil order; print receipt — see Integration Walkthrough Section 5")
             fin == "DECLINED"                             -> TODO("show finStatus + errorMessage + responseText; print result.customerReceipt if non-null — see Integration Walkthrough Section 5")
             fin == "CANCELLED"                            -> TODO("allow retry — see Integration Walkthrough Section 5")
             fin == "FAILED"                               -> TODO("log errorMessage; do not auto-retry — see Integration Walkthrough Section 5")
-            // Both names can appear — acquirers vary. Fulfil at approved amount; collect balance via another tender.
-            fin == "PARTIALLY_APPROVED" || fin == "PARTIAL_APPROVAL" -> TODO("partial fulfil — see Integration Walkthrough Section 5")
+            fin == "PARTIAL_APPROVAL" -> TODO("partial fulfil — see Integration Walkthrough Section 5")
             fin == "REFUNDED"                             -> TODO("record refund; print receipt — see Integration Walkthrough Section 5")
             fin == "CAPTURED"                             -> TODO("capture complete; print receipt — see Integration Walkthrough Section 5")
             // Offline auth — treat as successful; settles when device reconnects.
@@ -731,7 +729,7 @@ Your acquirer determines which currencies are active on your merchant account. U
 | `DECLINED` | Card declined by acquirer |
 | `CANCELLED` | Cancelled by terminal or cardholder |
 | `FAILED` | Terminal-level error |
-| `PARTIALLY_APPROVED` / `PARTIAL_APPROVAL` | Partial approval (e.g. prepaid card with insufficient balance). **Both names may appear** — acquirers vary which they return. These are distinct enum constants with different ordinals; check for both: `result.finStatus.toString().let { it == "PARTIALLY_APPROVED" \|\| it == "PARTIAL_APPROVAL" }` |
+| `PARTIAL_APPROVAL` | Partial approval (e.g. prepaid card with insufficient balance). Use `FinancialStatus.PARTIAL_APPROVAL`. |
 | `REFUNDED` | Refund processed |
 | `CAPTURED` | Pre-auth captured |
 | `AUTHORISED_DEFERRED` | Offline/deferred auth — stored for later settlement. Use `.toString() == "AUTHORISED_DEFERRED"` — this value may not be exposed as a named `FinancialStatus` constant in all SDK versions |

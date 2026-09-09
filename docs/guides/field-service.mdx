@@ -100,7 +100,7 @@ hapi.refund(BigInteger("19900"), Currency.USD, originalTransactionId)
 
 Where `originalTransactionId` is the `transactionID` from the original AUTHORISED sale result.
 
-For billing disputes handled by a back-office team (customer not physically present), an unlinked refund from the Cloud API is available on supported acquirers — see [Back Office REST API](/back-office/rest-api-no-reader) and the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
+For billing disputes handled by a back-office team (customer not physically present), an unlinked refund from the Cloud API is available on supported acquirers — see [Remote Sale & Refund guide](/reference/moto-guide) and the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
 
 :::note Pre-auth not available on HiLite
 If your field service model requires holding an estimate and capturing the actual cost later (e.g., parts usage determined after the job), pre-authorization must be handled from your server via the Cloud API. The HiLite path does not support pre-auth on-device.

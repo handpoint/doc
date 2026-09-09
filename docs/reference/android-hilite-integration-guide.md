@@ -206,7 +206,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
         FinancialStatus.DECLINED           -> showDeclined()
         FinancialStatus.CANCELLED          -> showCancelled()
         FinancialStatus.FAILED             -> showError()
-        FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+        FinancialStatus.PARTIAL_APPROVAL -> handlePartialApproval(result)
         else                               -> {}
     }
 }
@@ -232,12 +232,12 @@ Always persist `transactionReference` before starting a transaction.
 | **Tokenization** | ✅ |
 | **Pre-Authorization** | ❌ HiLite SDK — ✅\* initial requires terminal; capture/increase via Back Office |
 | **MOTO Sale** | ❌ (no keypad) — ✅\* remote sale via Back Office (EPI/EMP, card token) |
-| **Tip Adjustment** | ✅ (EPI, PAYSAFE+Interac) |
+| **Tip Adjustment** | ✅ (EPI, PAYSAFE — non-Interac cards only) |
 | **Partial Reversal** | ❌ HiLite SDK — ✅\* via Back Office REST API (EPI only) |
 | **stopCurrentTransaction** | ❌ (returns false silently — BluetoothConnection is not AndroidPaymentConnection) |
 | **Get Transaction Status** | ❌ (PAX only) |
 
-\* Available server-side via [Back Office REST API](/back-office/rest-api-no-reader) — no reader required.
+\* Available server-side via [Remote Sale & Refund guide](/reference/moto-guide) — no reader required.
 
 Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `android-hilite` column.
 

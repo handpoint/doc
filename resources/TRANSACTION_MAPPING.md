@@ -20,7 +20,7 @@ Source: `Android SDK/shared/objects/src/main/java/com/handpoint/api/shared/Finan
 | `PROCESSED` | 3 | Generic processed (some non-payment operations) |
 | `FAILED` | 4 | Communication or processing failure |
 | `CANCELLED` | 5 | Cancelled by operator or timeout |
-| `PARTIALLY_APPROVED` / `PARTIAL_APPROVAL` | 6 | Partial amount approved (debit/EBT) |
+| `PARTIAL_APPROVAL` / `PARTIAL_APPROVAL` | 6 | Partial amount approved (debit/EBT) |
 | `REFUNDED` | 8 | Refund approved |
 | `CAPTURED` | 9 | Pre-auth capture confirmed |
 | `IN_PROGRESS` | 10 | Transaction currently processing (SDK 7.1012+) |
@@ -73,7 +73,7 @@ Data flow: Terminal → V2T API → viscus-capture → PostgreSQL `transaction_i
 | `SALE` | `AUTHORISED` | `PAYMENT_COMPLETION_REQUEST` | `CHIPCONTACTLESS` / `MAGSTRIPECONTACTLESS` | `"EMV Sale"` | `"Sale"` | 200 | `"Pending"` → `"Completed"` |
 | `SALE` | `DECLINED` | `PAYMENT_COMPLETION_REQUEST` | `CHIPCONTACTLESS` / `MAGSTRIPECONTACTLESS` | `"Declined EMV Sale"` | `"Sale"` | 4xx | `"Decline"` / `"Error"` |
 | `SALE_AND_TOKENIZE_CARD` | `AUTHORISED` | `PAYMENT_COMPLETION_REQUEST` | `CHIP` | `"EMV Sale"` | `"Sale"` | 200 | `"Pending"` → `"Completed"` |
-| `SALE` | `PARTIALLY_APPROVED` | `PAYMENT_REQUEST` | any | `"MSR Sale"` | `"Sale"` | 200 | `"Pending"` |
+| `SALE` | `PARTIAL_APPROVAL` | `PAYMENT_REQUEST` | any | `"MSR Sale"` | `"Sale"` | 200 | `"Pending"` |
 
 > ¹ **Double-message EMV note:** `AUTHORIZATION_REQUEST` creates a separate record in TXN Feed with `name: "EMV Sale"` and viscus status `"Authorization Granted"`. This intermediate record is NOT a failure — it represents the first leg of the dual-message flow. A second record is created when `PAYMENT_COMPLETION_REQUEST` completes the transaction. See [Special Cases](#special-cases) for display guidance.
 

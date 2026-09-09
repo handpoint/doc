@@ -1,5 +1,5 @@
 ---
-id: omnipay-emp
+id: emerchantpay
 title: "EmerchantPay"
 description: "EU card-present acquirer. Supports: pre-auth-capture-reversal, sale, refund, reversal, pre-auth, moto, tokenization, money-remittance."
 geography: "EU"
@@ -30,29 +30,17 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
 
-export const _caps = CAPS_BY_ID['omnipay-emp'];
+<AcquirerPageHeader currentSlug="emerchantpay" />
 
-<AcquirerPageHeader currentSlug="omnipay-emp" />
+**Geography:** Europe &nbsp;·&nbsp; **Cards:** <img src="/img/cards/visa.svg" alt="Visa" title="Visa" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/mastercard.svg" alt="Mastercard" title="Mastercard" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/amex.svg" alt="Amex" title="American Express" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/unionpay.svg" alt="UnionPay" title="UnionPay" height="22" style={{verticalAlign:'middle'}}/>
 
-## Functionalities
+EmerchantPay is Handpoint's primary EU acquirer for card-present and card-not-present payments. It supports pre-authorization, Remote Sale (card token), tokenization, and money remittance. Typical users are EU-based ISVs serving retail and hospitality merchants who need a single acquirer across multiple European markets.
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
+---
 
 ## Sale {#sale}
-
-
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
 
 
 ### EMV Sale {#emv-sale}
@@ -332,7 +320,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </FlavorSection>
 
 
-### Sale with Tip {#sale-and-tip}
+### Sale with Tip {#sale-with-tip}
 
 <FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
@@ -368,7 +356,7 @@ Content-Type: application/json
 }
 ```
 
-`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "SKIP" option.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -452,7 +440,8 @@ handpoint.sale(
 | Field | Type | Description |
 |---|---|---|
 | `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
-| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `headerName` | string | Header text shown on the tip screen. Defaults to `"Tip"` |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` — required |
 | `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
 | `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
 | `footer` | string | Optional message shown at the bottom of the tip screen |
@@ -476,7 +465,7 @@ A **card-not-present sale** submitted directly to the gateway using a stored car
 Use for recurring billing, subscription charges, or any scenario where you hold a card-on-file token from a prior tokenization or card-present transaction. A card token must already exist before this operation can be sent.
 
 :::info No raw card data — tokens only
-Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. ProCharge, Paysafe, TokenEx). The token provider de-tokenizes at processing time — the ISV never handles card data.
 :::
 
 
@@ -688,7 +677,7 @@ handpoint.tokenizeCard(
 
 #### Using the token for future charges
 
-Pass `cardToken` in the [Remote Sale (MOTO)](#moto-sale) flavor's `cardToken` field for subsequent card-not-present charges.
+Pass `cardToken` in the [Remote Sale (MOTO)](#remote-sale) flavor's `cardToken` field for subsequent card-not-present charges.
 
 :::caution Token scope
 Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.
@@ -700,11 +689,6 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 
 
 ## Refund {#refund}
-
-
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
 
 
 ### EMV Refund {#emv-refund}
@@ -844,7 +828,7 @@ handpoint.refund(
 </FlavorSection>
 
 
-### Remote Refund (MOTO) {#moto-refund}
+### Remote Refund {#remote-refund}
 
 <FlavorSection description="Back-office · linked to original MOTO sale" paths={["cloud-api","android-pax","cordova"]}>
 
@@ -932,11 +916,6 @@ handpoint.motoRefund(
 ## Reversal {#reversal}
 
 
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
 ### Reversal {#reversal}
 
 <FlavorSection description="On-device · no card required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -952,6 +931,7 @@ Use when a transaction needs to be cancelled before the batch closes (same busin
 1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
 2. **No card present required.** Reversal references the original `transactionID` electronically — the cardholder does not need to return to the terminal.
 3. **Terminal must be online.** The SDK paths route the reversal through the connected reader — the terminal must be reachable at the time of the call.
+4. **Settlement is automatic.** EmerchantPay settles automatically — there is no manual batch close. The reversal window closes when the acquirer's automatic settlement runs.
 
 #### Code
 
@@ -1157,7 +1137,6 @@ Cancels any unsettled transaction — sale, MOTO, pre-auth capture, or refund �
 1. **Backoffice** amount is in **major units** (decimal string) — e.g. `"11.00"` for $11.00. Cloud API uses minor units (integer string).
 2. Omit `amount` and `currency` for a full reversal. Include them only for a partial reversal (EPI only — requires TMS enablement per merchant).
 3. Do NOT include a `transactionReference` on either path — this is a subsequent operation linked to the original.
-4. **Interac cards (Paysafe + Interac gateway only):** Remote reversal is not available for Interac card transactions. Interac requires card-present at terminal. Use the on-device Reversal flow instead. Non-Interac cards on the same gateway work normally.
 
 #### Code
 
@@ -1352,11 +1331,6 @@ Supporting pre-auth means supporting the full lifecycle:
 3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
 4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
 
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
 ### Create {#pre-auth-create}
 
 #### Code
@@ -1389,12 +1363,12 @@ hapi.preAuthorization(BigInteger("10000"), Currency.USD)
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
-<ComingSoon />
+<NotSupported />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-<ComingSoon />
+<NotSupported />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -1514,12 +1488,12 @@ hapi.preAuthorizationCapture(
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
-<ComingSoon />
+<NotSupported />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-<ComingSoon />
+<NotSupported />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -1647,12 +1621,12 @@ hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
 </TabItem>
 <TabItem value="android-hilite" label="Android (HiLite)">
 
-<ComingSoon />
+<NotSupported />
 
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-<ComingSoon />
+<NotSupported />
 
 </TabItem>
 <TabItem value="cordova" label="Cordova">
@@ -1820,11 +1794,6 @@ Pre-Authorization Capture Reversal goes through the reader (Cloud API: `POST /tr
 ## Tokenization {#tokenization}
 
 
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
-
 ### TokenEx {#tokenex}
 
 <FlavorSection description="3rd-party · TokenEx — loyalty / card-matching; no detokenization through Handpoint" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
@@ -1961,11 +1930,6 @@ Use when processing money transfer payments (e.g. sending money to family abroad
 2. Not all card brands support remittance in all geographies — verify with your acquirer.
 3. Introduced in Android SDK v7.1004.1 and later.
 4. The recipient name and country code are included in the transaction result and appear on the receipt when present.
-
-:::note EmerchantPay
-Settlement is processed automatically — manual batch close is not available. Local MOTO refund supported. AMEX routing supported — merchant must obtain a separate AMEX MID.
-:::
-
 
 #### Code
 

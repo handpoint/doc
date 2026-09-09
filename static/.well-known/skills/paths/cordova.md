@@ -127,6 +127,8 @@ HAPI.endOfDay(successCallback, errorCallback)
 | `'CANCELLED'` | Cardholder cancelled | Allow retry |
 | `'FAILED'` | Terminal error | Check `statusMessage` |
 | `'UNDEFINED'` | No result received | Do not retry — recover via status call |
+| `'PARTIAL_APPROVAL'` | Partial amount approved (US only) | Fulfil at `totalAmount`; prompt for remaining balance or send reversal |
+| `'IN_PROGRESS'` | Still processing | Keep polling via `getTransactionStatus` |
 
 ## UNDEFINED recovery
 

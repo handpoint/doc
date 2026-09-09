@@ -100,9 +100,9 @@ The demo includes ready-made configs for each active Handpoint acquirer:
 
 | Constant | Acquirer | Region | MOTO | Pre-Auth | Tip Adj | Interac |
 |---|---|---|---|---|---|---|
-| `AcquirerConfigs.EPI` | EPI (TSYS) | US / Canada | ✓ | ✓ | ✓ | — |
-| `AcquirerConfigs.PAYSAFE_INTERAC` | Paysafe + Interac | Canada | ✓ | ✓ | ✓ | ✓ |
-| `AcquirerConfigs.PAYSAFE_US` | Paysafe | US | — | — | ✓ | — |
+| `AcquirerConfigs.EPI` | EPI | US / Canada | ✓ | ✓ | ✓ | — |
+| `AcquirerConfigs.PAYSAFE_INTERAC` | PAYSAFE (Interac enabled) | US · Canada | ✓ | ✓ | ✓ | ✓ |
+| `AcquirerConfigs.PAYSAFE_US` | PAYSAFE (credit/debit) | US · Canada | — | — | ✓ | — |
 | `AcquirerConfigs.EMERCHANTPAY` | EmerchantPay | EU | ✓ | ✓ | — | — |
 | `AcquirerConfigs.PAYSTRAX` | Paystrax | EU | ✓ | ✓ | — | — |
 
@@ -138,7 +138,7 @@ The currency flows automatically from `config.currency` to every SDK call — no
 ## Interac VOID
 
 :::note Applies to acquirers with `supportsInterac = true`
-Paysafe + Interac (Canada) and Paysafe US both route Interac debit transactions through a separate network (TNS) that has different reversal rules from Visa/Mastercard.  
+PAYSAFE merchants with Interac enabled route Interac debit transactions through a separate network (TNS) that has different reversal rules from Visa/Mastercard/Amex/Discover.  
 Full protocol details: [Interac VOID — implementation guide](./interac-void.md)
 :::
 

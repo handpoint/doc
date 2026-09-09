@@ -134,7 +134,7 @@ switch (result.finStatus) {
     case 'FAILED':
         await db.clearPending(transactionReference);
         break;
-    case 'PARTIALLY_APPROVED':
+    case 'PARTIAL_APPROVAL':
         // Wait 60 s, then collect split tender or reverse
         await handlePartialApproval(result);
         break;
@@ -220,7 +220,7 @@ Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquir
 
 - [ ] `transactionReference` persisted before `await transactionResult`
 - [ ] Recovery on app restart — pending transactions polled at startup
-- [ ] Partial approval handled — `PARTIALLY_APPROVED` triggers split tender or reversal
+- [ ] Partial approval handled — `PARTIAL_APPROVAL` triggers split tender or reversal
 - [ ] Connection maintained at all times (not per-transaction)
 
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)

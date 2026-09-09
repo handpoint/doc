@@ -70,10 +70,82 @@ Load these skills before writing integration code. The index tells you which ski
 ## Key Facts for AI Agents
 
 - Staging: `https://cloud.handpoint.io` | Production: `https://cloud.handpoint.com`
-- Auth header: `ApiKeyCloud` (case-insensitive; one key per merchant)
+- Auth header: `ApiKeyCloud: YOUR_API_KEY` (case-insensitive; one key per merchant)
+- Rate limit: 2 requests/second per merchant API key — HTTP 429 on exceed
 - POST /transactions → 202 Accepted → poll GET /transaction-result/{id} (204 = still processing, 200 = done)
+- Polling: check every ~3 seconds; HTTP 204 has an empty body — do NOT call .json() on it
 - POST /reversal → synchronous, HTTP 200, no finStatus in response, httpStatus is integer 200
 - POST /moto/sale → synchronous, HTTP 200, reversal key is in `guid` field (not transactionID)
 - POST /batch/close → synchronous, httpStatus is string "200" (differs from /reversal integer)
-- Amount fields: requestedAmount / totalAmount / tipAmount / dueAmount (no bare `amount` in result)
-- transactionReference: UUID v4 you generate; persist before sending; required for recovery via GET /transactions/{ref}/status
+- Amount fields in result: requestedAmount / totalAmount / tipAmount / dueAmount (no bare `amount` in result)
+- transactionReference: UUID v4 you generate; persist before sending; usable for recovery via GET /transactions/{ref}/status
+  - ONLY honoured (echoed back) for: sale, refund, saleAndTokenizeCard, preAuthorization
+  - For all other operations it is stripped and replaced with a system-generated value — do not rely on it for recovery of moToSale, moToRefund, preAuthorizationCapture, etc.
+
+---
+
+## Cloud API — Machine-Readable Reference
+
+### finStatus Enum (GET /transaction-result response)
+
+All 10 valid values and their semantics:
+
+| finStatus            | Final? | Meaning and action                                                                                                                                                         |
+|----------------------|--------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| IN_PROGRESS          | No     | Terminal still processing. Keep polling.                                                                                                                                   |
+| UNDEFINED            | No     | Outcome unknown (network loss, timeout). Run recovery flow: GET /transactions/{transactionReference}/status. Do NOT retry the operation before recovery.                   |
+| AUTHORISED           | Yes    | Approved. Card charged.                                                                                                                                                    |
+| DECLINED             | Yes    | Declined by issuer. Card not charged.                                                                                                                                      |
+| FAILED               | Yes    | Processing failed. Card not charged. Run recovery flow before retrying.                                                                                                    |
+| PARTIAL_APPROVAL   | No*    | Edge case — NOT final. /status returns finStatus:AUTHORISED but with dueAmount > 0 and totalAmount < requestedAmount, revealing partial approval is in progress. Terminal showing accept/decline prompt. If declined: SDK auto-reverses, final result is CANCELLED. Wait 60s+ or for final transaction-result delivery. Do NOT save AUTHORISED from /status as final when dueAmount > 0. |
+| CANCELLED            | Yes    | Cancelled (by cardholder or merchant). Card not charged.                                                                                                                   |
+| PROCESSED            | Yes    | Non-financial operation completed (e.g. tokenizeCard). No charge.                                                                                                          |
+| REFUNDED             | Yes    | Refund processed successfully.                                                                                                                                             |
+| CAPTURED             | Yes    | Pre-authorization captured. Card charged for captured amount.                                                                                                              |
+
+*PARTIAL_APPROVAL: /status shows AUTHORISED immediately, but check dueAmount > 0 to detect partial-approval-in-progress. Final transaction-result delivers PARTIAL_APPROVAL (accepted) or CANCELLED (declined). Always wait for transaction-result; never act on /status AUTHORISED alone when dueAmount > 0.
+
+### POST /transactions — `operation` Values
+
+All valid values for the `operation` field:
+
+sale, refund, saleAndTokenizeCard, tokenizeCard,
+moToSale, moToRefund, moToPreAuthorization, moToReversal,
+preAuthorization, preAuthorizationIncrease, preAuthorizationCapture, preAuthorizationReversal,
+saleReversal, refundReversal,
+stopCurrentTransaction, pingDevice, printReceipt
+
+### Amount Units — CRITICAL: two different conventions
+
+| Endpoint                                    | `amount` unit    | Format            | Example              |
+|---------------------------------------------|------------------|-------------------|----------------------|
+| POST /transactions                          | Minor units       | Digits only, no decimal point | "1000" = $10.00 |
+| POST /moto/sale                             | Major-unit decimal | Decimal string   | "10.00" = $10.00    |
+| POST /moto/refund                           | Major-unit decimal | Decimal string   | "10.00" = $10.00    |
+| POST /reversal                              | Major-unit decimal | Decimal string   | "10.00" = $10.00    |
+
+Mixing up minor/major units is the most common integration bug. Always verify which endpoint you are calling.
+
+### POST /transactions — Required Fields
+
+Always required:
+- `operation` — operation type (see list above)
+- `serial_number` — terminal serial number
+- `terminal_type` — terminal model identifier
+
+Required for financial operations (sale, refund, preAuthorization, moToSale, moToRefund, moToPreAuthorization, and other money-moving ops):
+- `amount` — in minor units (digits only, no decimal)
+- `currency` — ISO 4217 currency code (e.g. "USD", "EUR")
+
+Required for reversal / modification operations:
+- `originalTransactionId` — required for: saleReversal, refundReversal, moToReversal, preAuthorizationIncrease, preAuthorizationCapture, preAuthorizationReversal
+
+### transactionReference Scope
+
+`transactionReference` (UUID v4, caller-generated) is honoured ONLY for these operations:
+- sale
+- refund
+- saleAndTokenizeCard
+- preAuthorization
+
+For all other operations (tokenizeCard, moToSale, moToRefund, moToPreAuthorization, moToReversal, preAuthorizationIncrease, preAuthorizationCapture, preAuthorizationReversal, saleReversal, refundReversal, stopCurrentTransaction, pingDevice, printReceipt) the field is stripped and replaced with a system-generated value. Recovery via GET /transactions/{transactionReference}/status is only reliable for the four operations above.

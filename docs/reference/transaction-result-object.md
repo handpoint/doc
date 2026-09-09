@@ -111,7 +111,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 | `transactionID` | string | UUID v4 — the primary transaction identifier. Store for reversals, tip adjustments, and status queries. |
 | `efttransactionID` | string | Alias of `transactionID`. Same value. |
 | `efttimestamp` | number | Transaction timestamp — Unix epoch in **milliseconds**. |
-| `transactionReference` | string | The UUID v4 you sent in the request, echoed back. Use to correlate with your own system. |
+| `transactionReference` | string | The UUID v4 you sent in the request. Echoed back for sale, refund, saleAndTokenizeCard, and preAuthorization; system-generated (not your value) for all other operations (reversals, captures, tokenizeCard, etc.). Use to correlate with your own system. |
 | `originalEFTTransactionID` | string | For refunds, reversals, captures: the `transactionID` of the original transaction. Empty on original transactions. |
 | `transactionOrigin` | string | `CLOUD` when processed via Cloud API. `STANDALONE` when processed directly on terminal. |
 
@@ -150,7 +150,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 |---|---|---|
 | `cardEntryType` | string | How the card was read. See [cardEntryType values](#cardentrytype-values). |
 | `paymentScenario` | string | Detailed entry path. See [paymentScenario values](#paymentscenario-values). |
-| `tenderType` | string | `CREDIT` `DEBIT` `NOT_SET` |
+| `tenderType` | string | `CREDIT` `DEBIT` `PREPAID` `NOT_SET` (MOTO and cancelled transactions) |
 | `verificationMethod` | string | How the cardholder was verified. See [verificationMethod values](#verificationmethod-values). |
 | `cardSchemeName` | string | Card network name as returned by the terminal: `"Visa"` `"Mastercard"` `"Amex"` etc. |
 | `maskedCardNumber` | string | PAN masked as `"************1234"`. |
@@ -196,8 +196,8 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 
 | Field | Type | Description |
 |---|---|---|
-| `merchantReceipt` | string | Full merchant receipt as an HTML string. Print or display to the operator. |
-| `customerReceipt` | string | Full customer receipt as an HTML string. Print or hand to the cardholder. |
+| `merchantReceipt` | string | Merchant receipt. Three possible forms: (1) a `https://receipts.handpoint.io/...` URL when successfully uploaded to cloud storage; (2) raw HTML if S3 upload failed or for MOTO on-terminal (check `startsWith("<")`); (3) empty string `""` if the SDK lost connection before receiving a response or if `finStatus` is `UNDEFINED`. Always handle all three cases. |
+| `customerReceipt` | string | Customer receipt. Same three forms as `merchantReceipt` — URL, raw HTML, or empty string `""`. Always handle all three cases. |
 | `signatureUrl` | string | URL of the captured signature image (if signature CVM was used). Empty otherwise. |
 
 ### Device
@@ -225,11 +225,11 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
-| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is a **alias** for the same value (integer 6 in all SDKs) — both names are emitted. |
+| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final when returned from `GET /transaction-result/{id}`.** The terminal presents an accept/decline prompt to the merchant/cardholder; if they decline, the SDK automatically reverses the transaction and the final outcome changes. Wait at least 60 seconds or until the final `transaction-result` is delivered before treating as settled. US acquirers only. |
 | `REFUNDED` | Transaction was subsequently refunded. Returned on status queries for original transactions that have been fully refunded. |
-| `PROCESSED` | Operation processed (used for non-financial operations — Start of Day, Host Init). |
+| `PROCESSED` | Operation processed — used for non-financial operations such as `tokenizeCard`, Start of Day, and Host Init. |
 | `CAPTURED` | Pre-authorization was captured. |
-| `IN_PROGRESS` | Transaction is still being processed (Windows SDK only; also returned by `GET /transactions/{ref}/status` while in flight). |
+| `IN_PROGRESS` | Transaction is still being processed — not a final state. Keep polling. Also returned by `GET /transaction-result/{id}` while in flight. |
 
 ---
 
@@ -259,10 +259,11 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 
 | Value | Description |
 |---|---|
-| `ICC` | Integrated Circuit Card — chip insert **or** contactless chip (NFC). Use `paymentScenario` to distinguish. |
-| `MSR` | Magnetic Stripe Reader — swipe. |
-| `CNP` | Card Not Present — MOTO / back-office. |
-| `UNDEFINED` | Unknown entry method. |
+| `ICC` | Chip insert — contact EMV. |
+| `CONTACTLESS_ICC` | Contactless chip (NFC tap) — EMV over the air. |
+| `MAG_STRIPE` | Magnetic stripe swipe. Also emitted as `MSR` on some terminal firmware versions — treat both as equivalent. |
+| `CNP` | Card Not Present — MOTO / back-office keyed entry. |
+| `UNDEFINED` | Unknown entry method. Common on reversals and cancelled transactions where no card was presented. |
 
 ---
 
@@ -279,6 +280,54 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `SWIPED` | Swiped (alias for MAGSTRIPE on some acquirers). |
 | `FALLBACK_SWIPE` | Contactless and chip failed — swiped as final fallback. |
 | `UNKNOWN` | Unknown scenario. |
+
+---
+
+### `issuerResponseCode` values
+
+ISO 8583 response code returned by the card network. Use `finStatus` for programmatic branching — `issuerResponseCode` provides additional context for logging and merchant display.
+
+:::caution `"00"` does not always mean approved
+When the transaction does not reach the issuer (terminal-level decline for a disabled capability), the gateway sets `"00"` as a placeholder. Always check `finStatus` first.
+:::
+
+| Code | Meaning | Common scenario |
+|---|---|---|
+| `"00"` | Approved / completed successfully | Transaction authorised by issuer — or terminal-local decision (see caution above) |
+| `"01"` / `"02"` | Refer to card issuer | Issuer wants voice authorisation |
+| `"05"` | Do not honour | Generic decline — issuer did not specify reason |
+| `"12"` | Invalid transaction | Transaction type not permitted for this card |
+| `"13"` | Invalid amount | Amount out of range (zero, negative, or exceeds limit) |
+| `"14"` | Invalid card number | PAN does not pass Luhn check |
+| `"41"` | Lost card | Card reported lost |
+| `"43"` | Stolen card | Card reported stolen |
+| `"51"` | Insufficient funds | Card balance or credit limit exceeded |
+| `"54"` | Expired card | Card past its expiry date |
+| `"55"` | Incorrect PIN | PIN entered does not match |
+| `"57"` | Transaction not permitted to cardholder | Card scheme restriction on this transaction type |
+| `"61"` | Exceeds withdrawal amount limit | Single transaction exceeds the card's per-transaction limit |
+| `"62"` | Restricted card | Card restricted to specific merchant category codes |
+| `"65"` | Exceeds withdrawal frequency limit | Too many transactions in the allowed period |
+| `"75"` | Allowable number of PIN tries exceeded | Card locked after repeated incorrect PIN attempts |
+| `"91"` | Issuer not available / card scheme timeout | Issuer host unreachable — may be transient |
+| `"96"` | System malfunction | Issuer internal error — may be transient |
+
+---
+
+### `arc` values
+
+EMV Authorisation Response Code (tag 8A). Indicates the outcome of the EMV decision flow. Only meaningful when `cardEntryType` is `ICC`.
+
+| Value | Meaning |
+|---|---|
+| `"0000"` | Online approval — transaction was authorised by the issuer online |
+| `"0010"` | Online decline — transaction was declined by the issuer online |
+| `"1000"` | Gateway error — acquirer was not reached; the terminal generated an offline decline. Also set when the terminal itself declined offline (e.g. a capability restriction prevented the transaction from going online). |
+| `""` (empty) | Not applicable — MOTO, `FAILED` outcome, or EMV processing did not complete |
+
+:::note Capability declines and `arc`
+On a terminal-enforced capability decline (e.g. pre-auth not enabled), you may see `arc: "1000"` because the terminal generated an offline decline response — even though the real reason was a configuration restriction, not an issuer or card-scheme decision.
+:::
 
 ---
 
@@ -455,7 +504,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 |---|---|---|
 | `cardEntryType` | CardEntryType | How the card was read. `ICC` `MSR` `CNP` (MOTO/keyed entry). `UNDEFINED` on reversals and cancelled transactions (no card presentation). |
 | `paymentScenario` | PaymentScenario | Detailed entry path — `CHIP` `CHIPCONTACTLESS` `MAGSTRIPE` `MOTO`. `UNKNOWN` on reversals and cancelled transactions. |
-| `tenderType` | TenderType | `CREDIT` `DEBIT` `NOT_SET` (MOTO and cancelled transactions). |
+| `tenderType` | TenderType | `CREDIT` `DEBIT` `PREPAID` `NOT_SET` (MOTO and cancelled transactions). |
 | `verificationMethod` | VerificationMethod | `NOT_REQUIRED` `PIN` `SIGNATURE` `MOBILE_PASS_CODE` etc. |
 | `cardSchemeName` | String | Card network: `"Visa"` `"Mastercard"` `"Amex"` etc. |
 | `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. 15-digit schemes (Amex) use 11 asterisks. |
@@ -500,8 +549,8 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 | Field | Type | Description |
 |---|---|---|
-| `merchantReceipt` | String | HTML merchant receipt. |
-| `customerReceipt` | String | HTML customer receipt. |
+| `merchantReceipt` | String | Merchant receipt. Three possible forms: (1) a `https://receipts.handpoint.io/...` URL when successfully uploaded; (2) raw HTML if S3 upload failed or for MOTO on-terminal (check `startsWith("<")`); (3) empty string `""` if connection was lost before a response arrived or if `finStatus` is `UNDEFINED`. Handle all three cases. |
+| `customerReceipt` | String | Customer receipt. Same three forms as `merchantReceipt` — URL, raw HTML, or empty string `""`. |
 | `signatureUrl` | String | URL of captured signature image. Empty if no signature. |
 
 ### Device
@@ -554,12 +603,13 @@ Linking is a **Handpoint gateway** concept, not an acquirer-level one. If a merc
 | `AUTHORISED` | Approved. |
 | `DECLINED` | Declined by issuer. |
 | `CANCELLED` | Cardholder cancelled, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
-| `FAILED` | Technical failure. |
-| `UNDEFINED` | No result — call `hapi.getTransactionStatus(transactionReference)` to recover. |
-| `PARTIALLY_APPROVED` | Partially approved — `totalAmount` is less than `requestedAmount`. `PARTIAL_APPROVAL` is an accepted alias for the same value. |
+| `FAILED` | Technical failure — check `errorMessage`. Run the recovery flow before retrying. |
+| `UNDEFINED` | No result received — call `hapi.getTransactionStatus(transactionReference)` to recover. |
+| `PARTIAL_APPROVAL` | Partially approved — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final `endOfTransaction` callback fires before treating as settled. US acquirers only. |
 | `REFUNDED` | Transaction was refunded. |
-| `PROCESSED` | Non-financial operation processed. |
+| `PROCESSED` | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `CAPTURED` | Pre-auth captured. |
+| `IN_PROGRESS` | Transaction is still being processed — not a final state. Keep polling via `getTransactionStatus()`. |
 
 ---
 
@@ -659,8 +709,8 @@ All fields are strings unless noted. Values are extracted from the terminal's XM
 | `customerLanguagePref` | String | Card's language preference. |
 | `mid` | String | Merchant ID. |
 | `tid` | String | Terminal ID. |
-| `merchantReceipt` | String | HTML merchant receipt. |
-| `customerReceipt` | String | HTML customer receipt. |
+| `merchantReceipt` | String | Merchant receipt. Three possible forms: (1) a `https://receipts.handpoint.io/...` URL when successfully uploaded; (2) raw HTML if S3 upload failed or for MOTO on-terminal (check `startsWith("<")`); (3) empty string `""` if connection was lost or if `finStatus` is `UNDEFINED`. Handle all three cases. |
+| `customerReceipt` | String | Customer receipt. Same three forms as `merchantReceipt` — URL, raw HTML, or empty string `""`. |
 | `customerReference` | String | Echoed-back merchant reference from request. |
 | `budgetNumber` | String | Budget/instalment number (SA acquirers). |
 | `chipTransactionReport` | String | Full chip transaction data. |
@@ -677,13 +727,14 @@ All fields are strings unless noted. Values are extracted from the terminal's XM
 |---|---|---|
 | `AUTHORISED` | `EFT_FINANC_STATUS_TRANS_APPROVED` (0x01) | Approved by the issuer. |
 | `DECLINED` | `EFT_FINANC_STATUS_TRANS_DECLINED` (0x02) | Declined by the issuer or gateway. |
-| `PROCESSED` | `EFT_FINANC_STATUS_TRANS_PROCESSED` (0x03) | Non-financial operation processed. |
-| `FAILED` | `EFT_FINANC_STATUS_TRANS_NOT_PROCESSED` (0x04) | Technical failure. |
+| `PROCESSED` | `EFT_FINANC_STATUS_TRANS_PROCESSED` (0x03) | Non-financial operation processed (e.g. `tokenizeCard`). |
+| `FAILED` | `EFT_FINANC_STATUS_TRANS_NOT_PROCESSED` (0x04) | Technical failure — check `errorMessage`. |
 | `CANCELLED` | `EFT_FINANC_STATUS_TRANS_CANCELLED` (0x05) | Cancelled by the cardholder, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
-| `PARTIALLY_APPROVED` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval. |
-| `UNDEFINED` | `EFT_FINANC_STATUS_UNDEFINED` (0x00) | No result received. |
+| `PARTIAL_APPROVAL` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final result callback fires before treating as settled. US acquirers only. |
+| `UNDEFINED` | `EFT_FINANC_STATUS_UNDEFINED` (0x00) | No result received — query the `/status` endpoint. |
 | `REFUNDED` | *(no iOS constant)* | May appear on status queries for refunded transactions. |
 | `CAPTURED` | *(no iOS constant)* | May appear on status queries for captured pre-auths. |
+| `IN_PROGRESS` | *(no iOS constant)* | Transaction still being processed — not a final state. Keep polling. |
 
 ### Status codes
 
@@ -745,7 +796,7 @@ handpoint.sale(
 | `currency` | string | ISO 4217 currency code. |
 | `cardEntryType` | string | `"ICC"` `"MSR"` `"CNP"` |
 | `paymentScenario` | string | `"CHIP"` `"CHIPCONTACTLESS"` `"MAGSTRIPE"` etc. |
-| `tenderType` | string | `"CREDIT"` `"DEBIT"` `"NOT_SET"` |
+| `tenderType` | string | `"CREDIT"` `"DEBIT"` `"PREPAID"` `"NOT_SET"` |
 | `verificationMethod` | string | `"NOT_REQUIRED"` `"PIN"` `"SIGNATURE"` etc. |
 | `cardSchemeName` | string | Card network name. |
 | `maskedCardNumber` | string | Masked PAN. |
@@ -764,8 +815,8 @@ handpoint.sale(
 | `iad` | string | Issuer Application Data. |
 | `arc` | string | Authorisation Response Code. |
 | `customerReference` | string | Echoed-back merchant reference. |
-| `merchantReceipt` | string | HTML merchant receipt. |
-| `customerReceipt` | string | HTML customer receipt. |
+| `merchantReceipt` | string | Merchant receipt. Three possible forms: (1) a `https://receipts.handpoint.io/...` URL when successfully uploaded; (2) raw HTML if S3 upload failed or for MOTO on-terminal (check `startsWith("<")`); (3) empty string `""` if connection was lost or if `finStatus` is `UNDEFINED`. Handle all three cases. |
+| `customerReceipt` | string | Customer receipt. Same three forms as `merchantReceipt` — URL, raw HTML, or empty string `""`. |
 | `deviceStatus` | object | Terminal state — same sub-fields as Cloud API. |
 | `recoveredTransaction` | boolean | `true` if delivered via recovery loop. |
 
@@ -776,12 +827,13 @@ handpoint.sale(
 | `AUTHORISED` | Approved by the issuer. |
 | `DECLINED` | Declined by the issuer or gateway. |
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
-| `FAILED` | Technical failure. |
+| `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received — query the `/status` endpoint. |
-| `PARTIALLY_APPROVED` | Partial approval — `totalAmount` is less than `requestedAmount`. |
+| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final result callback fires before treating as settled. US acquirers only. |
 | `REFUNDED` | Transaction was subsequently refunded. |
-| `PROCESSED` | Non-financial operation processed. |
+| `PROCESSED` | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `CAPTURED` | Pre-authorization was captured. |
+| `IN_PROGRESS` | Transaction is still being processed — not a final state. Keep polling. |
 
 </TabItem>
 

@@ -6,7 +6,13 @@ description: EMV card scheme receipt requirements — required fields, delivery 
 
 # Receipt Compliance
 
-Card schemes (Visa, Mastercard, Discover, Amex) require that a receipt be available to the cardholder **on demand** for every EMV transaction. Delivery method is your choice — email, SMS, printed receipt, or an in-app receipt screen. The requirement is availability, not a specific delivery channel.
+Card schemes (Visa, Mastercard, Discover, Amex) require that a receipt be available to the cardholder **on demand for every transaction where a card is read** — including declined and failed transactions. Delivery method is your choice — email, SMS, printed receipt, or an in-app receipt screen. The requirement is availability, not a specific delivery channel.
+
+:::info Declines and failures are included
+A cardholder must be able to request a receipt even for a declined transaction. They need written proof that no charge was made — and a reference for any dispute. You do not need to print automatically for every decline, but the merchant must be able to provide one on request.
+
+The only exception is a transaction that **never completed a card read** (e.g. the cardholder tapped away before the terminal finished reading the chip). If no EMV data was captured, there is nothing to put on the receipt.
+:::
 
 ---
 
@@ -25,15 +31,16 @@ Include all of the following in every customer-facing receipt. Fields marked **C
 | Authorisation code | `authorisationCode` | Always | Required for disputes |
 | Issuer response | `issuerResponseCode` + `issuerResponseText` | Always | e.g. "00 / Successful" |
 | Transaction ID | `transactionID` | Always | Required for Handpoint Support escalation |
-| Retrieval reference | `retrievalReferenceNumber` | Always | Required for chargebacks |
-| AID | `applicationIdentifier` | Conditional | EMV chip only — omit for contactless/swipe/MOTO |
-| TVR | `tvr` | Conditional | EMV chip only |
-| IAD | `iad` | Conditional | Omit if absent |
-| ARC | `arc` | Conditional | Omit if absent |
+| Retrieval reference | `rrn` | Conditional | Numeric string, up to 13 chars. Present on card-present sales (CHIP, contactless, swipe); empty on refunds, reversals, and MOTO. Required for chargebacks when present. |
+| AID | `aid` | Conditional | Hex string, exactly **14 chars** for Visa and Mastercard (their registered AID values are fixed-length). EMV spec allows up to 32 chars for other schemes. Present on CHIP (insert) **and** CHIPCONTACTLESS — empty on swipe/MOTO. |
+| TVR | `tvr` | Conditional | Hex string, always exactly **10 chars** (5 bytes, EMV-defined fixed length). Present on CHIP and CHIPCONTACTLESS — empty on swipe/MOTO. |
+| TSI | `tsi` | Conditional | Hex string, always exactly **4 chars** (2 bytes, EMV-defined fixed length). Present on **CHIP insert only** — empty on CHIPCONTACTLESS even though the chip is read. Empty on swipe/MOTO. |
+| IAD | `iad` | Conditional | Hex string, scheme-dependent fixed length: **14 chars for Visa**, **36 chars for Mastercard**. Present on CHIP and CHIPCONTACTLESS — empty on swipe/MOTO. |
+| ARC | `arc` | Conditional | Hex string, always exactly **4 chars** (2 bytes, EMV-defined fixed length). `"0000"` = online approval; `"1000"` = terminal/gateway decline (capability restriction or routing error). Empty on MOTO. |
 | Merchant name | Your merchant record | Always | Full legal name |
 | Merchant address | Your merchant record | Always | Full address |
-| MID | `acquirerMid` or merchant record | Always | Merchant ID at acquirer |
-| TID | `acquirerTid` | Always | Terminal ID at acquirer |
+| MID | `mid` | Always | Merchant ID at acquirer |
+| TID | `tid` | Always | Terminal ID at acquirer |
 | `transactionReference` | `transactionReference` | Suggested | ISV's UUID — useful for troubleshooting; link to your internal order |
 | Serial number | Your terminal config | Suggested | Links to device in dispute resolution |
 
@@ -43,14 +50,30 @@ On partial approvals, `requestedAmount` is what the customer owed and `totalAmou
 
 ---
 
+## Receipt language
+
+The two receipts render in different languages:
+
+| Receipt | Language source |
+|---|---|
+| `customerReceipt` | Card's language preference (`cardLanguagePreference` field, e.g. `"es_ES"`) |
+| `merchantReceipt` | Terminal's configured merchant language |
+
+A Spanish-language card tapped on an English-configured terminal produces a Spanish customer receipt and an English merchant receipt. This is the expected behaviour — the customer receipt renders in the cardholder's language.
+
+---
+
 ## Receipt delivery
 
 Handpoint provides a hosted receipt URL in `merchantReceipt` and `customerReceipt` fields for card-present transactions. Display or link to the customer URL; the merchant URL is for your own records.
 
-**Example hosted receipt URL format:**
+**URL format:**
 ```
 https://receipts.handpoint.com/receipts/{transactionID}/customer.html
+https://receipts.handpoint.com/receipts/{transactionID}/merchant.html
 ```
+
+The path uses `transactionID` (the gateway-assigned GUID from the result), not `transactionReference`.
 
 Fetch the URL and present it in a webview, email it as a link, or send it via SMS. The hosted receipt is pre-formatted and compliant — you can use it as-is.
 
@@ -96,7 +119,7 @@ You must build the receipt yourself using the other fields in the `/status` resp
 
 ### Building a receipt from `/status`
 
-Use the required fields table above with the values from the `/status` response. All the required fields (`transactionID`, `totalAmount`, `authorisationCode`, `maskedCardNumber`, `retrievalReferenceNumber`, `terminalDateTime`, `cardSchemeName`, etc.) are present — only the pre-built HTML receipt is absent.
+Use the required fields table above with the values from the `/status` response. All the required fields (`transactionID`, `totalAmount`, `authorisationCode`, `maskedCardNumber`, `rrn`, `terminalDateTime`, `cardSchemeName`, etc.) are present — only the pre-built HTML receipt is absent.
 
 Apply your standard receipt template and populate it from the response fields. For EMV fields (AID, TVR, IAD, ARC): include each one only if its value is non-empty in the response.
 
@@ -106,7 +129,7 @@ Apply your standard receipt template and populate it from the response fields. F
 
 | Acquirer | Notes |
 |---|---|
-| EPI (TSYS) | Hosted receipt URL returned for card-present. Raw HTML for MOTO on-terminal. |
+| EPI | Hosted receipt URL returned for card-present. Raw HTML for MOTO on-terminal. |
 | EmerchantPay / Paystrax | Hosted receipt URL returned. Check whether `merchantReceipt` / `customerReceipt` are present — may vary by transaction type. |
 | PAYSAFE | Receipt field behaviour follows the same pattern — URL when upload succeeds, raw HTML as fallback. |
 
@@ -116,12 +139,21 @@ Apply your standard receipt template and populate it from the response fields. F
 
 | Scenario | Expected |
 |---|---|
-| Standard card-present sale (staging) | `merchantReceipt` and `customerReceipt` are hosted URLs |
+| Standard card-present sale — approved | `merchantReceipt` and `customerReceipt` are hosted URLs — display or send to cardholder |
+| Standard card-present sale — **declined** | `merchantReceipt` and `customerReceipt` are hosted URLs — receipt still available and must be offered to cardholder on request |
 | MOTO on-terminal sale | Receipts are raw HTML strings (not URLs) |
 | MOTO remote sale (`POST /moto/sale`) | No `merchantReceipt` / `customerReceipt` in response — build from result fields |
 | Transaction recovered via `/status` | No receipt fields — ISV-built receipt required |
 | Email delivery | Cardholder receives receipt link within 30 seconds |
 | Printed receipt (PAX with printer) | All required EMV fields printed; no truncation |
+
+---
+
+## Receipt retention
+
+Suggested lifetime: **13 months**, matching Handpoint Gateway's transaction processing data retention period.
+
+Historical analytics data (Transaction Feed API) has no specified retention limit — transaction records are available indefinitely for reporting and dispute resolution.
 
 ---
 

@@ -93,11 +93,16 @@ Check `finStatus` on HTTP 200:
 
 | `finStatus` | Meaning | Action |
 |---|---|---|
-| `AUTHORISED` | Approved | Store result, fulfil order |
+| `AUTHORISED` | Approved — **only final when from `GET /transaction-result`**. Do NOT treat `GET /status` → `AUTHORISED` as final: in the EMV forced-reversal edge case (card removed mid-chip), `/status` briefly shows `AUTHORISED` while the SDK is sending an automatic reversal; the final `transaction-result` will be `DECLINED`. | Store result, fulfil order |
 | `DECLINED` | Issuer declined | Do not retry same card |
-| `CANCELLED` | Cardholder cancelled | Allow retry |
+| `CANCELLED` | Cardholder cancelled, or SDK auto-reversed (e.g. partial approval declined, or EMV forced-reversal completed) | Allow retry |
 | `FAILED` | Terminal/network error | Log `statusMessage` |
 | `UNDEFINED` | No result received | See UNDEFINED handling — do not retry |
+| `PARTIAL_APPROVAL` | Partial amount approved (US only) — terminal showing accept/decline prompt | **Not final.** Keep polling (up to 60 s+) — cardholder may accept or decline; if declined the SDK auto-reverses and final becomes `CANCELLED` |
+| `IN_PROGRESS` | Still processing | Keep polling — do not stop |
+| `PROCESSED` | Non-financial operation completed (e.g. tokenizeCard) | Treat as success |
+| `REFUNDED` | Transaction was refunded | Record refund |
+| `CAPTURED` | Pre-authorization captured | Record capture |
 
 Polling cadence: wait 3s after 202, then poll every 4s, up to 30 polls (120s total). Timeout → treat as UNDEFINED (see recovery flow below).
 
@@ -113,9 +118,9 @@ for _ in range(30):
         continue  # still processing — body is EMPTY, do NOT call .json()
     result = r.json()
     fin_status = result.get("finStatus")
-    if fin_status:
-        break  # done
-# if fin_status is still None → treat as UNDEFINED, trigger recovery
+    if fin_status and fin_status not in ("IN_PROGRESS", "PARTIAL_APPROVAL"):
+        break  # done — PARTIAL_APPROVAL requires continued polling (terminal showing accept/decline prompt)
+# if fin_status is still None or loop exhausted → treat as UNDEFINED, trigger recovery
 ```
 
 ## Transaction result — key fields
@@ -530,13 +535,22 @@ if fin_status is None:
 
 ### Recovery steps
 
-1. **Wait an additional 30 seconds** before querying the feed — allow the terminal's own settlement to complete.
-2. **Query the Transaction Feed API** by terminal `serialNumber` + time window (±5 minutes around the original request):
+1. **Try the status endpoint first** — fastest path, no feed query needed:
+   ```
+   GET https://transactions.handpoint.com/transactions/{transactionReference}/status
+   ```
+   - Returns a final `finStatus` if the gateway has the result → act on it directly.
+   - Returns `IN_PROGRESS` → poll every 10s until final.
+   - Returns `UNDEFINED` or request fails → proceed to step 2.
+   - Note: if `transactionReference` was not echoed (e.g. on-terminal MOTO, known bug CUS-837), skip to step 2.
+
+2. **Wait an additional 30 seconds** before querying the feed — allow the terminal's own settlement to complete.
+3. **Query the Transaction Feed API** by terminal `serialNumber` + time window (±5 minutes around the original request):
    ```
    GET https://txnfeed.handpoint.com/transactions?serialNumber={serial}&from={iso_timestamp}&to={iso_timestamp}
    ```
-3. **Match by `transactionReference`** (UUID v4 you generated and persisted before sending). Do NOT match by amount alone — multiple transactions may share the same amount.
-4. **Act on the feed result:**
+4. **Match by `transactionReference`** (UUID v4 you generated and persisted before sending). Do NOT match by amount alone — multiple transactions may share the same amount.
+5. **Act on the feed result:**
    - Result found with `finStatus: "AUTHORISED"` → the transaction succeeded. Store the `transactionID` from the feed entry and fulfil the order.
    - Result found with `finStatus: "DECLINED"` / `"CANCELLED"` → failed cleanly. Safe to retry.
    - No result found in feed → genuinely no transaction. Safe to retry.
@@ -717,6 +731,36 @@ Synchronous — log the full request body and the complete response body immedia
 → POST /moto/sale   body: { "amount":"10.00", "currency":"USD", "cardToken":"...", "transactionReference":"<uuid>" }
 ← 200 { "finStatus":"AUTHORISED", "efttransactionID":"...", ... }
 ```
+
+## Partial approval — ISV requirements (US only)
+
+`PARTIAL_APPROVAL` is **enabled by default**. Every US integration will receive it in production. You must handle it.
+
+**Option 1 — Accept partial approvals** (required for specific MCCs — consult acquirer):
+- Fulfil at `totalAmount`. Display `totalAmount` on receipt. Prompt cardholder for remaining `dueAmount` via second tender.
+
+**Option 2 — Do not support partial approvals**:
+1. Immediately reverse with `POST /reversal` using `originalGuid` = `transactionID` from the result.
+2. Display "Insufficient funds — transaction cancelled" or equivalent.
+3. Log **both** transactions: the original `PARTIAL_APPROVAL` sale and the reversal. Both receipts must be accessible.
+4. Prompt for an alternative payment method.
+
+**Never use `requestedAmount` for the reversal** — only `totalAmount` (what was authorized).
+
+This is validated during self-testing (trigger amount `3757`) and required for Handpoint integration certification.
+
+## Common agent mistakes
+
+| Mistake | Correct behaviour |
+|---|---|
+| Sending `amount` to `POST /transactions` in decimal (`"37.57"`) | Minor units only: `"3757"` — `"amount": "1000"` = $10.00 |
+| Sending `amount` to `POST /moto/sale` in minor units | Major-unit decimal: `"amount": "10.00"` — opposite of `/transactions` |
+| Treating `AUTHORISED` from `GET /status` as final | Only `GET /transaction-result` finStatus is authoritative. `/status` → `AUTHORISED` with `dueAmount > 0` = partial approval still pending |
+| Breaking the polling loop on `IN_PROGRESS` | `IN_PROGRESS` means keep polling — do not treat as a result |
+| Reversing `requestedAmount` on a partial approval | Reverse `totalAmount` (what was authorized), never `requestedAmount` |
+| Including `transactionReference` in a reversal, refund, or capture request | `transactionReference` is stripped on subsequent operations — use `originalGuid` / `originalTransactionId` |
+| Polling `GET /transaction-result` before waiting at least 3 s after the 202 | Wait 3 s after 202, then poll every 4 s — hammering immediately returns 204 |
+| Calling `.json()` on a 204 response | 204 body is empty — only parse JSON on 200 |
 
 ## See also
 

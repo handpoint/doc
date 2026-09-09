@@ -2,8 +2,7 @@
 # EPI — acquirer skill
 
 **Region:** US and Canada  
-**Card brands:** Visa, Mastercard, Discover  
-**Routing:** TSYS
+**Card brands:** Visa, Mastercard, Amex, Discover
 
 ## Supported capabilities
 
@@ -12,13 +11,13 @@
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Refund | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Partial reversal | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-| Tip adjustment | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Pre-authorization | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Partial reversal | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| Tip adjustment | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| Pre-authorization | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
 | Remote sale (on-terminal) | ✅ | ✅ | ❌ | ❌ | ❌ | — |
 | Remote sale (back-office token) | — | — | — | — | — | ✅ |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-| Batch close | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Batch close | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
 
 ## Critical: batch close (mandatory for EPI)
 
@@ -107,7 +106,7 @@ AVS result is in `TransactionResult.avsResult`.
 
 ## Pre-authorization
 
-Pre-auth available on TSYS US and Canada.
+Pre-auth available on EPI (US and Canada).
 
 1. Create: `POST /transactions` with `"operation": "preAuthorization"` — same polling flow as sale
 2. Capture: `POST /preauthorization/capture` with `{"originalGuid": "...", "capturedAmount": "10.00"}` — `capturedAmount` is major-unit decimal string; field is `capturedAmount`, not `amount`
@@ -132,7 +131,7 @@ A card token is returned in `TransactionResult.cardToken` when tokenization is e
 | `3153` | `POST /reversal` | Transaction not in open batch | Fall back to refund |
 | `3107` | `POST /moto/sale` | CVV required — not supported on back-office endpoint | Contact Handpoint to disable mandatory CVV |
 | `5252` | `POST /moto/sale` | Token provider is down or unreachable — token is valid | Retry later; contact Handpoint if persistent |
-| `0601` | Any | Full reversal sent after partial decline (TSYS GW-382) | Known TSYS issue — TSYS settles full auth; escalate if needed |
+| `0601` | Any | Full reversal sent after partial decline | Known EPI issue — host settles full auth; escalate to Handpoint support if needed |
 
 ## See also
 

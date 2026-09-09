@@ -75,6 +75,10 @@ Pre-auth is available on **EPI**, **EmerchantPay**, and **Paystrax**. See [Pre-A
 
 ---
 
+:::info
+For the complete tip strategy reference — acquirer support, mutual exclusivity rules, and how to undo a tip adjustment — see the [Tipping Guide](/reference/tipping-guide).
+:::
+
 ## Tip collection: two approaches
 
 ### Sale with Tip — guest selects at the terminal
@@ -116,18 +120,18 @@ Content-Type: application/json
 The path parameter (`e6254050-…`) is the `transactionID` from the original AUTHORISED sale result.
 
 :::caution Before batch close only
-Tip adjustments submitted after batch close are not applied. If you use EPI or Paysafe + Interac, automate the batch close at a fixed overnight time and enforce a cut-off window for tip entry.
+Tip adjustments submitted after batch close are not applied. If you use EPI or PAYSAFE, automate the batch close at a fixed overnight time and enforce a cut-off window for tip entry.
 :::
 
 :::info Acquirer support
-Tip Adjustment is supported on **EPI** and **Paysafe + Interac**. For EU merchants on EmerchantPay or Paystrax, use Sale with Tip or pre-auth capture with `tipAmount` instead.
+Tip Adjustment is supported on **EPI** and **PAYSAFE** (credit/debit cards only — not Interac). For EU merchants on EmerchantPay or Paystrax, use Sale with Tip or pre-auth capture with `tipAmount` instead.
 :::
 
 ---
 
 ## End-of-day: batch close
 
-TSYS-backed merchants (EPI, Paysafe + Interac) need a batch close to trigger settlement. Send this at end of service or on a scheduled overnight job:
+EPI merchants need a batch close to trigger settlement. PAYSAFE settles automatically — no batch close required. Send this at end of service or on a scheduled overnight job:
 
 ```http
 POST https://cloud.handpoint.com/batch/close

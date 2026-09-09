@@ -277,7 +277,7 @@ For production trigger amounts (DEMO terminal), see [Development Hardware: Testi
 | **Pre-Authorization** | ❌ |
 | **Tip Adjustment** | ✅\* remote API call (no device required) |
 
-\* `tipAdjustment()` in `HapiRemoteService` calls the Handpoint cloud API directly — not a device command. Requires `setupHandpointApiConnection(sharedSecret:)` to be called first. Alternatively, use the [Back Office REST API](/back-office/rest-api-no-reader) server-side with `ApiKeyCloud`. Acquirers: EPI, PAYSAFE+Interac (TSYS-routed cards only).
+\* `tipAdjustment()` in `HapiRemoteService` calls the Handpoint cloud API directly — not a device command. Requires `setupHandpointApiConnection(sharedSecret:)` to be called first. Alternatively, use the [Back Office integration guide](/reference/backoffice-integration-guide) server-side with `ApiKeyCloud`. Acquirers: EPI, PAYSAFE (non-Interac cards only).
 
 Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `ios-hilite` column.
 

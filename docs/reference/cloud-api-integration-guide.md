@@ -83,9 +83,9 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 To verify which terminals are assigned to your API key:
-```http
-GET https://cloud.handpoint.com/devices
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```bash
+curl https://cloud.handpoint.com/devices \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
 ```
 Returns an array of `{ "serial_number", "terminal_type", "merchant_id_alpha" }`. If a terminal serial is absent from this list, requests to it will fail with error 1004.
 
@@ -127,9 +127,14 @@ Contact your Handpoint Integration Support engineer to receive:
 
 ### 2. Download the Postman collection
 
-The Handpoint Postman collection includes pre-built requests for every endpoint, with environment variables for your API key and terminal details.
+Two collections are available depending on your integration path:
 
-→ [Download Postman collection](/files/Handpoint_Cloud_API.postman_collection.json)
+| Collection | Use when |
+|---|---|
+| **[Handpoint_Cloud_API.postman_collection.json](/files/Handpoint_Cloud_API.postman_collection.json)** | You are integrating via the Cloud API — covers the full ISV-facing surface: card-present transactions, polling, pre-auth, back-office, and reporting. |
+| **[Handpoint_BackOffice.postman_collection.json](/files/Handpoint_BackOffice.postman_collection.json)** | You already integrate via Android SDK, iOS SDK, PAX, or Hilite and want to add back-office capabilities. All requests go directly to the gateway — no reader or cardholder interaction required, compatible with any integration path. |
+
+Import the collection, then set the collection variables `api_key`, `serial_number`, `terminal_type`, and `currency`. The `env` variable controls the environment: `com` (default) targets production (`cloud.handpoint.com`), `io` targets staging (`cloud.handpoint.io`). Run **List Devices** to confirm your credentials.
 
 ### 3. Set up your terminal
 
@@ -144,16 +149,21 @@ No additional terminal configuration is required for the Cloud API. The Payments
 
 A minimal sale request — your server sends this, the terminal prompts the cardholder to tap/insert/swipe.
 
+:::info Amount units for `POST /transactions`
+`amount` is a **string of digits in minor currency units** — no decimal point, no currency symbol. `"1000"` = $10.00 USD. `"150"` = $1.50.
+
+Back-office endpoints (`POST /moto/sale`, `POST /moto/refund`, `POST /reversal`) use **major-unit decimal strings** instead — `"10.00"` = $10.00. Do not reuse the same amount-formatting logic across both endpoint families.
+:::
+
 ### Option A — Callback (recommended)
 
 Your server receives the result as an HTTP POST to your `callbackUrl`. Supply a `token` to authenticate the incoming webhook — it is echoed in the `AUTH-TOKEN` header of the callback.
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "operation": "sale",
   "amount": "1000",
   "currency": "USD",
@@ -162,7 +172,7 @@ Content-Type: application/json
   "transactionReference": "e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f",
   "callbackUrl": "https://your-server.com/handpoint/result",
   "token": "my-secret-webhook-token"
-}
+}'
 ```
 
 **Immediate response — 202 Accepted:**
@@ -233,26 +243,25 @@ Your `callbackUrl` must use a TLS certificate from a CA supported by Android 5�
 
 Omit `callbackUrl`. Poll the `transactionResultId` returned in the 202 response.
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "operation": "sale",
   "amount": "1000",
   "currency": "USD",
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "transactionReference": "e0b8ea26-f9b7-4eee-b7a2-a5d9032ea47f"
-}
+}'
 ```
 
 Poll until you get a final `finStatus`:
 
-```http
-GET https://cloud.handpoint.com/transaction-result/082104578-1786020446467
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```bash
+curl https://cloud.handpoint.com/transaction-result/082104578-1786020446467 \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
 ```
 
 :::caution Two distinct HTTP responses
@@ -272,12 +281,13 @@ result = resp.json()  # only on 200
 
 | `finStatus` | Meaning | Action |
 |---|---|---|
-| `UNDEFINED` | Result received but status unresolved | Keep polling |
-| `AUTHORISED` | Approved — card charged | Final. Do not retry. |
-| `DECLINED` | Declined by issuer | Final. Card not charged. Safe to retry. |
-| `FAILED` | Technical failure | Final. Card not charged. Safe to retry. |
+| `IN_PROGRESS` | Still processing on terminal or gateway | Keep polling. |
+| `UNDEFINED` | Result received but status unresolved | Keep polling. Do **not** retry — run the [recovery flow](/reference/transaction-recovery-cloud-api). |
+| `AUTHORISED` | Approved — card charged | Wait for `transaction-result` delivery before saving as final. In rare cases (chip card removed mid-processing, internal card app decline), the SDK sends a forced-reversal and the final `transaction-result` resolves to `DECLINED`. Always poll until the result is delivered — do not act on a `/status` `AUTHORISED` alone. |
+| `DECLINED` | Declined by issuer or gateway | Final. Card not charged. Safe to retry after cardholder action. |
+| `FAILED` | Technical failure | Final. Run [recovery flow](/reference/transaction-recovery-cloud-api) before retrying. |
 | `CANCELLED` | Cancelled at terminal | Final. Card not charged. Safe to retry. |
-| `PARTIAL_APPROVAL` | Partial amount approved (US only) | Poll `transaction-result` until it resolves — cardholder is deciding at the terminal. See [Partial Approvals](/reference/partial-approval). |
+| `PARTIAL_APPROVAL` | Partial amount approved (US only). Terminal is showing accept/decline prompt — **not final**. | Keep polling `transaction-result` for at least 60 s. If cardholder declines, SDK auto-reverses and result changes to `CANCELLED`. See [Partial Approvals](/reference/partial-approval). |
 | `REFUNDED` | Refund processed | Final. |
 | `CAPTURED` | Pre-auth captured | Final. |
 | `PROCESSED` | Completed (tokenization, MOTO) | Final. |
@@ -302,7 +312,7 @@ result = resp.json()  # only on 200
 }
 ```
 
-The polling endpoint returns the same `TransactionResult` shape as the callback payload. Stop polling as soon as `finStatus` is anything other than `IN_PROGRESS` or `UNDEFINED`.
+The polling endpoint returns the same `TransactionResult` shape as the callback payload. Stop polling when you receive a final `finStatus` — any value except `IN_PROGRESS`, `UNDEFINED`, and `PARTIAL_APPROVAL`. `PARTIAL_APPROVAL` is not final: the terminal is still showing an accept/decline prompt and the result can change to `CANCELLED`.
 
 ## Transaction recovery
 
@@ -310,7 +320,7 @@ Always persist your `transactionReference` to your database **before** sending t
 
 The recovery pattern:
 1. On application timeout (no callback received within your threshold — typically 90 s): mark the record as pending.
-2. Poll `GET https://transactions.handpoint.io/transactions/{transactionReference}/status` every 10 s.
+2. Poll `GET https://transactions.handpoint.com/transactions/{transactionReference}/status` every 10 s.
 3. On `AUTHORISED` with no prior record: send an automatic reversal (`POST /transactions` with `operation: saleReversal`) to prevent a double-charge.
 4. On any other final status: clear the pending record.
 
@@ -345,14 +355,11 @@ When the cardholder **accepts**, `transaction-result` resolves with `finStatus: 
 
 **Option 2 — Reverse the partial charge** (if your integration does not accept partial approvals):
 
-```http
-POST https://cloud.handpoint.com/reversal
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "originalGuid": "a4c21bd0-65ab-11f1-b4d2-aab210c7e31c"
-}
+```bash
+curl -X POST https://cloud.handpoint.com/reversal \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "originalGuid": "a4c21bd0-65ab-11f1-b4d2-aab210c7e31c" }'
 ```
 
 `originalGuid` is the `transactionID` from the partial approval result. This endpoint is synchronous — HTTP 200 means the reversal was accepted; no polling needed.
@@ -362,6 +369,16 @@ Use `totalAmount` (the approved partial) as the basis for the reversal — not `
 When the cardholder **declines**, `transaction-result` resolves with `finStatus: CANCELLED` and the SDK automatically sends a reversal for `totalAmount`. No further action is required; do not save the transaction as a sale.
 
 → Full flow diagrams, decision tree, and `/status/all` chain reference: [Partial Approvals](/reference/partial-approval)
+
+### EMV forced reversal — chip card removed mid-processing
+
+When a chip card is removed from the reader after the gateway has authorized the transaction but before the EMV flow completes — or when the card's internal application declines the authorization (e.g. IAD mismatch or internal card logic) — the SDK automatically sends a forced-reversal to release the hold. No ISV action is required for the reversal itself.
+
+**The timing trap:** `/status` may briefly show `AUTHORISED` while the forced-reversal is in flight. The final `transaction-result` resolves to `DECLINED` with `statusMessage` similar to "card declined the online authorization." An integration that reads `AUTHORISED` from `/status` at this moment and saves it as a completed sale will have an incorrect record.
+
+The fix is the same as for partial approvals: never act on a `/status` result — always wait for `transaction-result` delivery, or continue polling for at least 60 s before concluding.
+
+**To reproduce in testing:** insert a chip card, wait until the terminal shows "Processing..." (after PIN entry), then quickly pull the card out. The terminal and SDK handle the forced-reversal automatically. Verify your integration receives and records the final `DECLINED` result, not the intermediate `AUTHORISED`.
 
 Do not ignore `PARTIAL_APPROVAL` — the cardholder was charged `totalAmount` and expects either a receipt or confirmation that the charge was reversed.
 
@@ -477,9 +494,31 @@ def handpoint_callback():
 
 An unauthenticated callback endpoint can produce phantom transaction records if a third party posts to it. Keep `token` out of your source code — load it from an environment variable.
 
+### Callback retry schedule
+
+If your endpoint returns a non-2xx status code, or the connection times out, the terminal automatically retries delivery on the following schedule:
+
+| Phase | Duration | Interval |
+|---|---|---|
+| Phase 1 | 0–100 seconds | Every 5 seconds (20 attempts) |
+| Phase 2 | After 100 seconds | Exponential backoff: 4s → 8s → 16s → 32s → 64s → … capped at 15 minutes |
+| Abandoned | After 2 days | Record deleted; no further retries |
+
+**Per-attempt timeouts:** 30 second wall-clock limit, 15 second read timeout, 5 second connect timeout.
+
+**What triggers a retry:** any non-`2xx` HTTP status, or any network error (connection refused, DNS failure, read timeout).
+
+**What stops retries:** any `2xx` response (`200`, `201`, `204`, etc.). Return `2xx` as soon as you've accepted the payload — do not wait for your own database write to complete before responding.
+
+The retry loop runs on the PAX terminal itself (not the Handpoint Cloud). It restarts from Phase 1 if the Handpoint Payments App is restarted or `startRecovery()` is called.
+
+:::info If retries are exhausted
+After 2 days the terminal stops retrying and the callback is not re-delivered. Use the [transaction recovery flow](/reference/transaction-recovery-cloud-api) — query `GET /transactions/{transactionReference}/status` — to retrieve the outcome if your endpoint was unreachable for an extended period.
+:::
+
 ### Duplicate callbacks
 
-Handpoint may deliver the callback more than once if your server returns a non-2xx on the first attempt. Make your handler idempotent — deduplicate on `transactionReference` before creating any records. A second delivery of the same result should be a silent no-op.
+Because the terminal retries on non-2xx, your handler may receive the same result more than once (if the terminal retried before your first acknowledgement reached it). Make your handler idempotent — deduplicate on `transactionReference` before creating any records. A second delivery of the same result should be a silent no-op.
 
 ```python
 existing = db.get_transaction(result["transactionReference"])
@@ -495,15 +534,15 @@ The table below covers all payment operations supported on the Cloud API path. C
 
 | Operation | Description | Acquirer pages |
 |---|---|---|
-| **Sale** | Card-present EMV sale, MOTO sale, sale with tip, sale and tokenize | [EPI](/acquirers/epi#sale) · [Paysafe](/acquirers/paysafe-tsys#sale) · [Paysafe + Interac](/acquirers/tsys-tns#sale) · [EmerchantPay](/acquirers/omnipay-emp#sale) · [Paystrax](/acquirers/omnipay-paystrax#sale) |
-| **Refund** | On-device EMV refund, MOTO refund | [EPI](/acquirers/epi#refund) · [Paysafe](/acquirers/paysafe-tsys#refund) · [Paysafe + Interac](/acquirers/tsys-tns#refund) · [EmerchantPay](/acquirers/omnipay-emp#refund) · [Paystrax](/acquirers/omnipay-paystrax#refund) |
-| **Reversal** | On-device reversal (same-day, pre-settlement) | [EPI](/acquirers/epi#reversal) · [Paysafe](/acquirers/paysafe-tsys#reversal) · [Paysafe + Interac](/acquirers/tsys-tns#reversal) · [EmerchantPay](/acquirers/omnipay-emp#reversal) · [Paystrax](/acquirers/omnipay-paystrax#reversal) |
-| **Remote Reversal** | Back-office reversal via Cloud API (no terminal required) | [EPI](/acquirers/epi#remote-reversal) · [Paysafe](/acquirers/paysafe-tsys#remote-reversal) · [Paysafe + Interac](/acquirers/tsys-tns#remote-reversal) · [EmerchantPay](/acquirers/omnipay-emp#remote-reversal) · [Paystrax](/acquirers/omnipay-paystrax#remote-reversal) |
-| **Tip Adjustment** | Adjust tip after sale, before batch close | [EPI](/acquirers/epi#tip-adjustment) · [Paysafe + Interac](/acquirers/tsys-tns#tip-adjustment) |
-| **Pre-Authorization** | Create hold (card-present); capture, increase/decrease, reversal, capture reversal are back-office (no terminal interaction) | [EPI](/acquirers/epi#pre-auth) · [EmerchantPay](/acquirers/omnipay-emp#pre-auth) · [Paystrax](/acquirers/omnipay-paystrax#pre-auth) |
-| **MOTO (Remote Sale)** | Card-not-present sale using a stored token | [EPI](/acquirers/epi#moto-sale) · [EmerchantPay](/acquirers/omnipay-emp#moto-sale) |
-| **Tokenization** | Store card for future charges, deferred token retrieval | [EPI](/acquirers/epi#tokenization) · [Paysafe](/acquirers/paysafe-tsys#tokenization) · [Paysafe + Interac](/acquirers/tsys-tns#tokenization) · [EmerchantPay](/acquirers/omnipay-emp#tokenization) · [Paystrax](/acquirers/omnipay-paystrax#tokenization) |
-| **Batch Operations** | Batch close, summary, detail (TSYS/EPI only) — Backoffice path | [EPI](/acquirers/epi#batch-close) · [Paysafe + Interac](/acquirers/tsys-tns#batch-close) |
+| **Sale** | Card-present EMV sale, MOTO sale, sale with tip, sale and tokenize | [EPI](/acquirers/epi#sale) · [PAYSAFE](/acquirers/paysafe#sale) · [EmerchantPay](/acquirers/emerchantpay#sale) · [Paystrax](/acquirers/paystrax#sale) |
+| **Refund** | On-device EMV refund, MOTO refund | [EPI](/acquirers/epi#refund) · [PAYSAFE](/acquirers/paysafe#refund) · [EmerchantPay](/acquirers/emerchantpay#refund) · [Paystrax](/acquirers/paystrax#refund) |
+| **Reversal** | On-device reversal (same-day, pre-settlement) | [EPI](/acquirers/epi#reversal) · [PAYSAFE](/acquirers/paysafe#reversal) · [EmerchantPay](/acquirers/emerchantpay#reversal) · [Paystrax](/acquirers/paystrax#reversal) |
+| **Remote Reversal** | Back-office reversal via Cloud API (no terminal required) | [EPI](/acquirers/epi#remote-reversal) · [PAYSAFE](/acquirers/paysafe#remote-reversal) · [EmerchantPay](/acquirers/emerchantpay#remote-reversal) · [Paystrax](/acquirers/paystrax#remote-reversal) |
+| **Tip Adjustment** | Adjust tip after sale, before batch close | [EPI](/acquirers/epi#tip-adjustment) · [PAYSAFE](/acquirers/paysafe#tip-adjustment) |
+| **Pre-Authorization** | Create hold (card-present); capture, increase/decrease, reversal, capture reversal are back-office (no terminal interaction) | [EPI](/acquirers/epi#pre-authorization) · [EmerchantPay](/acquirers/emerchantpay#pre-authorization) · [Paystrax](/acquirers/paystrax#pre-authorization) |
+| **MOTO (Remote Sale)** | Card-not-present sale using a stored token | [EPI](/acquirers/epi#remote-sale) · [EmerchantPay](/acquirers/emerchantpay#remote-sale) |
+| **Tokenization** | Store card for future charges, deferred token retrieval | [EPI](/acquirers/epi#tokenization) · [PAYSAFE](/acquirers/paysafe#tokenization) · [EmerchantPay](/acquirers/emerchantpay#tokenization) · [Paystrax](/acquirers/paystrax#tokenization) |
+| **Batch Operations** | Batch close, summary, detail — Backoffice path | [EPI](/acquirers/epi#batch-close) |
 
 For the full acquirer × feature matrix across all integration paths: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix).
 
@@ -513,19 +552,50 @@ The initial Pre-Authorization Create goes through the PAX terminal — the cardh
 → [Pre-Authorization Guide](/reference/pre-authorization-guide) — full lifecycle, code examples for all steps, and acquirer support matrix.
 :::
 
+## Rate limits
+
+The Cloud API enforces a rate limit of **2 requests per second per merchant API key**.
+
+| Limit | Value |
+|---|---|
+| Requests per second | 2 |
+| Scope | Per `ApiKeyCloud` |
+| Applies to | All `POST /transactions` and back-office endpoints |
+
+Exceeding this limit returns HTTP **429 Too Many Requests**. The response body follows the standard error wrapper:
+
+```json
+{
+  "error": {
+    "statusCode": 429,
+    "name": "TooManyRequestsError",
+    "message": "Too many requests, please try again later."
+  }
+}
+```
+
+**In practice:** a single POS terminal can only run one transaction at a time (`1001 Device is busy` prevents concurrent sends to the same device), so the limit is only relevant when your backend manages multiple terminals under the same merchant API key and issues parallel requests for each. Add a short delay or queue between bursts in that case.
+
+:::tip Multi-merchant backends are not affected per-merchant
+Each merchant has its own `ApiKeyCloud`. The 2 req/s limit applies per key — a backend managing 100 merchants can issue 200 req/s total as long as each merchant's key stays under its own limit.
+:::
+
+---
+
 ## Test amounts
 
-Use these amounts on a DEMO merchant to trigger specific acquirer responses without real card interaction:
+Use these amounts on a DEMO merchant to trigger specific acquirer responses without real card interaction. `POST /transactions` takes `amount` in **minor currency units** — digits only, no decimal point (`"3779"` = $37.79 USD).
 
-| Amount | Behaviour |
-|---|---|
-| `$37.79` | Issuer response code 01 — Refer to issuer |
-| `$37.84` | Issuer response code 05 — Not authorized |
-| `$37.93` | Issuer response code 04 — Pick up card |
-| `$37.57` | Request partially approved (US only) |
-| `$37.68` | Request timeout |
+| `amount` value | Forced `finStatus` | Description |
+|---|---|---|
+| `3779` | `DECLINED` | Issuer response code 01: Refer to issuer |
+| `3784` | `DECLINED` | Issuer response code 05: Not authorized |
+| `3793` | `DECLINED` | Issuer response code 04: Pick up card |
+| `3757` | `PARTIAL_APPROVAL` | Partial amount approved (US only) |
+| `3768` | `FAILED` | Error connecting to authorization provider |
+| `3741` | `FAILED` | Processing error |
 
-Any other amount: approved. Funds are never moved on DEMO merchants — no real cards or accounts are required.
+Any other amount: `AUTHORISED`. Funds are never moved on DEMO merchants — no real cards or accounts are required.
 
 ## Validation & certification
 
@@ -535,7 +605,8 @@ Before going live, every Cloud API integration must pass mandatory validation sc
 
 - [ ] Transaction recovery tested — connection dropped mid-transaction, outcome resolved via polling, automatic reversal sent on `AUTHORISED` without callback receipt
 - [ ] Application timeout implemented — no silent abandonment; polling triggered after threshold
-- [ ] Partial approval handled — `PARTIAL_APPROVAL` detected, split tender or automatic reversal sent for `totalAmount` (not `requestedAmount`)
+- [ ] Partial approval handled — `PARTIAL_APPROVAL` detected (US only); polling continued for 60 s+; split tender offered or automatic reversal sent for `totalAmount` (not `requestedAmount`)
+- [ ] EMV forced reversal handled — chip card removed mid-processing causes `/status` to show `AUTHORISED` briefly before the final `transaction-result` resolves to `DECLINED`; integration records the `DECLINED` result, not the intermediate `AUTHORISED`
 - [ ] Callback endpoint is idempotent — duplicate POSTs handled correctly using `transactionReference`
 - [ ] `transactionReference` persisted to DB before the POST, not after
 
@@ -548,3 +619,5 @@ Before going live, every Cloud API integration must pass mandatory validation sc
 → Full scenario checklist with expected outcomes: [Validate your integration](/reference/validate-integration)
 
 → Error codes reference: [Error codes](/reference/error-codes)
+
+→ Copy-pasteable curl for every operation: [Operations Reference](/reference/cloud-api-operations)

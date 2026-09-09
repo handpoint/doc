@@ -1,0 +1,181 @@
+---
+title: "AVS"
+sidebar_label: "AVS"
+description: "Attach the cardholder's billing address to a Remote Sale or Keyed Entry Sale so the acquirer can use it during authorization."
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# AVS
+
+Attach the cardholder's billing address to a Remote Sale or Keyed Entry Pre-Authorization, so the acquirer can use it during authorization.
+
+:::info Availability
+Available via **Android SDK** and **Cloud API**. For now, only on **EPI**.
+:::
+
+## Overview
+
+Remote Sale and Keyed Entry Sale transactions carry more fraud risk than card-present ones — there's no chip, no PIN, no physical card to inspect. Address Verification Service (AVS) is the acquirer's way of checking a piece of the cardholder's billing information against what the issuer has on file for that card, alongside the card number and CVV. It's one of the standard risk signals issuers and acquirers use when deciding whether to approve a card-not-present transaction, on top of the usual authorization checks.
+
+This feature adds a `Billing` object — a postal code and, optionally, a street address — to a Remote Sale or Remote Pre-Authorization. Handpoint doesn't validate the address or run any lookup: you (or the cardholder, via the on-device prompt) supply the data, and the gateway forwards it to the acquirer as part of the authorization request.
+
+AVS applies to Remote Sale and Remote Pre-Authorization only. It doesn't apply to card-present transactions or Remote Refund, and remote sale must already be enabled for the merchant (see [Prerequisites](#prerequisites)).
+
+## Prerequisites
+
+- Handpoint Android SDK (hapi-android) **7.1014.0 or later** for `Billing`, `zipCode`, and `address` on Remote Sale.
+- A more recent SDK release for the on-device prompt opt-in (`enableAvsFields` on `MoToOptions`) — this shipped recently; pin to the latest release rather than 7.1014.0 if you need it.
+- Remote Sale enabled for the merchant (`motoEnabled = true`), regardless of who supplies the billing data.
+- Cloud API integrations target `POST /transactions` with `operation=moToSale` or `moToPreAuthorization`.
+
+## Configuration
+
+AVS for Remote Sale is enabled per merchant on the backend by Handpoint — there's no self-service toggle for it today.
+
+| Key | Type | Description |
+|---|---|---|
+| `avsForMoto` | boolean | Internal flag Handpoint sets per merchant. Default `false`. Requires `motoEnabled = true`. The native SDK reads the same setting under a different key, `"AVS"` (see [Code](#code)). |
+
+:::note
+You can't set this yourself — it's configured by Handpoint on the backend. Read it (via the SDK key `"AVS"`) to adapt your own UI, for example hiding billing fields when AVS isn't enabled for the merchant. It doesn't control the on-device prompt — that's `enableAvsFields`, set per transaction.
+:::
+
+## Handling cardholder data
+
+:::note
+The billing address is personal data — don't store it in clear text or write it to application logs (mask or truncate if you display it). The postal code isn't subject to the same restriction and can be logged. Apply your own retention policy and don't keep it longer than necessary.
+:::
+
+## Collecting the billing address
+
+Two ways to get `zipCode` / `address`, mutually exclusive on the same `MoToOptions`:
+
+| If you... | Do this |
+|---|---|
+| Have your own billing screen | Collect `zipCode` / `address` yourself and pass them via `Billing`. Don't set `enableAvsFields` — it's ignored once `billing` is already set. |
+| Don't want to build one | Set `enableAvsFields = true` and leave `billing` unset. The native card-entry screen asks for `zipCode` / `address` before sending the transaction. |
+
+This applies to Remote Sale and Remote Pre-Authorization only — AVS is not supported on Remote Refund or Keyed Entry Refund.
+
+## Code {#code}
+
+### Remote Sale with billing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "33.09",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "c1e1a7ee-1432-4a9c-9171-414e203dbb49",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+`address` is optional — `zipCode` alone is a valid `billing` object.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Option A — supply billing data from your own UI
+val billing = Billing(zipCode = "10001", address = "123 Main St")
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", billing = billing)
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+
+// Option B — terminal prompts for zip code on the card entry screen
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", enableAvsFields = true)
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+Do not combine `enableAvsFields` with `billing` — they are mutually exclusive. When `billing` is already set, `enableAvsFields` is ignored.
+
+</TabItem>
+</Tabs>
+
+### Remote Pre-Authorization with billing
+
+Pre-Auth accepts the same `billing` / `enableAvsFields` options as Sale.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/preauthorization
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "33.09",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "a2b3c4d5-0000-0000-0000-111122223333",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Option A — supply billing data from your own UI
+val billing = Billing(zipCode = "10001", address = "123 Main St")
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", billing = billing)
+hapi.motoPreAuthorization(BigInteger("1000"), Currency.USD, options)
+
+// Option B — terminal prompts for zip code
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", enableAvsFields = true)
+hapi.motoPreAuthorization(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
+### Reading the AVS merchant flag (Android SDK)
+
+```kotlin
+val isAvsEnabled = hapi.getDeviceCapabilities()?.let {
+    it.options["AVS"] == true
+} ?: false
+```
+
+Use this to conditionally show or hide billing fields in your own UI — the `"AVS"` key maps to the backend `avsForMoto` flag.
+
+## What comes back
+
+The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a Remote Sale or Keyed Entry Sale with billing data attached, on both the native SDK and Cloud API.
+
+## Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| `billing` is null / omitted | Transaction proceeds normally, no billing data sent. |
+| `zipCode` omitted, `address` supplied | Not a supported combination — `zipCode` is required whenever you construct a `Billing` object. |
+| `address` omitted, `zipCode` supplied | Valid — `address` is optional. |
+| `billing` supplied, AVS not enabled for the merchant | No special handling — the SDK forwards whatever billing you set regardless of this flag (verified in `MoToRequestFactory`: billing is sent whenever it's present, with no check against `avsForMoto`). The flag only matters if you choose to read it for your own UI logic — see [Code](#code). |
+| `enableAvsFields = true` but `billing` already set (native SDK) | The on-device prompt is suppressed — your billing values are used as-is. |
+
+## What to persist after a transaction
+
+Store the following locally. Don't persist the raw billing address in clear text.
+
+| Field to store | Source | Notes |
+|---|---|---|
+| `originalTransactionId` | `TransactionResult.transactionId` / API transaction id | Needed to link any later void or refund. |
+| `billingSent` | Whether you set billing on this transaction | Your own local flag — useful for reconciliation alongside the AVS result. |
+| `billingZipCode` (optional) | Your local variable at transaction time | Store only what your reconciliation process needs. |
+| `billingAddress` | Not stored in clear text | Mask, truncate, or omit per your data retention policy. |

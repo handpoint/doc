@@ -60,6 +60,26 @@ Cordova wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). Hardwa
 
 ---
 
+## DEMO merchants and the mock acquirer {#demo-merchant}
+
+A **DEMO merchant** is a Handpoint merchant account provisioned against **ViscusDummy** — a mock payment server that simulates acquirer responses without moving funds. DEMO merchants are available in both the staging (`cloud.handpoint.io`) and production (`cloud.handpoint.com`) environments.
+
+| | DEMO merchant |
+|---|---|
+| **Card requirements** | Any physical card — chip, tap, or swipe. **Interac cards are not supported** (ViscusDummy has no Interac routing) |
+| **Test card numbers** | None needed — response is determined by the **amount** alone |
+| **Funds movement** | None — approvals are simulated and do not settle |
+| **Environment** | Both staging and production support DEMO merchants |
+| **Acquirer** | ViscusDummy (not a real acquirer) |
+
+Contact your Handpoint Integration Engineer to provision a DEMO merchant for your development account.
+
+:::info Interac requires a separate test merchant
+ViscusDummy does not support Interac. Interac testing uses **TNSDummy**, a separately provisioned mock server — see the [Interac test card numbers section](#interac-test-cards) below.
+:::
+
+---
+
 ## Testing with trigger amounts {#trigger-amounts}
 
 When testing against the **TEST/DEMO merchant** (HiLite devices) or a PAX device on the **staging environment**, use the following amounts (in **minor units** — cents/pence) to simulate specific gateway responses. These are powered by **Viscus-Dummy**, the Handpoint mock server used in staging.

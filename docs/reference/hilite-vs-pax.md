@@ -40,20 +40,20 @@ Legend: ✅ Supported &nbsp;·&nbsp; ❌ Not supported &nbsp;·&nbsp; ✅\* See 
 | getTransactionStatus | ✅ | ❌ | ❌ | ✅\* | Android HiLite: not in EFT frame protocol. iOS: not in public API. \*Cordova PAX mode only |
 | Batch Close | ✅\* | ❌ | ❌ | ❌ | \*Cloud API / Back Office only (EPI). Not available in any SDK |
 | Money Remittance | ✅ | ✅ | ✅ | ✅ | EmerchantPay only |
-| Void (Interac) | ✅ | ✅ | ✅ | ✅ | PAYSAFE+Interac only |
+| Void (Interac) | ✅ | ✅ | ✅ | ✅ | PAYSAFE with Interac enabled only |
 
 ---
 
 ## What Back Office operations can fill the HiLite gaps
 
-Operations missing from HiLite SDKs can often be performed server-side via the [Back Office REST API](/back-office/rest-api-no-reader) with no terminal required:
+Operations missing from HiLite SDKs can often be performed server-side via the [Back Office integration guide](/reference/backoffice-integration-guide) with no terminal required:
 
 | HiLite gap | Back Office solution |
 |---|---|
 | No partial reversal on HiLite | `POST /reversal` with `amount` + `currency` (EPI only) |
 | No pre-auth capture on HiLite | `POST /preauthorization/capture` |
 | No pre-auth increase on HiLite | `POST /preauthorization/increase` |
-| No MOTO remote sale on HiLite | `POST /moto/sale` with card token (EPI, EmerchantPay) |
+| No Remote Sale on HiLite | `POST /moto/sale` with card token (EPI, EmerchantPay) |
 | No batch close on HiLite | `POST /batch/close` |
 | Tip adjustment on iOS (SDK method requires sharedSecret) | `POST /transactions/{id}/tip-adjustment` with `ApiKeyCloud` |
 
@@ -69,7 +69,7 @@ Operations missing from HiLite SDKs can often be performed server-side via the [
 - **Partial reversal**: Not available in SDK — use `POST /reversal` (Back Office)
 - **Pre-auth**: Not available at all on HiLite
 - **Multi-MID**: Supported via `MerchantAuth` + `SaleOptions`
-- **Tip adjustment**: Supported (EPI, PAYSAFE+Interac TSYS-routed)
+- **Tip adjustment**: Supported (EPI, PAYSAFE — non-Interac cards only)
 - **stopCurrentTransaction**: **Not supported** — `ConnectionManager.stopCurrentTransaction()` returns `false` immediately for Bluetooth connections (source-verified in Android SDK `ConnectionManager.kt`). Do not call it on Android HiLite
 
 ### iOS HiLite
@@ -84,7 +84,7 @@ Operations missing from HiLite SDKs can often be performed server-side via the [
 ### Cordova HiLite mode
 
 - **Connection**: Bluetooth (same as Android HiLite under the hood)
-- **Tip adjustment**: Supported (EPI, PAYSAFE+Interac)
+- **Tip adjustment**: Supported (EPI, PAYSAFE — non-Interac cards only)
 - **Pre-auth**: Not supported in HiLite mode — Cordova pre-auth requires PAX mode
 - **Multi-MID**: Not documented / not confirmed for Cordova HiLite mode
 
@@ -95,8 +95,7 @@ Operations missing from HiLite SDKs can often be performed server-side via the [
 | Acquirer | Sale/Refund/Reversal | Tip Adj | Pre-Auth | Partial Rev | MOTO (card token) |
 |---|---|---|---|---|---|
 | EPI | ✅ | ✅ | ❌ | ❌ (Back Office ✅) | ❌ (Back Office ✅) |
-| PAYSAFE + Interac | ✅ | ✅ TSYS cards only | ❌ | ❌ | ❌ |
-| PAYSAFE (US) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| PAYSAFE | ✅ | ✅ non-Interac only | ❌ | ❌ | ❌ |
 | EmerchantPay | ✅ | ❌ | ❌ | ❌ | ❌ (Back Office ✅) |
 | Paystrax | ✅ | ❌ | ❌ | ❌ | ❌ |
 
@@ -107,7 +106,7 @@ For the full multi-path, multi-acquirer matrix see the [Acquirer capabilities ma
 ## Related pages
 
 - [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — full per-acquirer, per-path support table
-- [Back Office REST API](/back-office/rest-api-no-reader) — server-side operations that complement HiLite gaps
+- [Back Office integration guide](/reference/backoffice-integration-guide) — server-side operations that complement HiLite gaps
 - [Android HiLite integration guide](/reference/android-hilite-integration-guide)
 - [iOS HiLite integration guide](/reference/ios-hilite-integration-guide)
 - [Multi-MID](/reference/multi-mid) — `MerchantAuth` on Android and iOS

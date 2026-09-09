@@ -184,7 +184,7 @@ Embedded in `SaleOptions`. Controls tip prompt behaviour: `enterAmountEnabled`, 
 | `PROCESSED` | Processed (non-card tender) |
 | `FAILED` | Communication or processing failure |
 | `CANCELLED` | Cancelled by operator or timeout |
-| `PARTIALLY_APPROVED` / `PARTIAL_APPROVAL` | Partial amount approved (both map to value 6) |
+| `PARTIAL_APPROVAL` / `PARTIAL_APPROVAL` | Partial amount approved (both map to value 6) |
 | `REFUNDED` | Refund completed |
 | `CAPTURED` | Pre-auth captured |
 | `IN_PROGRESS` | Transaction active *(added v7.1012.1)* |
@@ -318,7 +318,7 @@ Carries `merchantAuth` list for multi-merchant environments.
 **7.1009.5/7.1011.0:**
 ```
 UNDEFINED, AUTHORISED, DECLINED, PROCESSED, FAILED, CANCELLED,
-PARTIALLY_APPROVED, PARTIAL_APPROVAL, REFUNDED, CAPTURED
+PARTIAL_APPROVAL, PARTIAL_APPROVAL, REFUNDED, CAPTURED
 ```
 
 **7.1012.1 additions:**

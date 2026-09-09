@@ -35,7 +35,7 @@ Content-Type: application/json
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "transactionReference": "3c9de220-b14a-4a0c-9d2e-b3c1088e5a91",
-  "externalId": "dr-patel"
+  "merchantAuth": [{ "externalId": "dr-patel" }]
 }
 ```
 
@@ -57,7 +57,7 @@ hapi.sale(BigInteger("15000"), Currency.USD, options)
 </TabItem>
 </Tabs>
 
-Omit `externalId` / `MerchantAuth` to fall back to the practice's main MID.
+Omit `merchantAuth` / `MerchantAuth` to fall back to the practice's main MID.
 
 :::info Provisioning
 Sub-MIDs are configured by Handpoint Integration Support. Each provider needs a separate merchant account with the acquirer before a sub-MID can be created.
@@ -94,12 +94,12 @@ Content-Type: application/json
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "cardToken": "TOKEN_FROM_PRIOR_TOKENIZATION",
-  "externalId": "dr-patel",
+  "merchantAuth": [{ "externalId": "dr-patel" }],
   "transactionReference": "new-uuid-here"
 }
 ```
 
-The `externalId` field works the same on MOTO calls as on card-present transactions — provider routing is preserved regardless of payment channel.
+The `merchantAuth` field works the same on MOTO calls as on card-present transactions — provider routing is preserved regardless of payment channel.
 
 To obtain a `cardToken`, use a `saleAndTokenizeCard` operation during a card-present visit. The token is in the result as `cardToken`.
 
@@ -118,7 +118,7 @@ The patient presents their card at arrival; the front desk sends a `preAuthoriza
 ```http
 # At check-in — card-present
 POST https://cloud.handpoint.com/transactions
-{ "operation": "preAuthorization", "amount": "30000", "externalId": "dr-patel", ... }
+{ "operation": "preAuthorization", "amount": "30000", "merchantAuth": [{ "externalId": "dr-patel" }], ... }
 
 # At checkout — back-office, no terminal
 POST https://cloud.handpoint.com/preauthorization/capture

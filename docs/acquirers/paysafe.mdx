@@ -1,8 +1,8 @@
 ---
-id: paysafe-tsys
+id: paysafe
 title: "PAYSAFE"
-description: "US card-present acquirer. Supports: sale, refund, reversal, tokenization."
-geography: "US"
+description: "US and Canada card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, moto, tokenization, Interac void."
+geography: "US · Canada"
 status: active
 card-brands: [VISA, MC, AMEX, Discover, Interac]
 interac: true
@@ -10,7 +10,10 @@ capabilities:
   sale: true
   refund: true
   reversal: true
+  tip-adjustment: true
   tokenization: true
+  void: true
+  interac: true
 integration-paths:
   - cloud-api
   - android-pax
@@ -18,7 +21,7 @@ integration-paths:
   - ios-hilite
   - cordova
   - backoffice
-last-reviewed: "2026-08-15"
+last-reviewed: "2026-09-05"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -26,29 +29,17 @@ import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
 import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
-import CapabilitySummary from '@site/src/components/CapabilitySummary';
 import FlavorSection from '@site/src/components/FlavorSection';
-import { CAPS_BY_ID } from '@site/src/data/acquirerCaps';
 
-export const _caps = CAPS_BY_ID['paysafe-tsys'];
+<AcquirerPageHeader currentSlug="paysafe" />
 
-<AcquirerPageHeader currentSlug="paysafe-tsys" />
+**Geography:** US · Canada &nbsp;·&nbsp; **Cards:** <img src="/img/cards/visa.svg" alt="Visa" title="Visa" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/mastercard.svg" alt="Mastercard" title="Mastercard" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/amex.svg" alt="Amex" title="American Express" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/discover.svg" alt="Discover" title="Discover" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/interac.svg" alt="Interac" title="Interac" height="22" style={{verticalAlign:'middle'}}/>
 
-## Functionalities
+PAYSAFE is Handpoint's North American acquirer for card-present transactions. It supports sale, refund, reversal, tip adjustment, Remote Sale (card token), and tokenization. Merchants with Interac enabled additionally support Interac debit processing and Void. Partial reversals are not supported.
 
-<CapabilitySummary capabilities={_caps} />
-
-:::info Acquirer notes
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
-
+---
 
 ## Sale {#sale}
-
-
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
 
 
 ### EMV Sale {#emv-sale}
@@ -251,11 +242,11 @@ On `DECLINED`: `finStatus` is `"DECLINED"`, `totalAmount` is `0`, `authorisation
 </FlavorSection>
 
 
-### Sale with Tip {#sale-and-tip}
+### Sale with Tip {#sale-with-tip}
 
 <FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
-Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment.
+Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
 
 #### When to use it
 Use in hospitality environments (restaurants, taxis, salons) where tipping is expected at point of sale. The tip is collected at the terminal, included in the authorised amount, and settled together with the base sale — no second operation is needed.
@@ -265,37 +256,35 @@ Use in hospitality environments (restaurants, taxis, salons) where tipping is ex
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "operation": "sale",
-  "amount": "1000",
+  "amount": "3800",
   "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
   "tipConfiguration": {
-    "baseAmount": "1000",
-    "tipPercentages": [10, 15, 20],
+    "baseAmount": "3800",
+    "tipPercentages": [15, 18, 20],
     "enterAmountEnabled": true,
     "skipEnabled": true,
     "footer": "Thank you!"
-  },
-  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
-}
+  }
+}'
 ```
 
-`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "SKIP" option.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
 val tipConfig = TipConfiguration(
-    baseAmount     = BigInteger("1000"),
-    tipPercentages = listOf(10, 15, 20),
+    baseAmount     = BigInteger("3800"),
+    tipPercentages = listOf(15, 18, 20),
     enterAmountEnabled = true,
     skipEnabled        = true,
     footer         = "Thank you!"
@@ -304,7 +293,7 @@ val tipConfig = TipConfiguration(
 val options = SaleOptions()
 options.tipConfiguration = tipConfig
 
-hapi.sale(BigInteger("1000"), Currency.USD, options)
+hapi.sale(BigInteger("3800"), Currency.USD, options)
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
@@ -319,8 +308,8 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 ```kotlin
 val tipConfig = TipConfiguration(
-    baseAmount     = BigInteger("1000"),
-    tipPercentages = listOf(10, 15, 20),
+    baseAmount     = BigInteger("3800"),
+    tipPercentages = listOf(15, 18, 20),
     enterAmountEnabled = true,
     skipEnabled        = true
 )
@@ -328,7 +317,7 @@ val tipConfig = TipConfiguration(
 val options = SaleOptions()
 options.tipConfiguration = tipConfig
 
-hapi.sale(BigInteger("1000"), Currency.USD, options)
+hapi.sale(BigInteger("3800"), Currency.USD, options)
 ```
 
 </TabItem>
@@ -337,11 +326,11 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 ```javascript
 handpoint.sale(
   {
-    amount: 1000,
+    amount: 3800,
     currency: handpoint.Currency.USD,
     tipConfiguration: {
-      baseAmount: 1000,
-      tipPercentages: [10, 15, 20],
+      baseAmount: 3800,
+      tipPercentages: [15, 18, 20],
       enterAmountEnabled: true,
       skipEnabled: true
     }
@@ -360,7 +349,7 @@ handpoint.sale(
 
 <NotSupported
   reason="Sale with Tip is not available on iOS HiLite. The saleWithAmount() method does not accept tip configuration parameters."
-  useInstead="Cloud API or Android SDK (PAX)"
+  useInstead="Tip Adjustment (PAYSAFE supports it) — use HapiRemoteService.tipAdjustment() to add a tip after the sale completes, or switch to Cloud API / Android SDK (PAX) for on-screen tip collection."
 />
 
 </TabItem>
@@ -371,7 +360,8 @@ handpoint.sale(
 | Field | Type | Description |
 |---|---|---|
 | `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
-| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `headerName` | string | Header text shown on the tip screen. Defaults to `"Tip"` |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[15, 18, 20]` — required |
 | `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
 | `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
 | `footer` | string | Optional message shown at the bottom of the tip screen |
@@ -380,132 +370,19 @@ handpoint.sale(
 
 | Field | Description |
 |---|---|
-| `tipAmount` | Tip selected by the cardholder (minor units) |
+| `tipAmount` | Tip amount chosen by the cardholder (minor units) |
 | `totalAmount` | Base amount + tip — what was authorised and will settle |
 
-</FlavorSection>
-
-### Sale with Paysafe Token {#sale-and-tokenize}
-
-<FlavorSection description="On-device · stores card token for future charges" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
-
-Store a **reusable card token** during the sale so future card-not-present charges can be made without the cardholder being present again. The token is returned in the `TransactionResult` and can be used for subsequent back-office MOTO sales.
-
-#### When to use it
-Use when onboarding a new customer in person — take the first payment as a normal card-present sale and simultaneously capture a card token for future recurring charges, subscriptions, or card-on-file billing.
-
-#### Code
-
-<Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
-
-Tokenization happens as a **separate operation** via the `/transactions` endpoint with `"operation": "tokenizeCard"`. The resulting token can then be used in back-office MOTO sales.
-
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "operation": "tokenizeCard",
-  "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
-}
-```
-
-The token is returned in the `TransactionResult.cardToken` field. Store it and use it in subsequent `POST /moto/sale` requests.
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-```kotlin
-// Standalone tokenize — card is presented and tokenized without a charge
-hapi.tokenizeCard()
-
-override fun endOfTransaction(result: TransactionResult, device: Device) {
-    if (result.finStatus == FinancialStatus.AUTHORISED) {
-        val token = result.cardToken  // store securely for future MOTO charges
-    }
-}
-
-// Or: sale that also returns a token (where acquirer supports it)
-// The cardToken field is populated on the sale result if tokenization is enabled for the merchant
-hapi.sale(BigInteger("1000"), Currency.USD)
-// result.cardToken will be non-null if the acquirer issued a token on this sale
-```
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-```kotlin
-hapi.tokenizeCard()
-
-override fun endOfTransaction(result: TransactionResult, device: Device) {
-    if (result.finStatus == FinancialStatus.AUTHORISED) {
-        val token = result.cardToken
-    }
-}
-```
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-```swift
-heftClient.tokenizeCard()
-
-func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
-    if info.statusCode == EFT_PP_STATUS_SUCCESS {
-        let token = info.cardToken  // store securely
-    }
-}
-```
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-```javascript
-handpoint.tokenizeCard(
-  { currency: handpoint.Currency.USD },
-  function(result) {
-    if (result.finStatus === "AUTHORISED") {
-      const token = result.cardToken;  // store securely
-    }
-  },
-  function(error) { console.error(error); }
-);
-```
-
-</TabItem>
-</Tabs>
-
-#### Result fields
-
-| Field | Description |
-|---|---|
-| `cardToken` | Opaque token string issued by the acquirer's token provider. Store this — do not log or expose it. |
-| `finStatus` | `AUTHORISED` on success |
-
-#### Using the token for future charges
-
-Pass `cardToken` in the [Remote Sale (MOTO)](#moto-sale) flavor's `cardToken` field for subsequent card-not-present charges.
-
-:::caution Token scope
-Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.
+:::note Tip Adjustment vs Sale with Tip
+**Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. Use Sale with Tip when the cardholder is at the terminal; use Tip Adjustment for tip-at-table flows where you capture a signature and enter the tip later. The two methods are **mutually exclusive** on the same transaction. See the [Tipping Guide](/reference/tipping-guide) for full details.
 :::
 
-
 </FlavorSection>
-
 
 
 ## Refund {#refund}
 
 
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
 
 
 ### EMV Refund {#emv-refund}
@@ -524,6 +401,10 @@ Per merchant configuration, the **same card** used in the original sale must be 
 
 #### When to use it
 Use for returns after settlement has occurred. For cancellations of unsettled transactions, use Reversal — it is faster and incurs no interchange fees.
+
+:::info Post-settlement CNP refunds — Paysafe Portal
+Paysafe does not support card-not-present refunds via the Handpoint API. For CNP refunds after settlement (e.g. phone or mail order returns), use the **Paysafe Merchant Portal**: locate the transaction by its `eftTransactionID` and submit the refund there directly. Handpoint has no record of transactions processed through the Paysafe Portal.
+:::
 
 #### Code
 
@@ -645,13 +526,9 @@ handpoint.refund(
 </FlavorSection>
 
 
-
 ## Reversal {#reversal}
 
 
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
-:::
 
 
 ### Reversal {#reversal}
@@ -659,16 +536,20 @@ Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-
 <FlavorSection description="On-device · no card required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 #### What this does
-Cancels an unsettled transaction before batch settlement — the full authorised amount is released to the cardholder without interchange fees. No card present required.
+Cancels an unsettled transaction before settlement — the full authorised amount is released to the cardholder without interchange fees. No card present required.
 
 #### When to use it
-Use when a transaction needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a post-settlement Refund — faster and fee-free. Do NOT use after settlement — send a Refund instead.
+Use when a transaction needs to be cancelled before settlement. This is always preferable to a post-settlement Refund — faster and fee-free. Do NOT use after settlement — send a Refund instead.
+
+:::note Interac transactions
+For Interac cards, use **Void** instead of Reversal — the Interac network does not support standard reversal. See [Void](#void).
+:::
 
 #### Implementation notes
 
-1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
-2. **No card present required.** Reversal references the original `transactionID` electronically — the cardholder does not need to return to the terminal.
-3. **Terminal must be online.** The SDK paths route the reversal through the connected reader — the terminal must be reachable at the time of the call.
+1. **Pre-settlement only.** Reversal works on the current open settlement window only. Once the transaction settles, only a post-settlement Refund is available.
+2. **No card present required.** Reversal references the original `transactionID` electronically.
+3. **Terminal must be online.** The SDK paths route the reversal through the connected reader.
 
 #### Code
 
@@ -692,14 +573,6 @@ Content-Type: application/json
 }
 ```
 
-Response:
-```json
-{
-  "statusMessage": "Operation Accepted",
-  "transactionResultId": "0821599465-1786020446467"
-}
-```
-
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
@@ -707,12 +580,12 @@ Response:
 hapi.saleReversal(
     BigInteger("1000"),
     Currency.USD,
-    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 )
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
-        // reversal accepted — no card prompt, no settlement
+        // reversal accepted — no settlement
     }
 }
 ```
@@ -726,12 +599,6 @@ hapi.saleReversal(
     Currency.USD,
     "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 )
-
-override fun endOfTransaction(result: TransactionResult, device: Device) {
-    if (result.finStatus == FinancialStatus.AUTHORISED) {
-        // reversal accepted
-    }
-}
 ```
 
 </TabItem>
@@ -759,94 +626,28 @@ handpoint.saleReversal(
 </TabItem>
 </Tabs>
 
-
-
 #### Parameters
-
-**Cloud API** — `POST /transactions`:
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes | Must be `"saleReversal"` |
-| `amount` | string | Yes | Full original sale amount in **minor units** as a string, e.g. `"1100"` = $11.00 |
+| `operation` | string | Yes (Cloud API) | Must be `"saleReversal"` |
+| `amount` | string | Yes | Same as original authorised amount (minor units) |
 | `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
-| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `serial_number` | string | Yes | Terminal serial number |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model |
 | `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
-| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete |
-| `token` | string | No | Opaque value included alongside the push notification. Only used when `callbackUrl` is set |
-
-**Android SDK / iOS SDK**:
-
-| Name | Type | Description |
-|---|---|---|
-| `amount` | `BigInteger` | Full original sale amount in minor currency units |
-| `currency` | `Currency` | Currency of the original sale |
-| `originalTransactionID` | `String` | `transactionID` from the original sale result |
 
 #### Errors
 
-Errors arrive in the polled result object, not in the initial 202. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized.
-
-| `finStatus` | `statusMessage` | Meaning | What to do |
-|---|---|---|---|
-| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found in the open batch | Verify the GUID; if the batch has closed, send a Refund instead |
-| `FAILED` | `Transaction failed, error: Error getting advanced transaction status...` | `originalTransactionId` not found (pre-auth reversal path) | Verify the GUID is from the pre-auth create result |
-
-**Immediate HTTP errors** (returned before the 202):
-
-| HTTP | `message` | Meaning | What to do |
-|---|---|---|---|
-| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
-| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
-
-#### Testing
-
-Test reversals on the TEST/DEMO merchant or staging device.
-
-<Tabs groupId="integration-path">
-<TabItem value="cloud-api" label="Cloud API">
-
-| Scenario | How to trigger |
-|---|---|
-| Success | Complete a sale, send `POST /transactions` same day — verify `AUTHORISED` via `GET /transaction-result/{id}` |
-| After cut-off | Close the batch, attempt reversal — verify error and route to Refund |
-| Already reversed | Send the same reversal twice — verify idempotent or `ALREADY_REVERSED` response |
-
-</TabItem>
-<TabItem value="android-pax" label="Android (PAX)">
-
-| Scenario | How to trigger |
-|---|---|
-| Before cut-off | `hapi.saleReversal()` same day — verify no card prompt, `finStatus == AUTHORISED` |
-| After cut-off | Close batch, then call `hapi.saleReversal()` — verify `DECLINED` or error |
-
-</TabItem>
-<TabItem value="android-hilite" label="Android (HiLite)">
-
-Same as Android PAX.
-
-</TabItem>
-<TabItem value="ios-hilite" label="iOS (HiLite)">
-
-| Scenario | How to trigger |
-|---|---|
-| Before cut-off | `heftClient.saleVoidWithAmount:currency:transaction:` same day — verify success |
-| After cut-off | Close batch, attempt void — verify failure in delegate |
-
-</TabItem>
-<TabItem value="cordova" label="Cordova">
-
-| Scenario | How to trigger |
-|---|---|
-| Before cut-off | `handpoint.saleReversal()` same day — verify `AUTHORISED` |
-| After cut-off | Close batch, attempt reversal — verify error |
-
-</TabItem>
-</Tabs>
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Reversal declined | Check transaction status; may already be settled |
+| `ORIGINAL_NOT_FOUND` | `originalTransactionId` not found | Verify the GUID is from the original sale result |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
 
 
 </FlavorSection>
+
 
 
 ### Remote Reversal {#remote-reversal}
@@ -874,7 +675,7 @@ Cancels any unsettled transaction — sale, MOTO, pre-auth capture, or refund �
 1. **Backoffice** amount is in **major units** (decimal string) — e.g. `"11.00"` for $11.00. Cloud API uses minor units (integer string).
 2. Omit `amount` and `currency` for a full reversal. Include them only for a partial reversal (EPI only — requires TMS enablement per merchant).
 3. Do NOT include a `transactionReference` on either path — this is a subsequent operation linked to the original.
-4. **Interac cards (Paysafe + Interac gateway only):** Remote reversal is not available for Interac card transactions. Interac requires card-present at terminal. Use the on-device Reversal flow instead. Non-Interac cards on the same gateway work normally.
+4. **Interac cards:** Remote reversal is not available for Interac debit transactions. Interac requires card-present at terminal — use the on-device Void flow instead. Non-Interac cards work normally.
 
 #### Code
 
@@ -1042,14 +843,131 @@ Synchronous — errors are returned immediately in the response body:
 </FlavorSection>
 
 
+## Tip Adjustment
 
-## Tokenization {#tokenization}
-
-
-:::note PAYSAFE
-Paysafe uses TSYS + TNS routing infrastructure. MOTO, partial reversal, and pre-authorization are not available. Tip adjustment forthcoming. Tokenization: single-use Paysafe token — requires merchant onboarding by Paysafe/Handpoint before use. Interac transactions follow TNS void-only rules — see Interac VOID guide.
+:::note Tip Adjustment vs Sale with Tip
+**Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. The two methods are **mutually exclusive** on the same transaction. See the [Tipping Guide](/reference/tipping-guide) for full details.
 :::
 
+#### What this does
+Modifies the tip amount on a completed sale before batch close.
+
+#### When to use it
+Use in restaurant/hospitality flows where the cardholder adds a tip after the initial transaction is approved. Do NOT use after batch close — send a Refund for the difference instead.
+
+#### Implementation notes
+
+1. **Last adjustment wins.** Each call replaces the previous tip value — there is no accumulation. If the cardholder adds $2 and then changes it to $5, send $5 as the full tip. To void a tip that was already set, send `amount: 0`.
+2. **Deadline: before batch close.** The cut-off time is determined by your acquirer and the merchant's onboarding configuration, not by a fixed clock time. Contact your Handpoint integration engineer for the exact cut-off for your merchant. After close, the transaction has settled and only a post-settlement Refund is possible.
+3. **Acquirer restriction:** tip adjustment is only available on transactions where **no tip was collected on-screen during the original sale** (tip-at-table flow). If the original sale included an on-screen tip prompt, PAYSAFE will reject the tip adjustment — use tip adjustment only when the sale was processed without a tip prompt.
+4. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
+5. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
+6. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
+7. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `Boolean` directly. There is no `endOfTransaction` callback for this operation. `true` = adjustment accepted by the gateway; `false` = rejected. Check the return value immediately after the call.
+8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
+9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/tip-adjustment
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": 9.00
+}
+```
+
+The `transactionID` from the original sale goes in the URL path. To void a tip, send `"amount": 0`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),  // 900 cents = $9.00
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),  // 900 cents = $9.00
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Tip adjustment via server-side call using HapiRemoteService
+// Use transactionId (internal device number) from the original sale's responseFinanceStatus
+// NOT eFTTransactionID — they are different fields
+hapiRemoteService.tipAdjustment(
+    transaction: originalInfo.transactionId,
+    tipAmount: 900
+) { success in
+    if success {
+        // tip recorded
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="tipAdjustment is not implemented in the Cordova plugin — calling it has no effect on either Android or iOS. Use the Cloud API or Android SDK directly."
+  useInstead="Cloud API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Cloud API** — `POST /transactions/{transactionID}/tip-adjustment`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result |
+| `amount` | number | Yes | Tip amount in major currency units (e.g. `9.00` for $9.00). `0` to void an existing tip |
+
+**Android SDK** — `tipAdjustment(tipAmount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
+| `currency` | `Currency` | Currency of the original transaction |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `ORIGINAL_NOT_FOUND` | Transaction ID not found | Verify the ID |
+| `BATCH_ALREADY_CLOSED` | Batch has closed | Refund the tip amount instead |
+| `TIP_ADJUSTMENT_NOT_ENABLED` | TMS config not set | Contact Handpoint onboarding team |
+| `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
+
+#### Testing
+Test tip adjustment on the TEST/DEMO merchant or staging device. TMS enablement must be configured — contact your Handpoint Integration Support engineer for staging TMS setup.
+
+## Tokenization {#tokenization}
 
 ### Paysafe Single-Use Token {#paysafe-token}
 
@@ -1319,3 +1237,236 @@ Test tokens are returned on the TEST/DEMO merchant or staging device. Use the To
 
 </FlavorSection>
 
+
+## Void
+
+:::info Interac merchants only
+Void applies exclusively to Interac debit transactions. For non-Interac card transactions, use Reversal instead — the Interac network does not support standard reversal.
+:::
+
+#### What this does
+Voids a transaction — used for Interac card transactions where standard reversal is not available.
+
+#### When to use it
+Use specifically for Interac card transactions via TNS. The card must be physically present at the terminal. This must occur before settlement.
+
+#### Implementation notes
+
+1. **Interac / TNS only.** For non-Interac cards, use Reversal instead.
+2. The card must be inserted or tapped at the terminal — card-not-present void is not supported by the Interac network.
+3. Full amount only — partial voids are not supported.
+4. **ISV UI note:** label this button **"VOID"** in your application — never "Refund" or "Reverse". This is an Interac network requirement.
+5. **SDK behaviour:** the Android SDK method called is `refund()`. The Handpoint gateway detects that the original transaction was processed via TNS (Interac) and automatically maps the refund request to a TNS VOID internally. You do not call a separate void function.
+
+See also: [Interac VOID — implementation guide](/reference/interac-void)
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "CAD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+The gateway detects that the original transaction was Interac/TNS and maps to the correct void protocol automatically. Do not include a `transactionReference` — this is a subsequent operation.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Call refund() — the gateway detects the original was an Interac/TNS
+// transaction and maps this to a TNS VOID automatically.
+// Show "VOID" in your UI, not "Refund".
+hapi.refund(
+    BigInteger("1000"),                              // full original amount
+    Currency.CAD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"          // originalTransactionID from sale result
+)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Same as Android PAX — call refund(), gateway maps to TNS VOID.
+hapi.refund(
+    BigInteger("1000"),
+    Currency.CAD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.saleVoidWithAmount(1000, currency: "CAD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Call saleReversal — gateway maps to TNS VOID for Interac transactions.
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: "CAD",
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"refund"` |
+| `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
+| `currency` | string | Yes | Must be `"CAD"` for Interac |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the original Interac sale result |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `CARD_NOT_PRESENT` | Card was not inserted/tapped | Ask cardholder to present card at terminal |
+| `ALREADY_SETTLED` | Transaction already settled | Credit refund is not available for Interac |
+| `ORIGINAL_NOT_FOUND` | Reference not found | Verify reference |
+
+#### Testing
+Test void (Interac/TNS) on the TEST/DEMO merchant. A physical card must be present at the terminal — card must be inserted or tapped.
+
+## Interac Card Transactions {#interac}
+
+:::info Interac merchants only
+This section applies when the merchant has Interac processing enabled. Interac cards are automatically routed to TNS — no ISV-side routing configuration is required beyond the standard PAYSAFE integration.
+:::
+
+If you are building for merchants that process **Interac card** transactions, this section is your integration reference. Interac cards are routed to the TNS processor automatically — no special configuration is required by the ISV beyond what is already set up for Paysafe.
+
+**ISV onboarding checklist:**
+- Your `Sale` flow already covers Interac EMV sales.
+- You must implement **EMV VOID** (not Refund) as the post-sale correction for Interac transactions — [see below](#interac-void).
+- Remote reversal (`POST /reversal`) is **not available** for Interac — card must be physically present at the terminal for any post-sale correction.
+
+#### Supported operations for Interac cards
+
+| Operation | Support | Notes |
+|---|---|---|
+| **EMV Sale** | ✅ | All integration paths — [see Sale section](#sale) |
+| **EMV VOID** | ✅ | Same-day, before settlement cut-off, card must be present — [see below](#interac-void) |
+| Remote Reversal | ❌ | Not available — card must be present at terminal; no back-office void path |
+| MOTO / Remote Sale | ❌ | Interac network does not support card-not-present |
+| Credit Refund | ❌ | Not available for Interac — use VOID (same-day) instead |
+| Pre-Authorization | ❌ | Explicitly rejected by Interac network |
+| Tip Adjustment | ❌ | Not supported |
+| Key Entry Sale | ❌ | Not supported on Interac |
+
+### EMV VOID {#interac-void}
+
+The VOID is the only post-sale correction available for Interac card transactions. It must be performed on the **same day, before the settlement cut-off** (~11 pm ET). After cut-off the transaction settles and no further correction is possible — there is no credit refund path for Interac.
+
+:::caution Label, timing, and card requirement
+- **UI label:** Show **VOID** in your application — never "Refund" or "Reverse". Interac network requirement.
+- **Timing:** Same-day only, before settlement cut-off.
+- **Card required:** Card must be physically inserted or tapped at the terminal. Card-not-present VOID is not supported.
+:::
+
+:::info SDK behaviour
+Call `refund()` — the Handpoint gateway detects that the original transaction was Interac/TNS and maps the request to a TNS VOID automatically. You do not call a separate void function.
+:::
+
+:::note txnFeed / Analytics
+A completed Interac VOID appears in the transaction feed and analytics as **Reversal**, not Refund. Filter by `type: reversal` and `cardBrand: Interac` to identify them.
+:::
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "CAD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+Do not include `transactionReference` — this is a subsequent operation linked to the original sale.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Call refund() — gateway maps to TNS VOID for Interac transactions
+// Card must be present at terminal. Show "VOID" in your UI.
+hapi.refund(
+    BigInteger("1000"),
+    Currency.CAD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.refund(
+    BigInteger("1000"),
+    Currency.CAD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.saleVoidWithAmount(1000, currency: "CAD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: "CAD",
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+See also: [Interac VOID — implementation guide](/reference/interac-void)
