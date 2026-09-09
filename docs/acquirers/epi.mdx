@@ -251,7 +251,7 @@ On `DECLINED`: `finStatus` is `"DECLINED"`, `totalAmount` is `0`, `authorisation
 
 ### Key Entry Sale {#key-entry-sale}
 
-<FlavorSection description="On-device · operator keys card number" paths={["cloud-api","android-pax"]}>
+<FlavorSection description="On-device · operator keys card number" paths={["cloud-api","android-pax","javascript-sdk","windows-sdk"]}>
 
 Commands a PAX terminal to display a **manual card entry screen** — the cashier types the cardholder's card number, expiry, and CVV directly on the terminal's touchscreen. The terminal tokenizes the entry internally and processes it as a MOTO transaction. The ISV system never handles raw card data.
 
@@ -294,6 +294,35 @@ hapi.motoSale(BigInteger("1000"), Currency.USD)
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.moToSale(1000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // store result.transactionID for potential reversal
+}
+```
+
+Terminal displays the manual card entry screen — the operator types card details on the device.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.MoToSale(new BigInteger(1000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // store result.TransactionID for potential reversal
     }
 }
 ```
@@ -356,7 +385,7 @@ See [AVS](/reference/avs) for prerequisites and edge cases.
 
 ### Key Entry Pre-Authorization {#key-entry-pre-auth}
 
-<FlavorSection description="On-device · operator keys card number for a pre-auth" paths={["cloud-api","android-pax"]}>
+<FlavorSection description="On-device · operator keys card number for a pre-auth" paths={["cloud-api","android-pax","javascript-sdk","windows-sdk"]}>
 
 Same terminal flow as Key Entry Sale — the cashier types card details on the PAX terminal's touchscreen — but sends a pre-authorization instead of a sale. The authorized hold can be captured or released later.
 
@@ -397,6 +426,34 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionResult } = hp.preAuthorization(1000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // store result.transactionID for capture or release later
+}
+```
+
+Terminal displays the manual card entry screen — the operator types card details on the device.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.PreAuthorization(new BigInteger(1000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // store result.TransactionID for capture or release later
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Address Verification (AVS)
@@ -420,7 +477,7 @@ See [AVS](/reference/avs) for prerequisites, field reference, and edge cases.
 
 ### Remote Sale (MOTO) {#remote-sale}
 
-<FlavorSection description="Back-office · charges a stored card token" paths={["cloud-api","android-pax","cordova"]}>
+<FlavorSection description="Back-office · charges a stored card token" paths={["cloud-api","android-pax","cordova","javascript-sdk","windows-sdk"]}>
 
 A **card-not-present sale** submitted directly to the gateway using a stored card token — no terminal or card reader required. The ISV system sends the charge via REST API or Android SDK using a token previously issued by a supported token provider.
 
@@ -549,6 +606,37 @@ handpoint.motoSale(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Back-office MOTO — pass cardToken, no terminal required
+const { transactionResult } = hp.moToSale(1000, 'USD', {
+  cardToken: 'YOUR_STORED_CARD_TOKEN'
+});
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // store result.transactionID
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Back-office MOTO — pass cardToken, no terminal required
+var options = new MoToOptions { CardToken = "YOUR_STORED_CARD_TOKEN" };
+var op = hapi.MoToSale(new BigInteger(1000), Currency.USD, options);
+if (!op.OperationStarted) { /* handle error */ return; }
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // store result.TransactionID
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Parameters
@@ -585,7 +673,7 @@ handpoint.motoSale(
 
 ### Sale with Tip {#sale-with-tip}
 
-<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
 
 Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
 
@@ -696,6 +784,47 @@ handpoint.sale(
 />
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.sale(1000, 'USD', {
+  tipConfiguration: {
+    baseAmount: 1000,
+    tipPercentages: [10, 15, 20],
+    enterAmountEnabled: true,
+    skipEnabled: true,
+    footer: 'Thank you!'
+  }
+});
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  console.log('Tip:', result.tipAmount, 'Total:', result.totalAmount);
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var tipConfig = new TipConfiguration {
+    BaseAmount = new BigInteger(1000),
+    TipPercentages = new List<int> { 10, 15, 20 },
+    EnterAmountEnabled = true,
+    SkipEnabled = true,
+    Footer = "Thank you!"
+};
+var options = new SaleOptions { TipConfiguration = tipConfig };
+hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // result.TipAmount — tip chosen; result.TotalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### TipConfiguration fields
@@ -726,7 +855,7 @@ handpoint.sale(
 
 ### Sale with Tokenization {#sale-and-tokenize}
 
-<FlavorSection description="On-device · stores card token for future charges" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="On-device · stores card token for future charges" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
 
 Store a **reusable card token** during the sale so future card-not-present charges can be made without the cardholder being present again. The token is returned in the `TransactionResult` and can be used for subsequent back-office MOTO sales.
 
@@ -817,6 +946,34 @@ handpoint.tokenizeCard(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Standalone tokenize — card presented at terminal, no charge
+const { transactionResult } = hp.tokenizeCard('USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  const token = result.cardToken;  // store securely for future MOTO charges
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Standalone tokenize — card presented at terminal, no charge
+var op = hapi.TokenizeCard();
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        var token = result.CardToken;  // store securely for future MOTO charges
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Result fields
@@ -846,7 +1003,7 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 
 ### EMV Refund {#emv-refund}
 
-<FlavorSection description="On-device · card present at terminal" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="On-device · card present at terminal" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
 
 Returns funds to a cardholder's account for a card-present transaction. The cardholder must present their payment method at the terminal.
 
@@ -952,6 +1109,35 @@ handpoint.refund(
   function(result) { /* handle */ },
   function(error) { console.error(error); }
 );
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Linked refund
+const { transactionResult } = hp.refund(1000, 'USD', '01236fc0-8192-11eb-9aca-ad4b0e95f241');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') { /* refund accepted */ }
+
+// Unlinked refund — omit originalTransactionId
+const { transactionResult: result2 } = hp.refund(1000, 'USD');
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Linked refund
+hapi.Refund(new BigInteger(1000), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241");
+
+// Unlinked refund — omit originalTransactionID
+hapi.Refund(new BigInteger(1000), Currency.USD);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
 ```
 
 </TabItem>
@@ -1073,7 +1259,7 @@ handpoint.motoRefund(
 
 ### Reversal {#reversal}
 
-<FlavorSection description="On-device · no card required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="On-device · no card required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
 
 #### What this does
 Cancels an unsettled transaction before batch settlement — the full authorised amount is released to the cardholder without interchange fees. No card present required.
@@ -1171,6 +1357,39 @@ handpoint.saleReversal(
   function(result) { /* handle result */ },
   function(error) { console.error(error); }
 );
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionResult } = hp.saleReversal(
+  1000,
+  'USD',
+  '01236fc0-8192-11eb-9aca-ad4b0e95f241'  // originalTransactionID from sale result
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // reversal accepted — no card prompt, no settlement
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+hapi.SaleReversal(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted — no card prompt, no settlement
+    }
+}
 ```
 
 </TabItem>
