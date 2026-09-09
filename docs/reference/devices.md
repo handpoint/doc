@@ -1,6 +1,6 @@
 ---
 title: Supported devices
-sidebar_position: 4
+sidebar_position: 1
 description: All payment terminals supported by Handpoint — PAX and HiLite (DATECS). Filter by hardware feature.
 hide_table_of_contents: false
 ---
@@ -229,7 +229,7 @@ Android-based smart terminals. Support two integration paths: Android SDK (code 
 | **Connectivity** | Wi-Fi 2.4GHz, Bluetooth |
 | **Card entry** | EMV chip, contactless (NFC), magnetic stripe |
 | **Handpoint Android SDK** | v6.7.0+ |
-| **Deployed with** | TSYS (US), EmerchantPay (EU) |
+| **Deployed with** | EPI (US), EmerchantPay (EU) |
 
 ---
 

@@ -70,7 +70,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
         FinancialStatus.DECLINED           -> showDeclined()          // different card
         FinancialStatus.CANCELLED          -> showCancelled()         // retry allowed
         FinancialStatus.FAILED             -> showError(result.statusMessage)
-        FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+        FinancialStatus.PARTIAL_APPROVAL -> handlePartialApproval(result)
         else                               -> {}
     }
 }
@@ -99,12 +99,12 @@ Include `MerchantAuth` **only on originating operations** (sale, pre-auth create
 
 ---
 
-## Interac — Canadian venues
+## Interac
 
-Interac Debit is available via the **Paysafe + Interac** acquirer on EPI-backed Canadian merchant accounts. Interac cards are chip-only — contactless Interac is not supported on all terminals.
+Interac Debit is available on **PAYSAFE** merchants with Interac enabled. Interac cards are chip-only — contactless Interac is not supported on all terminals.
 
 **Required for Interac:**
-- Acquirer: TSYS/TNS-backed Canadian merchant (Paysafe + Interac)
+- Acquirer: PAYSAFE with Interac enabled (provisioned by Handpoint)
 - Terminal configured for Interac (provisioned by Handpoint)
 - Cardholder must insert card — tap is not accepted for Interac
 
@@ -149,7 +149,7 @@ override fun transactionResultReady(result: TransactionResult, device: Device) {
         }
         FinancialStatus.AUTHORISED -> {
             // Confirmed approved — fulfill order
-            // Wait 60 s before reversing a PARTIALLY_APPROVED race scenario
+            // Wait 60 s before reversing a PARTIAL_APPROVAL race scenario
             fulfillOrder(result)
         }
         else -> {
@@ -173,7 +173,7 @@ if (pending != null) recoverTransaction(pending.ref)
 Prepaid and gift cards may be partially approved — the card covers only part of the amount. At a concession stand, the cardholder pays the remainder with cash or another card.
 
 ```kotlin
-FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+FinancialStatus.PARTIAL_APPROVAL -> handlePartialApproval(result)
 
 fun handlePartialApproval(result: TransactionResult) {
     val approved  = result.totalAmount   // amount the card covered
@@ -217,8 +217,8 @@ Content-Type: application/json
 
 Call once per terminal at end of event. Missing batch close results in ERR 005 on the next settlement attempt.
 
-:::caution EPI and Paysafe+Interac only
-Batch close applies only to EPI and Paysafe+Interac acquirers. EmerchantPay and Paystrax settle automatically.
+:::caution EPI only
+Batch close applies only to EPI. PAYSAFE, EmerchantPay, and Paystrax settle automatically.
 :::
 
 ---
@@ -229,7 +229,7 @@ On a DEMO merchant, trigger specific outcomes by passing these amounts in **mino
 
 | Amount | Outcome |
 |---|---|
-| `3757` | PARTIALLY_APPROVED |
+| `3757` | PARTIAL_APPROVAL |
 | `3768` | FAILED / timeout |
 | `3779` | DECLINED (refer to issuer) |
 | `3784` | DECLINED (not authorized) |
@@ -248,9 +248,9 @@ On a DEMO merchant, trigger specific outcomes by passing these amounts in **mino
 - [ ] `transactionReference` generated and persisted before every call — [scoping rules](/reference/transaction-reference)
 - [ ] `OperationStartResult.operationStarted` checked — show "terminal busy" if false
 - [ ] `UNDEFINED` recovery tested — simulate connection drop mid-transaction, verify polling and recovery
-- [ ] Partial approval handled — PARTIALLY_APPROVED detected; split tender or auto-reversal
+- [ ] Partial approval handled — PARTIAL_APPROVAL detected; split tender or auto-reversal
 - [ ] Batch close tested at end of session (EPI only)
 - [ ] Multi-MID tested — `MerchantAuth` routes to correct sub-merchant (if using multi-vendor)
-- [ ] Interac chip insertion tested (if Canadian venue, Paysafe+Interac acquirer)
+- [ ] Interac chip insertion tested (if Interac-enabled PAYSAFE merchant)
 
 → [Validate your integration — Android SDK](/reference/validate-integration-android-sdk)

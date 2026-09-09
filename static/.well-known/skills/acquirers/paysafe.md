@@ -2,8 +2,7 @@
 # PAYSAFE — acquirer skill
 
 **Region:** US and Canada  
-**Card brands:** Visa, Mastercard, Discover, Interac  
-**Routing:** TSYS + TNS  
+**Card brands:** Visa, Mastercard, Amex, Discover, Interac (when enabled per merchant)  
 **Settlement:** Automatic
 
 ## Supported capabilities
@@ -11,13 +10,13 @@
 | Capability | Cloud API | Android PAX | Android HiLite | iOS HiLite | Cordova | Back Office |
 |---|---|---|---|---|---|---|
 | Sale | ✅ | ✅ | ✅ | ✅ | ✅ | — |
-| Refund | ✅ | ✅ | ✅ | ✅ | ✅ | — |
+| Refund (card-present) | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Reversal | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Partial reversal | ❌ | ❌ | ❌ | ❌ | ❌ | — |
-| Tip adjustment | ❌ | ❌ | ❌ | ❌ | ❌ | — |
+| Tip adjustment (non-Interac only) | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ |
 | Pre-authorization | ❌ | ❌ | ❌ | ❌ | ❌ | — |
 | Remote sale | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
-| Interac (Canada) | ✅ | ✅ | ✅ | ✅ | ✅ | — |
+| Interac Void (Interac merchants) | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Tokenization (Paysafe token) | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Batch close | ❌ | ❌ | ❌ | ❌ | ❌ | — |
 | Paysafe Portal CNP refund | — | — | — | — | — | ✅ |
@@ -29,23 +28,35 @@ The following capabilities are **not available** on PAYSAFE — do not expose th
 - Remote sale / MOTO / card token
 - Pre-authorization and pre-auth capture
 - Partial reversal
-- Tip adjustment
+- Tip adjustment on Interac cards (Interac only supports Sale and Void)
+- Tip adjustment via Cordova (use Back Office REST API instead)
 
-## Interac — critical: VOID only, no refund
+## Tip adjustment — non-Interac cards only
 
-For Interac debit transactions (Canadian merchants):
+PAYSAFE supports tip adjustment for Visa, Mastercard, Amex, and Discover. **Not available for Interac transactions.**
 
-- **Reversal only** — Interac transactions must be reversed (voided), not refunded
-- **Standard `POST /reversal`** with `originalGuid` from the Interac transaction result
-- Attempting a refund on an Interac transaction is declined
-- The reversal window follows Interac rules — perform promptly before end of day
+Same restriction as EPI: tip adjustment is rejected if the original sale included an on-screen tip prompt. Only use for tip-at-table flows where no tip was collected during the sale.
+
+Cloud API: `POST https://cloud.handpoint.com/transactions/{transactionID}/tip-adjustment` with `{"amount": 8}`  
+Android SDK: `hapi.tipAdjustment(BigInteger("200"), "transactionID", options)`
+
+## Interac — critical: VOID only (linked refund), not a reversal
+
+For Interac debit transactions (merchants with Interac enabled):
+
+- **Void only** — Interac transactions cannot be refunded or reversed after the card has left. Use Void before settlement while the card is present.
+- **Void = a full-amount linked `refund()` call** — not `reversal()`. The gateway routes it correctly.
+- Attempting a standard refund or reversal on an already-settled Interac transaction will be declined.
+- The Void window closes at settlement — perform promptly.
 
 ```json
-POST https://cloud.handpoint.com/reversal
-{ "originalGuid": "interac-transactionID" }
+POST https://cloud.handpoint.com/refund
+{ "amount": <original-amount-minor-units>, "currency": "CAD", "originalTransactionId": "interac-transactionID" }
 ```
 
-Android SDK: `hapi.reversal("interac-transactionID")`
+Android SDK: `hapi.refund(BigInteger("<original-amount>"), Currency.CAD, "interac-transactionID", options)`
+
+The `amount` must match the original sale amount exactly — Interac does not support partial Void.
 
 See https://developer.handpoint.com/reference/interac-void for full Interac VOID rules.
 
@@ -73,4 +84,4 @@ Batch close is not required or supported for PAYSAFE. Settlement happens automat
 
 - Load path skill for your integration: `paths/cloud-api.md` or `paths/android-pax.md` etc.
 - Interac VOID guide: https://developer.handpoint.com/reference/interac-void
-- PAYSAFE full docs: https://developer.handpoint.com/acquirers/paysafe-tsys
+- PAYSAFE full docs: https://developer.handpoint.com/acquirers/paysafe

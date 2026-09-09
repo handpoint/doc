@@ -23,9 +23,9 @@ Capabilities are driven by [src/data/acquirerCaps.js](../../src/data/acquirerCap
 
 <CrossAcquirerMatrix />
 
-¹ TSYS partial reversal: available via Cloud API, Android (PAX), and Back Office (REST API).  
-² Pre-Auth Capture Reversal: TSYS + OMNIPAY (EmerchantPay, Paystrax). Cloud API + Android (PAX) for card-present; also via Back Office for increase/decrease and capture (initial pre-auth must be card-present). TSYS also supports partial capture reversal.  
-³ Void: PAYSAFE + Interac / TNS — Interac cards only, card must be physically present.
+¹ EPI partial reversal: available via Cloud API, Android (PAX), and Back Office (REST API). Not supported on Amex transactions.  
+² Pre-Auth Capture Reversal: EPI + OMNIPAY (EmerchantPay, Paystrax). Cloud API + Android (PAX) for card-present; also via Back Office for increase/decrease and capture (initial pre-auth must be card-present). EPI also supports partial capture reversal.  
+³ Void: PAYSAFE — Interac cards only, card must be physically present at terminal.
 
 ---
 
@@ -37,12 +37,12 @@ REST API card-present operations require a PAX terminal running the Handpoint An
 
 | Integration path | Card-present ops | Remote Sale | Batch Operations | Partial Rev | Notes |
 |---|---|---|---|---|---|
-| **REST API** | ✅ All (PAX in integrated mode required) | ✅ On-terminal via PAX screen or ProCharge token — acquirer-dependent | ✅ Where acquirer supports | ✅ TSYS only | PAX debug → `.io`; PAX prod → `.com` |
-| **Android (PAX)** | ✅ All except batch | ✅ On-terminal (PAX shows card entry screen) — PAX only | ❌ | ✅ TSYS only | Runs natively on PAX terminal |
+| **REST API** | ✅ All (PAX in integrated mode required) | ✅ On-terminal via PAX screen or ProCharge token — acquirer-dependent | ✅ Where acquirer supports | ✅ EPI only | PAX debug → `.io`; PAX prod → `.com` |
+| **Android (PAX)** | ✅ All except batch | ✅ On-terminal (PAX shows card entry screen) — PAX only | ❌ | ✅ EPI only | Runs natively on PAX terminal |
 | **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no remote sale/batch/partial rev |
 | **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |
 | **Cordova** | ✅ Same as Android (PAX) for PAX; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Single JS API for both device types |
-| **REST API (Back Office)** | ❌ Sale and refund require card-present | ✅ TSYS + OMNIPAY via ProCharge token (no reader) | ✅ TSYS only | ✅ TSYS only | No terminal required. Reversal ✅ all acquirers. Tip adj ✅ TSYS, PAYSAFE+Interac. Pre-auth capture/increase/decrease ✅ TSYS + OMNIPAY (initial pre-auth must be card-present). |
+| **REST API (Back Office)** | ❌ Sale and refund require card-present | ✅ EPI + OMNIPAY via card token (no reader) | ✅ EPI only | ✅ EPI only | No terminal required. Reversal ✅ all acquirers. Tip adj ✅ EPI, PAYSAFE (not Interac cards). Pre-auth capture/increase/decrease ✅ EPI + OMNIPAY (initial pre-auth must be card-present). |
 
 ---
 
@@ -54,9 +54,9 @@ The Handpoint platform CardBrand enum (viscus-lib-core) defines these brands: **
 |---|---|
 | JCB | Platform supported; acceptance depends on acquirer agreement — verify per merchant |
 | UnionPay | OMNIPAY (EmerchantPay, Paystrax) — `CardBrandValidator` and `PayFacIdValidator` handle UnionPay separately |
-| Interac | TSYS Canada, PAYSAFE + Interac, TNS (Interac) |
+| Interac | PAYSAFE (merchants with Interac enabled) |
 
-Other acquirers (TSYS, PAYSAFE): JCB and UnionPay acceptance depends on acquirer agreement — verify with integration team per merchant.
+Other acquirers (EPI, PAYSAFE): JCB and UnionPay acceptance depends on acquirer agreement — verify with integration team per merchant.
 
 ---
 
@@ -64,9 +64,9 @@ Other acquirers (TSYS, PAYSAFE): JCB and UnionPay acceptance depends on acquirer
 
 | Item | Status |
 |---|---|
-| **JCB on TSYS / PAYSAFE** | Platform supports it; verify acquirer agreement enables it per merchant |
-| **UnionPay on TSYS** | Platform supports it; verify acquirer agreement |
-| **PAYSAFE pre-auth / Remote Sale** | Confirmed NOT supported — Paysafe restriction, not a TSYS limitation |
+| **JCB on EPI / PAYSAFE** | Platform supports it; verify acquirer agreement enables it per merchant |
+| **UnionPay on EPI** | Platform supports it; verify acquirer agreement |
+| **PAYSAFE pre-auth / Remote Sale** | Confirmed NOT supported — Paysafe acquirer restriction |
 
 ---
 

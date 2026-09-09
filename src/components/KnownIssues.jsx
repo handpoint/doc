@@ -93,6 +93,18 @@ function IssueCard({ issue, isProduction }) {
           {expanded && <div className="ki-workaround-body">{issue.workaround}</div>}
         </div>
       )}
+
+      {issue.seeAlso && issue.seeAlso.length > 0 && (
+        <div className="ki-card__see-also">
+          <span className="ki-see-also-label">See also: </span>
+          {issue.seeAlso.map((link, i) => (
+            <span key={link.href}>
+              <a href={link.href}>{link.label}</a>
+              {i < issue.seeAlso.length - 1 ? ', ' : ''}
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

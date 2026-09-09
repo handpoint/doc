@@ -67,7 +67,7 @@ void TransactionResultReady(TransactionResult result, Device device) // GetTrans
 |---|---|
 | `AUTHORISED` | Store `TransactionID`, fulfil order |
 | `DECLINED` / `FAILED` / `CANCELLED` | Clear pending |
-| `PARTIALLY_APPROVED` | Wait 60 s — split tender or reverse |
+| `PARTIAL_APPROVAL` | Wait 60 s — split tender or reverse |
 | `IN_PROGRESS` / `UNDEFINED` | Poll `GetTransactionStatus` |
 
 ## Recovery

@@ -19,6 +19,10 @@ Handpoint Integration Support reviews your results before issuing a production A
 Android SDK (PAX) integrations have additional requirements: build process (RC vs production SDK), PAX Store submission, merchant credential mapping, UI screen requirements, logging, and receipt handling. See the **[Android SDK — Validation & Certification](/reference/validate-integration-android-sdk)** page for the full checklist.
 :::
 
+:::tip Before you start: test your edge cases first
+The [Testing Edge Cases](/reference/testing-edge-cases) page has step-by-step scenarios (declined, network drop, duplicate reference, card fallback, partial approval, MOTO timeout) with per-platform tabs. Run those before working through this checklist.
+:::
+
 ## Required for every integration
 
 These scenarios apply regardless of integration path or acquirer.
@@ -250,19 +254,29 @@ Handpoint does not enforce a global operation timeout — your application must 
 
 ### Partial approval handling
 
-Some prepaid cards are partially approved — the card covers only part of the requested amount. The terminal returns `PARTIALLY_APPROVED` with the approved amount in the result.
+Partial approval (`PARTIAL_APPROVAL`) is a **US-only** feature that is **enabled by default**. Every US integration will encounter it in production. Handling it correctly is **required for Handpoint integration certification** — it is tested using trigger amount `3757` (minor units).
 
-**Required behaviour:**
-- Detect `finStatus === "PARTIALLY_APPROVED"`.
-- Display the approved amount to the cashier.
-- Prompt for split tender (second payment method for the remainder).
-- If split tender is not supported or the cardholder declines: send an automatic reversal for the partial amount using `totalAmount` (not `requestedAmount`).
+Some prepaid and debit cards are approved for less than the requested amount. The terminal presents an accept/decline prompt to the cardholder.
+
+**ISV options:**
+
+**Option 1 — Accept partial approvals** (required if your MCC mandates it — consult your acquirer):
+- Detect `finStatus === "PARTIAL_APPROVAL"`.
+- Fulfil the order at `totalAmount`. Display `totalAmount` on the receipt.
+- Prompt for the remaining `dueAmount` via a second payment method.
+
+**Option 2 — Do not support partial approvals**:
+- Detect `finStatus === "PARTIAL_APPROVAL"`.
+- Immediately reverse using `totalAmount` (the authorized amount) — **never** `requestedAmount`.
+- Display "Insufficient funds — transaction cancelled" or equivalent.
+- **Log both transactions** in your history: the original `PARTIAL_APPROVAL` sale and the reversal. Both receipts must be accessible.
+- Prompt for an alternative payment method.
 
 :::caution Wait 60 seconds before reversing a partial approval
-After a partial approval, the card network needs time to confirm the partial charge. Wait at least 60 seconds before sending a reversal — an immediate reversal may race with the settlement.
+After a partial approval, the terminal is showing the accept/decline prompt. The cardholder has up to 60 seconds to decide. If the cardholder declines, the SDK auto-reverses and the final result is `CANCELLED` — your reversal request may then fail as already-reversed (error 3051). Wait for a final `transaction-result` before sending your own reversal.
 :::
 
-→ Full implementation details and reversal example: [Partial Approval guide](/reference/partial-approval)
+→ Full implementation details: [Partial Approval guide](/reference/partial-approval)
 
 ---
 
@@ -514,7 +528,7 @@ Run the full pre-auth lifecycle — do not certify pre-auth without testing all 
 | Deferred token retrieval from past GUID | Token returned via `GET /transactions/{id}/token` |
 | Remote Sale using stored token | `AUTHORISED` without any terminal interaction |
 
-### Batch (EPI/TSYS US only)
+### Batch (EPI only)
 
 | Scenario | Expected outcome |
 |---|---|
@@ -540,6 +554,8 @@ Run the full pre-auth lifecycle — do not certify pre-auth without testing all 
 
 See [Error codes reference](/reference/error-codes) for the full list.
 
+For **merchant capability errors** (pre-auth not enabled, MOTO not enabled, refund not allowed, partial reversal rejected) — including their exact error shapes, which tier enforces each one (gateway vs terminal), and the known ViscusDummy limitations — see [Error Handling Guide — Merchant capability errors](/reference/error-handling-guide#merchant-capability-errors).
+
 ---
 
 ## Staging vs production checklist
@@ -552,7 +568,7 @@ Before switching to production credentials:
 - [ ] `transactionReference` persisted to durable storage **before** every API call
 - [ ] App timeout implemented — no silent abandonment on terminal hang
 - [ ] Partial approval handled (even if your UI shows "declined, try another card")
-- [ ] Acquirer-specific restrictions tested (e.g. EPI/TSYS tip adjustment restrictions)
+- [ ] Acquirer-specific restrictions tested (e.g. EPI tip adjustment restrictions)
 
 **Receipt compliance**
 - [ ] Receipts include all required EMV fields (AID, TVR, IAD, ARC when non-empty; authorisation code; retrieval reference; merchant name/address/MID/TID)

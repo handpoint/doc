@@ -4,6 +4,9 @@ sidebar_label: "AVS"
 description: "Attach the cardholder's billing address to a Remote Sale or Keyed Entry Sale so the acquirer can use it during authorization."
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # AVS
 
 Attach the cardholder's billing address to a Remote Sale or Keyed Entry Pre-Authorization, so the acquirer can use it during authorization.
@@ -58,10 +61,99 @@ This applies to Remote Sale and Remote Pre-Authorization only — AVS is not sup
 
 ## Code {#code}
 
-Code samples live with the rest of the Remote Sale implementation on the EPI acquirer page:
+### Remote Sale with billing
 
-- **Remote Sale** — [EPI page, Remote Sale section](/acquirers/epi#remote-sale) — Android (PAX) and Cloud API tabs show how to attach `Billing` and use `enableAvsFields`.
-- **Remote Pre-Authorization** — documented in the same [Remote Sale section](/acquirers/epi#remote-sale) — Pre-Auth accepts the same `billing` / `enableAvsFields` options as Sale.
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "33.09",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "c1e1a7ee-1432-4a9c-9171-414e203dbb49",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+`address` is optional — `zipCode` alone is a valid `billing` object.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Option A — supply billing data from your own UI
+val billing = Billing(zipCode = "10001", address = "123 Main St")
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", billing = billing)
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+
+// Option B — terminal prompts for zip code on the card entry screen
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", enableAvsFields = true)
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+Do not combine `enableAvsFields` with `billing` — they are mutually exclusive. When `billing` is already set, `enableAvsFields` is ignored.
+
+</TabItem>
+</Tabs>
+
+### Remote Pre-Authorization with billing
+
+Pre-Auth accepts the same `billing` / `enableAvsFields` options as Sale.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/preauthorization
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "33.09",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "a2b3c4d5-0000-0000-0000-111122223333",
+  "billing": {
+    "zipCode": "10001",
+    "address": "123 Main St"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Option A — supply billing data from your own UI
+val billing = Billing(zipCode = "10001", address = "123 Main St")
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", billing = billing)
+hapi.motoPreAuthorization(BigInteger("1000"), Currency.USD, options)
+
+// Option B — terminal prompts for zip code
+val options = MoToOptions(cardToken = "YOUR_STORED_CARD_TOKEN", enableAvsFields = true)
+hapi.motoPreAuthorization(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
+### Reading the AVS merchant flag (Android SDK)
+
+```kotlin
+val isAvsEnabled = hapi.getDeviceCapabilities()?.let {
+    it.options["AVS"] == true
+} ?: false
+```
+
+Use this to conditionally show or hide billing fields in your own UI — the `"AVS"` key maps to the backend `avsForMoto` flag.
 
 ## What comes back
 

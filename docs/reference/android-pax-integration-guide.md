@@ -13,6 +13,10 @@ import TabItem from '@theme/TabItem';
 Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/android-pax.md`](/.well-known/skills/paths/android-pax.md)
 :::
 
+:::info Cloud API integrated mode
+Need the terminal to also accept transactions triggered by a back-office server or a separate POS? See [Android SDK (PAX) — Cloud API Integrated Mode](/reference/android-cloud-api-integration-guide).
+:::
+
 ## What is this integration path?
 
 The Android SDK (PAX) path runs your application **directly on the PAX SmartPOS terminal**. The Handpoint Android SDK communicates with the Handpoint Payments App on the same device via IPC — no external server or network hop is required for the payment flow.
@@ -200,7 +204,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
         FinancialStatus.DECLINED           -> showDeclined()
         FinancialStatus.CANCELLED          -> showCancelled()
         FinancialStatus.FAILED             -> showError()
-        FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+        FinancialStatus.PARTIAL_APPROVAL -> handlePartialApproval(result)
         else                               -> {}
     }
 }
@@ -228,7 +232,7 @@ hapi.getTransactionStatus(ref)
 | `IN_PROGRESS` / `UNDEFINED` | Keep polling |
 | `AUTHORISED` (no prior record) | Send automatic reversal via Cloud API |
 | `DECLINED` / `FAILED` / `CANCELLED` | Clear pending record — card not charged |
-| `PARTIALLY_APPROVED` | Wait 60 s, then collect split tender or reverse |
+| `PARTIAL_APPROVAL` | Wait 60 s, then collect split tender or reverse |
 
 → Full implementation with code examples: [Transaction Recovery — Android SDK](/reference/transaction-recovery-android-sdk)
 
@@ -242,7 +246,7 @@ hapi.getTransactionStatus(ref)
 | **Pre-Authorization** (create, capture, increase, reverse) | |
 | **MOTO Sale** | EPI, EmerchantPay |
 | **Tokenization** | EPI (proCharge), Paysafe, TokenEx |
-| **Tip Adjustment** | EPI, Paysafe + Interac |
+| **Tip Adjustment** | EPI, PAYSAFE (non-Interac cards only) |
 | **Get Transaction Status** | All (PAX only) |
 
 ## Utility methods — verified return values (PAX A920)
@@ -268,7 +272,7 @@ Funds are never moved on DEMO merchants.
 - [ ] `InitialisationComplete` gate implemented — no financial operations before SDK is ready
 - [ ] `transactionReference` persisted to DB before each operation starts — [scoping rules](/reference/transaction-reference)
 - [ ] Transaction recovery tested — app restarted mid-transaction, outcome recovered via `getTransactionStatus`
-- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
+- [ ] Partial approval handled — `PARTIAL_APPROVAL` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
 - [ ] `OperationStartResult.operationStarted` checked before awaiting result
 
 → Full scenario checklist: [Validate your integration — Android SDK](/reference/validate-integration-android-sdk)

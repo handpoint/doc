@@ -1,7 +1,7 @@
 ---
-id: omnipay-paystrax
-title: "Paystrax"
-description: "EU card-present acquirer. Supports: pre-auth-capture-reversal, sale, refund, reversal, pre-auth, moto, tokenization."
+id: emerchantpay
+title: "EmerchantPay"
+description: "EU card-present acquirer. Supports: pre-auth-capture-reversal, sale, refund, reversal, pre-auth, moto, tokenization, money-remittance."
 geography: "EU"
 status: active
 card-brands: [VISA, MC, AMEX, UnionPay]
@@ -14,6 +14,7 @@ capabilities:
   pre-auth: true
   moto: true
   tokenization: true
+  money-remittance: true
 integration-paths:
   - cloud-api
   - android-pax
@@ -31,7 +32,13 @@ import ComingSoon from '@site/src/components/ComingSoon';
 import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
 import FlavorSection from '@site/src/components/FlavorSection';
 
-<AcquirerPageHeader currentSlug="omnipay-paystrax" />
+<AcquirerPageHeader currentSlug="emerchantpay" />
+
+**Geography:** Europe &nbsp;·&nbsp; **Cards:** <img src="/img/cards/visa.svg" alt="Visa" title="Visa" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/mastercard.svg" alt="Mastercard" title="Mastercard" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/amex.svg" alt="Amex" title="American Express" height="22" style={{verticalAlign:'middle',marginRight:'4px'}}/><img src="/img/cards/unionpay.svg" alt="UnionPay" title="UnionPay" height="22" style={{verticalAlign:'middle'}}/>
+
+EmerchantPay is Handpoint's primary EU acquirer for card-present and card-not-present payments. It supports pre-authorization, Remote Sale (card token), tokenization, and money remittance. Typical users are EU-based ISVs serving retail and hospitality merchants who need a single acquirer across multiple European markets.
+
+---
 
 ## Sale {#sale}
 
@@ -313,11 +320,11 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 </FlavorSection>
 
 
-### Sale with Tip {#sale-and-tip}
+### Sale with Tip {#sale-with-tip}
 
 <FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
-Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment.
+Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
 
 #### When to use it
 Use in hospitality environments (restaurants, taxis, salons) where tipping is expected at point of sale. The tip is collected at the terminal, included in the authorised amount, and settled together with the base sale — no second operation is needed.
@@ -349,7 +356,7 @@ Content-Type: application/json
 }
 ```
 
-`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "SKIP" option.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -433,7 +440,8 @@ handpoint.sale(
 | Field | Type | Description |
 |---|---|---|
 | `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
-| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `headerName` | string | Header text shown on the tip screen. Defaults to `"Tip"` |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` — required |
 | `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
 | `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
 | `footer` | string | Optional message shown at the bottom of the tip screen |
@@ -457,7 +465,7 @@ A **card-not-present sale** submitted directly to the gateway using a stored car
 Use for recurring billing, subscription charges, or any scenario where you hold a card-on-file token from a prior tokenization or card-present transaction. A card token must already exist before this operation can be sent.
 
 :::info No raw card data — tokens only
-Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. ProCharge, Paysafe, TokenEx). The token provider de-tokenizes at processing time — the ISV never handles card data.
 :::
 
 
@@ -669,7 +677,7 @@ handpoint.tokenizeCard(
 
 #### Using the token for future charges
 
-Pass `cardToken` in the [Remote Sale (MOTO)](#moto-sale) flavor's `cardToken` field for subsequent card-not-present charges.
+Pass `cardToken` in the [Remote Sale (MOTO)](#remote-sale) flavor's `cardToken` field for subsequent card-not-present charges.
 
 :::caution Token scope
 Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.
@@ -923,7 +931,7 @@ Use when a transaction needs to be cancelled before the batch closes (same busin
 1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
 2. **No card present required.** Reversal references the original `transactionID` electronically — the cardholder does not need to return to the terminal.
 3. **Terminal must be online.** The SDK paths route the reversal through the connected reader — the terminal must be reachable at the time of the call.
-4. **Settlement is automatic.** Paystrax settles automatically — there is no manual batch close. The reversal window closes when the acquirer's automatic settlement runs.
+4. **Settlement is automatic.** EmerchantPay settles automatically — there is no manual batch close. The reversal window closes when the acquirer's automatic settlement runs.
 
 #### Code
 
@@ -1129,7 +1137,6 @@ Cancels any unsettled transaction — sale, MOTO, pre-auth capture, or refund �
 1. **Backoffice** amount is in **major units** (decimal string) — e.g. `"11.00"` for $11.00. Cloud API uses minor units (integer string).
 2. Omit `amount` and `currency` for a full reversal. Include them only for a partial reversal (EPI only — requires TMS enablement per merchant).
 3. Do NOT include a `transactionReference` on either path — this is a subsequent operation linked to the original.
-4. **Interac cards (Paysafe + Interac gateway only):** Remote reversal is not available for Interac card transactions. Interac requires card-present at terminal. Use the on-device Reversal flow instead. Non-Interac cards on the same gateway work normally.
 
 #### Code
 
@@ -1908,3 +1915,110 @@ Test tokens are returned on the TEST/DEMO merchant or staging device. Use the To
 
 </FlavorSection>
 
+
+## Money Remittance
+
+#### What this does
+Processes a payment transaction flagged as a money transfer — subject to specific network rules for remittance transactions.
+
+#### When to use it
+Use when processing money transfer payments (e.g. sending money to family abroad) where the merchant category code requires the remittance flag. Applies to MCC 4829 (Wire Transfer) and MCC 6540 (POI Funding). Do NOT use for standard retail — use Sale instead.
+
+#### Implementation notes
+
+1. Money remittance requires two additional fields: the **recipient's full name** and their **country code** (ISO 3166-1 alpha-3, e.g. `"USA"`, `"GBR"`, `"MEX"`).
+2. Not all card brands support remittance in all geographies — verify with your acquirer.
+3. Introduced in Android SDK v7.1004.1 and later.
+4. The recipient name and country code are included in the transaction result and appear on the receipt when present.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "50000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "moneyRemittanceOptions": {
+    "fullName": "John Doe",
+    "countryCode": "USA"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val options = SaleOptions(
+    moneyRemittanceOptions = MoneyRemittanceOptions(
+        fullName = "John Doe",
+        countryCode = CountryCode.USA   // ISO 3166-1 alpha-3 enum
+    )
+)
+hapi.sale(BigInteger("50000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val options = SaleOptions(
+    moneyRemittanceOptions = MoneyRemittanceOptions(
+        fullName = "John Doe",
+        countryCode = CountryCode.USA
+    )
+)
+hapi.sale(BigInteger("50000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Contact Handpoint integration team for money remittance options on iOS
+heftClient.saleWithAmount(50000, currency: "USD")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  {
+    amount: 50000,
+    currency: handpoint.Currency.USD,
+    moneyRemittanceOptions: { fullName: "John Doe", countryCode: "USA" }
+  },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"sale"` |
+| `amount` | string | Yes | Transfer amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `moneyRemittanceOptions.fullName` | string | Yes | Recipient's full name (max 30 characters) |
+| `moneyRemittanceOptions.countryCode` | string | Yes | Recipient's country code in ISO 3166-1 alpha-3 format, e.g. `"USA"`, `"GBR"`, `"MEX"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and result retrieval |
+
+#### Testing
+Test money remittance transactions on the TEST/DEMO merchant or staging device the same way as standard sales.

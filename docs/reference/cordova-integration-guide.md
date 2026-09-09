@@ -195,7 +195,7 @@ function startBackgroundRecovery(ref) {
                 setTimeout(() => startBackgroundRecovery(ref), 10_000);
                 return;
             }
-            // Wait 60 s before acting (covers PARTIALLY_APPROVED window)
+            // Wait 60 s before acting (covers PARTIAL_APPROVAL window)
             setTimeout(() => {
                 if (result.finStatus === 'AUTHORISED') {
                     sendReversal(result.transactionID);
@@ -244,7 +244,7 @@ Pass amounts in **minor units** (cents / pence). Use the full trigger table — 
 - [ ] `handpoint.transactionResultReady` listener registered before any transaction starts
 - [ ] `UNDEFINED` recovery flow implemented and tested
 - [ ] App-restart recovery — pending reference polled on startup
-- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
+- [ ] Partial approval handled — `PARTIAL_APPROVAL` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
 
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)
 

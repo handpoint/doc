@@ -37,7 +37,7 @@ const NONE = () => ({
 
 /** Display order for capability rows in tables. */
 export const DISPLAY_ORDER = [
-  'sale', 'refund', 'reversal', 'partial-reversal', 'tip-adjustment',
+  'sale', 'sale-with-tip', 'refund', 'reversal', 'partial-reversal', 'tip-adjustment',
   'pre-auth', 'pre-auth-capture-reversal', 'remote-sale', 'tokenization',
   'batching', 'money-remittance', 'void',
 ];
@@ -45,6 +45,7 @@ export const DISPLAY_ORDER = [
 /** Human-readable labels for each capability. */
 export const CAPABILITY_LABELS = {
   'sale':                      'Sale',
+  'sale-with-tip':             'Sale with Tip',
   'refund':                    'Refund',
   'reversal':                  'Reversal',
   'partial-reversal':          'Partial Reversal',
@@ -101,9 +102,14 @@ export const ACQUIRERS = [
   {
     id: 'epi',
     name: 'EPI',
-    subtitle: 'US, Canada · VISA MC Discover',
+    subtitle: 'US · Canada · VISA MC AMEX Discover',
     caps: {
       sale:                        { ...ALL(), 'back-office': N },
+      'sale-with-tip':             {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': P, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': P, 'back-office': N,
+      },
       refund:                      { ...ALL(), 'back-office': N },
       reversal:                    { ...ALL(), 'back-office': P },
       // Partial reversal: PAX paths only + back-office. Cordova HiLite / Windows BT / Android HiLite / iOS: N
@@ -140,6 +146,7 @@ export const ACQUIRERS = [
     },
     notes: {
       sale:                        'Card must be read by terminal.',
+      'sale-with-tip':             'Tip collected on-terminal before sale. iOS HiLite does not support on-screen tip collection — use Tip Adjustment after the sale instead.',
       refund:                      'Card must be read by terminal.',
       'partial-reversal':          'TSYS US and Canada. Not available on HiLite paths. Use POST /reversal (Back Office) from any path.',
       'tip-adjustment':            'Remote HTTPS call — not a device command. Not available in Cordova plugin (unimplemented stub). iOS SDK: uses HapiRemoteService.tipAdjustment() with sharedSecret; or use Back Office REST API with ApiKeyCloud. Windows SDK: direct HTTPS, works on both PAX and HiLite connections.',
@@ -152,14 +159,19 @@ export const ACQUIRERS = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PAYSAFE + Interac — Canada
+  // PAYSAFE / TSYS — US · Canada
   // ─────────────────────────────────────────────────────────────────────────
   {
-    id: 'tsys-tns',
-    name: 'PAYSAFE + Interac',
-    subtitle: 'Canada · VISA MC Discover Interac',
+    id: 'paysafe',
+    name: 'PAYSAFE',
+    subtitle: 'US · Canada · VISA MC AMEX Discover Interac',
     caps: {
       sale:               { ...ALL(), 'back-office': N },
+      'sale-with-tip':   {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': P, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': P, 'back-office': N,
+      },
       refund:             { ...ALL(), 'back-office': N, 'paysafe-portal': P },
       reversal:           { ...ALL(), 'back-office': P },
       'partial-reversal': { ...NONE() },
@@ -176,44 +188,16 @@ export const ACQUIRERS = [
     },
     notes: {
       sale:               'Card must be read by terminal.',
-      refund:             'Interac cards: not available via Handpoint. Paysafe Portal: CNP refund — see note below.',
-      reversal:           'Interac cards: not available.',
-      'tip-adjustment':   'TSYS-routed cards only (not Interac/TNS). Not available in Cordova plugin (unimplemented stub). iOS SDK: uses HapiRemoteService with sharedSecret, or use Back Office REST API.',
+      'sale-with-tip':   'Tip collected on-terminal before sale. iOS HiLite does not support on-screen tip collection — use Tip Adjustment after the sale instead. Not applicable to Interac transactions.',
+      refund:             'Interac cards: not available via Handpoint SDK. Paysafe Portal: CNP refund — see note below.',
+      reversal:           'Interac cards: not supported — use Void instead.',
+      'partial-reversal': 'Not supported — Paysafe restriction.',
+      'tip-adjustment':   'Not applicable to Interac card transactions (Interac supports Sale and Void only). Not available in Cordova plugin (unimplemented stub).',
       'pre-auth':         'Not supported — Paysafe restriction.',
       'remote-sale':      'Not supported — Paysafe restriction.',
-      tokenization:       'TSYS-routed cards only.',
-      batching:           'Not supported — Paysafe restriction.',
-      void:               'Interac cards only. Card must be present. Show VOID in ISV UI, not Refund.',
-    },
-    portalNote: PAYSAFE_PORTAL_NOTE,
-  },
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // PAYSAFE — US
-  // ─────────────────────────────────────────────────────────────────────────
-  {
-    id: 'paysafe-tsys',
-    name: 'PAYSAFE',
-    subtitle: 'US · VISA MC AMEX Discover',
-    caps: {
-      sale:               { ...ALL(), 'back-office': N },
-      refund:             { ...ALL(), 'back-office': N, 'paysafe-portal': P },
-      reversal:           { ...ALL(), 'back-office': P },
-      'partial-reversal': { ...NONE() },
-      'tip-adjustment':   { ...NONE() },
-      'pre-auth':         { ...NONE() },
-      'remote-sale':      { ...NONE() },
-      tokenization:       { ...NONE() },
-      batching:           { ...NONE() },
-    },
-    notes: {
-      sale:               'Card must be read by terminal.',
-      refund:             'Paysafe Portal: CNP refund — see note below.',
-      'tip-adjustment':   'Not supported — Paysafe restriction.',
-      'pre-auth':         'Not supported — Paysafe restriction.',
-      'remote-sale':      'Not supported — Paysafe restriction.',
-      tokenization:       'Not supported — Paysafe restriction.',
-      batching:           'Not supported — Paysafe restriction.',
+      tokenization:       'Supported across all markets. Interac tokenization assumed supported — verify per merchant.',
+      batching:           'Not supported by PAYSAFE. Batch operations are EPI/TSYS only.',
+      void:               'Interac cards only. Card must be physically present at terminal. Label as VOID in ISV UI — not Refund or Reversal.',
     },
     portalNote: PAYSAFE_PORTAL_NOTE,
   },
@@ -222,11 +206,16 @@ export const ACQUIRERS = [
   // EmerchantPay — EU (OMNIPAY)
   // ─────────────────────────────────────────────────────────────────────────
   {
-    id: 'omnipay-emp',
+    id: 'emerchantpay',
     name: 'EmerchantPay',
     subtitle: 'EU · VISA MC AMEX UnionPay',
     caps: {
       sale:                        { ...ALL(), 'back-office': N },
+      'sale-with-tip':             {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': P, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': P, 'back-office': N,
+      },
       refund:                      { ...ALL(), 'back-office': N },
       reversal:                    { ...ALL(), 'back-office': P },
       'partial-reversal':          { ...NONE() },
@@ -246,6 +235,7 @@ export const ACQUIRERS = [
     },
     notes: {
       sale:                        'Card must be read by terminal.',
+      'sale-with-tip':             'Tip collected on-terminal before sale. iOS HiLite does not support on-screen tip collection — use Tip Adjustment after the sale instead.',
       refund:                      'Card must be read by terminal.',
       'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Includes increase/decrease, capture, void hold.',
       'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',
@@ -259,11 +249,16 @@ export const ACQUIRERS = [
   // Paystrax — EU (OMNIPAY)
   // ─────────────────────────────────────────────────────────────────────────
   {
-    id: 'omnipay-paystrax',
+    id: 'paystrax',
     name: 'Paystrax',
     subtitle: 'EU · VISA MC AMEX UnionPay',
     caps: {
       sale:                        { ...ALL(), 'back-office': N },
+      'sale-with-tip':             {
+        'cloud-api': P, 'android-pax': P, 'android-hilite': P, 'ios-hilite': N,
+        'cordova-pax': P, 'cordova-hilite': P, 'javascript-sdk': P,
+        'windows-sdk-pax': P, 'windows-sdk-bt': P, 'back-office': N,
+      },
       refund:                      { ...ALL(), 'back-office': N },
       reversal:                    { ...ALL(), 'back-office': P },
       'partial-reversal':          { ...NONE() },
@@ -282,6 +277,7 @@ export const ACQUIRERS = [
     },
     notes: {
       sale:                        'Card must be read by terminal.',
+      'sale-with-tip':             'Tip collected on-terminal before sale. iOS HiLite does not support on-screen tip collection — use Tip Adjustment after the sale instead.',
       refund:                      'Card must be read by terminal.',
       'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Includes increase/decrease, capture, void hold.',
       'pre-auth-capture-reversal': 'Increase/decrease and capture available via Back Office.',

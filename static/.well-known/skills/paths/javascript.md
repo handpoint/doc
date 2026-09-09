@@ -51,7 +51,7 @@ const result = await transactionResult;
 | `'DECLINED'` | Declined | Clear pending |
 | `'CANCELLED'` | Cardholder cancelled | Clear pending |
 | `'FAILED'` | Technical failure | Clear pending |
-| `'PARTIALLY_APPROVED'` | Partial amount approved | Wait 60 s — split tender or reverse |
+| `'PARTIAL_APPROVAL'` | Partial amount approved | Wait 60 s — split tender or reverse |
 | `'IN_PROGRESS'` / `'UNDEFINED'` | No final status yet | Poll `getTransactionStatus` |
 
 ## Recovery

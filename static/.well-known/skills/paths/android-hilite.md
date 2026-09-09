@@ -114,6 +114,10 @@ hapi.endOfDay()
 | `FinancialStatus.CANCELLED` | Cardholder cancelled | Allow retry |
 | `FinancialStatus.FAILED` | Terminal error | Check `statusMessage` |
 | `FinancialStatus.UNDEFINED` | No result received | Do not retry — recover via status call |
+| `FinancialStatus.PARTIAL_APPROVAL` | Partial amount approved (US only) | Fulfil at `totalAmount`; prompt for remaining balance or send reversal. Required for US MCCs — see partial approval guide. |
+| `FinancialStatus.PROCESSED` | Non-financial operation completed | Treat as success |
+| `FinancialStatus.REFUNDED` | Transaction refunded | Record refund |
+| `FinancialStatus.CAPTURED` | Pre-auth captured | Record capture |
 
 ## UNDEFINED recovery
 

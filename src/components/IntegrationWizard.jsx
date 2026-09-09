@@ -62,13 +62,11 @@ const ACQUIRERS = BASE_ACQUIRERS;
 // ─── Acquirer → region mapping ────────────────────────────────────────────────
 
 const ACQUIRER_REGIONS = {
-  'epi':              'us-canada',
-  'tsys-tns':         'us-canada',
-  'tns':              'us-canada',
-  'paysafe-tsys':     'us-canada',
-  'omnipay-emp':      'eu',
-  'omnipay-paystrax': 'eu',
-  'smartboard':       'eu',
+  'epi':          'us-canada',
+  'paysafe':      'us-canada',
+  'emerchantpay': 'eu',
+  'paystrax':     'eu',
+  'smartboard':   'eu',
 };
 
 // ─── Token providers (internal reference) ────────────────────────────────────
@@ -77,12 +75,10 @@ const ACQUIRER_REGIONS = {
 // tokenex:   third-party vault → card-present tokenization, supported by all acquirers
 
 const ACQUIRER_TOKEN_PROVIDERS = {
-  'epi':              ['procharge', 'tokenex'],
-  'tsys-tns':         ['paysafe', 'tokenex'],
-  'tns':              ['tokenex'],
-  'paysafe-tsys':     ['paysafe', 'tokenex'],
-  'omnipay-emp':      ['tokenex'],
-  'omnipay-paystrax': ['tokenex'],
+  'epi':          ['procharge', 'tokenex'],
+  'paysafe':      ['paysafe', 'tokenex'],
+  'emerchantpay': ['tokenex'],
+  'paystrax':     ['tokenex'],
 };
 
 const TOKEN_PROVIDERS = [
@@ -188,7 +184,7 @@ const FEATURE_GROUPS = [
     icon: '🏷️',
     features: [
       { id: 'closed-loop',    label: 'Closed-Loop / Badge Cards', required: false, capKey: null,               desc: 'Whitelisted PAN ranges return the actual card number — used for employee badges, merchant-issued gift cards, loyalty cards.' },
-      { id: 'interac',        label: 'Interac (Canada)',           required: false, capKey: null, region: 'us-canada', acquirers: ['paysafe-tsys', 'tsys-tns', 'tns'], desc: 'Interac debit acceptance for Canadian cardholders. Requires specific fallback handling, void timing, and acquirer-level Interac enablement. Paysafe: Interac is available but must be enabled separately — contact Handpoint. See Dev Center for full Interac compliance requirements.' },
+      { id: 'interac',        label: 'Interac (Canada)',           required: false, capKey: null, region: 'us-canada', acquirers: ['paysafe'], desc: 'Interac debit acceptance for Canadian cardholders. Requires specific fallback handling, void timing, and acquirer-level Interac enablement. Paysafe: Interac is available but must be enabled separately — contact Handpoint. See Dev Center for full Interac compliance requirements.' },
     ],
   },
 ];
@@ -591,7 +587,7 @@ export default function IntegrationWizard() {
   const acquirer        = ACQUIRERS.find(a => a.id === acquirerId) || null;
   const prereqs         = PATH_PREREQS[pathId] || null;
   const ecommPrereqs    = ecommType ? ECOMM_PREREQS[ecommType] : null;
-  const US_ACQUIRERS = new Set(['epi', 'paysafe-tsys']);
+  const US_ACQUIRERS = new Set(['epi', 'paysafe']);
   const regionAcquirers = ACQUIRERS.filter(a => {
     if (ACQUIRER_REGIONS[a.id] !== region) return false;
     if (region === 'us-canada') return US_ACQUIRERS.has(a.id);

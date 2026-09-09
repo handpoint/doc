@@ -19,7 +19,7 @@ Paystrax and EmerchantPay share the same OMNIPAY integration protocol. Capabilit
 | tipAmount in sale request | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Pre-authorization | ✅ | ✅ | ❌ | ❌ | ✅ | ✅ |
 | Remote sale (on-terminal) | ✅ | ✅ | ❌ | ❌ | ❌ | — |
-| Remote sale (back-office token) | — | — | — | — | — | ✅ |
+| Remote sale (back-office token) | — | — | — | — | — | ❌ |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Batch close | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 

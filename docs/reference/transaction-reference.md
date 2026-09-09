@@ -32,7 +32,7 @@ Include `transactionReference` on every **originating** operation. Never include
 | Linked refund (has `originalGuid`) | ❌ No | `originalGuid` |
 | Tip adjustment | ❌ No | `transactionID` in the URL path |
 | Batch close | ❌ No | Not applicable |
-| Deferred tokenization | ❌ No | `transactionID` in the URL path |
+| Get Card Token | ❌ No | `transactionID` in the URL path |
 
 ---
 
@@ -151,6 +151,92 @@ hapi.getTransactionStatus(transactionReference)
 | iOS SDK (HiLite) | Not supported as a request field on iOS SDK |
 | Cordova | Top-level field in the options object passed to `HAPI.sale({ ..., transactionReference: ref })` |
 | Windows SDK | `SaleOptions` property |
+
+---
+
+## Concurrent transactions
+
+When multiple transactions are in flight simultaneously, use `transactionReference` to match each 202 response to its poll result. The `transactionResultId` returned in the 202 body is what you pass to `GET /transaction-result/{transactionResultId}`, but `transactionReference` lets you look up the correct `transactionResultId` from your own state.
+
+```
+POST /transactions { transactionReference: "ref-A" } → 202 { transactionResultId: "sn-001" }
+POST /transactions { transactionReference: "ref-B" } → 202 { transactionResultId: "sn-002" }
+
+GET /transaction-result/sn-001 → { transactionReference: "ref-A", finStatus: "AUTHORISED" }
+GET /transaction-result/sn-002 → { transactionReference: "ref-B", finStatus: "DECLINED" }
+```
+
+Always store the `transactionReference → transactionResultId` mapping immediately after receiving the 202.
+
+---
+
+## Retry-safe pattern
+
+To safely retry a timed-out POST without risk of double-charging:
+
+1. Generate and **persist** the UUID before calling the API (as always).
+2. On timeout or `UNDEFINED` result, call `GET /transactions/{transactionReference}/status` before retrying.
+3. If it resolves → the original transaction completed; **do not re-send**.
+4. If it returns 404 → the original did not reach the gateway; re-send with the **same** `transactionReference`.
+
+Sending the same `transactionReference` on a genuine retry is safe — the `duplicate_check` flag (see below) only rejects duplicates of completed transactions, not attempts that never completed.
+
+---
+
+## `duplicate_check`
+
+The `duplicate_check` request field controls whether the gateway rejects a transaction whose `transactionReference` matches a recent **completed** transaction.
+
+| Value | Behaviour |
+|---|---|
+| `true` (default) | Gateway rejects a new transaction if `transactionReference` matches a recent completed transaction |
+| `false` | Bypass the check — the new transaction proceeds regardless |
+
+Set `duplicate_check: false` only when you have already confirmed (via `GET /transactions/{ref}/status`) that the original did not complete and you are intentionally reusing the reference.
+
+```json
+{
+  "operation": "sale",
+  "amount": "15012",
+  "currency": "USD",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "transactionReference": "5c7056aa-b0a6-4ee9-891e-aae6ce7ea725",
+  "duplicate_check": false
+}
+```
+
+The retry-safe pattern above is the safer alternative — check status first; only disable `duplicate_check` when you are certain the original did not complete.
+
+---
+
+## `bypassOptions`
+
+Optional. Controls whether the cardholder can skip PIN entry or the signature step on the terminal.
+
+```json
+{
+  "operation": "sale",
+  "amount": "15012",
+  "currency": "USD",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "transactionReference": "<uuid>",
+  "bypassOptions": {
+    "signatureBypass": true,
+    "pinBypass": true
+  }
+}
+```
+
+| Option | Effect |
+|---|---|
+| `signatureBypass: true` | Skips the signature capture step. Used in unattended or self-service environments. |
+| `pinBypass: true` | Shows the PIN entry screen but the cardholder can skip by pressing the green confirmation key without entering a PIN. The terminal records `verificationMethod: PIN_BYPASS`. |
+
+:::warning Chip-enforced PIN cards ignore `pinBypass`
+When a card's EMV configuration requires PIN verification, the terminal enforces it regardless of `pinBypass: true`. Acquirer configurations may also restrict bypass options — confirm with your acquirer before deploying in production.
+:::
 
 ---
 

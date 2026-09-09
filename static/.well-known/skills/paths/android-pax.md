@@ -149,11 +149,15 @@ hapi.moneyRemittance(BigInteger("1000"), Currency.EUR, MoneyRemittanceOptions())
 
 | Value | Meaning | Action |
 |---|---|---|
-| `FinancialStatus.AUTHORISED` | Approved | Store `transactionID`, fulfil order |
+| `FinancialStatus.AUTHORISED` | Approved. Edge case: if card was removed mid-chip-processing, the SDK may send a forced-reversal and a subsequent `endOfTransaction` with `DECLINED` may arrive — always wait for `endOfTransaction` rather than acting on intermediate status. | Store `transactionID`, fulfil order |
 | `FinancialStatus.DECLINED` | Declined | Do not retry same card |
 | `FinancialStatus.CANCELLED` | Cardholder cancelled | Allow retry |
 | `FinancialStatus.FAILED` | Terminal error | Check `statusMessage` |
 | `FinancialStatus.UNDEFINED` | No result — do not retry | Query feed for recovery |
+| `FinancialStatus.PARTIAL_APPROVAL` | Partial amount approved (US only) | Fulfil at `totalAmount`; prompt for remaining balance or send reversal |
+| `FinancialStatus.PROCESSED` | Non-financial operation completed | Treat as success |
+| `FinancialStatus.REFUNDED` | Transaction refunded | Record refund |
+| `FinancialStatus.CAPTURED` | Pre-auth captured | Record capture |
 
 ## PAX on-device vs HiLite BT — key differences
 
@@ -230,6 +234,32 @@ override fun endOfDayResult(result: String, device: Device) {
 | `transactionReference` | Returned by the gateway in the result — store for `hapi.getTransactionStatus()` UNDEFINED recovery. Applies to all original operations: sale, pre-auth, unlinked refund |
 | `errorMessage` | Non-empty on DECLINED or FAILED |
 | `device.name` / `device.serialNumber` | Terminal that processed the transaction |
+
+## Partial approval — ISV requirements (US only)
+
+`PARTIAL_APPROVAL` is **enabled by default**. Every US integration will receive it in production. You must handle it.
+
+**Option 1 — Accept partial approvals** (required for specific MCCs — consult acquirer):
+- Fulfil at `totalAmount`. Prompt cardholder for remaining `dueAmount` via a second tender.
+
+**Option 2 — Do not support partial approvals**:
+1. Call `hapi.saleReversal(result.authorisedAmount, currency, result.transactionID)` using `totalAmount` (the authorized amount — **never** `requestedAmount`).
+2. Display "Insufficient funds — transaction cancelled" or equivalent.
+3. Log **both** transactions: the `PARTIAL_APPROVAL` sale and the reversal. Both receipts must be accessible.
+4. Prompt for an alternative payment method.
+
+Self-validation test: trigger amount `BigInteger("3757")`. Required for Handpoint certification.
+
+## Common agent mistakes
+
+| Mistake | Correct behaviour |
+|---|---|
+| Sending amounts in major units (`BigDecimal("37.57")`) | Always minor units: `BigInteger("3757")` — `BigInteger("1000")` = $10.00 / £10.00 |
+| Acting on `endOfTransaction` with `UNDEFINED` before running recovery | `UNDEFINED` means unknown outcome — never show a payment result; run `getTransactionStatus` recovery first |
+| Calling `hapi.sale()` before `InitialisationComplete` | Gate ALL financial operations behind the `InitialisationComplete` status event |
+| Not persisting `transactionReference` before calling `hapi.sale()` | Persist the reference to DB **before** the call — if the app crashes after the card is charged, the reference is your only recovery key |
+| Reversing `requestedAmount` on a partial approval | Reverse `totalAmount` (what was authorized), never `requestedAmount` |
+| Using `FinancialStatus.UNDEFINED` comparison on older SDK builds | Some SDK builds don't have `UNDEFINED` as a named constant — use `.toString() == "UNDEFINED"` instead |
 
 ## See also
 

@@ -464,7 +464,7 @@ The SDK `FinancialStatus` does not directly appear in the TXN Feed. It maps to a
 | `AUTHORISED` | `Pending` or `Completed` | 200 | Approved |
 | `REFUNDED` | `Pending` | 200 | Refund approved |
 | `CAPTURED` | `Completed` | 200 | Pre-auth capture approved |
-| `PARTIALLY_APPROVED` | `Pending` | 200 | Partial amount approved |
+| `PARTIAL_APPROVAL` | `Pending` | 200 | Partial amount approved |
 | `AUTHORISED_DEFERRED` | `Completed` | 200 | Pre-auth hold placed |
 | `DECLINED` | `Decline` | 403 | Acquirer declined |
 | `FAILED` | `Error` | 408 / 500 | Comms or processing failure |
@@ -520,7 +520,7 @@ Full lookup from operation + outcome → TXN Feed `name` and `type`:
 | Sale | AUTHORISED | MAGSTRIPE | `"MSR Sale"` | `"Sale"` |
 | Sale | DECLINED | CHIP | `"Declined EMV Sale"` | `"Sale"` |
 | Sale | DECLINED | MAGSTRIPE | `"Declined MSR Sale"` | `"Sale"` |
-| Sale | PARTIALLY_APPROVED | any | `"MSR Sale"` / `"EMV Sale"` | `"Sale"` |
+| Sale | PARTIAL_APPROVAL | any | `"MSR Sale"` / `"EMV Sale"` | `"Sale"` |
 | Sale (first leg only) | AUTHORISED | CHIP | `"EMV Sale"` (Authorization Granted) | `"Sale"` |
 | Refund | AUTHORISED / REFUNDED | CHIP | `"EMV Refund"` | `"Refund"` |
 | Refund | AUTHORISED / REFUNDED | MAGSTRIPE | `"MSR Refund"` | `"Refund"` |

@@ -104,5 +104,4 @@ Content-Type: application/json
 
 This behaviour applies to any Handpoint integration where the merchant's acquirer configuration includes TNS routing for Interac:
 
-- [TNS (Interac)](/acquirers/tns) — Interac-only merchants
-- [PAYSAFE + Interac](/acquirers/tsys-tns) — Merchants with TSYS + TNS combo routing
+- [PAYSAFE — Interac](/acquirers/paysafe#interac) — PAYSAFE merchants with Interac enabled (provisioned by Handpoint)

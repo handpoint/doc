@@ -245,7 +245,7 @@ The outcome field returned by the Handpoint Android SDK for every transaction. S
 | `CANCELLED` | Cancelled by operator or timeout |
 | `FAILED` | Communication or processing failure |
 | `AUTHORISED_DEFERRED` | Pre-auth granted, awaiting capture |
-| `PARTIALLY_APPROVED` | Partial amount approved |
+| `PARTIAL_APPROVAL` | Partial amount approved |
 
 ---
 

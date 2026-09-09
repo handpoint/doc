@@ -968,7 +968,7 @@ log("[APP] sale accepted | ref=${result.transactionReference} | amount=$amountMi
 | `DECLINED` | Declined by acquirer | Display `finStatus` + `errorMessage` to the merchant. The merchant decides whether it is a soft decline worth retrying — do not make this decision in code. |
 | `CANCELLED` | Cancelled by terminal or cardholder | Display the reason; safe to offer a retry |
 | `FAILED` | Terminal-level error | Display `errorMessage`; log the full result; do not retry automatically |
-| `PARTIALLY_APPROVED` | Partial approval — acquirer approved less than the requested amount | Show the approved amount; collect the remaining balance by other means |
+| `PARTIAL_APPROVAL` | Partial approval — acquirer approved less than the requested amount | Show the approved amount; collect the remaining balance by other means |
 | `AUTHORISED_DEFERRED` | Offline auth stored for later submission | Log and track; the result will be submitted when the terminal comes back online |
 | `REFUNDED` | Refund processed | Confirm refund to merchant |
 | `UNDEFINED` | Outcome unknown — connection may have been lost | **Do not show a payment result.** Start recovery — see below. |

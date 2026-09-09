@@ -14,8 +14,8 @@ MOTO (Mail Order / Telephone Order) transactions allow merchants to accept card 
 :::info Acquirer requirement
 MOTO must be enabled per merchant by Handpoint. Contact your Handpoint integration engineer before building MOTO features.
 
-**EPI (TSYS):** Supported — `motoEnabled = true` set by Handpoint.  
-**EmerchantPay / Paystrax:** Remote card token sale supported; on-terminal keyed entry not available.  
+**EPI:** Both paths supported — `motoEnabled = true` set by Handpoint.  
+**EmerchantPay / Paystrax:** On-terminal keyed entry supported. Back-office card token remote sale is **EPI only**.  
 **PAYSAFE:** Not supported.
 :::
 
@@ -25,10 +25,10 @@ MOTO must be enabled per merchant by Handpoint. Contact your Handpoint integrati
 
 | Path | How it works | Terminal required | Acquirers |
 |---|---|---|---|
-| **On-terminal keyed entry** | PAX terminal shows a manual card-entry screen; operator keys in card details | Yes — PAX in integrated mode | EPI only |
-| **Remote sale (card token)** | Server-side charge against a stored card token — no terminal interaction | No | EPI, EmerchantPay, Paystrax |
+| **On-terminal keyed entry** | PAX terminal shows a manual card-entry screen; operator keys in card details | Yes — PAX in integrated mode | EPI, EmerchantPay, Paystrax |
+| **Remote sale (card token)** | Server-side charge against a stored card token — no terminal interaction | No | EPI only |
 
-Choose **remote sale** whenever you have a stored token. On-terminal keyed entry is for phone-order scenarios where you don't yet have a token.
+Choose **remote sale** when you have a stored token and need no terminal. Use **on-terminal keyed entry** for phone-order scenarios where no token exists yet — note that EmerchantPay and Paystrax only support this path, not back-office card token charges.
 
 ---
 
@@ -40,19 +40,18 @@ Uses the standard `POST /transactions` endpoint — same async 202 → polling f
 
 ### Cloud API
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "operation": "moToSale",
   "amount": "1000",
   "currency": "USD",
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "transactionReference": "550e8400-e29b-41d4-a716-446655440000"
-}
+}'
 ```
 
 `amount` is in **minor units** as a string — `"1000"` = $10.00.
@@ -74,9 +73,9 @@ Status: open as of 2026-09-05 (Handpoint Engineering, CUS-837).
 :::
 
 **Poll for result:**
-```http
-GET https://cloud.handpoint.com/transaction-result/{transactionResultId}
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```bash
+curl https://cloud.handpoint.com/transaction-result/{transactionResultId} \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
 ```
 
 HTTP 204 = still processing (no body — do not call `.json()`). HTTP 200 = result ready.
@@ -138,17 +137,16 @@ Token sources: EPI ProCharge, EPI token, EmerchantPay token, Paystrax token. Tok
 
 ### Cloud API
 
-```http
-POST https://cloud.handpoint.com/moto/sale
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/moto/sale \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "STORED_TOKEN_FROM_PRIOR_TRANSACTION",
   "transactionReference": "550e8400-e29b-41d4-a716-446655440000"
-}
+}'
 ```
 
 `amount` is in **major units** as a decimal string — `"10.00"` = $10.00.
@@ -182,12 +180,11 @@ Content-Type: application/json
 
 Use `POST /reversal` with the `guid` from the sale response:
 
-```http
-POST https://cloud.handpoint.com/reversal
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{ "originalGuid": "82c40d50-9d7f-11f1-9d23-43aed1037e3c" }
+```bash
+curl -X POST https://cloud.handpoint.com/reversal \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "originalGuid": "82c40d50-9d7f-11f1-9d23-43aed1037e3c" }'
 ```
 
 Synchronous — HTTP 200 on success. `finStatus` is not returned; check `httpStatus: 200` (integer) and `issuerResponseCode: "00"`.
@@ -275,9 +272,9 @@ A card token is returned in the transaction result as `cardToken` when tokenizat
 
 To retrieve a token from a past transaction (EPI only):
 
-```http
-GET https://cloud.handpoint.com/transactions/{transactionID}/token
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```bash
+curl https://cloud.handpoint.com/transactions/{transactionID}/token \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
 ```
 
 `transactionID` must be from a SALE-type transaction. Returns `{ "cardToken": "TOKEN_STRING" }`.
@@ -286,6 +283,8 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 
 ## Related pages
 
+- [Operations Reference](/reference/cloud-api-operations) — copy-pasteable curl examples for MOTO, sale, pre-auth, refund, and reversal
 - [AVS](/reference/avs) — billing address configuration and edge cases
 - [Transaction Recovery — Cloud API](/reference/transaction-recovery-cloud-api) — recovery flow for on-terminal MOTO timeouts
+- [Error Handling Guide](/reference/error-handling-guide) — MOTO-not-enabled error shape (`FAILED` not `DECLINED`), capability error tiers
 - [EPI acquirer page](/acquirers/epi) — EPI-specific requirements and token provider details
