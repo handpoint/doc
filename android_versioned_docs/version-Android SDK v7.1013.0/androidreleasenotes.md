@@ -9,7 +9,7 @@
 
 ### Improvements
 
-- **MOTO status recovery** — MoTo transactions that return an UNDEFINED result can now recover the approved result via the Get Transaction Status service. Previously, MoTo operations did not include a `transactionReference`, making status recovery impossible.
+- **MoTo Sale status recovery** — MoTo Sale transactions that return an UNDEFINED result can now recover the approved result via the Get Transaction Status service. Previously, MoTo Sale did not include a `transactionReference`, making status recovery impossible.
 
 ### Bug Fixes
 
