@@ -154,6 +154,12 @@ acquirers:
         # Full detail: docs/reference/avs-for-moto.mdx
         cloud-api: public
         android-pax: public
+      fee-mitigation:
+        # A modifier, not an operation. So it has no partial and no CAPABILITY_LABELS
+        # entry, and it renders nowhere. Same model as avs-for-moto.
+        # Full detail: docs/reference/fee-mitigation.mdx
+        cloud-api: coming-soon
+        android-pax: public
   tsys-tns:
     name: "PAYSAFE + Interac"
     geography: "Canada"

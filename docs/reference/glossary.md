@@ -16,6 +16,14 @@ See also: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix
 
 ---
 
+### Admin fee
+
+A [fee mitigation](#fee-mitigation) program. The merchant adds a flat or percentage fee to every payment method — cash, card and e-gift alike. It is deliberately universal: a carve-out for cash would turn it into a [cash discount](#cash-discount), and different rules would apply. The receipt shows it as a separate labelled line. Only a [surcharge](#surcharge) reaches the card networks, so an admin fee travels inside the transaction amount.
+
+See also: [Fee Mitigation](/reference/fee-mitigation)
+
+---
+
 ### Authorization code
 
 A short alphanumeric code (e.g. `"123456"`) returned by the card issuer to approve a transaction. Appears as `authorisationCode` in `TransactionResult`. An empty `authorisationCode` on a declined transaction is normal.
@@ -53,6 +61,22 @@ A surrogate string that represents a real card number, stored securely by a toke
 
 ---
 
+### Cash discount
+
+A [fee mitigation](#fee-mitigation) program. The merchant posts the card price as the standard price and reduces it when the customer pays cash or redeems an e-gift card. A card transaction under this program carries no fee, so it never reaches the gateway. The gateway refuses a cash discount on a card transaction rather than accepting it quietly.
+
+See also: [Fee Mitigation](/reference/fee-mitigation)
+
+---
+
+### Dual pricing
+
+A [fee mitigation](#fee-mitigation) program. The merchant posts two prices — a cash price and a higher card price. Legally this is a pricing model, not a fee, so the restrictions that apply to a [surcharge](#surcharge) do not apply. The receipt shows **no** fee line: the card price is the posted price, and an itemised fee would undermine the model.
+
+See also: [Fee Mitigation](/reference/fee-mitigation)
+
+---
+
 ### EMV
 
 "Europay, Mastercard, Visa" — the global standard for chip-based card transactions. Handpoint terminals process EMV chip, NFC (contactless), and magnetic stripe (fallback). EMV data fields are present in `TransactionResult` for chip and tap transactions.
@@ -68,6 +92,14 @@ Handpoint's North American acquirer. Supports Visa, Mastercard, Amex, Discover. 
 ### EmerchantPay
 
 Handpoint's European acquirer (OMNIPAY integration). Supports Visa, Mastercard, AMEX, UnionPay. Region: Europe. Automatic settlement — no batch close. MOTO keyed entry and linked MOTO refund supported; back-office card-token remote sale is EPI only.
+
+---
+
+### Fee mitigation
+
+The four programs that let a merchant recover the cost of card acceptance: [surcharge](#surcharge), [dual pricing](#dual-pricing), [cash discount](#cash-discount) and [admin fee](#admin-fee). A transaction carries one program, never two. Your application calculates the amount and sends it in a `Fee` object; the gateway decides whether the program applies to the card, and applies or drops the fee. EPI only.
+
+See also: [Fee Mitigation](/reference/fee-mitigation)
 
 ---
 
@@ -145,6 +177,14 @@ The process by which authorised transaction funds are transferred from the cardh
 ### Shared secret (`HANDPOINT_SHARED_SECRET`)
 
 A server-to-device authentication credential used by the Android and iOS SDKs to establish a secure connection between your app and the PAX terminal (or HiLite reader). Never expose in source code — store in `local.properties` (gitignored). Different from the Cloud API key.
+
+---
+
+### Surcharge
+
+A [fee mitigation](#fee-mitigation) program, and the only one the acquirer protocol can report. The merchant adds a fee for the use of a credit card. Never a debit card, never a prepaid card. The card networks cap it at 3% or the actual cost of acceptance, require 30 days notice, require signage, and require a separate line on the receipt. Several US states and Puerto Rico prohibit it.
+
+See also: [Fee Mitigation](/reference/fee-mitigation)
 
 ---
 

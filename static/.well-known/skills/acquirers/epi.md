@@ -18,6 +18,13 @@
 | Remote sale (back-office token) | — | — | — | — | — | ✅ |
 | Tokenization | ✅ | ✅ | ✅ | ✅ | ✅ | — |
 | Batch close | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| Fee mitigation | ❌ | ✅ | ❌ | ❌ | ❌ | — |
+
+**Fee mitigation is EPI only, and under development.** The acquirer protocol has a single fee field,
+and its specification calls that field the surcharge, so only a surcharge reaches the card networks.
+An admin fee and a dual price travel inside the transaction amount. A cash discount never reaches
+the gateway. The Cloud API does not carry the `fee` object yet. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
 
 ## Critical: batch close (mandatory for EPI)
 

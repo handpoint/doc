@@ -145,6 +145,38 @@ Requires remote sale enablement. Load `optional/back-office.md` for back-office 
 hapi.moneyRemittance(BigInteger("1000"), Currency.EUR, MoneyRemittanceOptions())
 ```
 
+## Fee mitigation (EPI only — under development)
+
+Surcharge, admin fee and dual pricing travel in one `Fee` object. Set it on `SaleOptions` or
+`MoToOptions`, never on a pre-authorization — the fee belongs to the capture.
+
+```kotlin
+val options = SaleOptions().apply {
+    fee = Fee(
+        amount            = BigInteger("360"),  // the whole fee, minor units
+        mitigationProgram = FeeMitigationProgram.SURCHARGE,
+        taxOnFee          = BigInteger("60")    // the tax part inside amount
+    )
+}
+hapi.sale(BigInteger("10000"), Currency.USD, options)   // pass the BASE amount
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val fee = result.fee ?: return          // null when no fee was sent
+    if (fee.applied) { /* print a fee line */ } else { /* fee.reason says why */ }
+}
+```
+
+- **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
+- **`taxOnFee` sits inside `amount`.** It is never added on top.
+- Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
+  (`BigDecimal`), like `result.taxAmount`.
+- Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
+- `FeeResult.reason`: `APPLIED`, `NOT_ELIGIBLE_DEBIT`, `NOT_ELIGIBLE_PREPAID`,
+  `PROGRAM_NOT_ENABLED`, `PROGRAM_NOT_SUPPORTED`, `UNKNOWN`. Only the first two occur today.
+- `Options.surchargeAmount` and `result.surcharge` are deprecated and still work. Never set both
+  `fee` and `surchargeAmount` with different amounts — the gateway returns error `4268`.
+- The receipt rule differs per program. Dual pricing prints **no** fee line.
+
 ## finStatus values
 
 | Value | Meaning | Action |
@@ -260,10 +292,14 @@ Self-validation test: trigger amount `BigInteger("3757")`. Required for Handpoin
 | Not persisting `transactionReference` before calling `hapi.sale()` | Persist the reference to DB **before** the call — if the app crashes after the card is charged, the reference is your only recovery key |
 | Reversing `requestedAmount` on a partial approval | Reverse `totalAmount` (what was authorized), never `requestedAmount` |
 | Using `FinancialStatus.UNDEFINED` comparison on older SDK builds | Some SDK builds don't have `UNDEFINED` as a named constant — use `.toString() == "UNDEFINED"` instead |
+| Adding the fee to the amount passed to `hapi.sale()` | Pass the base amount — the SDK adds `fee.amount` itself, so pre-adding it double-charges the fee |
+| Setting `fee` on a pre-authorization | The SDK drops it. Set it on the capture, which decides what the customer pays |
+| Treating `fee.applied == false` as a failure | The transaction succeeded; the gateway removed the fee. Print no fee line and settle the total that the result carries |
 
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
 - Android SDK setup reference: https://developer.handpoint.com/reference/android-sdk-setup
+- Fee mitigation: https://developer.handpoint.com/reference/fee-mitigation
 - Authentication: https://developer.handpoint.com/reference/authentication
 - Release notes: https://developer.handpoint.com/release-notes/release-notes

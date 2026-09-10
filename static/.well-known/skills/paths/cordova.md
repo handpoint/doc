@@ -262,6 +262,12 @@ HAPI.sale({ amount: 1000, currency: 'USD', customerReference: 'ORDER-123' }, suc
 | `"Handpoint SDK method not defined: <action>"` | Unknown method name — check plugin version |
 | `"Error initializing Handpoint SDK <error>"` | SDK init failed — check `sharedSecret` / `cloudApiKey` |
 
+## Fee mitigation
+
+**Not supported on this path.** The Cordova plugin does not carry surcharge, admin fee or dual
+pricing. Use a PAX terminal with the Android SDK. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`

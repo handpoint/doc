@@ -44,6 +44,11 @@ Authorization: YOUR_API_KEY
 | `cardTokenProvider` | Token provider if tokenization was used |
 | `timestamp` | ISO 8601 timestamp |
 
+:::note Fee mitigation is not in the feed yet
+The feed carries no fee amount, no program, and no applied flag. Persist the `fee` object from the
+transaction result in your own records. See [Fee Mitigation](/reference/fee-mitigation).
+:::
+
 ## Elasticsearch index
 
 For direct Elasticsearch access, the index is `txn_feed`. Contact your Handpoint integration engineer for credentials and index schema.

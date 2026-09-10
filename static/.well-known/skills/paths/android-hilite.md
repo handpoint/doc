@@ -206,6 +206,12 @@ override fun transactionResultReady(result: TransactionResult, device: Device) {
 | `device.name` / `device.address` | Which HiLite processed the transaction |
 | ~~`transactionReference`~~ | **Not available on HiLite** — `hapi.getTransactionStatus()` and `/status/{transactionReference}` are not supported. Use Transaction Feed API for UNDEFINED recovery instead |
 
+## Fee mitigation
+
+**Not supported on this path.** A HiLite card reader does not carry surcharge, admin fee or dual
+pricing. Use a PAX terminal with the Android SDK. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
