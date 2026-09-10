@@ -7,7 +7,10 @@
 - **MOTO partial approval** — MOTO transactions now correctly handle partial approval responses from the issuer.
 - **`NO_CURRENT_TRANSACTION_TO_CANCEL` status** — `stopCurrentTransaction()` now returns this specific status when called with no transaction in progress, making it easier to handle the idle-state case.
 
+### Improvements
+
+- **MOTO status recovery** — MoTo transactions that return an UNDEFINED result can now recover the approved result via the Get Transaction Status service. Previously, MoTo operations did not include a `transactionReference`, making status recovery impossible.
+
 ### Bug Fixes
 
 - **Pre-authorization reversal amount** — Fixed an issue where the reversal amount for pre-authorization operations was not correctly calculated in certain acquirer configurations.
-- **MOTO UNDEFINED response** — Fixed an issue where MOTO transactions could return `UNDEFINED` finStatus in cases that should have returned a definitive result.
