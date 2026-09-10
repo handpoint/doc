@@ -23,6 +23,25 @@ Select your integration path to see the relevant changelog. Selecting a path her
 
 ## REST API
 
+### 2.30.0
+**Features:**
+
+Added Address Verification Service (AVS) support for MOTO and card-present transactions.
+
+- [`moToSaleRequest`](/reference/moto-guide) now accepts a `billing` object containing `zipCode` (required) and `address` (optional) fields. Providing a `billing` object triggers an AVS check on the acquirer.
+- [`transactionRequest`](/reference/cloud-integration-guide) (card-present Sale / Keyed Entry) also accepts the same `billing` object for AVS on card-present transactions.
+
+AVS must be enabled on the merchant's acquirer agreement. The `billing` object is optional; omit it for transactions where AVS is not required.
+
+:::info
+The AVS result code is currently returned on the Android SDK `TransactionResult.addressVerification` field (SDK 7.1014.0+) for direct MoTo operations. Support for the AVS result in the Cloud API poll response (`GET /transaction-result`) is planned for a future release.
+:::
+
+### 2.29.0
+**Features:**
+
+New `NoTransactionToCancel` error (error code `1005`) is now returned from `POST /transactions` when a `stopCurrentTransaction` operation is attempted but there is no transaction currently in progress to cancel. Previously this case was reported as the generic `CancelOperationNotAllowed` error (`1003`).
+
 ### 2.27.0
 **Features**
 
@@ -109,8 +128,29 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 ## Android SDK — PAX
 
 :::info Latest version
-**7.1013.1** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
+**7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
 :::
+
+### 7.1014.0
+
+:::caution Breaking change
+Starting with 7.1014.0, the SDK requires **core library desugaring** to be enabled. Add to your app module's `build.gradle`:
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+:::
+
+**New Features**
+
+- **Address Verification Service (AVS)** for MoTo transactions. Pass cardholder billing details via [`MoToOptions.billing`](/reference/moto-guide) (`zipCode` required, `address` optional), or set `MoToOptions.enableAvsFields` to collect them on-screen. The acquirer's AVS result is returned as `TransactionResult.addressVerification.resultCode` (see `AvsResultCode` enum).
 
 ### 7.1013.1
 **New Features**
@@ -135,13 +175,20 @@ An issue affecting **PAX terminals without a MAGStripe module** has been identif
 ### 7.1013.0
 **New Features**
 
+- **Duplicate-Check for MoTo Sale**: `duplicationCheck` is now supported in `MoToOptions` for `motoSale`, preventing double-charges when a sale is retried after a network or connectivity issue.
+- **Deferred Tokenization**: new `deferredTokenization(originalTransactionID)` method allows tokenizing a card used in a previous sale, refund, pre-authorization capture, MoTo sale, or MoTo refund at a later point using the transaction's GUID.
 - **MOTO partial approval**: MOTO transactions now correctly handle partial approval responses from the issuer.
 - **`NO_CURRENT_TRANSACTION_TO_CANCEL`** status: `stopCurrentTransaction()` now returns this status when called with no active transaction instead of a generic error, allowing Cloud API to distinguish between "no transaction" and "cancel not allowed."
+
+**Improvements**
+
+- Contactless (NFC) reading performance improved: the NFC reader is no longer reinitialised on every polling cycle, resulting in faster and more reliable tap detection.
+- MoTo Sale transactions that return an UNDEFINED result can now recover the approved result via the Get Transaction Status service. Previously, MoTo Sale did not include a `transactionReference`, making status recovery impossible.
 
 **Bug Fixes**
 
 - Pre-authorization reversal amount was not being correctly passed to the gateway in some scenarios — corrected.
-- MOTO transaction responses were returned as `UNDEFINED` for certain issuers — resolved.
+- Card entry type now correctly reports `CHIPFAILMAGSTRIPE` instead of `TOKENIZATION` when a chip card falls back to magnetic stripe.
 
 ### 7.1012.3
 **Bug Fixes**
