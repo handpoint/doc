@@ -39,7 +39,7 @@ Added support for Address Verification Service (AVS) checks on MoTo transactions
 **New Features**
 
 - Duplicate-Check support is now available for MoTo Sale operations, preventing double-charges when a sale is retried after a network or connectivity issue.
-- Deferred Tokenization is now supported in the Android SDK, allowing integrators to tokenize a card used in a previous sale, refund, pre-authorization capture, MoTo sale or MoTo refund at a later point using the transaction's GUID. See the [REST API 2.26.0 Deferred Tokenization](restreleasenotes.md) endpoint for the corresponding gateway operation.
+- Deferred Tokenization is now supported in the Android SDK, allowing integrators to tokenize a card used in a previous sale, refund, pre-authorization capture, MoTo sale or MoTo refund at a later point using the transaction's GUID. See the [REST API 2.26.0 Deferred Tokenization](pathname:///restapi/restreleasenotes) endpoint for the corresponding gateway operation.
 
 **Improvements**
 
