@@ -403,10 +403,10 @@ result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
-// --- Fee mitigation (null unless the request carried a fee) ---
-result.fee?.amount              // BigDecimal("3.60")   major units, like taxAmount
+// --- Fee mitigation ---
+result.fee?.amount              // BigDecimal("3.60")   major units, not minor
 result.fee?.mitigationProgram   // FeeMitigationProgram.SURCHARGE
-result.fee?.taxOnFee            // BigDecimal("0.60")   the tax part inside amount
+result.fee?.taxOnFee            // BigDecimal("0.60")   inside amount
 result.fee?.applied             // true
 result.fee?.reason              // FeeReason.APPLIED
 result.fee?.reasonDetail        // null

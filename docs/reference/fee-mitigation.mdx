@@ -204,23 +204,23 @@ Build a `Fee`, set it on the options, and start the operation. Pass the **base a
 
 ```kotlin
 val fee = Fee(
-    amount            = BigInteger("360"),   // 3.60 — the whole fee, minor units
+    amount            = BigInteger("360"),   // 3.60
     mitigationProgram = FeeMitigationProgram.SURCHARGE,
-    taxOnFee          = BigInteger("60")     // 0.60 of that 3.60 is tax
+    taxOnFee          = BigInteger("60")     // 0.60, already inside amount
 )
 
 val options = SaleOptions()
 options.fee = fee
 
-hapi.sale(BigInteger("10000"), Currency.USD, options)   // 100.00 base
+hapi.sale(BigInteger("10000"), Currency.USD, options)   // 100.00
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         val feeResult = result.fee ?: return
         if (feeResult.applied) {
-            // print a fee line, and settle result.totalAmount
+            // print a fee line, settle result.totalAmount
         } else {
-            // the gateway removed the fee; feeResult.reason says why
+            // no fee line — read feeResult.reason
         }
     }
 }
