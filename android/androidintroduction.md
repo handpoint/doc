@@ -133,6 +133,20 @@ android {
  }
   ```
 
+**Core library desugaring (required since SDK 7.1014.0)**
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+
 It is time to visit our **[Integration Guides](androidintegrationguide)** section.
 
 If you have any questions, do not hesitate to **[Contact Us](mailto:support@handpoint.com)**.

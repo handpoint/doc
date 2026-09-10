@@ -136,6 +136,20 @@ android {
  }
 ```
 
+**Core library desugaring (required since SDK 7.1014.0)**
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+
 :::tip
 If using AndroidX you will need to switch the following flags to true:<br></br> 
 android.enableJetifier=true<br></br> 
@@ -368,6 +382,20 @@ dependencies {
 
     //Handpoint Production SDK (Production devices)
     implementation 'com.handpoint.api:sdk:7.x.x'
+}
+```
+
+**Core library desugaring (required since SDK 7.1014.0)**
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 ```
 
@@ -624,6 +652,20 @@ dependencies {
 
     //Handpoint Production SDK (Production devices)
     implementation 'com.handpoint.api:sdk:7.x.x'
+}
+```
+
+**Core library desugaring (required since SDK 7.1014.0)**
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 ```
 

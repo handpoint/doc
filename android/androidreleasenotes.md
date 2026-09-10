@@ -11,6 +11,29 @@ id: androidreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 7.1014.0
+**BREAKING CHANGE:**
+
+Starting with this version, the SDK requires [core library desugaring](androidintegrationguide.md#8) to be enabled in your app's Gradle configuration. At Handpoint we want to keep backwards compatibility with older Android APIs (the SDK still supports Android 5.1.1 / API level 22 and up) while starting to use new, modern Java APIs internally — enabling desugaring lets us do both at the same time.
+
+Add the following to your app module's `build.gradle`:
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+
+**Features**
+
+Added support for Address Verification Service (AVS) checks on MoTo transactions. You can now pass the cardholder's billing details via [`MoToOptions.billing`](androidobjects.md#moto-options), or set [`MoToOptions.enableAvsFields`](androidobjects.md#moto-options) to have the MoTo Dialog collect them from the cardholder instead. See the [Billing](androidobjects.md#billing) object for details. The result of the check performed by the acquirer is returned on [`TransactionResult.addressVerification`](androidobjects.md#25), see the [Address Verification](androidobjects.md#address-verification) object.
+
 ## 7.1012.3
 **Features**
 

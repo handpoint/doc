@@ -25,6 +25,7 @@ An object holding information about the result of a transaction.
 
 | Parameter      | Description |
 | ----------- | ----------- |
+| `addressVerification` <br />[*AddressVerification*](#address-verification)   | 		AVS (Address Verification Service) result, present only when the acquirer performed one.|
 | `aid`   <br />*String*  | 		Application Identifier of the card (EMV tag 9F06).|
 | `arc`  <br />*String*   | 		EMV Authorisation Response Code (EMV tag 8A).|
 | `authorisationCode`   <br />*String*  | 		Acquirer response code.|
@@ -86,6 +87,9 @@ An object holding information about the result of a transaction.
 
 ```json
 {
+  "addressVerification": {
+    "resultCode": "FULL_MATCH"
+  },
   "aid": "A0000000041010",
   "arc": "0000",
   "authorisationCode": "123456",
@@ -182,6 +186,36 @@ public enum Acquirer {	AMEX,
 }
 ```
 
+## Address Verification
+
+`AddressVerification` <span class="badge badge--info">Object</span>
+
+Address verification (AVS) result for a MoTo transaction, exposed on [TransactionResult](#25).
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `resultCode` <br />[*AvsResultCode*](#avs-result-code) | Outcome of the AVS check performed by the acquirer |
+
+**Code example**
+
+```json
+{
+  "resultCode": "FULL_MATCH"
+}
+```
+
+## Avs Result Code
+
+`AvsResultCode` <span class="badge badge--info">Enum</span>
+
+An enum representing the outcome of an Address Verification Service (AVS) check performed by the acquirer for a MoTo transaction.
+
+**Possible values**
+
+`FULL_MATCH` `EXACT_MATCH` `ADDRESS_MATCH` `ZIP_MATCH` `ZIP9_MATCH` `NO_MATCH` `UNSUPPORTED` `INTERNATIONAL` `RETRY` `UNAVAILABLE` `UNKNOWN`
+
 ## Balance
 
 `Balance` <span class="badge badge--info">Object</span>
@@ -216,6 +250,25 @@ An enum representing the balance sign.
 **Possible values**
 
 `POSITIVE_SIGN('C')` `NEGATIVE_SIGN('D')`
+
+## Billing
+
+`Billing` <span class="badge badge--info">Object</span>
+
+Billing address details attached to a MoTo transaction, used for Address Verification Service (AVS) checks.
+
+**Properties**
+
+| Parameter      | Description |
+| ----------- | ----------- |
+| `zipCode` <span class="badge badge--primary">Required</span> <br />*String* | The billing postal/ZIP code |
+| `address` <br />*String* | The billing street address. Optional; used for AVS when provided |
+
+**Code example**
+
+```java
+Billing billing = new Billing("90210", "123 Main Street");
+```
 
 ## Card Brands{#cardBrands}
 
@@ -721,6 +774,8 @@ An object to store optional parameters for card not present (MoTo) transactions.
 | `cardToken`  <br />*String*  | From token providers who support PAN + Expiry de-tokenization|
 | `Tokenize`  <br />*Boolean*  | Flag to activate tokenization of the operation, if this flag is set, a token representing the PAN of the card will be sent back by the Handpoint sytems|
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](androidobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions.|
+| `billing`  <br />[*Billing*](androidobjects.md#billing)   | Billing address details used for Address Verification Service (AVS) checks|
+| `enableAvsFields`  <br />*Boolean*   | Instructs the MoTo Dialog to request the AVS fields from the cardholder. Ignored if `billing` is already set|
 
 
 
@@ -737,6 +792,13 @@ options.setChannel(MoToChannel.TO);
 //Adding Money Remitance options
 MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John Doe", CountryCode.USA);
 MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
+
+//Adding AVS billing details directly
+Billing billing = new Billing("90210", "123 Main Street");
+options.setBilling(billing);
+
+//Or letting the MoTo Dialog collect the AVS fields from the cardholder instead
+options.setEnableAvsFields(true);
 ```
 
 ## Operation DTO
