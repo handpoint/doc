@@ -703,24 +703,37 @@ The Handpoint Payments App is distributed by Handpoint. Contact your Handpoint i
 :::
 
 :::info Latest version
-**4.13.0** — uses Android SDK **7.1013.1**
+**4.14.0** — uses Android SDK **7.1014.0**
 :::
+
+### 4.14.0
+
+Uses Android SDK **7.1014.0**.
+
+:::caution Breaking change — core library desugaring required
+SDK 7.1014.0 requires core library desugaring. Add to your app module's `build.gradle`:
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+:::
+
+**New Features**
+
+- **Address Verification Service (AVS)** — MoTo transactions now support AVS. Pass cardholder billing details via `MoToOptions.billing` (ZIP code required, address optional), or enable `MoToOptions.enableAvsFields` to collect them on-screen. The acquirer's AVS result is returned as `TransactionResult.addressVerification.resultCode`.
+
+---
 
 ### 4.13.0
 
 Uses Android SDK **7.1013.1**.
-
-**New Features**
-
-- **Deferred Card Tokenization** — retrieve a card token from a previously completed card-present transaction without requiring the card to be presented again. Available via `deferredTokenization()` in the Android SDK.
-- **Duplicate check for MOTO operations** — prevents accidental duplicate charges on MOTO sale and refund retry.
-- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
-- **Cancel operation reason** — `cancelOperationNotAllowed` responses now include a reason so the Cloud API can distinguish between "no active transaction" and "cancel not allowed during this operation".
-
-**Bug Fixes**
-
-- **Pre-auth reversal amount unit mismatch — regression from 4.12.1** (SDK fix, SDKS-213) — when a Cloud REST API caller sent a partial pre-auth reversal with the amount in minor units (e.g. `3000` for $30.00), the SDK forwarded the raw integer to the gateway without converting to major units, resulting in a 100× inflated reversal amount. Conversely, when the caller used major-unit decimals (e.g. `30.00`), the amount and currency were stripped from the IREQ message and the reversal was treated as a full reversal. Fixed by adding a unit-detection parser in `SdkApiReversalRequest` that converts to major-unit `BigDecimal` before forwarding to the gateway. Introduced by SDKS-201 (pre-auth reversal restructuring in 4.12.1).
-- **PIN bypass TMS gate broken** (SDK fix, SDKS-102) — `PaymentSDKHandler` read the PIN bypass configuration from the terminal's own self-configuration instead of from the TMS-delivered config object. This caused two failure modes: (1) when TMS permitted bypass (`bypassPin=1`), the terminal still demanded PIN entry because self-config had the flag off; (2) in Cloud mode, the per-request `pinBypass` field was applied inconsistently because the TMS gate was evaluated against the wrong source. Fixed by sourcing the bypass gate from the TMS config object and adding a `bypassAll` field for full CVM coverage. Correct hierarchy after fix: TMS policy is the outer gate; within that, Cloud mode per-request `pinBypass` takes precedence over the in-app setting; standalone mode uses the in-app setting.
 
 :::caution Known issue — under investigation (SDKS-320)
 An issue affecting **PAX terminals without a MAGStripe module** has been identified and is under investigation. Confirmed affected models: **PAX A50**, **PAX IM25**. A fix will be included in a future release. **Do not use this version on terminals without MAGStripe module support.**
@@ -729,6 +742,17 @@ An issue affecting **PAX terminals without a MAGStripe module** has been identif
 - **EMEA PaxStore** — version 4.13.0 has been removed from the EMEA marketplace pending a future release that includes the fix.
 - **US marketplace** — version 4.13.0 remains available. PAX terminals deployed in the US all include MAGStripe modules; however, the warning above applies to any device without a MAGStripe module.
 :::
+
+**New Features**
+
+- **Duplicate check for MOTO operations** — prevents accidental duplicate charges on MOTO sale and refund retry.
+- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
+- **Cancel operation reason** — `cancelOperationNotAllowed` responses now include a reason so the Cloud API can distinguish between "no active transaction" and "cancel not allowed during this operation".
+
+**Bug Fixes**
+
+- **Pre-auth reversal amount unit mismatch — regression from 4.12.1** (SDK fix, SDKS-213) — when a Cloud REST API caller sent a partial pre-auth reversal with the amount in minor units (e.g. `3000` for $30.00), the SDK forwarded the raw integer to the gateway without converting to major units, resulting in a 100× inflated reversal amount. Conversely, when the caller used major-unit decimals (e.g. `30.00`), the amount and currency were stripped from the IREQ message and the reversal was treated as a full reversal. Fixed by adding a unit-detection parser in `SdkApiReversalRequest` that converts to major-unit `BigDecimal` before forwarding to the gateway. Introduced by SDKS-201 (pre-auth reversal restructuring in 4.12.1).
+- **PIN bypass TMS gate broken** (SDK fix, SDKS-102) — `PaymentSDKHandler` read the PIN bypass configuration from the terminal's own self-configuration instead of from the TMS-delivered config object. This caused two failure modes: (1) when TMS permitted bypass (`bypassPin=1`), the terminal still demanded PIN entry because self-config had the flag off; (2) in Cloud mode, the per-request `pinBypass` field was applied inconsistently because the TMS gate was evaluated against the wrong source. Fixed by sourcing the bypass gate from the TMS config object and adding a `bypassAll` field for full CVM coverage. Correct hierarchy after fix: TMS policy is the outer gate; within that, Cloud mode per-request `pinBypass` takes precedence over the in-app setting; standalone mode uses the in-app setting.
 
 ---
 
@@ -864,53 +888,15 @@ The Handpoint mPOS app runs on the merchant's Android phone or tablet and connec
 - **iOS** — [Apple App Store](https://apps.apple.com/app/id1450546788) (id1450546788)
 
 :::info Latest version
-**4.13.0** — available on Google Play and the Apple App Store. Uses Android SDK **7.1013.1** (Android) and iOS SDK **4.0.2** (iOS).
+**4.10.5** — available on Google Play and the Apple App Store. Uses Android SDK **7.1004.3**.
 :::
 
-:::note
-The mPOS app uses the same version numbering as the Handpoint Payments App (PAX SmartPOS). Both are built from the same codebase with platform-specific configurations.
-:::
+### 4.10.5
 
-### 4.13.0
+Uses Android SDK **7.1004.3**.
 
-**New Features**
-
-- **Deferred Card Tokenization** — retrieve a card token from a previously completed card-present transaction without requiring the card to be presented again.
-- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
-
-**Bug Fixes**
-
-- Pre-auth reversal amount displayed incorrectly when using partial pre-auth reversals — resolved.
-- Bluetooth connection stability improvements for Android 13+.
-
-:::caution Known issue — under investigation (SDKS-320)
-An issue affecting **PAX terminals without a MAGStripe module** does not affect the mPOS app and HiLite readers. HiLite readers always support MAGStripe.
-:::
-
----
-
-### 4.12.1
-
-**New Features**
-
-- Get Transaction Status support — query transaction outcome after connectivity interruptions.
-
-**Bug Fixes**
-
-- Contactless reading reliability improvements.
-
----
-
-### 4.11.0
-
-**New Features**
-
-- Bluetooth reconnection improvements for HiLite on Android 12+.
-
-**Bug Fixes**
-
-- Transaction history displayed incorrect placeholder values for pre-auth transactions — resolved.
-- Unintended disconnects during idle periods — resolved.
+- Bluetooth reconnection stability improvements for HiLite devices.
+- Minor bug fixes and stability improvements.
 
 ---
 
