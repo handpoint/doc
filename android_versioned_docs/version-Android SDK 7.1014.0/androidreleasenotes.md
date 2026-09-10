@@ -44,10 +44,10 @@ Added support for Address Verification Service (AVS) checks on MoTo transactions
 **Improvements**
 
 - Contactless (NFC) reading performance has been improved: the NFC reader is no longer reinitialised on every polling cycle, resulting in faster and more reliable tap detection, including quick taps.
+- MoTo transactions that return an UNDEFINED result can now recover the approved result via the Get Transaction Status service. Previously, MoTo operations did not include a `transactionReference`, making status recovery impossible.
 
 **Bug fixes**
 
-- Fixed: MoTo transactions that initially returned an UNDEFINED result now correctly recover the approved transaction result via the Get Transaction Status service.
 - Fixed: Card entry type now correctly reports `CHIPFAILMAGSTRIPE` instead of `TOKENIZATION` when a chip card falls back to magnetic stripe.
 
 ## 7.1012.3
