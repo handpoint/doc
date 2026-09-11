@@ -521,6 +521,10 @@ function main() {
   let count = 0;
   for (const [slug, a] of Object.entries(acquirers)) {
     if (a.status !== 'active') continue;
+    if (a['skip-generate']) {
+      console.log(`  ↷ Skipping ${slug}.mdx (hand-crafted; skip-generate: true in acquirers.yaml)`);
+      continue;
+    }
     fs.writeFileSync(path.join(OUTPUT_DIR, `${slug}.mdx`), buildPage(slug, a));
     count++;
   }

@@ -13,6 +13,7 @@ acquirers:
     name: "EPI"
     geography: "US, Canada"
     status: active
+    skip-generate: true  # MDX is hand-crafted; generator still includes EPI in llms.txt / acquirers.js
     card-brands: [VISA, MC, Discover]
     interac: false
     reversal-partial: true
