@@ -25,7 +25,7 @@ yarn --version   # should be 1.x
 # 1. Clone the repo (or pull the branch if you already have it)
 git clone <repo-url>
 cd <repo-name>
-git checkout docs-v2
+git checkout internal-preview
 
 # 2. Install dependencies
 yarn install
@@ -99,7 +99,7 @@ Static output goes to `build/`. Serve it locally with `yarn serve`.
 
 ## Internal preview of this branch
 
-The `docs-v2` branch publishes to an internal preview site:
+The `internal-preview` branch publishes to an internal preview site:
 
 - <https://developers-internal.handpoint.io>
 
@@ -107,8 +107,9 @@ The `docs-v2` branch publishes to an internal preview site:
 403 and a page that says the VPN is required. Ask the infrastructure team to
 add your address if you are on the VPN and still see that page.
 
-A push to `docs-v2` publishes the site again through GitHub Actions. To publish
-by hand:
+A push to `internal-preview` publishes the site again through GitHub Actions.
+Open your pull request against `internal-preview`. A merge publishes it, and the
+pull request runs a build check first. To publish by hand:
 
 ```bash
 AWS_PROFILE=test ./scripts/deploy-staging.sh
@@ -118,7 +119,7 @@ The preview runs `DOCS_ENV=staging`, so it shows the pages marked
 `visibility: internal`. That is why the site stays behind the VPN.
 
 The infrastructure and its runbook live in the `handpoint-scripts` repository,
-under `aws/docs-v2/infra/`. This preview is separate from the public sites at
+under `aws/documentation/infra/`. This preview is separate from the public sites at
 `developer.handpoint.com` and `developer.handpoint.io`, which GitHub Pages
 serves from `main` and `dev`.
 
