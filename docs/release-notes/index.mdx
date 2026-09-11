@@ -23,6 +23,12 @@ Select your integration path to see the relevant changelog. Selecting a path her
 
 ## REST API
 
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/cloud-integration.png" alt="Cloud Integration — your server sends HTTP requests to Handpoint Cloud, which relays payment commands to the PAX terminal" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your server connects to a PAX SmartPOS terminal through the Handpoint Cloud — no Android development required. Send an HTTP request to start a transaction; receive the result in real time.
+
 ### 2.30.0
 **Features:**
 
@@ -126,6 +132,12 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 <TabItem value="android-pax" label="Android (PAX)">
 
 ## Android SDK — PAX
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/android-sdk-pax.png" alt="Android SDK on PAX — your POS app and Handpoint SDK run together on the PAX SmartPOS terminal" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your Android application and the Handpoint SDK run directly on the PAX SmartPOS terminal — one device handles your POS UI and the payment flow, with no external server required.
 
 :::info Latest version
 **7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
@@ -407,6 +419,12 @@ Mastercard MoneySend fields for money remittance merchants. See [Money Remittanc
 
 ## Android SDK — HiLite (Bluetooth)
 
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/bluetooth-integration.png" alt="Bluetooth Integration — Android phone connects to HiLite card reader via Bluetooth" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your Android app communicates with the HiLite Bluetooth card reader via the Handpoint SDK — built for merchants on the move where a full SmartPOS terminal isn't practical.
+
 :::info Latest version
 **7.1004.3** — connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`. See [Development hardware](/get-started/development-hardware).
 :::
@@ -488,6 +506,12 @@ Money Remittance support. Mastercard MoneySend fields for money remittance merch
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ## iOS SDK — HiLite (Bluetooth)
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/bluetooth-integration.png" alt="Bluetooth Integration — iPhone connects to HiLite card reader via Bluetooth" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your iOS app communicates with the HiLite Bluetooth card reader via the Handpoint SDK over the MFi external accessory protocol — the same portable reader experience as the Android path.
 
 :::info Latest version
 **4.0.2** — connects to HiLite (DATECS/Datecs) readers via the MFi external accessory protocol (`com.datecs.pinpad`). Requires iOS 12.0+. Install via CocoaPods: `pod 'HandpointSDK', '~> 4.0.2'`. App Store distribution requires Apple MFi program approval. See [Development hardware](/get-started/development-hardware) for provisioning profile requirements.
@@ -688,6 +712,12 @@ Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for
 
 ## Handpoint Payments App — PAX
 
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/standalone-smartpos-app.png" alt="Handpoint Payments App — standalone amount entry, card prompt, processing, authorised, and transaction history screens on a PAX terminal" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+The standalone payment app that runs on any PAX SmartPOS terminal. Also enables **Cloud API integrated mode** — a single toggle in the app settings connects the terminal to your POS software over the Handpoint Cloud.
+
 The Handpoint Payments App must be **installed and running** on the PAX terminal for all Cloud API with-reader operations (`POST /transactions`). The app embeds the Android SDK — the app version determines which SDK version is active on the terminal.
 
 To use Cloud API with-reader operations, three things must be in place:
@@ -884,6 +914,12 @@ Uses Android SDK **7.1004.3**.
 <TabItem value="mpos-app" label="Handpoint App (mPOS)">
 
 ## Handpoint mPOS App — HiLite & Datecs
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/standalone-mpos-app.png" alt="Handpoint mPOS app on a phone connected via Bluetooth to HiLite reader" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+The standalone mPOS app runs on the merchant's Android or iOS phone and connects to the HiLite Bluetooth card reader — available on Google Play and the Apple App Store, with full white-label branding support.
 
 The Handpoint mPOS app runs on the merchant's Android phone or tablet and connects to a HiLite (Datecs) Bluetooth card reader to handle card-present transactions. It is a standalone app — no custom SDK integration required.
 
