@@ -25,3 +25,17 @@ dependencies {
   payment screen. The AVS result is returned as
   `TransactionResult.addressVerification.resultCode`
   (`AvsResultCode` enum: `FULL_MATCH`, `ADDRESS_MATCH`, `ZIP_MATCH`, etc.).
+
+- **Deferred Card Tokenization** (available since v7.1013.0) — `deferredTokenization(originalTransactionID)` retrieves a card token from a previously completed transaction without requiring the card to be presented again.
+
+  ```java
+  // Retrieve the EFTTransactionID from the original TransactionResult
+  String originalTransactionID = transactionResult.getEFTTransactionID();
+
+  // Tokenize without requiring the card to be presented again
+  api.deferredTokenization(originalTransactionID);
+
+  // The card token is returned via the endOfTransaction event in TransactionResult.cardToken
+  ```
+
+  Eligible source transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`.
