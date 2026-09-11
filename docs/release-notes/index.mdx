@@ -854,6 +854,10 @@ Uses Android SDK **7.1008.5**.
 
 - Login process redesigned to unify the response, remove sensitive data exposure, and improve user experience.
 
+**Bug Fixes**
+
+- **Service mode timeout not pausing in background** (SDK-3748) — when the app moved to the background (e.g. the operator navigated to Android Settings), the unattended-mode inactivity timer continued counting down and activated unattended mode on top of the system screen, making it impossible to return to the app without restarting the reader. Fixed so the timeout pauses when the app goes to the background and restarts from zero when it returns to the foreground.
+
 ---
 
 ### 4.5.0
