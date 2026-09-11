@@ -895,6 +895,20 @@ The Handpoint mPOS app runs on the merchant's Android phone or tablet and connec
 
 Uses Android SDK **7.1004.3**.
 
+**Bug Fixes**
+
+- **HiLite card reader "Update Failed" error** (EFTCLIENT-5367) — some HiLite readers failed to complete firmware updates due to a regression introduced by the Datecs driver refactor in a later SDK version. Resolved by rolling back to SDK 7.1004.3 (pre-refactor).
+
+---
+
+### 4.10.4
+
+Uses Android SDK **7.1004.3**.
+
+**Bug Fixes**
+
+- **Offline/online status notification broken in WebView** (EFTCLIENT-5340) — the network service monitoring the connection state for the in-app WebView was not correctly firing online/offline events. Resolved.
+
 ---
 
 ### 4.9.4
@@ -911,7 +925,9 @@ Uses Android SDK **7.1004.3**.
 
 Uses Android SDK **7.1004.3**.
 
-Last version to support magic-link login.
+**Security**
+
+- **Login security hardening** (SEC-194) — the previous magic-link flow exposed `/api/merchants/exists` (user enumeration) and `/api/merchants/phone` (phone number in plaintext). The login endpoint was redesigned to always return a generic `202 Accepted` response regardless of whether the email is registered, removing both exposure vectors. Deprecated endpoints scheduled for removal.
 
 ---
 
