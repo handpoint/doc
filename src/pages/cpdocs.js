@@ -129,7 +129,7 @@ function SdkTerminalTable() {
 
   return (
     <div>
-      <TableContainer>
+      <TableContainer style={{ overflowX: 'auto', width: '100%' }}>
         <Table align="center" sx={{ maxWidth: 1000 }} aria-label="simple table">
           <TableHead>
             <TableRow sx={{ height: 30 }}>
@@ -740,7 +740,7 @@ function CommunicationTypesTable() {
   return (
 
     <div>
-      <TableContainer >
+      <TableContainer style={{ overflowX: 'auto', width: '100%' }}>
         <Table align="center" sx={{ maxWidth: 1000 }} >
           <TableHead>
             <TableRow sx={{ maxHeight: 20 }}>

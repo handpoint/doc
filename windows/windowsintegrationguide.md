@@ -440,7 +440,7 @@ namespace GettingStartedApp
 ### Let´s notify the user when the app is connected and ready to send the transaction
 
 **1. Update the ConnectionLabel to notify the user of the connection status**
-Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
+Get the connection status from the method ***ConnectionStatusChanged*** in MyClass.cs.
 
 ```csharp
 public void ConnectionStatusChanged(ConnectionStatus status, Device device)
@@ -1149,7 +1149,7 @@ namespace GettingStartedApp
 ### Let´s notify the user when the app is connected and ready to send the transaction
 
 **Update the ConnectionLabel to notify the user of the connection status**
-Get the connection status from the method **[*ConnectionStatusChanged*](#7)** in MyClass.cs.
+Get the connection status from the method ***ConnectionStatusChanged*** in MyClass.cs.
 
 ```csharp
 public void ConnectionStatusChanged(ConnectionStatus status, Device device)

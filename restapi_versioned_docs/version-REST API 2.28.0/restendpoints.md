@@ -1375,6 +1375,10 @@ curl -X GET \
 
 This endpoint allows to Cancel/Void/Reverse a previous transaction without a reader.
 
+:::info
+Note that any reversal using this endpoint will be associated in Analytics to the original device, and this transaction won't show in the Handpoint Payments App (since it's not processed by the App in the Payment Device)
+:::
+
 **Parameters**
 
 | Parameter      | Notes |
@@ -1447,37 +1451,80 @@ curl --location --request POST 'https://cloud.handpoint.io/reversal' \
 
 ```json
 {
+    "httpStatus": 200,
+    "acquirerTid": "ACQUIRER_TID",
     "agreementNumber": "123456789010102",
-    "cardToken": "665630867",
-    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
-    "expiryDateMMYY": "0927",
-    "httpStatus": "200",
-    "maskedCardNumber": "************3555",
-    "serverDateTime": "20260317083711509",
-    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+    "amount": "0.04",
+    "approvalCode": "123456",
+    "batchNumber": "123",
+    "cardTypeName": "Visa",
+    "currency": "USD",
+    "customFields": {
+        "entry": [
+            {
+                "key": "messageReasonCode",
+                "value": "4000"
+            },
+            {
+                "key": "tenderType",
+                "value": "Credit"
+            },
+            {
+                "key": "issuerResponseCode",
+                "value": "00"
+            }
+        ]
+    },
+    "expiryDateMMYY": "1027",
+    "f25": "4000",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "Successful",
+    "maskedCardNumber": "************0936",
+    "serverDateTime": "20260709074155101",
+    "terminalDateTime": "20260709074155083",
+    "transactionReference": "ee47c0b5-ff0b-4847-977c-cb8b6c4a848c",
+    "authorizationGuid": "9db20c30-7b69-11f1-9754-81955277651b",
+    "originalGuid": "9db20c30-7b69-11f1-9754-81955277651b",
+    "reversalGuid": "a8534cd0-7b69-11f1-a47e-6df6451d705a"
 }
 ```
 
 </TabItem>
-<TabItem value="400" label="400">
+<TabItem value="Already Reversed" label="Already Reversed">
 
 ```json
 {
     "error": {
-        "details": {
-            "body": {
-                "error": {
-                    "errorCode": "3112",
-                    "errorGuid": "624d05e0-21dd-11f1-991b-6f80eaf25911",
-                    "httpStatus": "403",
-                    "reason": "Transaction type is not eligible for deferred tokenization"
-                }
-            },
-            "status": 403
-        },
-        "message": "Viscus operation failed",
+        "statusCode": 400,
         "name": "BadRequestError",
-        "statusCode": 400
+        "message": "Already reversed",
+        "code": "3051",
+        "details": {
+            "errorCode": "3051",
+            "errorGuid": "c267a170-7b69-11f1-9754-81955277651b",
+            "httpStatus": 409,
+            "reason": "Already reversed"
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="Exceeds original amount" label="Exceeds original amount">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": "Partial reversal amount exceeds original amount",
+        "code": "4066",
+        "details": {
+            "errorCode": "4066",
+            "errorGuid": "e5197770-7b69-11f1-9754-81955277651b",
+            "httpStatus": 400,
+            "reason": "Partial reversal amount exceeds original amount"
+        }
     }
 }
 ```
@@ -1883,6 +1930,30 @@ curl -X POST \
 **Responses**
 
 <Tabs>
+<TabItem value="200" label="200 OK">
+
+```json
+{
+    "@type": "sale",
+    "httpStatus": 200,
+    "acquirerTid": "VT000000023751",
+    "amount": "20.00",
+    "approvalCode": "TAS075",
+    "batchNumber": "1",
+    "cardTypeName": "MASTERCARD",
+    "currency": "USD",
+    "expiryDateMMYY": "1225",
+    "guid": "65289350-631f-11f1-9e88-671da9fb0fb7",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "APPROVAL",
+    "maskedCardNumber": "************5439",
+    "serverDateTime": "20260608094951749",
+    "terminalDateTime": "20260608094951000"
+}
+```
+
+</TabItem>
+
 <TabItem value="400-cvv" label="400 CVV required (3107)">
 
 ```json
@@ -2013,6 +2084,31 @@ curl -X POST \
 **Responses**
 
 <Tabs>
+<TabItem value="200" label="200 OK">
+
+```json
+{
+    "@type": "refund",
+    "httpStatus": 200,
+    "acquirerTid": "123456789",
+    "amount": "11.00",
+    "approvalCode": "123456",
+    "cardTypeName": "Visa",
+    "currency": "EUR",
+    "expiryDateMMYY": "0529",
+    "guid": "ad16fbc0-8764-11f1-a47e-6df6451d705a",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "Approved or completed successfully",
+    "maskedCardNumber": "************1234",
+    "serverDateTime": "20260724133629564",
+    "terminalDateTime": "20260724133629000",
+    "transactionReference": "941d6f18-a65e-4f9e-bca3-9f4423bc4a9b",
+    "originalGuid": "1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"
+}
+```
+
+</TabItem>
+
 <TabItem value="400-currency" label="400 Currency mismatch (3210)">
 
 ```json
@@ -2085,7 +2181,6 @@ Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for f
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
 * `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00). Must be a positive integer string.
 * `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
-* Optional merchant references: `customerReference`, `transactionReference`.
 
 #### Returns
 

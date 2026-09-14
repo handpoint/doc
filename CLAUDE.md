@@ -59,3 +59,20 @@ Follows Gitflow:
 **Before merging a new SDK version to `main`**, always run the version-tagging command above first.
 
 CI/CD is defined in `.github/workflows/deploy.yml`. The `setenv.sh` script is run as part of the deployment to switch URLs and `includeCurrentVersion` flags between environments.
+
+### Merge method (important)
+
+`dev` and `main` are long-lived branches that must share history. Use the right merge method per target:
+
+| PR | Merge method | Why |
+|----|--------------|-----|
+| feature → `dev` | **Squash and merge** | Keeps `dev` history clean; the squash is harmless here. |
+| `dev` → `main` | **Create a merge commit** (never squash) | Squashing creates a new commit on `main` that does not share history with `dev`'s individual commits, so every later `dev` → `main` comparison reports false conflicts. A merge commit keeps the histories connected. |
+
+GitHub cannot restrict the merge method per target branch (the setting is repo-wide), so this is a manual discipline: when merging `dev` → `main`, always pick **"Create a merge commit"** from the green button dropdown.
+
+If a `dev` → `main` PR was accidentally squashed and the next one shows phantom conflicts, fix it by branching off `main`, merging `dev` into it (`git merge -X theirs --no-ff origin/dev`), verifying the resulting tree matches `dev` (`git diff origin/dev HEAD` is empty), and opening that branch as a merge-commit PR to `main`. This reconnects the histories.
+
+### Avoiding broken builds
+
+The build runs with `onBrokenMarkdownLinks: 'throw'`, so a single unresolvable Markdown link fails the entire production deploy. Within an SDK docs plugin, **links must be relative to that plugin** — e.g. from `restapi/restendpoints.md` link to `restobjects.md#anchor`, not `restapi/restobjects.md#anchor` (the plugin prefix points outside the plugin and won't resolve). Run `yarn build` locally before opening a `dev` → `main` PR to catch these.

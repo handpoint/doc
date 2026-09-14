@@ -100,6 +100,7 @@ POST endpoint used to send a financial operation to the payment terminal. The tr
 | **BadRequest DeviceIsBusy Error** | The response code 400 with error 1001 is received from the API if the payment terminal is already processing a transaction.  |
 | **BadRequest DeviceNotResponding Error** | The response code 400 with error 1002 is received from the API if the payment terminal is offline.     |
 | **BadRequest CancelOperationNotAllowed Error** | The response code 400 with error 1003 is received from the API if the stopCurrentTransaction operation cannot be executed. A transaction can only be cancelled at specific steps of the transaction, while waiting for the card to be inserted or on PIN screen. |
+| **BadRequest NoTransactionToCancel Error** | The response code 400 with error 1005 is received from the API if the stopCurrentTransaction operation is attempted but there is no transaction currently in progress to cancel. |
 
 **Code Example**
 
@@ -1384,13 +1385,16 @@ This endpoint allows to Cancel/Void/Reverse a previous transaction without a rea
 | `Body: amount` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Decimal amount in String, ISO 4217; Required for partial-reversals. *Only if your acquirer supports partial-reversals*. |
 | `Body: currency` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Required for partial-reversals *Only if your acquirer supports partial-reversals*. |
 | `Body: messageReasonCode` <span class="badge badge--secondary">Optional</span>   <br />*String*    | default: CUSTOMER_CANCELLATION. See [allowed values](restobjects.md#messageReasonCode)|
+| `Body: timestamp` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Timestamp in `YYYYMMDDHHmmssSSS` format (17 characters). Defaults to the current server time when not provided. |
 
 **Returns**
 
-| Response      | Response Code |
-| ----------- | ----------- |
-| [DeferredTokenizationResponse](restobjects.md#deferredTokenizationResponse) | Response code 200. |
-| **BadRequest** | Response code 400. Returned when the transaction type is not eligible for deferred tokenization. |
+| Result | Notes |
+| ------ | ----- |
+| `200` | Reversal accepted and processed. Response body is a [ReversalResponse](restobjects.md#reversalResponse) object. |
+| `400` | Business rule error from the gateway (for example, the transaction was already reversed, or a partial-reversal `amount` exceeds the original amount). Returned as `BadRequestError` with `error.code` and `error.details`. |
+| `403` | Forbidden — the API key does not belong to a merchant. Partner keys are not accepted by this endpoint. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) — missing `originalGuid`, invalid `messageReasonCode` enum value, or invalid `currency` length. |
 
 **Code Example**
 
@@ -1447,37 +1451,80 @@ curl --location --request POST 'https://cloud.handpoint.io/reversal' \
 
 ```json
 {
+    "httpStatus": 200,
+    "acquirerTid": "ACQUIRER_TID",
     "agreementNumber": "123456789010102",
-    "cardToken": "665630867",
-    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
-    "expiryDateMMYY": "0927",
-    "httpStatus": "200",
-    "maskedCardNumber": "************3555",
-    "serverDateTime": "20260317083711509",
-    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+    "amount": "0.04",
+    "approvalCode": "123456",
+    "batchNumber": "123",
+    "cardTypeName": "Visa",
+    "currency": "USD",
+    "customFields": {
+        "entry": [
+            {
+                "key": "messageReasonCode",
+                "value": "4000"
+            },
+            {
+                "key": "tenderType",
+                "value": "Credit"
+            },
+            {
+                "key": "issuerResponseCode",
+                "value": "00"
+            }
+        ]
+    },
+    "expiryDateMMYY": "1027",
+    "f25": "4000",
+    "issuerResponseCode": "00",
+    "issuerResponseText": "Successful",
+    "maskedCardNumber": "************0936",
+    "serverDateTime": "20260709074155101",
+    "terminalDateTime": "20260709074155083",
+    "transactionReference": "ee47c0b5-ff0b-4847-977c-cb8b6c4a848c",
+    "authorizationGuid": "9db20c30-7b69-11f1-9754-81955277651b",
+    "originalGuid": "9db20c30-7b69-11f1-9754-81955277651b",
+    "reversalGuid": "a8534cd0-7b69-11f1-a47e-6df6451d705a"
 }
 ```
 
 </TabItem>
-<TabItem value="400" label="400">
+<TabItem value="Already Reversed" label="Already Reversed">
 
 ```json
 {
     "error": {
-        "details": {
-            "body": {
-                "error": {
-                    "errorCode": "3112",
-                    "errorGuid": "624d05e0-21dd-11f1-991b-6f80eaf25911",
-                    "httpStatus": "403",
-                    "reason": "Transaction type is not eligible for deferred tokenization"
-                }
-            },
-            "status": 403
-        },
-        "message": "Viscus operation failed",
+        "statusCode": 400,
         "name": "BadRequestError",
-        "statusCode": 400
+        "message": "Already reversed",
+        "code": "3051",
+        "details": {
+            "errorCode": "3051",
+            "errorGuid": "c267a170-7b69-11f1-9754-81955277651b",
+            "httpStatus": 409,
+            "reason": "Already reversed"
+        }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="Exceeds original amount" label="Exceeds original amount">
+
+```json
+{
+    "error": {
+        "statusCode": 400,
+        "name": "BadRequestError",
+        "message": "Partial reversal amount exceeds original amount",
+        "code": "4066",
+        "details": {
+            "errorCode": "4066",
+            "errorGuid": "e5197770-7b69-11f1-9754-81955277651b",
+            "httpStatus": 400,
+            "reason": "Partial reversal amount exceeds original amount"
+        }
     }
 }
 ```
