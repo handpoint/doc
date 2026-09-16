@@ -342,7 +342,7 @@ Transaction will fail with status **CANCELLED**
 
 `update` <span class="badge badge--info">Method</span>
 
-The update operation checks for new software or configuration updates and initiates a download if required.
+The update operation checks for new configuration updates and initiates a download if required.
 
 **Parameters**
 
