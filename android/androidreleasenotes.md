@@ -28,6 +28,12 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 
 - Unused string resources related to the removed software/firmware update flow have been removed.
 
+## 7.1014.1
+
+**Features**
+
+Address Verification Service (AVS) support for MoTo transactions, introduced in [7.1014.0](#71140), is now also available on this release line. See [`MoToOptions.billing`](androidobjects.md#moto-options) / [`MoToOptions.enableAvsFields`](androidobjects.md#moto-options) and [`TransactionResult.addressVerification`](androidobjects.md#25) / [Address Verification](androidobjects.md#address-verification) for details.
+
 ## 7.1014.0
 **BREAKING CHANGE:**
 
