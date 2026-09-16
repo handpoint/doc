@@ -11,6 +11,23 @@ id: androidreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 7.1015.0
+
+**Improvements**
+
+- `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE` permissions are no longer required, as the firmware/software update flow has been removed. Updates for PAX devices are now handled via PAX Store; Datecs devices are updated automatically by the SDK.
+- [`Hapi.update()`](androiddevicemanagement.md#update-device) now only checks for configuration updates.
+
+**Deprecated**
+
+- `UpdateEventsListener.softwareUpdateRequired` and `firmwareUpdateRequired` are deprecated.
+- `CommonSdkFactory.softwareUpdateRequired` and `firmwareUpdateRequired` are deprecated.
+- `Events.Misc.webViewUpdate` is deprecated.
+
+**Removed**
+
+- Unused string resources related to the removed software/firmware update flow have been removed.
+
 ## 7.1014.0
 **BREAKING CHANGE:**
 
