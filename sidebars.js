@@ -60,6 +60,7 @@ const sidebars = {
       label: 'Reference',
       collapsible: false,
       items: [
+        'reference/quick-start',
         {
           type: 'category',
           label: 'Setup & Integration',
