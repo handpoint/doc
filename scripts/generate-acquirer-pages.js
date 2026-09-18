@@ -73,7 +73,7 @@ const FLAVOR_DESCRIPTIONS = {
     'pre-auth-void':      { description: 'Release the hold without charging', anchor: 'pre-auth-void' },
   },
   tokenization: {
-    'procharge':     { description: 'EPI · proCharge vault — MOTO detokenization by gateway; ISV stays out of PCI scope' },
+    'procharge':     { description: 'EPI · Cygma vault — MOTO detokenization by gateway; ISV stays out of PCI scope' },
     'paysafe-token': { description: 'Paysafe · single-use token — for use on Paysafe APIs; consult Paysafe team' },
     'tokenex':       { description: '3rd-party · TokenEx — loyalty / card-matching; no detokenization through Handpoint' },
   },

@@ -81,7 +81,7 @@ POST https://cloud.handpoint.com/moto/sale
 { "amount": "10.00", "currency": "USD", "cardToken": "PROCHARGE_OR_EPI_TOKEN", "transactionReference": "<uuid-v4>" }
 ```
 `amount` is a major-unit decimal string — `"10.00"` = $10.00.  
-Token source: ProCharge or EPI token provider — stored from a prior tokenization transaction.  
+Token source: Cygma or EPI token provider — stored from a prior tokenization transaction.  
 Response: HTTP 200 synchronous — check `httpStatus: 200`. The reversal GUID is in the `guid` field (not `transactionID`). No `finStatus` in this response.  
 Error `3107` (CVV required): mandatory CVV configured — contact Handpoint to disable.  
 Error `5252` (Card token failure): token provider is down or unreachable — the stored token is valid, retry later. If persistent, contact Handpoint to verify token provider status. Note: on deferred tokenization (`GET /transactions/{id}/token`), 5252 can also mean tokenization is not configured for the merchant.

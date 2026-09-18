@@ -31,10 +31,10 @@ ISV-facing docs expose only the acquirer name; this page is for Handpoint staff 
 | Partial reversal | ✅ | Not on Amex (Amex network restriction) |
 | Pre-authorization | ✅ | PAX terminal for create; back-office for capture/increase/decrease |
 | Remote Sale (on-terminal) | ✅ | Cardholder keys card on PAX screen; must be TMS-enabled |
-| Remote Sale (card token, no terminal) | ✅ | ProCharge token; back-office REST; must be TMS-enabled |
+| Remote Sale (card token, no terminal) | ✅ | Cygma token; back-office REST; must be TMS-enabled |
 | Tip adjustment | ✅ | HTTPS call, no terminal required; not on Cordova (use back-office) |
 | Tip adjustment — on-screen tip restriction | ⚠️ | Not available if original sale included on-screen tip prompt (TSYS host rejects) |
-| Tokenization | ✅ | ProCharge (EPI card vault) |
+| Tokenization | ✅ | Cygma (EPI card vault) |
 | Batch operations (manual close) | ✅ | Must be TMS-enabled; auto-close ~11pm EST |
 | Interac | ❌ | EPI has no Interac routing |
 
@@ -51,7 +51,7 @@ ISV-facing docs expose only the acquirer name; this page is for Handpoint staff 
 | Pre-authorization | ❌ | Paysafe acquirer restriction |
 | Remote Sale (card token, no terminal) | ❌ | Paysafe acquirer restriction |
 | Tip adjustment | ✅ | Same on-screen tip restriction as EPI (TSYS host) |
-| Tokenization | ✅ | Paysafe token format (not interchangeable with ProCharge) |
+| Tokenization | ✅ | Paysafe token format (not interchangeable with Cygma) |
 | Batch operations | ❌ | Paysafe uses automatic settlement |
 | Void | ❌ | Not applicable for Visa/MC/Amex/Discover on TSYS path |
 
@@ -122,6 +122,6 @@ ISV-facing docs expose only the acquirer name; this page is for Handpoint staff 
 | Void (Interac) | ❌ | ❌ | ✅ | ❌ |
 | Remote Sale (card token) | ✅ | ❌ | ❌ | ❌ |
 | Pre-auth | ✅ | ❌ | ❌ | ✅ |
-| ProCharge token | ✅ | ❌ | ❌ | ❌ |
+| Cygma token | ✅ | ❌ | ❌ | ❌ |
 | Paysafe token | ❌ | ✅ | ❌ | ❌ |
 | TokenEx | ✅ | ✅ | ❌ | ✅ |

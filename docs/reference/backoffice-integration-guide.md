@@ -108,7 +108,7 @@ Use `guid` as `originalGuid` for subsequent reversals or linked refunds.
 
 | Acquirer support | Notes |
 |---|---|
-| **EPI** | ✅ — ProCharge token required |
+| **EPI** | ✅ — Cygma token required |
 | **EmerchantPay** | ✅ |
 | **Paystrax** | ✅ |
 | **Paysafe** | ❌ — Paysafe single-use tokens are not reusable for MOTO |

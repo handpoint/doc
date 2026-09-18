@@ -38,7 +38,7 @@ REST API card-present operations require a PAX terminal running the Handpoint An
 
 | Integration path | Card-present ops | Remote Sale | Batch Operations | Partial Rev | Notes |
 |---|---|---|---|---|---|
-| **REST API** | ✅ All (PAX in integrated mode required) | ✅ On-terminal via PAX screen or ProCharge token — acquirer-dependent | ✅ Where acquirer supports | ✅ EPI only | PAX debug → `.io`; PAX prod → `.com` |
+| **REST API** | ✅ All (PAX in integrated mode required) | ✅ On-terminal via PAX screen or Cygma token — acquirer-dependent | ✅ Where acquirer supports | ✅ EPI only | PAX debug → `.io`; PAX prod → `.com` |
 | **Android (PAX)** | ✅ All except batch | ✅ On-terminal (PAX shows card entry screen) — PAX only | ❌ | ✅ EPI only | Runs natively on PAX terminal |
 | **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no remote sale/batch/partial rev |
 | **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |

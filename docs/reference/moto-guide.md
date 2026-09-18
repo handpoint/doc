@@ -133,7 +133,7 @@ Result delivered via `endOfTransaction` callback. Same `finStatus` and field set
 
 Charge a stored card token directly from your server. No terminal interaction, no polling — synchronous HTTP 200 response.
 
-Token sources: EPI ProCharge, EPI token, EmerchantPay token, Paystrax token. Tokens are obtained from prior card-present or MOTO transactions when tokenization is enabled for the merchant.
+Token sources: EPI Cygma, EPI token, EmerchantPay token, Paystrax token. Tokens are obtained from prior card-present or MOTO transactions when tokenization is enabled for the merchant.
 
 ### Cloud API
 
@@ -197,7 +197,7 @@ Synchronous — HTTP 200 on success. `finStatus` is not returned; check `httpSta
 | `5252` | Card token failure | Token provider is **down or unreachable** — the stored token is valid | Retry later; if persistent, contact Handpoint to verify token provider availability |
 | `400 BadRequestError` | "Unable to perform Viscus operation" | Decline from the card network — cloudapi is wrapping a Viscus decline as a 400 instead of passing the decline response through (CUS-839, open) | Treat any 400 with this message as a possible decline; log the full response body |
 
-Error `5252` does **not** mean the token is invalid or expired. Tokens don't expire. It means the token provider (ProCharge, etc.) is temporarily unreachable. Retry the charge when the provider recovers.
+Error `5252` does **not** mean the token is invalid or expired. Tokens don't expire. It means the token provider (Cygma, etc.) is temporarily unreachable. Retry the charge when the provider recovers.
 
 ---
 

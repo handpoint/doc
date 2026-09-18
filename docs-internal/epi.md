@@ -8,7 +8,7 @@
 
 - **Acquirer:** EPI (Electronic Payments Inc.) — formerly marketed as "TSYS" in Handpoint docs
 - **Processor/host:** TSYS
-- **Token management:** ProCharge (EPI's card vault)
+- **Token management:** Cygma (EPI's card vault)
 - **Markets:** US and Canada
 - **Card brands:** Visa, Mastercard, Amex, Discover
 - **No Interac support**
@@ -34,8 +34,8 @@ Standard EPI boarding gives access to the full feature set. Features requiring T
 ## Remote Sale (Card Token)
 
 Two paths:
-1. **On-terminal (PAX screen entry):** Cardholder keys in card number on PAX terminal screen. Goes through EPI/TSYS. No ProCharge token needed.
-2. **Back Office (no reader):** Uses a ProCharge/EPI card token. `POST /moto/sale` or Back Office REST API. Amount in **major units** (decimal string, e.g. `"10.00"`).
+1. **On-terminal (PAX screen entry):** Cardholder keys in card number on PAX terminal screen. Goes through EPI/TSYS. No Cygma token needed.
+2. **Back Office (no reader):** Uses a Cygma/EPI card token. `POST /moto/sale` or Back Office REST API. Amount in **major units** (decimal string, e.g. `"10.00"`).
 
 Remote Sale must be enabled in the Handpoint Portal (TMS) per merchant.
 
@@ -47,7 +47,7 @@ Remote Sale must be enabled in the Handpoint Portal (TMS) per merchant.
 - Must be TMS-enabled per merchant.
 - Available: US and Canada.
 
-## ProCharge (EPI Card Vault)
+## Cygma (EPI Card Vault)
 
 - EPI's card tokenization system.
 - Token retrieved via `POST /transactions` with `tokenize: true` or deferred token endpoint.

@@ -39,7 +39,7 @@ const CAP_LABELS = {
   'pre-auth-capture':      'Pre-Auth Capture',
   'pre-auth-void':         'Pre-Auth Reversal',
   'pre-auth-capture-reversal': 'Capture Reversal',
-  'procharge':             'proCharge Token',
+  'procharge':             'Cygma Token',
   'paysafe-token':         'Paysafe Single-Use Token',
   'tokenex':               'TokenEx',
   'tip-adjustment':        'Tip Adjustment',

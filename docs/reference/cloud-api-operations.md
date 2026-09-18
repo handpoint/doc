@@ -182,7 +182,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700034700 \
 }
 ```
 
-The `cardToken` value (e.g. `"K33f40000000000093"`) is the ProCharge token format. Store it for subsequent MOTO operations.
+The `cardToken` value (e.g. `"K33f40000000000093"`) is the Cygma token format. Store it for subsequent MOTO operations.
 
 **Request parameters** — same as [Sale](#sale) except:
 

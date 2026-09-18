@@ -716,7 +716,7 @@ export const MATRIX_SECTIONS = [
     "rows": [
       {
         "id": "procharge",
-        "label": "proCharge Token",
+        "label": "Cygma Token",
         "refs": [],
         "byAcquirer": {
           "epi": {

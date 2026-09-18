@@ -49,7 +49,7 @@ For card-not-present refunds after settlement (not via Handpoint):
 
 - Supported across US and Canada on all card-present paths.
 - Interac tokenization: assumed supported — verify per merchant if a specific merchant reports issues.
-- Token type: PAYSAFE/TSYS token format (different from EPI ProCharge tokens).
+- Token type: PAYSAFE/TSYS token format (different from EPI Cygma tokens).
 
 ## Interac / TNS Implementation Notes
 

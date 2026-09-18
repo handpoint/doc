@@ -152,7 +152,7 @@ export const ACQUIRERS = [
       'tip-adjustment':            'Remote HTTPS call — not a device command. Not available in Cordova plugin (unimplemented stub). iOS SDK: uses HapiRemoteService.tipAdjustment() with sharedSecret; or use Back Office REST API with ApiKeyCloud. Windows SDK: direct HTTPS, works on both PAX and HiLite connections.',
       'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Capture, increase, decrease, and void available via Back Office (no terminal).',
       'pre-auth-capture-reversal': 'Capture and increase available via Back Office. Pre-settlement only. Partial capture reversal supported.',
-      'remote-sale':               'Via PAX screen entry (on-terminal) or ProCharge/EPI card token (Back Office, no reader). Keeps ISV and merchant out of PCI scope. Must be enabled in Handpoint Portal (TMS).',
+      'remote-sale':               'Via PAX screen entry (on-terminal) or Cygma/EPI card token (Back Office, no reader). Keeps ISV and merchant out of PCI scope. Must be enabled in Handpoint Portal (TMS).',
       batching:                    'US + Canada. Must be enabled in Handpoint Portal (TMS).',
     },
     portalNote: null,

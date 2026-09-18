@@ -9,7 +9,7 @@ Also load your acquirer skill: `acquirers/{acquirer}.md` — it specifies which 
 
 Charge a stored card token. No terminal required. Synchronous — no polling.
 
-Supported acquirers: EPI (ProCharge/EPI token), EmerchantPay, Paystrax  
+Supported acquirers: EPI (Cygma/EPI token), EmerchantPay, Paystrax  
 Not supported: PAYSAFE
 
 Requires: merchant remote sale onboarding with acquirer + enablement in Handpoint Portal (TMS)
@@ -185,7 +185,7 @@ Remote refund error codes:
 A card token is returned in `TransactionResult.cardToken` after any card-present transaction when tokenization is enabled for the merchant. No special endpoint — the token arrives as part of the regular sale result.
 
 The token maps to:
-- EPI: ProCharge or EPI token (for `POST /moto/sale` charges)
+- EPI: Cygma or EPI token (for `POST /moto/sale` charges)
 - EmerchantPay / Paystrax: Handpoint gateway token
 - PAYSAFE: single-use Paysafe token (cannot be reused across transactions)
 

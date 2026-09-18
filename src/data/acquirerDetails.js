@@ -200,7 +200,7 @@ export const ACQUIRER_DETAILS = [
         "cordova": "public",
         "flavors": {
           "procharge": {
-            "label": "proCharge Token",
+            "label": "Cygma Token",
             "cloud-api": "public",
             "android-pax": "public",
             "android-hilite": "public",

@@ -1,16 +1,16 @@
 #### What this does
-Reads the card at the terminal and stores it in the **proCharge token vault** — a PCI-compliant service operated by EPI. The vault stores the PAN and expiry date (no CVV). Handpoint returns a `cardToken` your system can store for future card-not-present charges.
+Reads the card at the terminal and stores it in the **Cygma token vault** — a PCI-compliant service operated by EPI. The vault stores the PAN and expiry date (no CVV). Handpoint returns a `cardToken` your system can store for future card-not-present charges.
 
 #### When to use it
 Use when you want to charge a returning customer without requiring them to present their card again — subscriptions, recurring billing, "save my card" flows. The ISV stores only the opaque token; the PAN never leaves the EPI vault, keeping you out of PCI scope.
 
 #### How detokenization works
-When you send a MOTO sale with a proCharge `cardToken`, the Handpoint Gateway retrieves the PAN from the vault internally and forwards the authorisation to EPI — the ISV never sees the raw card number. Your system handles tokens only.
+When you send a MOTO sale with a Cygma `cardToken`, the Handpoint Gateway retrieves the PAN from the vault internally and forwards the authorisation to EPI — the ISV never sees the raw card number. Your system handles tokens only.
 
 #### Implementation notes
 
 1. **Token contents:** PAN + expiry date stored; CVV is never stored (PCI requirement).
-2. **Token scope:** proCharge tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
+2. **Token scope:** Cygma tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
 3. **Deferred tokenization (recommended):** Retrieve a token from a previously completed transaction — no card re-swipe needed. Via Backoffice REST (`GET /transactions/{id}/token`) — no terminal required, synchronous. Via Android SDK (`hapi.deferredTokenization()`, SDK 7.1013.1+) — requires PAX device connected.
 4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#remote-sale) — Backoffice `POST /moto/sale` or Android SDK `hapi.motoSale()`.
 
@@ -170,7 +170,7 @@ handpoint.tokenizeCard(
 
 | Field | Description |
 |---|---|
-| `cardToken` | Opaque proCharge token. Store this — use for future MOTO charges |
+| `cardToken` | Opaque Cygma token. Store this — use for future MOTO charges |
 | `cardTokenProvider` | Token issuer — `"EPI"` or `"PROCHARGE"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
