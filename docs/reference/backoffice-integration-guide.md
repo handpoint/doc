@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 # Backoffice REST API — Integration Guide
 
 :::info AI coding agents
-Fetch the Backoffice optional skill for machine-readable operation reference: [`/.well-known/skills/optional/back-office.md`](/.well-known/skills/optional/back-office.md)
+Fetch the Backoffice optional skill for machine-readable operation reference: [`/.well-known/skills/optional/back-office.md`](pathname:///.well-known/skills/optional/back-office.md)
 :::
 
 ## What is the Backoffice path?

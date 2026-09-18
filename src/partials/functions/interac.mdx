@@ -87,7 +87,9 @@ hapi.refund(
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
 ```swift
-heftClient.saleVoidWithAmount(1000, currency: "CAD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+// Call refundWithAmount() — gateway detects the original was Interac/TNS and maps to TNS VOID.
+// Card must be present at terminal. Show "VOID" in your UI, not "Refund".
+heftClient.refundWithAmount(1000, currency: "CAD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
 ```
 
 </TabItem>

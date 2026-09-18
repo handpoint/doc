@@ -1,0 +1,146 @@
+Releases a pre-authorization hold without capturing funds.
+
+**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always reverse unused pre-auths — unreleased holds affect cardholder available credit.
+
+:::note Timing — not same-day restricted
+Reversing a pre-auth hold is **not** subject to the same-day cut-off that applies to sale reversals. You can reverse the hold at any point before it expires — typically **7–30 days** from the original authorization, depending on the card network and issuer. After expiry the hold is released automatically by the network. See [Pre-Authorization Hold Durations](/reference/pre-authorization-guide#hold-durations) for card-brand rules.
+:::
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationReversal(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionResult } = hp.preAuthorizationReversal(
+  '01236fc0-8192-11eb-9aca-ad4b0e95f241'  // transactionID from pre-auth result
+);
+const result = await transactionResult;
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.PreAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241");
+if (!op.OperationStarted) { /* handle connection error */ return; }
+```
+
+</TabItem>
+</Tabs>
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorizationReversal"` |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization result |
+
+#### Errors
+
+Void is a with-reader operation — errors arrive in the polled result, not in the initial 202 response.
+
+| `finStatus` | Meaning | What to do |
+|---|---|---|
+| `DECLINED` / `FAILED` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `DECLINED` | Pre-auth has already been captured or voided | Check transaction state before voiding |
+
+:::note
+There is no separate "already voided" error code — attempting to void an already-captured or already-voided pre-auth returns a DECLINED or FAILED result. Always check the `finStatus` field in the polled result.
+:::
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Void before capture | Create Pre-Auth → send Void — verify `AUTHORISED` and no settlement in portal |
+| Void after capture | Create → Capture → Void — verify whether acquirer supports post-capture void |
+| Invalid reference | Use a random `originalTransactionId` — verify `ORIGINAL_NOT_FOUND` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hapi.preAuthorizationReversal(originalTransactionID)` before capture |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `handpoint.preAuthorizationReversal({ originalTransactionID: "..." })` before capture |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hp.preAuthorizationReversal(transactionID)` before capture |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hapi.PreAuthorizationReversal(transactionID)` before capture |
+
+</TabItem>
+</Tabs>

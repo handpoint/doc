@@ -8,7 +8,7 @@ Use for subscription billing, recurring payments, or "save my card" flows. The t
 
 #### Implementation notes
 
-1. The token is acquirer-specific and non-portable — a token from TSYS cannot be used with another acquirer.
+1. The token is acquirer-specific and non-portable — a token from one acquirer cannot be used with a different acquirer.
 2. Three flows are available: **tokenize-only** (card is read, token returned, no charge), **sale-and-tokenize** (card is charged and tokenized in one step), and **deferred tokenization** (token retrieved from a previously completed transaction where tokenization was not enabled at the time).
 3. Tokens do not expire unless the underlying card expires or the cardholder requests deletion.
 4. For future charges using the token, use the Cloud API `/moto/sale` endpoint with the token in place of card details.

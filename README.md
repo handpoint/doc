@@ -4,9 +4,9 @@ Acquirer-first, AI agent-readable developer documentation for Handpoint payment 
 
 ## What this is
 
-Each payment acquirer (TSYS, PAYSAFE TSYS, OMNIPAY, etc.) has a single comprehensive page listing every supported payment function with code examples for all integration paths: REST API, Android SDK (PAX), Android SDK (HiLite), iOS SDK (HiLite), and Cordova.
+Each payment acquirer (EPI/TSYS, PAYSAFE TSYS, OMNIPAY EmerchantPay, OMNIPAY Paystrax) has a single comprehensive page listing every supported payment function with code examples for all integration paths: Cloud API, Android SDK (PAX), Android SDK (HiLite), iOS SDK (HiLite), Cordova, JavaScript SDK, Windows (.NET) SDK, and Back-office (token-based MOTO).
 
-The site is generated from `data/acquirers.yaml` — one YAML file controls what gets documented and for which acquirer.
+The site is generated from `data/acquirers.yaml` — one YAML file controls what gets documented and for which acquirer. Code examples live in `src/partials/functions/` — edit once, shows on every acquirer that supports it.
 
 ## Prerequisites
 
@@ -39,54 +39,215 @@ yarn start
 
 The site opens at **http://localhost:3000**.
 
-## Making changes
+## Data model
 
-### Update an acquirer's capabilities
+Three layers feed into the generated acquirer pages. ISVs only see the final page — they never see processor names.
 
-Edit `data/acquirers.yaml` then regenerate:
-
-```bash
-node scripts/generate-acquirer-pages.js
+```
+data/processors.yaml          Processor-level known-issues and metadata
+        ↓
+data/acquirers.yaml           Which processor each acquirer uses;
+                              which capabilities are enabled per integration path
+        ↓
+src/partials/functions/       How to implement each capability:
+                              code examples, parameters, errors, testing, edge cases
+        ↓
+scripts/generate-acquirer-pages.js   Merges all three → docs/acquirers/*.mdx
 ```
 
-Each capability entry has a value per integration path:
+**Rule: never edit `docs/acquirers/` directly.** Run `node scripts/generate-acquirer-pages.js` after any change to the YAML or generator.
 
-| Value | What it shows on the page |
-|---|---|
-| `public` | Code example |
-| `coming-soon` | "Coming soon" callout, no code |
-| `not-supported` | "Not supported on this path" callout |
-| _(absent)_ | Section omitted entirely |
+---
 
-### Update function documentation
+## Making changes
 
-Edit the relevant file in `src/partials/functions/` — changes apply to every acquirer that supports that function. No regeneration needed.
+### Add a new processor
 
-| File | Function |
-|---|---|
-| `sale.mdx` | Sale |
-| `refund.mdx` | Refund |
-| `reversal.mdx` | Reversal |
-| `partial-reversal.mdx` | Partial Reversal |
-| `tip-adjustment.mdx` | Tip Adjustment |
-| `pre-auth-create.mdx` | Pre-Auth (create) |
-| `pre-auth-capture.mdx` | Pre-Auth Capture |
-| `pre-auth-void.mdx` | Pre-Auth Void |
-| `moto.mdx` | MOTO |
-| `tokenization.mdx` | Tokenization |
-| `batching.mdx` | Batching |
-| `money-remittance.mdx` | Money Remittance |
-| `void.mdx` | Void (Interac / TNS) |
+A processor is a payment backend (TSYS, Omnipay, TNS, …). Add it to `data/processors.yaml`:
+
+```yaml
+processors:
+  my-processor:
+    name: My Processor
+    known-issues: []   # add entries here as quirks are discovered
+```
+
+Then set `processor: my-processor` on any acquirer in `data/acquirers.yaml` that uses it.
+
+---
+
+### Add a processor-level known issue
+
+Known issues that apply to every acquirer on a processor live in `data/processors.yaml` and are injected automatically into each acquirer's page at the `{/* ACQUIRER_NOTE_INJECTION_POINT */}` marker in the relevant partial.
+
+```yaml
+processors:
+  tsys:
+    known-issues:
+      - id: my-issue-id              # unique slug, used for deduplication
+        title: Short title shown in the callout header
+        severity: caution            # note | info | tip | caution | warning
+        affects: tip-adjustment      # flat partial name (no path, no .mdx)
+                                     # or a list: [tip-adjustment, batching]
+        note: |
+          Markdown body. No acquirer or processor names — ISVs only see
+          their acquirer's page, not the processor behind it.
+```
+
+After editing, regenerate: `node scripts/generate-acquirer-pages.js`. The note appears on every acquirer whose `processor:` matches `tsys`.
+
+---
 
 ### Add a new acquirer
 
-1. Add an entry to `data/acquirers.yaml` with `status: active`
-2. Run `node scripts/generate-acquirer-pages.js`
-3. The new acquirer page appears automatically
+1. Add an entry to `data/acquirers.yaml`:
+
+```yaml
+my-acquirer:
+  name: "My Acquirer"
+  geography: "US"
+  status: active
+  processor: tsys          # must match a key in data/processors.yaml
+  card-brands: [VISA, MC]
+  interac: false
+  notes: >
+    Optional acquirer-level note shown on every capability section.
+  capabilities:
+    sale:
+      cloud-api: public
+      android-pax: public
+```
+
+2. Run `node scripts/generate-acquirer-pages.js` — the page is generated automatically.
+
+3. Add a skill file at `static/.well-known/skills/acquirers/my-acquirer.md` (see the Agent skills section below).
+
+---
+
+### Add a capability to an acquirer
+
+In `data/acquirers.yaml`, under the acquirer's `capabilities:` block, add the capability and mark each integration path that's enabled.
+
+Capability values:
+
+| Value | What the ISV sees |
+|---|---|
+| `public` | Full code example |
+| `coming-soon` | "Coming soon" callout, no code |
+| `not-supported` | "Not supported on this path" callout |
+| _(absent)_ | Section omitted — path not mentioned at all |
+
+For capabilities that have flavors (sale, refund, reversal, pre-auth, tokenization):
+
+```yaml
+sale:
+  cloud-api: public
+  android-pax: public
+  flavors:
+    emv-sale:
+      cloud-api: public
+      android-pax: public
+    sale-and-tip:
+      cloud-api: public
+      android-pax: public
+```
+
+For flat capabilities (tip-adjustment, batching, moto, …), just list paths directly:
+
+```yaml
+tip-adjustment:
+  cloud-api: public
+  android-pax: public
+  backoffice: public
+```
+
+After editing, run `node scripts/generate-acquirer-pages.js`.
+
+---
+
+### Add a capability to an integration path (a new SDK or API)
+
+This adds a new column across all acquirer pages.
+
+1. **Register the path** — add the path key to `PATHS` and a label to `PATH_LABELS` in `scripts/generate-acquirer-pages.js`.
+
+2. **Enable it per acquirer** — add the path key to the relevant capability entries in `data/acquirers.yaml` for every acquirer that supports it.
+
+3. **Add code examples** — add a `<TabItem>` to every partial in `src/partials/functions/` where this path is supported. One edit covers all acquirer pages. Match the `value` attribute to the path key:
+
+```jsx
+<TabItem value="my-new-sdk" label="My New SDK">
+
+```js
+myNewSdk.sale(1000, 'USD');
+```
+
+</TabItem>
+```
+
+4. Run `node scripts/generate-acquirer-pages.js` and verify locally.
+
+---
+
+### Add or update implementation docs for a capability
+
+All ISV-facing content — code examples, parameters, errors, edge cases, and testing — lives in `src/partials/functions/`. Changes here apply automatically to every acquirer that supports the capability. No regeneration needed.
+
+| Partial | Capability |
+|---|---|
+| `sale/emv-sale.mdx` | EMV Sale |
+| `sale/key-entry-sale.mdx` | Key Entry Sale (on-device MOTO) |
+| `sale/moto-sale.mdx` | Back-office Remote Sale |
+| `sale/sale-and-tip.mdx` | Sale with Tip |
+| `sale/sale-and-tokenize.mdx` | Sale + Tokenize |
+| `refund/card-present.mdx` | EMV Refund (card present) |
+| `refund/moto-refund.mdx` | Remote Refund (back-office) |
+| `refund/key-entry-refund.mdx` | Key Entry Refund |
+| `reversal/reversal.mdx` | Reversal (on-device) |
+| `reversal/remote-reversal.mdx` | Remote Reversal (back-office) |
+| `reversal/partial-reversal.mdx` | Partial Reversal (injected into reversal) |
+| `tip-adjustment.mdx` | Tip Adjustment |
+| `pre-auth/pre-auth-create.mdx` | Pre-Auth Create |
+| `pre-auth/key-entry-pre-auth.mdx` | Key Entry Pre-Auth |
+| `pre-auth/pre-auth-capture.mdx` | Pre-Auth Capture |
+| `pre-auth/pre-auth-void.mdx` | Pre-Auth Void |
+| `pre-auth-capture-void.mdx` | Pre-Auth Capture Reversal |
+| `moto.mdx` | MOTO (general) |
+| `tokenization/procharge.mdx` | ProCharge tokenization |
+| `tokenization/paysafe-token.mdx` | Paysafe single-use token |
+| `tokenization/tokenex.mdx` | TokenEx tokenization |
+| `batching.mdx` | Batch operations |
+| `money-remittance.mdx` | Money Remittance |
+| `void.mdx` | Void (Interac / TNS) |
+
+Each partial typically contains: a short description, **When to use it**, **Code** (per-SDK tabs), **Parameters**, **Errors**, **Edge cases**, and **Testing**. Add or update any of these sections directly in the partial file.
+
+---
+
+### Add an acquirer-specific note to a flavor
+
+Use `flavor-notes` in `data/acquirers.yaml` when a note only applies to one acquirer. The generator renders it as a Docusaurus admonition before the shared partial content.
+
+```yaml
+key-entry-sale:
+  label: "Key Entry Sale"
+  android-pax: public
+  javascript-sdk: public
+  flavor-notes:
+    - type: caution             # note | tip | info | caution | warning
+      title: "Optional title"
+      body: >
+        Markdown body — only appears on this acquirer's page.
+        Supports `inline code` and [links](/reference/avs).
+```
+
+Use `notes:` (top-level on the acquirer) for a note that appears on every capability section for that acquirer. Use `flavor-notes` (on a specific flavor) when the note is narrower.
+
+---
 
 ### Edit static pages
 
-Pages in `docs/get-started/`, `docs/back-office/`, `docs/reference/`, and `docs/deprecated/` are plain Markdown — edit them directly.
+Pages in `docs/get-started/`, `docs/back-office/`, `docs/reference/`, and `docs/deprecated/` are plain Markdown — edit them directly. No regeneration needed.
 
 ## Build for production
 
@@ -205,9 +366,9 @@ The skills are plain Markdown files — no build step, no generator. Changes are
 | When you edit this doc… | Also update this skill file |
 |---|---|
 | `docs/acquirers/epi.mdx` | `static/.well-known/skills/acquirers/epi.md` |
-| `docs/acquirers/omnipay-emp.mdx` | `static/.well-known/skills/acquirers/emerchantpay.md` |
-| `docs/acquirers/omnipay-paystrax.mdx` | `static/.well-known/skills/acquirers/paystrax.md` |
-| `docs/acquirers/paysafe-tsys.mdx` | `static/.well-known/skills/acquirers/paysafe.md` |
+| `docs/acquirers/emerchantpay.mdx` | `static/.well-known/skills/acquirers/emerchantpay.md` |
+| `docs/acquirers/paystrax.mdx` | `static/.well-known/skills/acquirers/paystrax.md` |
+| `docs/acquirers/paysafe.mdx` | `static/.well-known/skills/acquirers/paysafe.md` |
 | `docs/back-office/rest-api-no-reader.md` | `static/.well-known/skills/paths/cloud-api.md` |
 | `docs/reference/android-sdk-setup.md` | `static/.well-known/skills/paths/android-pax.md` + `android-hilite.md` |
 | iOS SDK docs | `static/.well-known/skills/paths/ios-hilite.md` |
@@ -230,7 +391,8 @@ yarn test
 
 ```
 data/
-  acquirers.yaml          ← source of truth for all acquirer capabilities
+  acquirers.yaml          ← acquirer list, capabilities per path, processor reference
+  processors.yaml         ← processor definitions and known-issues (injected into acquirer pages)
 docs/
   acquirers/              ← generated (do not edit directly)
   get-started/            ← authentication, sandbox, hardware setup
@@ -241,11 +403,20 @@ scripts/
   generate-acquirer-pages.js   ← reads YAML + partials → writes docs/acquirers/
   __tests__/              ← Jest unit tests for the generator
 src/
-  partials/functions/     ← one .mdx per payment function (written once, used by all acquirers)
-  components/             ← NotSupported.jsx, ComingSoon.jsx
+  partials/functions/     ← per-function docs, organised by capability/flavor subfolder
+    sale/                 ← emv-sale, key-entry-sale, moto-sale, sale-and-tip, sale-and-tokenize
+    refund/               ← card-present, moto-refund
+    reversal/             ← reversal, remote-reversal, partial-reversal
+    pre-auth/             ← pre-auth-create, pre-auth-capture, pre-auth-void
+    pre-auth-capture-reversal/ ← pre-auth-capture-void
+    tip-adjustment/
+    tokenization/         ← procharge, paysafe-token, tokenex
+    moto/, batching/, money-remittance/, void/
+  components/             ← NotSupported.jsx, ComingSoon.jsx, FlavorSection.jsx
   css/                    ← custom styles
 static/
   llms.txt                ← AI-readable capability index (generated)
+  .well-known/skills/     ← machine-readable skill files for AI coding agents
 ```
 
 ## Deployment

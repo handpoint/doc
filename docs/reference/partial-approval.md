@@ -132,7 +132,7 @@ Response is an array of all transactions linked to this reference:
 ]
 ```
 
-## Reversing a partial approval (ISV does not support partial approvals)
+## Reversing a partial approval (ISV does not support partial approvals) {#reversing-a-partial-approval}
 
 If your integration does not accept partial approvals, reverse the transaction immediately after receiving `PARTIAL_APPROVAL`:
 

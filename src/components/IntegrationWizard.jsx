@@ -9,7 +9,7 @@ const REGIONS = [
     value: 'us-canada',
     label: 'US & Canada',
     flag: '🇺🇸',
-    desc: 'EPI (TSYS) · Paysafe — Handpoint referral acquirers for North America',
+    desc: 'EPI · Paysafe — Handpoint referral acquirers for North America',
   },
   {
     value: 'eu',

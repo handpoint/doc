@@ -56,6 +56,38 @@ handpoint.motoRefund(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Back-office MOTO refund — no terminal required, submitted via token
+const { transactionResult } = hp.moToRefund(
+  1000,
+  'USD',
+  { originalTransactionID: '01236fc0-8192-11eb-9aca-ad4b0e95f241' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') { /* refund accepted */ }
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Back-office MOTO refund — no terminal required, submitted via token
+var op = hapi.MoToRefund(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from MOTO sale result
+);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Parameters

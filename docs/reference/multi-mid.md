@@ -51,22 +51,17 @@ Reconciliation is done via the [Transaction Feed API](/back-office/transaction-f
 
 `merchantAuth` is an array of **Credential** objects. Each Credential targets one acquirer. At most one Credential per acquirer is allowed in the array.
 
-### Credential fields
+### Credential fields (Cloud API and Android SDK)
 
 | Field | Type | Required | Constraints | Description |
 |---|---|---|---|---|
-| `externalId` | string | One of `externalId` **or** `acquirer` | Max 23 chars | Handpoint-assigned sub-merchant ID. When set, no other field may be present in the same object. |
-| `acquirer` | string | Required when `externalId` is absent | Known values: `"TSYS"`, `"TNS"`, `"ViscusDummy"` | Acquirer tag string. `"ViscusDummy"` is sandbox-only. |
-| `mid` | string | Optional | Max 23 chars | Merchant ID at the acquirer. At least one of `mid`, `tid`, or `mcc` must be present when using the `acquirer` pattern. |
-| `tid` | string | Optional | Max 23 chars | Terminal ID at the acquirer. |
-| `mcc` | string | Optional | — | Merchant Category Code. |
+| `externalId` | string | Yes | Max 23 chars | Handpoint-assigned sub-merchant ID. Must exactly match a `subMerchantExternalId` configured by the Handpoint onboarding team. No other field may be present in the same object. |
 
 ### Usage rules
 
-- **`externalId` pattern (recommended):** Pass `externalId` alone. No other fields allowed in the same Credential object. Use this when Handpoint manages acquirer credentials (standard onboarding).
-- **`acquirer` + fields pattern:** Pass `acquirer` with at least one of `mid`, `tid`, or `mcc`. Use this when the ISV supplies acquirer credentials directly.
-- **Never mix patterns:** `externalId` and `acquirer` must not appear in the same Credential object.
-- **One Credential per acquirer:** If the array has multiple entries (e.g., TSYS and TNS), each must target a different acquirer.
+- **One `externalId` per Credential object.** No other fields allowed alongside it.
+- **One Credential per acquirer.** If the array has multiple entries (e.g., EPI and Interac/TNS), each must target a different acquirer.
+- **iOS SDK:** The iOS HiLite SDK does not support `externalId` — see the iOS tab below for its separate pattern.
 
 ---
 
@@ -74,8 +69,6 @@ Reconciliation is done via the [Transaction Feed API](/back-office/transaction-f
 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
-
-### Using `externalId` (recommended)
 
 Pass `merchantAuth` with the `externalId` that maps to the sub-MID configured for the merchant in TMS. The value must exactly match a `subMerchantExternalId` configured by the onboarding team — there is no fallback to the primary MID if it does not match.
 
@@ -98,33 +91,6 @@ curl -X POST https://cloud.handpoint.com/transactions \
 
 `merchantAuth` is optional — omit it to process against the primary MID. When included, the `externalId` must be an exact match to a configured sub-MID.
 
-### Using `acquirer` + `mid` directly
-
-Use this pattern when the ISV manages acquirer credentials directly (rather than using Handpoint-assigned `externalId` values). Supply the acquirer tag and the credentials that apply to that acquirer.
-
-```bash
-curl -X POST https://cloud.handpoint.com/transactions \
-  -H "ApiKeyCloud: YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "operation": "sale",
-    "amount": "5000",
-    "currency": "USD",
-    "terminal_type": "PAXA920",
-    "serial_number": "082104578",
-    "transactionReference": "7e3a1b9d-e4f5-4c2a-b0d1-3f8a9c2e6d7b",
-    "merchantAuth": [
-      {
-        "acquirer": "TSYS",
-        "mid": "DR_SMITH_TSYS_MID",
-        "tid": "DR_SMITH_TSYS_TID"
-      }
-    ]
-  }'
-```
-
-`acquirer` must match one of the configured acquirer tag strings (`"TSYS"`, `"TNS"`, `"ViscusDummy"` for sandbox). At least one of `mid`, `tid`, or `mcc` must accompany it.
-
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
@@ -133,8 +99,6 @@ Pass a `MerchantAuth` containing a `Credential` in the options. The recommended 
 :::info externalId must be provisioned by Handpoint
 The `externalId` strings are configured in the Handpoint Portal / TMS by the **Handpoint onboarding team** when provisioning your sub-MIDs. Contact Handpoint Integration Support to get the `externalId` values for your merchant accounts before going live. An `externalId` that does not exactly match a provisioned sub-MID will result in a declined transaction (`"Invalid Merchant"`).
 :::
-
-**Using `externalId` (recommended)**
 
 ```kotlin
 val credential = Credential(externalId = "dr-smith")  // must match a sub-MID configured in Handpoint TMS
@@ -154,20 +118,6 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 `externalId` is mutually exclusive with `acquirer`, `mid`, `tid`, and `mcc` — do not combine them on the same `Credential`.
 
-**Using raw acquirer credentials (alternative)**
-
-Use this only when `externalId` is not configured in Handpoint TMS for your sub-MIDs.
-
-```kotlin
-val credential = Credential(acquirer = Acquirer.TSYS, mid = "SUB_MERCHANT_ID", tid = "SUB_TERMINAL_ID")
-val merchantAuth = MerchantAuth().apply { add(credential) }
-
-val options = SaleOptions()
-options.merchantAuth = merchantAuth
-
-hapi.sale(BigInteger("5000"), Currency.USD, options)
-```
-
 The `MerchantAuth` overrides the terminal's default routing for this transaction only. All subsequent transactions revert to the default MID unless you supply another override.
 
 :::note Clinic-style flow on Android PAX
@@ -179,10 +129,18 @@ The `MerchantAuth` overrides the terminal's default routing for this transaction
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-`MerchantAuth` is fully implemented in the iOS SDK via `HapiRemoteService`. The pattern mirrors the Android SDK.
+`MerchantAuth` is supported in the iOS SDK via `HapiRemoteService`.
+
+:::caution externalId not available on iOS
+The iOS HiLite SDK `Credential` class does not have an `externalId` field. You must supply raw acquirer credentials (`acquirer`, `mid`, `tid`) directly. Get these values from your Handpoint Integration Engineer during onboarding.
+:::
 
 ```swift
-let credential = Credential(acquirer: Acquirer.TSYS, mid: "SUB_MERCHANT_ID", tid: "SUB_TERMINAL_ID")
+// iOS SDK requires acquirer + mid + tid — no externalId support
+let credential = Credential()
+credential.acquirer = TSYS  // For EPI-processed merchants
+credential.mid = "SUB_MERCHANT_ID"
+credential.tid = "SUB_TERMINAL_ID"
 let merchantAuth = MerchantAuth(credential: credential)
 
 let options = SaleOptions()

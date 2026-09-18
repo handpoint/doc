@@ -125,7 +125,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `currency` | string | **Yes** | — | ISO 4217 alpha-3 — `"USD"`, `"GBP"`, `"EUR"` |
 | `transactionReference` | string | Recommended | auto-UUID | UUID v4. Persist before sending — required for recovery via `GET /transactions/{ref}/status`. Only honoured for `sale`, `refund`, `saleAndTokenizeCard`, `preAuthorization`. |
 | `callbackUrl` | string | No | — | HTTPS endpoint. Result POSTed here when complete. |
-| `token` | string | No | — | Sent as `Authorization` header on the callback POST. Use a unique value per request. |
+| `token` | string | No | — | Sent as `auth-token` header on the callback POST. Use a unique value per request. |
 | `customerReference` | string | No | — | Free-text order reference stored with the transaction. |
 | `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal screen — the merchant must accept or decline. **Accept** → a new authorisation request is sent to the gateway; the final result is delivered normally. **Decline** → `finStatus: CANCELLED` is delivered immediately; no card charge. Set `false` only when you are intentionally replaying a reference (e.g. after recovering an UNDEFINED result and confirming the transaction was not charged). |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` — see [bypassOptions](#bypassoptions) |
@@ -707,7 +707,6 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 | `customerReference` | string | No | — | Free-text reference. Max 50 chars. |
 | `channel` | string | No | — | `"MO"` (mail order) or `"TO"` (telephone order) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }`. Postal code and optional street address forwarded to the acquirer for address verification. Requires `avsForMoto` enabled for the merchant. See [AVS](/reference/avs). |
-| `duplicationCheck` | boolean | No | `true` | When `true` (default), checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal — accept sends a new authorisation, decline delivers `finStatus: CANCELLED`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
 
 **`POST /moto/refund` — request parameters**
 
@@ -719,7 +718,6 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 | `transactionReference` | string | No | — | UUID v4 recommended. Max 50 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 50 chars. |
 | `channel` | string | No | — | `"MO"` or `"TO"` |
-| `duplicationCheck` | boolean | No | `true` | When `true` (default), checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal — accept sends a new authorisation, decline delivers `finStatus: CANCELLED`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
 
 ### Error — MOTO not enabled (keyed entry path)
 
@@ -744,8 +742,17 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 
 Use this when a server restart, network drop, or crash means you missed the callback or poll result.
 
+:::warning Different base URL
+The status endpoint is on **`transactions.handpoint.com`**, not `cloud.handpoint.com`. Using the wrong host returns 404.
+
+| Purpose | Base URL |
+|---|---|
+| Send transactions (POST) / poll by `transactionResultId` (GET) | `cloud.handpoint.com` |
+| Check status by `transactionReference` | **`transactions.handpoint.com`** |
+:::
+
 ```bash
-curl https://cloud.handpoint.com/transactions/5c7056aa-b0a6-4ee9-891e-aae6ce7ea725/status \
+curl https://transactions.handpoint.com/transactions/5c7056aa-b0a6-4ee9-891e-aae6ce7ea725/status \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -764,7 +771,7 @@ The path parameter is your `transactionReference` (the UUID you set). This endpo
 
 ```bash
 # Query the full operation chain (sale + all subsequent operations)
-curl https://cloud.handpoint.com/transactions/5c7056aa-b0a6-4ee9-891e-aae6ce7ea725/status/all \
+curl https://transactions.handpoint.com/transactions/5c7056aa-b0a6-4ee9-891e-aae6ce7ea725/status/all \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -871,7 +878,7 @@ Both fields are required when the `bypassOptions` object is included.
 
 | Field | Type | Default | Description |
 |---|---|---|---|
-| `signatureBypass` | boolean | `false` | Skips the signature capture step. |
+| `signatureBypass` | boolean | `false` | The signature screen is not shown to the cardholder at all — signature input is bypassed entirely, not just skippable. |
 | `pinBypass` | boolean | `false` | Shows the PIN screen but the cardholder can skip by pressing the green key without entering a PIN. Records `verificationMethod: PIN_BYPASS` in the result. |
 
 :::warning Chip-enforced PIN cards ignore `pinBypass`
@@ -905,13 +912,9 @@ Each `Credential` object:
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `externalId` | string | Conditional | Handpoint external merchant ID. If set, no other field may be present. Max 23 chars. |
-| `acquirer` | string | Conditional | Acquirer tag string — e.g. `"TSYS"`, `"TNS"` (Interac), `"ViscusDummy"` (sandbox). Required if `externalId` is absent. |
-| `mid` | string | Conditional | Merchant ID at the acquirer. Max 23 chars. |
-| `tid` | string | No | Terminal ID at the acquirer. Max 23 chars. |
-| `mcc` | string | No | Merchant Category Code. |
+| `externalId` | string | Yes | Handpoint-assigned sub-merchant ID. Must exactly match a `subMerchantExternalId` provisioned by the Handpoint onboarding team. Max 23 chars. No other field may be present in the same object. |
 
-Use either `externalId` alone, or `acquirer` + at least one of `mid`/`tid`/`mcc`. Do not mix both forms in the same object.
+See [Multi-MID](/reference/multi-mid) for full usage and testing guidance.
 
 ---
 

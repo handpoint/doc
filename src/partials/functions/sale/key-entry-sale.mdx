@@ -1,5 +1,9 @@
 Commands a PAX terminal to display a **manual card entry screen** — the cashier types the cardholder's card number, expiry, and CVV directly on the terminal's touchscreen. The terminal tokenizes the entry internally and processes it as a MOTO transaction. The ISV system never handles raw card data.
 
+:::warning Processed as MOTO — acquirer fees apply
+Despite using a physical PAX terminal, Key Entry Sale is submitted to the acquirer as a **MOTO (card-not-present)** transaction, not as a card-present key-entry transaction. This is because the card is manually entered rather than electronically read. MOTO transactions typically carry higher interchange rates than card-present transactions. Confirm the fee structure with your acquirer during merchant onboarding.
+:::
+
 #### When to use it
 Use for phone orders where the cardholder reads their card details aloud to a call centre agent, or in-person situations where the card cannot be read electronically. The PAX terminal must be present in your environment and running in integrated mode.
 
@@ -39,6 +43,35 @@ hapi.motoSale(BigInteger("1000"), Currency.USD)
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.moToSale(1000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // store result.transactionID for potential reversal
+}
+```
+
+Terminal displays the manual card entry screen — the operator types card details on the device.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.MoToSale(new BigInteger(1000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // store result.TransactionID for potential reversal
     }
 }
 ```

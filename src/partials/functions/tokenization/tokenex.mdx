@@ -99,6 +99,40 @@ handpoint.tokenizeCard(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Tokenize only
+const { transactionResult } = hp.tokenizeCard('USD', { terminalType: 'PAXA920', serialNumber: '082104578' });
+const result = await transactionResult;
+const token = result.cardToken;  // TokenEx token — store for loyalty/card-matching
+
+// Sale and tokenize
+const { transactionResult: tr } = hp.saleAndTokenizeCard(1000, 'USD', { terminalType: 'PAXA920', serialNumber: '082104578' });
+const saleResult = await tr;
+const token = saleResult.cardToken;  // TokenEx token
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Tokenize only
+var op = hapi.TokenizeCard(Currency.USD);
+
+// Sale and tokenize
+var options = new SaleAndTokenizeOptions();
+var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    string token = result.CardToken;          // TokenEx token — store for loyalty/card-matching
+    string provider = result.CardTokenProvider; // "TOKENEX"
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Response fields

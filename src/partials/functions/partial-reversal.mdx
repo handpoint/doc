@@ -8,7 +8,7 @@ Use when the final amount is lower than the authorised amount and the batch is s
 
 #### Implementation notes
 
-1. Supported for **TSYS (US and Canada)**. Not available on other acquirers.
+1. Supported for **EPI** (US). Not available on other acquirers.
 2. The partial reversal uses the MasterCard flag in ISO 8583 internally.
 3. The result is non-cumulative — you cannot chain multiple partial reversals. The amount you send is the new final authorised amount, not a delta.
 4. Available via Cloud API and Android SDK (PAX). Not supported on HiLite or iOS paths.

@@ -694,7 +694,7 @@ Display the `statusMessage` to the merchant. The standard instruction is: re-ins
 ## Partial Approval (US only) {#partial-approval}
 
 :::info US acquirers only
-Partial approvals only occur on US acquirer configurations (EPI, TSYS, TNS/Interac). The trigger amount `3757` is only active when the merchant is provisioned on the Simulator acquirer with a US MCC. Do not test this on EU or non-US configurations.
+Partial approvals only occur on US acquirer configurations (EPI, Interac). The trigger amount `3757` is only active when the merchant is provisioned on the Simulator acquirer with a US MCC. Do not test this on EU or non-US configurations.
 :::
 
 ### Accept flow — cardholder accepts the partial amount

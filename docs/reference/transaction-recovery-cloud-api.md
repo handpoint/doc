@@ -151,7 +151,7 @@ def poll_terminal_result(ref, terminal_type, serial_number):
     while not stop_event.is_set() and time.time() < deadline:
         time.sleep(TERMINAL_POLL)
         response = requests.get(
-            f'https://cloud.handpoint.com/transactions/{ref}',
+            f'https://transactions.handpoint.com/transactions/{ref}/status',
             headers={'ApiKeyCloud': 'YOUR_MERCHANT_API_KEY'}
         )
         if not response.ok:

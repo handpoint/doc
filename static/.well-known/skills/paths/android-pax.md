@@ -5,37 +5,51 @@ Use this path when your Android application runs **directly on the PAX SmartPOS 
 
 Also load your acquirer skill: `acquirers/{acquirer}.md`
 
+Full object/enum reference: https://developer.handpoint.com/reference/android-objects-reference
+Full events interface reference: https://developer.handpoint.com/reference/android-events-reference
+
 ## Gradle setup
 
-```groovy
-// build.gradle (app module)
-repositories {
-    maven { url 'https://nexus.handpoint.ninja/repository/maven-releases/' }
-}
+```kotlin
+// app/build.gradle.kts
 dependencies {
-    implementation 'com.handpoint.api:sdk:7.x.x'  // check release notes for latest
+    implementation("com.handpoint.api:sdk:VERSION") {
+        exclude(group = "com.handpoint.api", module = "paymentsdk")
+    }
+    implementation("com.handpoint.api:paymentsdk:VERSION")
 }
 ```
 
-Latest version: https://developer.handpoint.com/release-notes/release-notes
+Both lines must use the IDENTICAL version string. RC builds (e.g. `7.1014.0-RC.72-SNAPSHOT`) for development; stable builds (e.g. `7.1012.3`) for production PAXStore. Add Nexus repo to `settings.gradle.kts` — credentials from Handpoint support.
+
+Latest stable version: https://developer.handpoint.com/release-notes/release-notes
 
 ## Initialization
 
 ```kotlin
 class MainActivity : AppCompatActivity(), Events.SmartposRequired {
-    // Use Events.SmartposRequired for PAX on-device. Events.Required is for HiLite BT path.
+    // Use Events.SmartposRequired for PAX on-device.
+    // Use Events.MposRequired for HiLite BT path.
+    // Use Events.PosRequired to support both in one delegate.
 
     private lateinit var hapi: Hapi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // HandpointCredentials is a Java class — use positional args, not named args
         val credentials = HandpointCredentials(
-            sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132",
-            cloudApiKey  = "YOUR_CLOUD_API_KEY"  // omit if not using Cloud API / getTransactionStatus
+            "0102030405060708091011121314151617181920212223242526272829303132",  // sharedSecret
+            "YOUR_CLOUD_API_KEY"  // required for MOTO and getTransactionStatus(); omit for card-present only
         )
-        hapi = HapiFactory.getHapiInstance(this, this, credentials)
-        // Do NOT call hapi.init() separately — credentials are passed to getHapiInstance.
+        val settings = com.handpoint.api.Settings().apply {
+            automaticReconnection = true
+        }
+        hapi = HapiFactory.getAsyncInterface(this, this, credentials, settings)
+        // REQUIRED in SDK 7.1014.0+: explicitly register delegate BEFORE connect()
+        hapi.registerEventsDelegate(this)
+        val device = Device("PAX A920", "localhost", "", ConnectionMethod.ANDROID_PAYMENT)
+        hapi.connect(device)
     }
 
     // Fires when any card-present operation completes (sale, refund, reversal, pre-auth, etc.)
@@ -57,72 +71,115 @@ class MainActivity : AppCompatActivity(), Events.SmartposRequired {
 
     override fun connectionStatusChanged(status: ConnectionStatus, device: Device) { }
 
-    // Fires after hapi.endOfDay() — EPI only
-    override fun endOfDayResult(result: String, device: Device) {}
+    // Optional interfaces — add to this class and re-register:
+    // Events.Log — onMessageLogged(level, message) + deviceLogsReady(logs, device)
+    // Events.ReceiptEvent — receiptIsReady(guid, merchantReceipt, customerReceipt) ~1.5s after EOT
+    // Events.ReceiptUploadingEvent — receiptsUploaded(guid, merchantUrl, customerUrl) ~4-8s after EOT
+    // Events.MessageHandling — showMessage(msg, dismissible, duration) / hideMessage(msg)
+    // Events.SignatureRequired — signatureRequired(request, device); call hapi.signatureResult(true)
+    //                            PAX ignores signatureResult(); safe to implement for HiLite compat
+    // Events.CardBrandDisplay — supportedCardBrands(list) + readCard(usedCard)
 }
 ```
 
 ## Sale
 
 ```kotlin
+// All amounts in MINOR UNITS (BigInteger): 1000 = $10.00
+val result = hapi.sale(BigInteger("1000"), Currency.USD) ?: return
+if (!result.operationStarted) return  // SDK rejected — check result.errorMessage
+val ref = result.transactionReference ?: return  // persist to durable storage immediately
+// Result arrives in endOfTransaction — store result.transactionID (for reversal/refund)
+// result.transactionReference (for getTransactionStatus() recovery)
+
+// With options
 val options = SaleOptions().apply {
     customerReference = "ORDER-123"
-    // EmerchantPay / Paystrax only:
-    // tipAmount = BigInteger("150")
+    tipConfiguration = TipConfiguration().apply {
+        tipPercentages = listOf(10, 15, 20)
+        isEnterAmountEnabled = true
+        isSkipEnabled = true
+        footer = "Thank you!"
+    }
+    pinBypass = false        // true = show PIN screen but allow skip (chip-enforced cards ignore)
+    checkDuplicates = true   // false = disable duplicate payment check
 }
 hapi.sale(BigInteger("1000"), Currency.USD, options)
-// Result arrives in endOfTransaction — store result.transactionID and result.transactionReference
+```
+
+## Sale and tokenize
+
+```kotlin
+// Returns cardToken in result.cardToken alongside the normal sale result
+hapi.sale(BigInteger("1000"), Currency.USD, SaleAndTokenizeOptions())
+```
+
+## Tokenize card only (no charge)
+
+```kotlin
+// No financial transaction — card is read and tokenized only
+// Result: result.finStatus == PROCESSED, result.cardToken populated
+hapi.tokenizeCard()
 ```
 
 ## Refund
 
 ```kotlin
-// Linked refund
+// Linked refund — pass original transactionID
 hapi.refund(BigInteger("1000"), Currency.USD, "transactionID-from-sale", RefundOptions())
 
-// Unlinked refund (requires acquirer enablement)
+// Unlinked refund (requires acquirer enablement — card interaction required)
 hapi.refund(BigInteger("1000"), Currency.USD, RefundOptions())
+
+// Automatic full refund — no card interaction, no amount needed
+hapi.automaticRefund("transactionID-from-sale")
+// Result: result.type == MOTO_REFUND, result.finStatus == AUTHORISED
 ```
 
 ## Reversal
 
 ```kotlin
-// Full reversal
-hapi.reversal("transactionID-from-sale")
+// Sale reversal (saleReversal) — cancels a sale before settlement
+// Use result.transactionID from the original sale (NOT transactionReference)
+hapi.saleReversal(BigInteger("1000"), Currency.USD, "transactionID-from-sale")
 
-// Partial reversal (EPI only)
-hapi.reversal("transactionID", BigInteger("500"), Currency.USD, ReversalOptions())
+// Refund reversal — cancels a previously issued refund
+hapi.refundReversal(BigInteger("1000"), Currency.USD, "transactionID-from-refund")
 ```
 
 ## Pre-authorization (EPI, EmerchantPay, Paystrax)
 
 ```kotlin
-// Create pre-auth
-hapi.preAuthorization(BigInteger("1000"), Currency.USD, PreAuthOptions())
+// Create pre-auth — holds funds on the card
+hapi.preAuthorization(BigInteger("1000"), Currency.USD)
 
-// Capture
-hapi.preAuthorizationCapture(BigInteger("1000"), Currency.USD, "transactionID", PreAuthOptions())
+// Capture — completes the pre-auth (can capture different amount than held)
+hapi.preAuthorizationCapture(BigInteger("1000"), Currency.USD, "transactionID-from-preauth")
 
-// Increase
-hapi.preAuthorizationIncrease(BigInteger("200"), Currency.USD, "transactionID", PreAuthOptions())
+// Increase — raises the held amount before capture
+hapi.preAuthorizationIncrease(BigInteger("200"), Currency.USD, "transactionID-from-preauth")
 
-// Reversal
-hapi.preAuthorizationReversal("transactionID", PreAuthOptions())
+// Reversal — cancels an uncaptured pre-auth (no card interaction)
+hapi.preAuthorizationReversal("transactionID-from-preauth")
+// Partial release (acquirer-dependent):
+hapi.preAuthorizationReversal(BigInteger("500"), Currency.USD, "transactionID-from-preauth")
 ```
 
 ## Tip adjustment (EPI only — post-sale)
 
 ```kotlin
-hapi.tipAdjustment(BigInteger("200"), "transactionID-from-sale", TipOptions())
+// Returns Boolean directly (not OperationStartResult), does NOT fire endOfTransaction
+val accepted: Boolean = hapi.tipAdjustment(BigInteger("200"), Currency.USD, "transactionID-from-sale")
+// true = tip recorded; false = rejected (unsupported by acquirer or wrong reference)
 ```
 
-Do not call for EmerchantPay / Paystrax — include tipAmount in SaleOptions at sale time.
+Do not call for EmerchantPay / Paystrax — include tip in SaleOptions.tipConfiguration at sale time.
 
 ## Batch close (EPI only)
 
 ```kotlin
 hapi.endOfDay()
-// Result arrives in endOfDayResult callback
+// Result arrives asynchronously — implement the appropriate callback
 ```
 
 Do not call for EmerchantPay or Paystrax.
@@ -130,14 +187,28 @@ Do not call for EmerchantPay or Paystrax.
 ## Remote sale / MOTO (EPI, EmerchantPay, Paystrax — on-terminal)
 
 ```kotlin
+// Basic MOTO sale — cardholder keys card details on the terminal keypad
 val options = MoToOptions()
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
 
-// Remote refund (linked)
-hapi.motoRefund(BigInteger("1000"), Currency.USD, options)
+// With channel and tokenization
+val options = MoToOptions().apply {
+    channel = MoToChannel.TO    // TO = telephone order, MO = mail order
+    tokenize = true             // also tokenize the card
+}
+
+// MOTO refund (linked)
+hapi.motoRefund(BigInteger("1000"), Currency.USD, "transactionID-from-moto-sale", MoToOptions())
+
+// MOTO reversal
+hapi.motoReversal("transactionID-from-moto-sale")
+
+// MOTO pre-authorization (note: lowercase 'a' — motoPreauthorization, not motoPreAuthorization)
+hapi.motoPreauthorization(BigInteger("1000"), Currency.USD, MoToOptions())
 ```
 
-Requires remote sale enablement. Load `optional/back-office.md` for back-office (card token) remote sale.
+Requires MOTO enablement on the merchant account. Requires `cloudApiKey` in `HandpointCredentials`.
+Load `optional/back-office.md` for back-office (card token) remote sale.
 
 ## Money remittance (EmerchantPay)
 
@@ -296,10 +367,54 @@ Self-validation test: trigger amount `BigInteger("3757")`. Required for Handpoin
 | Setting `fee` on a pre-authorization | The SDK drops it. Set it on the capture, which decides what the customer pays |
 | Treating `fee.applied == false` as a failure | The transaction succeeded; the gateway removed the fee. Print no fee line and settle the total that the result carries |
 
+## Device management
+
+```kotlin
+// Connection
+hapi.connect(device)          // connect or reconnect
+hapi.disconnect()             // cleanly disconnect
+
+// Transaction control
+hapi.stopCurrentTransaction() // cancel in-progress operation; fires UserCancelled then CANCELLED
+hapi.getTransactionStatus("transactionReference")  // UNDEFINED recovery; result in transactionResultReady()
+
+// Printing
+hapi.printReceipt(receiptHtmlOrUrl)  // prints HTML or a hosted receipt URL; returns Boolean
+
+// Terminal management
+hapi.update()                // check for and apply terminal software/config updates
+hapi.setLogLevel(LogLevel.Info)  // call after InitialisationComplete
+hapi.getDeviceLogs()         // fetch terminal logs; fires deviceLogsReady on Events.Log implementor
+hapi.getPairedDevices(ConnectionMethod.BLUETOOTH)  // list paired BT terminals
+hapi.searchDevices(ConnectionMethod.BLUETOOTH)     // discover BT terminals; fires deviceDiscoveryFinished
+hapi.getTransactionsReport(ReportConfiguration(...))  // fetch transactions report
+hapi.setLocale(SupportedLocales.en_US)             // set SDK UI locale
+```
+
+## Key types
+
+| Type | Package | Description |
+|---|---|---|
+| `OperationStartResult` | `com.handpoint.api.shared` | Returned by every financial op. Check `operationStarted`; persist `transactionReference`. |
+| `TransactionResult` | `com.handpoint.api.shared` | Full result in `endOfTransaction`. See transaction-result-object reference. |
+| `StatusInfo` | `com.handpoint.api.shared` | Mid-transaction updates + InitialisationComplete. |
+| `DeviceStatus` | `com.handpoint.api.shared` | Terminal state snapshot (battery, app version, serial). |
+| `SaleOptions` | `com.handpoint.api.shared.options` | Options for sale/saleAndTokenize. |
+| `MoToOptions` | `com.handpoint.api.shared.options` | Options for MOTO operations. |
+| `TipConfiguration` | `com.handpoint.api.shared.options` | On-device tip prompt config. |
+| `MerchantAuth` | `com.handpoint.api.shared.options` | Multi-MID credential override. |
+| `Metadata` | `com.handpoint.api.shared` | Custom key-value data echoed in result. |
+
+Full reference: https://developer.handpoint.com/reference/android-objects-reference
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
 - Android SDK setup reference: https://developer.handpoint.com/reference/android-sdk-setup
+- Android objects reference: https://developer.handpoint.com/reference/android-objects-reference
+- Android events reference: https://developer.handpoint.com/reference/android-events-reference
+- Integration walkthrough (recovery, logging): https://developer.handpoint.com/reference/android-integration-walkthrough
+- Transaction result object: https://developer.handpoint.com/reference/transaction-result-object
 - Fee mitigation: https://developer.handpoint.com/reference/fee-mitigation
 - Authentication: https://developer.handpoint.com/reference/authentication
 - Release notes: https://developer.handpoint.com/release-notes/release-notes

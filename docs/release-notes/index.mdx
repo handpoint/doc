@@ -35,7 +35,7 @@ Your server connects to a PAX SmartPOS terminal through the Handpoint Cloud — 
 Added Address Verification Service (AVS) support for MOTO and card-present transactions.
 
 - [`moToSaleRequest`](/reference/moto-guide) now accepts a `billing` object containing `zipCode` (required) and `address` (optional) fields. Providing a `billing` object triggers an AVS check on the acquirer.
-- [`transactionRequest`](/reference/cloud-integration-guide) (card-present Sale / Keyed Entry) also accepts the same `billing` object for AVS on card-present transactions.
+- [`transactionRequest`](/reference/cloud-api-integration-guide) (card-present Sale / Keyed Entry) also accepts the same `billing` object for AVS on card-present transactions.
 
 AVS must be enabled on the merchant's acquirer agreement. The `billing` object is optional; omit it for transactions where AVS is not required.
 
@@ -140,7 +140,7 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 Your Android application and the Handpoint SDK run directly on the PAX SmartPOS terminal — one device handles your POS UI and the payment flow, with no external server required.
 
 :::info Latest version
-**7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/get-started/development-hardware).
+**7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/reference/development-hardware).
 :::
 
 ### 7.1014.0
@@ -167,7 +167,7 @@ dependencies {
 ### 7.1013.1
 **New Features**
 
-- **Deferred Card Tokenization**: `deferredTokenization(originalTransactionID)` — new method in `Hapi.kt` that retrieves a card token from a previously completed card-present transaction, without requiring the card to be presented again. Pass the `EFTTransactionID` (UUID) from the original transaction result. Returns `Boolean` (command sent to device). The tokenization result is delivered via the `endOfTransaction` event. Requires a connected PAX device. Eligible source transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. See [Tokenization](/functions/tokenization).
+- **Deferred Card Tokenization**: `deferredTokenization(originalTransactionID)` — new method in `Hapi.kt` that retrieves a card token from a previously completed card-present transaction, without requiring the card to be presented again. Pass the `EFTTransactionID` (UUID) from the original transaction result. Returns `Boolean` (command sent to device). The tokenization result is delivered via the `endOfTransaction` event. Requires a connected PAX device. Eligible source transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. See [Tokenization](/acquirers/epi#tokenization).
 - **Duplicate check for MOTO operations**: `duplicationCheck` is now supported in `MoToOptions` for `motoSale` and `motoRefund`, preventing accidental duplicate charges on retry.
 
 **Improvements**
@@ -426,7 +426,7 @@ Mastercard MoneySend fields for money remittance merchants. See [Money Remittanc
 Your Android app communicates with the HiLite Bluetooth card reader via the Handpoint SDK — built for merchants on the move where a full SmartPOS terminal isn't practical.
 
 :::info Latest version
-**7.1004.3** — connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`. See [Development hardware](/get-started/development-hardware).
+**7.1004.3** — connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`. See [Development hardware](/reference/development-hardware).
 :::
 
 :::note
@@ -514,7 +514,7 @@ Money Remittance support. Mastercard MoneySend fields for money remittance merch
 Your iOS app communicates with the HiLite Bluetooth card reader via the Handpoint SDK over the MFi external accessory protocol — the same portable reader experience as the Android path.
 
 :::info Latest version
-**4.0.2** — connects to HiLite (DATECS/Datecs) readers via the MFi external accessory protocol (`com.datecs.pinpad`). Requires iOS 12.0+. Install via CocoaPods: `pod 'HandpointSDK', '~> 4.0.2'`. App Store distribution requires Apple MFi program approval. See [Development hardware](/get-started/development-hardware) for provisioning profile requirements.
+**4.0.2** — connects to HiLite (DATECS/Datecs) readers via the MFi external accessory protocol (`com.datecs.pinpad`). Requires iOS 12.0+. Install via CocoaPods: `pod 'HandpointSDK', '~> 4.0.2'`. App Store distribution requires Apple MFi program approval. See [Development hardware](/reference/development-hardware) for provisioning profile requirements.
 :::
 
 ### 4.0.2
@@ -654,6 +654,39 @@ Major rewrite for Swift 5 / async-await patterns.
 :::info
 Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for all supported terminals. Update the plugin and native SDK dependency together.
 :::
+
+### 4.14.0
+**Updates**
+
+- Updated to Android SDK **7.1014.0** (PAX path). iOS SDK unchanged (2.2.0).
+
+**Features** *(inherited from Android SDK 7.1014.0)*
+
+- **Address Verification Service (AVS) for MOTO** — pass cardholder billing details on MOTO sale via the options object (`billing.zipCode` required, `billing.address` optional). The acquirer's AVS result is returned as `addressVerification.resultCode` in the transaction result.
+
+---
+
+### 4.13.0
+**Updates**
+
+- Updated to Android SDK **7.1013.1** (PAX path). iOS SDK unchanged (2.2.0).
+
+**Features** *(inherited from Android SDK 7.1013.1)*
+
+- **Duplicate check for MOTO operations** — SDK-level guard prevents accidental duplicate charges on MOTO sale and refund retry.
+- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
+- **Cancel operation reason** — `cancelOperationNotAllowed` responses now include a reason code distinguishing "no active transaction" from "cancel not allowed during this operation".
+
+**Bug Fixes** *(inherited from Android SDK 7.1013.1)*
+
+- Pre-auth reversal amount unit mismatch (SDKS-213) — partial pre-auth reversals now correctly convert minor-unit amounts before forwarding to the gateway.
+- PIN bypass TMS gate fixed (SDKS-102) — bypass gate now sourced from TMS config object rather than terminal self-configuration.
+
+:::caution Known issue
+An issue affecting **PAX terminals without a MAGStripe module** (confirmed: PAX A50, PAX IM25) was identified in this SDK version. A fix is included in 4.14.0. Do not use 4.13.0 on terminals without MAGStripe module support.
+:::
+
+---
 
 ### 4.12.3
 **Updates**

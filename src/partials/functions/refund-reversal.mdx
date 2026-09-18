@@ -66,8 +66,8 @@ heftClient.refundVoidWithAmount(
 )
 
 func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
-    if info.statusCode == EFT_PP_STATUS_SUCCESS {
-        // refund void accepted
+    if info.finStatus() == "AUTHORISED" {
+        // store info.eFTTransactionID() for potential reversal
     }
 }
 ```

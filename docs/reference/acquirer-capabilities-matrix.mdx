@@ -1,67 +1,29 @@
 ---
+id: acquirer-capabilities-matrix
 title: Acquirer capabilities matrix
+sidebar_label: Capabilities matrix
 sidebar_position: 2
-description: Full matrix of payment capabilities per acquirer and integration path, driven from the acquirerCaps data layer.
+description: Interactive capabilities matrix — filter by processor, acquirer, or integration path to see what's supported and where.
+hide_table_of_contents: true
+pagination_next: null
+pagination_prev: null
+visibility: internal
 ---
 
-import { ACQUIRERS, CAPABILITY_LABELS, DISPLAY_ORDER, PATH_LABELS, CARD_PRESENT_PATHS } from '@site/src/data/acquirerCaps';
-
-export function AcquirerMatrix() {
-  // Paths to show as columns (card-present + back-office)
-  const paths = [...CARD_PRESENT_PATHS, 'back-office'];
-
-  return (
-    <div style={{ overflowX: 'auto' }}>
-      {ACQUIRERS.map(acq => {
-        // Only show rows that have at least one supported path
-        const rows = DISPLAY_ORDER.filter(cap =>
-          acq.caps[cap] && paths.some(p => acq.caps[cap][p] === 'public')
-        );
-        if (rows.length === 0) return null;
-        return (
-          <div key={acq.id} style={{ marginBottom: '2rem' }}>
-            <h3 id={acq.id}>{acq.name} <small style={{ fontWeight: 400, color: 'var(--ifm-color-emphasis-600)' }}>— {acq.subtitle}</small></h3>
-            <table>
-              <thead>
-                <tr>
-                  <th>Capability</th>
-                  {paths.map(p => <th key={p}>{PATH_LABELS[p] || p}</th>)}
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map(cap => (
-                  <tr key={cap}>
-                    <td>{CAPABILITY_LABELS[cap] || cap}</td>
-                    {paths.map(p => {
-                      const v = (acq.caps[cap] || {})[p];
-                      return <td key={p} style={{ textAlign: 'center' }}>{v === 'public' ? '✅' : v === 'not-supported' ? '❌' : '—'}</td>;
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {acq.portalNote && (
-              <p style={{ fontSize: '0.85rem', color: 'var(--ifm-color-emphasis-700)', marginTop: '0.5rem' }}>
-                <strong>Paysafe Portal note:</strong> {acq.portalNote}
-              </p>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
+import CapabilityMatrix from '@site/src/components/CapabilityMatrix';
 
 # Acquirer capabilities matrix
 
-:::info Also available: Full capabilities matrix
-This page shows per-acquirer capability tables. For the complete view — including a cross-acquirer summary and integration-path comparison — see the **[Full capabilities matrix](/reference/full-matrix)**.
+:::info Internal reference
+This page is generated from [`data/acquirers.yaml`](../../data/acquirers.yaml). To update it, edit the YAML and run:
+
+```bash
+node scripts/generate-matrix-data.js
+```
+
+**Do not merge to `main`** — this page is staging-only. It can be merged to `dev` from other branches.
 :::
 
-<AcquirerMatrix />
+Use the filter bar below to focus on a processor, specific acquirers, or particular integration paths.
 
----
-
-**Legend:** ✅ Supported &nbsp;·&nbsp; ❌ Not supported &nbsp;·&nbsp; — Not applicable for this path/acquirer
-
-**Back Office** = REST API operations performed without a card reader (reversals, tip adjustment, pre-auth capture/increase/decrease, remote sale via card token, batch close, tokenization). Initial card-present operations (sale, pre-auth create) always require the terminal.
+<CapabilityMatrix />

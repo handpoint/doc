@@ -64,7 +64,11 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
     // Apply business logic — loyalty lookup, fraud check, tip adjustment, etc.
 
     // Option A: proceed with the Sale
-    callback.resume(OperationDto())
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
 
     // Option B: skip the charge but finish gracefully (e.g. loyalty-only scan)
     // callback.finishWithoutCardOperation()
@@ -86,7 +90,13 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 ```kotlin
 // Supported operations: SaleReversal, Refund, RefundReversal
-val operation = OperationDto()
+// Example: linked refund — card is tokenized then immediately refunded
+val operation = OperationDto.Refund(
+    amount = BigInteger("1000"),
+    currency = Currency.USD,
+    originalTransactionID = "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+    options = RefundOptions()
+)
 hapi.tokenizedOperation(Currency.USD, operation)
 
 // Single endOfTransaction result fires when both steps complete
@@ -100,8 +110,12 @@ hapi.tokenizedOperation(Currency.USD, operation)
 hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
 
 override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
-    // inspect token, then:
-    callback.resume(OperationDto())
+    // inspect token, then proceed with Sale:
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
 }
 ```
 
@@ -158,7 +172,7 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
 
 | Method | Effect |
 |---|---|
-| `callback.resume(OperationDto)` | Proceed with the Sale |
+| `callback.resume(OperationDto.Sale(...))` | Proceed with the charge — pass a concrete `OperationDto` subclass (`Sale`, `Refund`, `SaleReversal`, or `RefundReversal`) |
 | `callback.finishWithoutCardOperation()` | End the session without charging — token is still issued |
 | `callback.cancel()` | Cancel the operation entirely |
 

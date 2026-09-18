@@ -7,7 +7,7 @@ description: Step-by-step guide to integrating the Handpoint Cordova plugin for 
 # Cordova SDK — Integration Guide
 
 :::info AI coding agents
-Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/cordova.md`](/.well-known/skills/paths/cordova.md)
+Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/cordova.md`](pathname:///.well-known/skills/paths/cordova.md)
 :::
 
 ## What is this integration path?

@@ -1,4 +1,4 @@
-## MOTO (Mail Order / Telephone Order)
+## MOTO (Mail Order / Telephone Order) {#moto-sale}
 
 #### What this does
 Processes a card-not-present transaction where the cardholder provides card details by phone or mail. The card is never physically read — a stored card token is used instead.
@@ -11,7 +11,7 @@ Processes a card-not-present transaction where the cardholder provides card deta
 | **MOTO back-office** | A `cardToken` from a supported token provider is sent via REST API or Android SDK. No terminal or card entry required. | ❌ None | Token provider (never the ISV) |
 
 :::info No raw card data
-Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All MOTO operations use a `cardToken` issued by a supported token provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes to PAN + expiry when processing the transaction — the ISV system never handles raw card data.
+Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All MOTO operations use a `cardToken` issued by a supported token provider (e.g. Paysafe, Tokenex). The token provider de-tokenizes to PAN + expiry when processing the transaction — the ISV system never handles raw card data.
 :::
 
 #### When to use it
@@ -71,20 +71,6 @@ Content-Type: application/json
 }
 ```
 
-Pre-Authorization:
-```http
-POST https://cloud.handpoint.com/moto/preauthorization
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "638f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
-
 Refund:
 ```http
 POST https://cloud.handpoint.com/moto/refund
@@ -115,10 +101,6 @@ hapi.motoRefund(BigInteger("1000"), Currency.USD, originalTransactionId)
 
 // Reversal — no amount or currency (voids full original amount)
 hapi.motoReversal(originalTransactionId)
-
-// Reversal with partial amount (SDK 7.1012.1+ only)
-// amount is a minor-unit integer string — "500" = 500 cents = $5.00
-hapi.motoReversal("500", "USD", originalTransactionId)
 ```
 
 **Back-office** — card token via `MoToOptions`, no terminal entry:
@@ -195,7 +177,7 @@ handpoint.motoReversal(
 | `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
 | `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
 
-**Without reader — back-office** (`POST /moto/sale`, `/moto/preauthorization`, `/moto/refund`):
+**Without reader — back-office** (`POST /moto/sale`, `/moto/refund`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
@@ -203,7 +185,7 @@ handpoint.motoReversal(
 | `currency` | string | Yes | ISO 4217 currency code |
 | `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
 | `originalGuid` | string | Refund only | GUID of the original MOTO sale to refund. Replaces `cardToken` on refunds — the gateway retrieves the card from the original transaction |
-| `transactionReference` | string | Sale / Pre-Auth | UUID v4 for idempotency. Do not include on refunds (linked operation) |
+| `transactionReference` | string | Sale | UUID v4 for idempotency. Do not include on refunds (linked operation) |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 
 </TabItem>

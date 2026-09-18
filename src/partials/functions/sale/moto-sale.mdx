@@ -14,7 +14,7 @@ Use for recurring billing, subscription charges, or any scenario where you hold 
 The deferred approach is recommended because the card-present sale completes independently. You call the backoffice token endpoint afterwards and store the token for future card-not-present charges.
 
 :::info No raw card data — tokens only
-Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. TSYS, Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
 :::
 
 {/* AVS_FOR_MOTO_INJECTION_POINT */}
@@ -39,20 +39,6 @@ Content-Type: application/json
 }
 ```
 
-Pre-Authorization (back-office):
-
-```http
-POST https://cloud.handpoint.com/moto/preauthorization
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "amount": "10.00",
-  "currency": "USD",
-  "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "638f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
-}
-```
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -62,9 +48,6 @@ Content-Type: application/json
 val options = MoToOptions()
 options.cardToken = "YOUR_STORED_CARD_TOKEN"
 hapi.motoSale(BigInteger("1000"), Currency.USD, options)
-
-// Pre-authorization
-hapi.motoPreauthorization(BigInteger("1000"), Currency.USD, options)
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
@@ -92,14 +75,14 @@ handpoint.motoSale(
 
 #### Parameters
 
-**Backoffice** (`POST /moto/sale`, `/moto/preauthorization`):
+**Backoffice** (`POST /moto/sale`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00 (note: different from with-reader which uses minor units) |
 | `currency` | string | Yes | ISO 4217 code |
 | `cardToken` | string | Yes | Token from a supported provider — never a raw PAN |
-| `transactionReference` | string | Yes | UUID v4 for idempotency |
+| `transactionReference` | string | Recommended | UUID v4. Send on every original transaction — required to recover the outcome via `GET /transactions/{reference}/status/all` when no result is received or when `finStatus: UNDEFINED` is returned. See [Transaction Recovery](/reference/transaction-recovery). |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 
 **Android SDK `MoToOptions` fields**:

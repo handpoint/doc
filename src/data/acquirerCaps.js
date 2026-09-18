@@ -97,7 +97,7 @@ const PAYSAFE_PORTAL_NOTE =
  */
 export const ACQUIRERS = [
   // ─────────────────────────────────────────────────────────────────────────
-  // EPI (formerly TSYS) — US, Canada
+  // EPI — US, Canada
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: 'epi',
@@ -148,7 +148,7 @@ export const ACQUIRERS = [
       sale:                        'Card must be read by terminal.',
       'sale-with-tip':             'Tip collected on-terminal before sale. iOS HiLite does not support on-screen tip collection — use Tip Adjustment after the sale instead.',
       refund:                      'Card must be read by terminal.',
-      'partial-reversal':          'TSYS US and Canada. Not available on HiLite paths. Use POST /reversal (Back Office) from any path.',
+      'partial-reversal':          'EPI (US and Canada). Not available on HiLite paths. Use POST /reversal (Back Office) from any path.',
       'tip-adjustment':            'Remote HTTPS call — not a device command. Not available in Cordova plugin (unimplemented stub). iOS SDK: uses HapiRemoteService.tipAdjustment() with sharedSecret; or use Back Office REST API with ApiKeyCloud. Windows SDK: direct HTTPS, works on both PAX and HiLite connections.',
       'pre-auth':                  'Initial pre-auth requires card-present terminal (PAX). Capture, increase, decrease, and void available via Back Office (no terminal).',
       'pre-auth-capture-reversal': 'Capture and increase available via Back Office. Pre-settlement only. Partial capture reversal supported.',
@@ -159,7 +159,7 @@ export const ACQUIRERS = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────
-  // PAYSAFE / TSYS — US · Canada
+  // PAYSAFE — US · Canada
   // ─────────────────────────────────────────────────────────────────────────
   {
     id: 'paysafe',
@@ -196,7 +196,7 @@ export const ACQUIRERS = [
       'pre-auth':         'Not supported — Paysafe restriction.',
       'remote-sale':      'Not supported — Paysafe restriction.',
       tokenization:       'Supported across all markets. Interac tokenization assumed supported — verify per merchant.',
-      batching:           'Not supported by PAYSAFE. Batch operations are EPI/TSYS only.',
+      batching:           'Not supported by PAYSAFE. Batch operations are EPI only.',
       void:               'Interac cards only. Card must be physically present at terminal. Label as VOID in ISV UI — not Refund or Reversal.',
     },
     portalNote: PAYSAFE_PORTAL_NOTE,

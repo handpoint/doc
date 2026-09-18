@@ -118,11 +118,11 @@ The `/status/all` endpoint is keyed by the `transactionReference` from the **ori
 ### Cloud API
 
 ```http
-GET https://cloud.handpoint.com/transactions/{transactionReference}
+GET https://transactions.handpoint.com/transactions/{transactionReference}/status
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
-Returns the transaction result by `transactionReference`. Use this on `UNDEFINED` or after a timeout.
+Returns the transaction status by `transactionReference`. Use this on `UNDEFINED` or after a timeout.
 
 ### Android SDK (PAX)
 

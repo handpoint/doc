@@ -3,13 +3,13 @@
 Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
 
 #### When to use it
-Use when you need to settle at a specific time rather than waiting for automatic batch close. Most TSYS US merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
+Use when you need to settle at a specific time rather than waiting for automatic batch close. Most US host-capture merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
 
 #### Implementation notes
 
-1. **TSYS US only.** Host-capture acquirers only. EU acquirers use automatic settlement and do not require manual batch close.
+1. **US host-capture acquirers only.** EU acquirers use automatic settlement and do not require manual batch close.
 2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
-3. Auto-close is the default for TSYS US at approximately 11pm EST. Manual close is an alternative, not an addition.
+3. Auto-close is the default for US host-capture merchants at approximately 11pm EST. Manual close is an alternative, not an addition.
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 

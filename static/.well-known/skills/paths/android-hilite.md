@@ -5,6 +5,9 @@ Use this path when your Android app (on a phone or tablet) communicates with a H
 
 Also load your acquirer skill: `acquirers/{acquirer}.md`
 
+Full object/enum reference: https://developer.handpoint.com/reference/android-objects-reference
+Full events interface reference: https://developer.handpoint.com/reference/android-events-reference
+
 ## Capabilities not available on HiLite
 
 The HiLite is a Bluetooth card reader with no manual entry screen. The following are **not supported** on HiLite:
@@ -216,4 +219,7 @@ https://developer.handpoint.com/reference/fee-mitigation
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
 - Android SDK setup reference: https://developer.handpoint.com/reference/android-sdk-setup
+- Android objects reference: https://developer.handpoint.com/reference/android-objects-reference
+- Android events reference: https://developer.handpoint.com/reference/android-events-reference
+- Transaction result object: https://developer.handpoint.com/reference/transaction-result-object
 - Devices: https://developer.handpoint.com/reference/devices

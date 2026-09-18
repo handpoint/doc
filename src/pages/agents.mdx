@@ -32,30 +32,30 @@ Fetch it at the start of any Handpoint integration task.
 
 Task-focused skill files provide precise, condensed guidance for specific integration tasks. Load only the skills relevant to your task.
 
-The skills index is at [`/.well-known/skills/index.json`](/.well-known/skills/index.json).
+The skills index is at [`/.well-known/skills/index.json`](pathname:///.well-known/skills/index.json).
 
 | Skill | When to load |
 |---|---|
-| [`handpoint`](/.well-known/skills/handpoint.md) | **Always — load first.** Global context, architecture overview, and which path and acquirer skill to load next. |
-| [`paths/cloud-api`](/.well-known/skills/paths/cloud-api.md) | Implementing a REST API sale (any language, commands PAX terminal via Handpoint Cloud) |
-| [`paths/android-pax`](/.well-known/skills/paths/android-pax.md) | Building an Android app that runs on-device on a PAX SmartPOS terminal |
-| [`paths/android-hilite`](/.well-known/skills/paths/android-hilite.md) | Building an Android app paired with a HiLite Bluetooth reader |
-| [`paths/ios-hilite`](/.well-known/skills/paths/ios-hilite.md) | Building an iOS app paired with a HiLite Bluetooth reader |
-| [`acquirers/epi`](/.well-known/skills/acquirers/epi.md) | EPI (North America) — batch close schedule, tip adjustment, pre-auth support |
-| [`acquirers/paysafe`](/.well-known/skills/acquirers/paysafe.md) | Paysafe/TSYS (North America) — supported operations and constraints |
-| [`acquirers/emerchantpay`](/.well-known/skills/acquirers/emerchantpay.md) | EmerchantPay (Europe) — tip-in-sale, pre-auth, supported operations |
-| [`acquirers/paystrax`](/.well-known/skills/acquirers/paystrax.md) | Paystrax (Europe) — tip-in-sale, pre-auth, supported operations |
-| [`optional/back-office`](/.well-known/skills/optional/back-office.md) | Back-office operations — reversals, refunds, pre-auth capture, MOTO |
-| [`optional/transaction-feed`](/.well-known/skills/optional/transaction-feed.md) | Transaction reporting, reconciliation, and result recovery |
+| [`handpoint`](pathname:///.well-known/skills/handpoint.md) | **Always — load first.** Global context, architecture overview, and which path and acquirer skill to load next. |
+| [`paths/cloud-api`](pathname:///.well-known/skills/paths/cloud-api.md) | Implementing a REST API sale (any language, commands PAX terminal via Handpoint Cloud) |
+| [`paths/android-pax`](pathname:///.well-known/skills/paths/android-pax.md) | Building an Android app that runs on-device on a PAX SmartPOS terminal |
+| [`paths/android-hilite`](pathname:///.well-known/skills/paths/android-hilite.md) | Building an Android app paired with a HiLite Bluetooth reader |
+| [`paths/ios-hilite`](pathname:///.well-known/skills/paths/ios-hilite.md) | Building an iOS app paired with a HiLite Bluetooth reader |
+| [`acquirers/epi`](pathname:///.well-known/skills/acquirers/epi.md) | EPI (North America) — batch close schedule, tip adjustment, pre-auth support |
+| [`acquirers/paysafe`](pathname:///.well-known/skills/acquirers/paysafe.md) | Paysafe (North America) — supported operations and constraints |
+| [`acquirers/emerchantpay`](pathname:///.well-known/skills/acquirers/emerchantpay.md) | EmerchantPay (Europe) — tip-in-sale, pre-auth, supported operations |
+| [`acquirers/paystrax`](pathname:///.well-known/skills/acquirers/paystrax.md) | Paystrax (Europe) — tip-in-sale, pre-auth, supported operations |
+| [`optional/back-office`](pathname:///.well-known/skills/optional/back-office.md) | Back-office operations — reversals, refunds, pre-auth capture, MOTO |
+| [`optional/transaction-feed`](pathname:///.well-known/skills/optional/transaction-feed.md) | Transaction reporting, reconciliation, and result recovery |
 
 ## Integration paths — quick reference
 
 | What you're building | Path | Hardware |
 |---|---|---|
-| Server controls PAX terminal via HTTP (any language) | [Cloud API (REST)](/back-office/rest-api-no-reader) | PAX SmartPOS |
+| Server controls PAX terminal via HTTP (any language) | [Cloud API (REST)](/reference/cloud-api-integration-guide) | PAX SmartPOS |
 | Android app running on the PAX terminal itself | [Android SDK (PAX)](/reference/android-sdk-setup) | PAX SmartPOS |
 | Android or iOS app paired with a portable card reader | [Android / iOS SDK (HiLite)](/reference/android-sdk-setup) | HiLite Bluetooth |
-| Server-side operations without a terminal | [Back Office REST API](/back-office/rest-api-no-reader) | None |
+| Server-side operations without a terminal | [Back Office REST API](/reference/backoffice-integration-guide) | None |
 | EU online checkout | [SmartBoard](/acquirers/smartboard) | None |
 
 ## Common agent mistakes to avoid
@@ -72,4 +72,4 @@ The skills index is at [`/.well-known/skills/index.json`](/.well-known/skills/in
 - [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix)
 - [Error codes](/reference/error-codes)
 - [Transaction recovery](/reference/transaction-recovery)
-- [Release notes](/release-notes/release-notes)
+- [Release notes](/release-notes)

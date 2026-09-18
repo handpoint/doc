@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 # Cloud API — Integration Guide
 
 :::info AI coding agents
-Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/cloud-api.md`](/.well-known/skills/paths/cloud-api.md)
+Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/cloud-api.md`](pathname:///.well-known/skills/paths/cloud-api.md)
 :::
 
 ## What is the Cloud API?
@@ -105,7 +105,7 @@ Benefits over the staging (`.io`) environment:
 - Uses production PAX terminals (no watermark)
 - Full EMV transaction flow — accurate behaviour
 - Any card works safely (your own personal cards, expired cards, etc.)
-- Trigger amounts available to force specific outcomes (DECLINED, CANCELLED, partial approval, etc.) — see [Test amounts](/reference/development-hardware#test-amounts)
+- Trigger amounts available to force specific outcomes (DECLINED, CANCELLED, partial approval, etc.) — see [Trigger amounts](/reference/development-hardware#trigger-amounts)
 
 :::info Tokenization on DEMO merchant
 To test MOTO/remote sale (card token), ask your Handpoint Integration Support engineer to enable tokenization on your DEMO merchant. This is a one-time Handpoint-side setup — no ISV or merchant action required. In production, EPI manages token provider assignment for live merchants.
@@ -157,7 +157,7 @@ Back-office endpoints (`POST /moto/sale`, `POST /moto/refund`, `POST /reversal`)
 
 ### Option A — Callback (recommended)
 
-Your server receives the result as an HTTP POST to your `callbackUrl`. Supply a `token` to authenticate the incoming webhook — it is echoed in the `AUTH-TOKEN` header of the callback.
+Your server receives the result as an HTTP POST to your `callbackUrl`. Supply a `token` to authenticate the incoming webhook — it is echoed as the `auth-token` header of the callback.
 
 ```bash
 curl -X POST https://cloud.handpoint.com/transactions \
@@ -186,7 +186,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
 
 `transactionReference` is echoed back only when you included it in the request body. `transactionResultId` is always present and is required for polling.
 
-The terminal processes the transaction. When complete, Handpoint POSTs the `TransactionResult` to your `callbackUrl` with the `AUTH-TOKEN` header set to your `token` value. Respond with any `2xx` to acknowledge receipt.
+The terminal processes the transaction. When complete, Handpoint POSTs the `TransactionResult` to your `callbackUrl` with the `auth-token` header set to your `token` value. Respond with any `2xx` to acknowledge receipt.
 
 **Callback payload — AUTHORISED:**
 
@@ -479,7 +479,7 @@ These are distinct from `finStatus: FAILED` in the result — an HTTP error mean
 
 ### Callback authentication
 
-Validate every inbound callback before processing it. Check that the `AUTH-TOKEN` header matches the `token` you supplied in the original request:
+Validate every inbound callback before processing it. Check that the `auth-token` header matches the `token` you supplied in the original request (HTTP/2 lowercases headers — `auth-token` and `AUTH-TOKEN` refer to the same header; HTTP header comparison is always case-insensitive):
 
 ```python
 # Python / Flask

@@ -39,7 +39,9 @@ export default function FlavorSection({description, paths, children}) {
     return () => window.removeEventListener('handpoint:pathChanged', handler);
   }, []);
 
-  if (selectedPath && paths && !paths.includes(selectedPath)) {
+  // Back-office operations use the REST API and are accessible from any integration path.
+  const isBackofficeSection = paths && paths.includes('backoffice');
+  if (selectedPath && paths && !paths.includes(selectedPath) && !isBackofficeSection) {
     return (
       <div className="flavor-section flavor-section--not-supported">
         {description && <span className="flavor-section__description">{description}</span>}

@@ -21,6 +21,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "emv-sale": {
             "label": "EMV Sale",
@@ -28,12 +30,16 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "key-entry-sale": {
             "label": "Key Entry Sale",
             "cloud-api": "public",
-            "android-pax": "public"
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
@@ -47,7 +53,9 @@ export const ACQUIRER_DETAILS = [
             "cloud-api": "public",
             "android-pax": "public",
             "android-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "sale-and-tokenize": {
             "label": "Sale with Tokenization",
@@ -55,7 +63,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -65,6 +75,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "card-present": {
             "label": "EMV Refund",
@@ -72,14 +84,25 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
             "cloud-api": "not-supported",
             "android-pax": "public",
             "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public",
             "backoffice": "public"
+          },
+          "key-entry-refund": {
+            "label": "Key Entry Refund",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -89,6 +112,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "backoffice": "public",
         "flavors": {
           "reversal": {
@@ -97,7 +122,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "remote-reversal": {
             "label": "Remote Reversal",
@@ -120,7 +147,43 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
         "cordova": "public",
-        "backoffice": "public"
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
+        "backoffice": "public",
+        "flavors": {
+          "pre-auth-create": {
+            "label": "Pre-Auth Create",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "key-entry-pre-auth": {
+            "label": "Key Entry Pre-Auth",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "pre-auth-capture": {
+            "label": "Pre-Auth Capture",
+            "backoffice": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "pre-auth-void": {
+            "label": "Pre-Auth Reversal",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          }
+        }
       },
       "moto": {
         "cloud-api": "public",
@@ -174,15 +237,16 @@ export const ACQUIRER_DETAILS = [
     }
   },
   {
-    "slug": "tsys-tns",
-    "name": "PAYSAFE + Interac",
-    "geography": "Canada",
+    "slug": "paysafe",
+    "name": "PAYSAFE",
+    "geography": "US & Canada",
     "markets": [
       "us-canada"
     ],
     "cardBrands": [
       "VISA",
       "MC",
+      "AMEX",
       "Discover",
       "Interac"
     ],
@@ -193,6 +257,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "emv-sale": {
             "label": "EMV Sale",
@@ -200,12 +266,16 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "key-entry-sale": {
             "label": "Key Entry Sale",
             "cloud-api": "public",
-            "android-pax": "public"
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
@@ -219,15 +289,19 @@ export const ACQUIRER_DETAILS = [
             "cloud-api": "public",
             "android-pax": "public",
             "android-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "sale-and-tokenize": {
-            "label": "Sale with Tokenization",
+            "label": "Sale with Paysafe Token",
             "cloud-api": "public",
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -237,6 +311,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "card-present": {
             "label": "EMV Refund",
@@ -244,7 +320,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
@@ -261,6 +339,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "backoffice": "public",
         "flavors": {
           "reversal": {
@@ -269,7 +349,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "remote-reversal": {
             "label": "Remote Reversal",
@@ -307,6 +389,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "paysafe-token": {
             "label": "Paysafe Single-Use Token",
@@ -314,7 +398,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "tokenex": {
             "label": "TokenEx",
@@ -322,7 +408,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -351,129 +439,7 @@ export const ACQUIRER_DETAILS = [
     }
   },
   {
-    "slug": "paysafe-tsys",
-    "name": "PAYSAFE",
-    "geography": "US",
-    "markets": [
-      "us-canada"
-    ],
-    "cardBrands": [
-      "VISA",
-      "MC",
-      "AMEX",
-      "Discover",
-      "Interac"
-    ],
-    "capabilities": {
-      "sale": {
-        "cloud-api": "public",
-        "android-pax": "public",
-        "android-hilite": "public",
-        "ios-hilite": "public",
-        "cordova": "public",
-        "flavors": {
-          "emv-sale": {
-            "label": "EMV Sale",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
-          },
-          "sale-and-tokenize": {
-            "label": "Sale with Paysafe Token",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
-          },
-          "sale-and-tip": {
-            "label": "Sale with Tip",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "cordova": "public"
-          }
-        }
-      },
-      "refund": {
-        "cloud-api": "public",
-        "android-pax": "public",
-        "android-hilite": "public",
-        "ios-hilite": "public",
-        "cordova": "public",
-        "flavors": {
-          "card-present": {
-            "label": "EMV Refund",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
-          }
-        }
-      },
-      "reversal": {
-        "cloud-api": "public",
-        "android-pax": "public",
-        "android-hilite": "public",
-        "ios-hilite": "public",
-        "cordova": "public",
-        "backoffice": "public",
-        "flavors": {
-          "reversal": {
-            "label": "Reversal",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
-          },
-          "remote-reversal": {
-            "label": "Remote Reversal",
-            "cloud-api": "public",
-            "backoffice": "public"
-          }
-        }
-      },
-      "tip-adjustment": {
-        "cloud-api": "not-supported",
-        "android-pax": "public",
-        "android-hilite": "public",
-        "ios-hilite": "not-supported",
-        "cordova": "public",
-        "backoffice": "public"
-      },
-      "tokenization": {
-        "cloud-api": "public",
-        "android-pax": "public",
-        "android-hilite": "public",
-        "ios-hilite": "public",
-        "cordova": "public",
-        "flavors": {
-          "paysafe-token": {
-            "label": "Paysafe Single-Use Token",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
-          },
-          "tokenex": {
-            "label": "TokenEx",
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
-          }
-        }
-      }
-    }
-  },
-  {
-    "slug": "omnipay-emp",
+    "slug": "emerchantpay",
     "name": "EmerchantPay",
     "geography": "EU",
     "markets": [
@@ -500,6 +466,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "emv-sale": {
             "label": "EMV Sale",
@@ -507,12 +475,16 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "key-entry-sale": {
             "label": "Key Entry Sale",
             "cloud-api": "public",
-            "android-pax": "public"
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
@@ -527,14 +499,18 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "sale-and-tip": {
             "label": "Sale with Tip",
             "cloud-api": "public",
             "android-pax": "public",
             "android-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -544,6 +520,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "card-present": {
             "label": "EMV Refund",
@@ -551,14 +529,25 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
             "cloud-api": "not-supported",
             "android-pax": "public",
             "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public",
             "backoffice": "public"
+          },
+          "key-entry-refund": {
+            "label": "Key Entry Refund",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -568,6 +557,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "backoffice": "public",
         "flavors": {
           "reversal": {
@@ -576,7 +567,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "remote-reversal": {
             "label": "Remote Reversal",
@@ -591,7 +584,43 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
         "cordova": "public",
-        "backoffice": "public"
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
+        "backoffice": "public",
+        "flavors": {
+          "pre-auth-create": {
+            "label": "Pre-Auth Create",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "key-entry-pre-auth": {
+            "label": "Key Entry Pre-Auth",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "pre-auth-capture": {
+            "label": "Pre-Auth Capture",
+            "backoffice": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "pre-auth-void": {
+            "label": "Pre-Auth Reversal",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          }
+        }
       },
       "moto": {
         "cloud-api": "public",
@@ -606,6 +635,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "tokenex": {
             "label": "TokenEx",
@@ -613,7 +644,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -627,7 +660,7 @@ export const ACQUIRER_DETAILS = [
     }
   },
   {
-    "slug": "omnipay-paystrax",
+    "slug": "paystrax",
     "name": "Paystrax",
     "geography": "EU",
     "markets": [
@@ -654,6 +687,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "emv-sale": {
             "label": "EMV Sale",
@@ -661,12 +696,16 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "key-entry-sale": {
             "label": "Key Entry Sale",
             "cloud-api": "public",
-            "android-pax": "public"
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
@@ -681,14 +720,18 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "sale-and-tip": {
             "label": "Sale with Tip",
             "cloud-api": "public",
             "android-pax": "public",
             "android-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -698,6 +741,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "card-present": {
             "label": "EMV Refund",
@@ -705,14 +750,25 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
             "cloud-api": "not-supported",
             "android-pax": "public",
             "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public",
             "backoffice": "public"
+          },
+          "key-entry-refund": {
+            "label": "Key Entry Refund",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },
@@ -722,6 +778,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "backoffice": "public",
         "flavors": {
           "reversal": {
@@ -730,7 +788,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           },
           "remote-reversal": {
             "label": "Remote Reversal",
@@ -752,7 +812,43 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
         "cordova": "public",
-        "backoffice": "public"
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
+        "backoffice": "public",
+        "flavors": {
+          "pre-auth-create": {
+            "label": "Pre-Auth Create",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "key-entry-pre-auth": {
+            "label": "Key Entry Pre-Auth",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "pre-auth-capture": {
+            "label": "Pre-Auth Capture",
+            "backoffice": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
+          "pre-auth-void": {
+            "label": "Pre-Auth Reversal",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          }
+        }
       },
       "moto": {
         "cloud-api": "public",
@@ -767,6 +863,8 @@ export const ACQUIRER_DETAILS = [
         "android-hilite": "public",
         "ios-hilite": "public",
         "cordova": "public",
+        "javascript-sdk": "public",
+        "windows-sdk": "public",
         "flavors": {
           "tokenex": {
             "label": "TokenEx",
@@ -774,7 +872,9 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       }

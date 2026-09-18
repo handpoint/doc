@@ -30,19 +30,15 @@ The token is returned in the `TransactionResult.cardToken` field. Store it and u
 <TabItem value="android-pax" label="Android (PAX)">
 
 ```kotlin
-// Standalone tokenize — card is presented and tokenized without a charge
-hapi.tokenizeCard()
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
-        val token = result.cardToken  // store securely for future MOTO charges
+        val token = result.cardToken  // non-null only when SaleAndTokenizeOptions was passed
+        // store token for future back-office sales
     }
 }
-
-// Or: sale that also returns a token (where acquirer supports it)
-// The cardToken field is populated on the sale result if tokenization is enabled for the merchant
-hapi.sale(BigInteger("1000"), Currency.USD)
-// result.cardToken will be non-null if the acquirer issued a token on this sale
 ```
 
 </TabItem>
@@ -65,8 +61,8 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 heftClient.tokenizeCard()
 
 func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
-    if info.statusCode == EFT_PP_STATUS_SUCCESS {
-        let token = info.cardToken  // store securely
+    if info.finStatus() == "AUTHORISED" {
+        // store info.eFTTransactionID() for potential reversal
     }
 }
 ```
@@ -87,6 +83,36 @@ handpoint.tokenizeCard(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk — tokenize without sale
+const { transactionResult } = hp.tokenizeCard(
+  'USD',
+  { terminalType: 'PAXA920', serialNumber: '082104578' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  const token = result.cardToken;  // store securely for future MOTO charges
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.TokenizeCard(Currency.USD);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        string token = result.CardToken;  // store securely for future MOTO charges
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Result fields
@@ -98,7 +124,7 @@ handpoint.tokenizeCard(
 
 #### Using the token for future charges
 
-Pass `cardToken` in the [Remote Sale (MOTO)](#moto-sale) flavor's `cardToken` field for subsequent card-not-present charges.
+Pass `cardToken` in the [Remote Sale (MOTO)](#remote-sale) flavor's `cardToken` field for subsequent card-not-present charges.
 
 :::caution Token scope
 Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.

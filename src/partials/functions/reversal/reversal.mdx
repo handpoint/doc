@@ -97,6 +97,41 @@ handpoint.saleReversal(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionResult } = hp.saleReversal(
+  1000,
+  'USD',
+  '01236fc0-8192-11eb-9aca-ad4b0e95f241'  // originalTransactionID from sale result
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // reversal accepted — no card prompt, no settlement
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+hapi.SaleReversal(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // reversal accepted — no card prompt, no settlement
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 {/* PARTIAL_REVERSAL_INJECTION_POINT */}
@@ -137,7 +172,7 @@ Errors arrive in the polled result object, not in the initial 202. Check `finSta
 
 | HTTP | `message` | Meaning | What to do |
 |---|---|---|---|
-| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCLoud` header value |
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
 
 #### Testing
@@ -181,6 +216,22 @@ Same as Android PAX.
 |---|---|
 | Before cut-off | `handpoint.saleReversal()` same day — verify `AUTHORISED` |
 | After cut-off | Close batch, attempt reversal — verify error |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hp.saleReversal()` same day — verify `finStatus === 'AUTHORISED'` |
+| After cut-off | Close batch, then attempt reversal — verify error in result |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hapi.SaleReversal()` same day — verify `FinStatus == AUTHORISED` |
+| After cut-off | Close batch, then attempt — verify `DECLINED` or error |
 
 </TabItem>
 </Tabs>

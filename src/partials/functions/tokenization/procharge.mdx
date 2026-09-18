@@ -12,7 +12,7 @@ When you send a MOTO sale with a proCharge `cardToken`, the Handpoint Gateway re
 1. **Token contents:** PAN + expiry date stored; CVV is never stored (PCI requirement).
 2. **Token scope:** proCharge tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
 3. **Deferred tokenization (recommended):** Retrieve a token from a previously completed transaction — no card re-swipe needed. Via Backoffice REST (`GET /transactions/{id}/token`) — no terminal required, synchronous. Via Android SDK (`hapi.deferredTokenization()`, SDK 7.1013.1+) — requires PAX device connected.
-4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#moto-sale) — Backoffice `POST /moto/sale` or Android SDK `hapi.motoSale()`.
+4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#remote-sale) — Backoffice `POST /moto/sale` or Android SDK `hapi.motoSale()`.
 
 #### Code
 

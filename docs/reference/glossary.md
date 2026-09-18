@@ -49,7 +49,7 @@ Android SDK: `hapi.endOfDay()`
 
 ### callbackUrl
 
-An optional field in a `POST /transactions` request. When present, Handpoint delivers the `TransactionResult` as an HTTP POST to this URL after the transaction completes — no polling required. The `token` field is echoed in the `AUTH-TOKEN` response header so you can authenticate the delivery.
+An optional field in a `POST /transactions` request. When present, Handpoint delivers the `TransactionResult` as an HTTP POST to this URL after the transaction completes — no polling required. The `token` field is echoed as the `auth-token` request header on the callback POST so you can authenticate the delivery.
 
 If omitted, you must poll `GET /transaction-result/{transactionResultId}` for the result.
 

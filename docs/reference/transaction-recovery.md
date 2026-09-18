@@ -62,8 +62,7 @@ The terminal POSTs the full **Transaction Result** object as JSON to your `callb
 ```http
 POST https://your-server.example.com/handpoint/callback
 Content-Type: application/json
-AUTH-TOKEN: <your-token-value>
-AUTH_TOKEN: <your-token-value>
+auth-token: <your-token-value>
 
 {
   "finStatus": "AUTHORISED",
@@ -82,7 +81,7 @@ AUTH_TOKEN: <your-token-value>
 
 Two points specific to the push delivery:
 
-- **`token` is in headers, not in the body.** The `token` value from your original transaction request is echoed back in two HTTP request headers: `AUTH-TOKEN` and `AUTH_TOKEN` (both carry the same value). Use either header to authenticate the incoming request on your server — verify it matches the token you sent.
+- **`token` is in headers, not in the body.** The `token` value from your original transaction request is echoed back as the `auth-token` HTTP request header (lowercase — HTTP/2 normalizes all header names to lowercase). Validate it server-side to verify the delivery is genuine.
 - **`recoveredTransaction`** is `true` when the result was delivered via the auto-recovery loop (the terminal could not reach your server on the first attempt). On first-attempt delivery it is `false`.
 
 For the full list of fields in the Transaction Result object, see [Transaction Result Object](/reference/transaction-result-object).
@@ -219,7 +218,7 @@ Net = SALE(1000) - REFUND(500) = 500
 
 ---
 
-## 4 — Worst-case terminal processing timeline
+## 4 — Worst-case terminal processing timeline {#worst-case-terminal-processing-timeline}
 
 Understanding how long the terminal can legitimately be processing helps you set an appropriate active-recovery timeout for your POS. All timeouts below are sourced from the Android SDK source (`Constants.java`, `PendingMessageCommon.kt`).
 

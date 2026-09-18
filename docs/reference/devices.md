@@ -34,7 +34,7 @@ Use the Market filter above the gallery to show only devices deployed in a speci
 
 ## HiLite (DATECS)
 
-Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android or iOS host device running the Handpoint SDK. Comes pre-injected for the Handpoint production environment with a TEST/DEMO merchant for development. Request a device from your referring partner — see [Development hardware](/get-started/development-hardware).
+Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android or iOS host device running the Handpoint SDK. Comes pre-injected for the Handpoint production environment with a TEST/DEMO merchant for development. Request a device from your referring partner — see [Development hardware](/reference/development-hardware).
 
 ### HiLite
 
@@ -53,7 +53,7 @@ Bluetooth card reader manufactured by DATECS. Connects wirelessly to an Android 
 
 ## PAX terminals
 
-Android-based smart terminals. Support two integration paths: Android SDK (code runs natively on the device) or REST API (your POS calls the Handpoint Cloud, which commands the terminal in integrated mode). PAX production devices reject unsigned APKs — a PAX debug device is required for SDK development. See [Development hardware](/get-started/development-hardware).
+Android-based smart terminals. Support two integration paths: Android SDK (code runs natively on the device) or REST API (your POS calls the Handpoint Cloud, which commands the terminal in integrated mode). PAX production devices reject unsigned APKs — a PAX debug device is required for SDK development. See [Development hardware](/reference/development-hardware).
 
 ### PAX A920
 

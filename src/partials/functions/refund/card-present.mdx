@@ -105,6 +105,49 @@ handpoint.refund(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+
+// Linked refund
+const { transactionResult } = hp.refund(
+  1000,
+  'USD',
+  { originalTransactionId: '01236fc0-8192-11eb-9aca-ad4b0e95f241' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') { /* refund accepted */ }
+
+// Unlinked refund — pass a fresh transactionReference; omit originalTransactionId
+const { transactionResult: unlinked } = hp.refund(
+  1000,
+  'USD',
+  { transactionReference: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' }
+);
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Linked refund
+var op = hapi.Refund(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID
+);
+
+// Unlinked refund — omit the originalTransactionID argument
+var op = hapi.Refund(new BigInteger(1000), Currency.USD);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### Parameters
@@ -124,5 +167,77 @@ handpoint.refund(
 | Code | Meaning | Recovery |
 |---|---|---|
 | `DECLINED` | Amount exceeds original or issuer declined | Reduce amount to at most original `totalAmount`; contact acquirer support |
-| `ORIGINAL_NOT_FOUND` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the sale result |
+| `ORIGINAL_NOT_FOUND` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the sale result, not `eFTTransactionID` |
+| `UNLINKED_REFUND_NOT_ALLOWED` | Acquirer does not permit unlinked refunds | Always include `originalTransactionId` for this acquirer |
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Partial refund | Send less than the original `totalAmount` — acquirer caps at the original amount; do not exceed it |
+| Multiple partial refunds | Each linked refund reduces the refundable balance; sending more than the cumulative remaining amount will decline |
+| Wallet vs physical card | If same-card verification is enabled, Apple Pay / Google Pay taps produce different PAN tokens from a physical card insert — the cardholder must use the same payment method as the original sale |
+| Refund of a tipped sale | Include the full `totalAmount` (base + tip) if refunding the whole transaction; a partial refund should target the base only unless the acquirer allows tip refunds |
+| Already settled | Linked refunds work post-settlement — this is the correct path after batch close |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Full linked refund | Complete a sale, then send a refund with `originalTransactionId` for the full amount — verify `AUTHORISED` |
+| Partial linked refund | Send refund for less than the original amount — verify `AUTHORISED` and correct `totalAmount` |
+| Over-amount linked refund | Send refund for more than the original amount — verify `DECLINED` |
+| Unlinked refund | Omit `originalTransactionId`, include `transactionReference` — verify acquirer allows it |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hapi.refund(amount, currency, originalTransactionID)` — verify `AUTHORISED` in `endOfTransaction` |
+| Unlinked refund | `hapi.refund(amount, currency)` — verify acquirer accepts it |
+| Same card check | Use a different card for refund when same-card enforcement is on — verify `DECLINED` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `heftClient.refundWithAmount:currency:transaction:` — verify result in delegate |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `handpoint.refund()` with `originalTransactionID` — verify `AUTHORISED` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hp.refund(amount, currency, { originalTransactionId })` — verify `finStatus === 'AUTHORISED'` |
+| Unlinked refund | `hp.refund(amount, currency, { transactionReference })` — verify acquirer allows it |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hapi.Refund(amount, currency, originalTransactionID)` — verify `AUTHORISED` in `EndOfTransaction` |
+
+</TabItem>
+</Tabs>

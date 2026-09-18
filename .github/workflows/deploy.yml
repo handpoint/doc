@@ -52,9 +52,9 @@ jobs:
       - name: Deploy to GitHub Pages
         env:
           USE_SSH: true
-          # Explicit, even though it is now the default. This build is public,
-          # so it must never carry pages marked "visibility: internal".
-          DOCS_ENV: production
+          # main is the public production site — internal pages must never appear.
+          # dev is the staging/preview site — internal pages should be visible there.
+          DOCS_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"

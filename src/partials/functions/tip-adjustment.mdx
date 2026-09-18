@@ -1,22 +1,10 @@
 ## Tip Adjustment
 
-#### What this does
-Modifies the tip amount on a completed sale before batch close.
+Modifies the tip amount on a completed sale **before batch close**. Used in restaurant/hospitality flows where the cardholder signs a paper receipt and adds a tip after the initial authorization.
 
-#### When to use it
-Use in restaurant/hospitality flows where the cardholder adds a tip after the initial transaction is approved. Do NOT use after batch close — send a Refund for the difference instead.
-
-#### Implementation notes
-
-1. **Last adjustment wins.** Each call replaces the previous tip value — there is no accumulation. If the cardholder adds $2 and then changes it to $5, send $5 as the full tip. To void a tip that was already set, send `amount: 0`.
-2. **Deadline: before batch close.** The cut-off time is determined by your acquirer and the merchant's onboarding configuration, not by a fixed clock time. Contact your Handpoint integration engineer for the exact cut-off for your merchant. After close, the transaction has settled and only a post-settlement Refund is possible.
-3. **Acquirer-specific restriction — TSYS:** tip adjustment is only available on transactions where **no tip was collected on-screen during the original sale** (tip-at-table flow). If the original sale included an on-screen tip prompt, TSYS will reject the tip adjustment. For TSYS merchants using on-screen tips, use tip adjustment only when the sale was processed without a tip prompt.
-4. **No card required.** The terminal must be connected and idle. The cardholder does not need to be present.
-5. **Math:** the cardholder is charged `original_sale_amount + tip_amount` at settlement. Tip adjustment does not replace the original transaction amount.
-6. **Back-office path works cross-SDK:** a sale made via Android SDK can have its tip adjusted via Cloud API. The integration path used for the sale does not constrain the tip adjustment path.
-7. **`tipAdjustment()` is synchronous on the Android SDK** — it returns a `Boolean` directly. There is no `endOfTransaction` callback for this operation. `true` = adjustment accepted by the gateway; `false` = rejected. Check the return value immediately after the call.
-8. **TMS enablement** is set during onboarding by the Handpoint team. Integrators cannot check or enable this via API — contact your Handpoint integration engineer.
-9. iOS HiLite tip adjustment is via `HapiRemoteService.tipAdjustment()` — a server-side call. Use `transactionId` (the internal device number from the original sale's `responseFinanceStatus`) — NOT `eFTTransactionID`. See the iOS tab for the call signature.
+:::info Full guide
+For acquirer restrictions, batch-close deadline, cross-SDK usage, iOS HiLite specifics, and the Sale with Tip vs Tip Adjustment comparison, see the [Tipping Guide](/reference/tipping-guide).
+:::
 
 {/* ACQUIRER_NOTE_INJECTION_POINT */}
 
@@ -68,18 +56,26 @@ val accepted: Boolean = hapi.tipAdjustment(
 </TabItem>
 <TabItem value="ios-hilite" label="iOS (HiLite)">
 
-```swift
-// Tip adjustment via server-side call using HapiRemoteService
-// Use transactionId (internal device number) from the original sale's responseFinanceStatus
+```objc
+// Objective-C — tipAdjustment is a C function declared in HapiRemoteService.h
+#include "HapiRemoteService.h"
+
+// Call setupHandpointApiConnection once at startup (not per-adjustment)
+NSString* sharedSecret = @"YOUR_SHARED_SECRET";
+setupHandpointApiConnection(sharedSecret);
+
+// Tip adjust — use transactionId from the original sale's responseFinanceStatus
 // NOT eFTTransactionID — they are different fields
-hapiRemoteService.tipAdjustment(
-    transaction: originalInfo.transactionId,
-    tipAmount: 900
-) { success in
-    if success {
-        // tip recorded
+NSString* transaction = @"01236fc0-8192-11eb-9aca-ad4b0e95f241";
+BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
+    if (status == TipAdjustmentAuthorised) {
+        // Tip adjustment approved
+    } else if (status == TipAdjustmentDeclined) {
+        // Declined — do not retry
+    } else if (status == TipAdjustmentFailed) {
+        // System error or timeout — safe to retry once
     }
-}
+});
 ```
 
 </TabItem>
@@ -120,4 +116,4 @@ hapiRemoteService.tipAdjustment(
 | `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
 
 #### Testing
-Test tip adjustment on the TEST/DEMO merchant or staging device. TMS enablement must be configured — contact your Handpoint Integration Support engineer for staging TMS setup.
+Test tip adjustment on the TEST/DEMO merchant or staging device. Tip adjustment is enabled by default — no additional configuration required. See the [Tipping guide](/reference/tipping) for full details on tip-at-table flows.

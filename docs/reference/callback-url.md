@@ -17,7 +17,13 @@ Add two fields to any `POST /transactions` request:
 | Field | Type | Description |
 |---|---|---|
 | `callbackUrl` | string | Your server's HTTPS endpoint. Handpoint will POST the transaction result to this URL when ready |
-| `token` | string | A secret you generate — sent as the `Authorization` header on the callback POST. **Must be unique per request** |
+| `token` | string | A secret you generate — sent as the `auth-token` header on the callback POST (HTTP/2 lowercases all headers; equivalent to `AUTH-TOKEN`). **Must be unique per request** |
+
+:::warning SSL certificate compatibility — Android 5.1–12
+PAX terminals run Android 5.1 through 12. The terminal initiates the HTTPS connection to your `callbackUrl` and must verify your TLS certificate against its built-in CA trust store. Older Android versions have a limited set of trusted Certificate Authorities.
+
+Your endpoint's SSL certificate **must be issued by a widely recognized CA** — DigiCert, GlobalSign, or Comodo/Sectigo are all confirmed to work. Self-signed certificates and certificates from newer or uncommon issuers cause a silent TLS handshake failure: the terminal cannot deliver the result, you receive no error, and the result is only recoverable via polling.
+:::
 
 ```json
 {
@@ -40,13 +46,13 @@ Handpoint sends an HTTP `POST` to your `callbackUrl`:
 
 ```http
 POST https://your-server.com/handpoint/result
-Authorization: a1b2c3d4-unique-per-request
+auth-token: a1b2c3d4-unique-per-request
 Content-Type: application/json
 
 { ... transaction result payload ... }
 ```
 
-**The `Authorization` header value is exactly the `token` you sent in the original request.** Validate it server-side to verify the delivery is genuine and matches the transaction you expect.
+**The `auth-token` header value is exactly the `token` you sent in the original request.** Validate it server-side to verify the delivery is genuine and matches the transaction you expect.
 
 **The payload is identical to the polling result** — the same `TransactionResult` JSON object you would receive from `GET /transaction-result/{transactionResultId}`. See [Transaction Result Object](/reference/transaction-result-object) for the full field reference.
 
@@ -54,7 +60,7 @@ Content-Type: application/json
 
 - Generate a unique value per transaction — a UUID v4 is ideal
 - Store it alongside the `transactionReference` before sending the request
-- Validate the `Authorization` header on receipt to confirm the delivery belongs to your transaction
+- Validate the `auth-token` header on receipt to confirm the delivery belongs to your transaction
 - Do **not** reuse tokens across transactions — the token is the only way to match a callback delivery to an originating request
 
 ## Recovery flow — same as polling
@@ -62,7 +68,7 @@ Content-Type: application/json
 Callback delivery does not replace the recovery flow. If your server is temporarily unavailable, restarts, or misses the delivery for any reason, use the standard recovery path:
 
 ```bash
-curl https://cloud.handpoint.com/transactions/{transactionReference}/status/all \
+curl https://transactions.handpoint.com/transactions/{transactionReference}/status/all \
   -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
 ```
 

@@ -37,11 +37,12 @@ Content-Type: application/json
 
 ```kotlin
 val tipConfig = TipConfiguration(
-    baseAmount     = BigInteger("1000"),
-    tipPercentages = listOf(10, 15, 20),
+    baseAmount = BigInteger("1000"),
+    headerName = "Tip",
+    tipPercentages = listOf(5, 10, 15, 20),
     enterAmountEnabled = true,
-    skipEnabled        = true,
-    footer         = "Thank you!"
+    skipEnabled = true,
+    footer = "Thank you!"
 )
 
 val options = SaleOptions()
@@ -61,12 +62,11 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 <TabItem value="android-hilite" label="Android (HiLite)">
 
 ```kotlin
-val tipConfig = TipConfiguration(
-    baseAmount     = BigInteger("1000"),
-    tipPercentages = listOf(10, 15, 20),
-    enterAmountEnabled = true,
-    skipEnabled        = true
-)
+val tipConfig = TipConfiguration()
+tipConfig.baseAmount = BigInteger("1000")
+tipConfig.tipPercentages = listOf(5, 10, 15, 20)
+tipConfig.isEnterAmountEnabled = true
+tipConfig.isSkipEnabled = true
 
 val options = SaleOptions()
 options.tipConfiguration = tipConfig
@@ -99,6 +99,58 @@ handpoint.sale(
 ```
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionReference, transactionResult } = hp.sale(
+  1000,
+  'USD',
+  {
+    terminalType: 'PAXA920',
+    serialNumber: '082104578',
+    tipConfiguration: {
+      baseAmount: 1000,
+      tipPercentages: [10, 15, 20],
+      enterAmountEnabled: true,
+      skipEnabled: true,
+    },
+  }
+);
+
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  console.log('Tip:', result.tipAmount, 'Total:', result.totalAmount);
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var tipConfig = new TipConfiguration
+{
+    BaseAmount = new BigInteger(1000),
+    TipPercentages = new List<int> { 10, 15, 20 },
+    EnterAmountEnabled = true,
+    SkipEnabled = true,
+    Footer = "Thank you!"
+};
+
+var options = new SaleOptions { TipConfiguration = tipConfig };
+var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // result.TipAmount — tip chosen by cardholder
+        // result.TotalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
 </Tabs>
 
 #### TipConfiguration fields
@@ -118,6 +170,98 @@ handpoint.sale(
 | `tipAmount` | Tip amount chosen by the cardholder (minor units) |
 | `totalAmount` | Base amount + tip — what was authorised and will settle |
 
+#### Pre-selected tip (ISV-collected)
+
+Use this variant when your application has **already collected the tip from the cardholder** — for example, your POS shows a custom tip screen and the cardholder selects a tip amount before the card is presented. Pass `TipConfiguration(tipAmount)` with the pre-determined amount; the terminal skips its own tip-selection screen and charges base + tip in a single authorisation.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "tipConfiguration": {
+    "tipAmount": "500"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The terminal charges `amount + tipAmount` in a single authorisation. No tip-selection screen is shown on the terminal.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// ISV collected $5.00 tip on their own screen — pass it directly
+val tipConfig = TipConfiguration(BigInteger("500"))  // terminal skips its tip-selection screen
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+// Cardholder is charged $15.00 total (base $10.00 + pre-selected tip $5.00)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.tipAmount   → 500  (the pre-set tip)
+        // result.totalAmount → 1500 (base + tip)
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val tipConfig = TipConfiguration(BigInteger("500"))
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
 :::note Tip Adjustment vs Sale with Tip
 **Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. Use Sale with Tip when the cardholder is at the terminal; use Tip Adjustment for tip-at-table flows where you capture a signature and enter the tip later.
 :::
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined (after tip selection) | Ask cardholder to try another card |
+| `CANCELLED` | Cardholder cancelled at tip screen or payment screen | No action required — no amount was authorised |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Cardholder skips tip | `tipAmount` is `0` or absent in the result; `totalAmount` equals the base amount |
+| `baseAmount` differs from sale `amount` | Tip percentages are calculated on `baseAmount` — use this intentionally (e.g. to exclude tax from the tip base) |
+| Pre-selected tip + card decline | Full `amount + tipAmount` was attempted; no partial capture — treat as a standard decline |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device.
+
+| Scenario | How to trigger |
+|---|---|
+| Tip from percentage | Set `tipPercentages: [10, 15, 20]` — select a percentage at terminal — verify `tipAmount` and `totalAmount` in result |
+| Custom tip | Set `enterAmountEnabled: true` — enter a custom amount — verify `totalAmount = baseAmount + entered tip` |
+| Skip tip | Set `skipEnabled: true` — select No Tip — verify `tipAmount: 0`, `totalAmount` equals base |
+| Pre-selected tip | Pass `TipConfiguration(tipAmount: 500)` — verify terminal skips tip screen, `totalAmount = amount + 500` |
+| Cardholder cancels | Cancel at tip screen — verify `CANCELLED` and no charge |

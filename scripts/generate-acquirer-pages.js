@@ -7,6 +7,7 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 const ACQUIRERS_FILE = path.join(ROOT, 'data', 'acquirers.yaml');
+const PROCESSORS_FILE = path.join(ROOT, 'data', 'processors.yaml');
 const PARTIALS_DIR = path.join(ROOT, 'src', 'partials', 'functions');
 const OUTPUT_DIR = path.join(ROOT, 'docs', 'acquirers');
 const LLMS_OUT = path.join(ROOT, 'static', 'llms.txt');
@@ -57,12 +58,19 @@ const FLAVOR_DESCRIPTIONS = {
     'sale-and-tokenize': { description: 'On-device · stores card token for future charges' },
   },
   refund: {
-    'card-present':  { description: 'On-device · card present at terminal', anchor: 'emv-refund' },
-    'moto-refund':   { description: 'Back-office · linked to original MOTO sale' },
+    'card-present':      { description: 'On-device · card present at terminal', anchor: 'emv-refund' },
+    'moto-refund':       { description: 'Back-office · linked to original MOTO sale' },
+    'key-entry-refund':  { description: 'On-device · operator keys card number' },
   },
   reversal: {
     'reversal':        { description: 'On-device · no card required' },
     'remote-reversal': { description: 'Back-office · no reader required' },
+  },
+  'pre-auth': {
+    'pre-auth-create':    { description: 'On-device · chip, contactless, or magstripe', anchor: 'pre-auth-create' },
+    'key-entry-pre-auth': { description: 'On-device · operator keys card number', anchor: 'key-entry-pre-auth' },
+    'pre-auth-capture':   { description: 'No card required — settle the held amount', anchor: 'pre-auth-capture' },
+    'pre-auth-void':      { description: 'Release the hold without charging', anchor: 'pre-auth-void' },
   },
   tokenization: {
     'procharge':     { description: 'EPI · proCharge vault — MOTO detokenization by gateway; ISV stays out of PCI scope' },
@@ -73,13 +81,15 @@ const FLAVOR_DESCRIPTIONS = {
 
 const CAPABILITY_ORDER = Object.keys(CAPABILITY_PARTIALS);
 
-const PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'backoffice'];
+const PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'javascript-sdk', 'windows-sdk', 'backoffice'];
 const PATH_LABELS = {
   'cloud-api':      'Cloud API',
   'android-pax':    'Android (PAX)',
   'android-hilite': 'Android (HiLite)',
   'ios-hilite':     'iOS (HiLite)',
   'cordova':        'Cordova',
+  'javascript-sdk': 'JavaScript SDK',
+  'windows-sdk':    'Windows (.NET)',
   'backoffice':     'Backoffice',
 };
 
@@ -132,6 +142,8 @@ function buildFrontmatter(slug, a) {
     'integration-paths:',
     ...integrationPaths.map(p => `  - ${p}`),
     `last-reviewed: "${new Date().toISOString().split('T')[0]}"`,
+    'pagination_next: null',
+    'pagination_prev: null',
     '---',
   ];
   return lines.join('\n');
@@ -298,10 +310,6 @@ function buildFlavorCapabilitySection(cap, capData, acquirer) {
   const heading = CAPABILITY_HEADINGS[cap] || cap.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   const anchor = cap;
 
-  const noteBlock = acquirer.notes
-    ? `\n:::note ${acquirer.name}\n${acquirer.notes.trim()}\n:::\n`
-    : '';
-
   const flavorBlocks = Object.entries(capData.flavors)
     .filter(([, fd]) => isFlavorVisible(fd))
     .map(([flavorKey, flavorData]) => buildFlavorBlock(cap, flavorKey, flavorData, acquirer))
@@ -311,14 +319,26 @@ function buildFlavorCapabilitySection(cap, capData, acquirer) {
   return `
 ## ${heading} {#${anchor}}
 
-${noteBlock}
 ${flavorBlocks}
 `;
 }
 
-function buildPage(slug, a) {
+function getProcessorNotes(partialName, knownIssues) {
+  return knownIssues
+    .filter(issue => {
+      const affects = Array.isArray(issue.affects) ? issue.affects : [issue.affects];
+      return affects.includes(partialName);
+    })
+    .map(issue => `:::${issue.severity || 'caution'} ${issue.title}\n${issue.note.trim()}\n:::\n`)
+    .join('\n');
+}
+
+function buildPage(slug, a, processors) {
   const caps = a.capabilities || {};
   const sections = [];
+
+  const processorData = (a.processor && processors[a.processor]) || {};
+  const processorKnownIssues = processorData['known-issues'] || [];
 
   // Determine which top-level capabilities are covered by flavors elsewhere
   // so we can suppress their standalone sections.
@@ -333,6 +353,7 @@ function buildPage(slug, a) {
   }
 
   const hasFlavors = Object.values(caps).some(c => c && c.flavors && Object.keys(c.flavors).length > 0);
+  let usedFlavorSection = false;
 
   for (const cap of CAPABILITY_ORDER) {
     if (!caps[cap] || !isVisible(caps[cap])) continue;
@@ -344,15 +365,24 @@ function buildPage(slug, a) {
       // Render as flavor accordion section
       sections.push(buildFlavorCapabilitySection(cap, capData, a));
     } else {
-      // Existing behavior: render partials directly
-      for (const partialName of (CAPABILITY_PARTIALS[cap] || [])) {
+      // Wrap flat partials in FlavorSection for consistent expandable UX
+      const flatPathArr = PATHS.filter(p => {
+        const v = capData[p];
+        return v === 'public' || v === 'coming-soon';
+      });
+      const pathsJson = JSON.stringify(flatPathArr);
+      const capHeading = CAPABILITY_HEADINGS[cap] || cap;
+      const partials = CAPABILITY_PARTIALS[cap] || [];
+      const isSinglePartial = partials.length === 1;
+      const innerParts = [];
+
+      for (const partialName of partials) {
         const file = path.join(PARTIALS_DIR, `${partialName}.mdx`);
         if (!fs.existsSync(file)) continue;
         let content = fs.readFileSync(file, 'utf8');
-        const note = a.notes
-          ? `:::note ${a.name}\n${a.notes.trim()}\n:::\n`
-          : '';
-        content = content.replace('{/* ACQUIRER_NOTE_INJECTION_POINT */}', note);
+        const processorNote = getProcessorNotes(partialName, processorKnownIssues);
+        const acquirerNote = a.notes ? `:::note ${a.name}\n${a.notes.trim()}\n:::\n` : '';
+        content = content.replace('{/* ACQUIRER_NOTE_INJECTION_POINT */}', processorNote + acquirerNote);
 
         if (partialName === 'moto') {
           const avsCaps = caps['avs-for-moto'];
@@ -365,22 +395,29 @@ function buildPage(slug, a) {
           content = content.replace('{/* AVS_FOR_MOTO_INJECTION_POINT */}', avsNote);
         }
 
-        sections.push(content);
+        // Strip leading ## or ### heading from partial content
+        const headingMatch = content.match(/^#{2,3}\s+([^\n]+)\n\n?/);
+        const rawHeading = headingMatch ? headingMatch[1].trim() : partialName;
+        // Separate "Label {#anchor}" into parts
+        const anchorMatch = rawHeading.match(/^(.*?)\s*\{#([^}]+)\}\s*$/);
+        const partialHeading = anchorMatch ? anchorMatch[1].trim() : rawHeading.replace(/\s*\{#[^}]+\}/, '').trim();
+        const partialAnchor = anchorMatch ? anchorMatch[2] : partialName;
+        const strippedContent = headingMatch ? content.slice(headingMatch[0].length) : content;
+
+        let block = '';
+        if (!isSinglePartial) {
+          block += `### ${partialHeading} {#${partialAnchor}}\n\n`;
+        }
+        block += `<FlavorSection paths={${pathsJson}}>\n\n${strippedContent.trim()}\n\n</FlavorSection>`;
+        innerParts.push(block);
+      }
+
+      if (innerParts.length > 0) {
+        sections.push(`\n## ${capHeading} {#${cap}}\n\n${innerParts.join('\n\n')}\n`);
+        usedFlavorSection = true;
       }
     }
   }
-
-  const notesBlock = a.notes
-    ? `:::info Acquirer notes\n${a.notes.trim()}\n:::\n`
-    : '';
-
-  // Strip 'flavors' from the caps JSON passed to CapabilitySummary (it doesn't need it)
-  const capsForComponent = {};
-  for (const [k, v] of Object.entries(caps)) {
-    const {flavors: _f, ...pathMap} = v;
-    capsForComponent[k] = pathMap;
-  }
-  const capsJson = JSON.stringify(capsForComponent);
 
   const imports = [
     "import Tabs from '@theme/Tabs';",
@@ -388,9 +425,8 @@ function buildPage(slug, a) {
     "import NotSupported from '@site/src/components/NotSupported';",
     "import ComingSoon from '@site/src/components/ComingSoon';",
     "import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';",
-    "import CapabilitySummary from '@site/src/components/CapabilitySummary';",
   ];
-  if (hasFlavors) {
+  if (hasFlavors || usedFlavorSection) {
     imports.push("import FlavorSection from '@site/src/components/FlavorSection';");
   }
 
@@ -399,15 +435,8 @@ function buildPage(slug, a) {
     '',
     ...imports,
     '',
-    `export const _caps = ${capsJson};`,
-    '',
     `<AcquirerPageHeader currentSlug="${slug}" />`,
     '',
-    '## Functionalities',
-    '',
-    '<CapabilitySummary capabilities={_caps} />',
-    '',
-    notesBlock,
     ...sections,
   ].join('\n');
 }
@@ -514,6 +543,9 @@ function main() {
   const raw = yaml.load(fs.readFileSync(ACQUIRERS_FILE, 'utf8'));
   const acquirers = raw.acquirers || raw;
 
+  const processorsRaw = yaml.load(fs.readFileSync(PROCESSORS_FILE, 'utf8'));
+  const processors = processorsRaw.processors || processorsRaw;
+
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   fs.mkdirSync(path.dirname(LLMS_OUT), { recursive: true });
   fs.mkdirSync(path.dirname(ACQUIRERS_DATA_OUT), { recursive: true });
@@ -525,7 +557,7 @@ function main() {
       console.log(`  ↷ Skipping ${slug}.mdx (hand-crafted; skip-generate: true in acquirers.yaml)`);
       continue;
     }
-    fs.writeFileSync(path.join(OUTPUT_DIR, `${slug}.mdx`), buildPage(slug, a));
+    fs.writeFileSync(path.join(OUTPUT_DIR, `${slug}.mdx`), buildPage(slug, a, processors));
     count++;
   }
 
@@ -533,7 +565,14 @@ function main() {
   fs.writeFileSync(ACQUIRERS_DATA_OUT, buildAcquirersData(acquirers));
   fs.writeFileSync(ACQUIRER_DETAILS_OUT, buildAcquirerDetailsData(acquirers));
 
-  console.log(`✓ Generated ${count} acquirer pages + static/llms.txt + src/data/acquirers.js + src/data/acquirerDetails.js`);
+  // Also regenerate the capability matrix data file
+  try {
+    require('./generate-matrix-data');
+  } catch (e) {
+    console.warn('[matrix] generate-matrix-data.js failed:', e.message);
+  }
+
+  console.log(`✓ Generated ${count} acquirer pages + static/llms.txt + src/data/acquirers.js + src/data/acquirerDetails.js + src/data/acquirerMatrix.js`);
 }
 
 if (require.main === module) main();

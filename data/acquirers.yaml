@@ -13,7 +13,7 @@ acquirers:
     name: "EPI"
     geography: "US, Canada"
     status: active
-    skip-generate: true  # MDX is hand-crafted; generator still includes EPI in llms.txt / acquirers.js
+    processor: tsys
     card-brands: [VISA, MC, Discover]
     interac: false
     reversal-partial: true
@@ -29,6 +29,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           emv-sale:
             label: "EMV Sale"
@@ -37,10 +39,14 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           key-entry-sale:
             label: "Key Entry Sale"
             cloud-api: public
             android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-sale:
             label: "Remote Sale (MOTO)"
             cloud-api: not-supported
@@ -53,6 +59,8 @@ acquirers:
             android-pax: public
             android-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           sale-and-tokenize:
             label: "Sale with Tokenization"
             cloud-api: public
@@ -60,12 +68,16 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           card-present:
             label: "EMV Refund"
@@ -74,18 +86,30 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-refund:
             label: "Remote Refund (MOTO)"
             cloud-api: not-supported
             android-pax: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
             backoffice: public
+          key-entry-refund:
+            label: "Key Entry Refund"
+            cloud-api: public
+            android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
         flavors:
           reversal:
@@ -95,6 +119,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           remote-reversal:
             label: "Remote Reversal"
             cloud-api: public
@@ -112,7 +138,38 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
+        flavors:
+          pre-auth-create:
+            label: "Pre-Auth Create"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          key-entry-pre-auth:
+            label: "Key Entry Pre-Auth"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          pre-auth-capture:
+            label: "Pre-Auth Capture"
+            backoffice: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          pre-auth-void:
+            label: "Pre-Auth Reversal"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       moto:
         cloud-api: public
         android-pax: public
@@ -161,10 +218,191 @@ acquirers:
         # Full detail: docs/reference/fee-mitigation.mdx
         cloud-api: coming-soon
         android-pax: public
+  paysafe:
+    name: "PAYSAFE"
+    geography: "US & Canada"
+    status: active
+    processor: tsys
+    card-brands: [VISA, MC, AMEX, Discover, Interac]
+    interac: true
+    notes: >
+      PAYSAFE merchants may be onboarded on TSYS, TNS, or both. When a merchant has
+      both processors configured, the Handpoint gateway routes based on card type:
+      Interac cards → TNS (card-present only), all other cards → TSYS.
+      INTERAC VOID: For Interac card transactions, show VOID in your UI — not Refund
+      or Reverse. The only post-sale correction is VOID (full amount, card must be
+      present at terminal). Standard refund is not available for Interac.
+      BATCHING: Batch close applies to TSYS (non-Interac) transactions only. TNS
+      (Interac) transactions settle independently and do not participate in the TSYS batch.
+      Paysafe single-use token: requires merchant onboarding by Paysafe/Handpoint
+      before use.
+    capabilities:
+      sale:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+        javascript-sdk: public
+        windows-sdk: public
+        flavors:
+          emv-sale:
+            label: "EMV Sale"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          key-entry-sale:
+            label: "Key Entry Sale"
+            cloud-api: public
+            android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
+          moto-sale:
+            label: "Remote Sale (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
+          sale-and-tip:
+            label: "Sale with Tip"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          sale-and-tokenize:
+            label: "Sale with Paysafe Token"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+      refund:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+        javascript-sdk: public
+        windows-sdk: public
+        flavors:
+          card-present:
+            label: "EMV Refund"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          moto-refund:
+            label: "Remote Refund (MOTO)"
+            cloud-api: not-supported
+            android-pax: public
+            cordova: public
+            backoffice: public
+      reversal:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+        javascript-sdk: public
+        windows-sdk: public
+        backoffice: public
+        flavors:
+          reversal:
+            label: "Reversal"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          remote-reversal:
+            label: "Remote Reversal"
+            cloud-api: public
+            backoffice: public
+      tip-adjustment:
+        cloud-api: not-supported
+        android-pax: public
+        android-hilite: public
+        ios-hilite: not-supported
+        cordova: public
+        backoffice: public
+      pre-auth:
+        cloud-api: public
+        android-pax: public
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: public
+        backoffice: public
+      moto:
+        cloud-api: public
+        android-pax: public
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+      tokenization:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+        javascript-sdk: public
+        windows-sdk: public
+        flavors:
+          paysafe-token:
+            label: "Paysafe Single-Use Token"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          tokenex:
+            label: "TokenEx"
+            cloud-api: public
+            android-pax: public
+            android-hilite: public
+            ios-hilite: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+      batching:
+        cloud-api: not-supported
+        android-pax: not-supported
+        android-hilite: not-supported
+        ios-hilite: not-supported
+        cordova: not-supported
+        backoffice: public
+      void:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+      interac:
+        cloud-api: public
+        android-pax: public
+        android-hilite: public
+        ios-hilite: public
+        cordova: public
+
   tsys-tns:
     name: "PAYSAFE + Interac"
     geography: "Canada"
-    status: active
+    status: deprecated
+    processor: tsys
     card-brands: [VISA, MC, Discover, Interac]
     interac: true
     notes: >
@@ -183,6 +421,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           emv-sale:
             label: "EMV Sale"
@@ -191,10 +431,14 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           key-entry-sale:
             label: "Key Entry Sale"
             cloud-api: public
             android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-sale:
             label: "Remote Sale (MOTO)"
             cloud-api: not-supported
@@ -207,6 +451,8 @@ acquirers:
             android-pax: public
             android-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           sale-and-tokenize:
             label: "Sale with Tokenization"
             cloud-api: public
@@ -214,12 +460,16 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           card-present:
             label: "EMV Refund"
@@ -228,6 +478,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-refund:
             label: "Remote Refund (MOTO)"
             cloud-api: not-supported
@@ -240,6 +492,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
         flavors:
           reversal:
@@ -249,6 +503,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           remote-reversal:
             label: "Remote Reversal"
             cloud-api: public
@@ -350,9 +606,10 @@ acquirers:
         cordova: public
 
   paysafe-tsys:
-    name: "PAYSAFE"
+    name: "PAYSAFE (US legacy)"
     geography: "US"
-    status: active
+    status: deprecated
+    processor: tsys
     card-brands: [VISA, MC, AMEX, Discover, Interac]
     interac: true
     notes: >
@@ -368,6 +625,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           emv-sale:
             label: "EMV Sale"
@@ -376,6 +635,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           sale-and-tokenize:
             label: "Sale with Paysafe Token"
             cloud-api: public
@@ -383,18 +644,24 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           sale-and-tip:
             label: "Sale with Tip"
             cloud-api: public
             android-pax: public
             android-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           card-present:
             label: "EMV Refund"
@@ -403,12 +670,16 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
         flavors:
           reversal:
@@ -418,6 +689,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           remote-reversal:
             label: "Remote Reversal"
             cloud-api: public
@@ -435,6 +708,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           paysafe-token:
             label: "Paysafe Single-Use Token"
@@ -443,6 +718,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           tokenex:
             label: "TokenEx"
             cloud-api: public
@@ -450,11 +727,14 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
 
-  omnipay-emp:
+  emerchantpay:
     name: "EmerchantPay"
     geography: "EU"
     status: active
+    processor: omnipay
     card-brands: [VISA, MC, AMEX, UnionPay]
     interac: false
     notes: >
@@ -475,6 +755,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           emv-sale:
             label: "EMV Sale"
@@ -483,10 +765,14 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           key-entry-sale:
             label: "Key Entry Sale"
             cloud-api: public
             android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-sale:
             label: "Remote Sale (MOTO)"
             cloud-api: not-supported
@@ -500,18 +786,24 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           sale-and-tip:
             label: "Sale with Tip"
             cloud-api: public
             android-pax: public
             android-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           card-present:
             label: "EMV Refund"
@@ -520,18 +812,30 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-refund:
             label: "Remote Refund (MOTO)"
             cloud-api: not-supported
             android-pax: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
             backoffice: public
+          key-entry-refund:
+            label: "Key Entry Refund"
+            cloud-api: public
+            android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
         flavors:
           reversal:
@@ -541,6 +845,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           remote-reversal:
             label: "Remote Reversal"
             cloud-api: public
@@ -551,7 +857,38 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
+        flavors:
+          pre-auth-create:
+            label: "Pre-Auth Create"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          key-entry-pre-auth:
+            label: "Key Entry Pre-Auth"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          pre-auth-capture:
+            label: "Pre-Auth Capture"
+            backoffice: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          pre-auth-void:
+            label: "Pre-Auth Reversal"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       moto:
         cloud-api: public
         android-pax: public
@@ -564,6 +901,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           tokenex:
             label: "TokenEx"
@@ -572,6 +911,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       money-remittance:
         cloud-api: public
         android-pax: public
@@ -642,10 +983,11 @@ acquirers:
         ios-hilite: public
         cordova: public
 
-  omnipay-paystrax:
+  paystrax:
     name: "Paystrax"
     geography: "EU"
     status: active
+    processor: omnipay
     card-brands: [VISA, MC, AMEX, UnionPay]
     interac: false
     notes: >
@@ -666,6 +1008,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           emv-sale:
             label: "EMV Sale"
@@ -674,10 +1018,14 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           key-entry-sale:
             label: "Key Entry Sale"
             cloud-api: public
             android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-sale:
             label: "Remote Sale (MOTO)"
             cloud-api: not-supported
@@ -691,18 +1039,24 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           sale-and-tip:
             label: "Sale with Tip"
             cloud-api: public
             android-pax: public
             android-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       refund:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           card-present:
             label: "EMV Refund"
@@ -711,18 +1065,30 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           moto-refund:
             label: "Remote Refund (MOTO)"
             cloud-api: not-supported
             android-pax: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
             backoffice: public
+          key-entry-refund:
+            label: "Key Entry Refund"
+            cloud-api: public
+            android-pax: public
+            javascript-sdk: public
+            windows-sdk: public
       reversal:
         cloud-api: public
         android-pax: public
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
         flavors:
           reversal:
@@ -732,6 +1098,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
           remote-reversal:
             label: "Remote Reversal"
             cloud-api: public
@@ -748,7 +1116,38 @@ acquirers:
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         backoffice: public
+        flavors:
+          pre-auth-create:
+            label: "Pre-Auth Create"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          key-entry-pre-auth:
+            label: "Key Entry Pre-Auth"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          pre-auth-capture:
+            label: "Pre-Auth Capture"
+            backoffice: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
+          pre-auth-void:
+            label: "Pre-Auth Reversal"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       moto:
         cloud-api: public
         android-pax: public
@@ -761,6 +1160,8 @@ acquirers:
         android-hilite: public
         ios-hilite: public
         cordova: public
+        javascript-sdk: public
+        windows-sdk: public
         flavors:
           tokenex:
             label: "TokenEx"
@@ -769,6 +1170,8 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
+            javascript-sdk: public
+            windows-sdk: public
 
   teya:
     name: "TEYA (Borgun)"

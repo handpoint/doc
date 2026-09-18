@@ -126,8 +126,8 @@ async function recoverInBackground(ref, saleOp) {
     await sleep(POLL_INTERVAL_MS)
 
     const response = await fetch(
-      `https://cloud.handpoint.com/transactions/${ref}`,
-      { headers: { Authentication: 'YOUR_API_KEY' } }
+      `https://transactions.handpoint.com/transactions/${ref}/status`,
+      { headers: { ApiKeyCloud: 'YOUR_API_KEY' } }
     ).catch(() => null)
 
     if (!response?.ok) continue

@@ -38,7 +38,34 @@ function cellIcon(value) {
   return '❌';
 }
 
+// Translate YAML-format _caps keys (cordova, windows-sdk, backoffice) to the
+// split-path keys that acquirerCaps.js and PATH_LABELS expect. If the data is
+// already in split-path format (e.g. from acquirerCaps.js), this is a no-op.
+function normalizeCaps(capabilities) {
+  const result = {};
+  for (const [cap, pathMap] of Object.entries(capabilities)) {
+    const m = { ...pathMap };
+    if ('cordova' in m) {
+      m['cordova-pax'] = m['cordova-pax'] ?? m['cordova'];
+      m['cordova-hilite'] = m['cordova-hilite'] ?? m['cordova'];
+      delete m['cordova'];
+    }
+    if ('windows-sdk' in m) {
+      m['windows-sdk-pax'] = m['windows-sdk-pax'] ?? m['windows-sdk'];
+      m['windows-sdk-bt']  = m['windows-sdk-bt']  ?? m['windows-sdk'];
+      delete m['windows-sdk'];
+    }
+    if ('backoffice' in m) {
+      m['back-office'] = m['back-office'] ?? m['backoffice'];
+      delete m['backoffice'];
+    }
+    result[cap] = m;
+  }
+  return result;
+}
+
 export default function CapabilitySummary({capabilities}) {
+  const normalizedCaps = normalizeCaps(capabilities);
   const [selectedPath, setSelectedPath] = useState(() => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem(STORAGE_KEY) || '';
@@ -63,14 +90,14 @@ useEffect(() => {
 
   // Paysafe Portal column only shown when this acquirer has at least one capability on that path
   const hasPortal = PORTAL_PATHS.some(p =>
-    DISPLAY_ORDER.some(cap => capabilities[cap] && capabilities[cap][p] === 'public')
+    DISPLAY_ORDER.some(cap => normalizedCaps[cap] && normalizedCaps[cap][p] === 'public')
   );
-  const pathsToShow = [...new Set([...cardPresentCols, ...BACK_OFFICE_PATHS, ...(hasPortal ? PORTAL_PATHS : [])])];
+  const pathsToShow = Array.from(new Set([...cardPresentCols, ...BACK_OFFICE_PATHS, ...(hasPortal ? PORTAL_PATHS : [])]));
 
   // Only show capability rows supported on at least one visible path
   const visibleCaps = DISPLAY_ORDER.filter(cap => {
-    if (!capabilities[cap]) return false;
-    return pathsToShow.some(p => (capabilities[cap] || {})[p] === 'public');
+    if (!normalizedCaps[cap]) return false;
+    return pathsToShow.some(p => (normalizedCaps[cap] || {})[p] === 'public');
   });
 
   return (
@@ -110,7 +137,7 @@ useEffect(() => {
                       key={p}
                       className={['cap-cell', isFirstBackOffice ? 'cap-col--backoffice-start' : '', isFirstPortal ? 'cap-col--portal-start' : ''].filter(Boolean).join(' ')}
                     >
-                      {cellIcon((capabilities[cap] || {})[p])}
+                      {cellIcon((normalizedCaps[cap] || {})[p])}
                     </td>
                   );
                 })}
@@ -120,18 +147,6 @@ useEffect(() => {
         </table>
       )}
 
-      {selectedPath === 'cloud-api' && (
-        <p className="capability-summary-note">
-          <small>
-            All Cloud API operations (except Back Office) command a PAX terminal via the Handpoint Cloud.
-          </small>
-        </p>
-      )}
-      <p className="capability-summary-note">
-        <small>
-          <strong>Backoffice</strong> — REST API operations sent directly to the payment gateway, bypassing the terminal SDK. Transactions do not appear in the device app transaction history. Reversal (<code>POST /reversal</code>) is available to all acquirers. Sale and refund require card-present at the terminal and are not available via Backoffice. Remote Sale (MOTO) is a separate server-side capability that requires merchant onboarding.
-        </small>
-      </p>
       {hasPortal && (
         <p className="capability-summary-note">
           <small>

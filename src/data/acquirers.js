@@ -8,22 +8,17 @@ export const ACQUIRERS = [
     "geography": "US, Canada"
   },
   {
-    "slug": "tsys-tns",
-    "name": "PAYSAFE + Interac",
-    "geography": "Canada"
-  },
-  {
-    "slug": "paysafe-tsys",
+    "slug": "paysafe",
     "name": "PAYSAFE",
-    "geography": "US"
+    "geography": "US & Canada"
   },
   {
-    "slug": "omnipay-emp",
+    "slug": "emerchantpay",
     "name": "EmerchantPay",
     "geography": "EU"
   },
   {
-    "slug": "omnipay-paystrax",
+    "slug": "paystrax",
     "name": "Paystrax",
     "geography": "EU"
   }

@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 # Android SDK (PAX) — Integration Guide
 
 :::info AI coding agents
-Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/android-pax.md`](/.well-known/skills/paths/android-pax.md)
+Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/android-pax.md`](pathname:///.well-known/skills/paths/android-pax.md)
 :::
 
 :::info Cloud API integrated mode

@@ -39,7 +39,6 @@ const sidebars = {
           items: [
             { type: 'doc', id: 'acquirers/emerchantpay', label: 'EmerchantPay' },
             { type: 'doc', id: 'acquirers/paystrax',     label: 'Paystrax' },
-            'acquirers/smartboard',
           ],
         },
         {
@@ -63,18 +62,59 @@ const sidebars = {
       items: [
         {
           type: 'category',
-          label: 'Setup & Authentication',
+          label: 'Setup & Integration',
           items: [
             'reference/authentication',
-            'reference/android-sdk-setup',
-            'reference/android-integration-walkthrough',
-            'reference/android-pax-integration-guide',
-            'reference/android-hilite-integration-walkthrough',
-            'reference/android-cloud-api-integration-guide',
-            'reference/android-demo-app',
-            'reference/javascript-sdk-setup',
-            'reference/cloud-api-integration-guide',
-            'reference/windows-sdk-setup',
+            {
+              type: 'category',
+              label: 'Android SDK',
+              items: [
+                'reference/android-sdk-setup',
+                'reference/android-pax-integration-guide',
+                'reference/android-integration-walkthrough',
+                'reference/android-hilite-integration-guide',
+                'reference/android-hilite-integration-walkthrough',
+                'reference/android-cloud-api-integration-guide',
+                'reference/android-demo-app',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'iOS SDK',
+              items: [
+                'reference/ios-hilite-integration-guide',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'JavaScript SDK',
+              items: [
+                'reference/javascript-sdk-setup',
+                'reference/javascript-sdk-integration-guide',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Windows SDK (.NET)',
+              items: [
+                'reference/windows-sdk-setup',
+                'reference/windows-sdk-integration-guide',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Cloud API',
+              items: [
+                'reference/cloud-api-integration-guide',
+              ],
+            },
+            {
+              type: 'category',
+              label: 'Cordova Plugin',
+              items: [
+                'reference/cordova-integration-guide',
+              ],
+            },
           ],
         },
         {
@@ -130,17 +170,20 @@ const sidebars = {
           label: 'Technical Reference',
           items: [
             'reference/transaction-result-object',
+            'reference/android-objects-reference',
+            'reference/android-events-reference',
+            'reference/windows-objects-reference',
+            'reference/javascript-objects-reference',
             'reference/error-codes',
             'reference/error-handling-guide',
             'reference/cloud-api-operations',
             'reference/cordova-events',
-            'reference/acquirer-capabilities-matrix',
             'reference/receipt-compliance',
             'reference/glossary',
             {
               type: 'link',
               label: 'OpenAPI Specification',
-              href: '/openapi.yaml',
+              href: 'pathname:///openapi.yaml',
             },
           ],
         },
@@ -161,6 +204,11 @@ const sidebars = {
       id: 'release-notes/release-notes',
       label: 'Release Notes',
     },
+  ],
+
+  internalSidebar: [
+    'reference/full-matrix',
+    'reference/acquirer-capabilities-matrix',
   ],
 
   deprecatedSidebar: [

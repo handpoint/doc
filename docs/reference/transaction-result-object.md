@@ -198,7 +198,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 |---|---|---|
 | `merchantReceipt` | string | Merchant receipt. Three possible forms: (1) a `https://receipts.handpoint.io/...` URL when successfully uploaded to cloud storage; (2) raw HTML if S3 upload failed or for MOTO on-terminal (check `startsWith("<")`); (3) empty string `""` if the SDK lost connection before receiving a response or if `finStatus` is `UNDEFINED`. Always handle all three cases. |
 | `customerReceipt` | string | Customer receipt. Same three forms as `merchantReceipt` — URL, raw HTML, or empty string `""`. Always handle all three cases. |
-| `signatureUrl` | string | URL of the captured signature image (if signature CVM was used). Empty otherwise. |
+| `signatureUrl` | string | Captured signature image. Two possible forms: (1) `https://` URL when successfully uploaded to Handpoint's servers (normal case); (2) raw base64-encoded image binary if the upload failed and the terminal could not reach Handpoint servers. Always check `value.startsWith("http")` to determine which form you received before displaying. Empty string `""` if no signature CVM was used. |
 
 ### Device
 
@@ -580,7 +580,7 @@ deprecated object keeps working.
 |---|---|---|
 | `merchantReceipt` | String | Merchant receipt. Three possible forms: (1) a `https://receipts.handpoint.io/...` URL when successfully uploaded; (2) raw HTML if S3 upload failed or for MOTO on-terminal (check `startsWith("<")`); (3) empty string `""` if connection was lost before a response arrived or if `finStatus` is `UNDEFINED`. Handle all three cases. |
 | `customerReceipt` | String | Customer receipt. Same three forms as `merchantReceipt` — URL, raw HTML, or empty string `""`. |
-| `signatureUrl` | String | URL of captured signature image. Empty if no signature. |
+| `signatureUrl` | String | Captured signature image. Two possible forms: (1) `https://` URL when successfully uploaded to Handpoint's servers (normal case); (2) raw base64-encoded image binary if the upload failed. Always check `value.startsWith("http")` to determine which form you received before displaying. Empty string `""` if no signature CVM was used. |
 
 ### Device
 

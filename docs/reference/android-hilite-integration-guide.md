@@ -10,7 +10,7 @@ import TabItem from '@theme/TabItem';
 # Android SDK (HiLite) — Integration Guide
 
 :::info AI coding agents
-Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/android-hilite.md`](/.well-known/skills/paths/android-hilite.md)
+Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/android-hilite.md`](pathname:///.well-known/skills/paths/android-hilite.md)
 :::
 
 ## What is this integration path?

@@ -42,7 +42,7 @@ Content-Type: application/json
 }
 ```
 
-The `transactionReference` must be a unique UUID v4 per request — use it to retrieve the result via `GET /transaction-result/{transactionResultId}` if no `callbackUrl` is provided.
+The 202 response returns a `transactionResultId` — poll `GET /transaction-result/{transactionResultId}` on `cloud.handpoint.com` for the outcome. Your `transactionReference` UUID v4 can also be used to query the full operation chain via `GET /transactions/{transactionReference}/status/all` on `transactions.handpoint.com`.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -83,8 +83,8 @@ heftClient.saleWithAmount(1000, currency: "USD")
 
 // Result arrives in your delegate:
 func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
-    if info.statusCode == EFT_PP_STATUS_SUCCESS {
-        // use info.eFTTransactionID, info.finStatus, info.merchantReceipt, etc.
+    if info.finStatus() == "AUTHORISED" {
+        // store info.eFTTransactionID() for potential reversal
     }
 }
 ```
