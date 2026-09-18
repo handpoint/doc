@@ -366,7 +366,7 @@ val accepted: Boolean = hapi.tipAdjustment(
 
 | Operation | Acquirer support |
 |---|---|
-| **Sale** | [Acquirer matrix](/reference/acquirer-capabilities-matrix) — `android-pax` column |
+| **Sale** | See your acquirer's page: [EPI](/acquirers/epi) · [PAYSAFE](/acquirers/paysafe) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) |
 | **Refund** | |
 | **Reversal / Void** | |
 | **Pre-Authorization** (create, capture, increase, reverse) | |
@@ -404,3 +404,8 @@ Funds are never moved on DEMO merchants.
 → Full scenario checklist: [Validate your integration — Android SDK](/reference/validate-integration-android-sdk)
 
 → Error codes: [Error codes](/reference/error-codes)
+
+## See Also
+
+- [Android Objects Reference](/reference/android-objects-reference) — full type definitions for transaction results, options, and enums
+- [Android Events Reference](/reference/android-events-reference) — all SDK callback events and their payloads

@@ -29,7 +29,7 @@ More than start a transaction. Handpoint gives your software ways to stay involv
 | **Transaction feed** | Query and stream transaction data for reporting, reconciliation, and support tools |
 | **Payment tokens** | Return a token from an in-person transaction for eligible recurring or back-office workflows |
 
-For the full list of what each acquirer supports, see the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix). For a list of supported hardware, see [Supported Devices](/reference/devices).
+For supported features by acquirer, see the [EPI](/acquirers/epi), [PAYSAFE](/acquirers/paysafe), [EmerchantPay](/acquirers/emerchantpay), and [Paystrax](/acquirers/paystrax) acquirer pages. For a list of supported hardware, see [Supported Devices](/reference/devices).
 
 ---
 
@@ -307,7 +307,7 @@ Fetch `/llms.txt` first — it contains the machine-readable acquirer × feature
 
 **Integration paths are not mutually exclusive.** A single ISV can implement multiple paths under one Handpoint account. Example: Cloud API at the counter + Android HiLite for field staff + back-office MOTO for phone orders — all sharing the same merchant credentials and transaction feed.
 
-**Back-office operations are always available regardless of integration path.** Tip adjustment, reversal, refund, MOTO, pre-auth capture, and deferred tokenization are server-side REST calls that work alongside any card-present integration. Subject to acquirer support — see the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix).
+**Back-office operations are always available regardless of integration path.** Tip adjustment, reversal, refund, MOTO, pre-auth capture, and deferred tokenization are server-side REST calls that work alongside any card-present integration. Subject to acquirer support — see your acquirer's page for per-feature availability: [EPI](/acquirers/epi) · [PAYSAFE](/acquirers/paysafe) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax).
 
 ---
 

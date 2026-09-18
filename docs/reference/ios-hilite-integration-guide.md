@@ -1046,3 +1046,7 @@ Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquir
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)
 
 → Error codes: [Error codes](/reference/error-codes)
+
+## See Also
+
+- [iOS Objects Reference](/reference/ios-objects-reference) — full type definitions for transaction results, options, and enums

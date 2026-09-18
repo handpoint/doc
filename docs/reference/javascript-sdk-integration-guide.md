@@ -789,3 +789,7 @@ const closed = await hp.closeBatch(serialNumber, deviceType, batchNumber);
 → Error codes: [Error codes](/reference/error-codes)
 
 → Objects reference: [JavaScript Objects Reference](/reference/javascript-objects-reference)
+
+## See Also
+
+- [JavaScript Objects Reference](/reference/javascript-objects-reference) — full type definitions for transaction results, options, and enums

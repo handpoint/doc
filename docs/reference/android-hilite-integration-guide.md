@@ -217,7 +217,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 HiLite does not support `getTransactionStatus`. If the result is not delivered:
 
 1. Mark the transaction as pending in your database.
-2. If a Cloud API key is available, poll `GET https://cloud.handpoint.com/transactions/{transactionReference}` from your server.
+2. If a Cloud API key is available, poll `GET https://transactions.handpoint.com/transactions/{transactionReference}/status/all` from your server.
 3. On `AUTHORISED` with no prior record, send a remote reversal via the Cloud API.
 
 Always persist `transactionReference` before starting a transaction.
@@ -239,7 +239,7 @@ Always persist `transactionReference` before starting a transaction.
 
 \* Available server-side via [Remote Sale & Refund guide](/reference/moto-guide) — no reader required.
 
-Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `android-hilite` column.
+Acquirer-specific availability: see your acquirer's page for supported features: [EPI](/acquirers/epi) · [PAYSAFE](/acquirers/paysafe) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax).
 
 ## Validation & certification
 
@@ -253,3 +253,8 @@ Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquir
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)
 
 → Error codes: [Error codes](/reference/error-codes)
+
+## See Also
+
+- [Android Objects Reference](/reference/android-objects-reference) — full type definitions for transaction results, options, and enums
+- [Android Events Reference](/reference/android-events-reference) — all SDK callback events and their payloads

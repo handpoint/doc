@@ -230,7 +230,7 @@ if (pending) startBackgroundRecovery(pending.ref);
 | **Get Transaction Status** | `HAPI.getTransactionStatus({ transactionReference })` |
 | **Stop Transaction** | `HAPI.stopCurrentTransaction()` |
 
-Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `cordova` column.
+Acquirer-specific availability: see your acquirer's page for supported features: [EPI](/acquirers/epi) · [PAYSAFE](/acquirers/paysafe) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax).
 
 ## Test amounts
 
@@ -249,3 +249,8 @@ Pass amounts in **minor units** (cents / pence). Use the full trigger table — 
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)
 
 → Error codes: [Error codes](/reference/error-codes)
+
+## See Also
+
+- [Cordova Objects Reference](/reference/cordova-objects-reference) — full type definitions for transaction results, options, and enums
+- [Cordova Events Reference](/reference/cordova-events) — all SDK callback events and their payloads

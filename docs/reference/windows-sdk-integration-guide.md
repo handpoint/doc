@@ -790,3 +790,7 @@ Control the simulated response via the amount (3rd and 4th positions from the ri
 → Full scenario checklist: [Validate your integration](/reference/validate-integration)
 
 → Error codes: [Error codes](/reference/error-codes)
+
+## See Also
+
+- [Windows Objects Reference](/reference/windows-objects-reference) — full type definitions for transaction results, options, and enums
