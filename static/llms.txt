@@ -1,13 +1,12 @@
 # Handpoint Developer Documentation
 # Fetch the acquirer URL for full implementation detail.
-# Generated: 2026-09-11T16:03:37.794Z
+# Generated: 2026-09-17T16:55:45.835Z
 
 ## Acquirers
-EPI | geography: US, Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(procharge), batching, pre-auth-capture-reversal, avs-for-moto, fee-mitigation | cards: VISA, MC, Discover | url: /acquirers/epi
-PAYSAFE + Interac | geography: Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(paysafe-token+tokenex), batching, void, interac | cards: VISA, MC, Discover, Interac | interac: true | url: /acquirers/tsys-tns
-PAYSAFE | geography: US | sale(emv-sale+sale-and-tokenize+sale-and-tip), refund(card-present), reversal(reversal+remote-reversal), tip-adjustment, tokenization(paysafe-token+tokenex) | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe-tsys
-EmerchantPay | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize+sale-and-tip), refund(card-present+moto-refund), reversal(reversal+remote-reversal), pre-auth, moto, tokenization(tokenex), money-remittance | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-emp
-Paystrax | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize+sale-and-tip), refund(card-present+moto-refund), reversal(reversal+remote-reversal), pre-auth, moto, tokenization(tokenex) | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/omnipay-paystrax
+EPI | geography: US, Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund+key-entry-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth(pre-auth-create+key-entry-pre-auth+pre-auth-capture+pre-auth-void), moto, tokenization(procharge), batching, pre-auth-capture-reversal, avs-for-moto, fee-mitigation | cards: VISA, MC, Discover | url: /acquirers/epi
+PAYSAFE | geography: US & Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(paysafe-token+tokenex), batching, void, interac | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe
+EmerchantPay | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize+sale-and-tip), refund(card-present+moto-refund+key-entry-refund), reversal(reversal+remote-reversal), pre-auth(pre-auth-create+key-entry-pre-auth+pre-auth-capture+pre-auth-void), moto, tokenization(tokenex), money-remittance | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/emerchantpay
+Paystrax | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize+sale-and-tip), refund(card-present+moto-refund+key-entry-refund), reversal(reversal+remote-reversal), pre-auth(pre-auth-create+key-entry-pre-auth+pre-auth-capture+pre-auth-void), moto, tokenization(tokenex) | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/paystrax
 
 ## Integration paths
 cloud-api | cloud/integrated mode | PAX terminal commanded via Handpoint Cloud API
