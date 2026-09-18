@@ -2,7 +2,7 @@
 
 > **INTERNAL ONLY — Handpoint Staff**
 >
-> Files in this directory are **never merged to `dev` or `main`**. They exist only on the `docs-v2` branch.
+> Files in this directory are **never merged to `dev` or `main`**. They exist only on the `internal-preview` branch.
 > Do not include `docs-internal/` in PRs targeting `dev` or `main`.
 > This directory is outside Docusaurus's `docs/` folder and is never built or published.
 

@@ -2,9 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   pull_request:
-    branches: [main, dev]
+    branches: [main, dev, internal-preview]
   push:
-    branches: [main, dev, docs-v2]
+    branches: [main, dev, internal-preview]
   workflow_dispatch:
 
 jobs:
@@ -29,8 +29,8 @@ jobs:
         run: yarn build
 
   # Publishes the public documentation sites. Restricted to main and dev on
-  # purpose: the docs-v2 branch goes to the internal preview job below, and a
-  # GitHub Pages deploy would make its internal-only pages public.
+  # purpose: the internal-preview branch goes to the internal preview job
+  # below, and a GitHub Pages deploy would make its internal-only pages public.
   deploy:
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
     runs-on: ubuntu-latest
@@ -62,11 +62,11 @@ jobs:
           yarn generate
           yarn deploy
 
-  # Internal preview of the docs-v2 branch (Jira PRODUCT-190).
+  # Internal preview of the internal-preview branch (Jira PRODUCT-190, PRODUCT-209).
   # Publishes to https://developers-internal.handpoint.io in the staging
   # account. A WAF permits the office VPN only, so the site is not public.
   deploy-staging:
-    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/docs-v2'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/internal-preview'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -74,7 +74,7 @@ jobs:
     # could abort "aws s3 sync --delete" halfway and leave the site partly
     # published, with no successful run to repair it.
     concurrency:
-      group: deploy-staging-docs-v2
+      group: deploy-staging-internal-preview
       cancel-in-progress: false
 
     permissions:
