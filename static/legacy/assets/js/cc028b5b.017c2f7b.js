@@ -1,0 +1,483 @@
+"use strict";
+(globalThis["webpackChunkmy_website"] = globalThis["webpackChunkmy_website"] || []).push([[43672],{
+
+/***/ 10274
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  assets: () => (/* binding */ assets),
+  contentTitle: () => (/* binding */ contentTitle),
+  "default": () => (/* binding */ MDXContent),
+  frontMatter: () => (/* binding */ frontMatter),
+  metadata: () => (/* reexport */ site_android_versioned_docs_version_android_sdk_6_7_4_androidintegrationguide_md_cc0_namespaceObject),
+  toc: () => (/* binding */ toc)
+});
+
+;// ./.docusaurus/docusaurus-plugin-content-docs/android/site-android-versioned-docs-version-android-sdk-6-7-4-androidintegrationguide-md-cc0.json
+const site_android_versioned_docs_version_android_sdk_6_7_4_androidintegrationguide_md_cc0_namespaceObject = /*#__PURE__*/JSON.parse('{"id":"androidintegrationguide","title":"Integration Guides","description":"The SDK supports the following connection methods:","source":"@site/android_versioned_docs/version-Android SDK 6.7.4/androidintegrationguide.md","sourceDirName":".","slug":"/androidintegrationguide","permalink":"/legacy/android/Android SDK 6.7.4/androidintegrationguide","draft":false,"unlisted":false,"tags":[],"version":"Android SDK 6.7.4","sidebarPosition":4,"frontMatter":{"sidebar_position":4,"id":"androidintegrationguide"},"sidebar":"tutorialSidebar","previous":{"title":"Trigger Amounts","permalink":"/legacy/android/Android SDK 6.7.4/androidapioverview"},"next":{"title":"Transaction Types","permalink":"/legacy/android/Android SDK 6.7.4/androidtransactions"}}');
+// EXTERNAL MODULE: ./node_modules/react/jsx-runtime.js
+var jsx_runtime = __webpack_require__(74848);
+// EXTERNAL MODULE: ./node_modules/@mdx-js/react/lib/index.js
+var lib = __webpack_require__(28453);
+;// ./android_versioned_docs/version-Android SDK 6.7.4/androidintegrationguide.md
+
+
+const frontMatter = {
+	sidebar_position: 4,
+	id: 'androidintegrationguide'
+};
+const contentTitle = 'Integration Guides';
+
+const assets = {
+
+};
+
+
+
+const toc = [{
+  "value": "Android Native Integration (PAX/Telpo)",
+  "id": "8",
+  "level": 2
+}, {
+  "value": "Bluetooth Integration (HiLite)",
+  "id": "9",
+  "level": 2
+}];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    admonition: "admonition",
+    code: "code",
+    h1: "h1",
+    h2: "h2",
+    header: "header",
+    li: "li",
+    ol: "ol",
+    p: "p",
+    pre: "pre",
+    strong: "strong",
+    ul: "ul",
+    ...(0,lib/* useMDXComponents */.R)(),
+    ...props.components
+  };
+  return (0,jsx_runtime.jsxs)(jsx_runtime.Fragment, {
+    children: [(0,jsx_runtime.jsx)(_components.header, {
+      children: (0,jsx_runtime.jsx)(_components.h1, {
+        id: "integration-guides",
+        children: "Integration Guides"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "The SDK supports the following connection methods:"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ol, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: (0,jsx_runtime.jsx)(_components.strong, {
+          children: (0,jsx_runtime.jsx)(_components.a, {
+            href: "#8",
+            children: "Android Native (PAX/Telpo)"
+          })
+        })
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: (0,jsx_runtime.jsx)(_components.strong, {
+          children: (0,jsx_runtime.jsx)(_components.a, {
+            href: "#9",
+            children: "Bluetooth (HiLite)"
+          })
+        })
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "8",
+      children: "Android Native Integration (PAX/Telpo)"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Introduction"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "This tutorial is guiding you through all the required steps to create a basic payment application for Android Payment devices such as PAX and Telpo."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting card payments."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI security requirements."
+    }), "\n", (0,jsx_runtime.jsx)(_components.admonition, {
+      type: "warning",
+      children: (0,jsx_runtime.jsxs)(_components.p, {
+        children: ["Please, start an operation (sale,refund etc.) ONLY if you have received the ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "InitialisationComplete"
+        }), " message from the ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "currentTransactionStatus"
+        }), " method"]
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Let's start programming!"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "1. Modify the AndroidManifest.xml"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "strongly"
+      }), " recommend you add the following to your main ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: (0,jsx_runtime.jsx)(_components.code, {
+          children: "<activity>"
+        })
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "android:launchMode=\"singleTask\"\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "2. SDK distribution"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["The Handpoint Android SDK is available on Maven central as well as the Handpoint internal Nexus server. Maven central contains the ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "production builds"
+      }), " while Nexus contains ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "development snapshots"
+      }), " of the SDK."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["If you are integrating your software with a ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "PAX debug terminal"
+        }), " you will need to get the SDK from ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "Nexus"
+        }), "."]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["If you are integrating your software with a ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "PAX production terminal"
+        }), " you will need to get the SDK from ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "Maven Central"
+        }), "."]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["If you are integrating your software with an HiLite terminal you will need to get the SDK from ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "Maven Central"
+        }), "."]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["The Handpoint Android SDK is compatible with Android version 5.1.1 ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "https://developer.android.com/about/versions/lollipop/android-5.1",
+        children: "(API level 22)"
+      }), " and up.\r\nThe latest version is compiled with java ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "1.8"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Gradle Settings"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "For production terminals (Maven):"
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: " //Handpoint Production SDK (Production terminals)\r\n implementation 'com.handpoint.api:sdk:6.x.x'\n"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["In the ", (0,jsx_runtime.jsx)(_components.code, {
+        children: "gradle.build"
+      }), " (Top-level build file) for production terminals (Maven):"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "      allprojects {     //Handpoint Production SDK (Production terminals)\r\n        repositories {\r\n           google()\r\n           mavenCentral()\r\n           maven { url 'https://jitpack.io' }\r\n            }\r\n      }\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "For debug terminals (Nexus):"
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: " //Handpoint Staging/Development SDK (Debug terminals)\r\n implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'\n"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["In the ", (0,jsx_runtime.jsx)(_components.code, {
+        children: "gradle.build"
+      }), " (Top-level build file) for debug terminals (Nexus):"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "      allprojects {   //Handpoint Staging/Development SDK (Debug terminals)\r\n        repositories {\r\n          google()\r\n          mavenCentral()\r\n          maven {\r\n            name = \"Handpoint Nexus\"\r\n            url = uri(\"urlProvided\") //URL provided by Handpoint once you order a dev kit \r\n            credentials { //Credentials provided by Handpoint once you order a dev kit \r\n              username = 'usernameProvided' \r\n              password = 'passwordProvided' \r\n           }\r\n          }\r\n        }\r\n      }\n"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Some considerations to keep in mind when using gradle (for both production and debug terminals)"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["In the ", (0,jsx_runtime.jsx)(_components.code, {
+        children: "gradle.build"
+      }), " (app module) add the following packaging options:"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "android {\r\n    defaultConfig {\r\n        minSdkVersion 22 //Required to support all PAX & Telpo models\r\n        targetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need \r\n                            //to add android:exported=\"true\" or android:exported=\"false\" in your activities\r\n        multiDexEnabled true\r\n        ndk {\r\n            abiFilters \"armeabi\", \"armeabi-v7a\", \"x86\", \"mips\"\r\n        }\r\n    }\r\n\r\n    packagingOptions {\r\n        pickFirst '**/*.so'\r\n        exclude 'META-INF/*'\r\n        exclude '**/anim/*.xml'\r\n        exclude '**/layout/*.xml'\r\n        exclude 'resources.arsc'\r\n        exclude 'AndroidManifest.xml'\r\n        exclude '**/animator/*.xml'\r\n    }\r\n }\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Maven Settings"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "For production terminals:"
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-xml",
+        children: "    <dependency>\r\n      <groupId>com.handpoint.api</groupId>\r\n      <artifactId>sdk</artifactId>\r\n      <version>[6.0.0,7.0.0)</version>\r\n      <type>aar</type>\r\n    </dependency>\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.admonition, {
+      type: "tip",
+      children: (0,jsx_runtime.jsxs)(_components.p, {
+        children: ["If using AndroidX you will need to switch the following flags to true:", (0,jsx_runtime.jsx)("br", {}), "\r\nandroid.enableJetifier=true", (0,jsx_runtime.jsx)("br", {}), "\r\nandroid.useAndroidX=true"]
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "3. Create a Java class"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Create a new java class called HandpointDelegate.java and include com.handpoint.api.* as a dependency:"
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-java",
+        children: "package com.yourpackage.name;\r\n\r\nimport com.handpoint.api.HandpointCredentials;\r\nimport com.handpoint.api.Hapi;\r\nimport com.handpoint.api.HapiFactory;\r\nimport com.handpoint.api.shared.ConnectionMethod;\r\nimport com.handpoint.api.shared.ConnectionStatus;\r\nimport com.handpoint.api.shared.Currency;\r\nimport com.handpoint.api.shared.Device;\r\nimport com.handpoint.api.shared.Events;\r\nimport com.handpoint.api.shared.SignatureRequest;\r\nimport com.handpoint.api.shared.StatusInfo;\r\nimport com.handpoint.api.shared.TipConfiguration;\r\nimport com.handpoint.api.shared.TransactionResult;\r\nimport com.handpoint.api.shared.agreements.Acquirer;\r\nimport com.handpoint.api.shared.agreements.Credential;\r\nimport com.handpoint.api.shared.agreements.MerchantAuth;\r\nimport com.handpoint.api.shared.options.SaleOptions;\r\n\r\nimport java.math.BigInteger;\r\nimport java.util.Arrays;\r\nimport java.util.List;\r\n\r\n//Check all the events available in the Events interface.\r\n//If you want to subscribe to more events, just add to the list of implemented interfaces.\r\npublic class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {\r\n\r\n    private Hapi api;\r\n\r\n    public HandpointDelegate(Context context) {\r\n        initApi(context);\r\n    }\r\n\r\n    public void initApi(Context context) {\r\n        String sharedSecret = \"0102030405060708091011121314151617181920212223242526272829303132\";\r\n        HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);\r\n        this.api = HapiFactory.getAsyncInterface(this, context, handpointCredentials);\r\n        // The api is now initialized. Yay! we've even set default credentials.\r\n        // The shared secret is a unique string shared between the payment terminal and your application, it is unique per merchant.\r\n        // You should replace this default shared secret with the one sent by the Handpoint support team.\r\n\r\n        //Since we're running inside the terminal, we can create a device ourselves and connect to it\r\n        Device device = new Device(\"some name\", \"address\", \"\", ConnectionMethod.ANDROID_PAYMENT);\r\n        this.api.connect(device);\r\n    }\r\n\r\n    @Override\r\n    public void connectionStatusChanged(ConnectionStatus status, Device device) {\r\n        if (status == ConnectionStatus.Connected) {\r\n            //Connection Status connected\r\n\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void deviceDiscoveryFinished(List Device devices) {\r\n        // This event can be safely ignored for a PAX/Telpo integration\r\n    }\r\n\r\n    public boolean pay() {\r\n        return this.api.sale(new BigInteger(\"1000\"), Currency.GBP);\r\n        // Let´s start our first payment of 10 pounds\r\n        // Use the currency of the country in which you will be deploying terminals\r\n    }\r\n\r\n    public boolean payWithOptions() {\r\n        SaleOptions options = new SaleOptions();\r\n\r\n        // Adding tipping\r\n        TipConfiguration config = new TipConfiguration();\r\n        //Optionally\r\n        config.setHeaderName(\"HEADER\");\r\n        //Optionally\r\n        config.setFooter(\"FOOTER\");\r\n        //Optionally\r\n        config.setEnterAmountEnabled(true);\r\n        //Optionally\r\n        config.setSkipEnabled(true);\r\n        //Optionally\r\n        config.setTipPercentages(Arrays.asList(5, 10, 15, 20));\r\n        options.setTipConfiguration(config);\r\n\r\n        // Adding Multi MID / Custom merchant Authentication\r\n        MerchantAuth auth = new MerchantAuth();\r\n        Credential credential = new Credential();\r\n        //Optionally\r\n        credential.setAcquirer(Acquirer.SANDBOX);\r\n        //Optionally\r\n        credential.setMid(\"mid\");\r\n        //Optionally\r\n        credential.setTid(\"tid\");\r\n        //Add as many credentials as Acquirers your merchant have agreements with\r\n        auth.add(credential);\r\n        options.setMerchantAuth(auth);\r\n\r\n        //Add a customer reference\r\n        options.setCustomerReference(\"Your customer reference\");\r\n\r\n        //Enable pin bypass\r\n        options.setPinBypass(true);\r\n\r\n        //Enable signature bypass\r\n        options.setSignatureBypass(true);\r\n\r\n        //Define a budget number\r\n        options.setBudgetNumber(\"YOUR_BUDGET_NUMBER\");\r\n\r\n        return this.api.sale(new BigInteger(\"1000\"),Currency.GBP, options);\r\n    }\r\n\r\n    @Override\r\n    public void currentTransactionStatus(StatusInfo statusInfo, Device device) {\r\n        if (statusInfo.getStatus() == StatusInfo.Status.InitialisationComplete) {\r\n            // The StatusInfo object holds the different transaction statuses like reading card, pin entry, etc.\r\n            // Let's launch a payment\r\n            pay();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void signatureRequired(SignatureRequest signatureRequest, Device device) {\r\n        // This event can be safely ignored for a PAX/Telpo integration\r\n        // The complete signature capture process is already handled in the sdk, a dialog will prompt the user for a signature if required.\r\n        // If a signature was entered, it should be printed on the receipts.\r\n    }\r\n\r\n    @Override\r\n    public void endOfTransaction(TransactionResult transactionResult, Device device) {\r\n        // The TransactionResult object holds details about the transaction as well as the receipts\r\n        // Useful information can be accessed through this object like the transaction ID, the amount, etc.\r\n    }\r\n\r\n    @Override\r\n    public void transactionResultReady(TransactionResult transactionResult, Device device) {\r\n        // Pending TransactionResult objects will be received through this event if the EndOfTransaction\r\n        // event was not delivered during the transaction, for example because of a network issue\r\n        // For this sample app we are not going to implement this event\r\n    }\r\n\r\n    public void disconnect(){\r\n        this.api.disconnect();\r\n        //This disconnects the connection\r\n    }\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "We're done!"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Sort of. With the above tutorial you've done a basic integration that can perform sale transactions."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Explore the rest of the documentation to see more transaction types supported and possibilities."
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "9",
+      children: "Bluetooth Integration (HiLite)"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Introduction"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "This tutorial is guiding you through all the required steps to create a basic payment application for Android devices integrated with an HiLite payment terminal."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "The new generation of Handpoint SDK's is designed to make your life easier. Simple and created for humans, it does not require any specific knowledge of the payment industry to be able to start accepting credit/debit card transactions."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "At Handpoint we take care of securing every transaction so you don´t have to worry about it while creating your application. We encrypt data from the payment terminal to the bank with our point-to-point encryption solution. Our platform is always up to the latest PCI-DSS security requirements."
+    }), "\n", (0,jsx_runtime.jsx)(_components.admonition, {
+      type: "warning",
+      children: (0,jsx_runtime.jsxs)(_components.p, {
+        children: ["Please, start an operation (sale,refund etc.) ONLY if you have received the ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "InitialisationComplete"
+        }), " message from the ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "currentTransactionStatus"
+        }), " method"]
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Let's start programming!"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "1. Modify the AndroidManifest.xml"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "strongly"
+      }), " recommend you add the following to your main ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: (0,jsx_runtime.jsx)(_components.code, {
+          children: "<activity>"
+        })
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "android:launchMode=\"singleTask\"\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "2.1 In the gradle.build (app module)"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "android {\r\n\tdefaultConfig {\r\n\t\tminSdkVersion 22 //Required to support all PAX & Telpo models\r\n\t\ttargetSdkVersion 29 //If using version targetSdkVersion 30 or higher, please note that you will need \r\n                            //to add android:exported=\"true\" or android:exported=\"false\" in your activities\r\n\t\tmultiDexEnabled true\r\n\t}\r\n\r\n    packagingOptions {\r\n        pickFirst '**/*.so'\r\n        exclude 'META-INF/*'\r\n        exclude '**/anim/*.xml'\r\n        exclude '**/layout/*.xml'\r\n        exclude 'resources.arsc'\r\n        exclude 'AndroidManifest.xml'\r\n        exclude '**/animator/*.xml'\r\n    }\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "dependencies {\r\n\r\n    //Handpoint Production SDK (Production devices)\r\n    implementation 'com.handpoint.api:sdk:6.x.x'\r\n    \r\n    //Handpoint Staging/Development SDK (Debug devices)\r\n    implementation 'com.handpoint.api:sdk:6.x.x-RC.x-SNAPSHOT'\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "2.2 In the gradle.build (Top-level build file)"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "allprojects {     //Handpoint Production SDK\r\n    repositories {\r\n        google()\r\n        mavenCentral()\r\n        maven { url 'https://jitpack.io' }\r\n    }\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-groovy",
+        children: "allprojects {   //Handpoint Staging/Development SDK\r\n    repositories {\r\n        google()\r\n        mavenCentral()\r\n        maven {\r\n            name = \"Handpoint Nexus\"\r\n            url = uri(\"urlProvided\")\r\n            credentials {\r\n                username = 'usernameProvided'\r\n                password = 'passwordProvided'\r\n            }\r\n        }\r\n    }\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.admonition, {
+      type: "tip",
+      children: [(0,jsx_runtime.jsx)(_components.p, {
+        children: "During the build process, a DEX error may appear."
+      }), (0,jsx_runtime.jsxs)(_components.p, {
+        children: ["To be able to build, we recommend adding the following lines to the ", (0,jsx_runtime.jsx)(_components.code, {
+          children: "gradle.properties"
+        }), " file:"]
+      }), (0,jsx_runtime.jsx)(_components.pre, {
+        children: (0,jsx_runtime.jsx)(_components.code, {
+          className: "language-groovy",
+          children: "org.gradle.jvmargs = -Xmx4096m -XX:MaxPermSize=4096m -XX:+HeapDumpOnOutOfMemoryError\r\norg.gradle.daemon = true\r\norg.gradle.parallel = true\r\norg.gradle.configureondemand = true\n"
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "3. Create a Java class"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Create a new java class called HandpointDelegate.java and include com.handpoint.api.* as a dependency:"
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-java",
+        children: "package com.yourpackage.name;\r\n\r\nimport android.content.Context;\r\n\r\nimport com.handpoint.api.HandpointCredentials;\r\nimport com.handpoint.api.Hapi;\r\nimport com.handpoint.api.HapiFactory;\r\nimport com.handpoint.api.shared.ConnectionMethod;\r\nimport com.handpoint.api.shared.ConnectionStatus;\r\nimport com.handpoint.api.shared.Currency;\r\nimport com.handpoint.api.shared.Device;\r\nimport com.handpoint.api.shared.Events;\r\nimport com.handpoint.api.shared.SignatureRequest;\r\nimport com.handpoint.api.shared.StatusInfo;\r\nimport com.handpoint.api.shared.TransactionResult;\r\n\r\nimport java.math.BigInteger;\r\nimport java.util.List;\r\n\r\n//Check all the events available in the Events interface.\r\n//If you want to subscribe to more events, just add to the list of implemented interfaces.\r\npublic class HandpointDelegate implements Events.Required, Events.ConnectionStatusChanged, Events.CurrentTransactionStatus {\r\n\r\n    private Hapi api;\r\n\r\n\r\n    public HandpointDelegate(Context context) {\r\n        initApi(context);\r\n    }\r\n\r\n    public void initApi(Context context) {\r\n        String sharedSecret = \"0102030405060708091011121314151617181920212223242526272829303132\";\r\n        HandpointCredentials handpointCredentials = new HandpointCredentials(sharedSecret);\r\n        this.api = HapiFactory.getAsyncInterface(this, context, handpointCredentials);\r\n        // The api is now initialized. Yay! we've even set a shared secret!\r\n        // The shared secret is a unique string shared between the card reader and your mobile application\r\n        // It prevents other people to connect to your card reader\r\n        // You have to replace this default shared secret by the one sent by our support team\r\n        // The shared secret is unique per merchant (not per terminal)\r\n\r\n        //Now we need to find our device and connect to it\r\n        discoverDevices();\r\n    }\r\n\r\n    // Now  we need to connect to a device to start taking payments.\r\n    // Let's search for them:\r\n    public void discoverDevices() {\r\n        this.api.searchDevices(ConnectionMethod.BLUETOOTH);\r\n        // This triggers the asynchronous search for all the devices around that haven't been paired.\r\n        // You could, alternatively, search for the already paired devices\r\n        // List Device devices = this.api.getPairedDevices(ConnectionMethod.BLUETOOTH);\r\n        // Now:\r\n        // selectDeviceAndConnect(devices);\r\n        // You'll receive the devices found through deviceDiscoveryFinished method.\r\n        // See: https://handpoint.com/docs/device/Android/#elem_eventsDeviceDiscoveryFinished\r\n    }\r\n\r\n    @Override\r\n    public void deviceDiscoveryFinished(List Device devices) {\r\n        selectDeviceAndConnect(devices);\r\n    }\r\n\r\n    private void selectDeviceAndConnect(List Device devices) {\r\n        for (Device device : devices) {\r\n            if (device.getName() != null) {\r\n                // All the devices here are datecs devices\r\n                if (/* Fill your logic here */) {\r\n                    this.api.connect(device);\r\n                    // Now take a look at connectionStatusChanged method\r\n                    break;\r\n                }\r\n            }\r\n        }\r\n    }\r\n\r\n    //Potentially, if you know the MAC address of the device you want to connect to, you can skip the search and do it this way\r\n    public void connect() {\r\n        Device device = new Device(\"PP0513901435\", \"68:AA:D2:00:D5:27\", \"\", ConnectionMethod.BLUETOOTH);\r\n        //The Address always has to be written in UPPER CASE\r\n        //new Device(\"name\", \"address\", \"port\", ConnectionMethod.BLUETOOTH);\r\n        this.api.connect(device);\r\n    }\r\n\r\n    @Override\r\n    public void connectionStatusChanged(ConnectionStatus status, Device device) {\r\n        if (status == ConnectionStatus.Connected) {\r\n            // Connected to device\r\n        }\r\n    }\r\n\r\n    public boolean pay() {\r\n        return this.api.sale(new BigInteger(\"1000\"), Currency.GBP);\r\n        // Let´s start our first payment of 10 pounds\r\n    }\r\n\r\n    @Override\r\n    public void currentTransactionStatus(StatusInfo statusInfo, Device device) {\r\n        if (statusInfo.getStatus() == StatusInfo.Status.InitialisationComplete) {\r\n            // The StatusInfo object holds the different transaction statuses like reading card, pin entry, etc.\r\n            // Let's launch a payment\r\n            pay();\r\n        }\r\n    }\r\n\r\n    @Override\r\n    public void signatureRequired(SignatureRequest signatureRequest, Device device) {\r\n        // You'll be notified here if a sale process needs a signature verification\r\n        // A signature verification is needed if the cardholder uses an MSR or a chip & signature card\r\n        // This method will not be invoked if a transaction is made with a Chip & PIN card\r\n        // At this step, you are supposed to display the merchant receipt to the cardholder on the android device\r\n        // The cardholder must have the possibility to accept or decline the transaction\r\n        // If the cardholder clicks on decline, the transaction is VOID\r\n        // If the cardholder clicks on accept he is then asked to sign electronically the receipt\r\n        this.api.signatureResult(true);\r\n        // This line means that the cardholder ALWAYS accepts to sign the receipt\r\n        // For this sample app we are not going to implement the whole signature process\r\n    }\r\n\r\n    @Override\r\n    public void endOfTransaction(TransactionResult transactionResult, Device device) {\r\n        // The object TransactionResult stores the different receipts\r\n        // Other information can be accessed through this object like the transaction ID, the amount...\r\n    }\r\n\r\n    @Override\r\n    public void transactionResultReady(TransactionResult transactionResult, Device device) {\r\n        // Pending TransactionResult objects will be received through this event if the EndOfTransaction\r\n        // event was not delivered during the transaction, for example because of a network issue.\r\n        // For this sample app we are not going to implement this event.\r\n    }\r\n\r\n    public void disconnect() {\r\n        this.api.disconnect();\r\n        //This disconnects the connection\r\n    }\r\n}\r\n                \r\n\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.admonition, {
+      type: "info",
+      children: (0,jsx_runtime.jsxs)(_components.p, {
+        children: [(0,jsx_runtime.jsx)(_components.strong, {
+          children: "Note about reconnections:"
+        }), " By default, the SDK will automatically reconnect to the last known device when the connection is lost.If you want to change this behaviour set the property Settings.AutomaticReconnection in HapiManager to ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "false"
+        }), "."]
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "We're done!"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Sort of. With the above tutorial you've done a basic integration that can perform sale transactions."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Explore the rest of the documentation to see more transaction types supported and possibilities."
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ...(0,lib/* useMDXComponents */.R)(),
+    ...props.components
+  };
+  return MDXLayout ? (0,jsx_runtime.jsx)(MDXLayout, {
+    ...props,
+    children: (0,jsx_runtime.jsx)(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+
+
+
+/***/ },
+
+/***/ 28453
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   R: () => (/* binding */ useMDXComponents),
+/* harmony export */   x: () => (/* binding */ MDXProvider)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(96540);
+/**
+ * @import {MDXComponents} from 'mdx/types.js'
+ * @import {Component, ReactElement, ReactNode} from 'react'
+ */
+
+/**
+ * @callback MergeComponents
+ *   Custom merge function.
+ * @param {Readonly<MDXComponents>} currentComponents
+ *   Current components from the context.
+ * @returns {MDXComponents}
+ *   Additional components.
+ *
+ * @typedef Props
+ *   Configuration for `MDXProvider`.
+ * @property {ReactNode | null | undefined} [children]
+ *   Children (optional).
+ * @property {Readonly<MDXComponents> | MergeComponents | null | undefined} [components]
+ *   Additional components to use or a function that creates them (optional).
+ * @property {boolean | null | undefined} [disableParentContext=false]
+ *   Turn off outer component context (default: `false`).
+ */
+
+
+
+/** @type {Readonly<MDXComponents>} */
+const emptyComponents = {}
+
+const MDXContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext(emptyComponents)
+
+/**
+ * Get current components from the MDX Context.
+ *
+ * @param {Readonly<MDXComponents> | MergeComponents | null | undefined} [components]
+ *   Additional components to use or a function that creates them (optional).
+ * @returns {MDXComponents}
+ *   Current components.
+ */
+function useMDXComponents(components) {
+  const contextComponents = react__WEBPACK_IMPORTED_MODULE_0__.useContext(MDXContext)
+
+  // Memoize to avoid unnecessary top-level context changes
+  return react__WEBPACK_IMPORTED_MODULE_0__.useMemo(
+    function () {
+      // Custom merge via a function prop
+      if (typeof components === 'function') {
+        return components(contextComponents)
+      }
+
+      return {...contextComponents, ...components}
+    },
+    [contextComponents, components]
+  )
+}
+
+/**
+ * Provider for MDX context.
+ *
+ * @param {Readonly<Props>} properties
+ *   Properties.
+ * @returns {ReactElement}
+ *   Element.
+ * @satisfies {Component}
+ */
+function MDXProvider(properties) {
+  /** @type {Readonly<MDXComponents>} */
+  let allComponents
+
+  if (properties.disableParentContext) {
+    allComponents =
+      typeof properties.components === 'function'
+        ? properties.components(emptyComponents)
+        : properties.components || emptyComponents
+  } else {
+    allComponents = useMDXComponents(properties.components)
+  }
+
+  return react__WEBPACK_IMPORTED_MODULE_0__.createElement(
+    MDXContext.Provider,
+    {value: allComponents},
+    properties.children
+  )
+}
+
+
+/***/ }
+
+}]);

@@ -1,0 +1,845 @@
+"use strict";
+(globalThis["webpackChunkmy_website"] = globalThis["webpackChunkmy_website"] || []).push([[79871],{
+
+/***/ 75554
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  assets: () => (/* binding */ assets),
+  contentTitle: () => (/* binding */ contentTitle),
+  "default": () => (/* binding */ MDXContent),
+  frontMatter: () => (/* binding */ frontMatter),
+  metadata: () => (/* reexport */ site_ios_versioned_docs_version_i_os_sdk_4_0_1_iosevents_md_ba1_namespaceObject),
+  toc: () => (/* binding */ toc)
+});
+
+;// ./.docusaurus/docusaurus-plugin-content-docs/ios/site-ios-versioned-docs-version-i-os-sdk-4-0-1-iosevents-md-ba1.json
+const site_ios_versioned_docs_version_i_os_sdk_4_0_1_iosevents_md_ba1_namespaceObject = /*#__PURE__*/JSON.parse('{"id":"iosevents","title":"Events","description":"didConnect","source":"@site/ios_versioned_docs/version-iOS SDK 4.0.1/iosevents.md","sourceDirName":".","slug":"/iosevents","permalink":"/legacy/ios/iOS SDK 4.0.1/iosevents","draft":false,"unlisted":false,"tags":[],"version":"iOS SDK 4.0.1","sidebarPosition":10,"frontMatter":{"sidebar_position":10,"id":"iosevents"},"sidebar":"tutorialSidebar","previous":{"title":"Terminal Management","permalink":"/legacy/ios/iOS SDK 4.0.1/iosdevicemanagement"},"next":{"title":"Objects","permalink":"/legacy/ios/iOS SDK 4.0.1/iosobjects"}}');
+// EXTERNAL MODULE: ./node_modules/react/jsx-runtime.js
+var jsx_runtime = __webpack_require__(74848);
+// EXTERNAL MODULE: ./node_modules/@mdx-js/react/lib/index.js
+var lib = __webpack_require__(28453);
+;// ./ios_versioned_docs/version-iOS SDK 4.0.1/iosevents.md
+
+
+const frontMatter = {
+	sidebar_position: 10,
+	id: 'iosevents'
+};
+const contentTitle = 'Events';
+
+const assets = {
+
+};
+
+
+
+const toc = [{
+  "value": "didConnect",
+  "id": "20",
+  "level": 3
+}, {
+  "value": "didDiscoverFinished",
+  "id": "37",
+  "level": 3
+}, {
+  "value": "didFindAccessoryDevice",
+  "id": "38",
+  "level": 3
+}, {
+  "value": "didLostAccessoryDevice",
+  "id": "39",
+  "level": 3
+}, {
+  "value": "responseStatus",
+  "id": "14",
+  "level": 3
+}, {
+  "value": "responseFinanceStatus",
+  "id": "16",
+  "level": 3
+}, {
+  "value": "responseError",
+  "id": "15",
+  "level": 3
+}, {
+  "value": "requestSignature",
+  "id": "17",
+  "level": 3
+}, {
+  "value": "cancelSignature",
+  "id": "40",
+  "level": 3
+}, {
+  "value": "responseScannerEvent",
+  "id": "41",
+  "level": 3
+}, {
+  "value": "responseScannerDisabled",
+  "id": "42",
+  "level": 3
+}, {
+  "value": "responseLogInfo",
+  "id": "43",
+  "level": 3
+}, {
+  "value": "responseRecoveredTransactionStatus",
+  "id": "44",
+  "level": 3
+}];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    code: "code",
+    em: "em",
+    h1: "h1",
+    h3: "h3",
+    header: "header",
+    p: "p",
+    pre: "pre",
+    strong: "strong",
+    table: "table",
+    tbody: "tbody",
+    td: "td",
+    th: "th",
+    thead: "thead",
+    tr: "tr",
+    ...(0,lib/* useMDXComponents */.R)(),
+    ...props.components
+  };
+  return (0,jsx_runtime.jsxs)(jsx_runtime.Fragment, {
+    children: [(0,jsx_runtime.jsx)(_components.header, {
+      children: (0,jsx_runtime.jsx)(_components.h1, {
+        id: "events",
+        children: "Events"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "20",
+      children: "didConnect"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "didConnect"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called when a connection to the client has been established through the method clientForDevice."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "client"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#22",
+              children: "HeftClient"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "The client object, used to perform transactions and communicate with the payment terminal."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//didConnect:\r\n//Called when a connection to specified device was created.\r\n-(void)didConnect:(id<HeftClient>)client \r\n{\r\n\t// connected successfully to a device\r\n\t// assign the client to our heftClient property\r\n\theftClient = client;\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "37",
+      children: "didDiscoverFinished"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "didDiscoverFinished"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "When the modal window from startDiscovery is closed then this event is called."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//didDiscoverFinished\r\n// This function gets called when discovery is finished\r\n- (void)didDiscoverFinished;\r\n{\r\n\tNSLog(@\"Discover finished\"); \r\n\t//Stop search activity indicator or other desired functions \r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "38",
+      children: "didFindAccessoryDevice"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "didFindAccessoryDevice"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Notifies that a new accessory device was found. When a payment terminal is detected this delegate is called. You can take the newDevice object and create a new heft client for that particular terminal or store it in memory to connect to it later."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "newDevice"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#23",
+              children: "HeftRemoteDevice"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "An object containing a reference to the accessory device."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//didFindAccessoryDevice\r\n//Delegate which notifies that a new accessory device was found.\r\n- (void)didFindAccessoryDevice:(HeftRemoteDevice*)newDevice\r\n{\r\n\tNSLog(@\"Found new device\");\r\n\t//Connect to device or store found device for later.\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "39",
+      children: "didLostAccessoryDevice"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "didLostAccessoryDevice"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Notifies that the accessory device was disconnected."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "oldDevice"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#23",
+              children: "HeftRemoteDevice"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "An object containing a reference to the accessory device."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//didLostAccessoryDevice\r\n//Delegate which notifies that an accessory device was disconnected\r\n- (void)didLostAccessoryDevice:(HeftRemoteDevice*)oldDevice\r\n{\r\n\tNSLog(@\"Device disconnected\");\r\n\t//Remove device from devices array\r\n\t[heftManager.devicesCopy removeObject:oldDevice];\r\n\t//Do some cleanup after disconnecting if necessary \r\n\t\r\n} \n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "14",
+      children: "responseStatus"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseStatus"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about the status of operation. The info object contains a string (status) and a dictionary (xml)."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#24",
+              children: "ResponseInfo"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "Includes status code, status text and detailed xml."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseStatus:\r\n//Called to inform about the status of the transaction\r\n-(void)esponseStatus:(id<ResponseInfo>)info\r\n{\r\n\tNSLog(info.status);\r\n\tNSLog(info.xml.description);\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "16",
+      children: "responseFinanceStatus"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseFinanceStatus"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Notifies that the transaction has completed."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#25",
+              children: "FinanceResponseInfo"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "Information about current transaction status."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseFinanceStatus:\r\n//Called at the end of a transaction to inform about the result of the operation.\r\n-(void)responseFinanceStatus:(id<FinanceResponseInfo>)info\r\n{\r\n\tNSLog(info.status);\r\n\tNSLog(info.customerReceipt);\r\n\t//print receipts\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "15",
+      children: "responseError"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseError"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called to inform about the status of the transaction, several calls can be expected. Several calls to this method happen after a transaction is initiated from the HeftClient to inform about the status of operation. The info object contains a string (status) and a dictionary (xml)."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#24",
+              children: "ResponseInfo"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "The info object contains a string (status) and a dictionary (xml)."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseError:\r\n//Called when an error happens.\r\n-(void)responseError:(id<ResponseInfo>)info\r\n{\r\n\tNSLog(info.status);\r\n\tNSLog(info.xml.description);\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "17",
+      children: "requestSignature"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "requestSignature"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called during a financial operation if a signature from the customer is needed. The requestSignature delegate should be implemented to print out or display the receipt for the customer to sign."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "receipt"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.em, {
+              children: "NSString"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "The receipt is a html formatted string containing a receipt for the customer to sign."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//requestSignature:\r\n//Is called if a signature from the customer is needed.\r\n-(void)requestSignature:(NSString*)receipt\r\n{\r\n\tNSLog(receipt);\r\n\t//Display buttons to accept or decline customer signature\r\n\tUIAlertView* alert = [[UIAlertView alloc] initWithTitle:@\"\" message:@\"sign?\" delegate:self cancelButtonTitle:@\"No\" otherButtonTitles:@\"Yes\", nil];\r\n\t[alert show];\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "40",
+      children: "cancelSignature"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "cancelSignature"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called if the signature request times out. If the payment terminal does not receive an approval for the signature within a certain timeframe, it cancels the transaction and sends a notification to the app."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//cancelSignature\r\n//Called if the signature request times out.\r\n-(void)cancelSignature\r\n{\r\n\tNSLog(@\"Signature request timed out\");\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "41",
+      children: "responseScannerEvent"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseScannerEvent"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called to inform that a scan has been performed, several calls can be expected."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#26",
+              children: "ScannerEventResponseInfo"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "The info object contains scanCode, status and a dictionary (xml)."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseScannerEvent:\r\n//Called to inform that a scan has been performed\r\n-(void)responseScannerEvent:(id<ScannerEventResponseInfo>)info\r\n{\r\n\tNSLog(info.scanCode); //barcode scanned\r\n\tNSLog(info.xml.description);\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "42",
+      children: "responseScannerDisabled"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseScannerDisabled"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called to notify that the scanner has been disabled."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#27",
+              children: "ScannerDisabledResponseInfo"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "The info object contains information about the scanner operation."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseScannerDisabled:\r\n//Called to notify that the scanner has been disabled. \r\n-(void)responseScannerDisabled:(id<ScannerDisabledResponseInfo>)info\r\n{\r\n\tNSLog(info.status);\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "43",
+      children: "responseLogInfo"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseLogInfo"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Called when logs have been downloaded from the payment terminal by using the logGetInfo method."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#28",
+              children: "LogInfo"
+            })]
+          }), (0,jsx_runtime.jsx)(_components.td, {
+            children: "The info object has the string property log which holds the log info in text with carriage returns."
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseLogInfo:\r\n//Called when logs have been downloaded from the card reader by using the logGetInfo method.\r\n-(void)responseLogInfo:(id<LogInfo>)info\r\n{\r\n\tNSLog(info.log);\r\n\t//write to log file\r\n}\n"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h3, {
+      id: "44",
+      children: "responseRecoveredTransactionStatus"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.code, {
+        children: "responseRecoveredTransactionStatus"
+      }), " ", (0,jsx_runtime.jsx)("span", {
+        class: "badge badge--info",
+        children: "Method"
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Notifies that a transaction has been recovered."
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["This method is ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "OPTIONAL"
+      }), " and only required if retrievePendingTransaction is called."]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Parameters"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.table, {
+      children: [(0,jsx_runtime.jsx)(_components.thead, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsx)(_components.th, {
+            children: "Parameter"
+          }), (0,jsx_runtime.jsx)(_components.th, {
+            children: "Notes"
+          })]
+        })
+      }), (0,jsx_runtime.jsx)(_components.tbody, {
+        children: (0,jsx_runtime.jsxs)(_components.tr, {
+          children: [(0,jsx_runtime.jsxs)(_components.td, {
+            children: [(0,jsx_runtime.jsx)(_components.code, {
+              children: "info"
+            }), " ", (0,jsx_runtime.jsx)("span", {
+              class: "badge badge--primary",
+              children: "Required"
+            }), "  ", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.a, {
+              href: "/legacy/ios/iOS%20SDK%204.0.1/iosobjects#25",
+              children: (0,jsx_runtime.jsx)(_components.em, {
+                children: "FinanceResponseInfo"
+              })
+            })]
+          }), (0,jsx_runtime.jsxs)(_components.td, {
+            children: ["Information about the recovered transaction status.", (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)("br", {}), (0,jsx_runtime.jsx)(_components.strong, {
+              children: "If an attempt was made to recover a transaction when none was pending then this parameter WILL be nil."
+            })]
+          })]
+        })
+      })]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Code example"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.pre, {
+      children: (0,jsx_runtime.jsx)(_components.code, {
+        className: "language-objectivec",
+        children: "//responseRecoveredTransactionStatus:\r\n//Called when a pending transaction result has been recovered from the payment terminal.\r\n- (void)responseRecoveredTransactionStatus:(id<FinanceResponseInfo>)info{\r\n\tif(info != nil) {\r\n\t\tif(info.statusCode == EFT_PP_STATUS_SUCCESS) {\r\n\t\t\tNSLog(info.status);\r\n\t\t\tNSLog(info.customerReceipt);\r\n\t\t\tNSLog(info.merchantReceipt);\r\n\t\t\t// print receipts and/or save receipts in the transaction log.\r\n\r\n\t\t\tif(info.financialResult == EFT_FINANC_STATUS_TRANS_APPROVED){\r\n\t\t\t\t// Process to recover an authorized transaction result.\r\n\t\t\t} else if(info.financialResult == EFT_FINANC_STATUS_TRANS_DECLINED) {\r\n\t\t\t\t// Process to recover a declined transaction result.\r\n\t\t\t}\r\n\t\t} else if(info.statusCode != EFT_PP_STATUS_NO_DATA_AVAILABLE) {\r\n\t\t\t// some other error was detected while waiting for a pending transaction result.\r\n\t\t}\r\n\t}\r\n\t// else a pending transaction result was not found. \r\n}\n"
+      })
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ...(0,lib/* useMDXComponents */.R)(),
+    ...props.components
+  };
+  return MDXLayout ? (0,jsx_runtime.jsx)(MDXLayout, {
+    ...props,
+    children: (0,jsx_runtime.jsx)(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+
+
+
+/***/ },
+
+/***/ 28453
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   R: () => (/* binding */ useMDXComponents),
+/* harmony export */   x: () => (/* binding */ MDXProvider)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(96540);
+/**
+ * @import {MDXComponents} from 'mdx/types.js'
+ * @import {Component, ReactElement, ReactNode} from 'react'
+ */
+
+/**
+ * @callback MergeComponents
+ *   Custom merge function.
+ * @param {Readonly<MDXComponents>} currentComponents
+ *   Current components from the context.
+ * @returns {MDXComponents}
+ *   Additional components.
+ *
+ * @typedef Props
+ *   Configuration for `MDXProvider`.
+ * @property {ReactNode | null | undefined} [children]
+ *   Children (optional).
+ * @property {Readonly<MDXComponents> | MergeComponents | null | undefined} [components]
+ *   Additional components to use or a function that creates them (optional).
+ * @property {boolean | null | undefined} [disableParentContext=false]
+ *   Turn off outer component context (default: `false`).
+ */
+
+
+
+/** @type {Readonly<MDXComponents>} */
+const emptyComponents = {}
+
+const MDXContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext(emptyComponents)
+
+/**
+ * Get current components from the MDX Context.
+ *
+ * @param {Readonly<MDXComponents> | MergeComponents | null | undefined} [components]
+ *   Additional components to use or a function that creates them (optional).
+ * @returns {MDXComponents}
+ *   Current components.
+ */
+function useMDXComponents(components) {
+  const contextComponents = react__WEBPACK_IMPORTED_MODULE_0__.useContext(MDXContext)
+
+  // Memoize to avoid unnecessary top-level context changes
+  return react__WEBPACK_IMPORTED_MODULE_0__.useMemo(
+    function () {
+      // Custom merge via a function prop
+      if (typeof components === 'function') {
+        return components(contextComponents)
+      }
+
+      return {...contextComponents, ...components}
+    },
+    [contextComponents, components]
+  )
+}
+
+/**
+ * Provider for MDX context.
+ *
+ * @param {Readonly<Props>} properties
+ *   Properties.
+ * @returns {ReactElement}
+ *   Element.
+ * @satisfies {Component}
+ */
+function MDXProvider(properties) {
+  /** @type {Readonly<MDXComponents>} */
+  let allComponents
+
+  if (properties.disableParentContext) {
+    allComponents =
+      typeof properties.components === 'function'
+        ? properties.components(emptyComponents)
+        : properties.components || emptyComponents
+  } else {
+    allComponents = useMDXComponents(properties.components)
+  }
+
+  return react__WEBPACK_IMPORTED_MODULE_0__.createElement(
+    MDXContext.Provider,
+    {value: allComponents},
+    properties.children
+  )
+}
+
+
+/***/ }
+
+}]);
