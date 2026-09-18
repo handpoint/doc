@@ -26,6 +26,36 @@ sale-and-tokenize | card tokenized during sale for future card-not-present charg
 card-present | linked or unlinked refund with card present at terminal
 moto-refund | back-office remote refund using original transaction GUID, no reader required
 
+## Feature guides
+pre-authorization-guide | pre-auth lifecycle: create, increase/decrease, capture, void, capture-reversal; hotel/rental/restaurant use cases; not supported on HiLite paths | /reference/pre-authorization-guide
+tipping-guide | two tip strategies: sale-with-tip (tipConfiguration at terminal, all acquirers) vs tip-adjustment (post-sale back-office call, EPI+PAYSAFE only, must precede batch close) | /reference/tipping-guide
+partial-approval | US-only; prepaid/debit partial-amount approvals; accept (fulfil at totalAmount) or reverse (use totalAmount not requestedAmount); /status timing trap; certification required | /reference/partial-approval
+error-handling-guide | three error patterns (async poll, sync-flat, sync-nested); gateway errors vs acquirer pass-through; finStatus branching; display statusMessage as-is | /reference/error-handling-guide
+transaction-recovery | transactionReference UUID links operation chains; terminal auto-retry loop (5s then exponential backoff); server-side polling; /status/all for net amount; HiLite not supported | /reference/transaction-recovery
+avs | attach billing address (zip+street) to MOTO/remote-pre-auth for fraud reduction; EPI only; Android SDK + Cloud API; enabled per merchant by Handpoint | /reference/avs
+multi-mid | route transactions to multiple sub-MIDs via externalId per request; one API key; Cloud API + Android PAX + iOS HiLite; not supported on Android HiLite, Windows, Cordova | /reference/multi-mid
+fee-mitigation | four programs to recover card-acceptance cost: surcharge (credit only), dual pricing (all cards), cash discount, admin fee (all tenders); under development — confirm availability before building | /reference/fee-mitigation
+money-remittance-guide | flag card-present sale as cross-border transfer (MCC 4829/6540); EmerchantPay only; MasterCard requires moneyRemittanceOptions (name+country); Visa is a normal sale with no extra fields | /reference/money-remittance-guide
+moto-guide | card-not-present (phone/mail order): on-terminal keyed entry (EPI+EmerchantPay+Paystrax) or back-office remote card-token sale (EPI only); PAYSAFE not supported; must be enabled per merchant | /reference/moto-guide
+glossary | definitions: acquirer, AVS, authorization code, batch, externalId, finStatus, MID, MOTO, pre-auth, tokenization, transactionReference, tip adjustment, surcharge, and more | /reference/glossary
+receipt-compliance | EMV card-scheme receipt rules; required fields: totalAmount, AID (14 chars Visa/MC), TVR (10 chars), TSI (4 chars CHIP only), IAD, ARC, authorisationCode, RRN; declined txns included | /reference/receipt-compliance
+terminal-reversals | terminal auto-cancels host-approved transactions; finStatus CANCELLED; messageReasonCode 4000 (generic) + specific cause code in customFields; not operator-triggered | /reference/terminal-reversals
+
+## Skills
+# Load /.well-known/skills/handpoint.md first — it is the orchestration skill for all Handpoint integration tasks.
+/.well-known/skills/handpoint.md | orchestration skill — load this first; covers integration patterns, acquirer routing, and which path-skill to load next
+/.well-known/skills/paths/android-pax.md | native Android SDK for PAX terminals in integrated mode
+/.well-known/skills/paths/android-hilite.md | Android SDK over Bluetooth for HiLite (DATECS) devices
+/.well-known/skills/paths/ios-hilite.md | iOS SDK over Bluetooth for HiLite (DATECS) devices
+/.well-known/skills/paths/javascript.md | JavaScript SDK integration
+/.well-known/skills/paths/windows.md | Windows SDK integration
+/.well-known/skills/paths/cloud-api.md | Cloud API (server-to-cloud REST) integration
+/.well-known/skills/paths/cordova.md | Cordova plugin wrapping native SDK for PAX + HiLite
+/.well-known/skills/acquirers/epi.md | EPI acquirer — US/Canada, full feature set including tip-adjustment, AVS, remote sale, fee-mitigation
+/.well-known/skills/acquirers/paysafe.md | PAYSAFE acquirer — US/Canada, Interac, tip-adjustment; no MOTO remote sale
+/.well-known/skills/acquirers/emerchantpay.md | EmerchantPay acquirer — EU, money remittance, no tip-adjustment (use sale-with-tip or pre-auth capture)
+/.well-known/skills/acquirers/paystrax.md | Paystrax acquirer — EU, no tip-adjustment
+
 ## Reference
 /reference/acquirer-capabilities-matrix
 /reference/transaction-result-object
