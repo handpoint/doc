@@ -2016,7 +2016,7 @@ Same test scenarios as on-device Reversal — see [Reversal — Testing](#revers
 
 ## Tip Adjustment {#tip-adjustment}
 
-<FlavorSection paths={["android-pax","android-hilite","cordova","backoffice"]}>
+<FlavorSection description="Post-authorization · adjust tip before batch close" paths={["android-pax","android-hilite","cordova","backoffice"]}>
 
 Modifies the tip amount on a completed sale **before batch close**. Used in restaurant/hospitality flows where the cardholder signs a paper receipt and adds a tip after the initial authorization.
 
@@ -2869,7 +2869,7 @@ Not supported on iOS HiLite.
 
 ## Pre-Auth Capture Reversal {#pre-auth-capture-reversal}
 
-<FlavorSection paths={["cloud-api","android-pax","backoffice"]}>
+<FlavorSection description="Cancel a captured pre-auth before settlement" paths={["cloud-api","android-pax","backoffice"]}>
 
 #### Pre-Authorization Capture Reversal
 
@@ -3200,7 +3200,7 @@ Test tokens are returned on the TEST/DEMO merchant or staging device. Test token
 
 ## Batch Operations {#batching}
 
-<FlavorSection paths={["backoffice"]}>
+<FlavorSection description="Back-office · manage TSYS batch close and reporting" paths={["backoffice"]}>
 
 Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
 

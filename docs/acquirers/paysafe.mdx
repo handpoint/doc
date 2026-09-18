@@ -1732,7 +1732,7 @@ Same test scenarios as on-device Reversal — see [Reversal — Testing](#revers
 
 ## Tip Adjustment {#tip-adjustment}
 
-<FlavorSection paths={["android-pax","android-hilite","cordova","backoffice"]}>
+<FlavorSection description="Post-authorization · adjust tip before batch close" paths={["android-pax","android-hilite","cordova","backoffice"]}>
 
 Modifies the tip amount on a completed sale **before batch close**. Used in restaurant/hospitality flows where the cardholder signs a paper receipt and adds a tip after the initial authorization.
 
@@ -1869,9 +1869,9 @@ Test tip adjustment on the TEST/DEMO merchant or staging device. Tip adjustment 
 
 ## Pre-Authorization {#pre-auth}
 
-### Pre-Authorization {#pre-auth-create}
+### Pre-Auth Create {#pre-auth-create}
 
-<FlavorSection paths={["cloud-api","android-pax","cordova","backoffice"]}>
+<FlavorSection description="On-device · place a hold on funds without capturing" paths={["cloud-api","android-pax","cordova","backoffice"]}>
 
 #### What this does
 Places a hold on funds without capturing them, allowing the final amount to be adjusted before settlement.
@@ -1902,8 +1902,6 @@ Supporting pre-auth means supporting the full lifecycle:
 PAYSAFE merchants may be onboarded on TSYS, TNS, or both. When a merchant has both processors configured, the Handpoint gateway routes based on card type: Interac cards → TNS (card-present only), all other cards → TSYS. INTERAC VOID: For Interac card transactions, show VOID in your UI — not Refund or Reverse. The only post-sale correction is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close applies to TSYS (non-Interac) transactions only. TNS (Interac) transactions settle independently and do not participate in the TSYS batch. Paysafe single-use token: requires merchant onboarding by Paysafe/Handpoint before use.
 :::
 
-
-### Create {#pre-auth-create}
 
 #### Code
 
@@ -2019,9 +2017,9 @@ For complete lifecycle test scenarios, see [Testing Edge Cases](/reference/testi
 
 </FlavorSection>
 
-### Capture {#pre-auth-capture}
+### Pre-Auth Capture {#pre-auth-capture}
 
-<FlavorSection paths={["cloud-api","android-pax","cordova","backoffice"]}>
+<FlavorSection description="No card required — settle the held amount" paths={["cloud-api","android-pax","cordova","backoffice"]}>
 
 #### Pre-Authorization Capture
 
@@ -2165,7 +2163,7 @@ Not supported on iOS HiLite.
 
 ### Pre-Auth Reversal {#pre-auth-reversal}
 
-<FlavorSection paths={["cloud-api","android-pax","cordova","backoffice"]}>
+<FlavorSection description="Release the hold without charging" paths={["cloud-api","android-pax","cordova","backoffice"]}>
 
 #### Pre-Auth Reversal
 
@@ -2628,7 +2626,7 @@ Test tokens are returned on the TEST/DEMO merchant or staging device. Use the To
 
 ## Batch Operations {#batching}
 
-<FlavorSection paths={["backoffice"]}>
+<FlavorSection description="Back-office · manage TSYS batch close and reporting" paths={["backoffice"]}>
 
 Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
 
@@ -2734,7 +2732,7 @@ Test batch close on the staging device (PAX debug). Batch operations are server-
 
 ## Void {#void}
 
-<FlavorSection paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="Interac card transactions — full void only, card present required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 :::info Interac cards only
 Void applies exclusively to Interac card transactions. For non-Interac cards, use Reversal instead — the Interac network does not support standard reversal.
@@ -2864,7 +2862,7 @@ Test void (Interac/TNS) on the TEST/DEMO merchant. A physical card must be prese
 
 ## Interac Card Transactions {#interac}
 
-<FlavorSection paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
+<FlavorSection description="Interac debit — card-present only, Void is the only correction" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova"]}>
 
 If you are building for merchants that process **Interac card** transactions, this section is your integration reference. Interac cards are routed to the TNS processor automatically — no special configuration is required by the ISV beyond what is already set up for Paysafe.
 
