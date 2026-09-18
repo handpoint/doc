@@ -75,14 +75,24 @@ heftClient.refundWithAmount(originalAmount, currency: "CAD", cardholder: true)
 
 ### REST API
 
+:::note Gateway mapping
+The gateway maps a `refund` operation to a TNS VOID internally when the original transaction was processed via Interac. Always send `operation: "refund"` — do **not** send `"action": "VOID"`.
+
+**Constraints:** card must be present at the terminal; full amount only (partial not supported); CAD only.
+:::
+
 ```http
 POST https://cloud.handpoint.com/transaction
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "action": "VOID",
-  "original_transaction_reference": "original-transaction-id"
+  "operation": "refund",
+  "amount": "<amount in minor units>",
+  "currency": "CAD",
+  "terminal_type": "PAXA920",
+  "serial_number": "<serial>",
+  "originalTransactionId": "<transactionID from original sale>"
 }
 ```
 
