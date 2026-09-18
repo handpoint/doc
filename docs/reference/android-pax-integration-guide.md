@@ -236,6 +236,132 @@ hapi.getTransactionStatus(ref)
 
 → Full implementation with code examples: [Transaction Recovery — Android SDK](/reference/transaction-recovery-android-sdk)
 
+## Additional operations
+
+### Refund
+
+Use for post-settlement returns where the cardholder presents their card at the terminal. For same-day cancellations of unsettled transactions, use [Reversal](#reversal) instead — it is faster and incurs no interchange fees.
+
+```kotlin
+// Linked refund — recommended; gateway validates against the original and caps the amount
+hapi.refund(BigInteger("1000"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund — omit originalTransactionID (some acquirers restrict this)
+hapi.refund(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+Check `result.finStatus == AUTHORISED`. A linked refund fails if the refund amount exceeds the original `totalAmount`.
+
+### Reversal {#reversal}
+
+Use to cancel an unsettled same-day transaction before batch close. No card presentation is required. After settlement, send a Refund instead.
+
+```kotlin
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // transactionID from the original sale result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversed — hold released, no settlement
+    }
+}
+```
+
+Check `result.finStatus == AUTHORISED`. `DECLINED` means the transaction was not found in the open batch — the batch may have already closed.
+
+### Pre-Authorization
+
+Use for hotel check-ins, car rentals, or any flow where the final amount is unknown at card presentation. Supporting pre-auth means implementing the full lifecycle: Create → (optional Increase / Decrease) → Capture → or Reversal to release unused holds.
+
+```kotlin
+// 1. Create a hold — card presented at terminal
+hapi.preAuthorization(BigInteger("10000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    when (result.finStatus) {
+        FinancialStatus.AUTHORISED -> {
+            val preAuthID = result.transactionID  // persist for capture or reversal
+        }
+        else -> { /* declined or failed */ }
+    }
+}
+
+// 2. Capture when the final amount is known — no card required
+hapi.preAuthorizationCapture(
+    BigInteger("9500"),                              // actual charge, may differ from hold
+    Currency.USD,
+    preAuthID                                        // transactionID from step 1
+)
+
+// 3. Release unused hold without charging — no card required
+hapi.preAuthorizationReversal(preAuthID)
+```
+
+Both Capture and Reversal results arrive in `endOfTransaction`. Always reverse unused pre-auths — unreleased holds affect cardholder available credit and expire after 7–30 days.
+
+### MOTO Sale (Key Entry)
+
+Use when a cardholder reads their card details over the phone and an operator keys them directly on the PAX terminal's touchscreen. Despite using the physical terminal, this is processed as a MOTO (card-not-present) transaction and incurs higher interchange rates — confirm the fee structure with your acquirer.
+
+```kotlin
+// Terminal shows manual card entry screen; operator types card number, expiry, CVV
+hapi.motoSale(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for potential reversal
+        // result.paymentScenario == PaymentScenario.MOTO
+    }
+}
+```
+
+Requires `cloudApiKey` in `HandpointCredentials` and MOTO enabled for the merchant by Handpoint. Check `result.finStatus` — `CANCELLED` means the operator exited the entry screen.
+
+### Tokenization
+
+Use to store a reusable card token for future card-not-present charges without charging the card now. Pass `SaleAndTokenizeOptions` to charge and tokenize in one step.
+
+```kotlin
+// Tokenize only — no charge, card presented at terminal
+hapi.tokenizeCard()
+
+// Charge + tokenize in one step
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val token = result.cardToken          // store securely for future motoSale()
+        // result.cardTokenProvider           // "EPI" / "PROCHARGE" — identifies the vault
+    }
+}
+```
+
+`result.cardToken` is non-null only when tokenization succeeded. Use the token in `hapi.motoSale()` with `MoToOptions(cardToken = token)` for future card-not-present charges.
+
+### Tip Adjustment
+
+Use in tip-at-table flows — the cardholder signs a paper receipt after the sale and writes in a tip, and the cashier enters it before batch close. This is distinct from Sale with Tip, which collects the tip at checkout before authorisation.
+
+```kotlin
+// Returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("200"),                               // 200 = $2.00 tip in minor units
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"           // transactionID from original sale
+)
+// To zero out an existing tip: pass BigInteger("0")
+```
+
+`true` means the SDK sent the adjustment to the gateway. Must be called before batch close — see the [Utility methods table](#utility-methods--verified-return-values-pax-a920) for confirmed PAX return values.
+
 ## Operations available
 
 | Operation | Acquirer support |
