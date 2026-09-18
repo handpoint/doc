@@ -175,6 +175,7 @@ const sidebars = {
             'reference/ios-objects-reference',
             'reference/windows-objects-reference',
             'reference/javascript-objects-reference',
+            'reference/cordova-objects-reference',
             'reference/error-codes',
             'reference/error-handling-guide',
             'reference/cloud-api-operations',

@@ -271,3 +271,4 @@ https://developer.handpoint.com/reference/fee-mitigation
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
+- Objects reference: `/reference/cordova-objects-reference` — all method signatures, TransactionResult fields, enums, TipConfiguration, ConnectionMethod, error strings
