@@ -172,6 +172,7 @@ const sidebars = {
             'reference/transaction-result-object',
             'reference/android-objects-reference',
             'reference/android-events-reference',
+            'reference/ios-objects-reference',
             'reference/windows-objects-reference',
             'reference/javascript-objects-reference',
             'reference/error-codes',

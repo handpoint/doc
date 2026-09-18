@@ -515,6 +515,26 @@ NSString  *cardToken    = info.CardToken;           // tokenization only
 Not supported on this path. Use PAX terminal with Android SDK.
 Reference: https://developer.handpoint.com/reference/fee-mitigation
 
+## Objects Reference
+
+Full type reference: `/reference/ios-objects-reference`
+
+Key types and where they appear:
+
+| Type / Field | Notes |
+|---|---|
+| `HeftManager` | Singleton entry point — `sharedManager`, `startDiscovery`, `clientForDevice:sharedSecret:delegate:` |
+| `HeftClient` | Transaction interface from `didConnect:` — all sale/refund/reversal methods return `BOOL` |
+| `HeftDiscoveryDelegate` | `didFindAccessoryDevice:`, `didDiscoverFinished`, `didLostAccessoryDevice:` |
+| `HeftStatusReportDelegate` | `didConnect:`, `responseStatus:`, `responseFinanceStatus:`, `requestSignature:`, `responseRecoveredTransactionStatus:` |
+| `FinanceResponseInfo.finStatus` | `"AUTHORISED"` `"DECLINED"` `"CANCELLED"` `"FAILED"` `"PARTIAL_APPROVAL"` `"PROCESSED"` `"UNDEFINED"` |
+| `FinanceResponseInfo.eFTTransactionID` | Primary GUID — store on AUTHORISED; use for reversal/refund |
+| `FinanceResponseInfo.transactionId` | Internal ID — used for `tipAdjustment(transaction:…)` only |
+| `FinanceResponseInfo.dueAmount` | Remaining balance after partial approval (US only) |
+| `requestSignature:` receipt param | Either `https://` URL or raw base64 — always check `hasPrefix("http")` before use |
+| `tipAdjustment()` | C function in `HapiRemoteService.h`; `TipAdjustmentStatus`: Authorised / Declined / Failed |
+| Threading | All callbacks on background thread — `dispatch_async(dispatch_get_main_queue(), …)` for UI |
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`
