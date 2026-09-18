@@ -494,7 +494,7 @@ def handpoint_callback():
 
 An unauthenticated callback endpoint can produce phantom transaction records if a third party posts to it. Keep `token` out of your source code — load it from an environment variable.
 
-### Callback retry schedule
+### Callback retry schedule {#callback-retry-schedule}
 
 If your endpoint returns a non-2xx status code, or the connection times out, the terminal automatically retries delivery on the following schedule:
 
