@@ -2016,7 +2016,7 @@ Same test scenarios as on-device Reversal — see [Reversal — Testing](#revers
 
 ## Tip Adjustment {#tip-adjustment}
 
-<FlavorSection description="Post-authorization · adjust tip before batch close" paths={["android-pax","android-hilite","cordova","backoffice"]}>
+<FlavorSection description="Post-authorization · adjust tip before batch close" paths={["android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk","backoffice"]}>
 
 Modifies the tip amount on a completed sale **before batch close**. Used in restaurant/hospitality flows where the cardholder signs a paper receipt and adds a tip after the initial authorization.
 
@@ -2117,6 +2117,39 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 />
 
 </TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// tipAdjustment returns Promise<{finStatus, statusMessage}> — no transactionReference
+const status = await hp.tipAdjustment(
+    '900',                                        // '900' = $9.00 in minor units
+    '01236fc0-8192-11eb-9aca-ad4b0e95f241'        // efttransactionID from original sale
+);
+// status.finStatus === 'Tip adjusted' → success
+// status.finStatus === 'ERROR'        → failed; do not retry without investigating
+// To void a tip: pass '0' as tipAmount
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows SDK">
+
+```csharp
+// TipAdjustment returns Task<FinancialStatus> — no EndOfTransaction callback fires
+FinancialStatus status = await hapi.TipAdjustment(
+    BigInteger.Parse("900"),                           // 900 cents = $9.00
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"            // efttransactionID from original sale
+);
+
+switch (status)
+{
+    case FinancialStatus.AUTHORISED: /* Tip adjusted — update receipt */ break;
+    case FinancialStatus.DECLINED:   /* Declined — do not retry */       break;
+    case FinancialStatus.FAILED:     /* System error — safe to retry once */ break;
+}
+// To void a tip: pass BigInteger.Parse("0")
+```
+
+</TabItem>
 </Tabs>
 
 #### Parameters
@@ -2135,6 +2168,20 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 | `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
 | `currency` | `Currency` | Currency of the original transaction |
 | `originalTransactionID` | `String` | `transactionID` from the original sale result |
+
+**JavaScript SDK** — `tipAdjustment(tipAmount, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tipAmount` | `string` | Tip amount in minor units (e.g. `'900'` = $9.00). `'0'` to void |
+| `originalTransactionID` | `string` | `efttransactionID` from the original sale result |
+
+**Windows SDK** — `TipAdjustment(tipAmount, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger.Parse("0")` to void |
+| `originalTransactionID` | `string` | `efttransactionID` from the original sale result |
 
 #### Errors
 
