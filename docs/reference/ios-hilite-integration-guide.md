@@ -1032,7 +1032,7 @@ The full transaction result object delivered to `responseFinanceStatus:`. Inheri
 | `transactionId` | `NSString` | Internal transaction ID |
 | `eFTTimestamp` | `NSString` | Transaction timestamp in ISO format (YYYYMMDDHHmmSS) |
 | `authorisationCode` | `NSString` | Approval code from the processor |
-| `cardSchemeName` | `NSString` | Card brand: `"Visa"`, `"Mastercard"`, `"Amex"`, etc. |
+| `cardSchemeName` | `NSString` | Card brand as emitted by terminal firmware (always uppercase): `"VISA"`, `"MASTERCARD"`, `"AMEX"`, etc. |
 | `cardEntryType` | `NSString` | How card was read: `"ICC"` (chip), `"NFC"` (tap), `"MSR"` (swipe) |
 | `verificationMethod` | `NSString` | Cardholder verification: `"PIN"`, `"SIGNATURE"`, `"NO_VERIFICATION"` |
 | `CardToken` | `NSString` | Card token (tokenization operations) |

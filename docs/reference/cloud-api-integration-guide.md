@@ -201,7 +201,7 @@ The terminal processes the transaction. When complete, Handpoint POSTs the `Tran
   "requestedAmount": 1000,
   "totalAmount": 1000,
   "currency": "USD",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "maskedCardNumber": "************0936",
   "authorisationCode": "123456",
   "issuerResponseCode": "00",
@@ -226,7 +226,7 @@ The terminal processes the transaction. When complete, Handpoint POSTs the `Tran
   "requestedAmount": 1000,
   "totalAmount": 0,
   "currency": "USD",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "maskedCardNumber": "************0936",
   "authorisationCode": "",
   "issuerResponseCode": "05"
@@ -305,7 +305,7 @@ result = resp.json()  # only on 200
   "requestedAmount": 1000,
   "totalAmount": 1000,
   "currency": "USD",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "maskedCardNumber": "************0936",
   "authorisationCode": "123456",
   "issuerResponseCode": "00"

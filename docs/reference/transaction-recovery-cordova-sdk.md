@@ -289,7 +289,7 @@ The `/status/all` endpoint returns a JSON **array** of operations, ordered from 
     "transactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
     "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
     "authorisationCode": "155884",
-    "cardSchemeName": "Visa",
+    "cardSchemeName": "VISA",
     "maskedCardNumber": "************1456"
   }
 ]

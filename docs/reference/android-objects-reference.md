@@ -361,19 +361,19 @@ Set via `api.setLogLevel(LogLevel.Info)` after `InitialisationComplete`.
 
 ### `CardSchemeName`
 
-Card network as returned by the terminal.
+Card network string as emitted by the terminal firmware (always uppercase). Confirmed from live terminal captures: `VISA`, `MASTERCARD`, `DISCOVER`, `AMEX`. Other brands follow the same pattern.
 
 | Value |
 |---|
-| `MasterCard` |
-| `Visa` |
-| `Maestro` |
-| `American Express` |
-| `Discover` |
+| `VISA` |
+| `MASTERCARD` |
+| `MAESTRO` |
+| `AMEX` |
+| `DISCOVER` |
 | `JCB` |
-| `Diners` |
-| `UnionPay` |
-| `Interac` |
+| `DINERS` |
+| `UNIONPAY` |
+| `INTERAC` |
 
 ---
 

@@ -415,7 +415,7 @@ Call `[info toDictionary]` to serialize all non-empty fields as an `NSDictionary
 
 | Field | Type | Notes |
 |---|---|---|
-| `cardSchemeName` | `NSString` | Card brand — `"Visa"`, `"MasterCard"`, `"Amex"`, `"Maestro"`, `"Discover"`, `"JCB"`, `"Diners"`, `"UnionPay"`, `"Interac"` |
+| `cardSchemeName` | `NSString` | Card brand as emitted by terminal firmware (always uppercase) — `"VISA"`, `"MASTERCARD"`, `"AMEX"`, `"MAESTRO"`, `"DISCOVER"`, `"JCB"`, `"DINERS"`, `"UNIONPAY"`, `"INTERAC"` |
 | `cardEntryType` | `NSString` | How the card was read — `"ICC"` (chip), `"NFC"` (contactless tap), `"MSR"` (magnetic stripe swipe) |
 | `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"PIN_SIGNATURE"`, `"NOT_REQUIRED"`, `"UNDEFINED"`, `"FAILED"`, `"MOBILE_PASS_CODE"` |
 | `CardToken` | `NSString` | Card token returned by `tokenizeCard` and `saleAndTokenize` operations |
@@ -495,19 +495,19 @@ Returned in `FinanceResponseInfo.cardEntryType`:
 
 ### `CardSchemeName` string values
 
-Returned in `FinanceResponseInfo.cardSchemeName`:
+Returned in `FinanceResponseInfo.cardSchemeName`. The SDK passes this through directly from the terminal firmware — values are always uppercase. Confirmed from live terminal captures: `VISA`, `MASTERCARD`, `DISCOVER`, `AMEX`.
 
 | Value |
 |---|
-| `"Visa"` |
-| `"MasterCard"` |
-| `"Maestro"` |
-| `"Amex"` |
-| `"Discover"` |
+| `"VISA"` |
+| `"MASTERCARD"` |
+| `"MAESTRO"` |
+| `"AMEX"` |
+| `"DISCOVER"` |
 | `"JCB"` |
-| `"Diners"` |
-| `"UnionPay"` |
-| `"Interac"` |
+| `"DINERS"` |
+| `"UNIONPAY"` |
+| `"INTERAC"` |
 
 ### `TipAdjustmentStatus`
 

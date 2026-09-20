@@ -51,7 +51,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "paymentScenario": "CHIPCONTACTLESS",
   "tenderType": "CREDIT",
   "verificationMethod": "NOT_REQUIRED",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "maskedCardNumber": "************0936",
   "cardTypeId": "************0936",
   "expiryDateMMYY": "1027",
@@ -152,7 +152,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `paymentScenario` | string | Detailed entry path. See [paymentScenario values](#paymentscenario-values). |
 | `tenderType` | string | `CREDIT` `DEBIT` `PREPAID` `NOT_SET` (MOTO and cancelled transactions) |
 | `verificationMethod` | string | How the cardholder was verified. See [verificationMethod values](#verificationmethod-values). |
-| `cardSchemeName` | string | Card network name as returned by the terminal: `"Visa"` `"Mastercard"` `"Amex"` etc. |
+| `cardSchemeName` | string | Card network as emitted by terminal firmware (always uppercase): `"VISA"` `"MASTERCARD"` `"AMEX"` etc. |
 | `maskedCardNumber` | string | PAN masked as `"************1234"`. |
 | `cardTypeId` | string | Alternative masked PAN representation (same format). |
 | `expiryDateMMYY` | string | Card expiry date in `MMYY` format, e.g. `"1027"` = October 2027. |
@@ -416,7 +416,7 @@ result.cardEntryType            // CardEntryType.ICC
 result.paymentScenario          // PaymentScenario.CHIPCONTACTLESS
 result.tenderType               // TenderType.CREDIT
 result.verificationMethod       // VerificationMethod.NOT_REQUIRED
-result.cardSchemeName           // "Visa"
+result.cardSchemeName           // "VISA"
 result.maskedCardNumber         // "************0936"
 result.cardTypeId               // "************0936"
 result.expiryDateMMYY           // "1027"
@@ -535,7 +535,7 @@ deprecated object keeps working.
 | `paymentScenario` | PaymentScenario | Detailed entry path — `CHIP` `CHIPCONTACTLESS` `MAGSTRIPE` `MOTO`. `UNKNOWN` on reversals and cancelled transactions. |
 | `tenderType` | TenderType | `CREDIT` `DEBIT` `PREPAID` `NOT_SET` (MOTO and cancelled transactions). |
 | `verificationMethod` | VerificationMethod | `NOT_REQUIRED` `PIN` `SIGNATURE` `MOBILE_PASS_CODE` etc. |
-| `cardSchemeName` | String | Card network: `"Visa"` `"Mastercard"` `"Amex"` etc. |
+| `cardSchemeName` | String | Card network (always uppercase): `"VISA"` `"MASTERCARD"` `"AMEX"` etc. |
 | `maskedCardNumber` | String | Masked PAN, e.g. `"************1234"`. 15-digit schemes (Amex) use 11 asterisks. |
 | `cardTypeId` | String | When populated, mirrors `maskedCardNumber` exactly. Empty for MOTO/CNP transactions. |
 | `expiryDateMMYY` | String | Expiry in `MMYY` format. |

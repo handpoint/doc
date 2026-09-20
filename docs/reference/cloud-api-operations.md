@@ -98,7 +98,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
   "transactionID": "67905570-a9f5-11f1-a943-f9c9f04151d9",
   "transactionReference": "5c7056aa-b0a6-4ee9-891e-aae6ce7ea725",
   "maskedCardNumber": "************0936",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "tenderType": "CREDIT",
   "cardEntryType": "ICC",
   "paymentScenario": "CHIP",
@@ -171,7 +171,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700034700 \
   "cardToken": "K33f40000000000093",
   "transactionID": "e3303350-a9f3-11f1-a943-f9c9f04151d9",
   "maskedCardNumber": "************0936",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "tenderType": "CREDIT",
   "cardEntryType": "ICC",
   "paymentScenario": "CHIPCONTACTLESS",
@@ -254,7 +254,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700678000 \
   "statusMessage": "Approved or completed successfully",
   "cardToken": "K33f40000000000093",
   "maskedCardNumber": "************0936",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "cardEntryType": "ICC",
   "type": "TOKENIZE_CARD"
 }

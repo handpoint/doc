@@ -170,7 +170,9 @@ The primary field to switch on in `EndOfTransaction`.
 
 ## CardSchemeName (enum)
 
-`MasterCard` `Visa` `Maestro` `American Express` `Discover` `JCB` `Diners` `UnionPay` `Interac`
+Enum member names (PascalCase): `MasterCard` `Visa` `Maestro` `AmericanExpress` `Discover` `JCB` `Diners` `UnionPay` `Interac`
+
+The terminal firmware emits all-uppercase strings (`VISA`, `MASTERCARD`, `AMEX`, `DISCOVER`…). The SDK deserializes these into the corresponding enum member.
 
 ---
 

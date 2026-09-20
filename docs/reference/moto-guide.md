@@ -93,7 +93,7 @@ HTTP 204 = still processing (no body — do not call `.json()`). HTTP 200 = resu
   "tipAmount": 0,
   "dueAmount": 0,
   "currency": "USD",
-  "cardSchemeName": "Visa",
+  "cardSchemeName": "VISA",
   "maskedCardNumber": "************2383",
   "authorisationCode": "123456",
   "issuerResponseCode": "00",

@@ -46,7 +46,7 @@ The final outcome object resolved from `transactionResult`.
 | `merchantReceipt` | string | URL to the merchant receipt, or an HTML string if the upload to Handpoint servers failed. |
 | `signatureUrl` | string | URL to a signature image, or base64-encoded binary if the upload failed. See [Signature handling](#signature-handling). |
 | `maskedCardNumber` | string | Masked PAN, e.g. `"************1456"`. |
-| `cardSchemeName` | CardSchemeName | Card scheme name enum value, e.g. `'MasterCard'`. |
+| `cardSchemeName` | CardSchemeName | Card scheme name as emitted by the terminal, e.g. `'VISA'`, `'MASTERCARD'`. |
 | `cardEntryType` | CardEntryType | How the card was read (chip, contactless, swipe, CNP). |
 | `recoveredTransaction` | boolean | `true` if this result was delivered via the recovery loop rather than the primary Pusher connection. |
 | `originalEFTTransactionID` | string | For reversal results — the `efttransactionID` of the original transaction that was reversed. |
@@ -417,17 +417,19 @@ How the card was read at the terminal.
 
 ### CardSchemeName
 
+Card network string as emitted by the terminal firmware (always uppercase). Confirmed from live terminal captures: `VISA`, `MASTERCARD`, `DISCOVER`, `AMEX`.
+
 | Value |
 |---|
-| `'MasterCard'` |
-| `'Visa'` |
-| `'Maestro'` |
-| `'American Express'` |
-| `'Discover'` |
+| `'VISA'` |
+| `'MASTERCARD'` |
+| `'MAESTRO'` |
+| `'AMEX'` |
+| `'DISCOVER'` |
 | `'JCB'` |
-| `'Diners'` |
-| `'UnionPay'` |
-| `'Interac'` |
+| `'DINERS'` |
+| `'UNIONPAY'` |
+| `'INTERAC'` |
 
 ---
 

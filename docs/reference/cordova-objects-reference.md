@@ -343,7 +343,7 @@ The `TransactionResult` is delivered to the `successCb` of each financial operat
 | `totalAmount` | number | Actual charged amount in the minor unit of the currency, including any tip. May differ from the requested amount. |
 | `tipAmount` | number | Tip amount in minor units. `0` if no tip was collected. |
 | `currency` | string | ISO 4217 currency code of the transaction. |
-| `cardSchemeName` | string | Card network name (e.g. `"Visa"`, `"MasterCard"`). See [CardSchemeName](#cardschemename). |
+| `cardSchemeName` | string | Card network name (e.g. `"VISA"`, `"MASTERCARD"`). See [CardSchemeName](#cardschemename). |
 | `maskedCardNumber` | string | Masked PAN, e.g. `"************1456"`. |
 | `cardEntryType` | string | How the card was read. See [CardEntryType](#cardentrytype). |
 | `signatureUrl` | string | Signature image — either a URL or base64-encoded binary. See [Signature handling](#signature-handling). |
@@ -636,19 +636,19 @@ Common `errorCb` error strings:
 
 ## CardSchemeName
 
-Card network name as returned by the terminal. Appears in `TransactionResult.cardSchemeName`.
+Card network string as emitted by the terminal firmware. Appears in `TransactionResult.cardSchemeName`. Values are always uppercase — confirmed from live terminal captures.
 
 | Value |
 |---|
-| `'Visa'` |
-| `'MasterCard'` |
-| `'Maestro'` |
-| `'American Express'` |
-| `'Discover'` |
+| `'VISA'` |
+| `'MASTERCARD'` |
+| `'MAESTRO'` |
+| `'AMEX'` |
+| `'DISCOVER'` |
 | `'JCB'` |
-| `'Diners'` |
-| `'UnionPay'` |
-| `'Interac'` |
+| `'DINERS'` |
+| `'UNIONPAY'` |
+| `'INTERAC'` |
 
 ---
 

@@ -161,7 +161,7 @@ fun interacVoid(originalId: String, originalAmountMinorUnits: Long,
 
 ### Detecting Interac cards
 
-`TransactionResult.cardSchemeName` returns the card network name (e.g. `"Interac"`, `"Visa"`). After every result, the demo checks the scheme name and swaps the VOID button in or out accordingly:
+`TransactionResult.cardSchemeName` returns the card network name as emitted by the terminal (e.g. `"INTERAC"`, `"VISA"`). After every result, the demo checks the scheme name and swaps the VOID button in or out accordingly:
 
 ```kotlin
 override fun onTransactionResult(result: TransactionResult) {
