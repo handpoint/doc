@@ -58,8 +58,8 @@ Controls SDK behavior at initialization time.
 
 | Property | Type | Default | Description |
 |---|---|---|---|
-| `automaticReconnection` | `Boolean` | `true` | Automatically reconnect to the terminal on disconnect. The SDK uses exponential backoff between reconnection attempts. |
-| `autoRecoverTransactionResult` | `Boolean` | `true` | When `true`, the SDK automatically delivers any stored transaction result via `transactionResultReady()` on reconnect. Complementary to manual `getTransactionStatus()` polling — implement the idempotency guard in `transactionResultReady` to handle both paths. |
+| `automaticReconnection` | `Boolean` | `false` | Automatically reconnect to the terminal on disconnect. The SDK uses exponential backoff between reconnection attempts. |
+| `autoRecoverTransactionResult` | `Boolean` | `false` | When `true`, the SDK automatically delivers any stored transaction result via `transactionResultReady()` on reconnect. Complementary to manual `getTransactionStatus()` polling — implement the idempotency guard in `transactionResultReady` to handle both paths. |
 | `sendToDeviceMaxAttempts` | `Int` | `3` | Maximum command delivery attempts before failure. |
 | `timeBetweenAttempts` | `Int` | `5000` | Milliseconds between delivery retry attempts. |
 | `showSDKUIComponents` | `Boolean` | `false` | When `true`, the SDK shows "Please Wait" dialogs and toast messages on the **host app's** Android screen. The PAX terminal's own PIN, signature, and duplicate-check screens are always shown regardless of this setting. |
@@ -292,7 +292,6 @@ The card funding type.
 |---|---|
 | `CREDIT` | Credit card. |
 | `DEBIT` | Debit card. |
-| `PREPAID` | Prepaid card. |
 | `NOT_SET` | Unknown — common on MOTO and cancelled transactions. |
 
 ---
@@ -350,10 +349,10 @@ Controls SDK and terminal log verbosity.
 
 | Value | Use |
 |---|---|
-| `None` | No logging. |
+| `Error` | Errors only — minimum logging. |
 | `Info` | Informational events. Recommended for production. |
-| `Full` | Full message payloads — more verbose; use during development. |
 | `Debug` | Debug-level output. |
+| `Full` | Full message payloads — more verbose; use during development. |
 | `Sensitive` | Maximum verbosity — includes sensitive card data. **Never use in production.** |
 
 Set via `api.setLogLevel(LogLevel.Info)` after `InitialisationComplete`.

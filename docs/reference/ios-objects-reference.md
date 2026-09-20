@@ -415,9 +415,9 @@ Call `[info toDictionary]` to serialize all non-empty fields as an `NSDictionary
 
 | Field | Type | Notes |
 |---|---|---|
-| `cardSchemeName` | `NSString` | Card brand — `"Visa"`, `"Mastercard"`, `"Amex"`, `"Maestro"`, `"Discover"`, `"JCB"`, `"Diners"`, `"UnionPay"`, `"Interac"` |
+| `cardSchemeName` | `NSString` | Card brand — `"Visa"`, `"MasterCard"`, `"Amex"`, `"Maestro"`, `"Discover"`, `"JCB"`, `"Diners"`, `"UnionPay"`, `"Interac"` |
 | `cardEntryType` | `NSString` | How the card was read — `"ICC"` (chip), `"NFC"` (contactless tap), `"MSR"` (magnetic stripe swipe) |
-| `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"PIN_SIGNATURE"`, `"NO_VERIFICATION"`, `"UNDEFINED"`, `"FAILED"` |
+| `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"PIN_SIGNATURE"`, `"NOT_REQUIRED"`, `"UNDEFINED"`, `"FAILED"`, `"MOBILE_PASS_CODE"` |
 | `CardToken` | `NSString` | Card token returned by `tokenizeCard` and `saleAndTokenize` operations |
 
 ### Receipts
@@ -500,7 +500,7 @@ Returned in `FinanceResponseInfo.cardSchemeName`:
 | Value |
 |---|
 | `"Visa"` |
-| `"Mastercard"` |
+| `"MasterCard"` |
 | `"Maestro"` |
 | `"Amex"` |
 | `"Discover"` |

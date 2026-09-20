@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity(), Events.SmartposRequired {
             sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132",
             cloudApiKey  = "YOUR_CLOUD_API_KEY"   // omit if not using recovery
         )
-        hapi = HapiFactory.getHapiInstance(this, this, credentials)
+        hapi = HapiFactory.getAsyncInterface(this, this, credentials, Settings())
     }
 
     // Fires when any operation completes

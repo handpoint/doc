@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity(), Events.SmartposRequired {
             sharedSecret = "YOUR_SHARED_SECRET",
             cloudApiKey  = "YOUR_API_KEY"   // required for getTransactionStatus recovery
         )
-        hapi = HapiFactory.getHapiInstance(this, this, credentials)
+        hapi = HapiFactory.getAsyncInterface(this, this, credentials, Settings())
     }
 
     // Wait for InitialisationComplete before calling any financial operation
@@ -141,7 +141,7 @@ class MainActivity : AppCompatActivity(), Events.MposRequired {
         super.onCreate(savedInstanceState)
 
         val credentials = HandpointCredentials(sharedSecret = "YOUR_SHARED_SECRET")
-        hapi = HapiFactory.getHapiInstance(this, this, credentials)
+        hapi = HapiFactory.getAsyncInterface(this, this, credentials, Settings())
 
         hapi.searchDevices(ConnectionMethod.BLUETOOTH)  // scan for nearby HiLite readers
     }

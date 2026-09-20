@@ -134,7 +134,7 @@ class MainActivity : AppCompatActivity(), Events.MposRequired {
         val credentials = HandpointCredentials(
             sharedSecret = "0102030405060708091011121314151617181920212223242526272829303132"
         )
-        hapi = HapiFactory.getHapiInstance(this, this, credentials)
+        hapi = HapiFactory.getAsyncInterface(this, this, credentials, Settings())
     }
 
     // Required: fires when an operation completes
