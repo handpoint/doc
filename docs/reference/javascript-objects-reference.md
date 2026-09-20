@@ -61,6 +61,27 @@ The final outcome object resolved from `transactionResult`.
 | `verificationMethod` | VerificationMethod | CVM method used: PIN, SIGNATURE, PIN_SIGNATURE, NOT_REQUIRED, etc. |
 | `multiLanguageStatusMessages` | Map | Terminal status messages in multiple languages. |
 | `multiLanguageErrorMessages` | Map | Error messages in multiple languages. |
+| `aid` | string | EMV Application Identifier of the card (EMV tag 9F06). |
+| `arc` | string | EMV Authorisation Response Code (EMV tag 8A). |
+| `balance` | [Balance](#balance) | Balance available on the card (contactless only). |
+| `budgetNumber` | string | Used to split payments over a period of months (budget/installment number). |
+| `cardLanguagePreference` | string | Preferred language of the card (EMV tag 5F2D). |
+| `chipTransactionReport` | string | Full report of the card EMV parameters. |
+| `customerReference` | string | Echoed from `options.customerReference` in the transaction request, if provided. |
+| `deviceStatus` | [DeviceStatus](#devicestatus) | Status of the payment terminal at the time of the transaction. |
+| `efttimestamp` | string | Unix epoch timestamp of the transaction (based on the terminal's clock). |
+| `expiryDateMMYY` | string | Expiry date of the card used for the operation, in MMYY format (e.g. `"0426"`). |
+| `iad` | string | EMV Issuer Application Data (EMV tag 9F10). |
+| `issuerResponseCode` | string | Response code from the card issuer (e.g. `"00"` for approved). |
+| `merchantAddress` | string | Merchant address as configured in the terminal. |
+| `merchantName` | string | Merchant name as configured in the terminal. |
+| `mid` | string | Merchant Identifier. |
+| `rrn` | string | Retrieval Reference Number — unique number assigned by the acquirer. |
+| `statusMessage` | string | Human-readable terminal status message (e.g. `"Approved or completed successfully"`). |
+| `tid` | string | Terminal Identifier. |
+| `tsi` | string | EMV Transaction Status Information (EMV tag 9B). |
+| `tvr` | string | EMV Transaction Verification Results (EMV tag 95). |
+| `unMaskedPan` | string | Full unmasked PAN. Only present for non-payment cards (e.g. loyalty cards). |
 
 ### Reading the result
 
@@ -124,6 +145,48 @@ function displaySignature(value) {
     }
 }
 ```
+
+---
+
+## Balance
+
+Balance available on the card. Present on contactless transactions where the terminal retrieves the balance from the card.
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | number | Balance amount in the minor unit of currency. |
+| `currency` | Currency | ISO 4217 currency code of the balance. |
+| `positive` | boolean | `true` if the balance is positive. |
+| `negative` | boolean | `true` if the balance is negative. |
+
+```json
+{
+  "balance": {
+    "amount": 1000,
+    "currency": "EUR",
+    "negative": false,
+    "positive": true
+  }
+}
+```
+
+---
+
+## DeviceStatus
+
+Status of the payment terminal. Returned inside `TransactionResult.deviceStatus` and `TransactionStatus.deviceStatus` (status callback).
+
+| Field | Type | Description |
+|---|---|---|
+| `SerialNumber` | string | Serial number of the payment terminal. |
+| `BatteryStatus` | string | Battery charge level as a percentage (e.g. `"100"`). |
+| `BatterymV` | string | Battery voltage in millivolts (e.g. `"4134"`). |
+| `BatteryCharging` | string | Battery charging status (e.g. `"Charging"`, `"Not Charging"`). |
+| `ExternalPower` | string | External power source description (e.g. `"USB"`). |
+| `ApplicationName` | string | Name of the application running on the terminal. |
+| `ApplicationVersion` | string | Version of the application running on the terminal. |
+| `bluetoothName` | string | Bluetooth interface name of the terminal. |
+| `statusMessage` | string | Status message from the terminal (e.g. `"Approved or completed successfully"`). |
 
 ---
 

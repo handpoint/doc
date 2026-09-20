@@ -644,6 +644,54 @@ NSString *sharedSecret = @"01020304050607080910111213141516171819202122232425262
 
 ---
 
+## Barcode scanner (HiPro only)
+
+The barcode scanner API is available on HiPro (Lightning) terminals equipped with a barcode scanner. **HiLite Bluetooth readers do not have a barcode scanner.**
+
+### Enabling the scanner
+
+Call `enableScanner` (or one of its parameterised variants) to put the terminal into scan mode. The terminal waits for the scan button to be pressed and fires `responseScannerEvent:` for each code read.
+
+```objc
+// Enable with defaults — multi-scan on, button-activated, terminal-determined timeout
+[self.heftClient enableScanner];
+
+// Single-scan mode — scanner disables automatically after the first read
+[self.heftClient enableScannerWithMultiScan:NO];
+
+// Multi-scan, immediate (buttonless) activation, 30-second inactivity timeout
+[self.heftClient enableScannerWithMultiScan:YES buttonMode:NO timeoutSeconds:30];
+```
+
+### Receiving scan codes
+
+Implement `responseScannerEvent:` in your `HeftStatusReportDelegate` to receive each scanned barcode. This method is `@optional`.
+
+```objc
+- (void)responseScannerEvent:(id<ScannerEventResponseInfo>)info {
+    NSString *barcode = info.scanCode;
+    NSLog(@"Scanned: %@", barcode);
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.barcodeLabel.text = barcode;
+    });
+}
+
+- (void)responseScannerDisabled:(id<ScannerDisabledResponseInfo>)info {
+    // Scanner mode exited — update UI if needed
+    NSLog(@"Scanner disabled: %@", info.status);
+}
+```
+
+### Disabling the scanner
+
+Call `disableScanner` to exit scan mode explicitly. In single-scan mode (`multiScan:NO`) the terminal exits scan mode automatically after one read.
+
+```objc
+[self.heftClient disableScanner];
+```
+
+---
+
 ## Events and delegate callbacks
 
 Your view controller must conform to two protocols: **`HeftDiscoveryDelegate`** (set on `HeftManager`) and **`HeftStatusReportDelegate`** (set on `HeftManager.clientForDevice:…:delegate:`).

@@ -769,6 +769,375 @@ public void SignatureRequired(SignatureRequest request, Device device)
 }
 ```
 
+---
+
+### GetTransactionStatus
+
+Queries the Handpoint gateway for the current status of a transaction identified by its `transactionReference`. Use this when `EndOfTransaction` does not fire within 90 seconds — for example after a network drop, app restart, or terminal reboot.
+
+**Signature**
+
+```csharp
+TransactionResult GetTransactionStatus(string transactionReference)
+```
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `transactionReference` | `string` | Yes | UUID v4 returned in `OperationStartResult.TransactionReference` at the start of the original transaction |
+
+**Returns:** `TransactionResult` — check `result.FinStatus` to determine the outcome.
+
+| `FinStatus` value | Meaning | Action |
+|---|---|---|
+| `AUTHORISED` | Approved | Fulfil the order. If you have no local record, send a reversal. |
+| `DECLINED` | Declined | Clear pending state. Card was not charged. |
+| `FAILED` | Technical failure | Clear pending state. Card was not charged. |
+| `CANCELLED` | Cancelled | Clear pending state. |
+| `IN_PROGRESS` | Gateway has the transaction but no result yet | Poll again in 10 s |
+| `REFUNDED` | The original sale was refunded | Update your records |
+| `UNDEFINED` | Transaction not found in gateway | If within 90 s of start: poll again. After 90 s: card was not charged. |
+
+:::caution CloudApiKey required
+`GetTransactionStatus` requires a `cloudApiKey` in `HandpointCredentials`. If omitted, the method throws `SettingsPropertyNotFoundException`.
+:::
+
+**Example**
+
+```csharp
+// Save the reference before calling Sale
+string transactionReference = Guid.NewGuid().ToString();
+db.SavePendingTransaction(transactionReference);
+
+var options = new SaleOptions { TransactionReference = transactionReference };
+hapi.Sale(new BigInteger(1000), Currency.EUR, options);
+
+// If EndOfTransaction does not fire within 90 s:
+TransactionResult status = hapi.GetTransactionStatus(transactionReference);
+switch (status.FinStatus)
+{
+    case FinancialStatus.AUTHORISED:
+        // Fulfil or reverse depending on whether you have a local record
+        break;
+    case FinancialStatus.IN_PROGRESS:
+    case FinancialStatus.UNDEFINED:
+        // Poll again in 10 s
+        break;
+    default:
+        db.ClearPendingTransaction(transactionReference);
+        break;
+}
+```
+
+---
+
+## Device management
+
+Methods for connecting, disconnecting, and managing devices. All methods operate on the currently active (default) device unless a `Device` object is passed explicitly.
+
+---
+
+### Disconnect
+
+Stops the active connection and the reconnection loop. Does not interrupt a transaction in progress — if a transaction is running, the method returns `false`.
+
+**Signature**
+
+```csharp
+bool Disconnect()
+```
+
+Returns `true` if the disconnect was initiated successfully (takes 1–3 s to complete). Fires `ConnectionStatusChanged` as the connection winds down.
+
+**Example**
+
+```csharp
+bool ok = hapi.Disconnect();
+```
+
+---
+
+### SetLogLevel
+
+Sets the log verbosity for both the SDK and the connected terminal. If no device is connected yet, the level is stored and applied on the next connection.
+
+**Signature**
+
+```csharp
+bool SetLogLevel(LogLevel level)
+```
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `level` | `LogLevel` | Yes | `None`, `Info`, `Full`, or `Debug` |
+
+Returns `true` if the command was sent to the terminal.
+
+**Example**
+
+```csharp
+hapi.SetLogLevel(LogLevel.Debug);
+```
+
+---
+
+### GetDeviceLogs
+
+Requests the terminal to send its internal log buffer. Fires `DeviceLogsReady` when the download is complete. Useful for diagnosing communication errors after reconnection.
+
+**Signature**
+
+```csharp
+bool GetDeviceLogs()
+```
+
+Returns `true` if the request was sent. Result is delivered asynchronously via `DeviceLogsReady`.
+
+**Example**
+
+```csharp
+hapi.GetDeviceLogs();
+// Logs arrive in DeviceLogsReady(string logs, Device device)
+```
+
+---
+
+### GetPendingTransaction
+
+Fetches a transaction result that the terminal held because the SDK was unreachable when the transaction completed. Only call this when `PendingTransactionResult` fires or `HapiManager.IsTransactionResultPending()` returns `true`. Result is delivered via `TransactionResultReady`.
+
+**Signature**
+
+```csharp
+bool GetPendingTransaction()
+```
+
+Returns `true` if the request was sent. If no result was pending, `TransactionResultReady` fires with default/empty fields.
+
+**Example**
+
+```csharp
+public void PendingTransactionResult(Device device)
+{
+    hapi.GetPendingTransaction();
+}
+
+public void TransactionResultReady(TransactionResult result, Device device)
+{
+    HandleResult(result);
+}
+```
+
+---
+
+### Update
+
+Triggers a software or configuration update check on the terminal. If an update is available it downloads and installs automatically. Progress is shown on the terminal screen.
+
+**Signature**
+
+```csharp
+bool Update()
+```
+
+Returns `true` if the command was sent. No callback fires on completion — monitor the terminal screen.
+
+**Example**
+
+```csharp
+hapi.Update();
+```
+
+---
+
+### SearchDevices
+
+Starts an asynchronous search for available payment terminals of the given connection type. When the search finishes, `DeviceDiscoveryFinished` fires with a list of discovered devices.
+
+**Signature**
+
+```csharp
+void SearchDevices(ConnectionMethod method)
+```
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `method` | `ConnectionMethod` | Yes | `BLUETOOTH` or `CLOUD` |
+
+**Example**
+
+```csharp
+hapi.SearchDevices(ConnectionMethod.CLOUD);
+
+public void DeviceDiscoveryFinished(List<Device> devices)
+{
+    foreach (var d in devices)
+        Console.WriteLine(d.Name + " @ " + d.Address);
+}
+```
+
+---
+
+### StartMonitoringConnections / StopMonitoringConnections
+
+Starts (or stops) the OS-level hardware monitoring service. When running, the service listens for plug/unplug events and automatically reconnects the terminal. Always call `StopMonitoringConnections()` before the application exits.
+
+**Signatures**
+
+```csharp
+void StartMonitoringConnections()
+void StopMonitoringConnections()
+```
+
+**Example**
+
+```csharp
+// On startup
+hapi.StartMonitoringConnections();
+
+// On shutdown
+hapi.StopMonitoringConnections();
+```
+
+---
+
+### RegisterEventsDelegate / UnregisterEventsDelegate
+
+Adds or removes a secondary event listener. The primary listener is registered via `HapiFactory.GetAsyncInterface(this, credentials)`. Use these methods to add additional listeners (e.g. a logging component) at runtime.
+
+**Signatures**
+
+```csharp
+bool RegisterEventsDelegate(object listener)
+bool UnregisterEventsDelegate(object listener)
+```
+
+Returns `true` if the operation succeeded.
+
+**Example**
+
+```csharp
+hapi.RegisterEventsDelegate(mySecondaryListener);
+// ...
+hapi.UnregisterEventsDelegate(mySecondaryListener);
+```
+
+---
+
+## Events reference
+
+Events fire on a **background thread**. Marshal to the UI thread before updating controls.
+
+---
+
+### ConnectionStatusChanged
+
+Fires every time the connection state of a terminal changes — connecting, connected, disconnecting, or disconnected.
+
+**Signature**
+
+```csharp
+void ConnectionStatusChanged(ConnectionStatus status, Device device)
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `status` | `ConnectionStatus` | New connection state — `Connected`, `Connecting`, `Disconnected`, `Disconnecting`, `Initializing`, `NotConfigured` |
+| `device` | `Device` | The terminal whose connection state changed |
+
+**Example**
+
+```csharp
+public void ConnectionStatusChanged(ConnectionStatus status, Device device)
+{
+    Application.Current.Dispatcher.Invoke(() =>
+    {
+        StatusLabel.Content = $"{device.Name}: {status}";
+    });
+}
+```
+
+---
+
+### OnMessageLogged
+
+Fires for every SDK log message. Intended for debug builds — do not write these messages to the UI in production.
+
+**Signature**
+
+```csharp
+void OnMessageLogged(LogLevel logLevel, string message)
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `logLevel` | `LogLevel` | Severity of the message |
+| `message` | `string` | Log message text |
+
+Implement `Events.Log` to receive this event.
+
+**Example**
+
+```csharp
+public void OnMessageLogged(LogLevel logLevel, string message)
+{
+    Debug.WriteLine($"[{logLevel}] {message}");
+}
+```
+
+---
+
+### DeviceLogsReady
+
+Fires when the terminal has finished sending its internal log buffer in response to `GetDeviceLogs()`.
+
+**Signature**
+
+```csharp
+void DeviceLogsReady(string logs, Device device)
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `logs` | `string` | Full log text from the terminal |
+| `device` | `Device` | The terminal that sent the logs |
+
+**Example**
+
+```csharp
+public void DeviceLogsReady(string logs, Device device)
+{
+    File.WriteAllText($"terminal_logs_{device.Name}.txt", logs);
+}
+```
+
+---
+
+### PendingTransactionResult
+
+Fires when the SDK detects — on reconnection — that the terminal has a transaction result that was not delivered during the previous session. Call `hapi.GetPendingTransaction()` in response to fetch the full `TransactionResult`.
+
+This event does not fire when `Settings.AutomaticReconnection` handles the recovery automatically.
+
+**Signature**
+
+```csharp
+void PendingTransactionResult(Device device)
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `device` | `Device` | The terminal that has a pending result |
+
+**Example**
+
+```csharp
+public void PendingTransactionResult(Device device)
+{
+    hapi.GetPendingTransaction();
+    // Result delivered in TransactionResultReady
+}
+```
+
 ## Simulator (no hardware)
 
 ```csharp

@@ -195,6 +195,32 @@ Places a hold on cardholder funds without capturing them.
 
 ---
 
+#### `handpoint.preAuthorizationIncrease(params, successCb, errorCb)`
+
+Adjusts the authorized hold amount of a pending pre-authorization. Available on PAX SmartPOS only.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `params.amount` | number | Yes | Adjustment amount in minor units (e.g. `500` = $5.00). |
+| `params.currency` | string | Yes | ISO 4217 currency code. Must match the original pre-authorization. |
+| `params.originalTransactionID` | string | Yes | The `transactionID` from the original pre-authorization result. |
+| `params.tipAmount` | number | No | Tip amount in minor units to include in the hold adjustment. |
+| `params.customerReference` | string | No | Reference string echoed in the result. |
+
+```javascript
+handpoint.preAuthorizationIncrease(
+  {
+    amount: 500,
+    currency: 'USD',
+    originalTransactionID: 'pre-auth-txn-id',
+  },
+  function(result) { console.log('Hold adjusted', result); },
+  function(error) { console.error('Increase failed', error); }
+);
+```
+
+---
+
 #### `handpoint.preAuthorizationCapture(params, successCb, errorCb)`
 
 Captures a previously placed pre-authorization hold, moving funds to settlement.
@@ -253,6 +279,35 @@ Tokenizes a card without charging it. The card token is returned in `Transaction
 |---|---|---|---|
 | `params.customerReference` | string | No | Reference string echoed in the result. |
 
+:::caution `saleAndTokenize` is not available in this plugin
+The combined sale-and-tokenize operation (`saleAndTokenize`) is **not implemented** in the Cordova plugin. To run a sale and tokenize the card simultaneously, use the Android SDK directly or the Cloud API [`saleAndTokenizeCard`](/reference/cloud-api-operations#sale-and-tokenize) operation. To tokenize a card without a charge, use `handpoint.tokenizeCard()` above.
+:::
+
+---
+
+### Transaction control
+
+#### `handpoint.stopCurrentTransaction({}, successCb, errorCb)`
+
+Requests cancellation of the active transaction on the terminal. The terminal can only be stopped at specific points — while waiting for card insertion or on the PIN screen. Check `cancelAllowed` in the `currentTransactionStatus` event payload before calling.
+
+No parameters are required — pass an empty object `{}`.
+
+If the terminal accepts the stop, the `endOfTransaction` event (and `successCb`) fires with `finStatus: 'CANCELLED'`. If the terminal is past the point where cancellation is allowed, the transaction continues and completes normally.
+
+```javascript
+// Only cancel if the terminal says it's allowed
+document.addEventListener('handpoint.currentTransactionStatus', function(event) {
+  if (event.detail.info.cancelAllowed) {
+    handpoint.stopCurrentTransaction(
+      {},
+      function() { console.log('Stop request sent'); },
+      function(error) { console.error('Stop failed', error); }
+    );
+  }
+});
+```
+
 ---
 
 ### Tip adjustment
@@ -298,6 +353,15 @@ The `TransactionResult` is delivered to the `successCb` of each financial operat
 | `transactionReference` | string | UUID identifying this operation in the Handpoint gateway. **Store persistently before initiating the operation.** Used with `handpoint.getTransactionStatus()` for UNDEFINED recovery (PAX/Cloud path). |
 | `customerReference` | string | Echoed from `params.customerReference` in the operation call. |
 | `cardToken` | string | Card PAN token. Only present on `tokenizeCard` operations. |
+| `dueAmount` | string | Amount still outstanding after a `PARTIAL_APPROVAL`. Non-zero only on partial approval. Collect this remainder via another payment method or reverse for `totalAmount`. |
+| `metadata` | string | Echoed from `params.metadata` in the operation call, if provided. |
+| `originalEFTTransactionID` | string | `eFTTransactionID` of the transaction this result is linked to (e.g. the original sale for a reversal). Empty for standalone transactions. |
+| `requestedAmount` | number | Amount submitted to the terminal. Distinct from `totalAmount`, which may include tip or reflect a partial approval amount. |
+| `type` | string | Transaction type that produced this result. Common values: `SALE`, `REFUND`, `REVERSAL`, `TOKENIZE_CARD`, `PRE_AUTHORIZATION`, `PRE_AUTHORIZATION_CAPTURE`, `MOTO_SALE`, `MOTO_REFUND`, `MOTO_REVERSAL`. |
+| `recoveredTransaction` | boolean | `true` when this result arrived via the terminal's recovery loop after a server restart or network interruption. Use to detect and deduplicate recovered results. |
+| `paymentScenario` | string | How the card was processed. Common values: `CHIP`, `CHIPCONTACTLESS`, `MAGSTRIPE`, `MOTO`, `UNKNOWN`. |
+| `merchantName` | string | Merchant name from terminal configuration. |
+| `merchantAddress` | string | Merchant address from terminal configuration. |
 
 ### Reading the result
 
@@ -367,6 +431,32 @@ function displaySignature(value) {
     document.getElementById('sig').src = 'data:image/png;base64,' + value;
   }
 }
+```
+
+---
+
+## StatusInfo object
+
+The `StatusInfo` object is delivered as `event.detail.info` in the `handpoint.currentTransactionStatus` DOM event. It describes the mid-transaction state of the terminal and whether the active operation can be cancelled.
+
+| Field | Type | Description |
+|---|---|---|
+| `cancelAllowed` | boolean | `true` when the active transaction can be cancelled by calling `handpoint.stopCurrentTransaction()`. Typically `true` while waiting for card insertion and on the PIN screen. `false` once the transaction is being authorized. |
+| `status` | string | Current transaction state. Values include `WAITING_CARD`, `CARD_INSERTED`, `APPLICATION_SELECTION`, `PIN_INPUT`, `CONNECTING_TO_HOST`, `TRANSACTION_COMPLETED`. |
+| `message` | string | Human-readable description of the current status, in the terminal's configured language. Suitable for display in a progress indicator. |
+| `deviceStatus` | object | Device health snapshot. Fields: `serialNumber` (string), `batteryStatus` (string, 0–100), `batteryCharging` (string), `applicationName` (string), `applicationVersion` (string). |
+
+```javascript
+document.addEventListener('handpoint.currentTransactionStatus', function(event) {
+  const info = event.detail.info;
+  // info.status      — machine-readable state
+  // info.message     — display string
+  // info.cancelAllowed — whether to show a Cancel button
+  // info.deviceStatus — device health
+
+  updateProgressBar(info.message);
+  setCancelButtonVisible(info.cancelAllowed);
+});
 ```
 
 ---

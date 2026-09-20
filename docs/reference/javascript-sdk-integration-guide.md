@@ -80,6 +80,18 @@ npm install @handpoint/cloud-js-sdk
 
 ### 3. Initialise
 
+`hp.init(apiKey, environmentIsDevelopment, recovery_EoT_callback)` → `Promise<Device[]>`
+
+Initialises the SDK, authenticates with the Handpoint Cloud, and returns a Promise that resolves with the list of available terminals.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `apiKey` | string | Required | Your merchant API key, provisioned by Handpoint Integration Support |
+| `environmentIsDevelopment` | boolean | Optional (default: `false`) | `true` routes to debug terminals (`cloud.handpoint.io`); `false` routes to production terminals (`cloud.handpoint.com`) |
+| `recovery_EoT_callback` | function | Optional | Called on app startup when a previous transaction has no stored result. Receives an object with a `transactionReference` field. **Must return a Promise** — the ACK is sent to the terminal only after the Promise resolves; failing to return a Promise throws an error |
+
 ```javascript
 const hp = require('@handpoint/cloud-js-sdk');
 // or: import hp from '@handpoint/cloud-js-sdk';
@@ -789,6 +801,154 @@ const closed = await hp.closeBatch(serialNumber, deviceType, batchNumber);
 → Error codes: [Error codes](/reference/error-codes)
 
 → Objects reference: [JavaScript Objects Reference](/reference/javascript-objects-reference)
+
+---
+
+## Additional methods
+
+### MOTO Pre-Authorization
+
+`moToPreAuthorization(amount, currency, options?, callback?)` → `OperationStartedResult`
+
+Card-not-present pre-authorization. Prompts the operator to key in card details on the terminal, then places a hold on the cardholder's account without debiting funds. Capture with `preAuthorizationCapture` when the final amount is known.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Required | Amount to hold, in the minor unit of currency |
+| `currency` | string | Required | ISO 4217 currency code |
+| `options` | SaleOptions | Optional | Customisation options (customerReference, merchantAuth, metadata, etc.) |
+| `callback` | function | Optional | Callback receiving intermediate `TransactionStatus` updates |
+
+**Returns** `OperationStartedResult` (`transactionReference` + `transactionResult` Promise)
+
+```javascript
+const result = await hp.moToPreAuthorization('5000', 'USD', {}, (stat) => {
+    console.log('Status ->', stat.message);
+}).transactionResult;
+```
+
+---
+
+### Disconnect
+
+`hp.disconnect(device_name)` → `Promise`
+
+Unsubscribes from the terminal's Pusher channel and disconnects the WebSocket. Call this only when you intentionally want to stop using a terminal — the SDK manages the channel automatically during normal operation.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `device_name` | string | Required | Terminal identifier in `"serialNumber-terminalType"` format (e.g. `"0821032395-PAXA920"`) |
+
+```javascript
+await hp.disconnect('0821032395-PAXA920');
+```
+
+---
+
+### Stop Listening Device
+
+`hp.stopListeningDevice()` → `Promise`
+
+Unbinds all event listeners on the current channel and resets the connection state without fully disconnecting. Use this to clean up event bindings between transactions or before reconnecting.
+
+```javascript
+await hp.stopListeningDevice();
+```
+
+---
+
+### Print Receipt
+
+`hp.printReceipt(receipt, callback?)` → `OperationStartedResult`
+
+Sends a receipt string to the terminal's built-in printer. The `transactionResult` Promise resolves with `finStatus: 'PROCESSED'` on success.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `receipt` | string | Required | Receipt content to print (HTML or plain text, depending on terminal capabilities) |
+| `callback` | function | Optional | Callback receiving intermediate `TransactionStatus` updates |
+
+**Returns** `OperationStartedResult`
+
+```javascript
+const { transactionResult } = hp.printReceipt('<html>...</html>');
+const result = await transactionResult;
+// result.finStatus === 'PROCESSED' on success
+```
+
+---
+
+### Ping Device
+
+`hp.pingDevice(callback?)` → `Promise`
+
+Checks whether the terminal is online and listening on the secure channel. Useful for health checks before initiating a transaction. Rejects if the terminal does not respond within the connection timeout.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `callback` | function | Optional | Callback receiving intermediate status updates |
+
+```javascript
+await hp.pingDevice();
+console.log('Terminal is reachable');
+```
+
+---
+
+### Update
+
+`hp.update(callback?)` → `OperationStartedResult`
+
+Triggers a software update on the terminal. The terminal downloads and installs available updates; the `transactionResult` Promise resolves with `finStatus: 'AUTHORISED'` and `type: 'UPDATE'` on success. The terminal will reboot as part of the update.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `callback` | function | Optional | Callback receiving update progress status events |
+
+**Returns** `OperationStartedResult`
+
+```javascript
+const { transactionResult } = hp.update((stat) => {
+    console.log('Update progress ->', stat.message);
+});
+const result = await transactionResult;
+// result.finStatus === 'AUTHORISED', result.type === 'UPDATE' on success
+```
+
+---
+
+### Card PAN
+
+`hp.cardPan(options?, callback?)` → `OperationStartedResult`
+
+Prompts the cardholder to present their card and retrieves the full unmasked PAN. Intended for loyalty or non-payment card reads only. The PAN is returned in `TransactionResult.unMaskedPan`. Not available for all acquirers — check with Handpoint.
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `options` | Options | Optional | Customisation options (customerReference, metadata) |
+| `callback` | function | Optional | Callback receiving intermediate `TransactionStatus` updates |
+
+**Returns** `OperationStartedResult`
+
+```javascript
+const { transactionResult } = hp.cardPan({ customerReference: 'loyalty-lookup' });
+const result = await transactionResult;
+console.log('PAN:', result.unMaskedPan);
+```
+
+---
 
 ## See Also
 

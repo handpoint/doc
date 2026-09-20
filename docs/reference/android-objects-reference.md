@@ -160,6 +160,8 @@ A snapshot of the payment terminal's state at the time of a callback.
 | `externalPower` | `String` | External power source: `"USB"`, `"AC"`, `"None"`. |
 | `applicationName` | `String` | Name of the Handpoint Payments App on the terminal. |
 | `applicationVersion` | `String` | Version of the Payments App, e.g. `"20.4.14.0-RC.66"`. |
+| `bluetoothName` | `String` | Bluetooth name of the terminal, e.g. `"PAXA920"`. |
+| `statusMessage` | `String` | Human-readable status description, e.g. `"Approved or completed successfully"`. |
 
 `DeviceStatus` appears as `result.deviceStatus` in `TransactionResult`, and as `statusInfo.deviceStatus` in `currentTransactionStatus`.
 
@@ -376,6 +378,131 @@ Card network as returned by the terminal.
 
 ---
 
+### `TransactionType`
+
+The type of transaction represented by `TransactionResult.type`.
+
+| Value |
+|---|
+| `UNDEFINED` |
+| `SALE` |
+| `VOID_SALE` |
+| `REFUND` |
+| `VOID_REFUND` |
+| `REVERSAL` |
+| `CANCEL_SALE` |
+| `CANCEL_REFUND` |
+| `TOKENIZE_CARD` |
+| `TOKENIZED_OPERATION` |
+| `SALE_AND_TOKENIZE_CARD` |
+| `CARD_PAN` |
+| `UPDATE` |
+| `PRINT_RECEIPT` |
+| `TIP_ADJUSTMENT` |
+| `PRE_AUTHORIZATION` |
+| `PRE_AUTHORIZATION_INCREASE` |
+| `PRE_AUTHORIZATION_CAPTURE` |
+| `MOTO_SALE` |
+| `MOTO_CANCEL` |
+| `MOTO_REFUND` |
+| `MOTO_REVERSAL` |
+| `MOTO_PREAUTHORIZATION` |
+| `TRANSACTION_STATUS` |
+
+---
+
+### `Manufacturer`
+
+Terminal manufacturer. Returned by `getDeviceManufacturer()`.
+
+| Value | Description |
+|---|---|
+| `INVALID` | Unknown or unsupported manufacturer. |
+| `DATECS` | Datecs (HiLite) devices. |
+| `PAX` | PAX SmartPOS terminals. |
+| `TELPO` | Telpo SmartPOS terminals. |
+
+---
+
+### `DeviceParameter`
+
+Admin parameter names for `setDeviceParameter()`. Controls terminal Bluetooth settings and timeouts.
+
+| Value | Description |
+|---|---|
+| `BluetoothName` | Set the Bluetooth advertising name of the terminal. |
+| `BluetoothPass` | Set the Bluetooth pairing passcode. |
+| `SystemTimeout` | Set the system idle timeout (seconds). |
+| `ScreenTimeout` | Set the screen-off timeout (seconds). |
+| `SignatureTimeout` | Set the signature input timeout (seconds). |
+
+---
+
+### `PrintError`
+
+Error codes delivered via `Events.PrinterEvents.printError()`.
+
+| Value |
+|---|
+| `Unexpected` |
+| `InvalidArgument` |
+| `CantConnectToPrinter` |
+| `NotSupported` |
+| `NoPermission` |
+| `PrinterDisabled` |
+| `NotWhitelisted` |
+| `Busy` |
+| `OutOfPaper` |
+| `DataPacketInvalid` |
+| `PrinterHasProblems` |
+| `PrinterOverheating` |
+| `PrintingUnfinished` |
+| `FontNotPresent` |
+| `FontFormatError` |
+| `TooLong` |
+| `BatteryTooLow` |
+| `PaperCutterError` |
+| `PaperCutterJam` |
+| `CoverOpen` |
+| `UnsupportedEncoding` |
+
+---
+
+### `TypeOfResult`
+
+Distinguishes the result type in `Events.ReportResult`. Produced by `getTransactionsReport()` and `getEMVConfiguration()`.
+
+| Value | Produced by |
+|---|---|
+| `STATUS` | Device status query. |
+| `REPORT` | `getTransactionsReport()`. |
+| `BLUETOOTHNAME` | Bluetooth name query. |
+| `EMVCONFIGURATION` | `getEMVConfiguration()`. |
+
+---
+
+### `SupportedLocales`
+
+SDK-supported UI locales. Pass to `setLocale()` and read from `StatusInfo.cardLanguage`.
+
+| Value |
+|---|
+| `en_CA` |
+| `en_UK` |
+| `en_US` |
+| `es_ES` |
+| `hr_HR` |
+| `is_IS` |
+| `fr_FR` |
+| `pt_PT` |
+| `it_IT` |
+| `no_NO` |
+| `de_DE` |
+| `sl_SL` |
+| `et_EE` |
+
+---
+
 ## Options objects
 
 ### `Options` (base class)
@@ -564,6 +691,7 @@ Provides static access to current SDK state.
 
 | Property/Method | Type | Description |
 |---|---|---|
+| `DefaultSharedSecret` | `String` | The default shared secret currently configured in the SDK. |
 | `inTransaction(device)` | `Boolean` | `true` if the SDK is currently in the middle of a transaction. |
 | `getLogLevel()` | `LogLevel` | Current SDK log level. |
 | `isTransactionResultPending` | `Boolean` | `true` if a transaction result was not delivered due to a communication failure. Call `api.getPendingTransactionResult()` to fetch it. |
@@ -605,6 +733,69 @@ Parameter for `api.getTransactionsReport()`.
 | `endDate` | `String` | End of the reporting window — format `YYYYMMDDHHmmss`. |
 | `timeZone` | `String` | Time zone offset — format `+HH:MM` (e.g. `"+00:00"`). |
 | `terminalSerialNumberList` | `List<String>` | Serial numbers to filter. Pass an empty list for all terminals on the merchant. |
+
+---
+
+## `CardTokenizationData`
+
+Delivered as `cardTokenizationData` in `Events.CardTokenization.cardTokenized()`.
+
+| Property | Type | Description |
+|---|---|---|
+| `token` | `String` | Token representing the card PAN. |
+| `expiryDate` | `String` | Expiry date of the tokenized card. |
+| `tenderType` | `TenderType` | Card funding type (`CREDIT` or `DEBIT`). |
+| `issuerCountryCode` | `CountryCode` | ISO 3166-1 country code of the card issuer. |
+| `cardBrand` | `String` | Card brand / network (e.g. `"VISA"`, `"MASTERCARD"`). |
+| `languagePref` | `String` | Card language preference (EMV tag 5F2D). |
+| `tipAmount` | `BigInteger` | Tip amount in minor units. Default: `BigInteger.ZERO`. |
+
+---
+
+## `OperationDto` sealed class
+
+Specifies the financial operation to execute after card tokenization. Passed to `ResumeCallback.resume()`.
+
+### Subclasses
+
+| Subclass | Parameters | Description |
+|---|---|---|
+| `Sale` | `amount: BigInteger, currency: Currency, options: SaleOptions?` | Perform a sale after tokenization. |
+| `Refund` | `amount: BigInteger, currency: Currency, originalTransactionId: String?, options: RefundOptions?` | Perform a refund after tokenization. |
+| `SaleReversal` | `amount: BigInteger, currency: Currency, originalTransactionId: String, options: Options?` | Reverse a sale after tokenization. |
+| `RefundReversal` | `amount: BigInteger, currency: Currency, originalTransactionId: String, options: Options?` | Reverse a refund after tokenization. |
+
+```kotlin
+// Resume with a sale after tokenization
+callback.resume(OperationDto.Sale(BigInteger.valueOf(1000), Currency.USD))
+
+// Resume with a linked refund
+callback.resume(OperationDto.Refund(BigInteger.valueOf(500), Currency.USD, "original-txn-id"))
+```
+
+---
+
+## `ResumeCallback` interface
+
+Returned in `Events.CardTokenization.cardTokenized()`. Call one method to continue or abort the tokenized operation.
+
+| Method | Description |
+|---|---|
+| `resume(operationDto: OperationDto)` | Continue the operation with the specified transaction type. |
+| `finishWithoutCardOperation()` | Tokenization complete — finish without executing a card payment. |
+| `cancel()` | Abort the tokenized operation entirely. |
+
+---
+
+## `ResumeDependantOperationExecutor` interface
+
+Returned in `Events.DependantRefundReceived` and `Events.DependantReversalReceived` for cloud tokenized flow operations.
+
+| Method | Description |
+|---|---|
+| `executeDependantOperation(amount: BigInteger, currency: Currency, originalTransactionId: String)` | Execute the dependant refund or reversal on the card. |
+| `finishWithoutCardOperation()` | Complete the flow without a card operation. |
+| `cancel()` | Cancel the dependant operation. |
 
 ---
 

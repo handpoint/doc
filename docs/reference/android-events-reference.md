@@ -286,6 +286,150 @@ class MyEventHandler : Events.SmartposRequired, Events.CardTokenization {
 
 ---
 
+### `Events.PrinterEvents`
+
+Receive success and error notifications from the terminal printer.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.PrinterEvents {
+
+    override fun printSuccess() {
+        // Receipt printed successfully
+    }
+
+    override fun printError(error: PrintError) {
+        // Handle print error — check PrintError enum for all codes
+    }
+}
+```
+
+| Method | Parameters | Description |
+|---|---|---|
+| `printSuccess()` | — | The print operation completed successfully. |
+| `printError(error: PrintError)` | `error: PrintError` | The print operation failed. See [`PrintError`](/reference/android-objects-reference#printerror). |
+
+---
+
+### `Events.ReportResult`
+
+Receive the result of `api.getTransactionsReport()` or `api.getEMVConfiguration()`.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.ReportResult {
+
+    override fun reportResult(type: TypeOfResult, report: String, status: Boolean, device: Device) {
+        when (type) {
+            TypeOfResult.REPORT -> { /* handle transaction report */ }
+            TypeOfResult.EMVCONFIGURATION -> { /* handle EMV config */ }
+            TypeOfResult.BLUETOOTHNAME -> { /* handle BT name response */ }
+            TypeOfResult.STATUS -> { /* handle status response */ }
+        }
+    }
+}
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `type` | `TypeOfResult` | Identifies which operation produced this result. |
+| `report` | `String` | Report content (text, CSV, or JSON depending on type). |
+| `status` | `Boolean` | `true` if the operation completed successfully. |
+| `device` | `Device` | The terminal that produced the report. |
+
+---
+
+### `Events.TransactionStarted`
+
+Fires when a transaction is initiated through the Cloud API channel. Use this to update your UI immediately when a cloud-initiated transaction begins on the terminal.
+
+:::note
+This interface is **only** available for cloud-enabled devices. Check `DeviceCapabilities.cloudApi` from `Events.DeviceCapabilitiesReady`.
+:::
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.TransactionStarted {
+
+    override fun transactionStarted(
+        transactionType: TransactionType,
+        amount: BigInteger,
+        currency: Currency,
+        transactionReference: String
+    ) {
+        // Show transaction-in-progress UI
+        // transactionReference is empty string if not supplied by the cloud caller
+    }
+}
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `transactionType` | `TransactionType` | Type of transaction started (e.g. `SALE`, `REFUND`). |
+| `amount` | `BigInteger` | Amount in minor units (e.g. `1000` = £10.00). |
+| `currency` | `Currency` | Transaction currency. |
+| `transactionReference` | `String` | Transaction reference from the cloud request, or empty string if not provided. |
+
+---
+
+### `Events.NetworkStatusChanged`
+
+Fires when the terminal's network connectivity changes.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.NetworkStatusChanged {
+
+    override fun networkStatusChanged(networkStatus: NetworkStatus, device: Device) {
+        // networkStatus — new network state
+    }
+}
+```
+
+| Parameter | Type | Description |
+|---|---|---|
+| `networkStatus` | `NetworkStatus` | New network status. |
+| `device` | `Device` | The terminal that reported the change. |
+
+---
+
+### `Events.DependantRefundReceived`
+
+Fires during a cloud tokenized refund flow. The terminal has tokenized the card and is waiting for the host app to authorize and execute the dependant refund operation.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.DependantRefundReceived {
+
+    override fun dependantRefundReceived(executor: ResumeDependantOperationExecutor) {
+        // Call executeDependantOperation() to proceed, or cancel()
+        executor.executeDependantOperation(
+            BigInteger.valueOf(1000),
+            Currency.USD,
+            "original-transaction-id"
+        )
+    }
+}
+```
+
+The `executor` parameter implements [`ResumeDependantOperationExecutor`](/reference/android-objects-reference#resumedependantoperationexecutor-interface).
+
+---
+
+### `Events.DependantReversalReceived`
+
+Fires during a cloud tokenized reversal flow. The terminal has tokenized the card and is waiting for the host app to execute the dependant reversal.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.DependantReversalReceived {
+
+    override fun dependantReversalReceived(executor: ResumeDependantOperationExecutor) {
+        executor.executeDependantOperation(
+            BigInteger.valueOf(1000),
+            Currency.USD,
+            "original-transaction-id"
+        )
+    }
+}
+```
+
+---
+
 ### `Events.DeviceCapabilitiesReady`
 
 Fires when the terminal reports its capabilities to the SDK.
@@ -335,6 +479,42 @@ class MyEventHandler : Events.SmartposRequired, Events.PhysicalKeyboardEvent {
 
 ---
 
+### `Events.Status` (composite)
+
+Convenience composite interface extending `ConnectionStatusChanged`, `HardwareStatusChanged`, `CurrentTransactionStatus`, and `NetworkStatusChanged`. Use when you want a single delegate to cover all connection and status events.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.Status {
+
+    override fun connectionStatusChanged(status: ConnectionStatus, device: Device) { }
+    override fun hardwareStatusChanged(status: HardwareStatus, hardware: ConnectionMethod) { }
+    override fun currentTransactionStatus(statusInfo: StatusInfo, device: Device) { }
+    override fun networkStatusChanged(networkStatus: NetworkStatus, device: Device) { }
+}
+```
+
+**Extends:** `ConnectionStatusChanged` · `HardwareStatusChanged` · `CurrentTransactionStatus` · `NetworkStatusChanged`
+
+---
+
+### `Events.PaymentProvider` (composite)
+
+Composite interface covering all payment-related events. Extends `SignatureRequired`, `EndOfTransaction`, `OnMessageLogged`, and `CurrentTransactionStatus`.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.PaymentProvider {
+
+    override fun signatureRequired(signatureRequest: SignatureRequest, device: Device) { }
+    override fun endOfTransaction(result: TransactionResult, device: Device) { }
+    override fun onMessageLogged(level: LogLevel, message: String) { }
+    override fun currentTransactionStatus(statusInfo: StatusInfo, device: Device) { }
+}
+```
+
+**Extends:** `SignatureRequired` · `EndOfTransaction` · `OnMessageLogged` · `CurrentTransactionStatus`
+
+---
+
 ## Individual event interfaces
 
 The SDK also exposes granular single-event interfaces for cases where you want to compose specific callbacks without implementing a full required interface. Register any combination with `api.registerEventsDelegate(this)`.
@@ -347,6 +527,10 @@ The SDK also exposes granular single-event interfaces for cases where you want t
 | `Events.PendingResults` | `transactionResultReady(result, device)` | Recovery results only. |
 | `Events.DeviceDiscoveryFinished` | `deviceDiscoveryFinished(devices)` | Device list from `searchDevices()`. |
 | `Events.OnMessageLogged` | `onMessageLogged(level, message)` | SDK log entries. |
+| `Events.NetworkStatusChanged` | `networkStatusChanged(networkStatus, device)` | Terminal network state changes. |
+| `Events.PrinterEvents` | `printSuccess()` / `printError(error)` | Printer operation result. |
+| `Events.ReportResult` | `reportResult(type, report, status, device)` | Transaction report or EMV config result. |
+| `Events.TransactionStarted` | `transactionStarted(type, amount, currency, reference)` | Cloud-initiated transaction started (cloud-enabled devices only). |
 
 ---
 

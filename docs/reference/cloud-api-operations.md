@@ -191,7 +191,7 @@ The `cardToken` value (e.g. `"K33f40000000000093"`) is the Cygma token format. S
 | `operation` | string | **Yes** | `"saleAndTokenizeCard"` |
 | `tipConfiguration` | — | — | Not valid for `saleAndTokenizeCard` — omit it |
 
-All other Sale parameters apply.
+All other Sale parameters apply. `tipConfiguration` is not valid for `saleAndTokenizeCard` — omit it.
 
 ### Error — token provider not configured
 
@@ -214,6 +214,64 @@ All other Sale parameters apply.
 | `transactionID` | Empty string — acquirer was never contacted |
 | `requestedAmount` | `0` — no amount was processed |
 | `cardToken` | Empty string |
+
+---
+
+## Tokenize Card
+
+No-charge card tokenization. The card is presented at the terminal, tokenized, and no payment is taken. The token is returned in `cardToken` in the poll result. `finStatus` is `PROCESSED` on success.
+
+```bash
+# Step 1 — initiate
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "tokenizeCard",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030"
+}'
+```
+
+```json
+// HTTP 202
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "1850025030-1788700678000"
+}
+```
+
+```bash
+# Step 2 — poll
+curl https://cloud.handpoint.com/transaction-result/1850025030-1788700678000 \
+  -H "ApiKeyCloud: YOUR_API_KEY"
+```
+
+```json
+// HTTP 200 — PROCESSED
+{
+  "finStatus": "PROCESSED",
+  "statusMessage": "Approved or completed successfully",
+  "cardToken": "K33f40000000000093",
+  "maskedCardNumber": "************0936",
+  "cardSchemeName": "Visa",
+  "cardEntryType": "ICC",
+  "type": "TOKENIZE_CARD"
+}
+```
+
+**Request parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | **Yes** | `"tokenizeCard"` |
+| `serial_number` | string | **Yes** | Terminal serial number |
+| `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
+| `customerReference` | string | No | Free-text reference echoed in the result |
+| `callbackUrl` | string | No | HTTPS webhook endpoint |
+| `token` | string | No | Callback auth token |
+
+Amount and currency are not required — no charge is made. `transactionReference` is not honoured for `tokenizeCard`.
 
 ---
 
@@ -373,6 +431,53 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 }
 ```
 
+### Pre-Authorization Reversal (on terminal)
+
+Releases a pre-authorization hold without capturing it. The terminal must be connected — the card may need to be re-presented depending on the acquirer.
+
+```bash
+# Step 1 — initiate
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "originalTransactionId": "4b2c4470-a9f5-11f1-99ee-c974d92ef76f"
+}'
+```
+
+```bash
+# Step 2 — poll
+curl https://cloud.handpoint.com/transaction-result/1850025030-1788700630100 \
+  -H "ApiKeyCloud: YOUR_API_KEY"
+```
+
+```json
+// HTTP 200 — AUTHORISED (hold released)
+{
+  "finStatus": "AUTHORISED",
+  "statusMessage": "Approved or completed successfully",
+  "transactionID": "4f9d2200-a9f5-11f1-99ee-c974d92ef76f",
+  "type": "PRE_AUTHORIZATION_REVERSAL"
+}
+```
+
+**Request parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | **Yes** | `"preAuthorizationReversal"` |
+| `serial_number` | string | **Yes** | Terminal serial number |
+| `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
+| `originalTransactionId` | string | **Yes** | `transactionID` from the original pre-authorization result |
+| `customerReference` | string | No | Free-text reference |
+
+:::note Gateway-level reversal without a terminal
+To release a pre-auth hold remotely (without a terminal), use `POST /reversal` with the `originalGuid` set to the pre-auth `transactionID`. See [Reversal](#reversal).
+:::
+
 ---
 
 ## Refund
@@ -491,6 +596,55 @@ When a sale was processed while `refundAllowed = false`, the transaction is perm
 Escalate to `support@handpoint.com` — the Handpoint operations team can manually clear the non-refundable flag on specific transactions.
 :::
 
+### Refund Reversal (on terminal)
+
+Reverses a previously issued refund, restoring the original refunded amount to the merchant. The terminal must be connected.
+
+```bash
+# Step 1 — initiate
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "refundReversal",
+  "amount": "5000",
+  "currency": "USD",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "originalTransactionId": "5e88eeb0-a9f5-11f1-a943-f9c9f04151d9"
+}'
+```
+
+```bash
+# Step 2 — poll
+curl https://cloud.handpoint.com/transaction-result/1850025030-1788700668000 \
+  -H "ApiKeyCloud: YOUR_API_KEY"
+```
+
+```json
+// HTTP 200 — AUTHORISED
+{
+  "finStatus": "AUTHORISED",
+  "statusMessage": "Approved or completed successfully",
+  "transactionID": "6c22a900-a9f5-11f1-a943-f9c9f04151d9",
+  "requestedAmount": 5000,
+  "totalAmount": 5000,
+  "type": "REFUND_REVERSAL"
+}
+```
+
+**Request parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | **Yes** | `"refundReversal"` |
+| `serial_number` | string | **Yes** | Terminal serial number |
+| `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
+| `amount` | string | **Yes** | Amount in minor units. For acquirers that support partial reversal, the specified amount is reversed. For others, the full original refund amount is reversed regardless of this value. |
+| `currency` | string | **Yes** | ISO 4217 currency code |
+| `originalTransactionId` | string | **Yes** | `transactionID` from the refund to reverse |
+| `customerReference` | string | No | Free-text reference |
+
 ---
 
 ## Reversal
@@ -527,6 +681,7 @@ Omit `amount` (or pass the full original amount) for a full reversal. For a part
 | `originalGuid` | string | **Yes** | — | `transactionID` from the original AUTHORISED sale result |
 | `amount` | string | No | Full original amount | Major-unit decimal — `"50.04"` = $50.04. Omit for full reversal. Required for partial reversal. |
 | `currency` | string | No | — | ISO 4217. Required when `amount` is provided. |
+| `messageReasonCode` | string | No | `"CUSTOMER_CANCELLATION"` | Reason for the reversal. `"CUSTOMER_CANCELLATION"` (default) — cardholder or merchant initiated. `"TIMEOUT_WAITING_FOR_RESPONSE"` — use when reversing because you did not receive an authorization response in time. |
 
 ### Error — partial reversal not enabled
 
@@ -669,6 +824,153 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700645247 \
 The `transactionReference` you send is ignored by the Cloud API for `moToSale` — the returned result contains a system-generated reference that does not match your value. Recovery via `GET /transactions/{ref}/status` will not work for keyed-entry MOTO. Use `transactionResultId` to poll instead, and store `transactionID` from the result for recovery. Status: open as of 2026-09-06.
 :::
 
+### MOTO refund — keyed entry on terminal
+
+```bash
+# Step 1 — initiate
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "moToRefund",
+  "amount": "2000",
+  "currency": "USD",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "originalTransactionId": "57cd25a0-a9f5-11f1-a943-f9c9f04151d9"
+}'
+```
+
+```bash
+# Step 2 — poll
+curl https://cloud.handpoint.com/transaction-result/1850025030-1788700646000 \
+  -H "ApiKeyCloud: YOUR_API_KEY"
+```
+
+```json
+// HTTP 200 — AUTHORISED
+{
+  "finStatus": "AUTHORISED",
+  "statusMessage": "Approved or completed successfully",
+  "transactionID": "5f3a1100-a9f5-11f1-a943-f9c9f04151d9",
+  "paymentScenario": "MOTO",
+  "cardEntryType": "CNP",
+  "requestedAmount": 2000,
+  "totalAmount": 2000,
+  "type": "MOTO_REFUND"
+}
+```
+
+**`POST /transactions` — moToRefund — request parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | **Yes** | `"moToRefund"` |
+| `serial_number` | string | **Yes** | Terminal serial number |
+| `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
+| `amount` | string | **Yes** | Minor-unit string — `"2000"` = $20.00. Digits only. |
+| `currency` | string | **Yes** | ISO 4217 |
+| `originalTransactionId` | string | No | `transactionID` from the original MOTO sale for a linked refund. Omit for unlinked. |
+| `cardToken` | string | No | Stored card token. If omitted, terminal shows manual card-entry screen. |
+| `customerReference` | string | No | Free-text reference |
+
+### MOTO reversal — keyed entry on terminal
+
+```bash
+# Step 1 — initiate
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "moToReversal",
+  "amount": "2000",
+  "currency": "USD",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "originalTransactionId": "57cd25a0-a9f5-11f1-a943-f9c9f04151d9"
+}'
+```
+
+```bash
+# Step 2 — poll
+curl https://cloud.handpoint.com/transaction-result/1850025030-1788700647000 \
+  -H "ApiKeyCloud: YOUR_API_KEY"
+```
+
+```json
+// HTTP 200 — AUTHORISED
+{
+  "finStatus": "AUTHORISED",
+  "statusMessage": "Approved or completed successfully",
+  "transactionID": "6031c200-a9f5-11f1-a943-f9c9f04151d9",
+  "paymentScenario": "MOTO",
+  "type": "MOTO_REVERSAL"
+}
+```
+
+**`POST /transactions` — moToReversal — request parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | **Yes** | `"moToReversal"` |
+| `serial_number` | string | **Yes** | Terminal serial number |
+| `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
+| `amount` | string | **Yes** | Minor-unit string — `"2000"` = $20.00. Digits only. |
+| `currency` | string | **Yes** | ISO 4217 |
+| `originalTransactionId` | string | **Yes** | `transactionID` from the original MOTO sale to reverse |
+| `customerReference` | string | No | Free-text reference |
+
+### MOTO pre-authorization — keyed entry on terminal
+
+```bash
+# Step 1 — initiate
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "moToPreAuthorization",
+  "amount": "10000",
+  "currency": "USD",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030",
+  "cardToken": "K33f40000000000093"
+}'
+```
+
+```bash
+# Step 2 — poll
+curl https://cloud.handpoint.com/transaction-result/1850025030-1788700648000 \
+  -H "ApiKeyCloud: YOUR_API_KEY"
+```
+
+```json
+// HTTP 200 — AUTHORISED (hold placed, no funds captured)
+{
+  "finStatus": "AUTHORISED",
+  "statusMessage": "Approved or completed successfully",
+  "transactionID": "6132b300-a9f5-11f1-a943-f9c9f04151d9",
+  "paymentScenario": "MOTO",
+  "cardEntryType": "CNP",
+  "requestedAmount": 10000,
+  "totalAmount": 10000,
+  "type": "MOTO_PRE_AUTHORIZATION"
+}
+```
+
+**`POST /transactions` — moToPreAuthorization — request parameters**
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | **Yes** | `"moToPreAuthorization"` |
+| `serial_number` | string | **Yes** | Terminal serial number |
+| `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
+| `amount` | string | **Yes** | Minor-unit string — `"10000"` = $100.00. Digits only. |
+| `currency` | string | **Yes** | ISO 4217 |
+| `cardToken` | string | No | Stored card token. If omitted, terminal shows manual card-entry screen. |
+| `customerReference` | string | No | Free-text reference |
+
+Capture and release the hold using `POST /preauthorization/capture` and `POST /reversal` respectively, with the `transactionID` from this result as `originalGuid`.
+
 ### MOTO remote sale — back-office (no terminal)
 
 ```bash
@@ -800,6 +1102,177 @@ The path uses `transactionID` (gateway-assigned GUID), not `transactionReference
 **Detecting embedded HTML:** `customerReceipt.startsWith("<")` rather than `"https://"`.
 
 For compliance field requirements, language behaviour, and building a receipt from the `/status` endpoint, see [Receipt Compliance](/reference/receipt-compliance).
+
+---
+
+## Device management
+
+Remote device management commands for PAX terminals. All commands require the Handpoint Payments App to be running in **Integrated Mode** (enabled via Handpoint TMS). Commands are asynchronous — the `202 Accepted` response confirms delivery; the command executes on the device shortly after.
+
+**Endpoint pattern:** `POST https://cloud.handpoint.com/devices/{deviceType}/{serialNumber}/{command}`
+
+**Common headers:**
+
+| Header | Required | Description |
+|---|---|---|
+| `ApiKeyCloud` | Yes | Merchant API key |
+| `Content-Type` | Yes | `application/json` |
+
+**Common response codes:**
+
+| Code | Description |
+|---|---|
+| `202` | Command accepted and will be executed |
+| `400` | Device not listening — offline or Payments App not in Integrated Mode |
+| `403` | Authentication failed |
+| `422` | Invalid request body |
+
+---
+
+### Set Unattended Mode
+
+`POST /devices/{deviceType}/{serialNumber}/set-unattended-mode`
+
+Enables or disables unattended mode. When enabled, the Android navigation bar (Home, Back, Recent) is hidden and only the Payment screen is accessible — Settings, History, and Analytics tabs are not reachable.
+
+| Body field | Type | Required | Description |
+|---|---|---|---|
+| `status` | boolean | Yes | `true` to enable unattended mode, `false` to disable |
+
+```bash
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-unattended-mode \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "status": true }'
+```
+
+```http
+HTTP/1.1 202 Accepted
+```
+
+---
+
+### Set Locale
+
+`POST /devices/{deviceType}/{serialNumber}/set-locale`
+
+Sets the display language and region on the terminal.
+
+| Body field | Type | Required | Description |
+|---|---|---|---|
+| `locale` | string | Yes | IETF BCP 47 language tag — e.g. `"en_US"`, `"en_CA"`, `"fr_CA"`, `"es_ES"` |
+
+```bash
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-locale \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "locale": "en_US" }'
+```
+
+```http
+HTTP/1.1 202 Accepted
+```
+
+---
+
+### Reboot
+
+`POST /devices/{deviceType}/{serialNumber}/reboot`
+
+Reboots the terminal. Use `force: false` (default) to check whether a transaction is in progress before rebooting.
+
+| Body field | Type | Required | Description |
+|---|---|---|---|
+| `force` | boolean | Yes | `true` to reboot immediately even if a transaction is in progress. `false` to check status first — if a transaction is active, the reboot may be deferred. |
+
+```bash
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/reboot \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "force": false }'
+```
+
+```http
+HTTP/1.1 202 Accepted
+```
+
+---
+
+### Set Screen Brightness
+
+`POST /devices/{deviceType}/{serialNumber}/set-screen-brightness`
+
+Sets the minimum and maximum screen brightness levels. Both values must be integers between 0 and 100.
+
+| Body field | Type | Required | Description |
+|---|---|---|---|
+| `minimumBrightnessLevel` | integer | Yes | Minimum brightness (0–100) |
+| `maximumBrightnessLevel` | integer | Yes | Maximum brightness (0–100) |
+
+```bash
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-screen-brightness \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "minimumBrightnessLevel": 20, "maximumBrightnessLevel": 100 }'
+```
+
+```http
+HTTP/1.1 202 Accepted
+```
+
+---
+
+### Set Reboot Time
+
+`POST /devices/{deviceType}/{serialNumber}/set-reboot-time`
+
+Schedules a daily automatic reboot at a given hour. The actual reboot occurs at a random minute within the specified hour to spread device restarts across a fleet.
+
+:::note Production devices only
+This command is only active on production devices. It has no effect on development/staging terminals.
+:::
+
+| Body field | Type | Required | Description |
+|---|---|---|---|
+| `hour` | integer | Yes | Hour of day (0–23) when the device should reboot. The reboot occurs at a random minute within that hour. |
+
+```bash
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-reboot-time \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "hour": 22 }'
+```
+
+```http
+HTTP/1.1 202 Accepted
+```
+
+---
+
+### Set Password Protected
+
+`POST /devices/{deviceType}/{serialNumber}/set-password-protected`
+
+Enables or disables password protection on the terminal's Payments App settings screen.
+
+| Body field | Type | Required | Description |
+|---|---|---|---|
+| `status` | boolean | Yes | `true` to enable password protection, `false` to disable |
+
+```bash
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-password-protected \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "status": true }'
+```
+
+```http
+HTTP/1.1 202 Accepted
+```
+
+:::note Android SDK version requirement
+Device management commands require Android SDK version 7.1006.0 or later on the terminal.
+:::
 
 ---
 

@@ -197,6 +197,60 @@ Content-Type: application/json
 | `3209` | Refund amount exceeds original | Reduce `amount` |
 | `3210` | Currency mismatch | Use same currency as original sale |
 
+## Remote MOTO Reversal (no terminal)
+
+Void a previous MOTO sale by transaction ID. No terminal or card is required — the gateway reverses the authorization directly.
+
+```http
+POST https://cloud.handpoint.com/moto/reversal
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "transactionID-from-original-moto-sale",
+  "amount": "20.00",
+  "currency": "USD"
+}
+```
+
+`amount` is in **major currency units** as a decimal string — `"20.00"` = $20.00. `amount` and `currency` are required.
+
+**Response — HTTP 200:**
+```json
+{
+  "type": "motoReversalResponse",
+  "httpStatus": 200,
+  "amount": "20.00",
+  "currency": "USD",
+  "guid": "3f7772a0-cf88-11f0-b588-a122fae316de",
+  "originalGuid": "b28bdb10-cf87-11f0-b588-a122fae316de",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Successful",
+  "maskedCardNumber": "************3555",
+  "f25": "4000"
+}
+```
+
+`guid` is the new reversal transaction ID. `originalGuid` echoes the reversed transaction.
+
+**Request parameters:**
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` (or `guid`) from the original MOTO sale result |
+| `amount` | string | Yes | Major-unit decimal — `"20.00"` = $20.00 |
+| `currency` | string | Yes | ISO 4217, e.g. `"USD"`, `"EUR"` |
+| `customerReference` | string | No | Free-text reference echoed in the result |
+| `transactionReference` | string | No | UUID v4 for your own tracking |
+
+| Code | Message | Fix |
+|---|---|---|
+| `3153` | Unable to find message to reverse | `originalGuid` does not match any reversible transaction |
+
+:::note Acquirer support
+MOTO reversals via `/moto/reversal` require the same acquirer MOTO enablement as `/moto/sale`. Subject to acquirer reversal time windows — contact Handpoint Integration Support if reversals are rejected after the transaction window.
+:::
+
 ## Tip Adjustment (EPI only)
 
 Adjust a tip after sale, before batch close. Not supported on EmerchantPay or Paystrax — include the tip amount in the original sale body for those acquirers.
@@ -424,6 +478,7 @@ See [Remote Reversal](/acquirers/epi#remote-reversal) on the acquirer page for a
 |---|---|---|
 | **Remote Sale** | `POST /moto/sale` | EPI, EmerchantPay, Paystrax |
 | **Remote Refund** | `POST /moto/refund` | EPI, EmerchantPay, Paystrax |
+| **Remote MOTO Reversal** | `POST /moto/reversal` | EPI, EmerchantPay, Paystrax |
 | **Get Card Token** | `GET /transactions/{id}/token` | EPI |
 | **Tip Adjustment** | `POST /transactions/{id}/tip-adjustment` | EPI |
 | **Partial Reversal** | `POST /reversal` (with `amount` + `currency`) | EPI only (TMS-enabled) |

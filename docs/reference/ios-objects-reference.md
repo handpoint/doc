@@ -92,6 +92,8 @@ The transaction interface. Obtained via `didConnect:` — **do not call any fina
 | `kAppVersionInfoKey` | Terminal application version |
 | `kManufacturerCodeInfoKey` | Hardware manufacturer |
 | `kModelCodeInfoKey` | Hardware model |
+| `kGeneralParamInfoKey` | General parameter version |
+| `kXMLDetailsInfoKey` | Full XML details string |
 
 **Financial methods:**
 
@@ -109,6 +111,8 @@ The transaction interface. Obtained via `didConnect:` — **do not call any fina
 | `acceptSignature:` | `flag` (BOOL) | `void` | Respond to `requestSignature:` — `YES` to accept, `NO` to reject |
 | `retrievePendingTransaction` | — | `BOOL` | Fetch pending result after Bluetooth reconnect |
 | `cancel` | — | `void` | Cancel the current in-progress transaction |
+| `financeStartOfDay` | — | `BOOL` | Start of day batch operation |
+| `financeEndOfDay` | — | `BOOL` | End of day batch operation / settlement |
 | `financeInit` | — | `BOOL` | Check and download terminal software/config updates |
 
 **Device management methods:**
@@ -119,6 +123,20 @@ The transaction interface. Obtained via `didConnect:` — **do not call any fina
 | `logGetInfo` | — | `BOOL` | Fetch terminal logs; result via `responseLogInfo:` |
 | `logReset` | — | `BOOL` | Clear terminal logs |
 | `getEMVConfiguration` | — | `BOOL` | Retrieve EMV configuration from terminal |
+
+**Scanner methods:**
+
+:::note HiPro hardware only
+The following methods require a HiPro (Lightning/barcode-equipped) terminal. They are not available on Bluetooth HiLite readers.
+:::
+
+| Method | Parameters | Returns | Notes |
+|---|---|---|---|
+| `enableScanner` | — | `BOOL` | Enable barcode scanner with default settings |
+| `enableScannerWithMultiScan:` | `multiScan` (BOOL) | `BOOL` | `YES` allows multiple consecutive scans; `NO` disables after the first scan |
+| `enableScannerWithMultiScan:buttonMode:` | `multiScan` (BOOL), `buttonMode` (BOOL) | `BOOL` | `buttonMode:YES` requires operator to press the scan button; `NO` turns the scanner on immediately |
+| `enableScannerWithMultiScan:buttonMode:timeoutSeconds:` | `multiScan`, `buttonMode`, `timeoutSeconds` (NSInteger) | `BOOL` | `timeoutSeconds:0` lets the terminal determine the inactivity timeout |
+| `disableScanner` | — | `void` | Disable barcode scanner and exit scan mode |
 
 **Log level values (`eLogLevel`):**
 
@@ -329,6 +347,30 @@ Fires in response to `retrievePendingTransaction`. `info` contains the recovered
 
 Fires in response to `logGetInfo`. `info.log` is the terminal's log output as a string.
 
+#### `responseScannerEvent:`
+
+```objc
+- (void)responseScannerEvent:(id<ScannerEventResponseInfo>)info;
+```
+
+Fires each time the barcode scanner reads a code while scan mode is active. `info.scanCode` contains the scanned barcode string. This is an `@optional` delegate method — implement it only on HiPro hardware.
+
+#### `responseScannerDisabled:`
+
+```objc
+- (void)responseScannerDisabled:(id<ScannerDisabledResponseInfo>)info;
+```
+
+Fires when the scanner exits scan mode — either because `disableScanner` was called, a single scan completed in single-scan mode, or the inactivity timeout elapsed. This is an `@optional` delegate method.
+
+#### `responseEMVReport:`
+
+```objc
+- (void)responseEMVReport:(NSString *)report;
+```
+
+Fires in response to `getEMVConfiguration`. `report` is the full EMV configuration as an XML string. This is an `@optional` delegate method.
+
 ---
 
 ## `FinanceResponseInfo`
@@ -375,7 +417,7 @@ Call `[info toDictionary]` to serialize all non-empty fields as an `NSDictionary
 |---|---|---|
 | `cardSchemeName` | `NSString` | Card brand — `"Visa"`, `"Mastercard"`, `"Amex"`, `"Maestro"`, `"Discover"`, `"JCB"`, `"Diners"`, `"UnionPay"`, `"Interac"` |
 | `cardEntryType` | `NSString` | How the card was read — `"ICC"` (chip), `"NFC"` (contactless tap), `"MSR"` (magnetic stripe swipe) |
-| `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"NO_VERIFICATION"`, `"UNDEFINED"` |
+| `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"PIN_SIGNATURE"`, `"NO_VERIFICATION"`, `"UNDEFINED"`, `"FAILED"` |
 | `CardToken` | `NSString` | Card token returned by `tokenizeCard` and `saleAndTokenize` operations |
 
 ### Receipts
@@ -393,6 +435,7 @@ Call `[info toDictionary]` to serialize all non-empty fields as an `NSDictionary
 | `budgetNumber` | `NSString` | Budget period reference (SureSwipe/Altech only) |
 | `chipTransactionReport` | `NSString` | Full EMV parameter report from the chip interaction |
 | `balance` | `NSString` | Cardholder card balance (if the acquirer supports balance inquiry) |
+| `deviceStatus` | `DeviceStatus *` | Device status at time of transaction — includes `serialNumber`, `batteryStatus`, `batterymV`, `batteryCharging`, `externalPower`, `applicationName`, `applicationVersion`, `statusMessage`, and `bluetoothName` |
 | `recoveredTransaction` | `BOOL` | `YES` if this result was recovered via `retrievePendingTransaction` |
 | `isRestarting` | `BOOL` | `YES` if the terminal is about to restart (e.g. post-firmware update) — disconnect and wait for `didConnect:` to fire again |
 

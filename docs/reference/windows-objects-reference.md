@@ -263,3 +263,251 @@ The `Currency` enum covers all ISO 4217 currency codes. Common values: `AED` `AU
 The `Status` enum covers every intermediate status that can appear in `StatusInfo.status` during `CurrentTransactionStatus`. Common values include: `WaitingForCard`, `CardInserted`, `CardTapped`, `PinInput`, `PinInputCompleted`, `WaitingSignature`, `WaitingHostConnect`, `WaitingHostSend`, `WaitingHostReceive`, `RemoveCard`, `PartialApproval`, `UserCancelled`, `PosCancelled`, `UpdateStarted`, `UpdateFinished`, `UpdateFailed`, `PrintingMerchantReceipt`, `PrintingCustomerReceipt`.
 
 Full list (not exhaustive): `Undefined` `Success` `InvalidData` `ProcessingError` `CommandNotAllowed` `NotInitialised` `ConnectTimeout` `ConnectError` `SendingError` `ReceivingError` `NoDataAvailable` `TransactionNotAllowed` `UnsupportedCurrency` `NoHostAvailable` `CardReaderError` `CardReadingFailed` `InvalidCard` `InputTimeout` `UserCancelled` `InvalidSignature` `WaitingForCard` `CardInserted` `ApplicationSelection` `ApplicationConfirmation` `AmountValidation` `PinInput` `ManualCardInput` `WaitingForCardRemoval` `TipInput` `SharedSecretInvalid` `SharedSecretAuth` `WaitingSignature` `WaitingHostConnect` `WaitingHostSend` `WaitingHostReceive` `WaitingHostDisconnect` `PinInputCompleted` `PosCancelled` `RequestInvalid` `CardCancelled` `CardBlocked` `RequestAuthTimeout` `RequestPaymentTimeout` `ResponseAuthTimeout` `ResponsePaymentTimeout` `IccCardSwiped` `RemoveCard` `ScannerIsNotSupported` `ScannerEvent` `BatteryTooLow` `AccountTypeSelection` `BtIsNotSupported` `PaymentCodeSelection` `PartialApproval` `AmountDueValidation` `InvalidUrl` `WaitingCustomerReceipt` `PrintingMerchantReceipt` `PrintingCustomerReceipt` `UpdateStarted` `UpdateFinished` `UpdateFailed` `UpdateProgress` `WaitingHostPostSend` `WaitingHostPostReceive` `Rebooting` `PrinterOutOfPaper` `ErrorConnectingToPrinter` `CardTapped` `ReceiptPrintSuccess` `InvalidPinLength` `OfflinePinAttempt` `OfflinePinLastAttempt` `ProcessingSignature` `CardRemoved` `TipEntered` `CardLanguagePreference` `AutomaticPrintingStarted` `CancelOperationNotAllowed` `UpdateSoftwareStarted` `UpdateSoftwareFinished` `UpdateSoftwareFailed` `UpdateSoftwareProgress` `InstallSoftwareStarted` `InstallSoftwareFinished` `InstallSoftwareFailed` `InstallSoftwareProgress` `UpdateConfigStarted` `UpdateConfigFinished` `UpdateConfigFailed` `UpdateConfigProgress` `InitialisationComplete`
+
+---
+
+## Device
+
+`Device` is the object used to identify and connect to a payment terminal. Pass it to `Connect()`, `Disconnect()`, `Update()`, and other device management calls.
+
+**Constructor**
+
+```csharp
+Device(
+    string name,
+    string address,
+    string port,
+    ConnectionMethod connectionMethod,
+    string sharedSecret = null,
+    int timeout = 0
+)
+```
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `name` | `string` | Yes | A display name for the terminal — used for logging and UI only |
+| `address` | `string` | Yes | Bluetooth MAC address (`"68:AA:D2:00:D5:27"`) or Cloud address (`"serialNumber-model"`, e.g. `"9822032398-PAXA920"`) |
+| `port` | `string` | Yes | Port string — pass `""` for Cloud; pass `"1"` for Bluetooth |
+| `connectionMethod` | `ConnectionMethod` | Yes | How to connect — `BLUETOOTH`, `CLOUD`, or `SIMULATOR` |
+| `sharedSecret` | `string` | No | Overrides the default shared secret for this specific device |
+| `timeout` | `int` | No | Connection timeout in milliseconds (0 = SDK default) |
+
+**Properties**
+
+| Property | Type | Description |
+|---|---|---|
+| `Id` | `string` | Unique identifier assigned by the SDK |
+| `Name` | `string` | Display name passed at construction |
+| `Address` | `string` | Device address passed at construction |
+| `Port` | `string` | Port string passed at construction |
+| `ConnectionMethod` | `ConnectionMethod` | Connection type passed at construction |
+
+**Example**
+
+```csharp
+// HiLite via Bluetooth (MAC address must be UPPER CASE)
+Device hilite = new Device("CardReader7", "68:AA:D2:00:D5:27", "1", ConnectionMethod.BLUETOOTH);
+
+// PAX A920 via Cloud (serialNumber-model format)
+Device pax = new Device("MyPAX", "9822032398-PAXA920", "", ConnectionMethod.CLOUD);
+
+// Built-in simulator (no hardware required)
+Device sim = new Device("Sim", "Address", "Port", ConnectionMethod.SIMULATOR);
+```
+
+---
+
+## HandpointCredentials
+
+A class that bundles the authentication credentials passed to `HapiFactory.GetAsyncInterface()`.
+
+**Constructors**
+
+```csharp
+// Bluetooth-only — sharedSecret required
+HandpointCredentials(string sharedSecret)
+
+// Cloud (PAX) + GetTransactionStatus support — both fields required
+HandpointCredentials(string sharedSecret, string cloudApiKey)
+```
+
+**Properties**
+
+| Property | Type | Description |
+|---|---|---|
+| `SharedSecret` | `string` | Authenticates the SDK to the Payments App / HiLite reader. Required. For Cloud connections any non-null string is accepted. |
+| `CloudApiKey` | `string` | Merchant API key for Cloud connections and `GetTransactionStatus`. Required for PAX/Cloud; omit for Bluetooth-only integrations. |
+
+**Example**
+
+```csharp
+// HiLite (Bluetooth) — shared secret only
+var btCreds = new HandpointCredentials("0102030405060708091011121314151617181920212223242526272829303132");
+
+// PAX (Cloud) — shared secret + Cloud API key
+var cloudCreds = new HandpointCredentials(
+    "0102030405060708091011121314151617181920212223242526272829303132",
+    "YOUR_CLOUD_API_KEY"
+);
+```
+
+---
+
+## HapiFactory
+
+A sealed factory class that creates and returns the single `Hapi` instance. Call `GetAsyncInterface` once during app startup and store the result.
+
+**Static method**
+
+```csharp
+static Hapi GetAsyncInterface(Events.Required listener, HandpointCredentials credentials)
+```
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `listener` | `Events.Required` | Yes | Your class implementing `Events.Required` (and optionally `Events.Status`, `Events.Log`, etc.) |
+| `credentials` | `HandpointCredentials` | Yes | Shared secret and optional Cloud API key |
+
+Returns the `Hapi` instance. If called again in the same process lifetime, the existing instance is returned unchanged.
+
+**Example**
+
+```csharp
+public class PaymentHandler : Events.Required
+{
+    private Hapi hapi;
+
+    public void Init()
+    {
+        var credentials = new HandpointCredentials(
+            "0102030405060708091011121314151617181920212223242526272829303132",
+            "YOUR_CLOUD_API_KEY"
+        );
+        hapi = HapiFactory.GetAsyncInterface(this, credentials);
+    }
+
+    public void EndOfTransaction(TransactionResult result, Device device) { /* ... */ }
+    public void CurrentTransactionStatus(StatusInfo info, Device device) { /* ... */ }
+    public void DeviceDiscoveryFinished(List<Device> devices) { /* ... */ }
+    public void SignatureRequired(SignatureRequest request, Device device) { hapi.SignatureResult(true); }
+    public void TransactionResultReady(TransactionResult result, Device device) { /* ... */ }
+}
+```
+
+:::note
+`HapiFactory` is a singleton internally — only one `Hapi` is created per process. If you call `GetAsyncInterface` a second time, the original instance is returned. To switch credentials you must restart the process.
+:::
+
+---
+
+## HapiManager
+
+A static class that exposes runtime status and configuration of the SDK. All members are static methods.
+
+**Static methods**
+
+| Method | Return type | Description |
+|---|---|---|
+| `HapiManager.GetDefaultSharedSecret()` | `string` | Returns the shared secret currently in use |
+| `HapiManager.GetLogLevel()` | `LogLevel` | Returns the current log level of the SDK |
+| `HapiManager.InTransaction()` | `bool` | `true` while a transaction is in progress on the default device. May return `true` if there is a communication error but the terminal has completed the transaction. |
+| `HapiManager.InTransaction(Device device)` | `bool` | Same check, scoped to a specific device |
+| `HapiManager.GetSdkVersion()` | `Version` | Returns the SDK assembly version |
+| `HapiManager.IsTransactionResultPending()` | `bool` | `true` if the terminal has a transaction result that has not yet been delivered. Check this when reconnecting after a communication failure. |
+| `HapiManager.IsTransactionResultPending(Device device)` | `bool` | Same check, scoped to a specific device |
+
+**Settings**
+
+Pass a `Settings` object as a third argument to `HapiFactory.GetAsyncInterface()` to configure SDK behaviour:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `AutomaticReconnection` | `bool` | `true` | When `true`, the SDK automatically reconnects after a connection drop |
+| `ShowSDKUIComponents` | `bool` | `false` | Shows SDK-provided UI overlays (progress screens) |
+| `GetReceiptsAsURLs` | `bool` | `false` | When `true`, receipts are delivered as HTTPS URLs rather than raw HTML |
+| `Locale` | `string` | `"en_US"` | Locale string used for terminal UI language selection |
+
+**Example**
+
+```csharp
+bool inTxn = HapiManager.InTransaction();
+LogLevel level = HapiManager.GetLogLevel();
+bool pending = HapiManager.IsTransactionResultPending();
+
+// Custom settings
+var settings = new Settings { AutomaticReconnection = false };
+hapi = HapiFactory.GetAsyncInterface(this, credentials, settings);
+```
+
+---
+
+## LogLevel (enum)
+
+Controls the verbosity of SDK logging. Set via `hapi.SetLogLevel()`. The current level is read with `HapiManager.GetLogLevel()`.
+
+| Value | Description |
+|---|---|
+| `None` | No logging |
+| `Info` | Informational messages (default) |
+| `Full` | All messages including request/response frames |
+| `Debug` | Maximum verbosity — includes internal state changes |
+
+```csharp
+hapi.SetLogLevel(LogLevel.Debug);
+```
+
+---
+
+## Metadata
+
+The `Metadata` object echoes back the five optional metadata fields that were sent with the transaction request. It is delivered inside `TransactionResult.metadata`.
+
+**Properties**
+
+| Property | Type | Max length | Description |
+|---|---|---|---|
+| `Metadata1` | `string` | 250 chars | Arbitrary data field 1 |
+| `Metadata2` | `string` | 250 chars | Arbitrary data field 2 |
+| `Metadata3` | `string` | 250 chars | Arbitrary data field 3 |
+| `Metadata4` | `string` | 250 chars | Arbitrary data field 4 |
+| `Metadata5` | `string` | 250 chars | Arbitrary data field 5 |
+
+Valid characters for all fields: `a-z A-Z 0-9 - ( ) @ : % _ \ + . ~ # ? & / = { } " ' ,`
+
+**How to set metadata on a transaction**
+
+```csharp
+var map = new Dictionary<string, string>();
+map.Add(XmlTag.Metadata1.Tag(), "table-7");
+map.Add(XmlTag.Metadata2.Tag(), "server-42");
+OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.EUR, map);
+
+// In EndOfTransaction:
+Console.WriteLine(result.Metadata.Metadata1); // "table-7"
+Console.WriteLine(result.Metadata.Metadata2); // "server-42"
+```
+
+---
+
+## MoneyRemittanceOptions
+
+Encapsulates recipient details required for Mastercard money remittance transactions. Merchants with MCC 4829 (wire transfers) or 6540 (stored-value card purchase) must supply these fields for Mastercard. VISA transactions do not require them.
+
+**Properties**
+
+| Property | Type | Required | Description |
+|---|---|---|---|
+| `fullName` | `string` | Yes | First and last name of the transfer recipient (letters and spaces only) |
+| `countryCode` | `CountryCode` | Yes | Recipient's country as an [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) code |
+
+**How to pass money remittance options**
+
+Money remittance data is passed via the optional `map` parameter using `XmlTag` keys:
+
+```csharp
+var map = new Dictionary<string, string>();
+map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
+map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
+
+OperationStartResult op = hapi.Sale(new BigInteger(5000), Currency.USD, map);
+```

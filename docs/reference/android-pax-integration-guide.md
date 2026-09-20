@@ -362,6 +362,197 @@ val accepted: Boolean = hapi.tipAdjustment(
 
 `true` means the SDK sent the adjustment to the gateway. Must be called before batch close — see the [Utility methods table](#utility-methods--verified-return-values-pax-a920) for confirmed PAX return values.
 
+### Automatic Refund
+
+Use to refund a card-not-present transaction without the cardholder presenting their card — the refund is processed against the stored card token from the original sale. No card tap, dip, or swipe is required.
+
+```kotlin
+// Full refund — amount matches the original sale automatically
+hapi.automaticRefund("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Partial refund — specify amount; must not exceed the original sale amount
+hapi.automaticRefund(
+    BigInteger("500"),                               // 500 = $5.00 in minor units
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+The result arrives in `endOfTransaction`. If the partial amount exceeds the original sale amount the transaction is automatically declined.
+
+### Refund Reversal
+
+Use to cancel a refund before the daily batch closes. Like a sale reversal, this voids an unsettled refund before it is submitted for settlement.
+
+```kotlin
+hapi.refundReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // transactionID from the original refund
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // refund reversed — refund will not settle
+    }
+}
+```
+
+Only possible within the same business day, before batch close. After settlement, the refund cannot be reversed.
+
+### MOTO Refund
+
+Use for card-not-present refunds processed over the phone or through a back-office operator. No card presentation is required.
+
+```kotlin
+// Unlinked MOTO refund — not tied to a previous transaction
+hapi.motoRefund(BigInteger("1000"), Currency.USD)
+
+// Linked MOTO refund — capped to the original transaction amount
+hapi.motoRefund(
+    BigInteger("500"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* MOTO refund accepted */ }
+}
+```
+
+Requires `cloudApiKey` in `HandpointCredentials` and MOTO enabled for the merchant. The linked variant limits the refund amount to that of the original transaction.
+
+### MOTO Reversal
+
+Use to void a MOTO sale or MOTO refund before the batch closes. No card is required.
+
+```kotlin
+hapi.motoReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")  // transactionID of the MOTO operation
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // MOTO operation voided
+    }
+}
+```
+
+Must be called before batch close. After settlement, use a MOTO Refund instead.
+
+### MOTO Pre-Authorization
+
+Use to place a card-not-present pre-authorization hold — for example, when taking a booking by phone. The cardholder's card details are keyed in by the operator on the terminal.
+
+```kotlin
+hapi.motoPreauthorization(BigInteger("10000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    when (result.finStatus) {
+        FinancialStatus.AUTHORISED -> {
+            val preAuthID = result.transactionID  // persist for later capture or reversal
+        }
+        else -> { /* declined or failed */ }
+    }
+}
+```
+
+Capture or reverse the hold using `hapi.preAuthorizationCapture()` or `hapi.preAuthorizationReversal()` as with a card-present pre-auth. Requires MOTO to be enabled for the merchant.
+
+### Card PAN
+
+Use to retrieve the full card PAN from a presented card — primarily for loyalty card flows where the PAN is needed to credit points. Only card ranges explicitly whitelisted by Handpoint are returned; all others receive a declined result.
+
+```kotlin
+hapi.cardPan()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val pan = result.panEntryMode   // full PAN for whitelisted ranges
+        val cardBrand = result.cardSchemeName
+    }
+}
+```
+
+Contact Handpoint Integration Support to whitelist the card ranges you need before using this operation.
+
+### Pre-Authorization Increase
+
+Use to adjust the hold amount on an existing open pre-authorization — for example, when a restaurant tab grows beyond the initial hold, or to partially release a hold before capture.
+
+```kotlin
+// Increase the hold by an additional amount
+hapi.preAuthorizationIncrease(
+    BigInteger("2000"),                              // additional amount in minor units
+    Currency.USD,
+    preAuthID                                        // transactionID from original pre-auth
+)
+
+// Decrease the hold by passing a smaller amount than the original hold
+hapi.preAuthorizationIncrease(
+    BigInteger("500"),                               // new (lower) hold amount
+    Currency.USD,
+    preAuthID
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // hold adjusted; persist the updated preAuthID for capture
+    }
+}
+```
+
+Pass an amount smaller than the original pre-auth to decrease the hold. The result arrives in `endOfTransaction`.
+
+### Tokenized Sale
+
+Use when you want to tokenize the card and then immediately complete a sale in a single card-tap flow. The SDK fires `Events.CardTokenized` after tokenization — your app decides whether to proceed with the sale or cancel.
+
+```kotlin
+// Initiate the tokenized sale flow
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+// Implement Events.CardTokenized in your Activity
+override fun onCardTokenized(
+    cardTokenizationData: CardTokenizationData,
+    resumeCallback: ResumeCallback
+) {
+    val token = cardTokenizationData.token          // store for future card-not-present charges
+    val cardBrand = cardTokenizationData.cardBrand
+
+    // Proceed with the sale
+    resumeCallback.resume(
+        OperationDto.Sale(BigInteger("1000"), Currency.USD)
+    )
+
+    // Or cancel without charging
+    // resumeCallback.cancel()
+}
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // card tokenized and sale approved
+    }
+}
+```
+
+Only `OperationDto.Sale` is valid when calling `resumeCallback.resume()` — passing any other operation type returns `FEATURE_NOT_SUPPORTED`. Calling any `ResumeCallback` method after timeout or cancellation throws an exception.
+
+## Device management
+
+Brief reference for terminal management methods available on the `Hapi` instance.
+
+| Method | Signature | Notes |
+|---|---|---|
+| **Disconnect** | `hapi.disconnect(): Boolean` | Stops the active connection or reconnection attempt. Do not call mid-transaction — it ignores current state. |
+| **Get paired devices** | `hapi.getPairedDevices(method: ConnectionMethod): List<Device>` | Returns all terminals paired with the specified connection type (Bluetooth, Cloud, etc.). |
+| **Get EMV configuration** | `hapi.getEMVConfiguration(): Boolean` | Async; fetches the EMV configuration report from the terminal. Result delivered via `Events.ReportResult`. |
+| **Flash reset** | `hapi.deleteDeviceConfig()` | Sends a command to delete the terminal's stored configuration (factory-style reset). |
+| **Set locale** | `hapi.setLocale(locale: SupportedLocales)` | Sets the SDK UI language and regional number/date formatting. |
+| **Get manufacturer** | `hapi.getDeviceManufacturer(): Manufacturer` | Returns the `Manufacturer` enum value for the connected terminal. |
+
 ## Operations available
 
 | Operation | Acquirer support |
