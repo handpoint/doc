@@ -223,15 +223,21 @@ hapi.GetTransactionStatus(transactionReference);
 |---|---|
 | **Sale** | `hapi.Sale(amount, currency, options?)` |
 | **Refund** | `hapi.Refund(amount, currency, options?)` |
-| **Reversal** | `hapi.SaleReversal(amount, currency, options?)` |
+| **Sale Reversal** | `hapi.SaleReversal(amount, currency, originalTransactionID)` |
+| **Refund Reversal** | `hapi.RefundReversal(amount, currency, originalTransactionID)` |
 | **Pre-Authorization** | `hapi.PreAuthorization(amount, currency, options?)` |
-| **Pre-Auth Capture** | `hapi.PreAuthorizationCapture(amount, currency, options?)` |
-| **Pre-Auth Increase** | `hapi.PreAuthorizationIncrease(amount, currency, options?)` |
-| **Pre-Auth Reversal** | `hapi.PreAuthorizationReversal(amount, currency, options?)` |
+| **Pre-Auth Capture** | `hapi.PreAuthorizationCapture(amount, currency, originalTransactionID)` |
+| **Pre-Auth Increase** | `hapi.PreAuthorizationIncrease(amount, currency, originalTransactionID)` |
+| **Pre-Auth Reversal** | `hapi.PreAuthorizationReversal(originalTransactionID)` |
 | **MOTO Sale** | `hapi.MoToSale(amount, currency, options?)` |
+| **MOTO Refund** | `hapi.MoToRefund(amount, currency, options?)` |
+| **MOTO Reversal** | `hapi.MoToReversal(originalTransactionID)` |
+| **MOTO Pre-Authorization** | `hapi.moToPreAuthorization(amount, currency, options?)` |
 | **Tokenize Card** | `hapi.TokenizeCard(options?)` |
 | **Sale and Tokenize** | `hapi.SaleAndTokenizeCard(amount, currency, options?)` |
-| **Tip Adjustment** | `hapi.TipAdjustment(amount, originalTransactionId)` — returns `Task<FinancialStatus>` |
+| **Tip Adjustment** | `hapi.TipAdjustment(tipAmount, originalTransactionID)` — returns `Task<FinancialStatus>` |
+| **Print Receipt** | `hapi.PrintReceipt(receipt)` — returns `bool` |
+| **Signature Result** | `hapi.SignatureResult(accepted)` — returns `bool` |
 | **Get Transaction Status** | `hapi.GetTransactionStatus(transactionReference)` |
 | **Stop Transaction** | `hapi.StopCurrentTransaction()` |
 
@@ -446,6 +452,7 @@ MOTO refund — card-not-present, cardholder keys card details on the terminal. 
 OperationStartResult MoToRefund(BigInteger amount, Currency currency);
 OperationStartResult MoToRefund(BigInteger amount, Currency currency, string originalTransactionId);
 OperationStartResult MoToRefund(BigInteger amount, Currency currency, Dictionary<string, string> map);
+OperationStartResult MoToRefund(BigInteger amount, Currency currency, string originalTransactionId, Dictionary<string, string> map);
 ```
 
 **Example**

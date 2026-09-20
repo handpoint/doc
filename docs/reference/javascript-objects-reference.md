@@ -57,7 +57,7 @@ The final outcome object resolved from `transactionResult`.
 | `cardHolderName` | string | Cardholder name as read from the card. |
 | `paymentScenario` | PaymentScenario | How the card interacted with the terminal (chip, contactless, swipe, MOTO). |
 | `tenderType` | TenderType | Whether the card is CREDIT or DEBIT. |
-| `transactionType` | TransactionType | The type of transaction (SALE, REFUND, VOID_SALE, etc.). |
+| `type` | TransactionType | The type of transaction (SALE, REFUND, VOID_SALE, etc.). |
 | `verificationMethod` | VerificationMethod | CVM method used: PIN, SIGNATURE, PIN_SIGNATURE, NOT_REQUIRED, etc. |
 | `multiLanguageStatusMessages` | Map | Terminal status messages in multiple languages. |
 | `multiLanguageErrorMessages` | Map | Error messages in multiple languages. |
@@ -212,16 +212,20 @@ Configures the tip selection menu displayed on the terminal.
 | Property | Type | Description |
 |---|---|---|
 | `baseAmount` | string | The base amount (before tip) shown on the tip screen |
+| `headerName` | string | Custom header text displayed at the top of the tip screen (e.g. `'Tip'`) |
+| `footer` | string | Custom footer text displayed at the bottom of the tip screen (e.g. `'Thank you!'`) |
 | `skipEnabled` | boolean | Whether the cardholder can skip the tip prompt |
 | `enterAmountEnabled` | boolean | Whether the cardholder can enter a custom tip amount |
 | `tipPercentages` | number[] | Array of tip percentage options to display (e.g. `[5, 10, 15, 20]`) |
 
 ```javascript
 const tipConfiguration = {
+    headerName: 'Tip',
     baseAmount: '1000',
     skipEnabled: true,
     enterAmountEnabled: true,
-    tipPercentages: [10, 15, 18, 20]
+    tipPercentages: [10, 15, 18, 20],
+    footer: 'Thank you!'
 };
 ```
 
@@ -386,6 +390,8 @@ How the card interacted with the terminal.
 |---|---|
 | `'CREDIT'` | Credit card |
 | `'DEBIT'` | Debit card |
+| `'PREPAID'` | Prepaid card |
+| `'NOT_SET'` | Unknown — common on MOTO and cancelled transactions |
 
 ---
 

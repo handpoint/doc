@@ -82,7 +82,7 @@ The gateway maps a `refund` operation to a TNS VOID internally when the original
 :::
 
 ```http
-POST https://cloud.handpoint.com/transaction
+POST https://cloud.handpoint.com/transactions
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 

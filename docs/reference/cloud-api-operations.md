@@ -302,8 +302,8 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 | `tipAmount` | string | No | — | Optional tip to add to the capture. Same unit as `capturedAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |
 
-:::caution `capturedAmount` unit — confirm before using
-The cloudapi-dev LoopBack model describes `capturedAmount` as **minor units** (e.g. `"9500"` = $95.00). The existing pre-auth guide documents it as a **major-unit decimal string** (e.g. `"95.00"` = $95.00). Verify against a test transaction with a known amount before shipping — this discrepancy needs confirmation from Handpoint engineering.
+:::note `capturedAmount` uses major units (decimal)
+Pass `capturedAmount` as a **major-unit decimal string** — e.g. `"45.00"` for $45.00, `"120.00"` for $120.00. This matches `increaseAmount` and the `/reversal` `amount` field. It is **not** minor units.
 :::
 
 **`POST /preauthorization/increase` — request parameters**
@@ -311,7 +311,7 @@ The cloudapi-dev LoopBack model describes `capturedAmount` as **minor units** (e
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `originalGuid` | string | **Yes** | — | `transactionID` from the Pre-Authorization create result. Max 64 chars. |
-| `increaseAmount` | string | **Yes** | — | Delta to add (or subtract). Always a positive value. Same unit ambiguity as `capturedAmount` above. Max 32 chars. |
+| `increaseAmount` | string | **Yes** | — | Delta to add (or subtract). Always a positive value. **Major-unit decimal** — e.g. `"5.00"` = $5.00. Max 32 chars. |
 | `subtract` | string | No | — | Pass `"1"` to decrease the hold instead of increase. `"1"` is the only accepted value. |
 | `tipAmount` | string | No | — | Tip amount adjustment. Same unit as `increaseAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |

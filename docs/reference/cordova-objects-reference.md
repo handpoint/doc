@@ -259,9 +259,20 @@ Tokenizes a card without charging it. The card token is returned in `Transaction
 
 #### `handpoint.tipAdjustment(params, successCb, errorCb)`
 
-:::caution Not implemented in the Cordova plugin
-`tipAdjustment` is **not implemented** in the Cordova plugin. Calling it will invoke `errorCb` immediately. Use the [Handpoint Back-Office REST API](https://developer.handpoint.com/reference/backoffice-integration-guide) for post-transaction tip adjustments — this is a server-side call that requires no terminal or plugin.
-:::
+Adjusts the tip amount on a previously completed sale before batch settlement. Available for acquirers that support tip adjustment (EPI, Paysafe).
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `params.tipAmount` | number | Yes | Tip amount in minor units (e.g. `150` = $1.50). |
+| `params.originalTransactionID` | string | Yes | The `transactionID` from the original sale's `TransactionResult`. |
+
+```javascript
+handpoint.tipAdjustment(
+  { tipAmount: 150, originalTransactionID: 'txn-id-from-sale' },
+  function(result) { console.log('Tip adjusted', result); },
+  function(error) { console.error('Tip adjustment failed', error); }
+);
+```
 
 ---
 
@@ -372,6 +383,10 @@ The `finStatus` field in `TransactionResult`. Always evaluate this before updati
 | `'FAILED'` | Technical failure — unreadable card, terminal error, or network issue during authorisation. Card was not charged. | Check `errorMessage`. Allow retry with a different card. |
 | `'UNDEFINED'` | No result received from the terminal within the timeout. The transaction may or may not have processed. | **Do not retry.** Begin recovery using the stored `transactionReference`. See [Transaction Recovery — Cordova](/reference/transaction-recovery-cordova-sdk). |
 | `'PARTIAL_APPROVAL'` | Partial amount approved (US acquirers only). `totalAmount` is the approved amount, which is less than what was requested. | Collect the remainder with another payment method, or send a reversal for `totalAmount`. |
+| `'PROCESSED'` | Transaction processed successfully without a traditional authorisation. Returned for `tokenizeCard` success and `preAuthorizationCapture`. | Treat as success. For `tokenizeCard`, store the `cardToken`. |
+| `'IN_PROGRESS'` | Transaction still being processed. Returned by `getTransactionStatus` while UNDEFINED recovery is in progress. | Poll again after a short delay (10 s) until a terminal status is returned. |
+| `'REFUNDED'` | Transaction has been refunded. Returned by `getTransactionStatus`. | No further action required; record the refund outcome. |
+| `'CAPTURED'` | Pre-authorization has been captured (funds moved to settlement). Returned by `getTransactionStatus`. | Fulfil the order. |
 
 :::caution UNDEFINED recovery
 When `finStatus` is `'UNDEFINED'`, the transaction may have processed on the acquirer's side. Do not retry and do not assume the card was not charged. Use the stored `transactionReference` to query status. See [Transaction Recovery — Cordova](/reference/transaction-recovery-cordova-sdk).

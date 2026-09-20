@@ -138,8 +138,8 @@ pod 'HandpointSDK'
 
 // Discovery complete — get the full list
 - (void)didDiscoverFinished {
-    NSMutableDictionary *devices = [self.manager connectedCardReaders];
-    HeftRemoteDevice *device = [devices.allValues firstObject];
+    NSArray *devices = [self.manager connectedCardReaders];
+    HeftRemoteDevice *device = [devices firstObject];
     if (device) {
         NSString *secret = @"0102030405060708091011121314151617181920212223242526272829303132";
         [self.manager clientForDevice:device sharedSecret:secret delegate:self];
@@ -195,7 +195,7 @@ class ViewController: UIViewController, HeftDiscoveryDelegate, HeftStatusReportD
 Skip discovery — the reader is already accessible:
 
 ```objc
-HeftRemoteDevice *device = [[self.manager connectedCardReaders].allValues firstObject];
+HeftRemoteDevice *device = [[self.manager connectedCardReaders] firstObject];
 NSString *secret = @"0102030405060708091011121314151617181920212223242526272829303132";
 [self.manager clientForDevice:device sharedSecret:secret delegate:self];
 ```
@@ -503,8 +503,8 @@ Acquirer availability: EPI (TSYS, VANTIV) in the United States restaurant indust
 
 | Parameter | Type | Required | Notes |
 |---|---|---|---|
-| `tipAmount` | `NSInteger` | Yes | Tip amount in minor currency unit (e.g. 1000 = $10.00) |
 | `transaction` | `NSString` | Yes | `eFTTransactionID` (GUID) of the original sale |
+| `tipAmount` | `NSInteger` | Yes | Tip amount in minor currency unit (e.g. 1000 = $10.00) |
 
 ```objc
 #include "HapiRemoteService.h"
@@ -585,7 +585,7 @@ manager.delegate = self;
 
 ```objc
 NSString *sharedSecret = @"0102030405060708091011121314151617181920212223242526272829303132";
-[heftManager clientForDevice:[heftManager.connectedCardReaders.allValues firstObject]
+[heftManager clientForDevice:[heftManager.connectedCardReaders firstObject]
                 sharedSecret:sharedSecret
                     delegate:self];
 ```
@@ -613,9 +613,10 @@ NSString *sharedSecret = @"01020304050607080910111213141516171819202122232425262
 | Level | Value | Description |
 |---|---|---|
 | `eLogNone` | 0 | No logging |
-| `eLogInfo` | 1 | Informational only |
-| `eLogFull` | 2 | Full logging (recommended for integration) |
-| `eLogDebug` | 3 | Debug logging |
+| `eLogError` | 1 | Error messages only |
+| `eLogInfo` | 2 | Informational only |
+| `eLogFull` | 3 | Full logging (recommended for integration) |
+| `eLogDebug` | 4 | Debug logging |
 
 ```objc
 [heftClient logSetLevel:eLogFull];
@@ -676,7 +677,7 @@ Fired when Bluetooth discovery completes. Access all found devices via `manager.
 
 ```objc
 - (void)didDiscoverFinished {
-    HeftRemoteDevice *device = [self.manager.connectedCardReaders.allValues firstObject];
+    HeftRemoteDevice *device = [self.manager.connectedCardReaders firstObject];
     if (device) {
         [self.manager clientForDevice:device sharedSecret:sharedSecret delegate:self];
     }

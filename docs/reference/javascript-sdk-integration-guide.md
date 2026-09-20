@@ -195,7 +195,7 @@ A sale initiates a payment transaction with the terminal.
 | `amount` | string | Required | Amount in the minor unit of currency (e.g. `'1000'` = £10.00) |
 | `currency` | string | Required | ISO 4217 currency code (e.g. `'USD'`, `'GBP'`) |
 | `saleOptions` | SaleOptions | Optional | Customisation options: tip configuration, bypass options, merchant auth, metadata, etc. Pass `{}` or omit if not needed |
-| `callback_function` | function | Required | Callback receiving intermediate `TransactionStatus` updates during the operation |
+| `callback_function` | function | Optional | Callback receiving intermediate `TransactionStatus` updates during the operation. Omit if status events are not needed. |
 
 **Code example**
 

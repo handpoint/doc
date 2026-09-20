@@ -45,7 +45,7 @@ cordova-plugin-handpoint
 PAX Terminal or HiLite Reader
     │  chip / tap / swipe + P2PE
     ▼
-handpoint.transactionResultReady DOM event
+handpoint.endOfTransaction DOM event
 ```
 
 ## Authentication
@@ -79,27 +79,27 @@ ionic cap sync
 ### 3. Initialise
 
 ```javascript
-// PAX Cloud path
-HAPI.init({
-    apiKey:           'YOUR_MERCHANT_API_KEY',
-    connectionMethod: 'CLOUD'
+// PAX SmartPOS (Cloud path)
+handpoint.setup({
+    sharedSecret:          'YOUR_SHARED_SECRET',
+    automaticReconnection: true
 }, successCallback, errorCallback);
 
 // HiLite Bluetooth path
-HAPI.init({
-    apiKey:           'YOUR_MERCHANT_API_KEY',
-    connectionMethod: 'BLUETOOTH'
+handpoint.setup({
+    sharedSecret:          'YOUR_SHARED_SECRET',
+    automaticReconnection: true
 }, successCallback, errorCallback);
 ```
 
-Call `HAPI.init()` once on app start. Do not re-initialise per transaction.
+Call `handpoint.setup()` once on app start. Do not re-initialise per transaction.
 
 ### 4. Register event listeners
 
 ```javascript
 // Transaction result
-document.addEventListener('handpoint.transactionResultReady', function(event) {
-    const result = event.detail;
+document.addEventListener('handpoint.endOfTransaction', function(event) {
+    const result = event.detail.transactionResult;
     handleResult(result);
 });
 
@@ -136,14 +136,14 @@ HAPI.sale({
     customerReference: 'ORDER-123'
 }, successCallback, errorCallback);
 
-// Result arrives in handpoint.transactionResultReady event
+// Result arrives in handpoint.endOfTransaction event
 ```
 
 ### Reading the result
 
 ```javascript
-document.addEventListener('handpoint.transactionResultReady', function(event) {
-    const result   = event.detail;
+document.addEventListener('handpoint.endOfTransaction', function(event) {
+    const result   = event.detail.transactionResult;
     const status   = result.finStatus;     // 'AUTHORISED', 'DECLINED', etc.
     const txId     = result.transactionID; // store for reversals and refunds
 
@@ -221,12 +221,12 @@ if (pending) startBackgroundRecovery(pending.ref);
 | Operation | Method |
 |---|---|
 | **Sale** | `HAPI.sale({ amount, currency, customerReference? })` |
-| **Refund** | `HAPI.refund({ amount, currency, originalTransactionId? })` |
-| **Reversal** | `HAPI.reversal({ originalTransactionId, amount? })` |
+| **Refund** | `HAPI.refund({ amount, currency, originalTransactionID? })` |
+| **Reversal** | `HAPI.reversal({ originalTransactionID, amount? })` |
 | **Pre-Authorization** | `HAPI.preAuthorization({ amount, currency })` — PAX only |
-| **Pre-Auth Capture** | `HAPI.preAuthorizationCapture({ amount, originalTransactionId })` — PAX only |
-| **Pre-Auth Reversal** | `HAPI.preAuthorizationReversal({ originalTransactionId })` — PAX only |
-| **Tip Adjustment** | `HAPI.tipAdjustment({ tipAmount, originalTransactionId })` — EPI only |
+| **Pre-Auth Capture** | `HAPI.preAuthorizationCapture({ amount, originalTransactionID })` — PAX only |
+| **Pre-Auth Reversal** | `HAPI.preAuthorizationReversal({ originalTransactionID })` — PAX only |
+| **Tip Adjustment** | `HAPI.tipAdjustment({ tipAmount, originalTransactionID })` |
 | **Get Transaction Status** | `HAPI.getTransactionStatus({ transactionReference })` |
 | **Stop Transaction** | `HAPI.stopCurrentTransaction()` |
 
@@ -241,7 +241,7 @@ Pass amounts in **minor units** (cents / pence). Use the full trigger table — 
 **Required for every integration:**
 
 - [ ] `transactionReference` generated and persisted before each `HAPI.sale()` call — [scoping rules](/reference/transaction-reference)
-- [ ] `handpoint.transactionResultReady` listener registered before any transaction starts
+- [ ] `handpoint.endOfTransaction` listener registered before any transaction starts
 - [ ] `UNDEFINED` recovery flow implemented and tested
 - [ ] App-restart recovery — pending reference polled on startup
 - [ ] Partial approval handled — `PARTIAL_APPROVAL` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))

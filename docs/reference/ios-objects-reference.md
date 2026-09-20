@@ -44,7 +44,7 @@ manager.delegate = self;
 
 | Property | Type | Notes |
 |---|---|---|
-| `connectedCardReaders` | `NSMutableDictionary` | All discovered terminals, keyed by device address |
+| `connectedCardReaders` | `NSArray` | All discovered terminals |
 | `delegate` | `id<HeftDiscoveryDelegate>` | Receives discovery and connection callbacks |
 | `version` | `NSString` | Current SDK version string |
 
@@ -106,7 +106,7 @@ The transaction interface. Obtained via `didConnect:` — **do not call any fina
 | `refundWithAmount:currency:transaction:options:` | + `options` (MerchantAuthOptions) | `BOOL` | Linked refund with options |
 | `refundReversalWithAmount:currency:transactionId:options:` | `amount`, `currency`, `transactionId`, `options` (Options) | `BOOL` | Void a previous refund — same day only |
 | `tokenizeCard` | — | `BOOL` | Tokenize card without payment |
-| `acceptSignature:` | `flag` (BOOL) | `BOOL` | Respond to `requestSignature:` — `YES` to accept, `NO` to reject |
+| `acceptSignature:` | `flag` (BOOL) | `void` | Respond to `requestSignature:` — `YES` to accept, `NO` to reject |
 | `retrievePendingTransaction` | — | `BOOL` | Fetch pending result after Bluetooth reconnect |
 | `cancel` | — | `void` | Cancel the current in-progress transaction |
 | `financeInit` | — | `BOOL` | Check and download terminal software/config updates |
@@ -125,6 +125,7 @@ The transaction interface. Obtained via `didConnect:` — **do not call any fina
 | Value | Level |
 |---|---|
 | `eLogNone` | No logging |
+| `eLogError` | Error messages only |
 | `eLogInfo` | Informational only |
 | `eLogFull` | Full logging — recommended during integration and validation |
 | `eLogDebug` | Debug output |
@@ -167,7 +168,7 @@ Fires when the Bluetooth discovery scan completes. All found devices are now in 
 
 ```objc
 - (void)didDiscoverFinished {
-    HeftRemoteDevice *device = [self.manager.connectedCardReaders.allValues firstObject];
+    HeftRemoteDevice *device = [self.manager.connectedCardReaders firstObject];
     if (device) {
         [self.manager clientForDevice:device sharedSecret:@"<sharedSecret>" delegate:self];
     }
@@ -374,7 +375,7 @@ Call `[info toDictionary]` to serialize all non-empty fields as an `NSDictionary
 |---|---|---|
 | `cardSchemeName` | `NSString` | Card brand — `"Visa"`, `"Mastercard"`, `"Amex"`, `"Maestro"`, `"Discover"`, `"JCB"`, `"Diners"`, `"UnionPay"`, `"Interac"` |
 | `cardEntryType` | `NSString` | How the card was read — `"ICC"` (chip), `"NFC"` (contactless tap), `"MSR"` (magnetic stripe swipe) |
-| `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"NO_VERIFICATION"` |
+| `verificationMethod` | `NSString` | Cardholder verification used — `"PIN"`, `"SIGNATURE"`, `"NO_VERIFICATION"`, `"UNDEFINED"` |
 | `CardToken` | `NSString` | Card token returned by `tokenizeCard` and `saleAndTokenize` operations |
 
 ### Receipts
@@ -447,6 +448,7 @@ Returned in `FinanceResponseInfo.cardEntryType`:
 | `"ICC"` | Contact EMV chip (card inserted) |
 | `"NFC"` | Contactless tap (EMV or magnetic stripe contactless) |
 | `"MSR"` | Magnetic stripe swipe |
+| `"UNDEFINED"` | Entry type not applicable or not determined (e.g. non-payment operations) |
 
 ### `CardSchemeName` string values
 
