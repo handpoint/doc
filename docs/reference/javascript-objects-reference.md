@@ -341,7 +341,7 @@ Returned by `hp.batchSummary()`.
 | `batchSummaryGuid` | string | Unique ID for this summary response |
 | `transactionCount` | number | Number of transactions in the batch |
 | `netAmount` | number | Net total in minor currency unit |
-| `customFields` | Array&lt;{key, value}&gt; | Additional acquirer-specific fields |
+| `customFields` | Array&lt;&#123;key, value&#125;&gt; | Additional acquirer-specific fields |
 | `customerReference` | string | Echoed customer reference |
 | `httpStatus` | number | HTTP status code from the acquirer |
 | `issuerResponseCode` | string | Acquirer response code |
