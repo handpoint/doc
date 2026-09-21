@@ -1959,3 +1959,19 @@ a.button--primary:hover {
   color: var(--ifm-color-content-secondary);
   font-weight: 600;
 }
+
+/* iOS Safari: click events don't fire on non-interactive elements without cursor:pointer */
+.pills__item {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+/* Always-bold section group headings in the right-side TOC */
+.table-of-contents__link[href="#list-devices"],
+.table-of-contents__link[href="#terminal-operations"],
+.table-of-contents__link[href="#transaction-result-recovery"],
+.table-of-contents__link[href="#device-control-commands"],
+.table-of-contents__link[href="#endpoints-not-requiring-a-payment-terminal"],
+.table-of-contents__link[href="#batch-operations"] {
+  font-weight: bold;
+}
