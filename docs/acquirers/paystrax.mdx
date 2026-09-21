@@ -652,9 +652,13 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 
 ### Sale with Tip {#sale-and-tip}
 
-<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","cordova","javascript-sdk","windows-sdk"]}>
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
 
 Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
+
+:::info Handpoint Portal (TMS) prerequisite
+**Tip at the table supported** must be enabled on the terminal's profile in the [Handpoint Portal](https://portal.handpoint.com) before tip prompts appear on the terminal. For iOS HiLite, all tip configuration is done in the portal — no `tipConfiguration` parameter is available in the SDK.
+:::
 
 #### When to use it
 Use in hospitality environments (restaurants, taxis, salons) where tipping is expected at point of sale. The tip is collected at the terminal, included in the authorised amount, and settled together with the base sale — no second operation is needed.
@@ -802,6 +806,47 @@ public void EndOfTransaction(TransactionResult result, Device device)
     {
         // result.TipAmount — tip chosen by cardholder
         // result.TotalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+The iOS HiLite SDK's `SaleOptions` has no `tipConfiguration` parameter. Tipping is configured at the terminal level in the **Handpoint Portal (TMS)**:
+
+1. Log in to [portal.handpoint.com](https://portal.handpoint.com)
+2. Navigate to the terminal's profile → **Tipping**
+3. Enable **"Tip at the table supported"**
+4. Optionally configure the default tip percentages
+5. Push the updated configuration to the terminal
+
+Once enabled, the cardholder selects a tip on the reader itself. The selected tip and total are returned in the transaction response.
+
+**Objective-C**
+```objc
+SaleOptions *options = [[SaleOptions alloc] init];
+BOOL sent = [heftClient saleWithAmount:1000 currency:@"USD" options:options];
+
+- (void)responseFinanceStatus:(id<FinanceResponseInfo>)info {
+    if ([info.statusMessage isEqualToString:@"AUTHORISED"]) {
+        NSLog(@"Tip: %@", info.gratuityAmount);       // e.g. "1.50"
+        NSLog(@"Tip%%: %@", info.gratuityPercentage); // e.g. "15"
+        NSLog(@"Total: %@", info.totalAmount);         // base + tip
+    }
+}
+```
+
+**Swift**
+```swift
+let options = SaleOptions()
+heftClient?.sale(withAmount: 1000, currency: "USD", options: options)
+
+func responseFinanceStatus(_ info: FinanceResponseInfo!) {
+    if info.statusMessage == "AUTHORISED" {
+        print("Tip:", info.gratuityAmount)       // e.g. "1.50"
+        print("Tip%:", info.gratuityPercentage)  // e.g. "15"
+        print("Total:", info.totalAmount)         // base + tip
     }
 }
 ```
