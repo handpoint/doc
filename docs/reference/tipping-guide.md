@@ -48,8 +48,13 @@ Include a `tipConfiguration` object in the sale request. The terminal presents p
 
 The result includes `tipAmount` (in minor units) and `totalAmount` (base + tip). See the acquirer page for full examples: [EPI](/acquirers/epi#sale-with-tip) · [PAYSAFE](/acquirers/paysafe#sale-with-tip) · [EmerchantPay](/acquirers/emerchantpay#sale-with-tip) · [Paystrax](/acquirers/paystrax#sale-with-tip).
 
-:::note iOS HiLite — no `tipConfiguration`, but terminal-level tipping works
-The iOS HiLite SDK's `SaleOptions` has no `tipConfiguration` property, so you cannot configure the tip screen programmatically from the app. However, the HiLite reader can be configured for on-device tipping at the TMS/firmware level — when active, the cardholder selects a tip on the reader itself and the result is returned in `FinanceResponseInfo.gratuityAmount` / `gratuityPercentage`. Post-sale **Tip Adjustment** is also supported on iOS. Contact your Handpoint account team to enable terminal-level tipping.
+:::note iOS HiLite — tipping configured in Handpoint Portal (TMS)
+The iOS HiLite SDK's `SaleOptions` has no `tipConfiguration` parameter — all tipping is configured at the terminal level in the [Handpoint Portal](https://portal.handpoint.com):
+
+- **Sale with Tip**: Enable **"Tip at the table supported"** on the terminal's profile. The cardholder selects a tip on the reader; the result is returned in `FinanceResponseInfo.gratuityAmount` / `gratuityPercentage`.
+- **Tip Adjustment**: Enable **"Tip adjustment supported"** on the terminal's profile. Without this toggle, tip adjustment calls are rejected.
+
+Contact your Handpoint account team to enable either feature.
 :::
 
 ## Tip Adjustment — post-sale, before settlement
