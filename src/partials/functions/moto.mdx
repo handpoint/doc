@@ -1,0 +1,248 @@
+## MOTO (Mail Order / Telephone Order) {#moto-sale}
+
+#### What this does
+Processes a card-not-present transaction where the cardholder provides card details by phone or mail. The card is never physically read — a stored card token is used instead.
+
+#### Two MOTO modes
+
+| Mode | How it works | Terminal required | Who holds card data |
+|---|---|---|---|
+| **MOTO on terminal** | Cloud API commands the PAX terminal to display a manual card entry screen. The operator types card details on the terminal. Terminal tokenizes and sends. | ✅ PAX in integrated mode | Handpoint terminal |
+| **MOTO back-office** | A `cardToken` from a supported token provider is sent via REST API or Android SDK. No terminal or card entry required. | ❌ None | Token provider (never the ISV) |
+
+:::info No raw card data
+Handpoint MOTO does not accept raw PAN, expiry, or CVV from the ISV system. All MOTO operations use a `cardToken` issued by a supported token provider (e.g. Paysafe, Tokenex). The token provider de-tokenizes to PAN + expiry when processing the transaction — the ISV system never handles raw card data.
+:::
+
+#### When to use it
+Use for call centres, phone order systems, or recurring billing where the cardholder previously consented to card-on-file. A card token must exist before a MOTO transaction can be processed — tokens are obtained via the [Tokenization](/acquirers/epi#tokenization) operation on the original card-present or online transaction.
+
+#### Implementation notes
+
+1. The card token must come from a token provider supported by the merchant's acquirer.
+2. Some acquirers restrict MOTO to specific merchant category codes (MCCs) — confirm with your acquirer.
+3. **MOTO on terminal**: the PAX device must be running the Android SDK in integrated mode. The terminal entry screen collects card details and tokenizes internally.
+4. **MOTO back-office**: the `cardToken` is passed directly in the API request. No terminal required. Uses the `/moto/sale` endpoint — not `/transactions`.
+5. **MOTO refund**: no card or terminal is required. The refund is submitted directly to the gateway using the card token. Valid up to **12 months** after the original MOTO sale date.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+{/* AVS_FOR_MOTO_INJECTION_POINT */}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**With reader** — commands a PAX terminal to show a manual card entry screen. Results are async: poll `GET /transaction-result/{transactionResultId}`. Amount in **smallest currency unit**.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Use `"moToPreAuthorization"` or `"moToRefund"` in `operation` for pre-auth and refund. Add `"originalTransactionId"` on refunds.
+
+---
+
+**Without reader (back-office)** — submits a card token directly to the gateway. No device required, API key only. Amount in **major currency units** (decimal string).
+
+Sale:
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
+
+Refund:
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**MOTO on terminal** — PAX device shows a manual card entry screen:
+
+```kotlin
+// Sale — terminal prompts operator to type card details
+hapi.motoSale(BigInteger("1000"), Currency.USD)
+
+// Pre-Authorization
+hapi.motoPreauthorization(BigInteger("1000"), Currency.USD)
+
+// Refund — no terminal interaction, submitted via token
+hapi.motoRefund(BigInteger("1000"), Currency.USD, originalTransactionId)
+
+// Reversal — no amount or currency (voids full original amount)
+hapi.motoReversal(originalTransactionId)
+```
+
+**Back-office** — card token via `MoToOptions`, no terminal entry:
+
+```kotlin
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO without a reader, use the Cloud API back-office endpoints."
+  useInstead="Cloud API (back-office)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="HiLite is a Bluetooth card reader with no manual entry screen — MOTO on-terminal is a PAX-only feature. For back-office MOTO without a reader, use the Cloud API back-office endpoints."
+  useInstead="Cloud API (back-office)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Android only — MOTO via Cordova
+
+// Sale
+handpoint.motoSale(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") { /* accepted */ }
+  },
+  function(error) { console.error(error); }
+);
+
+// Refund
+handpoint.motoRefund(
+  { amount: 1000, currency: handpoint.Currency.USD, originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+
+// Reversal — no amount or currency required
+handpoint.motoReversal(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**With reader** (`POST /transactions`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | `"moToSale"`, `"moToPreAuthorization"`, or `"moToRefund"` |
+| `amount` | string | Yes | Amount in **smallest currency unit**, e.g. `"1000"` for $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | PAX terminal serial number — triggers card entry screen on device |
+| `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
+| `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
+
+**Without reader — back-office** (`POST /moto/sale`, `/moto/refund`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in **major currency units**, e.g. `"10.00"` for $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `cardToken` | string | Yes | Token from a supported token provider. Never a raw PAN |
+| `originalGuid` | string | Refund only | GUID of the original MOTO sale to refund. Replaces `cardToken` on refunds — the gateway retrieves the card from the original transaction |
+| `transactionReference` | string | Sale | UUID v4 for idempotency. Do not include on refunds (linked operation) |
+| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**`MoToOptions` fields** (optional third argument):
+
+| Field | Type | Description |
+|---|---|---|
+| `cardToken` | `String?` | Card token for back-office MOTO — omit for on-terminal entry |
+| `channel` | `MoToChannel?` | `MAIL_ORDER` or `TELEPHONE_ORDER`. Defaults to `null` (not specified) |
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not applicable — see Cloud API tab for back-office mode.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not applicable — see Cloud API tab for back-office mode.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+**`handpoint.motoSale(config, success, error)`** — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | number | Amount in minor currency units |
+| `currency` | number | `handpoint.Currency.USD` (or other currency enum) |
+
+**`handpoint.motoRefund(config, success, error)`** — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | number | Refund amount in minor currency units |
+| `currency` | number | `handpoint.Currency.USD` |
+| `originalTransactionID` | string | `transactionID` from the original MOTO sale |
+
+**`handpoint.motoReversal(config, success, error)`** — Android only:
+
+| Field | Type | Description |
+|---|---|---|
+| `originalTransactionID` | string | `transactionID` from the MOTO sale to reverse — no amount or currency |
+
+</TabItem>
+</Tabs>
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask customer for another card or token |
+| `INVALID_TOKEN` | Card token not recognised | Verify token and token provider match the acquirer |
+| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
+
+#### Testing
+Test MOTO on terminal using a PAX debug device on staging. Test MOTO back-office using a valid card token from a staging tokenization — see [Tokenization](/acquirers/epi#tokenization).

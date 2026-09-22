@@ -1,0 +1,239 @@
+Standard chip or contactless card-present payment — the cardholder taps, inserts, or swipes their card at the terminal. The terminal handles card entry mode automatically.
+
+#### When to use it
+Use for standard retail and hospitality transactions where the cardholder is physically present and the amount is fixed before checkout. For a final amount that may change after authorisation (e.g. restaurant tab), use Pre-Authorization instead.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "customerReference": "order-5248",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Amount is in the **smallest currency unit** — `"1000"` = $10.00 USD. The 202 response returns a `transactionResultId` — poll `GET /transaction-result/{transactionResultId}` on `cloud.handpoint.com` for the outcome. Your `transactionReference` UUID v4 can also be used to query the full operation chain via `GET /transactions/{transactionReference}/status/all` on `transactions.handpoint.com`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for any subsequent reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for any subsequent reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.saleWithAmount(1000, currency: "USD")
+
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
+    if info.finStatus() == "AUTHORISED" {
+        // store info.eFTTransactionID() for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      // store result.transactionID for potential reversal
+    }
+  },
+  function(error) { console.error("Sale failed:", error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionReference, transactionResult } = hp.sale(
+  1000,    // smallest currency unit — 1000 = $10.00
+  'USD',
+  {
+    terminalType: 'PAXA920',
+    serialNumber: '082104578',
+    customerReference: 'order-5248',
+  }
+);
+
+// Persist transactionReference before awaiting — needed for recovery if connection drops
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // result.transactionID for subsequent reversal
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+using System.Numerics;
+using com.handpoint.api;
+
+var op = hapi.Sale(new BigInteger(1000), Currency.USD);
+
+if (!op.OperationStarted)
+{
+    // SDK rejected the command — log op.ErrorMessage and handle in UI
+    return;
+}
+
+// Persist op.TransactionReference before the result arrives
+string transactionRef = op.TransactionReference;
+
+// Result delivered via Events.Required callback:
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // store result.TransactionID for any subsequent reversal
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"sale"` |
+| `amount` | string / BigInteger | Yes | Smallest currency unit — `"1000"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `"USD"`, `"EUR"`, `"CAD"` |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API / JS SDK) | UUID v4 — send on original transactions only; omit on reversals and linked refunds |
+| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+| `callbackUrl` | string | No (Cloud API) | URL to receive the result via POST; if omitted, poll `GET /transaction-result/{id}` |
+
+**Android SDK `SaleOptions` fields** (optional third argument to `hapi.sale()`):
+
+| Field | Type | Description |
+|---|---|---|
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
+| `tipConfiguration` | `TipConfiguration?` | Pre-configure tip prompt on the terminal |
+| `pinBypass` | `Boolean` | Offer PIN bypass where acquirer-supported |
+| `checkDuplicates` | `Boolean` | Enable duplicate detection on the gateway |
+| `merchantAuth` | `MerchantAuth?` | Override MID/TID for multi-MID merchants |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask cardholder to try another card |
+| `CANCELLED` | Cardholder cancelled at terminal | No action required |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+| `PARTIAL_APPROVAL` | Issuer approved a lesser amount | Accept partial amount or reverse; see [Partial Approval](/reference/partial-approval) |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Contactless limit exceeded | Terminal falls back to chip insert — instruct the cardholder to insert their card |
+| Card chip read failure | Terminal retries up to 3 times, then offers magstripe fallback — acquirer support for swipe varies |
+| Duplicate detection | If `checkDuplicates` is enabled and the same card + amount is seen within the window, the gateway rejects the second transaction |
+| Connection drops mid-sale | Persist `transactionReference` before awaiting the result — query `GET /transactions/{transactionReference}/status/all` to recover the outcome |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device. Use test cards provided by your acquirer for specific scenarios.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | Send a valid request — verify `finStatus: AUTHORISED`, note `transactionID` for reversal tests |
+| Declined | Use acquirer test card for decline — verify `finStatus: DECLINED` |
+| Partial approval | Use acquirer test card for partial approval — verify `finStatus: PARTIAL_APPROVAL` and that your app handles it |
+| Timeout recovery | Drop connectivity mid-transaction — query `GET /transactions/{transactionReference}/status/all` to confirm outcome |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `hapi.sale()` — verify `AUTHORISED` in `endOfTransaction` |
+| Declined | Use test card for decline — verify `DECLINED` and that no reversal is triggered |
+| Tap → insert fallback | Hold contactless card above limit — verify terminal prompts for insertion |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `heftClient.saleWithAmount:currency:` — verify `AUTHORISED` in `responseFinanceStatus` |
+| Declined | Use test card for decline — verify callback receives `DECLINED` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `handpoint.sale()` — verify `finStatus === "AUTHORISED"` in success callback |
+| Declined | Use test card — verify `DECLINED` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `hp.sale()` — verify `finStatus === 'AUTHORISED'` |
+| Timeout recovery | Drop network after initiating — use `transactionReference` to query status |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `hapi.Sale()` — verify `AUTHORISED` in `EndOfTransaction` |
+| SDK rejection | Pass invalid amount — verify `op.OperationStarted == false` and log `op.ErrorMessage` |
+
+</TabItem>
+</Tabs>

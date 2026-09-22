@@ -1,0 +1,204 @@
+## Tokenized Operation
+
+#### What this does
+
+**Android SDK:** Reads a card physically present at the terminal, tokenizes it, then allows you to inspect the token before deciding whether to proceed with a sale. The SDK pauses after tokenization and waits for the integrator to call `resume()` — giving you a chance to look up loyalty records, perform fraud checks, or adjust the tip before the charge goes through.
+
+**Cloud API:** Charges a pre-stored card token server-side using `POST /moto/sale` — no terminal required. The token can come from a prior card-present tokenization or from the deferred tokenization endpoint.
+
+:::info Two flows, one page
+These two integration paths have different semantics. The Android SDK `tokenizedOperation()` requires a card-present terminal. The Cloud API token charge is server-side only — no hardware needed.
+:::
+
+#### When to use it
+
+- **Android SDK** — loyalty programs, tiered tip flows, or any scenario where you need to inspect the token or cardholder data before committing to the charge.
+- **Cloud API** — recurring billing or subscription charges against a card token obtained from a previous tokenization.
+
+For purely storing a card without charging it, see [Tokenization](/functions/tokenization).
+For MOTO back-office charges using a stored token (no terminal), see [MOTO](/functions/moto).
+
+#### Implementation notes
+
+1. **Android SDK two-phase flow** — `tokenizedOperation(amount, currency)` triggers Phase 1. The SDK reads the card and fires the `Events.CardTokenization.cardTokenized()` callback with a `ResumeCallback` and the card's `CardTokenizationData`. Call `callback.resume(operationDto)` to proceed with the Sale in Phase 2, or `callback.cancel()` to abort.
+2. **Android SDK seamless variant** — `tokenizedOperation(currency, operation)` runs tokenization and the operation back-to-back with no pause. No `cardTokenized` event fires. Supported operations: SaleReversal, Refund, RefundReversal.
+3. **`tokenizeCard()` only** — to tokenize without any follow-up operation (pure card-on-file storage), use `hapi.tokenizeCard()` from the [Tokenization](/functions/tokenization) page.
+4. **Cloud API token charge** — uses `POST /moto/sale` with the `cardToken` field. The token can come from a prior `tokenizeCard`/`saleAndTokenizeCard` operation, or from a deferred tokenization call (`GET /transactions/{guid}/token`) on a transaction where tokenization was not enabled at the time. See [Tokenization](/functions/tokenization) for how to obtain a token.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "TOKEN_FROM_PREVIOUS_TOKENIZATION"
+}
+```
+
+Amount is a **major-unit decimal string** (e.g. `"10.00"` = $10.00).
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**Two-phase flow** — card is physically present; SDK pauses after tokenization for integrator logic:
+
+```kotlin
+// Phase 1: Terminal reads card, tokenizes it, fires cardTokenized event
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+// Implement Events.CardTokenization in your events listener:
+override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+    val token = cardTokenizationData.token          // token for loyalty lookup, fraud check, etc.
+    val cardBrand = cardTokenizationData.cardBrand  // e.g. "Visa"
+    val tipAmount = cardTokenizationData.tipAmount  // tip collected on-screen (if any)
+
+    // Apply business logic — loyalty lookup, fraud check, tip adjustment, etc.
+
+    // Option A: proceed with the Sale
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
+
+    // Option B: skip the charge but finish gracefully (e.g. loyalty-only scan)
+    // callback.finishWithoutCardOperation()
+
+    // Option C: cancel the entire operation
+    // callback.cancel()
+}
+
+// Phase 2 result arrives in endOfTransaction:
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.transactionID — store for potential reversal
+        // result.cardToken — the token for future use
+    }
+}
+```
+
+**Seamless variant** — tokenize and execute back-to-back; no `cardTokenized` event fires:
+
+```kotlin
+// Supported operations: SaleReversal, Refund, RefundReversal
+// Example: linked refund — card is tokenized then immediately refunded
+val operation = OperationDto.Refund(
+    amount = BigInteger("1000"),
+    currency = Currency.USD,
+    originalTransactionID = "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+    options = RefundOptions()
+)
+hapi.tokenizedOperation(Currency.USD, operation)
+
+// Single endOfTransaction result fires when both steps complete
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Two-phase flow — same API as PAX
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+    // inspect token, then proceed with Sale:
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="The tokenizedOperation two-phase flow is not available on iOS HiLite."
+  useInstead="Android SDK (PAX or HiLite) or Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="tokenizedOperation is not implemented in the Cordova plugin."
+  useInstead="Android SDK directly or Cloud API"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Cloud API** — `POST /moto/sale`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in **major currency units** as a decimal string, e.g. `"10.00"` for $10.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `cardToken` | string | Yes | Token from a prior `tokenizeCard`/`saleAndTokenizeCard`, or from `GET /transactions/{guid}/token` |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency |
+
+**Android SDK** — `tokenizedOperation(amount, currency)` (two-phase):
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Sale amount in minor currency units (e.g. `BigInteger("1000")` = $10.00) |
+| `currency` | `Currency` | Currency of the sale |
+
+**`CardTokenizationData` fields** (received in the `cardTokenized` callback):
+
+| Field | Type | Description |
+|---|---|---|
+| `token` | `String` | Card token — store for future charges |
+| `expiryDate` | `String` | Card expiry date |
+| `cardBrand` | `String` | Card brand (e.g. `"Visa"`, `"Mastercard"`) |
+| `tenderType` | `TenderType` | How the card was presented (chip, contactless, etc.) |
+| `tipAmount` | `BigInteger` | Tip collected on-screen (zero if no tip was collected) |
+| `issuerCountryCode` | `CountryCode` | Issuer country |
+| `languagePref` | `String` | Cardholder's language preference |
+
+**`ResumeCallback` methods** (call one to drive Phase 2):
+
+| Method | Effect |
+|---|---|
+| `callback.resume(OperationDto.Sale(...))` | Proceed with the charge — pass a concrete `OperationDto` subclass (`Sale`, `Refund`, `SaleReversal`, or `RefundReversal`) |
+| `callback.finishWithoutCardOperation()` | End the session without charging — token is still issued |
+| `callback.cancel()` | Cancel the operation entirely |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `CARD_READ_ERROR` | Terminal failed to read the card | Ask cardholder to retry |
+| `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
+| `DECLINED` | Issuer declined in Phase 2 | Ask cardholder for another card |
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Two-phase happy path | `hapi.tokenizedOperation()` → receive `cardTokenized` → call `callback.resume()` — verify `AUTHORISED` and `result.cardToken` in EndOfTransaction |
+| Abandon after tokenization | Call `callback.finishWithoutCardOperation()` — verify no charge, but token is issued |
+| Cancel | Call `callback.cancel()` — verify transaction terminates cleanly |
+
+</TabItem>
+<TabItem value="cloud-api" label="Cloud API">
+
+Contact your Handpoint integration engineer to confirm the endpoint and test setup before attempting token-charge testing via Cloud API.
+
+</TabItem>
+</Tabs>

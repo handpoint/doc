@@ -1,0 +1,18 @@
+---
+title: JavaScript SDK Setup
+sidebar_position: 1
+description: JavaScript SDK integration guide.
+---
+
+import {useEffect} from 'react';
+import {useHistory} from '@docusaurus/router';
+
+export function AutoRedirect() {
+  const history = useHistory();
+  useEffect(() => { history.replace('/reference/javascript-sdk-setup'); }, []);
+  return null;
+}
+
+<AutoRedirect />
+
+This page has moved. You will be redirected to the [JavaScript SDK — Setup & Integration](/reference/javascript-sdk-setup) guide.

@@ -1,0 +1,531 @@
+/* CapabilityMatrix — internal Handpoint staff reference page */
+
+.root {
+  font-size: 13.5px;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────────────── */
+
+.tabBar {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--ifm-color-emphasis-200);
+  margin-bottom: 20px;
+}
+
+.tabBtn {
+  padding: 9px 22px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  background: transparent;
+  color: var(--ifm-color-emphasis-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.tabBtn:hover {
+  color: var(--ifm-color-primary);
+}
+
+.tabBtnActive {
+  color: var(--ifm-color-primary);
+  border-bottom-color: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+.tabContent {
+  /* Container for all tab panels */
+}
+
+/* ── Processor color slots ───────────────────────────────────────────────── */
+/* Assigned by YAML definition order. Add procColor5+ if you add processors. */
+
+.procColor0 { background: #EEF4FF; color: #1A4CE0; } /* TSYS — blue      */
+.procColor1 { background: #F4EEFF; color: #7C3AED; } /* Omnipay — purple  */
+.procColor2 { background: #ECFDF5; color: #047857; } /* TNS — green       */
+.procColor3 { background: #F1F5F9; color: #334155; } /* AMEX — slate      */
+.procColor4 { background: #FFF7ED; color: #C2410C; } /* future — orange   */
+
+[data-theme='dark'] .procColor0 { background: #141E36; color: #6BA0FF; }
+[data-theme='dark'] .procColor1 { background: #190F2E; color: #C084FC; }
+[data-theme='dark'] .procColor2 { background: #064E3B; color: #34D399; }
+[data-theme='dark'] .procColor3 { background: #1E293B; color: #94A3B8; }
+[data-theme='dark'] .procColor4 { background: #431407; color: #FB923C; }
+
+/* ── Filter bar (shared by Tab 2 and Tab 3) ─────────────────────────────── */
+
+.filterBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filterLabel {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.pillRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pill {
+  padding: 3px 10px;
+  border-radius: 5px;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  background: var(--ifm-background-color);
+  color: var(--ifm-color-emphasis-700);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+  user-select: none;
+  line-height: 1.5;
+}
+
+.pill:hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+
+.pillOn {
+  background: var(--ifm-color-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
+.pillOn:hover {
+  background: var(--ifm-color-primary-dark);
+  color: #fff;
+}
+
+/* ── Legend ──────────────────────────────────────────────────────────────── */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  color: var(--ifm-color-emphasis-700);
+  align-items: center;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Tab 1: Processor cards ──────────────────────────────────────────────── */
+
+.processorCards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.processorCard {
+  padding: 16px 20px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.procCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.procCardName {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.procRoutingBadge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .procRoutingBadge {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.procCardDesc {
+  font-size: 13px;
+  opacity: 0.85;
+  margin: 0 0 10px;
+  line-height: 1.5;
+}
+
+.procCardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.procCardMetaRow {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.procMetaLabel {
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+  min-width: 90px;
+  flex-shrink: 0;
+}
+
+.procMetaValue {
+  font-weight: 500;
+}
+
+/* ── Tab 2: Acquirer table ───────────────────────────────────────────────── */
+
+.procBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--ifm-font-family-monospace);
+  white-space: nowrap;
+}
+
+.acqSummaryRow {
+  cursor: pointer;
+}
+
+.acqSummaryRow td {
+  transition: background 0.1s;
+}
+
+.acqSummaryRow:hover td,
+.acqSummaryRowOpen td {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.acqExpandIcon {
+  display: inline-block;
+  font-size: 8px;
+  margin-right: 8px;
+  opacity: 0.5;
+}
+
+.cardBrandsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.cardBrandTag {
+  font-size: 10.5px;
+  font-family: var(--ifm-font-family-monospace);
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-800);
+  white-space: nowrap;
+}
+
+.acqDetailRow > td {
+  padding: 0 !important;
+  border-bottom: 2px solid var(--ifm-color-emphasis-300) !important;
+}
+
+.acqDetailCell {
+  padding: 0 !important;
+}
+
+.acqDetailWrap {
+  padding: 14px 24px;
+  background: var(--ifm-background-surface-color, var(--ifm-color-emphasis-50));
+}
+
+[data-theme='dark'] .acqDetailWrap {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.acqDetailTableWrap {
+  overflow-x: auto;
+}
+
+.acqDetailTable {
+  border-collapse: collapse;
+  font-size: 12.5px;
+  width: 100%;
+}
+
+.acqDetailTable thead th {
+  padding: 5px 10px;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.acqDetailCapCol {
+  min-width: 180px;
+}
+
+.acqDetailPathCol {
+  text-align: center !important;
+  min-width: 42px;
+}
+
+.acqDetailSectionRow td {
+  padding: 5px 10px 3px;
+  background: var(--ifm-color-emphasis-100);
+  border-top: 1px solid var(--ifm-color-emphasis-200);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ifm-color-emphasis-500);
+}
+
+.acqDetailCapRow td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-100);
+  vertical-align: middle;
+}
+
+.acqDetailCapRow:hover td {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.acqDetailCapName {
+  font-weight: 500;
+}
+
+.acqDetailPathCell {
+  text-align: center;
+}
+
+/* ── Tab 3: Matrix table ─────────────────────────────────────────────────── */
+
+.tableWrap {
+  overflow-x: auto;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: 8px;
+}
+
+.table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 700px;
+  background: var(--ifm-background-color);
+  font-size: 13px;
+}
+
+.procHeaderRow th {
+  padding: 7px 12px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--ifm-background-color);
+}
+
+.acqHeaderRow th {
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--ifm-color-emphasis-300);
+  white-space: nowrap;
+  vertical-align: bottom;
+  position: sticky;
+  top: 36px;
+  z-index: 20;
+  background: var(--ifm-background-color);
+}
+
+.acqGeo {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--ifm-color-emphasis-600);
+  margin-top: 1px;
+}
+
+/* Sticky first column */
+.table thead th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 25;
+  min-width: 210px;
+}
+
+/* Processor separator */
+.procSep {
+  border-left: 2px solid var(--ifm-color-emphasis-300) !important;
+}
+
+/* Section header rows */
+.sectionRow td {
+  padding: 6px 12px 5px;
+  background: var(--ifm-color-emphasis-100);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  border-top: 2px solid var(--ifm-color-emphasis-200);
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* Capability rows */
+.capRow td {
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  vertical-align: top;
+}
+
+.capRow:last-child td {
+  border-bottom: none;
+}
+
+.capRow:hover td {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.capRow td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: var(--ifm-background-color);
+}
+
+.capRow:hover td:first-child {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.capNameWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.capName {
+  font-weight: 500;
+}
+
+.refLinks {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.refLink {
+  font-size: 10.5px;
+  font-family: var(--ifm-font-family-monospace);
+  color: var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.refLink:hover {
+  text-decoration: underline;
+}
+
+/* ── Chips ───────────────────────────────────────────────────────────────── */
+
+.chipsWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+.chipPublic {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+[data-theme='dark'] .chipPublic {
+  background: #14532D;
+  color: #86EFAC;
+}
+
+.chipSoon {
+  background: #FEF9C3;
+  color: #A16207;
+}
+
+[data-theme='dark'] .chipSoon {
+  background: #713F12;
+  color: #FDE68A;
+}
+
+.chipNo {
+  background: #FEE2E2;
+  color: #B91C1C;
+  text-decoration: line-through;
+}
+
+[data-theme='dark'] .chipNo {
+  background: #7F1D1D;
+  color: #FCA5A5;
+}
+
+.emptyCell {
+  color: var(--ifm-color-emphasis-400);
+  font-size: 12px;
+}
+
+@media (max-width: 600px) {
+  .filterBar  { gap: 12px; }
+  .legend     { gap: 10px; }
+  .tabBtn     { padding: 8px 14px; font-size: 12px; }
+}

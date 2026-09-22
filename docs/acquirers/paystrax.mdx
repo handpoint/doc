@@ -1,0 +1,2889 @@
+---
+id: paystrax
+title: "Paystrax"
+description: "EU card-present acquirer. Supports: pre-auth-capture-reversal, sale, refund, reversal, pre-auth, moto, tokenization."
+geography: "EU"
+status: active
+card-brands: [VISA, MC, AMEX, UnionPay]
+interac: false
+capabilities:
+  pre-auth-capture-reversal: true
+  sale: true
+  refund: true
+  reversal: true
+  pre-auth: true
+  moto: true
+  tokenization: true
+integration-paths:
+  - cloud-api
+  - android-pax
+  - android-hilite
+  - ios-hilite
+  - cordova
+  - javascript-sdk
+  - windows-sdk
+  - backoffice
+last-reviewed: "2026-09-17"
+pagination_next: null
+pagination_prev: null
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import NotSupported from '@site/src/components/NotSupported';
+import ComingSoon from '@site/src/components/ComingSoon';
+import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';
+import FlavorSection from '@site/src/components/FlavorSection';
+
+<AcquirerPageHeader currentSlug="paystrax" />
+
+
+## Sale {#sale}
+
+
+### EMV Sale {#emv-sale}
+
+<FlavorSection description="On-device · chip, contactless, or magstripe" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+Standard chip or contactless card-present payment — the cardholder taps, inserts, or swipes their card at the terminal. The terminal handles card entry mode automatically.
+
+#### When to use it
+Use for standard retail and hospitality transactions where the cardholder is physically present and the amount is fixed before checkout. For a final amount that may change after authorisation (e.g. restaurant tab), use Pre-Authorization instead.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "customerReference": "order-5248",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Amount is in the **smallest currency unit** — `"1000"` = $10.00 USD. The 202 response returns a `transactionResultId` — poll `GET /transaction-result/{transactionResultId}` on `cloud.handpoint.com` for the outcome. Your `transactionReference` UUID v4 can also be used to query the full operation chain via `GET /transactions/{transactionReference}/status/all` on `transactions.handpoint.com`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for any subsequent reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.sale(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for any subsequent reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.saleWithAmount(1000, currency: "USD")
+
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
+    if info.finStatus() == "AUTHORISED" {
+        // store info.eFTTransactionID() for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      // store result.transactionID for potential reversal
+    }
+  },
+  function(error) { console.error("Sale failed:", error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionReference, transactionResult } = hp.sale(
+  1000,    // smallest currency unit — 1000 = $10.00
+  'USD',
+  {
+    terminalType: 'PAXA920',
+    serialNumber: '082104578',
+    customerReference: 'order-5248',
+  }
+);
+
+// Persist transactionReference before awaiting — needed for recovery if connection drops
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // result.transactionID for subsequent reversal
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+using System.Numerics;
+using com.handpoint.api;
+
+var op = hapi.Sale(new BigInteger(1000), Currency.USD);
+
+if (!op.OperationStarted)
+{
+    // SDK rejected the command — log op.ErrorMessage and handle in UI
+    return;
+}
+
+// Persist op.TransactionReference before the result arrives
+string transactionRef = op.TransactionReference;
+
+// Result delivered via Events.Required callback:
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // store result.TransactionID for any subsequent reversal
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"sale"` |
+| `amount` | string / BigInteger | Yes | Smallest currency unit — `"1000"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `"USD"`, `"EUR"`, `"CAD"` |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API / JS SDK) | UUID v4 — send on original transactions only; omit on reversals and linked refunds |
+| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+| `callbackUrl` | string | No (Cloud API) | URL to receive the result via POST; if omitted, poll `GET /transaction-result/{id}` |
+
+**Android SDK `SaleOptions` fields** (optional third argument to `hapi.sale()`):
+
+| Field | Type | Description |
+|---|---|---|
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
+| `tipConfiguration` | `TipConfiguration?` | Pre-configure tip prompt on the terminal |
+| `pinBypass` | `Boolean` | Offer PIN bypass where acquirer-supported |
+| `checkDuplicates` | `Boolean` | Enable duplicate detection on the gateway |
+| `merchantAuth` | `MerchantAuth?` | Override MID/TID for multi-MID merchants |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask cardholder to try another card |
+| `CANCELLED` | Cardholder cancelled at terminal | No action required |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+| `PARTIAL_APPROVAL` | Issuer approved a lesser amount | Accept partial amount or reverse; see [Partial Approval](/reference/partial-approval) |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Contactless limit exceeded | Terminal falls back to chip insert — instruct the cardholder to insert their card |
+| Card chip read failure | Terminal retries up to 3 times, then offers magstripe fallback — acquirer support for swipe varies |
+| Duplicate detection | If `checkDuplicates` is enabled and the same card + amount is seen within the window, the gateway rejects the second transaction |
+| Connection drops mid-sale | Persist `transactionReference` before awaiting the result — query `GET /transactions/{transactionReference}/status/all` to recover the outcome |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device. Use test cards provided by your acquirer for specific scenarios.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | Send a valid request — verify `finStatus: AUTHORISED`, note `transactionID` for reversal tests |
+| Declined | Use acquirer test card for decline — verify `finStatus: DECLINED` |
+| Partial approval | Use acquirer test card for partial approval — verify `finStatus: PARTIAL_APPROVAL` and that your app handles it |
+| Timeout recovery | Drop connectivity mid-transaction — query `GET /transactions/{transactionReference}/status/all` to confirm outcome |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `hapi.sale()` — verify `AUTHORISED` in `endOfTransaction` |
+| Declined | Use test card for decline — verify `DECLINED` and that no reversal is triggered |
+| Tap → insert fallback | Hold contactless card above limit — verify terminal prompts for insertion |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `heftClient.saleWithAmount:currency:` — verify `AUTHORISED` in `responseFinanceStatus` |
+| Declined | Use test card for decline — verify callback receives `DECLINED` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `handpoint.sale()` — verify `finStatus === "AUTHORISED"` in success callback |
+| Declined | Use test card — verify `DECLINED` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `hp.sale()` — verify `finStatus === 'AUTHORISED'` |
+| Timeout recovery | Drop network after initiating — use `transactionReference` to query status |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Approved | `hapi.Sale()` — verify `AUTHORISED` in `EndOfTransaction` |
+| SDK rejection | Pass invalid amount — verify `op.OperationStarted == false` and log `op.ErrorMessage` |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+### Key Entry Sale {#key-entry-sale}
+
+<FlavorSection description="On-device · operator keys card number" paths={["cloud-api","android-pax","javascript-sdk","windows-sdk"]}>
+
+Commands a PAX terminal to display a **manual card entry screen** — the cashier types the cardholder's card number, expiry, and CVV directly on the terminal's touchscreen. The terminal tokenizes the entry internally and processes it as a MOTO transaction. The ISV system never handles raw card data.
+
+:::warning Processed as MOTO — acquirer fees apply
+Despite using a physical PAX terminal, Key Entry Sale is submitted to the acquirer as a **MOTO (card-not-present)** transaction, not as a card-present key-entry transaction. This is because the card is manually entered rather than electronically read. MOTO transactions typically carry higher interchange rates than card-present transactions. Confirm the fee structure with your acquirer during merchant onboarding.
+:::
+
+#### When to use it
+Use for phone orders where the cardholder reads their card details aloud to a call centre agent, or in-person situations where the card cannot be read electronically. The PAX terminal must be present in your environment and running in integrated mode.
+
+:::info Card data stays on the terminal
+Unlike back-office MOTO (which uses a stored card token), key entry sale requires the PAX terminal to be physically present. The operator's system sends the command; the terminal's screen collects the card details.
+:::
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToSale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Amount in **smallest currency unit**. The terminal shows a card entry screen — the operator types card details on device.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Terminal shows manual card entry screen — no cardToken needed
+hapi.motoSale(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.moToSale(1000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // store result.transactionID for potential reversal
+}
+```
+
+Terminal displays the manual card entry screen — the operator types card details on the device.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.MoToSale(new BigInteger(1000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // store result.TransactionID for potential reversal
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"moToSale"` — triggers card entry screen on terminal |
+| `amount` | string | Yes | Smallest currency unit — `"1000"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code |
+| `serial_number` | string | Yes (Cloud API) | PAX terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No | UUID v4 for idempotency and status queries |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask cardholder to provide another card |
+| `CANCELLED` | Operator cancelled on terminal | No action required |
+| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
+
+
+</FlavorSection>
+
+
+### Remote Sale (MOTO) {#remote-sale}
+
+<FlavorSection description="Back-office · charges a stored card token" paths={["android-pax","cordova","backoffice"]}>
+
+A **card-not-present sale** submitted directly to the gateway using a stored card token — no terminal or card reader required. The ISV system sends the charge via REST API or Android SDK using a token previously issued by a supported token provider.
+
+#### When to use it
+Use for recurring billing, subscription charges, or any scenario where you hold a card-on-file token from a prior tokenization or card-present transaction. A card token must already exist before this operation can be sent.
+
+#### How to obtain a card token
+
+| Method | How | When to use |
+|---|---|---|
+| **Sale & Tokenize** (`saleAndTokenizeCard`) | Charges the card and issues a token in one step | Only when getting the token alongside the sale is a hard requirement — if the tokenization step fails, the entire authorisation also fails |
+| **Tokenize Only** (`tokenizeCard`) | No charge — reads the card and stores a token | Loyalty enrolment, "save my card" flows, or any time you need a token without a payment |
+| **Deferred — GET token after sale** (recommended) | Do a regular sale, then call `GET /transactions/{id}/token` (Backoffice REST, no terminal needed) | Preferred for recurring billing — decouples the token from the sale; a tokenisation failure doesn't affect the transaction result |
+
+The deferred approach is recommended because the card-present sale completes independently. You call the backoffice token endpoint afterwards and store the token for future card-not-present charges.
+
+:::info No raw card data — tokens only
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. Paysafe, Tokenex). The token provider de-tokenizes at processing time — the ISV never handles card data.
+:::
+
+
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+**Back-office sale** — no terminal required, amount in **major currency units**. Synchronous — the result is returned immediately; no polling or callback URL needed.
+
+```http
+POST https://cloud.handpoint.com/moto/sale
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "cardToken": "YOUR_STORED_CARD_TOKEN",
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+}
+```
+
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Back-office MOTO — pass cardToken in options, no terminal entry screen. Asynchronous — result arrives in endOfTransaction
+val options = MoToOptions()
+options.cardToken = "YOUR_STORED_CARD_TOKEN"
+hapi.motoSale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // store result.transactionID
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Android only
+handpoint.motoSale(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") { /* accepted */ }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Backoffice** (`POST /moto/sale`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00 (note: different from with-reader which uses minor units) |
+| `currency` | string | Yes | ISO 4217 code |
+| `cardToken` | string | Yes | Token from a supported provider — never a raw PAN |
+| `transactionReference` | string | Recommended | UUID v4. Send on every original transaction — required to recover the outcome via `GET /transactions/{reference}/status/all` when no result is received or when `finStatus: UNDEFINED` is returned. See [Transaction Recovery](/reference/transaction-recovery). |
+| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+
+**Android SDK `MoToOptions` fields**:
+
+| Field | Type | Description |
+|---|---|---|
+| `cardToken` | `String?` | Card token for back-office MOTO — omit to show terminal entry screen instead |
+| `channel` | `MoToChannel?` | `MAIL_ORDER` or `TELEPHONE_ORDER` |
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Request another payment method from the customer |
+| `INVALID_TOKEN` | Token not recognised or expired | Verify token and token provider match acquirer |
+| `MOTO_NOT_ENABLED` | MOTO not provisioned for this merchant | Contact Handpoint team |
+
+
+</FlavorSection>
+
+
+### Sale with Tokenization {#sale-and-tokenize}
+
+<FlavorSection description="On-device · stores card token for future charges" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+Store a **reusable card token** during the sale so future card-not-present charges can be made without the cardholder being present again. The token is returned in the `TransactionResult` and can be used for subsequent back-office MOTO sales.
+
+#### When to use it
+Use when onboarding a new customer in person — take the first payment as a normal card-present sale and simultaneously capture a card token for future recurring charges, subscriptions, or card-on-file billing.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Tokenization happens as a **separate operation** via the `/transactions` endpoint with `"operation": "tokenizeCard"`. The resulting token can then be used in back-office MOTO sales.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "tokenizeCard",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The token is returned in the `TransactionResult.cardToken` field. Store it and use it in subsequent `POST /moto/sale` requests.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val token = result.cardToken  // non-null only when SaleAndTokenizeOptions was passed
+        // store token for future back-office sales
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.tokenizeCard()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val token = result.cardToken
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.tokenizeCard()
+
+func responseFinanceStatus(_ info: (any FinanceResponseInfo)!) {
+    if info.finStatus() == "AUTHORISED" {
+        // store info.eFTTransactionID() for potential reversal
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.tokenizeCard(
+  { currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      const token = result.cardToken;  // store securely
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk — tokenize without sale
+const { transactionResult } = hp.tokenizeCard(
+  'USD',
+  { terminalType: 'PAXA920', serialNumber: '082104578' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  const token = result.cardToken;  // store securely for future MOTO charges
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.TokenizeCard(Currency.USD);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        string token = result.CardToken;  // store securely for future MOTO charges
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Result fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | Opaque token string issued by the acquirer's token provider. Store this — do not log or expose it. |
+| `finStatus` | `AUTHORISED` on success |
+
+#### Using the token for future charges
+
+Pass `cardToken` in the [Remote Sale (MOTO)](#remote-sale) flavor's `cardToken` field for subsequent card-not-present charges.
+
+:::caution Token scope
+Tokens are specific to the merchant and acquirer configuration. A token issued on a test/staging merchant cannot be used on production, and vice versa. Token validity periods vary by acquirer — consult your acquirer documentation.
+:::
+
+
+</FlavorSection>
+
+
+### Sale with Tip {#sale-and-tip}
+
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
+
+:::info Handpoint Portal (TMS) prerequisite
+**Tip at the table supported** must be enabled on the terminal's profile in the [Handpoint Portal](https://portal.handpoint.com) before tip prompts appear on the terminal. For iOS HiLite, all tip configuration is done in the portal — no `tipConfiguration` parameter is available in the SDK.
+:::
+
+#### When to use it
+Use in hospitality environments (restaurants, taxis, salons) where tipping is expected at point of sale. The tip is collected at the terminal, included in the authorised amount, and settled together with the base sale — no second operation is needed.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "tipConfiguration": {
+    "baseAmount": "1000",
+    "tipPercentages": [10, 15, 20],
+    "enterAmountEnabled": true,
+    "skipEnabled": true,
+    "footer": "Thank you!"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val tipConfig = TipConfiguration(
+    baseAmount = BigInteger("1000"),
+    headerName = "Tip",
+    tipPercentages = listOf(5, 10, 15, 20),
+    enterAmountEnabled = true,
+    skipEnabled = true,
+    footer = "Thank you!"
+)
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.tipAmount — tip selected by cardholder
+        // result.totalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val tipConfig = TipConfiguration()
+tipConfig.baseAmount = BigInteger("1000")
+tipConfig.tipPercentages = listOf(5, 10, 15, 20)
+tipConfig.isEnterAmountEnabled = true
+tipConfig.isSkipEnabled = true
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    tipConfiguration: {
+      baseAmount: 1000,
+      tipPercentages: [10, 15, 20],
+      enterAmountEnabled: true,
+      skipEnabled: true
+    }
+  },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      console.log("Tip:", result.tipAmount, "Total:", result.totalAmount);
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionReference, transactionResult } = hp.sale(
+  1000,
+  'USD',
+  {
+    terminalType: 'PAXA920',
+    serialNumber: '082104578',
+    tipConfiguration: {
+      baseAmount: 1000,
+      tipPercentages: [10, 15, 20],
+      enterAmountEnabled: true,
+      skipEnabled: true,
+    },
+  }
+);
+
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  console.log('Tip:', result.tipAmount, 'Total:', result.totalAmount);
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var tipConfig = new TipConfiguration
+{
+    BaseAmount = new BigInteger(1000),
+    TipPercentages = new List<int> { 10, 15, 20 },
+    EnterAmountEnabled = true,
+    SkipEnabled = true,
+    Footer = "Thank you!"
+};
+
+var options = new SaleOptions { TipConfiguration = tipConfig };
+var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // result.TipAmount — tip chosen by cardholder
+        // result.TotalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+The iOS HiLite SDK's `SaleOptions` has no `tipConfiguration` parameter. Tipping is configured at the terminal level in the **Handpoint Portal (TMS)**:
+
+1. Log in to [portal.handpoint.com](https://portal.handpoint.com)
+2. Navigate to the terminal's profile → **Tipping**
+3. Enable **"Tip at the table supported"**
+4. Optionally configure the default tip percentages
+5. Push the updated configuration to the terminal
+
+Once enabled, the cardholder selects a tip on the reader itself. The selected tip and total are returned in the transaction response.
+
+**Objective-C**
+```objc
+SaleOptions *options = [[SaleOptions alloc] init];
+BOOL sent = [heftClient saleWithAmount:1000 currency:@"USD" options:options];
+
+- (void)responseFinanceStatus:(id<FinanceResponseInfo>)info {
+    if ([info.statusMessage isEqualToString:@"AUTHORISED"]) {
+        NSLog(@"Tip: %@", info.gratuityAmount);       // e.g. "1.50"
+        NSLog(@"Tip%%: %@", info.gratuityPercentage); // e.g. "15"
+        NSLog(@"Total: %@", info.totalAmount);         // base + tip
+    }
+}
+```
+
+**Swift**
+```swift
+let options = SaleOptions()
+heftClient?.sale(withAmount: 1000, currency: "USD", options: options)
+
+func responseFinanceStatus(_ info: FinanceResponseInfo!) {
+    if info.statusMessage == "AUTHORISED" {
+        print("Tip:", info.gratuityAmount)       // e.g. "1.50"
+        print("Tip%:", info.gratuityPercentage)  // e.g. "15"
+        print("Total:", info.totalAmount)         // base + tip
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### TipConfiguration fields
+
+| Field | Type | Description |
+|---|---|---|
+| `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
+| `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
+| `footer` | string | Optional message shown at the bottom of the tip screen |
+
+#### Result fields
+
+| Field | Description |
+|---|---|
+| `tipAmount` | Tip amount chosen by the cardholder (minor units) |
+| `totalAmount` | Base amount + tip — what was authorised and will settle |
+
+#### Pre-selected tip (ISV-collected)
+
+Use this variant when your application has **already collected the tip from the cardholder** — for example, your POS shows a custom tip screen and the cardholder selects a tip amount before the card is presented. Pass `TipConfiguration(tipAmount)` with the pre-determined amount; the terminal skips its own tip-selection screen and charges base + tip in a single authorisation.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "tipConfiguration": {
+    "tipAmount": "500"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The terminal charges `amount + tipAmount` in a single authorisation. No tip-selection screen is shown on the terminal.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// ISV collected $5.00 tip on their own screen — pass it directly
+val tipConfig = TipConfiguration(BigInteger("500"))  // terminal skips its tip-selection screen
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+// Cardholder is charged $15.00 total (base $10.00 + pre-selected tip $5.00)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.tipAmount   → 500  (the pre-set tip)
+        // result.totalAmount → 1500 (base + tip)
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val tipConfig = TipConfiguration(BigInteger("500"))
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
+:::note Tip Adjustment vs Sale with Tip
+**Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. Use Sale with Tip when the cardholder is at the terminal; use Tip Adjustment for tip-at-table flows where you capture a signature and enter the tip later.
+:::
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined (after tip selection) | Ask cardholder to try another card |
+| `CANCELLED` | Cardholder cancelled at tip screen or payment screen | No action required — no amount was authorised |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Cardholder skips tip | `tipAmount` is `0` or absent in the result; `totalAmount` equals the base amount |
+| `baseAmount` differs from sale `amount` | Tip percentages are calculated on `baseAmount` — use this intentionally (e.g. to exclude tax from the tip base) |
+| Pre-selected tip + card decline | Full `amount + tipAmount` was attempted; no partial capture — treat as a standard decline |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device.
+
+| Scenario | How to trigger |
+|---|---|
+| Tip from percentage | Set `tipPercentages: [10, 15, 20]` — select a percentage at terminal — verify `tipAmount` and `totalAmount` in result |
+| Custom tip | Set `enterAmountEnabled: true` — enter a custom amount — verify `totalAmount = baseAmount + entered tip` |
+| Skip tip | Set `skipEnabled: true` — select No Tip — verify `tipAmount: 0`, `totalAmount` equals base |
+| Pre-selected tip | Pass `TipConfiguration(tipAmount: 500)` — verify terminal skips tip screen, `totalAmount = amount + 500` |
+| Cardholder cancels | Cancel at tip screen — verify `CANCELLED` and no charge |
+
+
+</FlavorSection>
+
+
+
+## Refund {#refund}
+
+
+### EMV Refund {#emv-refund}
+
+<FlavorSection description="On-device · card present at terminal" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+Returns funds to a cardholder's account for a card-present transaction. The cardholder must present their payment method at the terminal.
+
+**Linked refund** (recommended): includes `originalTransactionId` — the gateway validates the original transaction and caps the refund at the original amount. Include partial amounts for partial refunds.
+
+**Unlinked refund**: omit `originalTransactionId` — sends a standalone credit without referencing the original sale. Some acquirers restrict unlinked refunds; check your acquirer agreement.
+
+:::caution Same payment method
+Per merchant configuration, the **same card** used in the original sale must be presented. Physical card inserts and mobile wallet taps (Apple Pay, Google Pay) produce **different PAN tokens** — if same-card verification is enabled and the original sale was a physical insert, a wallet tap at refund time will decline. Advise the cardholder to use the same payment method they used at purchase.
+:::
+
+#### When to use it
+Use for returns after settlement has occurred. For cancellations of unsettled transactions, use Reversal — it is faster and incurs no interchange fees.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Linked refund** (no `transactionReference` — subsequent operation):
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+**Unlinked refund** (include `transactionReference` — original operation):
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "refund",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Linked refund
+hapi.refund(BigInteger("1000"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund — omit the originalTransactionID argument
+hapi.refund(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// Linked refund
+hapi.refund(BigInteger("1000"), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+hapi.refund(BigInteger("1000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Linked refund
+heftClient.refundWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// Unlinked refund
+heftClient.refundWithAmount(1000, currency: "USD")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Linked refund
+handpoint.refund(
+  { amount: 1000, currency: handpoint.Currency.USD, originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+
+// Unlinked refund — omit originalTransactionID
+handpoint.refund(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+
+// Linked refund
+const { transactionResult } = hp.refund(
+  1000,
+  'USD',
+  { originalTransactionId: '01236fc0-8192-11eb-9aca-ad4b0e95f241' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') { /* refund accepted */ }
+
+// Unlinked refund — pass a fresh transactionReference; omit originalTransactionId
+const { transactionResult: unlinked } = hp.refund(
+  1000,
+  'USD',
+  { transactionReference: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890' }
+);
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Linked refund
+var op = hapi.Refund(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID
+);
+
+// Unlinked refund — omit the originalTransactionID argument
+var op = hapi.Refund(new BigInteger(1000), Currency.USD);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"refund"` |
+| `amount` | string | Yes | Refund amount in smallest currency unit. Can be less than original for partial refund |
+| `currency` | string | Yes | ISO 4217 code — must match original sale |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model |
+| `originalTransactionId` | string | Linked only | `transactionID` from the original sale result. Do NOT combine with `transactionReference` |
+| `transactionReference` | string | Unlinked only (Cloud API) | UUID v4 — include on unlinked refunds; omit on linked refunds |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Amount exceeds original or issuer declined | Reduce amount to at most original `totalAmount`; contact acquirer support |
+| `ORIGINAL_NOT_FOUND` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the sale result, not `eFTTransactionID` |
+| `UNLINKED_REFUND_NOT_ALLOWED` | Acquirer does not permit unlinked refunds | Always include `originalTransactionId` for this acquirer |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Partial refund | Send less than the original `totalAmount` — acquirer caps at the original amount; do not exceed it |
+| Multiple partial refunds | Each linked refund reduces the refundable balance; sending more than the cumulative remaining amount will decline |
+| Wallet vs physical card | If same-card verification is enabled, Apple Pay / Google Pay taps produce different PAN tokens from a physical card insert — the cardholder must use the same payment method as the original sale |
+| Refund of a tipped sale | Include the full `totalAmount` (base + tip) if refunding the whole transaction; a partial refund should target the base only unless the acquirer allows tip refunds |
+| Already settled | Linked refunds work post-settlement — this is the correct path after batch close |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Full linked refund | Complete a sale, then send a refund with `originalTransactionId` for the full amount — verify `AUTHORISED` |
+| Partial linked refund | Send refund for less than the original amount — verify `AUTHORISED` and correct `totalAmount` |
+| Over-amount linked refund | Send refund for more than the original amount — verify `DECLINED` |
+| Unlinked refund | Omit `originalTransactionId`, include `transactionReference` — verify acquirer allows it |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hapi.refund(amount, currency, originalTransactionID)` — verify `AUTHORISED` in `endOfTransaction` |
+| Unlinked refund | `hapi.refund(amount, currency)` — verify acquirer accepts it |
+| Same card check | Use a different card for refund when same-card enforcement is on — verify `DECLINED` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `heftClient.refundWithAmount:currency:transaction:` — verify result in delegate |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `handpoint.refund()` with `originalTransactionID` — verify `AUTHORISED` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hp.refund(amount, currency, { originalTransactionId })` — verify `finStatus === 'AUTHORISED'` |
+| Unlinked refund | `hp.refund(amount, currency, { transactionReference })` — verify acquirer allows it |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Linked refund | `hapi.Refund(amount, currency, originalTransactionID)` — verify `AUTHORISED` in `EndOfTransaction` |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+### Remote Refund (MOTO) {#moto-refund}
+
+<FlavorSection description="Back-office · linked to original MOTO sale" paths={["android-pax","cordova","javascript-sdk","windows-sdk","backoffice"]}>
+
+A **card-not-present refund** submitted directly to the gateway — no terminal or card reader required. References the original MOTO sale by its GUID. Valid up to **12 months** after the original sale date.
+
+#### When to use it
+Use to refund a previously processed back-office MOTO or key-entry sale. The cardholder does not need to be present or provide their card again — the gateway retrieves the card from the original transaction.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Synchronous — the result is returned immediately. No terminal, no polling.
+
+```http
+POST https://cloud.handpoint.com/moto/refund
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": "10.00",
+  "currency": "USD",
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+`originalGuid` is the `efttransactionID` (or `transactionID`) from the original MOTO sale result. Amount is in **major currency units** — `"10.00"` = $10.00. Do not include `transactionReference` on refunds (linked operation).
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// MOTO refund — no terminal interaction, submitted via token
+hapi.motoRefund(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from MOTO sale result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.motoRefund(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Back-office MOTO refund — no terminal required, submitted via token
+const { transactionResult } = hp.moToRefund(
+  1000,
+  'USD',
+  { originalTransactionID: '01236fc0-8192-11eb-9aca-ad4b0e95f241' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') { /* refund accepted */ }
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Back-office MOTO refund — no terminal required, submitted via token
+var op = hapi.MoToRefund(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from MOTO sale result
+);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) { /* refund accepted */ }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Backoffice** (`POST /moto/refund`):
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | Refund amount in **major currency units** — `"10.00"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code |
+| `originalGuid` | string | Yes | `efttransactionID` from the original MOTO sale. The gateway retrieves the card token from the original transaction — do not pass `cardToken` on refunds |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Amount exceeds original or issuer declined | Reduce to at most the original amount |
+| `ORIGINAL_NOT_FOUND` | `originalGuid` not found | Verify the GUID is from the MOTO sale result |
+| `MOTO_NOT_ENABLED` | MOTO not provisioned | Contact Handpoint team |
+
+
+</FlavorSection>
+
+
+### Key Entry Refund {#key-entry-refund}
+
+<FlavorSection description="On-device · operator keys card number" paths={["cloud-api","android-pax","javascript-sdk","windows-sdk"]}>
+
+Commands a PAX terminal to display a **manual card entry screen** — the cashier types the cardholder's card number, expiry, and CVV directly on the terminal's touchscreen. The terminal processes the refund as a MOTO transaction. No original transaction ID required.
+
+:::warning Processed as MOTO — acquirer fees apply
+Key Entry Refund is submitted to the acquirer as a **MOTO (card-not-present)** transaction. MOTO transactions typically carry higher interchange rates. Confirm the fee structure with your acquirer during merchant onboarding.
+:::
+
+:::info Card data stays on the terminal
+Unlike back-office MOTO refund (which uses a stored card token), key entry refund requires the PAX terminal to be physically present. The operator's system sends the command; the terminal's screen collects the card details.
+:::
+
+#### When to use it
+Use when a cardholder requests a refund for a key-entry or phone order, and you do not have a stored card token. The PAX terminal must be present and running in integrated mode.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToRefund",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Amount in **smallest currency unit**. The terminal shows a card entry screen — the operator types card details on device. Result is async — poll `GET /transaction-result/{transactionResultId}`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Terminal shows manual card entry screen — no originalTransactionID needed
+hapi.motoRefund(BigInteger("1000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // refund complete
+    }
+}
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.moToRefund(1000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // refund complete
+}
+```
+
+Terminal displays the manual card entry screen — the operator types card details on the device.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.MoToRefund(new BigInteger(1000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        // refund complete
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | `"moToRefund"` — triggers card entry screen on terminal |
+| `amount` | string | Yes | Smallest currency unit — `"1000"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code |
+| `serial_number` | string | Yes (Cloud API) | PAX terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No | UUID v4 for idempotency and status queries |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined | Ask cardholder to provide another card |
+| `CANCELLED` | Operator cancelled on terminal | No action required |
+| `MOTO_NOT_ENABLED` | MOTO not enabled for this merchant | Contact Handpoint team |
+
+
+</FlavorSection>
+
+
+
+## Reversal {#reversal}
+
+
+### Reversal {#reversal}
+
+<FlavorSection description="On-device · no card required" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+#### What this does
+Cancels an unsettled transaction before batch settlement — the full authorised amount is released to the cardholder without interchange fees. No card present required.
+
+#### When to use it
+Use when a transaction needs to be cancelled before the batch closes (same business day, before cut-off time). This is always preferable to a post-settlement Refund — faster and fee-free. Do NOT use after settlement — send a Refund instead.
+
+#### Implementation notes
+
+1. **Same business day only.** Reversal works on the current open batch only. Once the batch closes (cut-off time, typically end of business day), the transaction settles and only a post-settlement Refund is available.
+2. **No card present required.** Reversal references the original `transactionID` electronically — the cardholder does not need to return to the terminal.
+3. **Terminal must be online.** The SDK paths route the reversal through the connected reader — the terminal must be reachable at the time of the call.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Routes through the connected terminal SDK — the reversal is processed by the device and **appears in the device app transaction history**. Asynchronous — poll `GET /transaction-result/{transactionResultId}` for the outcome. Amount in minor units.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleReversal",
+  "amount": "1100",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "0821599465",
+  "originalTransactionId": "f2075470-9194-11f1-90c9-a73194216a3b"
+}
+```
+
+Response:
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "0821599465-1786020446467"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted — no card prompt, no settlement
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.saleReversal(
+    BigInteger("1000"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // reversal accepted
+    }
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.saleVoidWithAmount(1000, currency: "USD", transaction: "01236fc0-8192-11eb-9aca-ad4b0e95f241")
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.saleReversal(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle result */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionResult } = hp.saleReversal(
+  1000,
+  'USD',
+  '01236fc0-8192-11eb-9aca-ad4b0e95f241'  // originalTransactionID from sale result
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  // reversal accepted — no card prompt, no settlement
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+hapi.SaleReversal(
+    new BigInteger(1000),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from sale result
+);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // reversal accepted — no card prompt, no settlement
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+
+
+#### Parameters
+
+**Cloud API** — `POST /transactions`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"saleReversal"` |
+| `amount` | string | Yes | Full original sale amount in **minor units** as a string, e.g. `"1100"` = $11.00 |
+| `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Terminal serial number |
+| `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
+| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete |
+| `token` | string | No | Opaque value included alongside the push notification. Only used when `callbackUrl` is set |
+
+**Android SDK / iOS SDK**:
+
+| Name | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Currency of the original sale |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+
+#### Errors
+
+Errors arrive in the polled result object, not in the initial 202. Check `finStatus` — do not parse `statusMessage` for programmatic logic as it can be localized.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found in the open batch | Verify the GUID; if the batch has closed, send a Refund instead |
+| `FAILED` | `Transaction failed, error: Error getting advanced transaction status...` | `originalTransactionId` not found (pre-auth reversal path) | Verify the GUID is from the pre-auth create result |
+
+**Immediate HTTP errors** (returned before the 202):
+
+| HTTP | `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header value |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff |
+
+#### Testing
+
+Test reversals on the TEST/DEMO merchant or staging device.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Success | Complete a sale, send `POST /transactions` same day — verify `AUTHORISED` via `GET /transaction-result/{id}` |
+| After cut-off | Close the batch, attempt reversal — verify error and route to Refund |
+| Already reversed | Send the same reversal twice — verify idempotent or `ALREADY_REVERSED` response |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hapi.saleReversal()` same day — verify no card prompt, `finStatus == AUTHORISED` |
+| After cut-off | Close batch, then call `hapi.saleReversal()` — verify `DECLINED` or error |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `heftClient.saleVoidWithAmount:currency:transaction:` same day — verify success |
+| After cut-off | Close batch, attempt void — verify failure in delegate |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `handpoint.saleReversal()` same day — verify `AUTHORISED` |
+| After cut-off | Close batch, attempt reversal — verify error |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hp.saleReversal()` same day — verify `finStatus === 'AUTHORISED'` |
+| After cut-off | Close batch, then attempt reversal — verify error in result |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Before cut-off | `hapi.SaleReversal()` same day — verify `FinStatus == AUTHORISED` |
+| After cut-off | Close batch, then attempt — verify `DECLINED` or error |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+### Remote Reversal {#remote-reversal}
+
+<FlavorSection description="Back-office · no reader required" paths={["cloud-api","backoffice"]}>
+
+:::note Cloud API vs. Backoffice — what's the difference?
+| Path | How it works | Transaction history |
+|---|---|---|
+| **Cloud API** | Routes through the connected terminal SDK — the device processes the reversal | Appears in device app transaction history |
+| **Backoffice** | Sends directly to the payment gateway — no terminal or SDK involved | Appears in your POS/solution only — **not** in the device app |
+
+Both paths use the same `ApiKeyCloud` credential.
+:::
+
+#### What this does
+Cancels any unsettled transaction — sale, MOTO, pre-auth capture, or refund — without the cardholder returning to the terminal.
+
+#### When to use it
+- **Cloud API path:** Use when you have a terminal online and want the reversal recorded in the device transaction history.
+- **Backoffice path:** Use when the terminal is unavailable, or when the original transaction was fully server-side (MOTO, pre-auth via Cloud API). No MOTO or TMS enablement required for full reversals.
+
+#### Implementation notes
+
+1. **Backoffice** amount is in **major units** (decimal string) — e.g. `"11.00"` for $11.00. Cloud API uses minor units (integer string).
+2. Omit `amount` and `currency` for a full reversal. Include them only for a partial reversal (EPI only — requires TMS enablement per merchant).
+3. Do NOT include a `transactionReference` on either path — this is a subsequent operation linked to the original.
+4. **Interac cards (Paysafe + Interac gateway only):** Remote reversal is not available for Interac card transactions. Interac requires card-present at terminal. Use the on-device Reversal flow instead. Non-Interac cards on the same gateway work normally.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Routes through the connected terminal SDK. Asynchronous — poll `GET /transaction-result/{transactionResultId}` for the outcome. The reversal appears in the device app transaction history.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleReversal",
+  "amount": "1100",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "0821599465",
+  "originalTransactionId": "f2075470-9194-11f1-90c9-a73194216a3b"
+}
+```
+
+Response:
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "0821599465-1786020446467"
+}
+```
+
+For parameters, async result polling, and error codes — see the [Reversal](#reversal) section above.
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Sends directly to the payment gateway — no terminal required. Synchronous: the result is returned immediately in the response body. Does **not** appear in the device app transaction history; only in your POS/solution.
+
+**Full reversal:**
+
+```bash
+curl --location --request POST 'https://cloud.handpoint.com/reversal' \
+--header 'ApiKeyCloud: YOUR_MERCHANT_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b"
+}'
+```
+
+`originalGuid` is the `transactionID` from the original transaction result (any transaction type).
+
+**Partial reversal** (EPI only — requires TMS enablement per merchant):
+
+```bash
+curl --location --request POST 'https://cloud.handpoint.com/reversal' \
+--header 'ApiKeyCloud: YOUR_MERCHANT_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b",
+    "amount": "8.00",
+    "currency": "USD"
+}'
+```
+
+`amount` is the new final charge — not a delta. Must be less than the original authorised amount. Non-cumulative: you cannot chain partial reversals.
+
+**Response — 200 OK:**
+```json
+{
+    "agreementNumber": "123456789010102",
+    "cardToken": "665630867",
+    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
+    "expiryDateMMYY": "0927",
+    "httpStatus": "200",
+    "maskedCardNumber": "************3555",
+    "serverDateTime": "20260317083711509",
+    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+}
+```
+
+**Response — 400 Error:**
+```json
+{
+    "code": "3153",
+    "message": "Unable to find message to reverse."
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Cloud API** — `POST /transactions`: see [Reversal](#reversal) section for the full parameter list.
+
+**Backoffice** — `POST /reversal`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the original transaction result (any type) |
+| `amount` | string | No | New final amount in **major units** as a decimal string, e.g. `"8.00"`. Omit for a full reversal. Required when `currency` is provided |
+| `currency` | string | No | ISO 4217 currency code. Required when `amount` is provided |
+
+#### Errors
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Errors arrive in the polled result — see [Reversal — Errors](#reversal).
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Synchronous — errors are returned immediately in the response body:
+
+| HTTP | `code` | `message` | Meaning | What to do |
+|---|---|---|---|---|
+| `400` | `3153` | `Unable to find message to reverse.` | `originalGuid` not found or batch already closed | Verify the GUID; if batch closed, send a post-settlement Refund |
+| `400` | `3051` | `Already reversed` | Transaction has already been reversed | No further action needed |
+| `400` | `4066` | `Partial reversal amount exceeds original amount` | `amount` exceeds the original transaction amount | Omit `amount` for a full reversal, or reduce below the original amount |
+| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
+
+</TabItem>
+</Tabs>
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Same test scenarios as on-device Reversal — see [Reversal — Testing](#reversal).
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+| Scenario | How to trigger |
+|---|---|
+| Full reversal — success | Complete a sale, note `transactionID`, send `POST /reversal` with `originalGuid` — verify synchronous `httpStatus: "200"` |
+| After batch close | Close the batch, send reversal — verify `3153` error; route to post-settlement Refund instead |
+| Already reversed | Send the same reversal twice — verify `3051` error |
+| Partial reversal | Send with `amount` less than original (EPI with TMS enabled) — verify `httpStatus: "200"` and reduced charge |
+| Pre-auth capture reversal | After a pre-auth capture, send `originalGuid` = capture `transactionID` — verify `httpStatus: "200"` |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+
+## Pre-Authorization {#pre-auth}
+
+
+### Pre-Auth Create {#pre-auth-create}
+
+<FlavorSection description="On-device · chip, contactless, or magstripe" paths={["cloud-api","android-pax","cordova","javascript-sdk","windows-sdk"]}>
+
+#### What this does
+Places a hold on funds without capturing them, allowing the final amount to be adjusted before settlement.
+
+#### When to use it
+Use for hotel check-ins, car rentals, or any flow where the final amount is unknown at the time of card interaction. Do NOT use for standard retail — use Sale instead.
+
+#### Pre-Auth is a bundle of operations
+
+Supporting pre-auth means supporting the full lifecycle:
+
+| Operation | Description |
+|---|---|
+| **Create** | Place the initial hold |
+| **Increase / Decrease** | Adjust the held amount before capture — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease) |
+| **Capture** | Finalise and charge the held amount |
+| **Pre-Auth Reversal** | Release the hold without charging (pre-capture) |
+| **Capture Reversal** | Cancel a completed capture (pre-settlement) — see separate section |
+
+#### Implementation notes
+
+1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture.
+2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
+3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
+4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorization",
+  "amount": "10000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorization(BigInteger("10000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val preAuthID = result.transactionID  // store for capture / increase / void
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorization(
+  { amount: 10000, currency: handpoint.Currency.USD },
+  function(result) { /* store result.transactionID for capture */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.preAuthorization(10000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  const preAuthID = result.transactionID;  // store for capture / increase / void
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.PreAuthorization(new BigInteger(10000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        var preAuthID = result.TransactionID;  // store for capture / increase / void
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorization"` |
+| `amount` | string | Yes | Authorisation amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Send on Pre-Auth create. Do not send on Capture, Void, or Increase. Enables status queries and groups all lifecycle operations |
+
+:::note Android SDK — multi-MID
+The Android SDK `preAuthorization()` accepts an optional `MerchantAuthOptions` (not plain `Options`) to override the merchant ID and terminal ID per acquirer. See [Authentication](/reference/authentication) for details.
+:::
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined the hold | Ask cardholder to try another card |
+| `CANCELLED` | Cardholder cancelled at terminal | No action required |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Hold expiry | Holds typically expire after 7–30 days (issuer / network dependent) — always capture or void before the expiry window; an expired hold cannot be captured |
+| Capture amount exceeds hold | Most acquirers allow slight overages (e.g. hotel incidentals); exceed the allowed threshold and the capture will decline |
+| Unreleased hold | Failing to void unused pre-auths affects the cardholder's available balance — always void if you will not capture |
+| Multiple increases | Each Increase adjusts the hold by a delta — confirm acquirer supports multiple increases before implementation |
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Create hold | Send with `transactionReference` — verify `finStatus: AUTHORISED` and no amount settled yet |
+| Full lifecycle | Create → Capture → query `/status/all` — verify both operations in chain |
+| Release without capture | Create → Void — verify hold released, no settlement |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Create | `hapi.preAuthorization()` — verify `AUTHORISED` in `endOfTransaction` |
+| Full lifecycle | Create → `hapi.preAuthorizationCapture()` — verify both results |
+| Void unused hold | Create → `hapi.preAuthorizationReversal(originalTransactionID)` — verify `AUTHORISED` and no capture |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Pre-auth is not supported on HiLite — use Cloud API.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Pre-auth is not supported on iOS HiLite — use Cloud API.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Create | `handpoint.preAuthorization()` — verify `finStatus === "AUTHORISED"` |
+| Full lifecycle | Create → `handpoint.preAuthorizationCapture()` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Create | `hp.preAuthorization()` — verify `finStatus === 'AUTHORISED'` |
+| Full lifecycle | Create → `hp.preAuthorizationCapture()` |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Create | `hapi.PreAuthorization()` — verify `AUTHORISED` in `EndOfTransaction` |
+| Full lifecycle | Create → `hapi.PreAuthorizationCapture()` |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+### Key Entry Pre-Auth {#key-entry-pre-auth}
+
+<FlavorSection description="On-device · operator keys card number" paths={["cloud-api","android-pax","cordova","javascript-sdk","windows-sdk"]}>
+
+Places a MOTO pre-authorization hold by commanding a PAX terminal to display a **manual card entry screen**. Reserves funds without charging — the ISV captures, increases, or voids before settlement.
+
+**When to use:** For hotel or car rental reservations taken over the phone where the cardholder cannot be present. The operator keys the card number on the PAX terminal's manual entry screen.
+
+:::warning Processed as MOTO — acquirer fees apply
+Key Entry Pre-Auth is submitted to the acquirer as a **MOTO (card-not-present)** transaction. MOTO transactions typically carry higher interchange rates. Confirm the fee structure with your acquirer during merchant onboarding.
+:::
+
+**Implementation notes:**
+1. The key entry pre-auth flow supports the full pre-auth lifecycle: Increase / Decrease → Capture → Void.
+2. PAX terminal required — HiLite has no keyed-entry screen and does not support MOTO pre-auth on either path.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Commands a PAX terminal to display a manual card entry screen. The operator types the card number, expiry, and CVV. Amount in **smallest currency unit**. Result is async — poll `GET /transaction-result/{transactionResultId}`.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToPreAuthorization",
+  "amount": "10000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "3cfe2fd3-34c2-5d78-a4e0-2e5b668f5e5f"
+}
+```
+
+Store `transactionResultId` from the 202 response, poll `GET /transaction-result/{transactionResultId}` until `finStatus` is set, then store `transactionID` from the result for capture / increase / reversal.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Terminal shows manual card entry screen — operator types card details on PAX device
+hapi.motoPreauthorization(BigInteger("10000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val preAuthID = result.transactionID  // store for capture / increase / void
+    }
+}
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Android only — MOTO pre-auth via Cordova
+handpoint.motoPreauthorization(
+  { amount: 10000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      const preAuthID = result.transactionID;  // store for capture / increase / void
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionReference, transactionResult } = hp.moToPreAuthorization(10000, 'USD');
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  const preAuthID = result.transactionID;  // store for capture / increase / void
+}
+```
+
+Terminal displays the manual card entry screen — the operator types card details on the device.
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.MoToPreAuthorization(new BigInteger(10000), Currency.USD);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED) {
+        var preAuthID = result.TransactionID;  // store for capture / increase / void
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"moToPreAuthorization"` |
+| `amount` | string / BigInteger | Yes | Amount in **smallest currency unit** — `"10000"` = $100.00 |
+| `currency` | string / Currency | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes (Cloud API) | PAX terminal serial number |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency |
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Key entry pre-auth | Send `moToPreAuthorization` — terminal shows keyed-entry screen, verify `AUTHORISED` |
+| Capture | Key entry pre-auth → send `preAuthorizationCapture` with `originalGuid` |
+| Void | Key entry pre-auth → send `preAuthorizationReversal` with `originalTransactionId` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Key entry pre-auth | `hapi.motoPreauthorization(amount, currency)` — terminal shows keyed-entry screen, verify `AUTHORISED` |
+| Capture | Key entry pre-auth → `hapi.preAuthorizationCapture(amount, currency, preAuthTransactionID)` |
+| Void | Key entry pre-auth → `hapi.preAuthorizationReversal(preAuthTransactionID)` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Key entry pre-auth | `handpoint.motoPreauthorization()` — terminal shows keyed-entry screen, verify `AUTHORISED` |
+| Capture | Key entry pre-auth → `handpoint.preAuthorizationCapture()` with `originalTransactionID` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Key entry pre-auth | `hp.moToPreAuthorization()` — terminal shows keyed-entry screen, verify `AUTHORISED` |
+| Capture | Key entry pre-auth → `hp.preAuthorizationCapture()` with `originalTransactionID` |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Key entry pre-auth | `hapi.MoToPreAuthorization()` — terminal shows keyed-entry screen, verify `AUTHORISED` in `EndOfTransaction` |
+| Capture | Key entry pre-auth → `hapi.PreAuthorizationCapture()` with `originalTransactionID` |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+### Pre-Auth Capture {#pre-auth-capture}
+
+<FlavorSection description="No card required — settle the held amount" paths={["android-pax","cordova","javascript-sdk","windows-sdk","backoffice"]}>
+
+Captures the funds from a previously created pre-authorization (completion).
+
+**When to use:** When you know the final amount and are ready to settle. Send the actual charged amount — it may differ from the original pre-auth amount.
+
+**Implementation notes:**
+1. The capture amount can be less than the pre-auth amount. Most acquirers also allow a small overage (check your acquirer rules).
+2. You must capture before the hold expires (typically 7–30 days).
+3. After capture, a standard refund process applies if the cardholder requests a return.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Direct to the gateway — no terminal required. Synchronous — result returned immediately.
+
+```http
+POST https://cloud.handpoint.com/preauthorization/capture
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "capturedAmount": "95.00"
+}
+```
+
+`originalGuid` is the `transactionID` from the pre-authorization result.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationCapture(
+    BigInteger("9500"),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // originalTransactionID from pre-auth result
+)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationCapture(
+  { amount: 9500, currency: handpoint.Currency.USD, originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionResult } = hp.preAuthorizationCapture(
+  9500,
+  'USD',
+  '01236fc0-8192-11eb-9aca-ad4b0e95f241'  // transactionID from pre-auth result
+);
+const result = await transactionResult;
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.PreAuthorizationCapture(
+    new BigInteger(9500),
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"  // TransactionID from pre-auth result
+);
+if (!op.OperationStarted) { /* handle connection error */ return; }
+```
+
+</TabItem>
+</Tabs>
+
+**Backoffice** — `POST /preauthorization/capture`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the pre-authorization result (UUID v4) |
+| `capturedAmount` | string | Yes | Capture amount in **major currency units** as a decimal string, e.g. `"95.00"` for $95.00 |
+| `tipAmount` | string | No | Optional tip amount in **major currency units** as a decimal string |
+
+**Android SDK** — `preAuthorizationCapture(amount, currency, originalTransactionID, options?)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Capture amount in minor currency units |
+| `currency` | `Currency` | Currency of the original pre-authorization |
+| `originalTransactionID` | `String` | `transactionID` from the pre-authorization result |
+| `options` | `Options?` | Optional — supports `customerReference` |
+
+:::note
+The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parameter. `tipAmount` is a Cloud API-only field.
+:::
+
+#### Errors
+
+**Backoffice (`POST /preauthorization/capture`)** — synchronous, errors are immediate:
+
+| HTTP | `code` | `message` | Meaning | What to do |
+|---|---|---|---|---|
+| `400` | `5001` | `NullPointerException` | `originalGuid` not found | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `400` | `4066` | `Partial reversal amount exceeds original amount` | `capturedAmount` exceeds the pre-auth hold amount | Reduce the capture amount |
+| `400` | `3051` | `Already reversed` | Pre-auth was already voided | Check your records — void and capture are mutually exclusive |
+| `400` | `3211` | *(pre-auth already settled)* | Pre-auth has already been captured | Verify state via the TXN Feed API; if the first capture succeeded, issue a refund if needed |
+| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
+| `422` | `VALIDATION_FAILED` | Missing required field | Request body is missing `originalGuid` or `capturedAmount` | See `details` array in response |
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture full hold amount | `capturedAmount` = original Pre-Auth amount — verify `AUTHORISED` |
+| Capture partial amount | `capturedAmount` < original amount — verify settled amount in portal |
+| Capture with tip | Include `tipAmount` — verify total settled = `capturedAmount + tipAmount` |
+| Invalid `originalGuid` | Use a random UUID — verify `ORIGINAL_NOT_FOUND` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture | `hapi.preAuthorizationCapture(amount, currency, originalTransactionID)` |
+| Partial capture | Pass `captureAmount` less than original hold |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture | `handpoint.preAuthorizationCapture()` with `originalTransactionID` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture | `hp.preAuthorizationCapture(amount, currency, transactionID)` |
+| Partial capture | Pass capture amount less than original hold |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Capture | `hapi.PreAuthorizationCapture(amount, currency, transactionID)` |
+| Partial capture | Pass capture amount less than original hold |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+### Pre-Auth Reversal {#pre-auth-void}
+
+<FlavorSection description="Release the hold without charging" paths={["cloud-api","android-pax","cordova","javascript-sdk","windows-sdk"]}>
+
+Releases a pre-authorization hold without capturing funds.
+
+**When to use:** When a booking is cancelled or the pre-auth is no longer needed. Always reverse unused pre-auths — unreleased holds affect cardholder available credit.
+
+:::note Timing — not same-day restricted
+Reversing a pre-auth hold is **not** subject to the same-day cut-off that applies to sale reversals. You can reverse the hold at any point before it expires — typically **7–30 days** from the original authorization, depending on the card network and issuer. After expiry the hold is released automatically by the network. See [Pre-Authorization Hold Durations](/reference/pre-authorization-guide#hold-durations) for card-brand rules.
+:::
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationReversal(
+  { originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241" },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionResult } = hp.preAuthorizationReversal(
+  '01236fc0-8192-11eb-9aca-ad4b0e95f241'  // transactionID from pre-auth result
+);
+const result = await transactionResult;
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var op = hapi.PreAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241");
+if (!op.OperationStarted) { /* handle connection error */ return; }
+```
+
+</TabItem>
+</Tabs>
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorizationReversal"` |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization result |
+
+#### Errors
+
+Void is a with-reader operation — errors arrive in the polled result, not in the initial 202 response.
+
+| `finStatus` | Meaning | What to do |
+|---|---|---|
+| `DECLINED` / `FAILED` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the pre-auth create result |
+| `DECLINED` | Pre-auth has already been captured or voided | Check transaction state before voiding |
+
+:::note
+There is no separate "already voided" error code — attempting to void an already-captured or already-voided pre-auth returns a DECLINED or FAILED result. Always check the `finStatus` field in the polled result.
+:::
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Void before capture | Create Pre-Auth → send Void — verify `AUTHORISED` and no settlement in portal |
+| Void after capture | Create → Capture → Void — verify whether acquirer supports post-capture void |
+| Invalid reference | Use a random `originalTransactionId` — verify `ORIGINAL_NOT_FOUND` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hapi.preAuthorizationReversal(originalTransactionID)` before capture |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `handpoint.preAuthorizationReversal({ originalTransactionID: "..." })` before capture |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hp.preAuthorizationReversal(transactionID)` before capture |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Scenario | How to trigger |
+|---|---|
+| Void | `hapi.PreAuthorizationReversal(transactionID)` before capture |
+
+</TabItem>
+</Tabs>
+
+
+</FlavorSection>
+
+
+
+## Pre-Auth Capture Reversal {#pre-auth-capture-reversal}
+
+<FlavorSection description="Cancel a captured pre-auth before settlement" paths={["cloud-api","android-pax","backoffice"]}>
+
+#### Pre-Authorization Capture Reversal
+
+Reverses a completed pre-authorization capture — releasing the funds withheld and returning the transaction to `AUTHORISED` state.
+
+**When to use:** When a pre-auth was captured in error and the merchant needs to fully cancel the capture before overnight settlement.
+
+**How it differs from Pre-Auth Reversal:** Pre-Auth Reversal releases the *hold* before capture. Capture Reversal cancels the *capture* after it has been accepted.
+
+**Implementation notes:**
+1. Must be sent before the batch closes / overnight settlement. After settlement, only a Refund is possible.
+2. Full capture amount only — partial capture reversals are not supported.
+3. Not all acquirers support this operation — check the capabilities table.
+4. **Android SDK:** The same `preAuthorizationReversal()` method is used for both voiding the hold (pre-capture) and reversing the capture (post-capture). The gateway determines the correct action based on the state of the original transaction.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+The same `preAuthorizationReversal()` method is used regardless of whether the original pre-auth has been captured or not — the SDK/gateway determines the correct operation:
+
+```kotlin
+// Works for both: releasing a hold (pre-capture) AND reversing a capture (post-capture)
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// With customer reference
+val options = Options()
+options.customerReference = "my-order-ref-123"
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the HiLite Bluetooth path."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the iOS HiLite path."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal via Cordova is not confirmed."
+  useInstead="REST API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Errors
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+The HTTP 202 is always returned immediately — errors appear only in the polled result. Do not parse `statusMessage` for programmatic logic — it can be localized; check `finStatus`.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found, already reversed, or capture already settled | Verify the GUID is the `transactionID` from the pre-auth capture result; if already settled, issue a Refund instead |
+| `DECLINED` | `ALREADY_REVERSED` | Capture was already reversed | No further action; confirm via `GET /transaction-result/{transactionResultId}` |
+| `FAILED` | `Transaction failed, error: Error getting advanced transaction status (transaction not found)...` | Gateway could not locate the original transaction | Verify `originalTransactionId` — use the `transactionID` from the capture result, not the pre-auth create |
+| `FAILED` | *(other)* | Gateway or terminal error | Call `GET /transaction-result/{transactionResultId}` for the full `errorMessage`; retry if transient |
+
+**Immediate HTTP errors** (returned before the 202):
+
+| HTTP | `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid or missing API key | Check the `ApiKeyCloud` header value |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is busy | Wait for the current operation to finish, then retry |
+| `400` | `{"error":1002,"message":"Device not found"}` | `serial_number` not enrolled or incorrect | Verify `serial_number` matches the registered terminal |
+| `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` not a valid UUID v4 | Generate a compliant UUID v4 (version digit `4`, variant `8`/`9`/`a`/`b`) |
+| `400` | `originalTransactionId is required` | Missing required field | Include `originalTransactionId` in the request body |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+Errors arrive in `endOfTransaction`. Do not parse `statusMessage` — check `finStatus` and `errorMessage`.
+
+| `finStatus` | Typical `errorMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE` | `originalTransactionId` not found or capture already settled | Verify the GUID is the `transactionID` from the pre-auth capture result; if settled, issue a Refund |
+| `DECLINED` | `ALREADY_REVERSED` | Capture already reversed | No further action needed |
+| `FAILED` | Connectivity / timeout message | Result unknown — connection lost mid-operation | Call `hapi.getTransactionStatus(originalTransactionID)` to check the actual state; retry only if not found |
+| `FAILED` | Other gateway message | Gateway rejected the operation | Check `result.errorMessage`; if transient, retry after verifying terminal is reachable |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Not confirmed — use the Cloud API or Android SDK (PAX) path.
+
+</TabItem>
+</Tabs>
+
+</FlavorSection>
+
+
+## Tokenization {#tokenization}
+
+
+### TokenEx {#tokenex}
+
+<FlavorSection description="3rd-party · TokenEx — loyalty / card-matching; no detokenization through Handpoint" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+#### What this does
+Reads the card at the terminal and stores it in the **TokenEx token vault** — a 3rd-party PCI-compliant token service. Handpoint returns a TokenEx token in the `cardToken` field. The token represents the card identity without storing the PAN in your system.
+
+#### When to use it
+Use for **loyalty programs** and **card-matching** flows — identifying that the same card is being used across multiple visits or transactions. TokenEx tokens let you correlate card-present transactions to a loyalty account or stored profile without ever handling PAN data.
+
+:::caution No detokenization — not for MOTO / remote charging
+TokenEx tokens cannot be detokenized through Handpoint. They **cannot** be used for back-office MOTO charges or remote sales. If you need card-not-present charging from a stored token, see the Cygma flavor (EPI acquirer) or Paysafe Single-Use Token flavor (Paysafe acquirer).
+:::
+
+#### Implementation notes
+
+1. **3rd-party vault:** TokenEx operates independently of Handpoint acquirers. The same TokenEx token can be issued regardless of which Handpoint acquirer processes the sale.
+2. **No detokenization:** The original PAN cannot be retrieved from a TokenEx token through Handpoint's APIs. TokenEx supports detokenization through its own APIs for clients with a direct TokenEx contract — this is outside the Handpoint integration.
+3. **Token stability:** The same card consistently maps to the same TokenEx token (within the same merchant configuration), making it reliable for card-matching and loyalty purposes.
+4. **Token scope:** Tokens are specific to the merchant configuration. Test tokens are not valid in production.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Tokenize only (no charge):**
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "tokenizeCard",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578"
+}
+```
+
+**Sale and tokenize (charge + token in one step):**
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleAndTokenizeCard",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The `cardToken` in the response is a TokenEx token. Match it to a loyalty profile or record it for card-correlation purposes.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Tokenize only
+hapi.tokenizeCard()
+
+// Sale and tokenize
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken          // TokenEx token — store for loyalty/matching
+    val provider = result.cardTokenProvider  // "TOKENEX"
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+hapi.tokenizeCard()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+heftClient.tokenizeCard()
+// Token returned in result.cardToken
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.tokenizeCard(
+  {},
+  function(result) { const token = result.cardToken; },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// Tokenize only
+const { transactionResult } = hp.tokenizeCard('USD', { terminalType: 'PAXA920', serialNumber: '082104578' });
+const result = await transactionResult;
+const token = result.cardToken;  // TokenEx token — store for loyalty/card-matching
+
+// Sale and tokenize
+const { transactionResult: tr } = hp.saleAndTokenizeCard(1000, 'USD', { terminalType: 'PAXA920', serialNumber: '082104578' });
+const saleResult = await tr;
+const token = saleResult.cardToken;  // TokenEx token
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Tokenize only
+var op = hapi.TokenizeCard(Currency.USD);
+
+// Sale and tokenize
+var options = new SaleAndTokenizeOptions();
+var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+// Result delivered via EndOfTransaction callback
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    string token = result.CardToken;          // TokenEx token — store for loyalty/card-matching
+    string provider = result.CardTokenProvider; // "TOKENEX"
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Response fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | TokenEx token — stable card identifier for loyalty / card-matching. Cannot be used for MOTO |
+| `cardTokenProvider` | `"TOKENEX"` |
+| `expiryDateMMYY` | Token expiry (matches card expiry) |
+
+#### Testing
+Test tokens are returned on the TEST/DEMO merchant or staging device. Use the TokenEx sandbox to verify card-matching behavior before testing on production.
+
+
+</FlavorSection>
+

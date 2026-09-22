@@ -1,0 +1,97 @@
+## Batch Operations {#batching}
+
+Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
+
+#### When to use it
+Use when you need to settle at a specific time rather than waiting for automatic batch close. Most US host-capture merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
+
+#### Implementation notes
+
+1. **US host-capture acquirers only.** EU acquirers use automatic settlement and do not require manual batch close.
+2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
+3. Auto-close is the default for US host-capture merchants at approximately 11pm EST. Manual close is an alternative, not an addition.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Batch Close {#batch-close}
+
+Closes the current open batch and triggers settlement with the acquirer. Omit `batchNumber` to close the currently open batch.
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+```http
+POST https://cloud.handpoint.com/batch/close
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920"
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Batch Summary {#batch-summary}
+
+Retrieves aggregate totals for a batch — transaction count and net amounts by type.
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+```http
+POST https://cloud.handpoint.com/batch/summary
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
+}
+```
+
+</TabItem>
+</Tabs>
+
+### Batch Detail {#batch-detail}
+
+Retrieves the full list of individual transactions in a batch for reconciliation.
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001"
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `serialNumber` | string | Yes | Terminal serial number |
+| `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `batchNumber` | string | No (Batch Close) / Yes (Summary, Detail) | Batch number to close or query. Omit on Batch Close to target the currently open batch |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
+| `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
+
+#### Testing
+Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.

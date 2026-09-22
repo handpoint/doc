@@ -1,0 +1,44 @@
+{
+  "schema_version": "2025-03-26",
+  "name": "Handpoint Developer Docs",
+  "description": "Machine-readable capabilities manifest for the Handpoint developer portal. Provides acquirer × feature support matrix, integration path guidance, and reference documentation for AI tools.",
+  "note": "This is a static capability manifest. A full MCP server with live tool execution is not yet available on this hosting platform. AI tools should load /llms.txt and the skill files below for structured guidance.",
+  "resources": [
+    {
+      "uri": "https://developer.handpoint.com/llms.txt",
+      "name": "llms.txt — full machine-readable reference",
+      "description": "Acquirer × feature support matrix, per-path code examples, all reference page URLs. Load at the start of any integration task."
+    },
+    {
+      "uri": "https://developer.handpoint.com/.well-known/skills/handpoint.md",
+      "name": "handpoint skill — start here",
+      "description": "Global context, architecture overview, and which path and acquirer skill to load next. Load before any code generation."
+    },
+    {
+      "uri": "https://developer.handpoint.com/.well-known/skills/index.json",
+      "name": "Skills index",
+      "description": "Index of all available skill files with descriptions and when to load each."
+    }
+  ],
+  "skill_files": {
+    "base_url": "https://developer.handpoint.com/.well-known/skills/",
+    "paths": [
+      "handpoint.md",
+      "paths/cloud-api.md",
+      "paths/android-pax.md",
+      "paths/android-hilite.md",
+      "paths/ios-hilite.md",
+      "paths/cordova.md",
+      "paths/javascript.md",
+      "paths/windows.md",
+      "paths/ecommerce.md",
+      "acquirers/epi.md",
+      "acquirers/paysafe.md",
+      "acquirers/emerchantpay.md",
+      "acquirers/paystrax.md",
+      "optional/back-office.md",
+      "optional/prerequisites.md",
+      "optional/transaction-feed.md"
+    ]
+  }
+}

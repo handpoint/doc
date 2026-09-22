@@ -1,0 +1,119 @@
+## Tip Adjustment
+
+Modifies the tip amount on a completed sale **before batch close**. Used in restaurant/hospitality flows where the cardholder signs a paper receipt and adds a tip after the initial authorization.
+
+:::info Full guide
+For acquirer restrictions, batch-close deadline, cross-SDK usage, iOS HiLite specifics, and the Sale with Tip vs Tip Adjustment comparison, see the [Tipping Guide](/reference/tipping-guide).
+:::
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Synchronous — the gateway responds immediately. No terminal, no polling.
+
+```http
+POST https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/tip-adjustment
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": 9.00
+}
+```
+
+The `transactionID` from the original sale goes in the URL path. To void a tip, send `"amount": 0`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),  // 900 cents = $9.00
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),  // 900 cents = $9.00
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```objc
+// Objective-C — tipAdjustment is a C function declared in HapiRemoteService.h
+#include "HapiRemoteService.h"
+
+// Call setupHandpointApiConnection once at startup (not per-adjustment)
+NSString* sharedSecret = @"YOUR_SHARED_SECRET";
+setupHandpointApiConnection(sharedSecret);
+
+// Tip adjust — use transactionId from the original sale's responseFinanceStatus
+// NOT eFTTransactionID — they are different fields
+NSString* transaction = @"01236fc0-8192-11eb-9aca-ad4b0e95f241";
+BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
+    if (status == TipAdjustmentAuthorised) {
+        // Tip adjustment approved
+    } else if (status == TipAdjustmentDeclined) {
+        // Declined — do not retry
+    } else if (status == TipAdjustmentFailed) {
+        // System error or timeout — safe to retry once
+    }
+});
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="tipAdjustment is not implemented in the Cordova plugin — calling it has no effect on either Android or iOS. Use the Cloud API or Android SDK directly."
+  useInstead="Cloud API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Backoffice** — `POST /transactions/{transactionID}/tip-adjustment`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result |
+| `amount` | number | Yes | Tip amount in major currency units (e.g. `9.00` for $9.00). `0` to void an existing tip |
+
+**Android SDK** — `tipAdjustment(tipAmount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
+| `currency` | `Currency` | Currency of the original transaction |
+| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `ORIGINAL_NOT_FOUND` | Transaction ID not found | Verify the ID |
+| `BATCH_ALREADY_CLOSED` | Batch has closed | Refund the tip amount instead |
+| `TIP_ADJUSTMENT_NOT_ENABLED` | TMS config not set | Contact Handpoint onboarding team |
+| `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
+
+#### Testing
+Test tip adjustment on the TEST/DEMO merchant or staging device. Tip adjustment is enabled by default — no additional configuration required. See the [Tipping guide](/reference/tipping) for full details on tip-at-table flows.

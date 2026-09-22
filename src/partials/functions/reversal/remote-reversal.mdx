@@ -1,0 +1,167 @@
+:::note Cloud API vs. Backoffice — what's the difference?
+| Path | How it works | Transaction history |
+|---|---|---|
+| **Cloud API** | Routes through the connected terminal SDK — the device processes the reversal | Appears in device app transaction history |
+| **Backoffice** | Sends directly to the payment gateway — no terminal or SDK involved | Appears in your POS/solution only — **not** in the device app |
+
+Both paths use the same `ApiKeyCloud` credential.
+:::
+
+#### What this does
+Cancels any unsettled transaction — sale, MOTO, pre-auth capture, or refund — without the cardholder returning to the terminal.
+
+#### When to use it
+- **Cloud API path:** Use when you have a terminal online and want the reversal recorded in the device transaction history.
+- **Backoffice path:** Use when the terminal is unavailable, or when the original transaction was fully server-side (MOTO, pre-auth via Cloud API). No MOTO or TMS enablement required for full reversals.
+
+#### Implementation notes
+
+1. **Backoffice** amount is in **major units** (decimal string) — e.g. `"11.00"` for $11.00. Cloud API uses minor units (integer string).
+2. Omit `amount` and `currency` for a full reversal. Include them only for a partial reversal (EPI only — requires TMS enablement per merchant).
+3. Do NOT include a `transactionReference` on either path — this is a subsequent operation linked to the original.
+4. **Interac cards (Paysafe + Interac gateway only):** Remote reversal is not available for Interac card transactions. Interac requires card-present at terminal. Use the on-device Reversal flow instead. Non-Interac cards on the same gateway work normally.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Routes through the connected terminal SDK. Asynchronous — poll `GET /transaction-result/{transactionResultId}` for the outcome. The reversal appears in the device app transaction history.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleReversal",
+  "amount": "1100",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "0821599465",
+  "originalTransactionId": "f2075470-9194-11f1-90c9-a73194216a3b"
+}
+```
+
+Response:
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "0821599465-1786020446467"
+}
+```
+
+For parameters, async result polling, and error codes — see the [Reversal](#reversal) section above.
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Sends directly to the payment gateway — no terminal required. Synchronous: the result is returned immediately in the response body. Does **not** appear in the device app transaction history; only in your POS/solution.
+
+**Full reversal:**
+
+```bash
+curl --location --request POST 'https://cloud.handpoint.com/reversal' \
+--header 'ApiKeyCloud: YOUR_MERCHANT_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b"
+}'
+```
+
+`originalGuid` is the `transactionID` from the original transaction result (any transaction type).
+
+**Partial reversal** (EPI only — requires TMS enablement per merchant):
+
+```bash
+curl --location --request POST 'https://cloud.handpoint.com/reversal' \
+--header 'ApiKeyCloud: YOUR_MERCHANT_API_KEY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "originalGuid": "bb6e0b90-420f-11f1-b809-51c9c7fda18b",
+    "amount": "8.00",
+    "currency": "USD"
+}'
+```
+
+`amount` is the new final charge — not a delta. Must be less than the original authorised amount. Non-cumulative: you cannot chain partial reversals.
+
+**Response — 200 OK:**
+```json
+{
+    "agreementNumber": "123456789010102",
+    "cardToken": "665630867",
+    "cardTokenizationGuid": "7df78050-21dc-11f1-991b-6f80eaf25911",
+    "expiryDateMMYY": "0927",
+    "httpStatus": "200",
+    "maskedCardNumber": "************3555",
+    "serverDateTime": "20260317083711509",
+    "transactionReference": "75413c40-21db-11f1-991b-6f80eaf25911"
+}
+```
+
+**Response — 400 Error:**
+```json
+{
+    "code": "3153",
+    "message": "Unable to find message to reverse."
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Cloud API** — `POST /transactions`: see [Reversal](#reversal) section for the full parameter list.
+
+**Backoffice** — `POST /reversal`:
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the original transaction result (any type) |
+| `amount` | string | No | New final amount in **major units** as a decimal string, e.g. `"8.00"`. Omit for a full reversal. Required when `currency` is provided |
+| `currency` | string | No | ISO 4217 currency code. Required when `amount` is provided |
+
+#### Errors
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Errors arrive in the polled result — see [Reversal — Errors](#reversal).
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Synchronous — errors are returned immediately in the response body:
+
+| HTTP | `code` | `message` | Meaning | What to do |
+|---|---|---|---|---|
+| `400` | `3153` | `Unable to find message to reverse.` | `originalGuid` not found or batch already closed | Verify the GUID; if batch closed, send a post-settlement Refund |
+| `400` | `3051` | `Already reversed` | Transaction has already been reversed | No further action needed |
+| `400` | `4066` | `Partial reversal amount exceeds original amount` | `amount` exceeds the original transaction amount | Omit `amount` for a full reversal, or reduce below the original amount |
+| `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
+
+</TabItem>
+</Tabs>
+
+#### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Same test scenarios as on-device Reversal — see [Reversal — Testing](#reversal).
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+| Scenario | How to trigger |
+|---|---|
+| Full reversal — success | Complete a sale, note `transactionID`, send `POST /reversal` with `originalGuid` — verify synchronous `httpStatus: "200"` |
+| After batch close | Close the batch, send reversal — verify `3153` error; route to post-settlement Refund instead |
+| Already reversed | Send the same reversal twice — verify `3051` error |
+| Partial reversal | Send with `amount` less than original (EPI with TMS enabled) — verify `httpStatus: "200"` and reduced charge |
+| Pre-auth capture reversal | After a pre-auth capture, send `originalGuid` = capture `transactionID` — verify `httpStatus: "200"` |
+
+</TabItem>
+</Tabs>

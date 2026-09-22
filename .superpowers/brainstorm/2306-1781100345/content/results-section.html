@@ -1,0 +1,68 @@
+<h2>What does the result section show?</h2>
+<p class="subtitle">After selecting <strong>US & Canada → POS Cloud</strong> — which result layout fits best?</p>
+
+<div class="split" style="gap:24px;align-items:flex-start">
+
+  <div class="mockup" style="flex:1" data-choice="a" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">Option A — Integration path first, then acquirers</div>
+    <div class="mockup-body" style="font-size:0.82em;line-height:1.6">
+      <div style="background:#e8f4ff;border-left:3px solid #1B67B2;padding:10px 14px;border-radius:4px;margin-bottom:14px">
+        <strong>Recommended path: REST API</strong><br>
+        <span style="color:#555">Your POS app calls the Handpoint Cloud API to command a PAX terminal. No Android development required.</span>
+      </div>
+      <div style="background:#f0f9f0;border-left:3px solid #2e7d32;padding:10px 14px;border-radius:4px;margin-bottom:14px">
+        <strong>Alternative: Android SDK (PAX)</strong><br>
+        <span style="color:#555">Build a native Android app that runs on the PAX device directly. More control, requires Android development.</span>
+      </div>
+      <div style="border-top:1px solid #eee;padding-top:12px;margin-top:4px">
+        <strong style="font-size:0.9em;text-transform:uppercase;letter-spacing:.05em;color:#888">Available acquirers</strong>
+        <table style="width:100%;margin-top:8px;border-collapse:collapse;font-size:0.9em">
+          <tr style="background:#f5f5f5"><th style="padding:6px 8px;text-align:left">Acquirer</th><th style="padding:6px 8px;text-align:left">Cards</th><th style="padding:6px 8px;text-align:left">Key features</th></tr>
+          <tr><td style="padding:6px 8px;border-bottom:1px solid #eee">TSYS</td><td style="padding:6px 8px;border-bottom:1px solid #eee">VISA, MC, Discover</td><td style="padding:6px 8px;border-bottom:1px solid #eee">Sale, Pre-Auth, Tip Adj, MOTO, Batching</td></tr>
+          <tr><td style="padding:6px 8px;border-bottom:1px solid #eee">PAYSAFE</td><td style="padding:6px 8px;border-bottom:1px solid #eee">VISA, MC, AMEX</td><td style="padding:6px 8px;border-bottom:1px solid #eee">Sale, Refund, Reversal</td></tr>
+          <tr><td style="padding:6px 8px">VANTIV (Worldpay)</td><td style="padding:6px 8px">VISA, MC, Discover</td><td style="padding:6px 8px">Sale, Tip Adj, Pre-Auth</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="mockup" style="flex:1" data-choice="b" onclick="toggleSelect(this)" style="cursor:pointer">
+    <div class="mockup-header">Option B — Acquirers first, path shown per acquirer</div>
+    <div class="mockup-body" style="font-size:0.82em;line-height:1.6">
+      <p style="color:#555;margin-bottom:12px">Choose your acquirer to see integration details:</p>
+      <div style="border:1px solid #ddd;border-radius:6px;padding:12px;margin-bottom:10px">
+        <strong>TSYS</strong> <span style="color:#888;font-size:0.9em">VISA, MC, Discover</span><br>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          <span style="background:#e3f0ff;color:#1B67B2;border-radius:3px;padding:2px 7px;font-size:0.85em">REST API</span>
+          <span style="background:#e3f0ff;color:#1B67B2;border-radius:3px;padding:2px 7px;font-size:0.85em">Android (PAX)</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:0.82em;color:#555">
+          Sale · Refund · Tip Adj · Pre-Auth · MOTO · Batching
+        </div>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:6px;padding:12px;margin-bottom:10px">
+        <strong>PAYSAFE</strong> <span style="color:#888;font-size:0.9em">VISA, MC, AMEX, Interac</span><br>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          <span style="background:#e3f0ff;color:#1B67B2;border-radius:3px;padding:2px 7px;font-size:0.85em">REST API</span>
+          <span style="background:#e3f0ff;color:#1B67B2;border-radius:3px;padding:2px 7px;font-size:0.85em">Android (PAX)</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:0.82em;color:#555">
+          Sale · Refund · Reversal
+        </div>
+      </div>
+      <div style="border:1px solid #ddd;border-radius:6px;padding:12px">
+        <strong>VANTIV (Worldpay)</strong> <span style="color:#888;font-size:0.9em">VISA, MC, Discover</span><br>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+          <span style="background:#e3f0ff;color:#1B67B2;border-radius:3px;padding:2px 7px;font-size:0.85em">REST API</span>
+          <span style="background:#e3f0ff;color:#1B67B2;border-radius:3px;padding:2px 7px;font-size:0.85em">Android (PAX)</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;font-size:0.82em;color:#555">
+          Sale · Refund · Tip Adj · Pre-Auth
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p style="margin-top:20px;color:#888;font-size:0.9em">My recommendation: <strong>A</strong> — leads with the integration path recommendation (the most important decision), then lists acquirers as context. Click your preference and respond in the terminal.</p>

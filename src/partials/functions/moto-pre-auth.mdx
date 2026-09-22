@@ -1,0 +1,112 @@
+### MOTO Pre-Authorization
+
+Places a MOTO (Mail Order / Telephone Order) pre-authorization hold by commanding a PAX terminal to display a manual card entry screen. Reserves funds without charging — the ISV captures, increases, or voids before settlement.
+
+**When to use:** For hotel or car rental reservations taken over the phone where the cardholder cannot be present. The operator keys the card number on the PAX terminal's manual entry screen.
+
+**Implementation notes:**
+1. The MOTO pre-auth flow supports the full pre-auth lifecycle: Increase / Decrease → Capture → Void.
+2. PAX terminal required — HiLite has no keyed-entry screen and does not support MOTO pre-auth on either path.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Commands a PAX terminal to display a manual card entry screen. The operator types the card number, expiry, and CVV. Amount in **smallest currency unit**. Result is async — poll `GET /transaction-result/{transactionResultId}`.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "moToPreAuthorization",
+  "amount": "10000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "3cfe2fd3-34c2-5d78-a4e0-2e5b668f5e5f"
+}
+```
+
+Store `transactionResultId` from the 202 response, poll `GET /transaction-result/{transactionResultId}` until `finStatus` is set, then store `transactionID` from the result for capture / increase / reversal.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// Terminal shows manual card entry screen — operator types card details on PAX device
+hapi.motoPreauthorization(BigInteger("10000"), Currency.USD)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val preAuthID = result.transactionID  // store for capture / increase / void
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="MOTO operations require a PAX device in integrated mode."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="MOTO operations are PAX-only features."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+// Android only — MOTO pre-auth via Cordova
+handpoint.motoPreauthorization(
+  { amount: 10000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      const preAuthID = result.transactionID;  // store for capture / increase / void
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+**Cloud API** — `POST /transactions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"moToPreAuthorization"` |
+| `amount` | string | Yes | Amount in **smallest currency unit** — `"10000"` = $100.00 |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | PAX terminal serial number |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency |
+
+**Android SDK** — `motoPreauthorization(amount, currency)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Pre-auth hold amount in minor currency units |
+| `currency` | `Currency` | Yes | ISO 4217 currency |
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| MOTO pre-auth | `hapi.motoPreauthorization(amount, currency)` — terminal shows keyed-entry screen, verify `AUTHORISED` |
+| Capture | MOTO pre-auth → `hapi.preAuthorizationCapture(amount, currency, preAuthTransactionID)` |
+| Void | MOTO pre-auth → `hapi.preAuthorizationReversal(preAuthTransactionID)` |
+
+</TabItem>
+</Tabs>

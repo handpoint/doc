@@ -1,0 +1,142 @@
+## Pre-Authorization
+
+#### What this does
+Places a hold on funds without capturing them, allowing the final amount to be adjusted before settlement.
+
+#### When to use it
+Use for hotel check-ins, car rentals, or any flow where the final amount is unknown at the time of card interaction. Do NOT use for standard retail — use Sale instead.
+
+#### Pre-Auth is a bundle of operations
+
+Supporting pre-auth means supporting the full lifecycle:
+
+| Operation | Description |
+|---|---|
+| **Create** | Place the initial hold |
+| **Increase / Decrease** | Adjust the held amount before capture — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease) |
+| **Capture** | Finalise and charge the held amount |
+| **Pre-Auth Reversal** | Release the hold without charging (pre-capture) |
+| **Capture Reversal** | Cancel a completed capture (pre-settlement) — see separate section |
+
+#### Implementation notes
+
+1. A pre-auth creates an authorisation hold on the cardholder's account. Funds are not captured until you send a Capture.
+2. The hold typically expires after 7–30 days depending on the card network and issuer. Always capture or void before expiry.
+3. Increase / Decrease adjusts the hold with a **delta**, not a new total, and always references the original pre-auth `transactionID`. Not available on every acquirer — see the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease).
+4. Always reverse unused pre-authorisations — unreleased holds affect the cardholder's available credit.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Create {#pre-auth-create}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorization",
+  "amount": "10000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.preAuthorization(BigInteger("10000"), Currency.USD)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorization(
+  { amount: 10000, currency: handpoint.Currency.USD },
+  function(result) { /* store result.transactionID for capture */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes (Cloud API) | Must be `"preAuthorization"` |
+| `amount` | string | Yes | Authorisation amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
+| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `transactionReference` | string | No (Cloud API) | UUID v4. Send on Pre-Auth create. Do not send on Capture, Void, or Increase. Enables status queries and groups all lifecycle operations. Not supported on HiLite paths |
+
+:::note Android SDK — multi-MID
+The Android SDK `preAuthorization()` accepts an optional `MerchantAuthOptions` (not plain `Options`) to override the merchant ID and terminal ID per acquirer. See [Authentication](/reference/authentication) for details.
+:::
+
+#### Testing
+
+Test pre-auth on the TEST/DEMO merchant or staging device.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Scenario | How to trigger |
+|---|---|
+| Create hold | Send with `transactionReference` — verify `finStatus: AUTHORISED` and no amount settled yet |
+| Full lifecycle | Create → Capture → query `/status/all` — verify both operations in chain |
+| Release without capture | Create → Void — verify hold released, no settlement |
+| `transactionReference` on subsequent ops | Send `transactionReference` on Capture or Void — verify it is not accepted |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Create | `hapi.preAuthorization()` — verify `AUTHORISED` in `endOfTransaction` |
+| Full lifecycle | Create → `hapi.preAuthorizationCapture()` — verify both results |
+| Void unused hold | Create → `hapi.preAuthorizationReversal(originalTransactionID)` — verify `AUTHORISED` and no capture |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Pre-auth is not supported on HiLite — use Cloud API.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Pre-auth is not supported on iOS HiLite — use Cloud API.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Scenario | How to trigger |
+|---|---|
+| Create | `handpoint.preAuthorization()` — verify `finStatus === "AUTHORISED"` |
+| Full lifecycle | Create → `handpoint.preAuthorizationCapture()` |
+
+</TabItem>
+</Tabs>
+
+For complete lifecycle test scenarios, see [Testing Edge Cases](/reference/testing-edge-cases#pre-authorization-lifecycle).

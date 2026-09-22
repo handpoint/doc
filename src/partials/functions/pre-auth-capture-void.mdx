@@ -1,0 +1,127 @@
+### Capture Reversal {#pre-auth-capture-reversal}
+
+#### Pre-Authorization Capture Reversal
+
+Reverses a completed pre-authorization capture — releasing the funds withheld and returning the transaction to `AUTHORISED` state.
+
+**When to use:** When a pre-auth was captured in error and the merchant needs to fully cancel the capture before overnight settlement.
+
+**How it differs from Pre-Auth Reversal:** Pre-Auth Reversal releases the *hold* before capture. Capture Reversal cancels the *capture* after it has been accepted.
+
+**Implementation notes:**
+1. Must be sent before the batch closes / overnight settlement. After settlement, only a Refund is possible.
+2. Full capture amount only — partial capture reversals are not supported.
+3. Not all acquirers support this operation — check the capabilities table.
+4. **Android SDK:** The same `preAuthorizationReversal()` method is used for both voiding the hold (pre-capture) and reversing the capture (post-capture). The gateway determines the correct action based on the state of the original transaction.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "preAuthorizationReversal",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+The same `preAuthorizationReversal()` method is used regardless of whether the original pre-auth has been captured or not — the SDK/gateway determines the correct operation:
+
+```kotlin
+// Works for both: releasing a hold (pre-capture) AND reversing a capture (post-capture)
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241")
+
+// With customer reference
+val options = Options()
+options.customerReference = "my-order-ref-123"
+hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the HiLite Bluetooth path."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the iOS HiLite path."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal via Cordova is not confirmed."
+  useInstead="REST API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Errors
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+The HTTP 202 is always returned immediately — errors appear only in the polled result. Do not parse `statusMessage` for programmatic logic — it can be localized; check `finStatus`.
+
+| `finStatus` | `statusMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE.` | `originalTransactionId` not found, already reversed, or capture already settled | Verify the GUID is the `transactionID` from the pre-auth capture result; if already settled, issue a Refund instead |
+| `DECLINED` | `ALREADY_REVERSED` | Capture was already reversed | No further action; confirm via `GET /transaction-result/{transactionResultId}` |
+| `FAILED` | `Transaction failed, error: Error getting advanced transaction status (transaction not found)...` | Gateway could not locate the original transaction | Verify `originalTransactionId` — use the `transactionID` from the capture result, not the pre-auth create |
+| `FAILED` | *(other)* | Gateway or terminal error | Call `GET /transaction-result/{transactionResultId}` for the full `errorMessage`; retry if transient |
+
+**Immediate HTTP errors** (returned before the 202):
+
+| HTTP | `message` | Meaning | What to do |
+|---|---|---|---|
+| `403` | `No valid key found in header` | Invalid or missing API key | Check the `ApiKeyCloud` header value |
+| `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is busy | Wait for the current operation to finish, then retry |
+| `400` | `{"error":1002,"message":"Device not found"}` | `serial_number` not enrolled or incorrect | Verify `serial_number` matches the registered terminal |
+| `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` not a valid UUID v4 | Generate a compliant UUID v4 (version digit `4`, variant `8`/`9`/`a`/`b`) |
+| `400` | `originalTransactionId is required` | Missing required field | Include `originalTransactionId` in the request body |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+Errors arrive in `endOfTransaction`. Do not parse `statusMessage` — check `finStatus` and `errorMessage`.
+
+| `finStatus` | Typical `errorMessage` | Meaning | What to do |
+|---|---|---|---|
+| `DECLINED` | `UNABLE_TO_FIND_MESSAGE_TO_REVERSE` | `originalTransactionId` not found or capture already settled | Verify the GUID is the `transactionID` from the pre-auth capture result; if settled, issue a Refund |
+| `DECLINED` | `ALREADY_REVERSED` | Capture already reversed | No further action needed |
+| `FAILED` | Connectivity / timeout message | Result unknown — connection lost mid-operation | Call `hapi.getTransactionStatus(originalTransactionID)` to check the actual state; retry only if not found |
+| `FAILED` | Other gateway message | Gateway rejected the operation | Check `result.errorMessage`; if transient, retry after verifying terminal is reachable |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Not supported on HiLite.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not supported on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Not confirmed — use the Cloud API or Android SDK (PAX) path.
+
+</TabItem>
+</Tabs>

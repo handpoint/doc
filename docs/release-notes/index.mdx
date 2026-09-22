@@ -1,0 +1,1013 @@
+---
+id: release-notes
+title: Release Notes
+sidebar_label: Release Notes
+hide_table_of_contents: true
+description: SDK and API release notes. Select your integration path to filter by path.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Release Notes
+
+:::tip
+Don't miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
+:::
+
+Select your integration path to see the relevant changelog. Selecting a path here also filters all code examples across the docs.
+
+<Tabs groupId="integration-path">
+
+<TabItem value="cloud-api" label="REST API">
+
+## REST API
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/cloud-integration.png" alt="Cloud Integration — your server sends HTTP requests to Handpoint Cloud, which relays payment commands to the PAX terminal" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your server connects to a PAX SmartPOS terminal through the Handpoint Cloud — no Android development required. Send an HTTP request to start a transaction; receive the result in real time.
+
+### 2.30.0
+**Features:**
+
+Added Address Verification Service (AVS) support for MOTO and card-present transactions.
+
+- [`moToSaleRequest`](/reference/moto-guide) now accepts a `billing` object containing `zipCode` (required) and `address` (optional) fields. Providing a `billing` object triggers an AVS check on the acquirer.
+- [`transactionRequest`](/reference/cloud-api-integration-guide) (card-present Sale / Keyed Entry) also accepts the same `billing` object for AVS on card-present transactions.
+
+AVS must be enabled on the merchant's acquirer agreement. The `billing` object is optional; omit it for transactions where AVS is not required.
+
+:::info
+The AVS result code is currently returned on the Android SDK `TransactionResult.addressVerification` field (SDK 7.1014.0+) for direct MoTo operations. Support for the AVS result in the Cloud API poll response (`GET /transaction-result`) is planned for a future release.
+:::
+
+### 2.29.0
+**Features:**
+
+New `NoTransactionToCancel` error (error code `1005`) is now returned from `POST /transactions` when a `stopCurrentTransaction` operation is attempted but there is no transaction currently in progress to cancel. Previously this case was reported as the generic `CancelOperationNotAllowed` error (`1003`).
+
+### 2.27.0
+**Features**
+
+New endpoints for Pre-Authorization operations that do not require the card to be present, allowing Pre-Auth Increase/Decrease and Capture to be performed server-side without routing through the payment terminal:
+
+- `POST /preauthorization/increase` — increase or decrease a pre-authorization hold amount.
+- `POST /preauthorization/capture` — capture a pre-authorization without a terminal.
+
+### 2.26.0
+**Features:**
+
+New [Deferred Tokenization Endpoint](/reference/backoffice-integration-guide) is now available, allowing a deferred tokenization on the following operations: sale, refund, preAuthorizationCapture, moToSale and moToRefund. This ensures that if a SaleAndTokenize operation fails due to issues with the token provider, the integrator can choose to de-couple these operations into 2, allowing authorizations to be processed and tokenizing using the transactionId (guid) of the original operation later on.
+
+### 2.25.0
+**Features:**
+
+New MOTO Operations (no reader) endpoints are now available, allowing MOTO (Mail Order / Telephone Order) transactions to be processed **without a payment reader**, using a card token retrieved from the gateway:
+
+- `POST /moto/sale` — performs a MOTO sale using a previously generated card token.
+- `POST /moto/refund` — performs a refund of a previous operation using its original identifier.
+- `POST /moto/reversal` — performs a reversal (void) of a previous operation using its original identifier. **Deprecated in favor of `POST /reversal`** — use [`POST /reversal`](/reference/moto-guide#reversing-a-remote-sale) instead, which works for all transaction types (card-present, MOTO, pre-auth) with no additional requirements.
+
+New Batch Operations endpoints are now available, allowing you to remotely manage batches on a specific payment terminal using the Cloud API:
+
+- `POST /batch/close` — requests the closure of a batch for a given terminal and batch number.
+- `POST /batch/summary` — retrieves a summary of a batch for a given terminal and batch number.
+- `POST /batch/detail` — retrieves the full detail of a batch, including a list of transactions.
+
+:::info
+Batch Operations are currently in **Beta** and are not available for all acquirers. Contact your Handpoint relationship manager to find out if this feature is supported for your acquirer.
+:::
+
+### 2.23.1
+**Features:**
+
+The batch number is returned in the Transaction Result object now as `batchNumber`, provided the acquirer returns it.
+
+### 2.23.0
+**Bug fixes:**
+
+Support for MOTO operations in the Get Transaction Status service has been added.
+
+### 2.22.4
+**Bug fixes:**
+
+Internal performance issues have been solved.
+
+### 2.22.3
+**Bug fixes:**
+
+An external vulnerability has been addressed.
+
+### 2.22.2
+**Features:**
+
+A new `cardPresent` parameter is available under Optional Transaction Parameters. Used for Elavon card-present reversals.
+
+### 2.20.0
+**Features:**
+
+- Added a selector to the `/{transactionReference}/status` endpoint which improves greatly on reporting.
+- Added "commands" to allow greater device control options.
+- A new `tokenize` parameter is available under Optional Transaction Parameters.
+
+### 2.17.0
+**Features:**
+
+Mastercard MoneySend fields for money remittance merchants. Supported operations: Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund.
+
+### 2.15.0
+**Features:**
+
+New transaction type: [Pre-Authorization](/acquirers/epi#pre-authorization). A pre-authorization charge is a temporary hold placed on a customer's payment card. A pre-authorized transaction can be increased (Pre-Auth Increase), captured (Pre-Auth Capture), or fully released (Pre-Auth Reversal).
+
+### 2.14.0
+**Features:**
+
+New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. Query the Handpoint Gateway for the status of a transaction at any given time using the `transactionReference` provided at the start of a financial operation.
+
+</TabItem>
+
+<TabItem value="android-pax" label="Android (PAX)">
+
+## Android SDK — PAX
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/android-sdk-pax.png" alt="Android SDK on PAX — your POS app and Handpoint SDK run together on the PAX SmartPOS terminal" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your Android application and the Handpoint SDK run directly on the PAX SmartPOS terminal — one device handles your POS UI and the payment flow, with no external server required.
+
+:::info Latest version
+**7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/reference/development-hardware).
+:::
+
+### 7.1014.0
+
+:::caution Breaking change
+Starting with 7.1014.0, the SDK requires **core library desugaring** to be enabled. Add to your app module's `build.gradle`:
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+:::
+
+**New Features**
+
+- **Address Verification Service (AVS)** for MoTo transactions. Pass cardholder billing details via [`MoToOptions.billing`](/reference/moto-guide) (`zipCode` required, `address` optional), or set `MoToOptions.enableAvsFields` to collect them on-screen. The acquirer's AVS result is returned as `TransactionResult.addressVerification.resultCode` (see `AvsResultCode` enum).
+
+### 7.1013.1
+**New Features**
+
+- **Deferred Card Tokenization**: `deferredTokenization(originalTransactionID)` — new method in `Hapi.kt` that retrieves a card token from a previously completed card-present transaction, without requiring the card to be presented again. Pass the `EFTTransactionID` (UUID) from the original transaction result. Returns `Boolean` (command sent to device). The tokenization result is delivered via the `endOfTransaction` event. Requires a connected PAX device. Eligible source transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. See [Tokenization](/acquirers/epi#tokenization).
+- **Duplicate check for MOTO operations**: `duplicationCheck` is now supported in `MoToOptions` for `motoSale` and `motoRefund`, preventing accidental duplicate charges on retry.
+
+**Improvements**
+
+- Contactless reading reliability improvements.
+
+**Bug Fixes**
+
+- `cardPan` operation caused an app crash in certain scenarios — resolved.
+- PIN bypass activation/deactivation behaved incorrectly — resolved.
+- Magstripe refunds declined due to invalid track2data format — resolved.
+
+:::caution Known issue — under investigation (SDKS-320)
+An issue affecting **PAX terminals without a MAGStripe module** has been identified and is under investigation. Confirmed affected models: **PAX A50**, **PAX IM25**. A fix will be included in a future release. Do not use SDK 7.1013.1 (or Handpoint App 4.13.0) on terminals without MAGStripe module support. Also affects **Handpoint App 4.13.0** — see [Handpoint App release notes](/release-notes) (Handpoint App — PAX tab) for marketplace availability details.
+:::
+
+### 7.1013.0
+**New Features**
+
+- **Duplicate-Check for MoTo Sale**: `duplicationCheck` is now supported in `MoToOptions` for `motoSale`, preventing double-charges when a sale is retried after a network or connectivity issue.
+- **Deferred Tokenization**: new `deferredTokenization(originalTransactionID)` method allows tokenizing a card used in a previous sale, refund, pre-authorization capture, MoTo sale, or MoTo refund at a later point using the transaction's GUID.
+- **MOTO partial approval**: MOTO transactions now correctly handle partial approval responses from the issuer.
+- **`NO_CURRENT_TRANSACTION_TO_CANCEL`** status: `stopCurrentTransaction()` now returns this status when called with no active transaction instead of a generic error, allowing Cloud API to distinguish between "no transaction" and "cancel not allowed."
+
+**Improvements**
+
+- Contactless (NFC) reading performance improved: the NFC reader is no longer reinitialised on every polling cycle, resulting in faster and more reliable tap detection.
+- MoTo Sale transactions that return an UNDEFINED result can now recover the approved result via the Get Transaction Status service. Previously, MoTo Sale did not include a `transactionReference`, making status recovery impossible.
+
+**Bug Fixes**
+
+- Pre-authorization reversal amount was not being correctly passed to the gateway in some scenarios — corrected.
+- Card entry type now correctly reports `CHIPFAILMAGSTRIPE` instead of `TOKENIZATION` when a chip card falls back to magnetic stripe.
+
+### 7.1012.3
+**Bug Fixes**
+
+- **Mastercard contactless declines**: Fixed an issue where Mastercard contactless transactions could be incorrectly declined due to missing EMV fields during the contactless flow.
+- **Reader parameter setup resilience**: Fixed an issue where a failure to SET a single EMV tag during reader initialization would abort the entire setup sequence. Remaining tags are now processed correctly even when an individual tag SET fails.
+
+### 7.1012.1
+**New Features**
+
+- `MoToOptions.cardToken`: MOTO operations can now charge a previously stored card token without requiring card interaction.
+- `DeviceParameter.Language`: New device parameter to set the terminal language remotely.
+- `automaticRefund(originalGuid)`: New overload to perform a full-amount refund by referencing the original transaction GUID, without specifying the amount.
+
+**Breaking Changes**
+
+- `Events.DependantOperationEvent.dependantReversalReceived` now includes a `cardPresent: Boolean` parameter. Integrators implementing this interface must update their event handler signature.
+
+### 7.1011.0
+**New Features**
+
+- PAX A6630 model is supported now.
+- MOTO sales can now be performed by using a token.
+- MOTO partial reversals are now supported.
+- The Get Transaction Status service is used now also in MOTO operations.
+
+**Improvements**
+
+- Some duplicate events scenarios have been addressed.
+- Some minor visual issues have been addressed.
+
+### 7.1010.8
+**Fixes**
+
+- Minor fix in payments flow to improve error handling.
+
+### 7.1010.7
+**Fixes**
+
+- Deprecated coroutines APIs have been removed to improve compatibility for integrators.
+
+### 7.1010.6
+**Features**
+
+- `Partial Voids` (also known as Partial Reversals) are now supported for EPI.
+- Support for PAX A3700 reader has been added.
+
+**Fixes**
+
+- Processing misalignment between SDK and Gateway has been fixed.
+
+### 7.1010.5
+**Features**
+
+A new `cardPresent` flag is supported in Integrated mode. This new flag allows to indicate the payments flow that a Reversal operation will imply an actual present card (used with Elavon acquirers).
+
+### 7.1010.3
+**Fixes**
+
+Some timeout-ed authorization requests in the reader were still reaching the gateway. This was causing double charges.
+
+### 7.1010.2
+**Fixes**
+
+Network stability has been improved.
+
+### 7.1010.1
+**Features**
+
+- "Cash" and "Other" transaction types now have a Transaction ID.
+
+**Fixes**
+
+- A scenario where double charges could happen has been fixed.
+- The customer receipt now is fully in the card's language.
+- Some Fiserv and Elavon certification issues have been addressed.
+
+### 7.1009.5
+**Features**
+
+Tokenized Payments Operations support, plus new PAX **IM25** model support.
+
+Tokenized Payments Operations enable merchants to securely capture a customer's card information and use that token to immediately perform a payment-related operation. Two modes: **Standalone** (direct SDK methods) and **Cloud** (commanded via REST API).
+
+**Fixes**
+
+- Several EMV certification issues have been addressed.
+- Transaction Result was not being delivered in some cases.
+- Refunds and Reversals didn't include the transactionReference field.
+
+### 7.1008.6
+**Fixes**
+
+- Some translations have been corrected, as well as error messages from our Gateway.
+
+### 7.1008.4
+**Fixes**
+
+- Several minor stability issues have been fixed.
+
+### 7.1008.3
+**Features**
+
+- In account type selection, the order is first "Credit" and then "Debit" now.
+
+**Fixes**
+
+- An issue with the remove card event has been addressed.
+
+### 7.1008.0
+**Features**
+
+- Brightness level control is offered as a public method now.
+- Internal payments libraries of PAX devices have been updated.
+
+**Fixes**
+
+- Some EMV related issues have been solved.
+
+### 7.1006.0
+**Features**
+
+- Now just "CARD" is shown in receipts when the card brand is not in the language library.
+
+### 7.1005.0
+**Features**
+
+Speed improvements — significant improvements in transaction processing speeds. Cloud initialization is now faster, leading to quicker overall transaction processing.
+
+:::caution
+**Cloud Mode** users: There might be a short delay in accessing your receipt after a transaction is completed in Cloud Mode.
+:::
+
+### 7.1004.2
+**Features**
+
+Automatic Refunds — process refunds without physical card interaction:
+
+- **Automatic Refund**: initiate a refund using the original Transaction ID (GUID). The refunded amount mirrors the original sale amount.
+- **Automatic Partial Refunds**: partially refund a card automatically. Pass amount, currency and original Transaction ID.
+
+### 7.1004.1
+**Features**
+
+Mastercard MoneySend fields for money remittance merchants. See [Money Remittance](/acquirers/emerchantpay#money-remittance).
+
+### 7.1004.0
+**Features**
+
+- [Pre-Authorization](/acquirers/epi#pre-authorization) transaction type introduced.
+- Pre-Auth Increase/Decrease, Pre-Auth Capture, Pre-Auth Reversal.
+- Tokenize And Modify operation introduced.
+
+### 7.1002.0
+**Features**
+
+- Get Transaction Status: query the Handpoint Gateway for the status of a transaction at any given time using the `transactionReference`.
+- Cloud integrations: new `transactionReference` parameter added to the `transactionStarted` method.
+- Estonian language support 🇪🇪.
+
+### 7.1001.0
+**Features**
+
+- Transaction Metadata: persist and echo back business domain data at transaction time. Data is echoed back in the response and searchable via Transaction Feed API.
+- German language support 🇩🇪.
+- PAX A800 device support.
+
+### 7.0.2
+**Features**
+
+- Norwegian and Italian language support.
+
+### 7.0.1
+- Removed `Events.Required` interface, divided into 3 new interfaces.
+- Financial operations now return `OperationStartResult` instead of a boolean.
+- Duplicate payment check feature introduced.
+- `deviceCapabilities` event renamed to `supportedCardBrands`.
+
+### 6.7.4
+- `customerReference` correctly populated when card is removed mid-transaction.
+- MOTO: Correct handling of expired access and refresh tokens.
+- CLOUD: Channel connection/subscription handling.
+
+### 6.7.3
+**Fixes**
+
+- MOTO: Linked Refund only with GUID.
+- `originalEFTTransactionID` correctly populated on Linked Refunds.
+- Amounts correctly populated on "Already reversed" operations.
+- Crash fixes identified in the field.
+
+### 6.7.2
+**Fixes**
+
+- MOTO: Retry token and configuration download if missing.
+- CLOUD: device status moving terminals between merchants.
+- `requestedAmount` field in Transaction Result correctly populated.
+
+### 6.7.0
+**Features**
+
+- PAX A35 support added.
+- Swedish language support 🇸🇪.
+- `customerReference` field added to TransactionResult.
+
+### 6.6.7
+**Fixes**
+
+- SCA scenarios on PAX A80.
+- CLOUD: receipt printing.
+- Deadman mechanism for uncompleted transactions.
+
+</TabItem>
+
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+## Android SDK — HiLite (Bluetooth)
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/bluetooth-integration.png" alt="Bluetooth Integration — Android phone connects to HiLite card reader via Bluetooth" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your Android app communicates with the HiLite Bluetooth card reader via the Handpoint SDK — built for merchants on the move where a full SmartPOS terminal isn't practical.
+
+:::info Latest version
+**7.1004.3** — connects to HiLite (DATECS) devices via Bluetooth. Uses `ConnectionMethod.BLUETOOTH`. See [Development hardware](/reference/development-hardware).
+:::
+
+:::note
+The HiLite (BT) path uses the same Android SDK as the PAX path. Connection method is set at runtime via `ConnectionMethod.BLUETOOTH`. The HiLite-certified release track is maintained separately from the PAX on-terminal track.
+:::
+
+### 7.1004.3
+**Fixes**
+
+- Bluetooth reconnection stability improvements for HiLite devices on Android 13+.
+- Fixed occasional disconnect during idle periods over BLE.
+
+### 7.1004.2
+**Features**
+
+Automatic Refunds — process refunds without physical card interaction:
+
+- **Automatic Refund**: initiate a refund using the original Transaction ID (GUID).
+- **Automatic Partial Refunds**: partially refund using amount, currency, and original GUID.
+
+**Fixes**
+
+- Inconsistency when formatting currencies using Slovenian as the locale.
+
+### 7.1004.1
+**Features**
+
+Money Remittance support. Mastercard MoneySend fields for money remittance merchants.
+
+### 7.1004.0
+**Features**
+
+- Pre-Authorization transaction type introduced.
+- Pre-Auth Increase/Decrease, Pre-Auth Capture, Pre-Auth Reversal.
+- Tokenize And Modify operation.
+
+### 7.1002.0
+**Features**
+
+- Get Transaction Status using the `transactionReference`.
+- Estonian language support 🇪🇪.
+
+### 7.1001.0
+**Features**
+
+- Transaction Metadata feature.
+- German language support 🇩🇪.
+
+### 7.0.2
+**Features**
+
+- Norwegian and Italian language support.
+
+### 7.0.1
+- Removed `Events.Required` interface, divided into 3 new interfaces.
+- `OperationStartResult` returned from financial operations.
+- Duplicate payment check introduced.
+
+### 6.7.4
+- Bluetooth reconnection improvements.
+- `customerReference` correctly populated.
+
+### 6.7.3
+**Fixes**
+
+- Linked Refund with GUID only.
+- `originalEFTTransactionID` correctly populated on Linked Refunds.
+
+### 6.7.0
+**Features**
+
+- Swedish language support 🇸🇪.
+- `customerReference` field added to TransactionResult.
+
+</TabItem>
+
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+## iOS SDK — HiLite (Bluetooth)
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/bluetooth-integration.png" alt="Bluetooth Integration — iPhone connects to HiLite card reader via Bluetooth" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+Your iOS app communicates with the HiLite Bluetooth card reader via the Handpoint SDK over the MFi external accessory protocol — the same portable reader experience as the Android path.
+
+:::info Latest version
+**4.0.2** — connects to HiLite (DATECS/Datecs) readers via the MFi external accessory protocol (`com.datecs.pinpad`). Requires iOS 12.0+. Install via CocoaPods: `pod 'HandpointSDK', '~> 4.0.2'`. App Store distribution requires Apple MFi program approval. See [Development hardware](/reference/development-hardware) for provisioning profile requirements.
+:::
+
+### 4.0.2
+**Fixes**
+
+- Fixed a crash caused by a vector index going out of bounds during transaction processing.
+- Corrected the minimum iOS version declaration in the podspec.
+
+### 4.0.1
+**Fixes**
+
+- Fixed acquirer parsing in the `Credential` object; `INTERAC` and `POSTBRIDGE` acquirers were not being resolved correctly in Multi MID configurations.
+
+### 4.0.0
+**Features**
+
+- **Multi MID support**: new `MerchantAuth` and `Credential` objects allow specifying a per-acquirer merchant ID (`mid`) and terminal ID (`tid`) at transaction time. Pass a `MerchantAuthOptions` (or `SaleOptions`) instance to any financial operation to override the terminal's default routing.
+- `mid` and `tid` fields added to `FinanceResponseInfo`, reflecting the acquirer routing used for the transaction.
+- Background stream validity check added — the SDK now verifies the MFi stream is still open before processing background operations, preventing spurious errors after the reader goes idle.
+- HiPro barcode scanner reliability fixes; scanner state is now correctly reset when a financial operation is cancelled mid-scan.
+
+### 3.3.1
+**Features**
+
+- `tenderType` field added to `FinanceResponseInfo`, indicating whether the transaction settled as credit, debit, or other tender.
+- Additional missing parameters populated in the transaction result for linked refund responses.
+
+### 3.3.0
+**Features**
+
+- **Linked Refund support**: `refundWithAmount:currency:transaction:` (and its `options:` overload) can now reference an original sale's transaction ID to perform a linked refund.
+- `paymentScenario` field added to `FinanceResponseInfo` (e.g., `CHIP`, `CONTACTLESS`, `SWIPE`, `MANUAL`).
+
+### 3.2.4
+**Fixes**
+
+- The SDK now automatically triggers `financeInit` when an invalid shared secret status is received from the reader, recovering the session without requiring manual reconnection.
+
+### 3.2.3
+**Fixes**
+
+- Build-system compatibility fixes for the CocoaPods new build system (Xcode 10+).
+
+### 3.2.2
+**Fixes**
+
+- Source file path references corrected; fixes failures under the CocoaPods new build system.
+
+### 3.2.1
+**Fixes**
+
+- Podspec version string corrected to match the tagged release.
+
+### 3.2.0
+**Features**
+
+- **Card tokenization**: `tokenizeCard` method introduced, allowing a card to be tokenized without a financial transaction.
+- `saleAndTokenizeCardWithAmount:currency:` method introduced, combining a sale with tokenization in a single operation.
+- Financial command timeout increased from 45 s to 120 s, reducing false timeouts on slow network connections.
+- Simulator stubs added for all tokenization methods, enabling development without a physical reader.
+
+### 3.1.6
+**Fixes**
+
+- Podspec source file glob corrected to match the project's directory layout; the previous path caused CocoaPods to fail to locate Objective-C++ source files.
+- Xcode 10 compatibility: project file and build scripts updated.
+
+---
+
+### 2.2.0
+**Features**
+
+- Swift Package Manager support added.
+- iOS 17 compatibility verified.
+- Improved BLE connection stability on HiLite Pro.
+
+### 2.1.0
+**Features**
+
+- Tokenization support added.
+- `saleAndTokenizeCard()` method introduced.
+
+**Fixes**
+
+- Improved error handling for Bluetooth reconnection after device sleep.
+- Receipt delivery timing improved.
+
+### 2.0.0
+**Features**
+
+Major rewrite for Swift 5 / async-await patterns.
+
+- `OperationStartResult` returned from all financial operations.
+- Pre-authorization support (coming soon on HiLite hardware).
+- Transaction Metadata support.
+- `customerReference` field added to `TransactionResult`.
+
+**Breaking Changes**
+
+- `HeftClient` delegate methods updated to new naming convention.
+- `Events.Required` split into separate delegate protocols.
+- `saleWithAmount:currency:cardholder:` signature unchanged; new optional parameters added.
+
+### 1.9.0
+**Features**
+
+- Get Transaction Status support via `transactionReference`.
+- Swedish, Norwegian, German, Italian, Estonian language support.
+- Money Remittance options added.
+
+### 1.8.0
+**Fixes**
+
+- SCA flow improvements.
+- Contactless card tokenization fixed.
+- Amount fields populated on FAILURE and DECLINE responses.
+
+### 1.7.5
+**Fixes**
+
+- `customerReference` correctly populated when card removed mid-transaction.
+- MOTO: correct token expiry handling.
+
+### 1.7.0
+**Features**
+
+- Reversal (void) operation improvements.
+- Improved duplicate payment detection.
+- `supportedCardBrands` event introduced (replaces `deviceCapabilities`).
+
+</TabItem>
+
+<TabItem value="cordova" label="Cordova">
+
+## Cordova Plugin
+
+:::info
+Wraps the native Android SDK (PAX + HiLite) and iOS SDK (HiLite). One JS API for all supported terminals. Update the plugin and native SDK dependency together.
+:::
+
+### 4.14.0
+**Updates**
+
+- Updated to Android SDK **7.1014.0** (PAX path). iOS SDK unchanged (2.2.0).
+
+**Features** *(inherited from Android SDK 7.1014.0)*
+
+- **Address Verification Service (AVS) for MOTO** — pass cardholder billing details on MOTO sale via the options object (`billing.zipCode` required, `billing.address` optional). The acquirer's AVS result is returned as `addressVerification.resultCode` in the transaction result.
+
+---
+
+### 4.13.0
+**Updates**
+
+- Updated to Android SDK **7.1013.1** (PAX path). iOS SDK unchanged (2.2.0).
+
+**Features** *(inherited from Android SDK 7.1013.1)*
+
+- **Duplicate check for MOTO operations** — SDK-level guard prevents accidental duplicate charges on MOTO sale and refund retry.
+- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
+- **Cancel operation reason** — `cancelOperationNotAllowed` responses now include a reason code distinguishing "no active transaction" from "cancel not allowed during this operation".
+
+**Bug Fixes** *(inherited from Android SDK 7.1013.1)*
+
+- Pre-auth reversal amount unit mismatch (SDKS-213) — partial pre-auth reversals now correctly convert minor-unit amounts before forwarding to the gateway.
+- PIN bypass TMS gate fixed (SDKS-102) — bypass gate now sourced from TMS config object rather than terminal self-configuration.
+
+:::caution Known issue
+An issue affecting **PAX terminals without a MAGStripe module** (confirmed: PAX A50, PAX IM25) was identified in this SDK version. A fix is included in 4.14.0. Do not use 4.13.0 on terminals without MAGStripe module support.
+:::
+
+---
+
+### 4.12.3
+**Updates**
+
+- Updated to Android SDK **7.1012.1** (PAX path) and iOS SDK 2.2.0.
+- Fixed Android 14 Bluetooth permission handling: `BLUETOOTH_CONNECT` and `BLUETOOTH_SCAN` now declared alongside legacy permissions with correct `maxSdkVersion` removal.
+
+**Fixes**
+
+- `transactionReference` now correctly returned in the `transactionStarted` callback.
+
+### 4.12.0
+**Features**
+
+- Tokenization added to JS API: `handpoint.tokenizeCard()` and `handpoint.saleAndTokenizeCard()`.
+- `preAuthorizationCapture()` and `preAuthorizationVoid()` added.
+- Get Transaction Status: `handpoint.getTransactionStatus(transactionReference, callback)`.
+
+### 4.11.0
+**Features**
+
+- Money remittance flag exposed in `sale()` options: `{ moneyRemittance: true }`.
+- Tip Adjustment added to JS API: `handpoint.tipAdjustment(transactionId, tipAmount, callback)`.
+- Automatic Refund added: `handpoint.automaticRefund(originalGuid, callback)`.
+
+### 4.10.0
+**Features**
+
+- Pre-Authorization: `handpoint.preAuthorization(amount, currency, callback)`.
+- Pre-Auth Capture: `handpoint.preAuthorizationCapture(originalId, amount, currency, callback)`.
+- Pre-Auth Void: `handpoint.preAuthorizationVoid(originalId, callback)`.
+- Transaction Metadata support added to all financial operations.
+
+### 4.9.0
+**Features**
+
+- `transactionReference` parameter added to `transactionStarted` event (aligns with SDK 7.1002.0).
+- Language support: German, Norwegian, Italian, Estonian, Swedish.
+
+### 4.8.0
+**Features**
+
+- Tokenize And Modify operation added.
+- Duplicate payment check enabled.
+
+### 4.7.0
+**Updates**
+
+- `OperationStartResult` returned from financial operations (was boolean).
+- `Events.Required` split into 3 separate interfaces — update your event handler registration.
+- `deviceCapabilities` renamed to `supportedCardBrands`.
+
+</TabItem>
+
+<TabItem value="pax-app" label="Handpoint App (PAX)">
+
+## Handpoint Payments App — PAX
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/standalone-smartpos-app.png" alt="Handpoint Payments App — standalone amount entry, card prompt, processing, authorised, and transaction history screens on a PAX terminal" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+The standalone payment app that runs on any PAX SmartPOS terminal. Also enables **Cloud API integrated mode** — a single toggle in the app settings connects the terminal to your POS software over the Handpoint Cloud.
+
+The Handpoint Payments App must be **installed and running** on the PAX terminal for all Cloud API with-reader operations (`POST /transactions`). The app embeds the Android SDK — the app version determines which SDK version is active on the terminal.
+
+To use Cloud API with-reader operations, three things must be in place:
+
+1. **Handpoint Payments App** installed on the PAX terminal.
+2. **Integrated mode** enabled in the app settings on the terminal (toggle in the app's configuration screen).
+3. **Integrated mode provisioned for the merchant** by Handpoint, with a **merchant API key** issued.
+
+Contact your Handpoint integration engineer to provision integrated mode and obtain the API key.
+
+:::info App installation and updates
+The Handpoint Payments App is distributed by Handpoint. Contact your Handpoint integration engineer for installation, app updates, or to confirm the version running on your terminals.
+:::
+
+:::info Latest version
+**4.14.0** — uses Android SDK **7.1014.0**
+:::
+
+### 4.14.0
+
+Uses Android SDK **7.1014.0**.
+
+:::caution Breaking change — core library desugaring required
+SDK 7.1014.0 requires core library desugaring. Add to your app module's `build.gradle`:
+
+```groovy
+android {
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+    }
+}
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+}
+```
+:::
+
+**New Features**
+
+- **Address Verification Service (AVS)** — MoTo transactions now support AVS. Pass cardholder billing details via `MoToOptions.billing` (ZIP code required, address optional), or enable `MoToOptions.enableAvsFields` to collect them on-screen. The acquirer's AVS result is returned as `TransactionResult.addressVerification.resultCode`.
+
+---
+
+### 4.13.0
+
+Uses Android SDK **7.1013.1**.
+
+:::caution Known issue — under investigation (SDKS-320)
+An issue affecting **PAX terminals without a MAGStripe module** has been identified and is under investigation. Confirmed affected models: **PAX A50**, **PAX IM25**. A fix will be included in a future release. **Do not use this version on terminals without MAGStripe module support.**
+
+**Marketplace availability:**
+- **EMEA PaxStore** — version 4.13.0 has been removed from the EMEA marketplace pending a future release that includes the fix.
+- **US marketplace** — version 4.13.0 remains available. PAX terminals deployed in the US all include MAGStripe modules; however, the warning above applies to any device without a MAGStripe module.
+:::
+
+**New Features**
+
+- **Duplicate check for MOTO operations** — prevents accidental duplicate charges on MOTO sale and refund retry.
+- **Enhanced contactless reading speed** — contactless transaction initiation is faster.
+- **Cancel operation reason** — `cancelOperationNotAllowed` responses now include a reason so the Cloud API can distinguish between "no active transaction" and "cancel not allowed during this operation".
+
+**Bug Fixes**
+
+- **Pre-auth reversal amount unit mismatch — regression from 4.12.1** (SDK fix, SDKS-213) — when a Cloud REST API caller sent a partial pre-auth reversal with the amount in minor units (e.g. `3000` for $30.00), the SDK forwarded the raw integer to the gateway without converting to major units, resulting in a 100× inflated reversal amount. Conversely, when the caller used major-unit decimals (e.g. `30.00`), the amount and currency were stripped from the IREQ message and the reversal was treated as a full reversal. Fixed by adding a unit-detection parser in `SdkApiReversalRequest` that converts to major-unit `BigDecimal` before forwarding to the gateway. Introduced by SDKS-201 (pre-auth reversal restructuring in 4.12.1).
+- **PIN bypass TMS gate broken** (SDK fix, SDKS-102) — `PaymentSDKHandler` read the PIN bypass configuration from the terminal's own self-configuration instead of from the TMS-delivered config object. This caused two failure modes: (1) when TMS permitted bypass (`bypassPin=1`), the terminal still demanded PIN entry because self-config had the flag off; (2) in Cloud mode, the per-request `pinBypass` field was applied inconsistently because the TMS gate was evaluated against the wrong source. Fixed by sourcing the bypass gate from the TMS config object and adding a `bypassAll` field for full CVM coverage. Correct hierarchy after fix: TMS policy is the outer gate; within that, Cloud mode per-request `pinBypass` takes precedence over the in-app setting; standalone mode uses the in-app setting.
+
+---
+
+### 4.12.3
+
+Uses Android SDK **7.1012.3**.
+
+**New Features**
+
+- PAX A3700 and PAX A6630 terminal models are now supported (carried forward from 4.11.0).
+- MOTO operation recovery — the app can recover the status of MOTO operations when the SDK cannot determine the outcome due to network connectivity issues (carried forward from 4.11.0).
+
+**Bug Fixes**
+
+- **Mastercard PayPass contactless declines — regression from 4.12.1** (SDK fix, SDKS-219) — the Mastercard contactless reader parameter setup loop called `Clss_SetTLVDataList_MC()` for each EMV tag in sequence and broke out of the loop on the first tag that failed to set. When the `aucMerchantID` field (tag 9F16) had a non-standard length and failed, tags further down the table — specifically 9F33 (Terminal Capabilities), 9F1A (Terminal Country Code), and 5F2A (Transaction Currency Code) — were never configured. With those tags absent from the authorization request (Field 55), acquirer hosts rejected the malformed payload with response code 30 (FORMAT ERROR). Observed as a 30–35% elevated decline rate for Mastercard PayPass contactless on Borgun. Fixed by removing the `break` so the loop always completes every entry regardless of individual SET failures. Visa contactless and all contact-chip flows were not affected.
+
+---
+
+### 4.11.0
+
+Uses Android SDK **7.1011.0**.
+
+**New Features**
+
+- PAX A3700 and PAX A6630 terminal models are now supported.
+- MOTO operation recovery — the SDK now supports recovery for MOTO operations in network-failure scenarios, enabling the app to recover transaction status when the SDK cannot determine the outcome in time.
+
+**Bug Fixes**
+
+- **Unattended mode state lost on device reboot** (app fix, API-19) — `UnattendedModeService` stored the active/inactive state only in memory. On reboot, initialization always read from the static compile-time config default, discarding any runtime toggle made by the operator. Fixed by persisting state to Ionic Storage on every toggle and reading from storage on boot, falling back to the config default only when no stored value exists.
+- **Transaction timeout and processing misalignment** (app + SDK fix, SDK-3981 / SDK-3980) — same fixes as 4.10.6 (app timeout extended to 240 s; SDK forced to HTTP/1.1 in `CrApiClient.kt`), carried forward into the 4.11.0 branch.
+
+---
+
+### 4.10.6
+
+Uses Android SDK **7.1010.6**.
+
+**New Features**
+
+- PAX A3700 reader support added.
+- Partial reversals are now supported.
+
+**Bug Fixes**
+
+- **Transaction timeout and processing misalignment** (app + SDK fix, SDK-3981 / SDK-3980) — two related fixes shipped together. *(1) App side:* the app's financial transaction timeout was 130 s, shorter than the worst-case card-present flow (delayed tip + card read retry + signature). The app marked the transaction FAILED while the SDK continued and received an AUTHORISED result from the acquirer — leaving a state mismatch. Fixed by extending the app timeout to 240 s. *(2) SDK side:* the SDK's OkHttp client used HTTP/2 by default. On mobile networks with a transparent proxy that mishandled HTTP/2 stream multiplexing, the gateway silently processed the transaction while the SDK received a `SocketTimeoutException`. Fixed by forcing HTTP/1.1 in `CrApiClient.kt`, eliminating the carrier proxy failure path.
+- **Automatic Printing toggle persisted wrong value** (app fix, EFTCLIENT-5370) — in `PrintingOptionsPage`, the Automatic Printing toggle was bound with both `[(ngModel)]` two-way binding and `checked="{{ ... }}"` string-interpolation (an attribute, not a DOM property). During Ionic/Angular component reconciliation, the attribute binding triggered an extra model write, causing the setter to fire twice on the `off → on` transition. The setter performed two backend API calls (reset timeout, then set flag) each time it fired, producing 3–4 racing requests; the API occasionally landed with the old (off) value. Fixed by switching to `[checked]` property binding and adding a re-entrancy guard in the setter.
+
+---
+
+### 4.10.0
+
+Uses Android SDK **7.1010.1**.
+
+**New Features**
+
+- PAX A8900 (full-screen version, without physical keypad) is now supported.
+- Transaction IDs are now included for non-EMV payment methods (e.g. cash and other alternative tender types).
+
+**Improvements**
+
+- Email field for digital receipts now accepts uppercase letters.
+- Customer receipts are now fully printed in the card's language when the language tag is available.
+
+**Bug Fixes**
+
+- **Double-charge on `IN_PROGRESS` gateway response** (SDK fix) — when the payment gateway returned `finStatus: "IN_PROGRESS"` in a slow-network scenario, the SDK threw a deserialization error because `IN_PROGRESS` was absent from the `FinancialStatus` enum. The app treated the error as a transaction failure and retried; if both the original and the retry completed, the cardholder was charged twice. Fixed by adding `IN_PROGRESS` to the `FinancialStatus` enum (Jira: SDK-3869). This issue was present in all app versions prior to 4.10.0.
+
+---
+
+### 4.9.4
+
+Uses Android SDK **7.1009.5**.
+
+**New Features**
+
+- PAX IM25 and PAX A8900 device support added.
+- **Get Transaction Status** — manual sync functionality for pending transactions on SmartPOS.
+
+**Improvements**
+
+- **Duplicate check dialog timeout reduced** (SDK change) — when a potential duplicate transaction is detected, the terminal shows a confirmation dialog ("SEND" / "CANCEL"). The auto-dismiss timeout was reduced from 120 s to 30 s to avoid leaving terminals in a waiting state for too long. The change is in the SDK (`DupeCheckMessageDialog.kt`).
+
+**Bug Fixes**
+
+- **Currency display for Cloud API pending transactions** (app fix) — the currency code field was read from the wrong property (`currencyCode` instead of `currency`) when queuing a transaction reference in the Get-Transaction-Status service. Affected Cloud API merchants only; the pending transaction list showed the wrong or missing currency. Fixed in `cloud.ts`.
+
+:::caution Known issue in this version — fixed in App 4.10.0
+In slow-network scenarios where the payment gateway returns `finStatus: "IN_PROGRESS"` before confirming a transaction, the SDK fails to deserialize the response (missing enum value) and the app retries. If both the original and the retry complete, the cardholder is charged twice. **Upgrade to App 4.10.0** (SDK 7.1010.1) to resolve this issue (Jira: SDK-3869).
+:::
+
+---
+
+### 4.8.3
+
+Uses Android SDK **7.1008.5**.
+
+**Improvements**
+
+- Login process redesigned to unify the response, remove sensitive data exposure, and improve user experience.
+
+**Bug Fixes**
+
+- **Service mode timeout not pausing in background** (SDK-3748) — when the app moved to the background (e.g. the operator navigated to Android Settings), the unattended-mode inactivity timer continued counting down and activated unattended mode on top of the system screen, making it impossible to return to the app without restarting the reader. Fixed so the timeout pauses when the app goes to the background and restarts from zero when it returns to the foreground.
+
+---
+
+### 4.5.0
+
+Uses Android SDK **7.1005.0**.
+
+**New Features**
+
+- Money remittance support in Standalone mode.
+- Latvian language support for receipts.
+
+---
+
+### 4.4.4
+
+Uses Android SDK **7.1004.3**.
+
+**New Features**
+
+- Pre-authorization operations are now supported.
+
+</TabItem>
+
+<TabItem value="mpos-app" label="Handpoint App (mPOS)">
+
+## Handpoint mPOS App — HiLite & Datecs
+
+<div style={{textAlign: 'center', marginBottom: '1.5rem'}}>
+<img src="/img/integration-types/standalone-mpos-app.png" alt="Handpoint mPOS app on a phone connected via Bluetooth to HiLite reader" style={{maxWidth: '560px', borderRadius: '8px'}} />
+</div>
+
+The standalone mPOS app runs on the merchant's Android or iOS phone and connects to the HiLite Bluetooth card reader — available on Google Play and the Apple App Store, with full white-label branding support.
+
+The Handpoint mPOS app runs on the merchant's Android phone or tablet and connects to a HiLite (Datecs) Bluetooth card reader to handle card-present transactions. It is a standalone app — no custom SDK integration required.
+
+**Distribution:**
+- **Android** — [Google Play](https://play.google.com/store/apps/details?id=com.handpoint.hipos) (`com.handpoint.hipos`)
+- **iOS** — [Apple App Store](https://apps.apple.com/app/id1450546788) (id1450546788)
+
+:::info Latest version
+**4.10.5** — available on Google Play and the Apple App Store. Uses Android SDK **7.1004.3**.
+:::
+
+### 4.10.5
+
+Uses Android SDK **7.1004.3**.
+
+**Bug Fixes**
+
+- **HiLite card reader "Update Failed" error** (EFTCLIENT-5367) — some HiLite readers failed to complete firmware updates due to a regression introduced by the Datecs driver refactor in a later SDK version. Resolved by rolling back to SDK 7.1004.3 (pre-refactor).
+
+---
+
+### 4.10.4
+
+Uses Android SDK **7.1004.3**.
+
+**Bug Fixes**
+
+- **Offline/online status notification broken in WebView** (EFTCLIENT-5340) — the network service monitoring the connection state for the in-app WebView was not correctly firing online/offline events. Resolved.
+
+---
+
+### 4.9.4
+
+Uses Android SDK **7.1004.3**.
+
+**New Features**
+
+- **OTP Login** — merchants now log in using a one-time password (OTP) sent to their email (with optional SMS fallback), replacing the previous magic-link flow.
+
+---
+
+### 4.8.3
+
+Uses Android SDK **7.1004.3**.
+
+**Security**
+
+- **Login security hardening** (SEC-194) — the previous magic-link flow exposed `/api/merchants/exists` (user enumeration) and `/api/merchants/phone` (phone number in plaintext). The login endpoint was redesigned to always return a generic `202 Accepted` response regardless of whether the email is registered, removing both exposure vectors. Deprecated endpoints scheduled for removal.
+
+---
+
+### 4.7.0 and earlier
+
+Refer to the Android SDK — HiLite and iOS SDK — HiLite release notes for underlying SDK changes that correspond to earlier mPOS app versions.
+
+</TabItem>
+
+</Tabs>
