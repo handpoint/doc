@@ -46,7 +46,7 @@ const config = {
   },
   favicon: 'img/favicon.ico',
   organizationName: 'handpoint',
-  projectName: 'developer-portal',
+  projectName: 'handpoint.github.io',
 
   presets: [
     [
