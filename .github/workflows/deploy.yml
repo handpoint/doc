@@ -63,6 +63,11 @@ jobs:
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "developer.handpoint.com" > static/CNAME
+          else
+            echo "developer.handpoint.io" > static/CNAME
+          fi
           yarn install --frozen-lockfile
           yarn generate
           yarn deploy
