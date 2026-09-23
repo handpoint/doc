@@ -1,22 +1,22 @@
 ---
-id: clinic-guide
-title: Clinic / Healthcare
-sidebar_label: Clinic / Healthcare
+id: practice-management-guide
+title: Practice Management
+sidebar_label: Practice Management
 description: Route payments to per-provider merchant accounts using Multi-MID, mix card-present and MOTO flows, and reconcile by provider via the transaction feed.
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-# Clinic and healthcare payments
+# Practice management payments
 
-Healthcare practices often have multiple billing entities sharing the same front desk: individual providers with their own merchant accounts, or a mix of in-person and phone-based payment collection. This guide covers the Handpoint features that fit that model.
+Practice management software often serves multiple billing entities sharing the same front desk: individual providers with their own merchant accounts, or a mix of in-person and phone-based payment collection. This guide covers the Handpoint features that fit that model — applicable to medical, dental, optometry, veterinary, mental health, and similar multi-provider practices.
 
 ---
 
 ## Multi-MID: one integration, one device, multiple providers
 
-Multi-MID lets a single Handpoint integration route transactions to separate merchant accounts — one per doctor or billing entity — without separate API keys or separate terminals.
+Multi-MID lets a single Handpoint integration route transactions to separate merchant accounts — one per provider — without separate API keys or separate terminals.
 
 **How it works:** Handpoint configures a main MID for the practice and sub-MIDs for each provider. Your software maps each provider to an `externalId` (Cloud API) or `MerchantAuth` (Android PAX) and includes it on every transaction.
 
@@ -69,12 +69,12 @@ See [Multi-MID Reference](/reference/multi-mid) for the full setup checklist and
 
 ## Card-present at the desk
 
-For walk-in patients paying at the front desk, use either:
+For patients paying at the front desk, use either:
 
 - **Cloud API** — your practice management software initiates the transaction over HTTP; a PAX terminal sits at the desk and prompts the patient. No Android development required.
 - **Android SDK on PAX** — your check-in or billing application runs on the PAX terminal itself; the billing UI and card payment are on one device.
 
-Both paths support Multi-MID. The choice depends on where your POS software runs, not on the payment flow.
+Both paths support Multi-MID. The choice depends on where your software runs, not on the payment flow.
 
 ---
 
@@ -109,11 +109,11 @@ MOTO requires **EPI** for North American merchants. EmerchantPay supports MOTO f
 
 ---
 
-## Pre-authorization for uncertain procedure costs
+## Pre-authorization for uncertain costs
 
-For procedures where the final cost is not known until after the visit (lab results, extended appointments, supply usage), pre-authorization places a hold at check-in and captures the actual amount when the visit closes.
+For appointments where the final amount is not known upfront (extended visits, supply usage, additional procedures), pre-authorization places a hold at check-in and captures the actual amount when the visit closes.
 
-The patient presents their card at arrival; the front desk sends a `preAuthorization` through the terminal. When the provider codes the visit, your system captures the exact amount from the server — no card re-presentation required.
+The patient presents their card at arrival; the front desk sends a `preAuthorization` through the terminal. When the provider closes the visit, your system captures the exact amount from the server — no card re-presentation required.
 
 ```http
 # At check-in — card-present
@@ -140,4 +140,4 @@ Use the [Transaction Feed API](/back-office/transaction-feed-api) to produce per
 - **Cloud API transactions** — filter by `externalId`
 - **Android PAX transactions** — filter by `merchantId` (the sub-MID value)
 
-Both channels write to the same feed. A single query scoped to `externalId: "dr-patel"` returns every card-present and MOTO transaction for that provider, regardless of how it was taken — giving the clinic a unified settlement view without maintaining a separate ledger.
+Both channels write to the same feed. A single query scoped to `externalId: "dr-patel"` returns every card-present and MOTO transaction for that provider, regardless of how it was taken — giving the practice a unified settlement view without maintaining a separate ledger.

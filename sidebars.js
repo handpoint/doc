@@ -7,7 +7,8 @@ const sidebars = {
       label: 'Guides',
       items: [
         'guides/restaurant-guide',
-        'guides/clinic-guide',
+        'guides/practice-management-guide',
+        'guides/salons-guide',
         'guides/field-service-guide',
         'guides/events-guide',
       ],

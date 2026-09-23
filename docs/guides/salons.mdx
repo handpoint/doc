@@ -1,0 +1,143 @@
+---
+id: salons-guide
+title: Salons & Spas
+sidebar_label: Salons & Spas
+description: Multi-stylist payments with per-worker merchant accounts, on-device tipping, and mobile HiLite readers for chair-side checkout.
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Salon and spa payments
+
+Salon and spa software typically needs to handle payments per stylist or technician, collect tips at the chair, and keep each worker's revenue separate for reporting and commission calculations. Handpoint covers all three with Multi-MID, on-device tipping, and portable HiLite readers.
+
+---
+
+## Multi-MID: one integration, one device, per-worker accounts
+
+If each stylist operates as a separate merchant entity (their own MID for independent settlement or commission tracking), Multi-MID routes each transaction to the right account automatically — no separate terminal or API key per worker.
+
+**How it works:** Handpoint configures a main MID for the salon and sub-MIDs per worker. Your software passes the worker's `externalId` on every transaction.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "8500",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "merchantAuth": [{ "externalId": "stylist-jordan" }],
+  "tipConfiguration": {
+    "baseAmount": "8500",
+    "tipPercentages": [15, 18, 20],
+    "enterAmountEnabled": true,
+    "skipEnabled": true
+  }
+}
+```
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val merchantAuth = MerchantAuth(
+    acquirer = Acquirer.TSYS,
+    mid      = "JORDAN_SUB_MID",
+    tid      = "JORDAN_TID"
+)
+val tipConfig = TipConfiguration(
+    baseAmount      = BigInteger("8500"),
+    tipPercentages  = listOf(15, 18, 20),
+    isEnterAmountEnabled = true,
+    isSkipEnabled   = true
+)
+val options = SaleOptions().apply {
+    merchantAuth      = listOf(merchantAuth)
+    tipConfiguration  = tipConfig
+}
+
+hapi.sale(BigInteger("8500"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
+Omit `merchantAuth` / `MerchantAuth` to charge the salon's main MID instead of a per-worker account.
+
+:::info Provisioning
+Sub-MIDs are configured by Handpoint Integration Support. Each worker who needs their own account must be enrolled with the acquirer before a sub-MID can be created.
+:::
+
+See [Multi-MID Reference](/reference/multi-mid) for the full setup checklist.
+
+---
+
+## Tipping at the chair
+
+Handpoint supports two tip collection strategies. Choose based on whether the guest interacts with the terminal at checkout.
+
+### Sale with Tip — cardholder selects on the terminal
+
+The terminal shows percentage options and a custom amount field. The tip is included in the single authorized amount — no follow-up adjustment needed.
+
+```json
+"tipConfiguration": {
+  "baseAmount": "8500",
+  "tipPercentages": [15, 18, 20],
+  "enterAmountEnabled": true,
+  "skipEnabled": true
+}
+```
+
+The result includes `tipAmount` and `totalAmount` (service + tip).
+
+### Tip Adjustment — staff enters after the guest leaves
+
+The sale closes at the service amount. After the guest leaves, the stylist enters the tip from the signed receipt in your software:
+
+```http
+POST https://cloud.handpoint.com/transactions/{transactionID}/tip-adjustment
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{ "amount": 17 }
+```
+
+`amount` is in **major currency units** — `17` = $17.00. Must be submitted before the batch closes (typically before 11 PM EST for EPI).
+
+:::info Acquirer support
+Tip Adjustment is available on **EPI and PAYSAFE** only. Use Sale with Tip for EU acquirers (EmerchantPay, Paystrax).
+:::
+
+See the [Tipping Guide](/reference/tipping-guide) for full details and edge cases.
+
+---
+
+## Mobile checkout — HiLite reader
+
+For roaming stylists or chair-side checkout, the HiLite Bluetooth reader pairs with an Android or iOS phone or tablet. The stylist carries their own reader; your app dispatches the sale and tip prompt directly to it.
+
+- **Android HiLite** — embed the Handpoint Android SDK in your salon app; the HiLite pairs over Bluetooth
+- **iOS HiLite** — embed the Handpoint iOS SDK; tipping is configured in the Handpoint Portal (TMS) rather than in code
+
+[Android HiLite integration guide →](/reference/android-hilite-integration-guide) · [iOS HiLite integration guide →](/reference/ios-hilite-integration-guide)
+
+---
+
+## Reconciliation per worker
+
+Use the [Transaction Feed API](/back-office/transaction-feed-api) to pull per-stylist totals for commission calculations or end-of-day reports:
+
+- **Cloud API / PAX terminals** — filter by `externalId` (the worker's identifier you pass in `merchantAuth`)
+- **HiLite (Android/iOS)** — filter by `merchantId` or `externalId` depending on how credentials are configured
+
+Both channels write to the same feed, so a mixed-hardware salon (some stations on PAX, some stylists on HiLite) produces a single queryable dataset.

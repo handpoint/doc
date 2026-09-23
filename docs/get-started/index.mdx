@@ -14,6 +14,35 @@ Your merchants didn't choose your software because they needed a card reader —
 
 ---
 
+## Before you build
+
+### A physical terminal is required
+
+All card-present integration paths — Cloud API, Android SDK, iOS SDK, HiLite — require a physical Handpoint terminal. There is no software emulator for card-present flows. Contact your **Relationship Manager** to arrange test hardware before starting development.
+
+### Getting credentials
+
+| Stage | Who provides them |
+|---|---|
+| **Testing / sandbox** | Handpoint Integration Support or your Account Manager — requested at integration kickoff |
+| **Live / per-merchant** | Account Manager or Handpoint Onboarding Team — provisioned for each merchant when they go live |
+
+Credentials include an API key and, depending on your integration path, a terminal serial number and SSK. Do not share or hardcode credentials in source code.
+
+### How Handpoint supports your integration
+
+Handpoint assigns a **dedicated Slack channel** to every ISV integration. The Integration Support team creates the channel, invites your team, and stays in it throughout the project. From that channel they:
+
+- Provide test credentials and integration guides
+- Answer technical questions during development
+- Review and validate your test or demo application
+
+Once your test app is validated, Handpoint issues a **certificate** documenting exactly what was tested and approved — a prerequisite for going live with merchants.
+
+To start, reach out to your Account Manager or contact [support@handpoint.com](mailto:support@handpoint.com).
+
+---
+
 ## What you can do with Handpoint
 
 More than start a transaction. Handpoint gives your software ways to stay involved with the payment as part of the merchant workflow.
@@ -57,13 +86,25 @@ Build ordering and payment into one tableside workflow. Pre-authorize a tab, adj
 
 <div className="integration-type-card">
 
-### Clinic / Healthcare
+### Practice Management
 
-Multiple providers, one device. Map each doctor to their own merchant account using `externalId` — a single API key routes each transaction to the right MID automatically. Pair an Android PAX for card-present at the desk with Cloud API MOTO for phone payments, all reconciled via the transaction feed.
+Multiple providers, one device. Map each doctor, therapist, or technician to their own merchant account using `externalId` — a single API key routes each transaction to the right MID automatically. Pair an Android PAX for card-present at the desk with Cloud API MOTO for phone payments, all reconciled via the transaction feed.
 
 **Best path:** [Cloud API](#cloud-integration----rest-api) or [Android SDK (PAX)](#native-integration----android-sdk-pax) with **Multi-MID**
 
-[**Clinic / Healthcare guide →**](/guides/clinic-guide)
+[**Practice Management guide →**](/guides/practice-management-guide)
+
+</div>
+
+<div className="integration-type-card">
+
+### Salons & Spas
+
+Per-stylist merchant accounts, tip collection at the chair, and mobile checkout on a HiLite reader. Multi-MID routes each transaction to the right worker's account; the on-device tip prompt handles percentages and custom amounts; the transaction feed gives per-stylist totals for commission reports.
+
+**Best paths:** [Cloud API](#cloud-integration----rest-api) or [Android/iOS SDK (HiLite)](#bluetooth-integration----android--ios-sdk-hilite) with **Multi-MID + Tipping**
+
+[**Salons & Spas guide →**](/guides/salons-guide)
 
 </div>
 
@@ -299,7 +340,8 @@ Fetch `/llms.txt` first — it contains the machine-readable acquirer × feature
 |---|---|---|---|
 | Restaurant (tableside) | Android SDK (PAX) | Pre-auth tabs, tip adjustment, batch close | [/guides/restaurant](/guides/restaurant-guide) |
 | Restaurant (counter POS) | Cloud API | Same features, server-led | [/guides/restaurant](/guides/restaurant-guide) |
-| Clinic / Healthcare | Cloud API or Android PAX + Multi-MID | `externalId` routing, MOTO for phone payments | [/guides/clinic](/guides/clinic-guide) |
+| Practice Management | Cloud API or Android PAX + Multi-MID | `externalId` routing, MOTO for phone payments | [/guides/practice-management](/guides/practice-management-guide) |
+| Salons & Spas | Cloud API, Android/iOS HiLite + Multi-MID | Per-worker MIDs, on-device tipping, mobile reader | [/guides/salons](/guides/salons-guide) |
 | Field service (mobile) | Android or iOS SDK (HiLite) | Bluetooth reader, transaction recovery | [/guides/field-service](/guides/field-service-guide) |
 | Retail / Counter POS | Cloud API, JavaScript SDK, or Windows SDK | Standard sale/refund/reversal | [/reference/cloud-api-integration-guide](/reference/cloud-api-integration-guide) |
 | Events / Stadium | Android SDK (PAX) | High-volume, Interac, multi-MID, UNDEFINED recovery, batch close | [/guides/events](/guides/events-guide) |
