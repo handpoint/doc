@@ -55,6 +55,10 @@ jobs:
           # main is the public production site — internal pages must never appear.
           # dev is the staging/preview site — internal pages should be visible there.
           DOCS_ENV: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+          # Production deploys to handpoint/handpoint.github.io (docusaurus.config.js default).
+          # Staging deploys to handpointdev/handpointdev.github.io — override via env vars.
+          ORGANIZATION_NAME: ${{ github.ref == 'refs/heads/main' && 'handpoint' || 'handpointdev' }}
+          PROJECT_NAME: ${{ github.ref == 'refs/heads/main' && 'handpoint.github.io' || 'handpointdev.github.io' }}
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
