@@ -422,4 +422,33 @@ static/
 
 ## Deployment
 
-Merging or pushing to `dev` deploys to staging. Merging to `main` deploys to production. The CI workflow runs `yarn generate` before building, so generated pages are always up-to-date in the deployed build.
+| Branch | Site | GitHub Pages repo | Secret |
+|---|---|---|---|
+| `dev` | https://developer.handpoint.io | `handpointdev/handpointdev.github.io` | `CARD_PRESENT_DEV_PRIVATE_KEY` |
+| `main` | https://developer.handpoint.com | `handpoint/handpoint.github.io` | `CARD_PRESENT_PRIVATE_KEY` |
+
+Pushing to either branch triggers the CI workflow, which:
+1. Loads the correct SSH key for that branch
+2. Writes the correct `static/CNAME` (`developer.handpoint.io` or `developer.handpoint.com`)
+3. Runs `yarn generate` to regenerate acquirer pages
+4. Runs `yarn deploy` (Docusaurus build + push to target GitHub Pages repo)
+
+### Required workflow env vars (Docusaurus 3.10+)
+
+Docusaurus ≥ 3.10 requires these env vars to be set explicitly for org-type deployments (`projectName = {org}.github.io`). They are set in `.github/workflows/deploy.yml` on the deploy step:
+
+| Env var | `dev` | `main` |
+|---|---|---|
+| `ORGANIZATION_NAME` | `handpointdev` | `handpoint` |
+| `PROJECT_NAME` | `handpointdev.github.io` | `handpoint.github.io` |
+| `DEPLOYMENT_BRANCH` | `main` | `main` |
+
+`docusaurus.config.js` keeps `handpoint`/`handpoint.github.io` as defaults (production). The staging values are injected at deploy time via env vars, not by editing the config file.
+
+### Gitflow
+
+```
+docs-v2  →  dev (staging review)  →  main (production)
+```
+
+PRs always target `dev` first. Merge to `main` only after staging sign-off.
