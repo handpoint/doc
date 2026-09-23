@@ -6,6 +6,7 @@
     "generate": "node scripts/generate-acquirer-pages.js",
     "start": "cross-env DOCS_ENV=staging docusaurus start",
     "build": "docusaurus build",
+    "deploy": "docusaurus deploy",
     "serve": "docusaurus serve",
     "test": "jest"
   },

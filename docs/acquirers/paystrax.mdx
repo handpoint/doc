@@ -1402,12 +1402,21 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 <TabItem value="javascript-sdk" label="JavaScript SDK">
 
 ```javascript
-const { transactionReference, transactionResult } = hp.moToRefund(1000, 'USD');
+// Unlinked — terminal shows manual card entry screen, no original transaction needed
+const { transactionResult } = hp.moToRefund(1000, 'USD');
+
+// Linked — pass the GUID of the original sale to limit the refund to that amount
+// const { transactionResult } = hp.moToRefund(1000, 'USD', 'original-sale-guid');
+
 const result = await transactionResult;
 if (result.finStatus === 'AUTHORISED') {
   // refund complete
 }
 ```
+
+:::note `transactionReference` is not returned at dispatch
+For `moToRefund`, `operationStartedResult.transactionReference` is `undefined` when the call is initiated — the terminal hasn't processed the card yet. Once the clerk completes card entry, `transactionResult` resolves with the full result including a unique `transactionID`. Use the **original sale's** `transactionReference` with `hp.getTransactionStatus()` to check refund state.
+:::
 
 Terminal displays the manual card entry screen — the operator types card details on the device.
 
@@ -1415,7 +1424,12 @@ Terminal displays the manual card entry screen — the operator types card detai
 <TabItem value="windows-sdk" label="Windows (.NET)">
 
 ```csharp
+// Unlinked — terminal shows manual card entry screen
 var op = hapi.MoToRefund(new BigInteger(1000), Currency.USD);
+
+// Linked — pass the GUID of the original sale to limit the refund to that amount
+// var op = hapi.MoToRefund(new BigInteger(1000), Currency.USD, "original-sale-guid");
+
 if (!op.OperationStarted) { /* handle connection error */ return; }
 
 // Result delivered via EndOfTransaction callback
@@ -1435,11 +1449,13 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `operation` | string | Yes (Cloud API) | `"moToRefund"` — triggers card entry screen on terminal |
-| `amount` | string | Yes | Smallest currency unit — `"1000"` = $10.00 |
+| `amount` | string / integer | Yes | Smallest currency unit — `"1000"` = $10.00 |
 | `currency` | string | Yes | ISO 4217 code |
 | `serial_number` | string | Yes (Cloud API) | PAX terminal serial number |
 | `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
-| `transactionReference` | string | No | UUID v4 for idempotency and status queries |
+| `originalTransactionID` | string | No (SDK) | GUID of the original sale — links the refund to that transaction and limits the refund to its amount |
+| `refundOptions` | RefundOptions | No (JS/Windows SDK) | Optional: `customerReference`, `moneyRemittanceOptions` |
+| `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and status queries |
 
 #### Errors
 
