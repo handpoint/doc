@@ -203,6 +203,25 @@ Or just the matrix data alone:
 node scripts/generate-matrix-data.js
 ```
 
+## CI / deployment
+
+| Branch | URL | Target repo | SSH secret |
+|---|---|---|---|
+| `dev` | developer.handpoint.io | `handpointdev/handpointdev.github.io` | `CARD_PRESENT_DEV_PRIVATE_KEY` |
+| `main` | developer.handpoint.com | `handpoint/handpoint.github.io` | `CARD_PRESENT_PRIVATE_KEY` |
+
+The deploy step in `.github/workflows/deploy.yml` sets three env vars required by Docusaurus ≥ 3.10 for org-type deployments:
+
+```
+ORGANIZATION_NAME  handpointdev  (dev) / handpoint  (main)
+PROJECT_NAME       handpointdev.github.io  (dev) / handpoint.github.io  (main)
+DEPLOYMENT_BRANCH  main  (both)
+```
+
+It also writes `static/CNAME` inline before `yarn deploy` — do not add a static CNAME file to the repo.
+
+Gitflow: `docs-v2` → `dev` (staging) → `main` (production via PR after staging sign-off).
+
 ## What NOT to do
 
 - Do not edit files in `docs/acquirers/` — generated, will be overwritten on next `yarn generate`
