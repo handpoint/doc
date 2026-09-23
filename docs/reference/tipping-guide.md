@@ -46,7 +46,7 @@ Include a `tipConfiguration` object in the sale request. The terminal presents p
 | `skipEnabled` | boolean | `true` to show a "SKIP" option |
 | `footer` | string | Optional message shown on the tip screen |
 
-The result includes `tipAmount` (in minor units) and `totalAmount` (base + tip). See the acquirer page for full examples: [EPI](/acquirers/epi#sale-with-tip) · [PAYSAFE](/acquirers/paysafe#sale-with-tip) · [EmerchantPay](/acquirers/emerchantpay#sale-with-tip) · [Paystrax](/acquirers/paystrax#sale-with-tip).
+The result includes `tipAmount` (in minor units) and `totalAmount` (base + tip). See the acquirer page for full examples: [EPI](/acquirers/epi#sale-and-tip) · [PAYSAFE](/acquirers/paysafe#sale-and-tip) · [EmerchantPay](/acquirers/emerchantpay#sale-and-tip) · [Paystrax](/acquirers/paystrax#sale-and-tip).
 
 :::note iOS HiLite — tipping configured in Handpoint Portal (TMS)
 The iOS HiLite SDK's `SaleOptions` has no `tipConfiguration` parameter — all tipping is configured at the terminal level in the [Handpoint Portal](https://portal.handpoint.com):
