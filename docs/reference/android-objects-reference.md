@@ -315,7 +315,7 @@ Your acquirer determines which currencies are active for your merchant.
 
 ---
 
-### `Status` enum (`StatusInfo.Status`)
+### `Status` enum (`StatusInfo.Status`) {#status-enum}
 
 Delivered as `statusInfo.status` in `currentTransactionStatus()`. Key values:
 
