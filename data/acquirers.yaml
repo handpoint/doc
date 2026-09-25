@@ -170,6 +170,13 @@ acquirers:
             cordova: public
             javascript-sdk: public
             windows-sdk: public
+          pre-auth-adjust:
+            label: "Pre-Auth Adjust (Increase / Decrease)"
+            cloud-api: public
+            android-pax: public
+            cordova: public
+            javascript-sdk: public
+            windows-sdk: public
       moto:
         cloud-api: public
         android-pax: public

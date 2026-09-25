@@ -12,6 +12,8 @@ const PATHS = [
   {value: 'windows-sdk',    label: 'Windows SDK'},
 ];
 
+const KNOWN_PATH_VALUES = new Set(PATHS.map(p => p.value));
+
 const PATH_KEY     = 'docusaurus.tab.integration-path';
 const ACQUIRER_KEY = 'handpoint.selected.acquirer';
 
@@ -36,10 +38,18 @@ export default function GlobalFilters() {
     return urlAcquirerSlug || '';
   });
 
-  // Integration path state — persists via localStorage
+  // Integration path state — persists via localStorage.
+  // Values written by the legacy portal (e.g. "backoffice") are not in this
+  // portal's PATHS list and would cause false "Not supported" banners, so we
+  // clear them on load rather than broadcasting an unknown value.
   const [selectedPath, setSelectedPath] = useState(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem(PATH_KEY) || '';
+      const stored = localStorage.getItem(PATH_KEY) || '';
+      if (stored && !KNOWN_PATH_VALUES.has(stored)) {
+        localStorage.removeItem(PATH_KEY);
+        return '';
+      }
+      return stored;
     }
     return '';
   });

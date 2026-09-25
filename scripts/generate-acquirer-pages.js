@@ -71,6 +71,7 @@ const FLAVOR_DESCRIPTIONS = {
     'key-entry-pre-auth': { description: 'On-device · operator keys card number', anchor: 'key-entry-pre-auth' },
     'pre-auth-capture':   { description: 'No card required — settle the held amount', anchor: 'pre-auth-capture' },
     'pre-auth-void':      { description: 'Release the hold without charging', anchor: 'pre-auth-void' },
+    'pre-auth-adjust':    { description: 'Raise or lower the held amount before capture', anchor: 'pre-auth-adjust' },
   },
   tokenization: {
     'procharge':     { description: 'EPI · Cygma vault — MOTO detokenization by gateway; ISV stays out of PCI scope' },
@@ -428,11 +429,15 @@ function buildPage(slug, a, processors) {
         const partialAnchor = anchorMatch ? anchorMatch[2] : partialName;
         const strippedContent = headingMatch ? content.slice(headingMatch[0].length) : content;
 
+        const flatMeta = (FLAVOR_DESCRIPTIONS[cap] || {})[partialName] || {};
+        const flatDesc = flatMeta.description || '';
+        const flatDescAttr = flatDesc ? ` description="${flatDesc}"` : '';
+
         let block = '';
         if (!isSinglePartial) {
           block += `### ${partialHeading} {#${partialAnchor}}\n\n`;
         }
-        block += `<FlavorSection paths={${pathsJson}}>\n\n${strippedContent.trim()}\n\n</FlavorSection>`;
+        block += `<FlavorSection${flatDescAttr} paths={${pathsJson}}>\n\n${strippedContent.trim()}\n\n</FlavorSection>`;
         innerParts.push(block);
       }
 
