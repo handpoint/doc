@@ -54,7 +54,11 @@ This is an **Interac network requirement**. Showing "Refund" is incorrect and mi
 
 ## Code
 
-### Android SDK (PAX + HiLite)
+:::note Supported integration paths
+Interac is supported on **PAX terminals only** — Cloud API, Android SDK (PAX), JavaScript SDK, and Windows SDK. HiLite readers (Android and iOS) do not support Interac. There is no back-office / card-not-present path for Interac.
+:::
+
+### Android SDK (PAX)
 
 ```kotlin
 // For Interac transactions: call refund() — gateway maps to TNS VOID
@@ -64,13 +68,6 @@ hapi.refund(
     Currency.CAD,                   // Interac is CAD only
     "original-transaction-id"       // from the original sale result
 )
-```
-
-### iOS SDK (HiLite)
-
-```swift
-// For Interac transactions: call refund — gateway maps to TNS VOID
-heftClient.refundWithAmount(originalAmount, currency: "CAD", cardholder: true)
 ```
 
 ### REST API
