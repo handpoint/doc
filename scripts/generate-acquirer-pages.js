@@ -77,6 +77,30 @@ const FLAVOR_DESCRIPTIONS = {
     'paysafe-token': { description: 'Paysafe · single-use token — for use on Paysafe APIs; consult Paysafe team' },
     'tokenex':       { description: '3rd-party · TokenEx — loyalty / card-matching; no detokenization through Handpoint' },
   },
+  'partial-reversal': {
+    'partial-reversal': { description: 'Partially cancel an open authorization before settlement' },
+  },
+  'tip-adjustment': {
+    'tip-adjustment': { description: 'Post-authorization · adjust tip before batch close' },
+  },
+  'pre-auth-capture-reversal': {
+    'pre-auth-capture-void': { description: 'Void a captured pre-authorization — releases the charge' },
+  },
+  moto: {
+    moto: { description: 'Back-office · mail order / telephone order' },
+  },
+  batching: {
+    batching: { description: 'Manually close or query the current settlement batch' },
+  },
+  'money-remittance': {
+    'money-remittance': { description: 'Send funds to a recipient account' },
+  },
+  void: {
+    void: { description: 'Cancel a transaction before settlement — card must be present' },
+  },
+  interac: {
+    interac: { description: 'Interac card transactions — full void only, card present required' },
+  },
 };
 
 const CAPABILITY_ORDER = Object.keys(CAPABILITY_PARTIALS);

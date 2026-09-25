@@ -41,7 +41,9 @@ export default function FlavorSection({description, paths, children}) {
 
   // Back-office operations use the REST API and are accessible from any integration path.
   const isBackofficeSection = paths && paths.includes('backoffice');
-  if (selectedPath && paths && !paths.includes(selectedPath) && !isBackofficeSection) {
+  // Only apply the "not supported" notice for recognized integration paths.
+  // Unknown values (e.g. "pax-app" from the release-notes tab) are silently ignored.
+  if (selectedPath && PATH_LABELS[selectedPath] && paths && !paths.includes(selectedPath) && !isBackofficeSection) {
     return (
       <div className="flavor-section flavor-section--not-supported">
         {description && <span className="flavor-section__description">{description}</span>}
