@@ -106,6 +106,20 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 | `currency` | `Currency` | Currency of the original transaction |
 | `originalTransactionID` | `String` | `transactionID` from the original sale result |
 
+#### Response
+
+```json
+{
+  "statusMessage": "tip adjusted",
+  "batchNumber": "123"
+}
+```
+
+| Field | Type | Description |
+|---|---|---|
+| `statusMessage` | string | `"tip adjusted"` on success |
+| `batchNumber` | string | The current open batch number, if returned by the acquirer. May be absent |
+
 #### Errors
 
 | Code | Meaning | Recovery |
