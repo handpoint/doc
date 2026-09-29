@@ -926,10 +926,10 @@
           },
           "response": [
             {
-              "name": "200 — Batch Summary (staging dummy)",
+              "name": "200 — Batch Summary",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"httpStatus\": \"200\",\n  \"batchNumber\": \"123\",\n  \"transactionCount\": \"10\",\n  \"netAmount\": \"1000.00\",\n  \"closedAt\": \"20260909201309025\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"Batch summary retrieved\",\n  \"batchSummaryGuid\": \"e00d2c20-ac8a-11f1-82a2-0545c651983f\",\n  \"batchStatus\": \"CLOSED\"\n}",
+              "body": "{\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"batchSummaryGuid\": \"582ce910-bbe1-11f1-9efa-074a901f9b3c\",\n  \"closedAt\": \"20260928214051578\",\n  \"customFields\": {\n    \"entry\": [\n      {\n        \"key\": \"salesCount\",\n        \"value\": \"14\"\n      },\n      {\n        \"key\": \"refundsCount\",\n        \"value\": \"3\"\n      },\n      {\n        \"key\": \"issuerBatchCloseLocalTimestamp\",\n        \"value\": \"2026-09-28T02:40:51\"\n      }\n    ]\n  },\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\",\n  \"netAmount\": \"115133\",\n  \"transactionCount\": \"17\"\n}",
               "_postman_previewlanguage": "json",
               "header": [
                 {
@@ -974,7 +974,53 @@
             },
             "description": "Returns up to 5 line-item transactions per page for a specific batch, in descending order (newest first). Use `retrievalReferenceNumber` for cursor-based pagination.\n\n**Pagination:** On the first call, omit `retrievalReferenceNumber`. Each response item includes a `retrievalReferenceNumber`. Pass the `retrievalReferenceNumber` of the **last (oldest) item** to get the next page. Stop when `details` is empty.\n\n**EPI only** — requires an EPI acquirer integration.\n\n**Fields:**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `serialNumber` | string | Yes | Terminal serial number |\n| `deviceType` | string | Yes | Terminal model, e.g. `PAXA920` |\n| `batchNumber` | string | Yes | Batch number to retrieve |\n| `retrievalReferenceNumber` | string | No | Pagination cursor — pass the oldest `retrievalReferenceNumber` from the previous page to fetch the next page |"
           },
-          "response": []
+          "response": [
+            {
+              "name": "200 — Page 1 (first call, no cursor)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"batchDetailGuid\": \"bc8b24e0-bbe0-11f1-9efa-074a901f9b3c\",\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"closedAt\": \"20260928214051578\",\n  \"customFields\": {\n    \"entry\": {\n      \"key\": \"issuerBatchCloseLocalTimestamp\",\n      \"value\": \"2026-09-28T02:40:51\"\n    }\n  },\n  \"details\": [\n    {\n      \"amount\": \"1200\",\n      \"retrievalReferenceNumber\": \"627121800445\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"1002\",\n      \"retrievalReferenceNumber\": \"627121800444\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"21000\",\n      \"retrievalReferenceNumber\": \"627121800443\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"27000\",\n      \"retrievalReferenceNumber\": \"627121800442\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"26000\",\n      \"retrievalReferenceNumber\": \"627121800441\",\n      \"transactionType\": \"SALE\"\n    }\n  ],\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\"\n}",
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "originalRequest": {}
+            },
+            {
+              "name": "200 — Next page (with retrievalReferenceNumber cursor)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"batchDetailGuid\": \"75d49da0-bbe1-11f1-9da8-4ba186f642f0\",\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"closedAt\": \"20260928214051578\",\n  \"customFields\": {\n    \"entry\": {\n      \"key\": \"issuerBatchCloseLocalTimestamp\",\n      \"value\": \"2026-09-28T02:40:51\"\n    }\n  },\n  \"details\": [\n    {\n      \"amount\": \"4394\",\n      \"retrievalReferenceNumber\": \"627120800430\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"4744\",\n      \"retrievalReferenceNumber\": \"627120800429\",\n      \"transactionType\": \"SALE\"\n    }\n  ],\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\"\n}",
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "originalRequest": {}
+            },
+            {
+              "name": "200 — Empty page (stop condition)",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"batchDetailGuid\": \"a1b2c3d4-0000-0000-0000-000000000000\",\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"details\": [],\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\"\n}",
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "originalRequest": {}
+            }
+          ]
         }
       ]
     },

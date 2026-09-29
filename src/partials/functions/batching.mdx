@@ -31,6 +31,26 @@ Content-Type: application/json
 }
 ```
 
+**Response:**
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "batchStatus": "CLOSED",
+  "closeBatchGuid": "d1988a50-49fb-11f1-b64d-2969d719a012",
+  "closedAt": "20260928214051578",
+  "customFields": {
+    "entry": {
+      "key": "issuerBatchCloseLocalTimestamp",
+      "value": "2026-09-28T02:40:51"
+    }
+  },
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED"
+}
+```
+
 </TabItem>
 </Tabs>
 
@@ -49,9 +69,34 @@ Content-Type: application/json
 {
   "serialNumber": "082104578",
   "deviceType": "PAXA920",
-  "batchNumber": "001"
+  "batchNumber": "132"
 }
 ```
+
+**Response:**
+
+```json
+{
+  "batchNumber": "132",
+  "batchStatus": "CLOSED",
+  "batchSummaryGuid": "582ce910-bbe1-11f1-9efa-074a901f9b3c",
+  "closedAt": "20260928214051578",
+  "customFields": {
+    "entry": [
+      { "key": "salesCount", "value": "14" },
+      { "key": "refundsCount", "value": "3" },
+      { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+    ]
+  },
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "netAmount": "115133",
+  "transactionCount": "17"
+}
+```
+
+`netAmount` is in minor units (e.g. `115133` = $1,151.33). `transactionCount` is total transactions including refunds; `salesCount` and `refundsCount` are in `customFields`.
 
 </TabItem>
 </Tabs>
@@ -75,11 +120,32 @@ Content-Type: application/json
 {
   "serialNumber": "082104578",
   "deviceType": "PAXA920",
-  "batchNumber": "001"
+  "batchNumber": "132"
 }
 ```
 
-Next page (pass the oldest RRN from the previous response):
+**Response — page 1:**
+
+```json
+{
+  "batchDetailGuid": "bc8b24e0-bbe0-11f1-9efa-074a901f9b3c",
+  "batchNumber": "132",
+  "batchStatus": "CLOSED",
+  "closedAt": "20260928214051578",
+  "details": [
+    { "amount": "1200",  "retrievalReferenceNumber": "627121800445", "transactionType": "SALE" },
+    { "amount": "1002",  "retrievalReferenceNumber": "627121800444", "transactionType": "SALE" },
+    { "amount": "21000", "retrievalReferenceNumber": "627121800443", "transactionType": "SALE" },
+    { "amount": "27000", "retrievalReferenceNumber": "627121800442", "transactionType": "SALE" },
+    { "amount": "26000", "retrievalReferenceNumber": "627121800441", "transactionType": "SALE" }
+  ],
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED"
+}
+```
+
+Next page — pass the oldest RRN (`627121800441`) from the previous response:
 
 ```http
 POST https://cloud.handpoint.com/batch/detail
@@ -89,10 +155,29 @@ Content-Type: application/json
 {
   "serialNumber": "082104578",
   "deviceType": "PAXA920",
-  "batchNumber": "001",
+  "batchNumber": "132",
   "retrievalReferenceNumber": "627121800441"
 }
 ```
+
+**Response — last page** (fewer than 5 items means this is the final page):
+
+```json
+{
+  "batchDetailGuid": "75d49da0-bbe1-11f1-9da8-4ba186f642f0",
+  "batchNumber": "132",
+  "batchStatus": "CLOSED",
+  "details": [
+    { "amount": "4394", "retrievalReferenceNumber": "627120800430", "transactionType": "SALE" },
+    { "amount": "4744", "retrievalReferenceNumber": "627120800429", "transactionType": "SALE" }
+  ],
+  "httpStatus": "200",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED"
+}
+```
+
+`amount` is in minor units. A page with an empty `details` array means there are no more transactions.
 
 </TabItem>
 </Tabs>
