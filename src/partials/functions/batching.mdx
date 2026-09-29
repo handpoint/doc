@@ -101,11 +101,11 @@ Content-Type: application/json
 
 ### Batch Detail {#batch-detail}
 
-Retrieves individual transactions in a batch for reconciliation. Results are **paginated**: each call returns at most **5 transactions**, newest first. TSYS fixes the page size at 5; you cannot change it.
+Retrieves individual transactions in a batch for reconciliation. Results are **paginated**: each call returns at most **5 transactions**, in **descending order**: the most recent transaction first, the oldest last. TSYS fixes the page size at 5; you cannot change it.
 
 **Pagination:**
 
-1. On the first call, omit `retrievalReferenceNumber`. The response contains the 5 most recent transactions of the batch.
+1. On the first call, omit `retrievalReferenceNumber`. The response contains the 5 most recent transactions of the batch, most recent first.
 2. To get the next page (older transactions), send the same request with `retrievalReferenceNumber` set to the `retrievalReferenceNumber` of the **last (oldest) item** in `details`.
 3. Repeat until `details` is empty or missing.
 
@@ -165,7 +165,7 @@ Content-Type: application/json
 }
 ```
 
-Next page — pass the oldest RRN (`627121800441`) from the previous response:
+Next page — pass the RRN of the last item (`627121800441`, the oldest transaction of page 1):
 
 ```http
 POST https://cloud.handpoint.com/batch/detail
@@ -209,7 +209,7 @@ Content-Type: application/json
 | Field | Description |
 |---|---|
 | `details[].transactionType` | `SALE`, `REFUND`, `TIP_ADJUSTMENT`, `PREAUTHORIZATION_INCREASE` or `PREAUTHORIZATION_CAPTURE`. A pre-authorization is reported as `SALE`, because TSYS does not tell them apart in the batch detail. |
-| `details[].retrievalReferenceNumber` | RRN of the transaction. Use the last one of the page as the cursor for the next page. |
+| `details[].retrievalReferenceNumber` | RRN of the transaction. Items are in descending order (most recent first), so the last item of the page is the oldest: use its RRN as the cursor for the next page. |
 | `details[].amount` | In minor units. For a `CLOSED` batch it is the settled amount; for an `OPEN` batch it is the authorized amount. `PREAUTHORIZATION_INCREASE` always shows the increase amount and `PREAUTHORIZATION_CAPTURE` always shows the captured amount. |
 
 #### Notes
