@@ -40,6 +40,7 @@ const sidebars = {
           items: [
             { type: 'doc', id: 'acquirers/emerchantpay', label: 'EmerchantPay' },
             { type: 'doc', id: 'acquirers/paystrax',     label: 'Paystrax' },
+            { type: 'doc', id: 'acquirers/smartboard',   label: 'Smartboard' },
           ],
         },
         {
