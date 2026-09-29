@@ -941,6 +941,40 @@
               "originalRequest": {}
             }
           ]
+        },
+        {
+          "name": "Batch Detail (EPI only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}",
+                "description": "Merchant API key."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serialNumber\": \"{{serial_number}}\",\n  \"deviceType\": \"{{terminal_type}}\",\n  \"batchNumber\": \"123\"\n  // \"retrievalReferenceNumber\": \"627121800441\"  // optional — pagination cursor: pass the oldest retrievalReferenceNumber from the previous page to fetch the next page\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/batch/detail",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "batch",
+                "detail"
+              ]
+            },
+            "description": "Returns up to 5 line-item transactions per page for a specific batch, in descending order (newest first). Use `retrievalReferenceNumber` for cursor-based pagination.\n\n**Pagination:** On the first call, omit `retrievalReferenceNumber`. Each response item includes a `retrievalReferenceNumber`. Pass the `retrievalReferenceNumber` of the **last (oldest) item** to get the next page. Stop when `details` is empty.\n\n**EPI only** — requires an EPI acquirer integration.\n\n**Fields:**\n\n| Field | Type | Required | Description |\n|---|---|---|---|\n| `serialNumber` | string | Yes | Terminal serial number |\n| `deviceType` | string | Yes | Terminal model, e.g. `PAXA920` |\n| `batchNumber` | string | Yes | Batch number to retrieve |\n| `retrievalReferenceNumber` | string | No | Pagination cursor — pass the oldest `retrievalReferenceNumber` from the previous page to fetch the next page |"
+          },
+          "response": []
         }
       ]
     },
