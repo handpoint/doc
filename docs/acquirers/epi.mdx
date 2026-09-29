@@ -3133,7 +3133,8 @@ When you send a MOTO sale with a Cygma `cardToken`, the Handpoint Gateway retrie
 1. **Token contents:** PAN + expiry date stored; CVV is never stored (PCI requirement).
 2. **Token scope:** Cygma tokens are specific to the EPI merchant configuration — a token from one merchant cannot be used on another, and test tokens are not valid in production.
 3. **Deferred tokenization (recommended):** Retrieve a token from a previously completed transaction — no card re-swipe needed. Via Backoffice REST (`GET /transactions/{id}/token`) — no terminal required, synchronous. Via Android SDK (`hapi.deferredTokenization()`, SDK 7.1013.1+) — requires PAX device connected.
-4. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#remote-sale) — Backoffice `POST /moto/sale` or Android SDK `hapi.motoSale()`.
+4. **Eligible transaction types for deferred tokenization:** `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. Calling the token endpoint on any other transaction type returns a `400` error.
+5. **Future charges:** Use the `cardToken` in [Remote Sale (MOTO)](#remote-sale) — Backoffice `POST /moto/sale` or Android SDK `hapi.motoSale()`.
 
 #### Code
 
@@ -3183,9 +3184,7 @@ GET https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f24
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
-`{transactionID}` is the `transactionID` (GUID) from the original card-present transaction result.
-
-Eligible transaction types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. Returns `cardToken` for use in `POST /moto/sale`.
+`{transactionID}` is the `transactionID` (GUID) from the original card-present transaction result. Returns `cardToken` for use in `POST /moto/sale`.
 
 This is the **recommended way to obtain a token for recurring billing** — the original card-present sale completes independently, and the token is retrieved afterwards. A tokenisation failure never affects the original transaction.
 
