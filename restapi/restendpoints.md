@@ -2229,7 +2229,7 @@ Cloud API currently supports the following batch operations:
 
 - `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`).
 - `POST /batch/summary` — retrieves a **summary of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
-- `POST /batch/detail` — retrieves **batch detail** (including a list of transactions) for a given terminal (`deviceType`, `serialNumber`) and `batchNumber` (and optional `rrn`).
+- `POST /batch/detail` — retrieves **batch detail** (including a list of transactions) for a given terminal (`deviceType`, `serialNumber`) and `batchNumber` (and optional `retrievalReferenceNumber` for pagination).
 
 
 All request and response payloads are defined in the corresponding [Batch objects](restobjects#batch).
@@ -2454,39 +2454,30 @@ curl -X POST \
 
 ```json
 {
-  "batchNumber": "1",
-  "batchStatus": "CLOSED",
-  "batchSummaryGuid": "61573ba0-08ac-11f1-b002-eb225f134f40",
-  "customFields": {
-    "entry": [
-      {
-        "key": "salesCount",
-        "value": "155"
-      },
-      {
-        "key": "refundsCount",
-        "value": "3"
-      },
-      {
-        "key": "issuerBatchCloseLocalTimestamp",
-        "value": "2025-12-05T11:00:00"
-      }
-    ]
-  },
   "httpStatus": "200",
+  "batchNumber": "133",
+  "transactionCount": "12",
+  "netAmount": "644397",
   "issuerResponseCode": "00",
   "issuerResponseText": "DATA RETRIEVED",
-  "netAmount": "245.00",
-  "transactionCount": "158"
+  "customFields": {
+    "entry": [
+      { "key": "salesCount", "value": "11" },
+      { "key": "refundsCount", "value": "1" }
+    ]
+  },
+  "batchSummaryGuid": "1ef0c830-bbe4-11f1-9efa-074a901f9b3c",
+  "batchStatus": "OPEN"
 }
 ```
 
 Key fields:
 
-* `batchStatus` – Current status of the batch (for example, `"CLOSED"`).
-* `transactionCount` – Total number of transactions in the batch.
-* `netAmount` – Net amount for the batch in major units as a string (for example, `"245.00"`).
-* `customFields.entry` – Optional list of key/value pairs with acquirer-specific metrics (for example, `salesCount`, `refundsCount`, `issuerBatchCloseLocalTimestamp`).
+* `batchStatus` – Current status of the batch (`"OPEN"` or `"CLOSED"`).
+* `transactionCount` – Total number of transactions in the batch (sales + refunds).
+* `netAmount` – Net amount for the batch in **minor units** as a string (for example, `"644397"` = $6,443.97).
+* `closedAt` – Timestamp when the batch was closed (`YYYYMMDDHHmmssSSS` format). Present only when `batchStatus` is `"CLOSED"`.
+* `customFields.entry` – Key/value pairs with acquirer-specific metrics: `salesCount`, `refundsCount`. Closed batches also include `issuerBatchCloseLocalTimestamp`.
 
 </TabItem>
 <TabItem value="422" label="422 Validation Error">
@@ -2520,22 +2511,23 @@ Key fields:
 `BatchDetail`
 A Batch Detail allows the user to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal.
 
-`POST /batch/detail` is used to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal, identified by its
-`deviceType`, `serialNumber`, `batchNumber` and `RRN`.
+`POST /batch/detail` is used to retrieve information about a specific batch (including a list of transactions) for a specific payment terminal, identified by its `deviceType`, `serialNumber`, and `batchNumber`.
+
+Results are **paginated** — TSYS returns a maximum of 5 transactions per call, in descending order (newest first). Pass the `retrievalReferenceNumber` of the oldest item in the current page to retrieve the next page. Stop when the `details` array is empty.
 
 #### Parameters
 
 | Parameter | Notes |
 | --------- | ----- |
 | `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
-| `Request Body: BatchDetailRequest` <span class="badge badge--primary">Required</span> | [BatchDetailRequest](restobjects#batchDetailRequest) object containing `deviceType`, `serialNumber`, `batchNumber` and `rrn`. |
+| `Request Body: BatchDetailRequest` <span class="badge badge--primary">Required</span> | [BatchDetailRequest](restobjects#batchDetailRequest) object containing `deviceType`, `serialNumber`, `batchNumber` and optional `retrievalReferenceNumber`. |
 
 Typical fields in the request body (see [BatchDetailRequest](restobjects#batchDetailRequest) for full details):
 
 - `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
 - `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
-- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch whose summary is being requested (for example, `"1"`).
-- `rrn` <span class="badge badge--primary">Optional</span> – Retrieval Reference Number, unique number assigned by the acquirer (for example, `"123"`).
+- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch to retrieve (for example, `"1"`).
+- `retrievalReferenceNumber` <span class="badge badge--secondary">Optional</span> – Pagination cursor. Pass the `retrievalReferenceNumber` of the oldest item from the previous page to retrieve the next page. Omit to get the most recent page.
 
 #### Returns
 
@@ -2551,7 +2543,7 @@ Typical fields in the request body (see [BatchDetailRequest](restobjects#batchDe
 **Requests**
 
 <Tabs>
-<TabItem value="request" label="Get batch detail">
+<TabItem value="request" label="Get batch detail (first page)">
 
 ```shell
 curl -X POST \
@@ -2564,6 +2556,26 @@ curl -X POST \
   }' \
   "https://cloud.handpoint.io/batch/detail"
 ```
+
+</TabItem>
+<TabItem value="pagination" label="Get next page (cursor)">
+
+Pass the `retrievalReferenceNumber` of the **oldest item** from the previous response:
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1",
+    "retrievalReferenceNumber": "627121800441"
+  }' \
+  "https://cloud.handpoint.io/batch/detail"
+```
+
+Repeat with the oldest RRN of each successive page until `details` is empty.
 
 </TabItem>
 <TabItem value="validation" label="Missing batchNumber">
@@ -2585,43 +2597,61 @@ curl -X POST \
 **Responses**
 
 <Tabs>
-<TabItem value="200" label="200 OK">
+<TabItem value="200" label="200 OK — Page 1">
 
 ```json
 {
   "httpStatus": "200",
-  "batchNumber": "1",
-  "closedAt": "20260213135114884",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
   "issuerResponseCode": "00",
-  "issuerResponseText": "Batch detail retrieved",
+  "issuerResponseText": "DATA RETRIEVED",
   "details": [
-    {
-      "transactionType": "SALE",
-      "amount": "100.00",
-      "batchDetailElementGuid": "2fac8676-396a-4cf1-a5ab-650f3f79e923"
-    },
-    {
-      "transactionType": "SALE",
-      "retrievalReferenceNumber": "RRN08236",
-      "amount": "50.00",
-      "batchDetailElementGuid": "dcb718ef-59f0-4de8-b414-41048782aff9"
-    },
-    {
-      "transactionType": "REFUND",
-      "retrievalReferenceNumber": "RRN08237",
-      "amount": "25.00",
-      "batchDetailElementGuid": "d1a7ef06-c429-4a57-a07b-b461482bcafa"
-    }
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800445", "amount": "1200" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800444", "amount": "1002" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800443", "amount": "21000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800442", "amount": "27000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800441", "amount": "26000" }
   ],
-  "batchDetailGuid": "10360390-08e4-11f1-8bbe-a982e87fcbf2",
+  "batchDetailGuid": "f02e9130-bbe3-11f1-9efa-074a901f9b3c",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
+}
+```
+
+</TabItem>
+<TabItem value="200-page2" label="200 OK — Page 2">
+
+Pass `"retrievalReferenceNumber": "627121800441"` (last item from page 1) to get this page:
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800440", "amount": "19001" },
+    { "transactionType": "REFUND", "retrievalReferenceNumber": "627121800439", "amount": "1857" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800438", "amount": "5542" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800437", "amount": "1683" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800436", "amount": "1347" }
+  ],
+  "batchDetailGuid": "0b9d45b0-bbe4-11f1-9da8-4ba186f642f0",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
   "batchStatus": "CLOSED"
 }
 ```
 
 Key fields:
 
-* `batchStatus` – Current status of the batch (for example, `"CLOSED"`).
-* `details.entry` – Optional list with transaction info (for example, `transactionType`, `amount`, `retrievalReferenceNumber`, `batchDetailElementGuid`).
+* `details` – List of up to 5 transactions per page, in descending order (newest first). Each item has `transactionType`, `amount` (minor units), and `retrievalReferenceNumber`.
+* `retrievalReferenceNumber` – Pass the last (oldest) value from the current page as the cursor for the next request. Stop when `details` is empty.
 
 </TabItem>
 <TabItem value="422" label="422 Validation Error">
