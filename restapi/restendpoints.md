@@ -2454,32 +2454,30 @@ curl -X POST \
 
 ```json
 {
-  "batchNumber": "132",
-  "batchStatus": "CLOSED",
-  "batchSummaryGuid": "582ce910-bbe1-11f1-9efa-074a901f9b3c",
-  "closedAt": "20260928214051578",
-  "customFields": {
-    "entry": [
-      { "key": "salesCount", "value": "14" },
-      { "key": "refundsCount", "value": "3" },
-      { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
-    ]
-  },
   "httpStatus": "200",
+  "batchNumber": "133",
+  "transactionCount": "12",
+  "netAmount": "644397",
   "issuerResponseCode": "00",
   "issuerResponseText": "DATA RETRIEVED",
-  "netAmount": "115133",
-  "transactionCount": "17"
+  "customFields": {
+    "entry": [
+      { "key": "salesCount", "value": "11" },
+      { "key": "refundsCount", "value": "1" }
+    ]
+  },
+  "batchSummaryGuid": "1ef0c830-bbe4-11f1-9efa-074a901f9b3c",
+  "batchStatus": "OPEN"
 }
 ```
 
 Key fields:
 
-* `batchStatus` – Current status of the batch (for example, `"CLOSED"`).
+* `batchStatus` – Current status of the batch (`"OPEN"` or `"CLOSED"`).
 * `transactionCount` – Total number of transactions in the batch (sales + refunds).
-* `netAmount` – Net amount for the batch in **minor units** as a string (for example, `"115133"` = $1,151.33).
-* `closedAt` – Timestamp of when the batch was closed (`YYYYMMDDHHmmssSSS` format).
-* `customFields.entry` – Optional list of key/value pairs with acquirer-specific metrics (for example, `salesCount`, `refundsCount`, `issuerBatchCloseLocalTimestamp`).
+* `netAmount` – Net amount for the batch in **minor units** as a string (for example, `"644397"` = $6,443.97).
+* `closedAt` – Timestamp when the batch was closed (`YYYYMMDDHHmmssSSS` format). Present only when `batchStatus` is `"CLOSED"`.
+* `customFields.entry` – Key/value pairs with acquirer-specific metrics: `salesCount`, `refundsCount`. Closed batches also include `issuerBatchCloseLocalTimestamp`.
 
 </TabItem>
 <TabItem value="422" label="422 Validation Error">
@@ -2603,49 +2601,57 @@ curl -X POST \
 
 ```json
 {
-  "batchDetailGuid": "bc8b24e0-bbe0-11f1-9efa-074a901f9b3c",
-  "batchNumber": "132",
-  "batchStatus": "CLOSED",
-  "closedAt": "20260928214051578",
-  "details": [
-    { "amount": "1200",  "retrievalReferenceNumber": "627121800445", "transactionType": "SALE" },
-    { "amount": "1002",  "retrievalReferenceNumber": "627121800444", "transactionType": "SALE" },
-    { "amount": "21000", "retrievalReferenceNumber": "627121800443", "transactionType": "SALE" },
-    { "amount": "27000", "retrievalReferenceNumber": "627121800442", "transactionType": "SALE" },
-    { "amount": "26000", "retrievalReferenceNumber": "627121800441", "transactionType": "SALE" }
-  ],
   "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
   "issuerResponseCode": "00",
-  "issuerResponseText": "DATA RETRIEVED"
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800445", "amount": "1200" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800444", "amount": "1002" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800443", "amount": "21000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800442", "amount": "27000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800441", "amount": "26000" }
+  ],
+  "batchDetailGuid": "f02e9130-bbe3-11f1-9efa-074a901f9b3c",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
 }
 ```
 
 </TabItem>
-<TabItem value="200-last" label="200 OK — Last page">
+<TabItem value="200-page2" label="200 OK — Page 2">
 
-Fewer than 5 items means this is the final page. An empty `details` array is the definitive stop signal.
+Pass `"retrievalReferenceNumber": "627121800441"` (last item from page 1) to get this page:
 
 ```json
 {
-  "batchDetailGuid": "75d49da0-bbe1-11f1-9da8-4ba186f642f0",
-  "batchNumber": "132",
-  "batchStatus": "CLOSED",
-  "closedAt": "20260928214051578",
-  "details": [
-    { "amount": "4394", "retrievalReferenceNumber": "627120800430", "transactionType": "SALE" },
-    { "amount": "4744", "retrievalReferenceNumber": "627120800429", "transactionType": "SALE" }
-  ],
   "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
   "issuerResponseCode": "00",
-  "issuerResponseText": "DATA RETRIEVED"
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800440", "amount": "19001" },
+    { "transactionType": "REFUND", "retrievalReferenceNumber": "627121800439", "amount": "1857" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800438", "amount": "5542" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800437", "amount": "1683" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800436", "amount": "1347" }
+  ],
+  "batchDetailGuid": "0b9d45b0-bbe4-11f1-9da8-4ba186f642f0",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
 }
 ```
 
 Key fields:
 
-* `batchStatus` – Current status of the batch (for example, `"CLOSED"`).
-* `details` – List of transactions on this page. Each item has `transactionType`, `amount` (minor units), and `retrievalReferenceNumber`.
-* `retrievalReferenceNumber` – Use the oldest (last) value as the cursor for the next page request.
+* `details` – List of up to 5 transactions per page, in descending order (newest first). Each item has `transactionType`, `amount` (minor units), and `retrievalReferenceNumber`.
+* `retrievalReferenceNumber` – Pass the last (oldest) value from the current page as the cursor for the next request. Stop when `details` is empty.
 
 </TabItem>
 <TabItem value="422" label="422 Validation Error">
