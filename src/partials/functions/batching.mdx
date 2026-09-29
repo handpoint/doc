@@ -58,10 +58,14 @@ Content-Type: application/json
 
 ### Batch Detail {#batch-detail}
 
-Retrieves the full list of individual transactions in a batch for reconciliation.
+Retrieves individual transactions in a batch for reconciliation. Results are **paginated** — TSYS returns a maximum of 5 transactions per call, in descending order (newest first).
+
+**Pagination:** On the first call, omit `retrievalReferenceNumber`. Each response item includes a `retrievalReferenceNumber`. Pass the `retrievalReferenceNumber` of the **last (oldest) item** in the current page to get the next page. Stop when the `details` array is empty.
 
 <Tabs groupId="integration-path">
 <TabItem value="backoffice" label="Backoffice">
+
+First page (no cursor):
 
 ```http
 POST https://cloud.handpoint.com/batch/detail
@@ -75,6 +79,21 @@ Content-Type: application/json
 }
 ```
 
+Next page (pass the oldest RRN from the previous response):
+
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "001",
+  "retrievalReferenceNumber": "627121800441"
+}
+```
+
 </TabItem>
 </Tabs>
 
@@ -85,6 +104,7 @@ Content-Type: application/json
 | `serialNumber` | string | Yes | Terminal serial number |
 | `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `batchNumber` | string | No (Batch Close) / Yes (Summary, Detail) | Batch number to close or query. Omit on Batch Close to target the currently open batch |
+| `retrievalReferenceNumber` | string | No | Pagination cursor for Batch Detail. Pass the `retrievalReferenceNumber` of the oldest item in the previous page to retrieve the next page. Omit to get the most recent page |
 
 #### Errors
 
