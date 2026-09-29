@@ -2229,7 +2229,7 @@ Cloud API currently supports the following batch operations:
 
 - `POST /batch/close` — requests the **closure of a batch** for a given terminal (`deviceType`, `serialNumber`).
 - `POST /batch/summary` — retrieves a **summary of a batch** for a given terminal (`deviceType`, `serialNumber`) and `batchNumber`.
-- `POST /batch/detail` — retrieves **batch detail** (including a list of transactions) for a given terminal (`deviceType`, `serialNumber`) and `batchNumber` (and optional `rrn`).
+- `POST /batch/detail` — retrieves **batch detail** (including a list of transactions) for a given terminal (`deviceType`, `serialNumber`) and `batchNumber` (and optional `retrievalReferenceNumber` for pagination).
 
 
 All request and response payloads are defined in the corresponding [Batch objects](restobjects#batch).
@@ -2520,22 +2520,23 @@ Key fields:
 `BatchDetail`
 A Batch Detail allows the user to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal.
 
-`POST /batch/detail` is used to retrieve information about a specific batch (including a list of transacctions) included in the batch for a specific payment terminal, identified by its
-`deviceType`, `serialNumber`, `batchNumber` and `RRN`.
+`POST /batch/detail` is used to retrieve information about a specific batch (including a list of transactions) for a specific payment terminal, identified by its `deviceType`, `serialNumber`, and `batchNumber`.
+
+Results are **paginated** — TSYS returns a maximum of 5 transactions per call, in descending order (newest first). Pass the `retrievalReferenceNumber` of the oldest item in the current page to retrieve the next page. Stop when the `details` array is empty.
 
 #### Parameters
 
 | Parameter | Notes |
 | --------- | ----- |
 | `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span> | Cloud API key used to authenticate the merchant. |
-| `Request Body: BatchDetailRequest` <span class="badge badge--primary">Required</span> | [BatchDetailRequest](restobjects#batchDetailRequest) object containing `deviceType`, `serialNumber`, `batchNumber` and `rrn`. |
+| `Request Body: BatchDetailRequest` <span class="badge badge--primary">Required</span> | [BatchDetailRequest](restobjects#batchDetailRequest) object containing `deviceType`, `serialNumber`, `batchNumber` and optional `retrievalReferenceNumber`. |
 
 Typical fields in the request body (see [BatchDetailRequest](restobjects#batchDetailRequest) for full details):
 
 - `deviceType` <span class="badge badge--primary">Required</span> – Terminal model identifier (for example, `"PAXA920MAX"`).
 - `serialNumber` <span class="badge badge--primary">Required</span> – Serial number of the payment terminal (for example, `"2740013262"`).
-- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch whose summary is being requested (for example, `"1"`).
-- `rrn` <span class="badge badge--primary">Optional</span> – Retrieval Reference Number, unique number assigned by the acquirer (for example, `"123"`).
+- `batchNumber` <span class="badge badge--primary">Required</span> – Identifier of the batch to retrieve (for example, `"1"`).
+- `retrievalReferenceNumber` <span class="badge badge--secondary">Optional</span> – Pagination cursor. Pass the `retrievalReferenceNumber` of the oldest item from the previous page to retrieve the next page. Omit to get the most recent page.
 
 #### Returns
 
@@ -2551,7 +2552,7 @@ Typical fields in the request body (see [BatchDetailRequest](restobjects#batchDe
 **Requests**
 
 <Tabs>
-<TabItem value="request" label="Get batch detail">
+<TabItem value="request" label="Get batch detail (first page)">
 
 ```shell
 curl -X POST \
@@ -2564,6 +2565,26 @@ curl -X POST \
   }' \
   "https://cloud.handpoint.io/batch/detail"
 ```
+
+</TabItem>
+<TabItem value="pagination" label="Get next page (cursor)">
+
+Pass the `retrievalReferenceNumber` of the **oldest item** from the previous response:
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "deviceType": "PAXA920MAX",
+    "serialNumber": "2740013262",
+    "batchNumber": "1",
+    "retrievalReferenceNumber": "627121800441"
+  }' \
+  "https://cloud.handpoint.io/batch/detail"
+```
+
+Repeat with the oldest RRN of each successive page until `details` is empty.
 
 </TabItem>
 <TabItem value="validation" label="Missing batchNumber">
