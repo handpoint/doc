@@ -101,7 +101,7 @@ Content-Type: application/json
 
 ### Batch Detail {#batch-detail}
 
-Retrieves individual transactions in a batch for reconciliation. Results are **paginated** — TSYS fixes the page size at 5 transactions per call; this is not configurable.
+Retrieves individual transactions in a batch for reconciliation. Results are **paginated** — the page size is fixed at 5 transactions per call and cannot be configured.
 
 **Pagination:** On the first call, omit `retrievalReferenceNumber`. Each response item includes a `retrievalReferenceNumber`. Pass the `retrievalReferenceNumber` of the **last item** in the current page to get the next page. Stop when the `details` array is empty.
 
