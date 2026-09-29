@@ -1,6 +1,7 @@
 import React, {useEffect, useRef} from 'react';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import HashNavManager from './HashNavManager';
 
 const PATHS = [
   {value: 'cloud-api',      label: 'Cloud API'},
@@ -78,15 +79,18 @@ export default function AcquirerPageHeader({currentSlug}) {
   }, [syncId]);
 
   return (
-    <div
-      id={syncId}
-      style={{position:'absolute',left:'-9999px',top:0,height:'1px',overflow:'hidden',visibility:'hidden'}}
-    >
-      <Tabs groupId="integration-path">
-        {PATHS.map(p => (
-          <TabItem key={p.value} value={p.value} label={p.label}><span /></TabItem>
-        ))}
-      </Tabs>
-    </div>
+    <>
+      <HashNavManager />
+      <div
+        id={syncId}
+        style={{position:'absolute',left:'-9999px',top:0,height:'1px',overflow:'hidden',visibility:'hidden'}}
+      >
+        <Tabs groupId="integration-path">
+          {PATHS.map(p => (
+            <TabItem key={p.value} value={p.value} label={p.label}><span /></TabItem>
+          ))}
+        </Tabs>
+      </div>
+    </>
   );
 }
