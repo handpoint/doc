@@ -77,26 +77,24 @@ Content-Type: application/json
 
 ```json
 {
-  "batchNumber": "132",
-  "batchStatus": "CLOSED",
-  "batchSummaryGuid": "582ce910-bbe1-11f1-9efa-074a901f9b3c",
-  "closedAt": "20260928214051578",
-  "customFields": {
-    "entry": [
-      { "key": "salesCount", "value": "14" },
-      { "key": "refundsCount", "value": "3" },
-      { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
-    ]
-  },
   "httpStatus": "200",
+  "batchNumber": "133",
+  "transactionCount": "12",
+  "netAmount": "644397",
   "issuerResponseCode": "00",
   "issuerResponseText": "DATA RETRIEVED",
-  "netAmount": "115133",
-  "transactionCount": "17"
+  "customFields": {
+    "entry": [
+      { "key": "salesCount", "value": "11" },
+      { "key": "refundsCount", "value": "1" }
+    ]
+  },
+  "batchSummaryGuid": "1ef0c830-bbe4-11f1-9efa-074a901f9b3c",
+  "batchStatus": "OPEN"
 }
 ```
 
-`netAmount` is in minor units (e.g. `115133` = $1,151.33). `transactionCount` is total transactions including refunds; `salesCount` and `refundsCount` are in `customFields`.
+`netAmount` is in minor units (e.g. `644397` = $6,443.97). `transactionCount` includes all transaction types; `salesCount` and `refundsCount` are in `customFields`. `closedAt` is only present when `batchStatus` is `"CLOSED"`.
 
 </TabItem>
 </Tabs>
@@ -128,20 +126,23 @@ Content-Type: application/json
 
 ```json
 {
-  "batchDetailGuid": "bc8b24e0-bbe0-11f1-9efa-074a901f9b3c",
-  "batchNumber": "132",
-  "batchStatus": "CLOSED",
-  "closedAt": "20260928214051578",
-  "details": [
-    { "amount": "1200",  "retrievalReferenceNumber": "627121800445", "transactionType": "SALE" },
-    { "amount": "1002",  "retrievalReferenceNumber": "627121800444", "transactionType": "SALE" },
-    { "amount": "21000", "retrievalReferenceNumber": "627121800443", "transactionType": "SALE" },
-    { "amount": "27000", "retrievalReferenceNumber": "627121800442", "transactionType": "SALE" },
-    { "amount": "26000", "retrievalReferenceNumber": "627121800441", "transactionType": "SALE" }
-  ],
   "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
   "issuerResponseCode": "00",
-  "issuerResponseText": "DATA RETRIEVED"
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800445", "amount": "1200" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800444", "amount": "1002" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800443", "amount": "21000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800442", "amount": "27000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800441", "amount": "26000" }
+  ],
+  "batchDetailGuid": "f02e9130-bbe3-11f1-9efa-074a901f9b3c",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
 }
 ```
 
@@ -160,24 +161,31 @@ Content-Type: application/json
 }
 ```
 
-**Response — last page** (fewer than 5 items means this is the final page):
+**Response — page 2:**
 
 ```json
 {
-  "batchDetailGuid": "75d49da0-bbe1-11f1-9da8-4ba186f642f0",
-  "batchNumber": "132",
-  "batchStatus": "CLOSED",
-  "details": [
-    { "amount": "4394", "retrievalReferenceNumber": "627120800430", "transactionType": "SALE" },
-    { "amount": "4744", "retrievalReferenceNumber": "627120800429", "transactionType": "SALE" }
-  ],
   "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
   "issuerResponseCode": "00",
-  "issuerResponseText": "DATA RETRIEVED"
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800440", "amount": "19001" },
+    { "transactionType": "REFUND", "retrievalReferenceNumber": "627121800439", "amount": "1857" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800438", "amount": "5542" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800437", "amount": "1683" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800436", "amount": "1347" }
+  ],
+  "batchDetailGuid": "0b9d45b0-bbe4-11f1-9da8-4ba186f642f0",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
 }
 ```
 
-`amount` is in minor units. A page with an empty `details` array means there are no more transactions.
+`amount` is in minor units. Keep paginating until `details` is empty or has fewer than 5 items.
 
 </TabItem>
 </Tabs>

@@ -926,10 +926,10 @@
           },
           "response": [
             {
-              "name": "200 — Batch Summary",
+              "name": "200 — Batch Summary (OPEN batch)",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"batchSummaryGuid\": \"582ce910-bbe1-11f1-9efa-074a901f9b3c\",\n  \"closedAt\": \"20260928214051578\",\n  \"customFields\": {\n    \"entry\": [\n      {\n        \"key\": \"salesCount\",\n        \"value\": \"14\"\n      },\n      {\n        \"key\": \"refundsCount\",\n        \"value\": \"3\"\n      },\n      {\n        \"key\": \"issuerBatchCloseLocalTimestamp\",\n        \"value\": \"2026-09-28T02:40:51\"\n      }\n    ]\n  },\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\",\n  \"netAmount\": \"115133\",\n  \"transactionCount\": \"17\"\n}",
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"batchNumber\": \"133\",\n  \"transactionCount\": \"12\",\n  \"netAmount\": \"644397\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\",\n  \"customFields\": {\n    \"entry\": [\n      {\n        \"key\": \"salesCount\",\n        \"value\": \"11\"\n      },\n      {\n        \"key\": \"refundsCount\",\n        \"value\": \"1\"\n      }\n    ]\n  },\n  \"batchSummaryGuid\": \"1ef0c830-bbe4-11f1-9efa-074a901f9b3c\",\n  \"batchStatus\": \"OPEN\"\n}",
               "_postman_previewlanguage": "json",
               "header": [
                 {
@@ -979,7 +979,7 @@
               "name": "200 — Page 1 (first call, no cursor)",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"batchDetailGuid\": \"bc8b24e0-bbe0-11f1-9efa-074a901f9b3c\",\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"closedAt\": \"20260928214051578\",\n  \"customFields\": {\n    \"entry\": {\n      \"key\": \"issuerBatchCloseLocalTimestamp\",\n      \"value\": \"2026-09-28T02:40:51\"\n    }\n  },\n  \"details\": [\n    {\n      \"amount\": \"1200\",\n      \"retrievalReferenceNumber\": \"627121800445\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"1002\",\n      \"retrievalReferenceNumber\": \"627121800444\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"21000\",\n      \"retrievalReferenceNumber\": \"627121800443\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"27000\",\n      \"retrievalReferenceNumber\": \"627121800442\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"26000\",\n      \"retrievalReferenceNumber\": \"627121800441\",\n      \"transactionType\": \"SALE\"\n    }\n  ],\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\"\n}",
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"batchNumber\": \"132\",\n  \"closedAt\": \"20260928214051578\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\",\n  \"details\": [\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800445\",\n      \"amount\": \"1200\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800444\",\n      \"amount\": \"1002\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800443\",\n      \"amount\": \"21000\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800442\",\n      \"amount\": \"27000\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800441\",\n      \"amount\": \"26000\"\n    }\n  ],\n  \"batchDetailGuid\": \"f02e9130-bbe3-11f1-9efa-074a901f9b3c\",\n  \"customFields\": {\n    \"entry\": {\n      \"key\": \"issuerBatchCloseLocalTimestamp\",\n      \"value\": \"2026-09-28T02:40:51\"\n    }\n  },\n  \"batchStatus\": \"CLOSED\"\n}",
               "_postman_previewlanguage": "json",
               "header": [
                 {
@@ -991,10 +991,10 @@
               "originalRequest": {}
             },
             {
-              "name": "200 — Next page (with retrievalReferenceNumber cursor)",
+              "name": "200 — Page 2 (with retrievalReferenceNumber cursor)",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"batchDetailGuid\": \"75d49da0-bbe1-11f1-9da8-4ba186f642f0\",\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"closedAt\": \"20260928214051578\",\n  \"customFields\": {\n    \"entry\": {\n      \"key\": \"issuerBatchCloseLocalTimestamp\",\n      \"value\": \"2026-09-28T02:40:51\"\n    }\n  },\n  \"details\": [\n    {\n      \"amount\": \"4394\",\n      \"retrievalReferenceNumber\": \"627120800430\",\n      \"transactionType\": \"SALE\"\n    },\n    {\n      \"amount\": \"4744\",\n      \"retrievalReferenceNumber\": \"627120800429\",\n      \"transactionType\": \"SALE\"\n    }\n  ],\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\"\n}",
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"batchNumber\": \"132\",\n  \"closedAt\": \"20260928214051578\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\",\n  \"details\": [\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800440\",\n      \"amount\": \"19001\"\n    },\n    {\n      \"transactionType\": \"REFUND\",\n      \"retrievalReferenceNumber\": \"627121800439\",\n      \"amount\": \"1857\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627121800438\",\n      \"amount\": \"5542\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627120800437\",\n      \"amount\": \"1683\"\n    },\n    {\n      \"transactionType\": \"SALE\",\n      \"retrievalReferenceNumber\": \"627120800436\",\n      \"amount\": \"1347\"\n    }\n  ],\n  \"batchDetailGuid\": \"0b9d45b0-bbe4-11f1-9da8-4ba186f642f0\",\n  \"customFields\": {\n    \"entry\": {\n      \"key\": \"issuerBatchCloseLocalTimestamp\",\n      \"value\": \"2026-09-28T02:40:51\"\n    }\n  },\n  \"batchStatus\": \"CLOSED\"\n}",
               "_postman_previewlanguage": "json",
               "header": [
                 {
@@ -1006,10 +1006,10 @@
               "originalRequest": {}
             },
             {
-              "name": "200 — Empty page (stop condition)",
+              "name": "200 — Empty page (stop — no more transactions)",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"batchDetailGuid\": \"a1b2c3d4-0000-0000-0000-000000000000\",\n  \"batchNumber\": \"132\",\n  \"batchStatus\": \"CLOSED\",\n  \"details\": [],\n  \"httpStatus\": \"200\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\"\n}",
+              "body": "{\n  \"httpStatus\": \"200\",\n  \"batchNumber\": \"132\",\n  \"closedAt\": \"20260928214051578\",\n  \"issuerResponseCode\": \"00\",\n  \"issuerResponseText\": \"DATA RETRIEVED\",\n  \"details\": [],\n  \"batchDetailGuid\": \"a1b2c3d4-0000-0000-0000-000000000000\",\n  \"batchStatus\": \"CLOSED\"\n}",
               "_postman_previewlanguage": "json",
               "header": [
                 {
