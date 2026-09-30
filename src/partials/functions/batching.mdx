@@ -284,6 +284,29 @@ Batch errors use two shapes depending on source:
 }
 ```
 
+*Batch Detail — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`, `batchStatus: "UNKNOWN"`):*
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "batchDetail": {
+          "httpStatus": "403",
+          "issuerResponseCode": "02",
+          "issuerResponseText": "COULD NOT FIND",
+          "batchDetailGuid": "d5206e00-bcb9-11f1-a903-a92d2c2c7176",
+          "batchStatus": "UNKNOWN"
+        }
+      }
+    }
+  }
+}
+```
+
 `batchStatus` in the error body reflects the current batch state and can be used for recovery logic.
 
 **422 — payload validation** (`"name": "UnprocessableEntityError"`): a required field (`serialNumber` or `deviceType`) is missing:
