@@ -3347,7 +3347,9 @@ Content-Type: application/json
 }
 ```
 
-**Response — success (`issuerResponseCode: "00"`):**
+<Tabs>
+<TabItem value="success" label="Success">
+
 ```json
 {
   "httpStatus": "200",
@@ -3367,9 +3369,10 @@ Content-Type: application/json
 }
 ```
 
-**Response — batch already closed (`issuerResponseCode: "03"` / `NOT ALLOWED`):**
+</TabItem>
+<TabItem value="already-closed" label="Already Closed">
 
-Returned when the batch is already closed — either because auto-close already ran, or because a previous `/batch/close` call succeeded. When `batchNumber` is omitted, the gateway resolves the terminal's last known batch; if that batch is already closed, this error is returned.
+The batch is already closed — auto-close ran or a previous `/batch/close` call succeeded. When `batchNumber` is omitted, the gateway resolves the terminal's last known batch; if that batch is already closed, this error is returned.
 
 ```json
 {
@@ -3394,9 +3397,10 @@ Returned when the batch is already closed — either because auto-close already 
 }
 ```
 
-**Response — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`):**
+</TabItem>
+<TabItem value="not-found" label="Not Found">
 
-Returned when the specified `batchNumber` does not exist. `batchStatus: "UNKNOWN"` indicates the batch could not be located.
+The specified `batchNumber` does not exist. `batchStatus: "UNKNOWN"` indicates the batch could not be located.
 
 ```json
 {
@@ -3422,6 +3426,9 @@ Returned when the specified `batchNumber` does not exist. `batchStatus: "UNKNOWN
 </TabItem>
 </Tabs>
 
+</TabItem>
+</Tabs>
+
 ### Batch Summary {#batch-summary}
 
 Retrieves aggregate totals for a batch — transaction count and net amounts by type.
@@ -3441,7 +3448,8 @@ Content-Type: application/json
 }
 ```
 
-**Response — success (`issuerResponseCode: "00"`):**
+<Tabs>
+<TabItem value="success" label="Success">
 
 `netAmount` is in minor units (e.g. `644397` = $6,443.97). `closedAt` is only present when `batchStatus` is `"CLOSED"`.
 
@@ -3464,7 +3472,8 @@ Content-Type: application/json
 }
 ```
 
-**Response — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`):**
+</TabItem>
+<TabItem value="not-found" label="Not Found">
 
 Returned when querying a closed batch that contains no transactions, or when the batch number does not exist.
 
@@ -3495,6 +3504,9 @@ Returned when querying a closed batch that contains no transactions, or when the
 </TabItem>
 </Tabs>
 
+</TabItem>
+</Tabs>
+
 ### Batch Detail {#batch-detail}
 
 Retrieves individual transactions in a batch for reconciliation. Results are paginated — max 5 transactions per page, newest first. See [Batch Operations](/back-office/batching#batch-detail) for full pagination details.
@@ -3502,7 +3514,8 @@ Retrieves individual transactions in a batch for reconciliation. Results are pag
 <Tabs groupId="integration-path">
 <TabItem value="backoffice" label="Backoffice">
 
-First page (no cursor):
+<Tabs>
+<TabItem value="page-1" label="Page 1">
 
 ```http
 POST https://cloud.handpoint.com/batch/detail
@@ -3515,8 +3528,6 @@ Content-Type: application/json
   "batchNumber": "132"
 }
 ```
-
-**Response — page 1:**
 
 `amount` is in minor units. `customFields.entry` is a single object (not an array) on Batch Detail.
 
@@ -3542,7 +3553,10 @@ Content-Type: application/json
 }
 ```
 
-Next page — pass the `retrievalReferenceNumber` of the last item (`627121800441`):
+</TabItem>
+<TabItem value="page-2" label="Page 2">
+
+Pass the `retrievalReferenceNumber` of the last item from the previous page (`627121800441`) as the cursor:
 
 ```http
 POST https://cloud.handpoint.com/batch/detail
@@ -3556,8 +3570,6 @@ Content-Type: application/json
   "retrievalReferenceNumber": "627121800441"
 }
 ```
-
-**Response — page 2:**
 
 ```json
 {
@@ -3583,9 +3595,10 @@ Content-Type: application/json
 
 Stop paginating when `details` is empty or missing.
 
-**Response — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`):**
+</TabItem>
+<TabItem value="not-found" label="Not Found">
 
-Returned when the specified batch number does not exist. `batchStatus: "UNKNOWN"` confirms the batch could not be located.
+The specified batch number does not exist. `batchStatus: "UNKNOWN"` confirms the batch could not be located.
 
 ```json
 {
@@ -3608,6 +3621,9 @@ Returned when the specified batch number does not exist. `batchStatus: "UNKNOWN"
   }
 }
 ```
+
+</TabItem>
+</Tabs>
 
 </TabItem>
 </Tabs>
