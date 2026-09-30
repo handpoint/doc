@@ -3347,6 +3347,78 @@ Content-Type: application/json
 }
 ```
 
+**Response — success (`issuerResponseCode: "00"`):**
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "63",
+  "closeBatchGuid": "274bddc0-bcb2-11f1-a72f-8761c875e91c",
+  "closedAt": "20260930093438487",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED",
+  "batchStatus": "CLOSED",
+  "customerReference": {},
+  "customFields": {
+    "entry": {
+      "key": "issuerBatchCloseLocalTimestamp",
+      "value": "2026-09-30T05:34:37"
+    }
+  }
+}
+```
+
+**Response — batch already closed (`issuerResponseCode: "03"` / `NOT ALLOWED`):**
+
+Returned when the batch is already closed — either because auto-close already ran, or because a previous `/batch/close` call succeeded. When `batchNumber` is omitted, the gateway resolves the terminal's last known batch; if that batch is already closed, this error is returned.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "closebatch": {
+          "httpStatus": "403",
+          "batchNumber": "63",
+          "closeBatchGuid": "34645ff0-bcb2-11f1-a903-a92d2c2c7176",
+          "issuerResponseCode": "03",
+          "issuerResponseText": "NOT ALLOWED",
+          "batchStatus": "CLOSED"
+        }
+      }
+    }
+  }
+}
+```
+
+**Response — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`):**
+
+Returned when the specified `batchNumber` does not exist. `batchStatus: "UNKNOWN"` indicates the batch could not be located.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "closebatch": {
+          "httpStatus": "403",
+          "issuerResponseCode": "02",
+          "issuerResponseText": "COULD NOT FIND",
+          "batchStatus": "UNKNOWN"
+        }
+      }
+    }
+  }
+}
+```
+
 </TabItem>
 </Tabs>
 
