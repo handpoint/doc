@@ -44,7 +44,7 @@ const config = {
       onBrokenMarkdownLinks: 'warn',
     },
   },
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.png',
   organizationName: 'handpoint',
   projectName: 'handpoint.github.io',
 
