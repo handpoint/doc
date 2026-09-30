@@ -226,15 +226,85 @@ Content-Type: application/json
 |---|---|---|---|
 | `serialNumber` | string | Yes | Terminal serial number |
 | `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `batchNumber` | string | No | Batch number to close or query. If you omit it, the gateway uses the current batch of the terminal, and it returns `422` if it cannot find one |
+| `batchNumber` | string | No | Batch number to close or query. If omitted, the gateway resolves the terminal's current open batch |
 | `retrievalReferenceNumber` | string | No | Batch Detail only. Pagination cursor: pass the `retrievalReferenceNumber` of the last (oldest) item in the previous page to get the next page. Omit it to get the most recent page |
 
 #### Errors
 
-| Code | Meaning | Recovery |
-|---|---|---|
-| `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
-| `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
+Batch errors use two shapes depending on source:
+
+**400 — gateway business error** (`"message": "Viscus operation failed"`): the gateway rejected the operation. The Viscus response is nested in `details.body`:
+
+*Batch Close — batch already closed (`issuerResponseCode: "03"` / `NOT ALLOWED`):*
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "closebatch": {
+          "httpStatus": "403",
+          "batchNumber": "63",
+          "closeBatchGuid": "34645ff0-bcb2-11f1-a903-a92d2c2c7176",
+          "issuerResponseCode": "03",
+          "issuerResponseText": "NOT ALLOWED",
+          "batchStatus": "CLOSED"
+        }
+      }
+    }
+  }
+}
+```
+
+*Batch Summary — closed batch with no transactions (`issuerResponseCode: "02"` / `COULD NOT FIND`):*
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "batchSummary": {
+          "httpStatus": "403",
+          "batchNumber": "63",
+          "closedAt": "20260930093438487",
+          "issuerResponseCode": "02",
+          "issuerResponseText": "COULD NOT FIND",
+          "batchSummaryGuid": "770bf930-bcb2-11f1-a72f-8761c875e91c",
+          "batchStatus": "CLOSED"
+        }
+      }
+    }
+  }
+}
+```
+
+`batchStatus` in the error body reflects the current batch state and can be used for recovery logic.
+
+**422 — payload validation** (`"name": "UnprocessableEntityError"`): a required field (`serialNumber` or `deviceType`) is missing:
+```json
+{
+  "error": {
+    "statusCode": 422,
+    "name": "UnprocessableEntityError",
+    "code": "VALIDATION_FAILED",
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "details": [
+      {
+        "code": "required",
+        "info": { "missingProperty": "serialNumber" },
+        "message": "must have required property 'serialNumber'",
+        "path": ""
+      }
+    ]
+  }
+}
+```
 
 #### Testing
 Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.
