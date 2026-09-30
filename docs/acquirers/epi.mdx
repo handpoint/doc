@@ -3437,7 +3437,58 @@ Content-Type: application/json
 {
   "serialNumber": "082104578",
   "deviceType": "PAXA920",
-  "batchNumber": "001"
+  "batchNumber": "133"
+}
+```
+
+**Response — success (`issuerResponseCode: "00"`):**
+
+`netAmount` is in minor units (e.g. `644397` = $6,443.97). `closedAt` is only present when `batchStatus` is `"CLOSED"`.
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "133",
+  "transactionCount": "12",
+  "netAmount": "644397",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "customFields": {
+    "entry": [
+      { "key": "salesCount", "value": "11" },
+      { "key": "refundsCount", "value": "1" }
+    ]
+  },
+  "batchSummaryGuid": "1ef0c830-bbe4-11f1-9efa-074a901f9b3c",
+  "batchStatus": "OPEN"
+}
+```
+
+**Response — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`):**
+
+Returned when querying a closed batch that contains no transactions, or when the batch number does not exist.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "batchSummary": {
+          "httpStatus": "403",
+          "batchNumber": "63",
+          "closedAt": "20260930093438487",
+          "issuerResponseCode": "02",
+          "issuerResponseText": "COULD NOT FIND",
+          "batchSummaryGuid": "770bf930-bcb2-11f1-a72f-8761c875e91c",
+          "batchStatus": "CLOSED"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -3446,10 +3497,12 @@ Content-Type: application/json
 
 ### Batch Detail {#batch-detail}
 
-Retrieves the full list of individual transactions in a batch for reconciliation.
+Retrieves individual transactions in a batch for reconciliation. Results are paginated — max 5 transactions per page, newest first. See [Batch Operations](/back-office/batching#batch-detail) for full pagination details.
 
 <Tabs groupId="integration-path">
 <TabItem value="backoffice" label="Backoffice">
+
+First page (no cursor):
 
 ```http
 POST https://cloud.handpoint.com/batch/detail
@@ -3459,7 +3512,100 @@ Content-Type: application/json
 {
   "serialNumber": "082104578",
   "deviceType": "PAXA920",
-  "batchNumber": "001"
+  "batchNumber": "132"
+}
+```
+
+**Response — page 1:**
+
+`amount` is in minor units. `customFields.entry` is a single object (not an array) on Batch Detail.
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800445", "amount": "1200" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800444", "amount": "1002" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800443", "amount": "21000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800442", "amount": "27000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800441", "amount": "26000" }
+  ],
+  "batchDetailGuid": "f02e9130-bbe3-11f1-9efa-074a901f9b3c",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
+}
+```
+
+Next page — pass the `retrievalReferenceNumber` of the last item (`627121800441`):
+
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "132",
+  "retrievalReferenceNumber": "627121800441"
+}
+```
+
+**Response — page 2:**
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800440", "amount": "19001" },
+    { "transactionType": "REFUND", "retrievalReferenceNumber": "627121800439", "amount": "1857" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800438", "amount": "5542" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800437", "amount": "1683" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800436", "amount": "1347" }
+  ],
+  "batchDetailGuid": "0b9d45b0-bbe4-11f1-9da8-4ba186f642f0",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
+}
+```
+
+Stop paginating when `details` is empty or missing.
+
+**Response — batch not found (`issuerResponseCode: "02"` / `COULD NOT FIND`):**
+
+Returned when the specified batch number does not exist. `batchStatus: "UNKNOWN"` confirms the batch could not be located.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "batchDetail": {
+          "httpStatus": "403",
+          "issuerResponseCode": "02",
+          "issuerResponseText": "COULD NOT FIND",
+          "batchDetailGuid": "d5206e00-bcb9-11f1-a903-a92d2c2c7176",
+          "batchStatus": "UNKNOWN"
+        }
+      }
+    }
+  }
 }
 ```
 
@@ -3472,14 +3618,15 @@ Content-Type: application/json
 |---|---|---|---|
 | `serialNumber` | string | Yes | Terminal serial number |
 | `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
-| `batchNumber` | string | No (Batch Close) / Yes (Summary, Detail) | Batch number to close or query. Omit on Batch Close to target the currently open batch |
+| `batchNumber` | string | No | Batch number to query. If omitted, the gateway resolves the terminal's current open batch |
+| `retrievalReferenceNumber` | string | No | Batch Detail only — pagination cursor. Pass the `retrievalReferenceNumber` of the last item in the previous page to get the next page |
 
 #### Errors
 
-| Code | Meaning | Recovery |
-|---|---|---|
-| `BATCH_ALREADY_CLOSED` | Batch was already closed (auto-close ran) | No action needed |
-| `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
+| HTTP | `issuerResponseCode` | `issuerResponseText` | Meaning |
+|---|---|---|---|
+| `400` | `03` | `NOT ALLOWED` | Batch is already closed (Batch Close only) |
+| `400` | `02` | `COULD NOT FIND` | Batch not found, or closed batch has no transactions |
 
 #### Testing
 Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.
