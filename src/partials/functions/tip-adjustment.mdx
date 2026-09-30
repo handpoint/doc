@@ -108,12 +108,33 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 
 #### Response
 
+<Tabs>
+<TabItem value="success" label="Success">
+
 ```json
 {
   "statusMessage": "tip adjusted",
   "batchNumber": "123"
 }
 ```
+
+</TabItem>
+<TabItem value="batch-closed" label="Batch Closed">
+
+The batch has already been closed — tip adjustments are only available on unsettled transactions in the current open batch.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Tip adjustment not available — batch has closed"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
 
 | Field | Type | Description |
 |---|---|---|

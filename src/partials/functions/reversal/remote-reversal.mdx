@@ -86,7 +86,9 @@ curl --location --request POST 'https://cloud.handpoint.com/reversal' \
 
 `amount` is the new final charge — not a delta. Must be less than the original authorised amount. Non-cumulative: you cannot chain partial reversals.
 
-**Response — 200 OK:**
+<Tabs>
+<TabItem value="success" label="Success">
+
 ```json
 {
     "agreementNumber": "123456789010102",
@@ -100,13 +102,20 @@ curl --location --request POST 'https://cloud.handpoint.com/reversal' \
 }
 ```
 
-**Response — 400 Error:**
+</TabItem>
+<TabItem value="not-found" label="Not Found">
+
+`originalGuid` not found or batch already closed — no transaction to reverse.
+
 ```json
 {
     "code": "3153",
     "message": "Unable to find message to reverse."
 }
 ```
+
+</TabItem>
+</Tabs>
 
 </TabItem>
 </Tabs>
