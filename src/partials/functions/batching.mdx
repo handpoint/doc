@@ -398,5 +398,14 @@ A required field (`serialNumber` or `deviceType`) is absent.
 | `batchNumber` | string | No | Batch number to close or query. If omitted, the gateway resolves the terminal's current open batch |
 | `retrievalReferenceNumber` | string | No | Batch Detail only. Pagination cursor: pass the `retrievalReferenceNumber` of the last (oldest) item in the previous page to get the next page. Omit it to get the most recent page |
 
+#### Errors
+
+| HTTP | Condition | Meaning |
+|---|---|---|
+| `400` | `issuerResponseCode: "03"` / `NOT ALLOWED` | Batch already closed (Batch Close only) |
+| `400` | `issuerResponseCode: "02"` / `COULD NOT FIND` | Batch not found, or closed batch has no transactions |
+| `403` | — | `serialNumber` does not belong to the calling merchant's account |
+| `422` | `code: "VALIDATION_FAILED"` | Required field missing (`serialNumber` or `deviceType`) |
+
 #### Testing
 Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.
