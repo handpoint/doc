@@ -247,6 +247,21 @@
                 }
               ],
               "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"Transaction already reversed\"\n  }\n}"
+            },
+            {
+              "name": "400 — Not Found (original transaction not found, code 3158)",
+              "status": "Bad Request",
+              "code": 400,
+              "body": "{\n  \"error\": {\n    \"statusCode\": 400,\n    \"name\": \"BadRequestError\",\n    \"message\": \"Viscus operation failed\",\n    \"details\": {\n      \"status\": 404,\n      \"body\": {\n        \"error\": {\n          \"errorGuid\": \"c3d26950-bd86-11f1-94eb-17355119bd39\",\n          \"reason\": \"Original transaction not found\",\n          \"errorCode\": \"3158\",\n          \"httpStatus\": \"404\"\n        }\n      }\n    }\n  }\n}",
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "originalRequest": {}
             }
           ]
         },

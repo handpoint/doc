@@ -121,6 +121,8 @@ handpoint.sale(
 | `customerReference` | string | No (Cloud API) | Optional merchant reference forwarded to the acquirer |
 | `callbackUrl` | string | No (Cloud API) | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` for the outcome |
 | `token` | string | No (Cloud API) | Opaque value included alongside the result in the push notification, for caller identification. Only used when `callbackUrl` is set |
+| `taxInformation` | object | No (Cloud API) | Tax data forwarded to the acquirer: `taxAmount` (string, minor units, e.g. `"100"` = $1.00) and `taxExempt` (boolean — when `true`, `taxAmount` must be `"0"`). Returned in `TransactionResult` via `/transaction-result/{id}` when the terminal sends it back; not available via `GET /transactions/{ref}/status` |
+| `purchaseOrderNumber` | string | No (Cloud API) | Purchase order number forwarded to the acquirer. Returned in `TransactionResult` via `/transaction-result/{id}` when the terminal sends it back |
 
 **Android SDK — `Options` fields** (pass as optional third argument to `hapi.sale()`):
 

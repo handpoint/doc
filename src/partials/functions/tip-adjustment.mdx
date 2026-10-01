@@ -97,6 +97,7 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 |---|---|---|---|
 | `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result |
 | `amount` | number | Yes | Tip amount in major currency units (e.g. `9.00` for $9.00). `0` to void an existing tip |
+| `taxInformation.taxAmount` | number | No | Tax amount in major currency units (e.g. `1.50`). Note: **different format** from `POST /transactions`, where tax is a string in minor units. `taxExempt` is not supported on this endpoint and returns 400 |
 
 **Android SDK** — `tipAdjustment(tipAmount, currency, originalTransactionID)`:
 
@@ -114,9 +115,14 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 ```json
 {
   "statusMessage": "tip adjusted",
-  "batchNumber": "123"
+  "batchNumber": "123",
+  "taxInformation": {
+    "taxAmount": 1.50
+  }
 }
 ```
+
+`taxInformation` is only present when `taxInformation.taxAmount` was sent in the request.
 
 </TabItem>
 <TabItem value="batch-closed" label="Batch Closed">
@@ -140,6 +146,7 @@ The batch has already been closed — tip adjustments are only available on unse
 |---|---|---|
 | `statusMessage` | string | `"tip adjusted"` on success |
 | `batchNumber` | string | The current open batch number, if returned by the acquirer. May be absent |
+| `taxInformation.taxAmount` | number | The tax amount echoed back in major units. Only present when `taxInformation.taxAmount` was sent in the request |
 
 #### Errors
 
