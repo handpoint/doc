@@ -2722,8 +2722,6 @@ Test tokens are returned on the TEST/DEMO merchant or staging device. Use the To
 
 ## Batch Operations {#batching}
 
-<FlavorSection description="Back-office · manage TSYS batch close and reporting" paths={["backoffice"]}>
-
 Three Backoffice REST API endpoints for batch management — calls go directly to the payment gateway, no terminal or SDK involved.
 
 #### When to use it
@@ -2739,8 +2737,9 @@ Use when you need to settle at a specific time rather than waiting for automatic
 PAYSAFE merchants may be onboarded on TSYS, TNS, or both. When a merchant has both processors configured, the Handpoint gateway routes based on card type: Interac cards → TNS (card-present only), all other cards → TSYS. INTERAC VOID: For Interac card transactions, show VOID in your UI — not Refund or Reverse. The only post-sale correction is VOID (full amount, card must be present at terminal). Standard refund is not available for Interac. BATCHING: Batch close applies to TSYS (non-Interac) transactions only. TNS (Interac) transactions settle independently and do not participate in the TSYS batch. Paysafe single-use token: requires merchant onboarding by Paysafe/Handpoint before use.
 :::
 
-
 ### Batch Close {#batch-close}
+
+<FlavorSection description="Back-office · close the current open batch" paths={["backoffice"]}>
 
 Closes the current open batch and triggers settlement with the acquirer. Omit `batchNumber` to close the currently open batch.
 
@@ -2761,7 +2760,11 @@ Content-Type: application/json
 </TabItem>
 </Tabs>
 
+</FlavorSection>
+
 ### Batch Summary {#batch-summary}
+
+<FlavorSection description="Back-office · aggregate totals for a batch" paths={["backoffice"]}>
 
 Retrieves aggregate totals for a batch — transaction count and net amounts by type.
 
@@ -2783,7 +2786,11 @@ Content-Type: application/json
 </TabItem>
 </Tabs>
 
+</FlavorSection>
+
 ### Batch Detail {#batch-detail}
+
+<FlavorSection description="Back-office · paginated transaction list for a batch" paths={["backoffice"]}>
 
 Retrieves the full list of individual transactions in a batch for reconciliation.
 
@@ -2805,6 +2812,8 @@ Content-Type: application/json
 </TabItem>
 </Tabs>
 
+</FlavorSection>
+
 #### Parameters
 
 | Name | Type | Required | Description |
@@ -2822,8 +2831,6 @@ Content-Type: application/json
 
 #### Testing
 Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.
-
-</FlavorSection>
 
 
 ## Void {#void}
