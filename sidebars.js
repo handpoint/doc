@@ -126,6 +126,7 @@ const sidebars = {
           items: [
             'reference/development-hardware',
             'reference/devices',
+            'reference/payments-app',
             'reference/manual-injection',
             'reference/hilite-vs-pax',
           ],

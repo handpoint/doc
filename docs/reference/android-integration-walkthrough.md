@@ -850,7 +850,6 @@ private fun logTransactionResult(result: TransactionResult) {
         requestedAmount       : ${result.requestedAmount}
         tipAmount             : ${result.tipAmount}
         tipPercentage         : ${result.tipPercentage}
-        taxAmount             : ${result.taxAmount}
         dueAmount             : ${result.dueAmount}
         tenderType            : ${result.tenderType}
         authorisationCode     : ${result.authorisationCode}

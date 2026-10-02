@@ -34,6 +34,15 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 
 Address Verification Service (AVS) support for MoTo transactions, introduced in [7.1014.0](#71140), is now also available on this release line. See [`MoToOptions.billing`](androidobjects.md#moto-options) / [`MoToOptions.enableAvsFields`](androidobjects.md#moto-options) and [`TransactionResult.addressVerification`](androidobjects.md#25) / [Address Verification](androidobjects.md#address-verification) for details.
 
+**Bug fixes**
+
+- **Pusher duplicate subscription** (SDKS-354) — a race condition during SDK initialisation could result in a duplicate Pusher channel subscription, causing the SDK to report the device as busy when no transaction was in progress. Fixed.
+- **TransactionResult not delivered in error scenarios** (SDKS-126) — when a transaction's metadata contained certain special characters, Cloud delivery of the `TransactionResult` failed silently (HTTP 204 instead of the FAILED result). Fixed.
+
+**Manifest**
+
+- `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE` permissions have been removed from the SDK manifest. These permissions are no longer required and will no longer appear in the merged manifest of integrator applications.
+
 ## 7.1014.0
 **BREAKING CHANGE:**
 
