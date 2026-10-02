@@ -134,6 +134,20 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `metadata` | object | No | — | `{ "metadata1": "…", …, "metadata5": "…" }` — max 250 chars each |
 | `moneyRemittanceOptions` | object | No | — | EmerchantPay only — see [moneyRemittanceOptions](#moneyremittanceoptions) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
+| `taxInformation` | object | No | — | L2 tax data — see [taxInformation](#taxinformation) |
+
+### taxInformation
+
+Sends Level 2 tax data with the transaction. Supported on TSYS and select other acquirers.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `taxAmount` | **string** | Yes | Tax amount in **minor units**, as a string — `"150"` = $1.50. Send `"0"` when `taxExempt` is `true`. |
+| `taxExempt` | boolean | No | `true` when the transaction is tax-exempt. When `true`, `taxAmount` **must** be sent explicitly as `"0"` — omitting it returns HTTP 400 `Invalid taxInformation.taxAmount, must be "0" when taxInformation.taxExempt is true`. |
+
+:::note Type difference between request and response
+`taxAmount` in the request is a **string** (`"150"`). In the Transaction Result Object the corresponding value is a **number** (`150`). This is intentional — the request follows the same minor-unit string convention as `amount`, while the result follows the numeric convention of all other amount fields.
+:::
 
 ---
 
