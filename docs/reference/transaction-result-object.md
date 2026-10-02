@@ -399,7 +399,10 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+; null when not applicable)
+result.taxAmount                // DEPRECATED — use result.taxInformation?.taxAmount
+result.taxInformation?.taxAmount  // BigInteger("100") — echo of what was sent; null if none sent/returned
+result.taxInformation?.taxExempt  // false
+result.purchaseOrderNumber      // "PO-4711" — null if none sent/returned
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
@@ -502,7 +505,11 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger? | Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
+| `taxAmount` | BigInteger? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
+| `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
+| `purchaseOrderNumber` | String? | Level II purchase order number echoed back. `null` means none was sent/returned — not empty. Mandatory on the request whenever `taxInformation` is sent. |
+
+`taxInformation` and `purchaseOrderNumber` are populated for Sale, Authorization (chip, contactless, magstripe), Pre-Authorization and Pre-Authorization Capture, Sale-and-Tokenize, Refund, Linked Refund, Reversal, standalone card Tokenize and Card PAN decrypt (card-present and MoTo). For operations where the gateway does not carry tax data (e.g. standalone Tokenize, PAN decrypt) they are `null` in practice.
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |

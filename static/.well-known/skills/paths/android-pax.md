@@ -239,6 +239,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 - **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
 - **`taxOnFee` sits inside `amount`.** It is never added on top.
+- Level II: set `Options.taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)`. **`Options.purchaseOrderNumber` is mandatory whenever `taxInformation` is set.** Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount`.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
