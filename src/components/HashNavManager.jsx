@@ -34,6 +34,10 @@ function applyHash(hash) {
   // Only one in scope → open it automatically
   if (inScope.length === 1) inScope[0].open = true;
   // More than one → leave closed; the list of closed sections IS the summary
+
+  // Nudge Docusaurus's IntersectionObserver so the right TOC item becomes active
+  // after the layout shift caused by opening/closing sections.
+  requestAnimationFrame(() => window.dispatchEvent(new Event('scroll')));
 }
 
 function scrollToHeading(hash) {
