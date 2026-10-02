@@ -512,6 +512,13 @@ Available on every options object — the root of the options inheritance chain.
 |---|---|---|
 | `customerReference` | `String` | Arbitrary identifier echoed in `TransactionResult.customerReference`. Use for order IDs, booking references, etc. Max 25 characters. |
 | `metadata` | `Metadata?` | Custom key-value data echoed in the transaction result. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data sent to the gateway so Visa/Mastercard can apply preferential interchange rates. `null` = not sent. **Requires `purchaseOrderNumber`.** |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Mandatory whenever `taxInformation` is set.** `null` = not sent. |
+| `taxAmount` | `BigInteger?` | **Deprecated** — use `taxInformation.taxAmount`. |
+
+:::caution Level II: `purchaseOrderNumber` is mandatory with `taxInformation`
+If you set `taxInformation`, you must also set `purchaseOrderNumber`. The same applies to every options class that inherits from `Options` (`SaleOptions`, `RefundOptions`, `MoToOptions`, …).
+:::
 
 ---
 
@@ -530,10 +537,14 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 | `tipConfiguration` | `TipConfiguration?` | Configures the on-device tipping prompt. |
 | `budgetNumber` | `String?` | South Africa — split payments over a number of months. 2-digit string (e.g. `"06"` = 6 months). |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Required for Mastercard money remittance (MCC 4829/6540). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | (inherited) Level II tax data. Requires `purchaseOrderNumber`. |
+| `purchaseOrderNumber` | `String?` | (inherited) Level II purchase order number. Mandatory with `taxInformation`. |
 
 ```kotlin
 val options = SaleOptions().apply {
     customerReference = "ORDER-123"
+    taxInformation = TaxInformation(BigInteger("100"), false)  // 1.00 tax, not exempt
+    purchaseOrderNumber = "PO-4711"                            // mandatory with taxInformation
     tipConfiguration = TipConfiguration().apply {
         tipPercentages = listOf(10, 15, 20)
         isEnterAmountEnabled = true
@@ -571,6 +582,7 @@ Options for `refund()`. Inherits `customerReference`, `metadata`, `merchantAuth`
 Additional field:
 - `checkDuplicates: Boolean` — same as `SaleOptions`.
 - `moneyRemittanceOptions: MoneyRemittanceOptions?` — Mastercard remittance.
+- `taxInformation: TaxInformation?` / `purchaseOrderNumber: String?` — Level II data, inherited from `Options`. `purchaseOrderNumber` is mandatory with `taxInformation`.
 
 ---
 
@@ -588,6 +600,8 @@ Options for all MOTO/keyed-entry operations.
 | `billing` | `Billing?` | Billing address for AVS checks. |
 | `enableAvsFields` | `Boolean` | `true` to prompt the cardholder to enter AVS fields on the terminal. Ignored if `billing` is set. |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Mastercard remittance options. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | (inherited) Level II tax data. Requires `purchaseOrderNumber`. |
+| `purchaseOrderNumber` | `String?` | (inherited) Level II purchase order number. Mandatory with `taxInformation`. |
 
 ---
 
@@ -718,6 +732,31 @@ AVS result — present on `TransactionResult.addressVerification` for MOTO trans
 | `resultCode` | `AvsResultCode` | Outcome of the AVS check. |
 
 `AvsResultCode` enum values: `FULL_MATCH`, `EXACT_MATCH`, `ADDRESS_MATCH`, `ZIP_MATCH`, `ZIP9_MATCH`, `NO_MATCH`, `UNSUPPORTED`, `INTERNATIONAL`, `RETRY`, `UNAVAILABLE`, `UNKNOWN`.
+
+---
+
+## `TaxInformation`
+
+Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on `Options.taxInformation` to send it to the gateway; it is echoed back on `TransactionResult.taxInformation`.
+
+| Property | Type | Description |
+|---|---|---|
+| `taxAmount` | `BigInteger` | Tax amount in minor currency units, same denomination as the transaction amount. Must be `0` when `taxExempt` is `true`. |
+| `taxExempt` | `Boolean` | `false` = local sales tax applies. `true` = the transaction is tax-exempt. |
+
+:::caution
+`purchaseOrderNumber` is mandatory whenever you send `taxInformation`.
+:::
+
+```kotlin
+val options = SaleOptions().apply {
+    taxInformation = TaxInformation(BigInteger("100"), false)
+    purchaseOrderNumber = "PO-4711"
+}
+api.sale(BigInteger.valueOf(1000), Currency.USD, options)
+```
+
+Read it back from the result: see [`TransactionResult`](transaction-result-object.md).
 
 ---
 
