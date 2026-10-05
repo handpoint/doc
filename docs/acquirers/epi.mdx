@@ -3115,7 +3115,7 @@ Not confirmed — use the Cloud API or Android SDK (PAX) path.
 ## Tokenization {#tokenization}
 
 
-### Cygma Token {#procharge}
+### Cygma Token {#cygma}
 
 <FlavorSection description="EPI · Cygma vault — MOTO detokenization by gateway; ISV stays out of PCI scope" paths={["cloud-api","android-pax","android-hilite","ios-hilite","cordova","backoffice"]}>
 
@@ -3202,7 +3202,7 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 // Token arrives via endOfTransaction
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     val token = result.cardToken        // store for future motoSale()
-    val provider = result.cardTokenProvider  // "EPI" / "PROCHARGE"
+    val provider = result.cardTokenProvider  // "EPI" / "CYGMA"
 }
 ```
 
@@ -3291,7 +3291,7 @@ handpoint.tokenizeCard(
 | Field | Description |
 |---|---|
 | `cardToken` | Opaque Cygma token. Store this — use for future MOTO charges |
-| `cardTokenProvider` | Token issuer — `"EPI"` or `"PROCHARGE"` |
+| `cardTokenProvider` | Token issuer — `"EPI"` or `"CYGMA"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
 #### Errors
