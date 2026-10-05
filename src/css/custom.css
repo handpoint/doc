@@ -1072,6 +1072,30 @@ a.button--primary:hover {
   }
 }
 
+/* ── Doc content heading hierarchy ─────────────
+   h2 = main sections (Sale, Refund, Pre-Auth…)
+   h3 = subsections / flavor variants (EMV Sale, Key Entry Sale…)
+   h4 = detail headings (What this does, Parameters…)
+   ────────────────────────────────────────────── */
+
+.markdown h2 {
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  margin-top: 2.75rem;
+}
+
+.markdown h3 {
+  font-size: 1.1rem;
+  margin-left: 1.25rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--ifm-color-primary-lightest);
+  margin-top: 1.5rem;
+}
+
+[data-theme='dark'] .markdown h3 {
+  border-left-color: var(--ifm-color-primary);
+}
+
 /* ── Responsive ──────────────────────────────── */
 
 @media (max-width: 640px) {

@@ -17,7 +17,7 @@ Fetch the Backoffice optional skill for machine-readable operation reference: [`
 
 The Backoffice path gives your server direct access to a set of payment gateway operations that **do not require a physical terminal or card reader**. All calls go directly to the Handpoint payment gateway — no device, no SDK, no device history.
 
-It complements the [Cloud REST API](/reference/cloud-api-integration-guide) (which routes commands through a terminal) with operations that are inherently server-side: charging stored card tokens, adjusting tips, closing batches, and reversing transactions by ID.
+It is available **alongside any integration path** — Cloud REST API, Android SDK (PAX), Android SDK (HiLite), iOS SDK, Cordova — adding server-side operations that go directly to the payment gateway with no terminal or SDK involved. Which back-office operations are available depends on acquirer support, not on which SDK you chose for card-present transactions.
 
 ## When to use it
 
@@ -62,7 +62,7 @@ See [Authentication](/reference/authentication) for the full credential referenc
 | Development | `https://cloud.handpoint.io` |
 | Production (DEMO + live) | `https://cloud.handpoint.com` |
 
-## MOTO Sale (card token, no terminal)
+## Remote Sale (card token, no terminal)
 
 Charge a card token obtained from a prior card-present transaction. The cardholder is not present — this is the primary use case for stored-card recurring billing.
 
@@ -72,21 +72,39 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "amount": 1000,
+  "amount": "10.00",
   "currency": "USD",
-  "cardToken": "TOKEN_FROM_PRIOR_CARD_PRESENT_TRANSACTION"
+  "cardToken": "TOKEN_FROM_PRIOR_CARD_PRESENT_TRANSACTION",
+  "transactionReference": "YOUR_UNIQUE_REFERENCE"
 }
 ```
 
-**Response:**
+`amount` is in **major currency units** as a decimal string — `"10.00"` = $10.00.
+
+**Response — HTTP 200:**
 ```json
 {
-  "finStatus": "AUTHORISED",
-  "transactionID": "guid-for-reversal-or-refund",
-  "amount": 1000,
-  "currency": "USD"
+  "@type": "sale",
+  "httpStatus": 200,
+  "acquirerTid": "ACQUIRER_TID",
+  "amount": "10.00",
+  "approvalCode": "123456",
+  "batchNumber": "123",
+  "cardTypeName": "Visa",
+  "currency": "USD",
+  "expiryDateMMYY": "1027",
+  "guid": "7cd7a1d0-xxxx-11f1-xxxx-xxxxxxxxxxxx",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Successful",
+  "maskedCardNumber": "************0936",
+  "retrievalReferenceNumber": "0000905343689",
+  "serverDateTime": "20260905204345133",
+  "terminalDateTime": "20260905204345000",
+  "transactionReference": "YOUR_UNIQUE_REFERENCE"
 }
 ```
+
+Use `guid` as `originalGuid` for subsequent reversals or linked refunds.
 
 | Acquirer support | Notes |
 |---|---|
@@ -110,9 +128,37 @@ MOTO processing must be enabled per merchant in the Handpoint Portal (TMS) and t
 
 A `cardToken` is returned in any card-present `TransactionResult` when tokenization is enabled for the merchant. Enable it via the Handpoint Portal, then any sale or explicit `tokenizeCard` operation will include `cardToken` in the result.
 
-See acquirer pages for token types: [EPI](/acquirers/epi#tokenization) · [Paysafe](/acquirers/paysafe-tsys#tokenization) · [EmerchantPay](/acquirers/omnipay-emp#tokenization) · [Paystrax](/acquirers/omnipay-paystrax#tokenization)
+See acquirer pages for token types: [EPI](/acquirers/epi#tokenization) · [PAYSAFE](/acquirers/paysafe#tokenization) · [EmerchantPay](/acquirers/emerchantpay#tokenization) · [Paystrax](/acquirers/paystrax#tokenization)
 
-## MOTO Refund (card token, no terminal)
+**Get Card Token (EPI only):** If a prior transaction was not tokenized at the time, you can retrieve the token later with no card re-swipe:
+
+```http
+GET https://cloud.handpoint.com/transactions/{transactionID}/token
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+
+Pass the **SALE** `transactionID` (GUID) from the original transaction result. Eligible types: `sale`, `refund`, `preAuthorizationCapture`, `moToSale`, `moToRefund`. Passing a reversal or void ID returns error `3112` — for a partial approval that was cancelled, use `originalEFTTransactionID` from the polled result to get the SALE's ID.
+
+**Response — HTTP 200:**
+```json
+{
+  "httpStatus": "200",
+  "cardToken": "1206598722",
+  "maskedCardNumber": "************0936",
+  "expiryDateMMYY": "1027",
+  "cardTokenizationGuid": "7e565290-xxxx-11f1-xxxx-xxxxxxxxxxxx",
+  "serverDateTime": "20260905204347641",
+  "agreementNumber": "111111111113",
+  "transactionReference": "7cd7a1d0-xxxx-11f1-xxxx-xxxxxxxxxxxx"
+}
+```
+
+| Error | Meaning | Fix |
+|---|---|---|
+| `3112` | Transaction type not eligible — use SALE `transactionID` | Pass the SALE `transactionID`, not the reversal's |
+| `TOKENIZATION_NOT_ENABLED` | Not configured for this merchant | Contact Handpoint team |
+
+## Remote Refund (card token, no terminal)
 
 Refund against an original remote sale by transaction ID (linked) or by card token (unlinked):
 
@@ -123,9 +169,10 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "amount": 1000,
+  "amount": "10.00",
   "currency": "USD",
-  "originalGuid": "transactionID-from-original-moto-sale"
+  "originalGuid": "transactionID-from-original-moto-sale",
+  "transactionReference": "YOUR_UNIQUE_REFERENCE"
 }
 ```
 
@@ -136,11 +183,14 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "amount": 1000,
+  "amount": "10.00",
   "currency": "USD",
-  "cardToken": "STORED_TOKEN"
+  "cardToken": "STORED_TOKEN",
+  "transactionReference": "YOUR_UNIQUE_REFERENCE"
 }
 ```
+
+`amount` is in **major currency units** as a decimal string — `"10.00"` = $10.00.
 
 | Code | Message | Fix |
 |---|---|---|
@@ -151,20 +201,40 @@ Content-Type: application/json
 
 Adjust a tip after sale, before batch close. Not supported on EmerchantPay or Paystrax — include the tip amount in the original sale body for those acquirers.
 
+**Via Cloud API (`/transactions/{id}/tip-adjustment`):**
+
 ```http
-POST https://cloud.handpoint.com/tipAdjustment
+POST https://cloud.handpoint.com/transactions/{transactionID}/tip-adjustment
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "originalTransactionId": "transactionID-from-sale",
-  "tipAmount": 200
+  "amount": 8
 }
 ```
 
-`tipAmount` is in the smallest currency unit (same as `amount` on sales). Call this after the sale completes and before batch close — adjustments are not possible after the batch has closed.
+`transactionID` is the `transactionID` from the original sale result. `amount` is in **major currency units** (dollars/euros/etc.) — `8` means $8.00, not $0.08.
 
-## Batch Operations (TSYS/EPI only)
+**Response — HTTP 200:**
+```json
+{
+  "statusMessage": "tip adjusted"
+}
+```
+
+Call this after the sale completes and before batch close — adjustments are not possible after the batch has closed.
+
+:::caution Tip Adjustment is mutually exclusive with Sale with Tip
+If the original sale used `tipConfiguration` (cardholder selected tip on the terminal), do **not** also post a tip adjustment — it will overwrite the cardholder-selected amount.
+:::
+
+:::caution To undo a tip adjustment, send `amount: 0` — not `/reversal`
+A reversal cancels the **entire sale**. To remove or correct a tip, post another tip adjustment with `"amount": 0`. Last write before batch close wins.
+:::
+
+See the [Tipping Guide](/reference/tipping-guide) for a full comparison of tip strategies and acquirer support.
+
+## Batch Operations (EPI only)
 
 Batch close triggers settlement with the acquirer. EU acquirers (EmerchantPay, Paystrax) use automatic settlement and do not require batch operations.
 
@@ -183,6 +253,23 @@ Content-Type: application/json
 }
 ```
 
+**Response — HTTP 200:**
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "123",
+  "transactionCount": "10",
+  "netAmount": "1000.00",
+  "closedAt": "20260820172631429",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Batch closed",
+  "closeBatchGuid": "48c571c0-9cbc-11f1-8d8a-a5d6c6242a44",
+  "batchStatus": "CLOSED"
+}
+```
+
+`netAmount` is in major currency units (dollars/euros). `closedAt` is a timestamp string in `YYYYMMDDHHmmssSSS` format.
+
 ### Batch Summary
 
 Retrieves aggregate totals — transaction count and net amounts by type.
@@ -196,6 +283,21 @@ Content-Type: application/json
   "serialNumber": "082104578",
   "deviceType": "PAXA920",
   "batchNumber": "001"
+}
+```
+
+**Response — HTTP 200:**
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "123",
+  "transactionCount": "10",
+  "netAmount": "1000.00",
+  "closedAt": "20260820172630375",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Batch summary retrieved",
+  "batchSummaryGuid": "48207f30-9cbc-11f1-8d8a-a5d6c6242a44",
+  "batchStatus": "CLOSED"
 }
 ```
 
@@ -215,6 +317,40 @@ Content-Type: application/json
 }
 ```
 
+**Response — HTTP 200:**
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "123",
+  "closedAt": "20260820172630912",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Batch detail retrieved",
+  "details": [
+    {
+      "transactionType": "SALE",
+      "amount": "100.00",
+      "batchDetailElementGuid": "b32c9185-b63f-4a14-8159-f7b5a90a8ccd"
+    },
+    {
+      "transactionType": "SALE",
+      "retrievalReferenceNumber": "RRN08236",
+      "amount": "50.00",
+      "batchDetailElementGuid": "3b4f4a8d-93da-4809-8a0d-5a75d58c9ace"
+    },
+    {
+      "transactionType": "REFUND",
+      "retrievalReferenceNumber": "RRN08237",
+      "amount": "25.00",
+      "batchDetailElementGuid": "d77933b3-a8a2-48e7-a96e-0cbf600e37d1"
+    }
+  ],
+  "batchDetailGuid": "48746b90-9cbc-11f1-8d8a-a5d6c6242a44",
+  "batchStatus": "CLOSED"
+}
+```
+
+Each entry in `details` has `transactionType` (`"SALE"`, `"REFUND"`, etc.), `amount` in major units, and an optional `retrievalReferenceNumber`.
+
 **Parameters:**
 
 | Name | Type | Required | Description |
@@ -231,7 +367,7 @@ Content-Type: application/json
 | `NO_TRANSACTIONS` | No transactions in current batch | No action needed |
 
 :::warning Batch close timing
-For EPI merchants, miss a daily batch close → `BATCH_NUM_ERR_005` next day. Schedule batch close before auto-close runs (~11 PM EST for TSYS US) if you need manual control of settlement timing.
+For EPI merchants, miss a daily batch close → `BATCH_NUM_ERR_005` next day. Schedule batch close before auto-close runs (~11 PM EST) if you need manual control of settlement timing.
 :::
 
 ## Remote Reversal (all acquirers)
@@ -239,18 +375,46 @@ For EPI merchants, miss a daily batch close → `BATCH_NUM_ERR_005` next day. Sc
 Reverse a transaction by its original ID — no terminal required. Same-day only (before batch close).
 
 ```http
-POST https://cloud.handpoint.com/transactions
+POST https://cloud.handpoint.com/reversal
 ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 
 {
-  "operation": "saleReversal",
-  "originalTransactionID": "transactionID-from-original-sale",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "transactionReference": "new-uuid-for-this-reversal"
+  "originalGuid": "transactionID-from-original-sale"
 }
 ```
+
+`originalGuid` is the `transactionID` from the original sale result. This endpoint is **synchronous** — the response is the final result, no polling needed.
+
+**Response — HTTP 200:**
+```json
+{
+  "httpStatus": 200,
+  "acquirerTid": "ACQUIRER_TID",
+  "agreementNumber": "630000026730",
+  "amount": "150.06",
+  "approvalCode": "123456",
+  "batchNumber": "123",
+  "cardTypeName": "Visa",
+  "currency": "USD",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "Successful",
+  "maskedCardNumber": "************0936",
+  "authorizationGuid": "a03b8a30-9cbb-11f1-b018-b122502914b1",
+  "originalGuid": "a03b8a30-9cbb-11f1-b018-b122502914b1",
+  "reversalGuid": "e2dd3000-9cbb-11f1-8d8a-a5d6c6242a44",
+  "transactionReference": "7368c0b5-e788-42de-a949-ed079946b590",
+  "customFields": {
+    "entry": [
+      { "key": "messageReasonCode", "value": "4000" },
+      { "key": "tenderType", "value": "Credit" },
+      { "key": "issuerResponseCode", "value": "00" }
+    ]
+  }
+}
+```
+
+`reversalGuid` is the ID of the new reversal transaction. `authorizationGuid` / `originalGuid` both refer to the original sale. `amount` is in major currency units (dollars/euros). The response does **not** include `transactionID` — use `reversalGuid` to identify this reversal.
 
 See [Remote Reversal](/acquirers/epi#remote-reversal) on the acquirer page for acquirer-specific parameters.
 
@@ -258,13 +422,15 @@ See [Remote Reversal](/acquirers/epi#remote-reversal) on the acquirer page for a
 
 | Operation | Endpoint | Acquirer support |
 |---|---|---|
-| **MOTO Sale** | `POST /moto/sale` | EPI, EmerchantPay, Paystrax |
-| **MOTO Refund** | `POST /moto/refund` | EPI, EmerchantPay, Paystrax |
-| **Tip Adjustment** | `POST /tipAdjustment` | EPI |
-| **Batch Close** | `POST /batch/close` | EPI, Paysafe + Interac (TSYS) |
-| **Batch Summary** | `POST /batch/summary` | EPI, Paysafe + Interac (TSYS) |
-| **Batch Detail** | `POST /batch/detail` | EPI, Paysafe + Interac (TSYS) |
-| **Remote Reversal** | `POST /transactions` | All acquirers |
+| **Remote Sale** | `POST /moto/sale` | EPI, EmerchantPay, Paystrax |
+| **Remote Refund** | `POST /moto/refund` | EPI, EmerchantPay, Paystrax |
+| **Get Card Token** | `GET /transactions/{id}/token` | EPI |
+| **Tip Adjustment** | `POST /transactions/{id}/tip-adjustment` | EPI |
+| **Partial Reversal** | `POST /reversal` (with `amount` + `currency`) | EPI only (TMS-enabled) |
+| **Batch Close** | `POST /batch/close` | EPI only |
+| **Batch Summary** | `POST /batch/summary` | EPI only |
+| **Batch Detail** | `POST /batch/detail` | EPI only |
+| **Remote Reversal** | `POST /reversal` | All acquirers |
 
 ## Validation & certification
 

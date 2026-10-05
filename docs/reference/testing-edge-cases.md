@@ -17,6 +17,22 @@ Step-by-step scenarios for verifying that your integration handles the full rang
 | Expired cards | Accepted on the Simulator acquirer — test cards can be past their expiry date. |
 | `transactionReference` log | A store (DB, log) where you record every UUID v4 you send before sending it. |
 
+:::tip Trigger amounts — quick reference
+
+These amounts force specific responses on a ViscusDummy/Simulator merchant. All amounts are in **minor currency units** (e.g. `3784` = $37.84 if sending USD).
+
+| Amount | Forced `finStatus` | `statusMessage` |
+|---|---|---|
+| `3779` | `DECLINED` | Refer to card issuer |
+| `3784` | `DECLINED` | Transaction failed |
+| `3793` | `DECLINED` | Pick-up card |
+| `3757` | `PARTIAL_APPROVAL` | Approved (partial) |
+| `3768` | `FAILED` | Error connecting to authorization provider |
+| `3741` | `FAILED` | Processing error |
+
+Any other amount: `AUTHORISED` (normal approval). → Full table including cancellation amounts: [Development hardware](/reference/development-hardware#trigger-amounts)
+:::
+
 ---
 
 ## Sale
@@ -617,3 +633,208 @@ Run these on any integration path that supports `transactionReference` (Cloud AP
 | Query `/status` immediately after sending (terminal still processing) | `IN_PROGRESS` |
 | Query `/status` after result delivered | `AUTHORISED` or `DECLINED` |
 | Query `/status` with a random UUID that was never sent | `UNDEFINED` |
+
+---
+
+## EMV Forced Reversal — card removed mid-chip {#emv-forced-reversal}
+
+When a chip card is removed from the reader after the gateway has authorized the transaction but before the full EMV flow completes (or when the card's internal application declines after online authorization), the SDK sends a forced-reversal to release the hold and then delivers a `DECLINED` result.
+
+**The dangerous moment:** `/status` briefly shows `AUTHORISED` while the forced-reversal is in flight. An integration that saves the `/status` result immediately will record an incorrect approved transaction that was actually reversed.
+
+This edge case is easy to reproduce on real hardware — no trigger amount required.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+1. Send `POST /transactions` with `"operation": "sale"` and any non-trigger amount. Note the `transactionResultId`.
+2. On the terminal, **insert the chip card**.
+3. As soon as the terminal shows "Processing..." or "Please wait" (after PIN entry), **quickly pull the card out of the reader**.
+4. Immediately poll `GET /transaction-result/{transactionResultId}` — you may see `finStatus: AUTHORISED` briefly.
+5. **Do not record this result.** Continue polling.
+6. Within 5–30 seconds, the result changes — the final `transaction-result` will have `finStatus: DECLINED` and `statusMessage` similar to "card declined the online authorization."
+7. Verify your integration records `DECLINED`, not the intermediate `AUTHORISED`.
+
+**What this tests:** That your polling loop waits for `transaction-result` delivery rather than acting on the first `/status` poll.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+1. Call `hapi.sale(amount, currency)`.
+2. Insert the chip card when prompted.
+3. After PIN entry (or as the terminal shows "Processing..."), pull the card out.
+4. Observe the terminal — it will show processing, then a decline message.
+5. Verify `endOfTransaction` fires with `finStatus == DECLINED` and `statusMessage` containing "card declined the online authorization" or similar.
+6. Verify your app does not record an approval based on any intermediate state.
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+HiLite is a contactless/swipe reader — chip insertion is not applicable. This test does not apply.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Not applicable on HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Same steps as Android (PAX) if running on PAX hardware with chip capability.
+
+</TabItem>
+</Tabs>
+
+:::caution What to tell the cardholder
+Display the `statusMessage` to the merchant. The standard instruction is: re-insert the card and **leave it in the reader until the terminal confirms** completion. Do not remove the card during processing.
+:::
+
+---
+
+## Partial Approval (US only) {#partial-approval}
+
+:::info US acquirers only
+Partial approvals only occur on US acquirer configurations (EPI, TSYS, TNS/Interac). The trigger amount `3757` is only active when the merchant is provisioned on the Simulator acquirer with a US MCC. Do not test this on EU or non-US configurations.
+:::
+
+### Accept flow — cardholder accepts the partial amount
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+1. Send `POST /transactions` with `"amount": "3757"` and `"currency": "USD"`. Save the `transactionResultId`.
+2. The terminal will display a partial approval prompt (e.g. "Approved $11.00 of $37.57 — Accept?").
+3. While the prompt is active, `GET /transactions/{ref}/status` returns `finStatus: AUTHORISED` — this is **not final**. The amount fields reveal the partial: `totalAmount < requestedAmount` and `dueAmount > 0`. Do not save the `AUTHORISED` result.
+4. On the terminal, press **Accept**.
+5. Poll `GET /transaction-result/{id}` — the final result shows `finStatus: PARTIAL_APPROVAL` with `totalAmount` as the approved partial amount.
+6. Verify your integration records `totalAmount` as the settled amount — **not** `requestedAmount`.
+7. Verify your POS prompts for split tender (remaining `requestedAmount − totalAmount`) or surfaces a "partial payment accepted" message.
+
+**Polling requirement:** Continue polling `transaction-result` for at least 60 seconds — the accept/decline prompt on the terminal can take up to 60 seconds to resolve. From `/status`, use `dueAmount > 0` as a secondary signal that the partial approval prompt is still active.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+1. Call `hapi.sale(BigInteger("3757"), currency)`.
+2. The terminal shows the partial approval prompt.
+3. Press **Accept** on the terminal within 60 seconds.
+4. Verify `endOfTransaction` fires with `finStatus == PARTIAL_APPROVAL` and `totalAmount` reflecting the partial.
+5. Verify your app saves `totalAmount`, not `requestedAmount`, as the settled amount.
+6. Verify your app prompts for split tender or surfaces an appropriate message for the remaining balance.
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Partial approval is a US-only feature and requires a US acquirer configuration. If using HiLite in the US, follow the same steps as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+Same as Android HiLite — US acquirer required.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Same scenario as Android (PAX) using `handpoint.sale()`. Verify `result.finStatus === "PARTIAL_APPROVAL"` and `result.totalAmount` reflects the partial amount.
+
+</TabItem>
+</Tabs>
+
+---
+
+### Decline flow — cardholder declines the partial amount
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+1. Send `POST /transactions` with `"amount": "3757"` and `"currency": "USD"`.
+2. On the terminal, press **Decline** when the partial approval prompt appears.
+3. The SDK automatically sends a reversal for `totalAmount` — no action from your integration is required.
+4. Continue polling `GET /transaction-result/{id}` — the final result must show `finStatus: CANCELLED`.
+5. Verify your integration does **not** save the transaction as a sale.
+6. Verify your POS prompts the cardholder to use a different payment method.
+7. Optionally: query `GET /transactions/{transactionReference}/status/all` and verify the array contains two entries — the `CANCELLED` sale and an `AUTHORISED` reversal.
+
+**Key verification:** While the prompt was active, `/status` showed `AUTHORISED` with `dueAmount > 0`. If your integration saved that `AUTHORISED` as a completed sale before the decline resolved, this test will expose that bug. The final `transaction-result` is the authoritative outcome.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+1. Call `hapi.sale(BigInteger("3757"), currency)`.
+2. Press **Decline** on the terminal when the partial approval prompt appears.
+3. Verify `endOfTransaction` fires with `finStatus == CANCELLED`.
+4. Verify no sale is recorded in your portal.
+5. Verify your app does not treat an intermediate `PARTIAL_APPROVAL` state as a final result before the cardholder accepts or declines.
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+US acquirer required. Same steps as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+US acquirer required. Same steps as Android HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+Same scenario using `handpoint.sale()`. Verify `result.finStatus === "CANCELLED"` after the decline resolves, and verify your integration does not record the intermediate `PARTIAL_APPROVAL` state as a sale.
+
+</TabItem>
+</Tabs>
+
+---
+
+### ISV reversal — integration does not accept partial approvals
+
+If your integration policy is to never accept partial approvals, test the reversal path:
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+1. Send `POST /transactions` with `"amount": "3757"`.
+2. On the terminal, press **Accept** to produce a `finStatus: PARTIAL_APPROVAL` result with a `transactionID`.
+3. Immediately send `POST /reversal` with `{ "originalGuid": "{transactionID}" }` (no `amount` needed for a full reversal).
+4. Verify the reversal `finStatus: AUTHORISED`.
+5. Verify no net charge appears in your test merchant portal (the hold is released).
+6. Verify your POS shows "Insufficient funds on this card" and prompts for an alternative payment method.
+
+:::danger Use `totalAmount` if sending `amount` on the reversal
+The reversal endpoint requires the amount that was actually authorized — `totalAmount` from the partial approval result — not `requestedAmount`. If your acquirer requires an explicit `amount`, use `totalAmount`. Using `requestedAmount` will fail or cause a settlement mismatch.
+:::
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+1. After receiving `PARTIAL_APPROVAL` in `endOfTransaction`, call `hapi.saleReversal(totalAmount, currency, originalTransactionID)`.
+2. Verify the reversal `finStatus == AUTHORISED`.
+3. Verify the hold is released.
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+US acquirer required. Same steps as Android PAX.
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+US acquirer required. Same steps.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+1. After `PARTIAL_APPROVAL`, call `handpoint.saleReversal()` with `totalAmount` and `originalTransactionID`.
+2. Verify `result.finStatus === "AUTHORISED"` and no net charge.
+
+</TabItem>
+</Tabs>
+
+---
+
+## Related pages
+
+- [Development hardware](/reference/development-hardware) — trigger amounts, test card PANs, Interac test cards
+- [Validate integration](/reference/validate-integration) — pre-launch checklist covering the full integration surface
+- [Transaction recovery — Cloud API](/reference/transaction-recovery-cloud-api) — implementation guide for UNDEFINED and network-drop recovery
+- [Error codes](/reference/error-codes) — full error code reference with recovery steps

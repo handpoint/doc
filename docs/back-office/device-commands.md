@@ -6,11 +6,13 @@ description: Remote device management commands — reboot, locale, brightness, u
 
 # Device Control Commands
 
-Use these endpoints to remotely configure and control PAX terminals via the Cloud API. No terminal interaction or SDK is required — commands are delivered over the existing message channel.
+Use these endpoints to remotely configure and control PAX terminals via the Cloud API. Commands are delivered over the existing Cloud message channel — no cardholder interaction or client-side SDK is required to issue them.
 
-:::info Requirements
-- **Handpoint Payments App version 4.6.0+** (Android SDK 7.1006.0+) must be installed on the terminal.
-- **Integrated mode must be enabled** on the terminal via Handpoint TMS. A `202 Accepted` response is returned regardless of whether the command was delivered — if Integrated mode is not active on the device, the command will not execute.
+:::warning Cloud API + connected terminal required
+Device commands are **not** back-office/no-reader operations. They are instructions delivered to a physical PAX device and require the terminal to be online and enrolled in **Cloud (integrated) mode** via Handpoint TMS. Unlike transaction feed or TMS API calls, these commands cannot be used without a connected reader.
+
+- **Handpoint Payments App 4.6.0+** (Android SDK 7.1006.0+) must be installed on the terminal.
+- **Integrated mode must be active** — if it is not, the command will not execute even though the API returns `202 Accepted`.
 :::
 
 All endpoints share the same structure:

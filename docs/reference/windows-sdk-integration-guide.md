@@ -182,7 +182,7 @@ private void HandleResult(TransactionResult result)
         case FinancialStatus.DECLINED:
             ShowDeclined();
             break;
-        case FinancialStatus.PARTIALLY_APPROVED:
+        case FinancialStatus.PARTIAL_APPROVAL:
             HandlePartialApproval(result);
             break;
     }
@@ -213,7 +213,7 @@ hapi.GetTransactionStatus(transactionReference);
 | `IN_PROGRESS` / `UNDEFINED` | Poll again in 10 s |
 | `AUTHORISED` (no prior record) | Send automatic reversal via Cloud API |
 | `DECLINED` / `FAILED` / `CANCELLED` | Clear pending record |
-| `PARTIALLY_APPROVED` | Wait 60 s, then handle split tender or reverse |
+| `PARTIAL_APPROVAL` | Wait 60 s, then handle split tender or reverse |
 
 → Full implementation: [Transaction Recovery — Windows SDK](/reference/transaction-recovery-windows-sdk)
 

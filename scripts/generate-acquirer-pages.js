@@ -50,7 +50,7 @@ const CAPABILITY_HEADINGS = {
 // If 'anchor' is omitted the flavorKey itself is used as the anchor ID.
 const FLAVOR_DESCRIPTIONS = {
   sale: {
-    'emv-sale':          { description: 'On-device · chip, tap, or swipe' },
+    'emv-sale':          { description: 'On-device · chip, contactless, or magstripe' },
     'key-entry-sale':    { description: 'On-device · operator keys card number' },
     'moto-sale':         { description: 'Back-office · charges a stored card token', anchor: 'remote-sale' },
     'sale-and-tip':      { description: 'On-device · tip collected at checkout' },
@@ -230,7 +230,7 @@ function buildFlavorBlock(capKey, flavorKey, flavorData, acquirer) {
           '</Tabs>',
           '',
           ':::info',
-          'See [AVS for MOTO](/reference/avs-for-moto) for prerequisites, full field reference, and edge cases.',
+          'See [AVS](/reference/avs) for prerequisites, full field reference, and edge cases.',
           ':::',
           '',
         ].join('\n');
@@ -262,7 +262,7 @@ function buildFlavorBlock(capKey, flavorKey, flavorData, acquirer) {
           '</Tabs>',
           '',
           ':::info',
-          'See [AVS for MOTO](/reference/avs-for-moto) for prerequisites and edge cases.',
+          'See [AVS](/reference/avs) for prerequisites and edge cases.',
           ':::',
           '',
         ].join('\n');
@@ -360,7 +360,7 @@ function buildPage(slug, a) {
           if (avsCaps && isVisible(avsCaps)) {
             const supportedPaths = PATHS.filter(p => avsCaps[p] === 'public' || avsCaps[p] === 'coming-soon');
             const pathLabels = supportedPaths.map(p => PATH_LABELS[p]).join(' and ');
-            avsNote = `### Address Verification Service (AVS)\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on ${pathLabels} only, for now.\n\nTurning it on for a merchant requires \`avsForMoto\` (an internal flag Handpoint sets per merchant, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS for MOTO](/reference/avs-for-moto).\n:::\n`;
+            avsNote = `### Address Verification Service (AVS)\n\n${a.name} supports optional Address Verification (AVS) for MOTO Sale, Pre-Authorization, and Refund — on ${pathLabels} only, for now.\n\nTurning it on for a merchant requires \`avsForMoto\` (an internal flag Handpoint sets per merchant, default \`false\`) and \`motoEnabled = true\`.\n\n:::info\nSetup, code samples for both integration paths, and known limitations are covered in [AVS](/reference/avs).\n:::\n`;
           }
           content = content.replace('{/* AVS_FOR_MOTO_INJECTION_POINT */}', avsNote);
         }
@@ -459,6 +459,7 @@ function buildLlmsTxt(acquirers) {
     '/reference/acquirer-capabilities-matrix',
     '/reference/transaction-result-object',
     '/reference/error-codes',
+    '/reference/fee-mitigation',
   );
   return lines.join('\n');
 }
@@ -520,6 +521,10 @@ function main() {
   let count = 0;
   for (const [slug, a] of Object.entries(acquirers)) {
     if (a.status !== 'active') continue;
+    if (a['skip-generate']) {
+      console.log(`  ↷ Skipping ${slug}.mdx (hand-crafted; skip-generate: true in acquirers.yaml)`);
+      continue;
+    }
     fs.writeFileSync(path.join(OUTPUT_DIR, `${slug}.mdx`), buildPage(slug, a));
     count++;
   }

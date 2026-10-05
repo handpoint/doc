@@ -211,23 +211,40 @@ ui.showResult(
 
 ### 3.6 Partial approval handling
 
-`PARTIALLY_APPROVED` means the issuer authorised only part of the requested amount (common with prepaid cards).
+`PARTIAL_APPROVAL` is a **US-only** feature that is **enabled by default**. Every US integration will encounter it in production. Handling it correctly is **required for Handpoint integration certification** — Handpoint validates this as part of the standard test script after app submission.
 
-**Required:**
-- Detect `FinancialStatus.PARTIALLY_APPROVED`.
-- Display the approved amount to the operator.
-- Prompt for split tender (second payment for the remainder), or reverse the partial approval.
-- Never treat `PARTIALLY_APPROVED` as a full approval.
+**ISV options:**
+
+**Option 1 — Accept partial approvals** (required if your MCC mandates it — consult your acquirer):
+- Fulfil at `result.totalAmount`. Display `totalAmount` on the receipt.
+- Prompt the cardholder for the remaining `dueAmount` via a second payment method.
+
+**Option 2 — Do not support partial approvals**:
+- Immediately reverse using `result.totalAmount` (the authorized amount) — **never** `requestedAmount`.
+- Display "Insufficient funds — transaction cancelled" or equivalent.
+- Log **both** transactions: the original `PARTIAL_APPROVAL` sale and the reversal. Both receipts must be accessible in your transaction history.
+- Prompt for an alternative payment method.
 
 ```kotlin
-FinancialStatus.PARTIALLY_APPROVED -> {
-    val balance = requestedAmount - result.authorisedAmount
-    // Prompt for split tender, or:
-    api.saleReversal(result.authorisedAmount, currency, result.EFTTransactionID)
+FinancialStatus.PARTIAL_APPROVAL -> {
+    if (isPartialApprovalSupported) {
+        // Option 1: fulfil at totalAmount, collect remainder via second tender
+        val remaining = result.requestedAmount - result.totalAmount
+        showSplitTenderPrompt(result.totalAmount, remaining)
+    } else {
+        // Option 2: reverse and show "insufficient funds"
+        // Use totalAmount (authorized), NOT requestedAmount
+        hapi.saleReversal(result.totalAmount, currency, result.transactionID)
+        showMessage("Insufficient funds — transaction cancelled")
+        // Log both the PARTIAL_APPROVAL sale and this reversal in transaction history
+    }
 }
 ```
 
-**Test:** Use trigger amount `37.57`.
+**Test:** Use trigger amount `BigInteger("3757")` (minor units). Test all three scenarios:
+1. Cardholder accepts the partial — verify `totalAmount` is used as the settled amount
+2. Cardholder declines — verify `CANCELLED` arrives and no sale is recorded
+3. ISV reversal path — verify the reversal is sent and both transactions appear in history
 
 ---
 
@@ -328,13 +345,13 @@ Run the scenarios below for each operation your integration supports. For the sh
 
 ## 6. Staging trigger amounts
 
-| Amount | Behaviour | Tests |
+| Amount (minor units) | Behaviour | Tests |
 |---|---|---|
-| `37.79` | Refer to issuer (01) | `responseText` displayed to operator |
-| `37.84` | Not authorised (05) | Decline flow; receipt issued |
-| `37.93` | Pick up card (04) | Hard decline; receipt issued |
-| `37.57` | Partially approved | Balance collection or reversal |
-| `37.68` | Request timeout — result never delivered | Recovery + 7-minute timeout |
+| `BigInteger("3779")` | Refer to issuer (01) | `responseText` displayed to operator |
+| `BigInteger("3784")` | Not authorised (05) | Decline flow; receipt issued |
+| `BigInteger("3793")` | Pick up card (04) | Hard decline; receipt issued |
+| `BigInteger("3757")` | Partially approved | Balance collection or reversal; both receipts logged |
+| `BigInteger("3768")` | Request timeout — result never delivered | Recovery + 7-minute timeout |
 | Any other | Authorised (00) | Happy path; receipt; transaction history |
 
 ---

@@ -71,6 +71,10 @@ Authorization: Bearer YOUR_TXNFEED_API_KEY
 | `customerReceipt` | Formatted receipt text |
 | `cardToken` | Present if tokenization enabled |
 
+**The feed carries no fee mitigation fields.** There is no fee amount, no program, and no applied
+flag. Persist the `fee` object from the transaction result in your own records. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
+
 ## Recovery via Android SDK
 
 On Android PAX or HiLite paths, use the SDK status method before querying the feed:
@@ -83,8 +87,8 @@ hapi.getTransactionStatus(transactionReference)
 ## Recovery via Cloud API status endpoint
 
 ```http
-GET https://cloud.handpoint.com/status/{transactionReference}
-ApiKeyCLoud: YOUR_MERCHANT_API_KEY
+GET https://transactions.handpoint.com/transactions/{transactionReference}/status
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 ## transactionReference — the idempotency key

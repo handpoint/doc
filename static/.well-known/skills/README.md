@@ -1,110 +1,173 @@
 # Handpoint Agent Skills — Maintainer Guide
 
-This directory contains machine-readable skill files for AI coding agents (Claude, Copilot, Cursor, etc.). Agents fetch these to get accurate, Handpoint-specific context before generating integration code. They are served publicly at `/.well-known/skills/`.
+This directory contains machine-readable skill files served at `/.well-known/skills/`. AI coding agents (Claude, Copilot, Cursor, etc.) fetch these before generating integration code so they have accurate, Handpoint-specific context. Humans can read them too — they are plain Markdown.
 
-**Rule of thumb:** whenever you update an acquirer page or a back-office / SDK reference page, also update the corresponding skill file. It takes 5 minutes and prevents agents from giving developers outdated advice.
+**The golden rule:** whenever you change a capability, add a feature, rename an acquirer, or fix a bug description in the MDX docs — also update the skill file. It takes a few minutes and prevents agents from generating broken integrations.
 
 ---
 
-## File map — doc page → skill file
+## Where things live (the two parallel doc systems)
 
-| When you edit this doc... | Also update this skill file |
+Every Handpoint integration fact exists in **two places** that must stay in sync:
+
+| Layer | Who reads it | Where |
+|---|---|---|
+| **MDX docs** | Human developers on the docs site | `docs/acquirers/*.mdx`, `docs/reference/*.md`, `docs/guides/*.mdx` |
+| **Agent skill files** | AI coding agents (fetched via `/.well-known/skills/`) | `static/.well-known/skills/acquirers/*.md`, `paths/*.md`, `optional/*.md` |
+
+A third layer exists for Handpoint staff only — the internal reference files in `docs-internal/` (never merged to dev/main). These describe processor-level details (TSYS, TNS, OMNIPAY) that ISVs don't need.
+
+---
+
+## File map — doc page → skill file (current paths)
+
+| When you edit this MDX doc... | Also update this skill file |
 |---|---|
 | `docs/acquirers/epi.mdx` | `acquirers/epi.md` |
-| `docs/acquirers/omnipay-emp.mdx` | `acquirers/emerchantpay.md` |
-| `docs/acquirers/omnipay-paystrax.mdx` | `acquirers/paystrax.md` |
-| `docs/acquirers/paysafe-tsys.mdx` | `acquirers/paysafe.md` |
-| `docs/back-office/rest-api-no-reader.md` | `paths/cloud-api.md` |
-| `docs/reference/android-sdk-setup.md` | `paths/android-pax.md` + `paths/android-hilite.md` |
-| iOS SDK docs | `paths/ios-hilite.md` |
-| `docs/reference/cordova-events.md` | `paths/cordova.md` |
-| `docs/back-office/rest-api-no-reader.md` (remote sale / token section) | `optional/back-office.md` |
-| `docs/back-office/transaction-feed-api.md` | `optional/transaction-feed.md` |
+| `docs/acquirers/emerchantpay.mdx` | `acquirers/emerchantpay.md` |
+| `docs/acquirers/paystrax.mdx` | `acquirers/paystrax.md` |
+| `docs/acquirers/paysafe.mdx` | `acquirers/paysafe.md` |
+| `docs/reference/cloud-api-integration-guide.md` | `paths/cloud-api.md` |
+| `docs/reference/android-pax-integration-guide.md` | `paths/android-pax.md` |
+| `docs/reference/android-hilite-integration-guide.md` | `paths/android-hilite.md` |
+| `docs/reference/ios-hilite-integration-guide.md` | `paths/ios-hilite.md` |
+| `docs/reference/backoffice-integration-guide.md` | `optional/back-office.md` |
 | `docs/reference/error-codes.md` | Relevant `acquirers/` and `paths/` files |
+| `src/data/acquirerCaps.js` (capability matrix source) | All affected `acquirers/*.md` capability tables |
 
 ---
 
-## Common scenarios
+## Validation checklist — use after any documentation change
 
-### A. New operation added to an existing acquirer or path
+Run through this list after every change before marking it done. This is the fastest way to catch drift between the two doc layers.
 
-**Example:** EPI adds support for a new refund variant.
+### 1. Capability change (feature added, removed, or restricted)
 
-1. Update the acquirer doc (`docs/acquirers/epi.mdx`) as normal.
-2. Open `acquirers/epi.md` and:
-   - Add a row to the capabilities table at the top (✅ or ❌ per path).
-   - Add a new `##` section describing the operation — request body, response, error codes, constraints.
-3. If the operation involves the terminal, also update the relevant `paths/` file with the SDK call or REST endpoint.
-4. If it is a back-office operation (no reader), update `optional/back-office.md`.
+- [ ] MDX acquirer page updated (`docs/acquirers/{acquirer}.mdx`)
+- [ ] `src/data/acquirerCaps.js` updated (drives the live capability matrix on the docs site)
+- [ ] Skill file capability table updated (`acquirers/{acquirer}.md`) — ✅/❌ per path column
+- [ ] Any guides that reference this capability updated (`docs/guides/`, `docs/reference/`)
+- [ ] Internal reference updated if it affects processor-level detail (`docs-internal/`)
+- [ ] Build passes: `npm run build` — check for broken anchors in the output
 
----
+### 2. Acquirer renamed or re-slugged
 
-### B. New acquirer onboarded
+- [ ] MDX file renamed (`docs/acquirers/{new-slug}.mdx`) and front matter `id:` updated
+- [ ] Old slug removed from `src/data/acquirers.js` and `src/data/acquirerCaps.js`
+- [ ] `src/components/IntegrationWizard.jsx` maps (`ACQUIRER_REGIONS`, `ACQUIRER_TOKEN_PROVIDERS`, `US_ACQUIRERS`) updated
+- [ ] File map in this README updated (see table above)
+- [ ] Skill file `See also` URL updated to new slug
+- [ ] `handpoint.md` acquirer table updated
+- [ ] Grep for old slug across all docs: `grep -r "old-slug" docs/ static/ src/`
+- [ ] Sidebar checked (`sidebars.js`)
+- [ ] Build passes with no broken links
 
-1. Copy `acquirers/epi.md` as a starting template (it is the most complete).
-2. Rename the copy to `acquirers/{slug}.md` (lowercase, hyphen-separated, e.g. `acquirers/worldline.md`).
-3. Fill in every section:
-   - **Region, card brands, routing, settlement** — in the header block.
-   - **Capabilities table** — mark each path × operation as ✅ or ❌. When unsure, default to ❌.
-   - **Critical sections** — batch close requirement, tip flow (in-sale vs. post-sale), partial reversal support.
-   - **Known error codes** — include any acquirer-specific codes discovered during certification.
-4. Add an entry to `index.json` under `"acquirers"`:
-   ```json
-   {
-     "id": "worldline",
-     "title": "Worldline — acquirer skill",
-     "description": "One-sentence summary of what makes this acquirer distinct.",
-     "path": "acquirers/worldline.md",
-     "region": "Europe",
-     "tags": ["worldline", "eu"]
-   }
-   ```
-5. Add a row to the acquirer table in `handpoint.md`:
-   ```
-   | Worldline | `acquirers/worldline.md` |
-   ```
+### 3. New feature / operation added to any acquirer
 
----
+- [ ] MDX section added to the acquirer page
+- [ ] `acquirerCaps.js` capability flag added
+- [ ] Skill file: new row in capability table + new `##` section with request/response/errors
+- [ ] If it's a Back Office operation: `optional/back-office.md` updated
+- [ ] Guide added or updated if the feature has a usage pattern (`docs/guides/`)
+- [ ] Build passes
 
-### C. New integration path added
+### 4. Error code or known issue discovered
 
-1. Copy `paths/android-pax.md` as a starting template.
-2. Rename to `paths/{slug}.md`.
-3. Fill in:
-   - **Capabilities not available** — list any operations the path cannot support.
-   - **Setup / initialization** — install steps, import statements, init code.
-   - **All operations** — sale, refund, reversal, and any path-specific operations with code examples.
-   - **finStatus values** — either inline or reference another path file.
-4. Add an entry to `index.json` under `"paths"`.
-5. Add a row to the path table in `handpoint.md`.
+- [ ] Added to the `## Known error codes` table in the relevant skill file
+- [ ] Added to `docs/reference/error-codes.md`
+- [ ] If it affects a specific acquirer flow, add a note in the acquirer MDX page
 
 ---
 
-### D. Capability removed or a constraint discovered
+## How to add a new feature (step-by-step)
 
-1. Change the ✅ to ❌ in the capabilities table of the affected `acquirers/` or `paths/` file.
-2. Add or update the **Known constraints** section explaining why it is not supported.
-3. If there is a workaround (e.g. "use refund instead of reversal"), document it in the same section.
+This is the full pattern. Every new operation follows these steps in order.
+
+**Step 1 — Add to `acquirerCaps.js`**
+
+This is the single source of truth for the capability matrix on the docs site. Add the new capability key and set it to `P` (public/supported) or `N` (not supported) per path.
+
+```js
+// src/data/acquirerCaps.js
+epi: {
+  caps: {
+    'new-feature': ALL(),   // or NONE(), or per-path object
+    ...
+  }
+}
+```
+
+**Step 2 — Write the MDX section**
+
+Add a `## New Feature {#new-feature}` section to the acquirer's MDX page in `docs/acquirers/{acquirer}.mdx`. Include:
+- When to use it (one sentence)
+- Implementation notes (numbered list of gotchas)
+- Code tab block (Cloud API JSON + Android/iOS/Cordova SDK calls)
+- Any acquirer-specific restrictions
+
+**Step 3 — Update the skill file**
+
+Open `static/.well-known/skills/acquirers/{acquirer}.md` and:
+1. Add a row to the capability table — one ✅/❌ cell per path column
+2. Add a `## New feature` section — dense and directive, aimed at AI agents
+3. Include the request body, SDK call, and any error codes
+
+**Step 4 — Build and verify**
+
+```bash
+npm run build
+```
+
+Check the output for:
+- `[WARNING] Docusaurus found broken anchors` — fix any new ones
+- `[WARNING] Broken link` — fix any new ones
+- `[SUCCESS]` — build passed
+
+Then grep for the old terminology to confirm nothing stale remains:
+```bash
+grep -r "old-term" docs/ static/
+```
 
 ---
 
-## Conventions to follow
+## How to update existing documentation
 
-**Capabilities table** — always the first section after the header block, always this column order:
+**Changing a capability (e.g. tip adjustment restriction discovered):**
+
+1. Find the implementation notes section in the MDX page and add/update the note.
+2. Open the skill file. If the capability is still supported but with a condition, keep ✅ in the table and add a note in the section body. If it is no longer supported, change to ❌ and explain why.
+3. Check the internal doc (`docs-internal/`) — if the restriction is processor-level, add it there too.
+4. Run the validation checklist above.
+
+**Changing terminology (e.g. renaming an acquirer):**
+
+Run `grep -r "OldName" docs/ static/ src/` before touching anything. The grep output is your change list. Work through every hit file-by-file. Build after to confirm nothing was missed.
+
+---
+
+## Conventions (apply to all skill files)
+
+**Capability table** — always the first section after the header block, always this column order:
 
 ```
 | Capability | Cloud API | Android PAX | Android HiLite | iOS HiLite | Cordova | Back Office |
 ```
 
-**Amounts** — always in minor currency units. Write `1000` = $10.00, never $1,000 or 10.00. Say "minor currency units" in any new section that mentions amounts.
+Use `✅*` with a footnote for capabilities that are supported but with conditions (e.g. iOS HiLite tip adjustment requires `HapiRemoteService`, not a direct SDK call).
 
-**Error codes** — include as a table with columns: Code | Endpoint | Meaning | Action.
+**Amounts** — always in minor currency units in code examples. `1000` = $10.00. Say "minor currency units" in any new section that introduces amounts.
 
-**Code examples** — use fenced code blocks with the language hint (`json`, `kotlin`, `swift`, `javascript`, `http`). Keep examples minimal but runnable.
+**Error codes** — include as a table: `Code | Endpoint | Meaning | Action`.
 
-**Cross-references** — link to optional skills with `optional/back-office.md` or `optional/transaction-feed.md` at the end of any section that touches those topics. Do not duplicate their content.
+**Code examples** — fenced blocks with language hint (`json`, `kotlin`, `swift`, `javascript`). Minimal but runnable. Show the Cloud API body first, then the Android SDK call.
 
-**Tone** — directive and dense. These are read by AI agents, not humans. Omit introductory sentences. Start sections with the constraint or the code.
+**Acquirer name rule** — skill files use the acquirer name only (EPI, PAYSAFE, EmerchantPay, Paystrax). Do not mention processor names (TSYS, TNS, OMNIPAY) — those are internal. ISVs configure acquirers, not processors.
+
+**Cross-references** — link to optional skills at the end of any section that touches back-office or transaction feed topics. Do not copy content from those files.
+
+**Tone for agent sections** — directive and dense. Skip introductory sentences. Start with the constraint or the code.
+
+**Tone for human readers** — the MDX docs on the site are the human-facing layer. Skill files can be terse. If a concept needs more explanation for a human, expand the MDX doc, not the skill file.
 
 ---
 
@@ -112,24 +175,28 @@ This directory contains machine-readable skill files for AI coding agents (Claud
 
 ```
 static/.well-known/skills/
-├── README.md                 ← you are here
-├── handpoint.md              ← entry point: instructs agents to ask before coding
-├── index.json                ← machine-readable catalog (update when adding files)
+├── README.md                    ← you are here (maintainer guide)
+├── handpoint.md                 ← agent entry point: asks acquirer + path before coding
+├── index.json                   ← machine-readable catalog (update when adding files)
 ├── acquirers/
-│   ├── epi.md
-│   ├── emerchantpay.md
-│   ├── paystrax.md
-│   └── paysafe.md
+│   ├── epi.md                   ← EPI — batch, tip adj, partial rev, pre-auth, MOTO
+│   ├── paysafe.md               ← PAYSAFE — tip adj (non-Interac), Interac Void
+│   ├── emerchantpay.md          ← EmerchantPay — tipAmount in sale, pre-auth, MOTO
+│   └── paystrax.md              ← Paystrax — same as EmerchantPay minus remittance
 ├── paths/
-│   ├── cloud-api.md
-│   ├── android-pax.md
-│   ├── android-hilite.md
-│   ├── ios-hilite.md
-│   └── cordova.md
+│   ├── cloud-api.md             ← REST API (server-side, any language)
+│   ├── android-pax.md           ← Android SDK on PAX terminal
+│   ├── android-hilite.md        ← Android SDK + HiLite Bluetooth reader
+│   ├── ios-hilite.md            ← iOS SDK + HiLite reader
+│   ├── cordova.md               ← Cordova / Ionic plugin
+│   ├── javascript.md            ← JavaScript SDK
+│   ├── windows.md               ← Windows SDK
+│   └── ecommerce.md             ← SmartBoard (EU CNP gateway — separate credential system)
 └── optional/
-    ├── back-office.md
-    ├── transaction-feed.md
-    └── prerequisites.md
+    ├── back-office.md           ← Remote sale, batch, pre-auth capture (no reader required)
+    ├── transaction-feed.md      ← Reporting, reconciliation, UNDEFINED recovery
+    ├── prerequisites.md         ← Credentials, hardware, staging vs production
+    └── integration-checklist.md ← Pre-launch validation checklist
 ```
 
-Skill files are served as static files by Docusaurus — no build step required. Changes take effect as soon as they are deployed.
+Skill files are served as static files by Docusaurus — no build step required. Changes deploy with the next site build. Test locally with `npm run start` and fetch `http://localhost:3000/.well-known/skills/acquirers/epi.md` to confirm.

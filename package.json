@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "generate": "node scripts/generate-acquirer-pages.js",
-    "start": "docusaurus start",
+    "start": "DOCS_ENV=staging docusaurus start",
     "build": "docusaurus build",
     "serve": "docusaurus serve",
     "test": "jest"

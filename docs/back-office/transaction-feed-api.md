@@ -6,6 +6,10 @@ description: Query and stream transaction data from the Handpoint analytics feed
 
 # Transaction Feed API
 
+:::info Available with any integration path
+The Transaction Feed API works alongside **any** card-present integration — Cloud API, Android SDK, iOS SDK, Windows SDK, or Cordova. It is a server-side API that talks directly to Handpoint's analytics backend; no terminal or SDK is required at query time.
+:::
+
 The Transaction Feed API provides access to processed transaction data via an Elasticsearch-backed query API.
 
 ## Base URL
@@ -39,6 +43,11 @@ Authorization: YOUR_API_KEY
 | `status` | `APPROVED`, `DECLINED`, `REVERSED` |
 | `cardTokenProvider` | Token provider if tokenization was used |
 | `timestamp` | ISO 8601 timestamp |
+
+:::note Fee mitigation is not in the feed yet
+The feed carries no fee amount, no program, and no applied flag. Persist the `fee` object from the
+transaction result in your own records. See [Fee Mitigation](/reference/fee-mitigation).
+:::
 
 ## Elasticsearch index
 

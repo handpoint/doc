@@ -239,6 +239,12 @@ Mid-transaction status codes appear in `info.statusCode`. Key values used in the
 | `0x001D` | `SharedSecretInvalid` | Wrong shared secret — check credentials |
 | `0x9999` | `InitialisationComplete` | Reader is ready for transactions |
 
+## Fee mitigation
+
+**Not supported on this path.** The iOS SDK does not carry surcharge, admin fee or dual pricing.
+Use a PAX terminal with the Android SDK. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
+
 ## See also
 
 - Acquirer constraints: load `acquirers/{acquirer}.md`

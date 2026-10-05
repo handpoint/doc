@@ -157,4 +157,51 @@ export const KNOWN_ISSUES = [
     regression_of: null,
     jiraKey: null,
   },
+
+  // ─── Cloud API — MOTO ─────────────────────────────────────────────────────
+  {
+    id: 'KI-2026-008',
+    product: 'cloud-api',
+    severity: 'high',
+    visibility: 'public',
+    title: '`transactionReference` silently stripped on moToSale — status poll by reference returns nothing',
+    description:
+      'When `operation: "moToSale"` is sent to POST /transactions, the `transactionReference` field ' +
+      'is ignored by the platform. The completed result contains a system-generated reference that does ' +
+      'not match the sent value. As a result, GET /transactions/{transactionReference}/status returns no ' +
+      'result for on-terminal MOTO transactions.',
+    introduced: null,
+    fixed: null,
+    workaround:
+      'Store `transactionResultId` from the 202 response and use it to poll for the result via ' +
+      'GET /transaction-result/{transactionResultId}. For recovery after a timeout or lost poll, use ' +
+      '`transactionID` from the completed result, or query the Transaction Feed API by terminal serial ' +
+      'number and time window.',
+    regression_of: null,
+    jiraKey: 'CUS-837',
+    seeAlso: [{ label: 'MOTO Guide — On-terminal keyed entry', href: '/reference/moto-guide#path-1--on-terminal-keyed-entry' }],
+  },
+  {
+    id: 'KI-2026-009',
+    product: 'cloud-api',
+    severity: 'medium',
+    visibility: 'public',
+    title: 'ViscusDummy declines surface as HTTP 400 instead of a decline response on POST /moto/sale',
+    description:
+      'In sandbox, when ViscusDummy declines a card (e.g. a trigger amount configured for decline), ' +
+      'POST /moto/sale returns HTTP 400 with the message "Unable to perform Viscus operation" instead of ' +
+      'a proper decline response with finStatus: "DECLINED". Integration code that treats 4xx as ' +
+      'validation or gateway errors will mis-classify these as non-decline failures. This affects ' +
+      'ViscusDummy only — production acquirers return a proper decline response.',
+    introduced: null,
+    fixed: null,
+    workaround:
+      'In sandbox: treat any HTTP 400 with body message "Unable to perform Viscus operation" on ' +
+      'POST /moto/sale as a possible card decline rather than a validation or gateway error. Do not ' +
+      'surface it to the end user as a system error. No workaround is needed in production — ' +
+      'this behavior does not affect production acquirers.',
+    regression_of: null,
+    jiraKey: 'CUS-839',
+    seeAlso: [{ label: 'MOTO Guide — Remote sale error codes', href: '/reference/moto-guide#error-codes' }],
+  },
 ];

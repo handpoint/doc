@@ -6,6 +6,10 @@ description: Terminal Management System APIs for merchant and terminal configura
 
 # TMS APIs
 
+:::info Available with any integration path
+TMS APIs are available regardless of which card-present integration path you chose. Merchant configuration, terminal management, and feature flags are managed server-side and apply to all integration paths. A partner-level API key (distinct from the merchant transaction key) is required.
+:::
+
 The Terminal Management System (TMS) APIs allow you to manage merchants, terminals, and feature configuration programmatically.
 
 ## Base URL

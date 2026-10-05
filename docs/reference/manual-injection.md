@@ -151,7 +151,7 @@ When in doubt, attempt a test install: if `adb install` succeeds and the app lau
 | `INSTALL_FAILED_TEST_ONLY` | APK built with `testOnly=true` flag | Add `adb install -t` flag, or remove `android:testOnly="true"` from `AndroidManifest.xml` |
 | `INSTALL_FAILED_UPDATE_INCOMPATIBLE` | Version code conflict with existing install | Uninstall first: `adb uninstall com.your.package` |
 | App launches but cannot connect to gateway | Wrong SDK version (production release on debug terminal) | Switch to the RC/SNAPSHOT Nexus build |
-| App crashes on startup | Native library ABI mismatch | Ensure your APK includes the correct ABI for the PAX model (arm64-v8a for most modern PAX) |
+| App crashes on startup | Native library ABI mismatch | Use only `armeabi-v7a` in `abiFilters` — `arm64-v8a` crashes on 64-bit OS PAX devices |
 
 ---
 

@@ -36,7 +36,7 @@ The `callback` parameter of `hp.sale()` is a **status update callback** — it f
 | `PROCESSED` | Completed (tokenization, MOTO) | **Final.** Do not retry. |
 | `FAILED` | Technical failure | **Final.** Card not charged. Safe to retry. |
 | `CANCELLED` | Cancelled by cardholder or merchant | **Final.** Card not charged. Safe to retry. |
-| `PARTIALLY_APPROVED` | Partial amount approved *(US only)* | **Final.** Wait 60 s before acting — see note below. |
+| `PARTIAL_APPROVAL` | Partial amount approved *(US only)* | **Final.** Wait 60 s before acting — see note below. |
 | `REFUNDED` | Refund processed | **Final.** Do not retry. |
 | `CAPTURED` | Pre-authorisation captured | **Final.** Do not retry. |
 
@@ -204,5 +204,5 @@ if (pending) {
 ```
 
 :::note Partial approvals (US only)
-If `finStatus` is `PARTIALLY_APPROVED`, the device may be showing an accept/decline prompt to the cardholder with approximately a 30-second timeout. The 60-second wait built into the recovery flow above covers this window. Do not act on a partial approval result immediately — always allow the full wait period to elapse before sending a reversal.
+If `finStatus` is `PARTIAL_APPROVAL`, the device may be showing an accept/decline prompt to the cardholder with approximately a 30-second timeout. The 60-second wait built into the recovery flow above covers this window. Do not act on a partial approval result immediately — always allow the full wait period to elapse before sending a reversal.
 :::

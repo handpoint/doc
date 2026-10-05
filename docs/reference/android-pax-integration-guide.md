@@ -13,6 +13,10 @@ import TabItem from '@theme/TabItem';
 Fetch the integration-path skill for machine-readable setup guidance and code examples: [`/.well-known/skills/paths/android-pax.md`](/.well-known/skills/paths/android-pax.md)
 :::
 
+:::info Cloud API integrated mode
+Need the terminal to also accept transactions triggered by a back-office server or a separate POS? See [Android SDK (PAX) — Cloud API Integrated Mode](/reference/android-cloud-api-integration-guide).
+:::
+
 ## What is this integration path?
 
 The Android SDK (PAX) path runs your application **directly on the PAX SmartPOS terminal**. The Handpoint Android SDK communicates with the Handpoint Payments App on the same device via IPC — no external server or network hop is required for the payment flow.
@@ -26,6 +30,10 @@ Choose this path when your POS UI, checkout logic, and payment terminal are all 
 | Your Android app runs on PAX hardware and owns the full checkout UX | Your POS runs on a separate server — use the [Cloud REST API](/reference/cloud-api-integration-guide) |
 | You want to minimise network dependencies in the payment path | You need a Bluetooth card reader — use the [Android HiLite path](/reference/android-hilite-integration-guide) |
 | You're targeting PAX A920, A920 Pro, A77, or similar SmartPOS devices | You need iOS support — use the [iOS HiLite path](/reference/ios-hilite-integration-guide) |
+
+:::info Back-office operations are always available
+[Backoffice REST API](/reference/backoffice-integration-guide) operations — tip adjustment, reversals, refunds, MOTO charges, batch management, deferred tokenization — are available **alongside any integration path** you choose. They go server-side directly to the payment gateway with no terminal or SDK required. Subject only to acquirer support.
+:::
 
 ## How it works
 
@@ -57,9 +65,9 @@ Your app never handles raw card data — Handpoint keeps you out of PCI scope.
 | Credential | Purpose | Provisioned by |
 |---|---|---|
 | `sharedSecret` | Authenticates your app to the Payments App on the terminal | Handpoint Integration Support |
-| `cloudApiKey` | Enables `getTransactionStatus` recovery endpoint (optional but recommended) | Handpoint Integration Support |
+| `cloudApiKey` | Optional. Required for keyed entry operations, SDK-initiated transaction recovery (`getTransactionStatus()`), and cloud channel (integrated mode). Not required for card-present operations. | Handpoint Integration Support |
 
-The `sharedSecret` is a 64-character hex string unique to the merchant. The `cloudApiKey` is needed only for Cloud/bridge mode and transaction recovery polling.
+The `sharedSecret` is a 64-character hex string unique to the merchant. The `cloudApiKey` is not required for standard card-present integrations.
 
 ## Environments & credentials
 
@@ -107,7 +115,7 @@ android {
         minSdkVersion 22
         multiDexEnabled true
         ndk {
-            abiFilters "arm64-v8a", "armeabi-v7a", "x86", "x86_64"
+            abiFilters "armeabi-v7a"
         }
     }
     // AGP 7 / 8
@@ -196,7 +204,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
         FinancialStatus.DECLINED           -> showDeclined()
         FinancialStatus.CANCELLED          -> showCancelled()
         FinancialStatus.FAILED             -> showError()
-        FinancialStatus.PARTIALLY_APPROVED -> handlePartialApproval(result)
+        FinancialStatus.PARTIAL_APPROVAL -> handlePartialApproval(result)
         else                               -> {}
     }
 }
@@ -224,7 +232,7 @@ hapi.getTransactionStatus(ref)
 | `IN_PROGRESS` / `UNDEFINED` | Keep polling |
 | `AUTHORISED` (no prior record) | Send automatic reversal via Cloud API |
 | `DECLINED` / `FAILED` / `CANCELLED` | Clear pending record — card not charged |
-| `PARTIALLY_APPROVED` | Wait 60 s, then collect split tender or reverse |
+| `PARTIAL_APPROVAL` | Wait 60 s, then collect split tender or reverse |
 
 → Full implementation with code examples: [Transaction Recovery — Android SDK](/reference/transaction-recovery-android-sdk)
 
@@ -238,19 +246,22 @@ hapi.getTransactionStatus(ref)
 | **Pre-Authorization** (create, capture, increase, reverse) | |
 | **MOTO Sale** | EPI, EmerchantPay |
 | **Tokenization** | EPI (proCharge), Paysafe, TokenEx |
-| **Tip Adjustment** | EPI, Paysafe + Interac |
+| **Tip Adjustment** | EPI, PAYSAFE (non-Interac cards only) |
 | **Get Transaction Status** | All (PAX only) |
+
+## Utility methods — verified return values (PAX A920)
+
+| Method | Return | Notes |
+|---|---|---|
+| `stopCurrentTransaction()` | `false` when idle | Returns `false` when no transaction is in progress — only returns `true` when it successfully interrupts an active transaction. Do not interpret `false` as an error; check `OperationStartResult.operationStarted` instead. |
+| `getDeviceLogs()` | `false` on PAX | Returns `false` even when the call was accepted. Device log delivery goes through the `PrinterEvents` channel — implement `Events.PrinterEvents` and handle `onPrintFailure(PrintError.CantConnectToPrinter)` when no host printer is reachable. |
+| `update()` | `true` | Returns `true` immediately; update check runs asynchronously. |
+| `tipAdjustment()` | `true` | Fire-and-forget; no callback. |
+| `getTransactionStatus()` | `true` | Result delivered via `transactionResultReady()`. |
 
 ## Test amounts
 
-On a DEMO merchant or debug terminal:
-
-| Amount | Behaviour |
-|---|---|
-| `£37.79` | Issuer response code 01 — Refer to issuer |
-| `£37.84` | Issuer response code 05 — Not authorized |
-| `£37.93` | Issuer response code 04 — Pick up card |
-| Other amounts | Approved |
+On a DEMO merchant or debug terminal. Pass amounts in **minor units** (cents / pence) — e.g. `3779` not `37.79`. Use the full trigger table — including partial approval (3757) and timeout (3768) — from [Development Hardware: Testing with trigger amounts](/reference/development-hardware#trigger-amounts). Any amount not in the table approves.
 
 Funds are never moved on DEMO merchants.
 
@@ -259,9 +270,9 @@ Funds are never moved on DEMO merchants.
 **Required for every integration:**
 
 - [ ] `InitialisationComplete` gate implemented — no financial operations before SDK is ready
-- [ ] `transactionReference` persisted to DB before each operation starts
+- [ ] `transactionReference` persisted to DB before each operation starts — [scoping rules](/reference/transaction-reference)
 - [ ] Transaction recovery tested — app restarted mid-transaction, outcome recovered via `getTransactionStatus`
-- [ ] Partial approval handled — `PARTIALLY_APPROVED` detected, split tender or automatic reversal sent
+- [ ] Partial approval handled — `PARTIAL_APPROVAL` detected; collect split tender or send automatic reversal ([partial approval guide](/reference/partial-approval))
 - [ ] `OperationStartResult.operationStarted` checked before awaiting result
 
 → Full scenario checklist: [Validate your integration — Android SDK](/reference/validate-integration-android-sdk)

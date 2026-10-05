@@ -74,19 +74,18 @@ The cardholder presents their card. A hold is placed for the estimated amount.
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "operation": "preAuthorization",
   "amount": "10000",
   "currency": "USD",
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
-}
+}'
 ```
 
 **Store from the result:**
@@ -164,44 +163,24 @@ Two card-brand rules apply on every route, whatever the headline acquirer:
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-Two paths are available.
+Sent straight to the gateway — **no terminal involved, result returned synchronously.** Amount in **major units** as a decimal string and always positive; add `"subtract": "1"` to decrease.
 
-**With reader** — routes through the connected terminal. Amount in **minor units**; a **negative** amount decreases.
-
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "operation": "preAuthorizationIncrease",
-  "amount": "2000",
-  "currency": "USD",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
-}
-```
-
-To decrease, send `"amount": "-2000"` — on this path the sign **is** the decrease signal, and there is no `subtract` field. Zero is rejected either way.
-
-**Without reader** — sent straight to the gateway, no terminal involved, result returned synchronously. Amount in **major units** as a decimal string and always positive; add `"subtract": "1"` to decrease.
-
-```http
-POST https://cloud.handpoint.com/preauthorization/increase
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/preauthorization/increase \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
   "increaseAmount": "20.00"
-}
+}'
 ```
+
+To decrease: add `"subtract": "1"` to the body. `increaseAmount` is always a positive value — the `subtract` field controls direction.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-auth Create result |
-| `increaseAmount` | string | Yes | Delta in major units, e.g. `"20.00"`. Always positive — the field name applies to decreases too |
+| `increaseAmount` | string | Yes | Delta in major units, e.g. `"20.00"`. Always positive |
 | `subtract` | string | No | `"1"` subtracts the delta instead of adding it. `"1"` is the only accepted value |
 | `customerReference` | string | No | Integrator-defined reference, forwarded as-is |
 
@@ -263,28 +242,41 @@ Finalizes the hold and charges the cardholder. Use the actual amount. It may be 
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-```http
-POST https://cloud.handpoint.com/preauthorization/capture
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
+```bash
+curl -X POST https://cloud.handpoint.com/preauthorization/capture \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "capturedAmount": "9500"
-}
+  "capturedAmount": "95.00"
+}'
 ```
 
-`originalGuid` is the `transactionID` from the pre-authorization result.
+`originalGuid` is the `transactionID` from the pre-authorization result. `capturedAmount` is in **major currency units** as a decimal string — `"95.00"` = $95.00.
 
 To include a tip:
 
-```http
-{
+```bash
+curl -X POST https://cloud.handpoint.com/preauthorization/capture \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
   "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
-  "capturedAmount": "9500",
-  "tipAmount": "500"
-}
+  "capturedAmount": "95.00",
+  "tipAmount": "5.00"
+}'
 ```
+
+| Parameter | Type | Required | Max length | Description |
+|---|---|---|---|---|
+| `originalGuid` | string | Yes | 64 chars | `transactionID` from the pre-auth Create result |
+| `capturedAmount` | string | Yes | 32 chars | Amount to capture — see caution below |
+| `tipAmount` | string | No | 32 chars | Tip to add on top of `capturedAmount` |
+| `customerReference` | string | No | 64 chars | Integrator-defined reference, forwarded as-is |
+
+:::note capturedAmount uses major-unit decimal
+`capturedAmount` and `tipAmount` are **major-unit decimal strings** — consistent with all Cloud API back-office (no-reader) calls. `"95.00"` captures $95.00. This differs from on-device operations (Android SDK `preAuthorizationCapture`), which take minor-unit integers (`BigInteger("9500")`).
+:::
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -340,18 +332,50 @@ Releases the hold without charging the cardholder. Use when a booking is cancell
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
+Sent straight to the gateway — **no terminal involved, result returned synchronously.** Use POST /reversal from your server when you want to void the hold without involving the terminal — for example, after a booking is cancelled or a guest checks out early.
 
+**Full reversal (release the entire hold):**
+
+```bash
+curl -X POST https://cloud.handpoint.com/reversal \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241" }'
+```
+
+**Partial reversal (release part of the hold):**
+
+```bash
+curl -X POST https://cloud.handpoint.com/reversal \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "amount": "50.04",
+  "currency": "USD"
+}'
+```
+
+`amount` is in major-unit decimal (e.g. `"50.04"` = $50.04). `currency` is required whenever `amount` is provided.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the pre-auth Create result |
+| `amount` | string | No | Major-unit decimal; partial release amount. Omit to release the full hold |
+| `currency` | string | Conditional | ISO 4217 currency code. Required when `amount` is provided |
+
+The result is returned synchronously (HTTP 200) — no polling needed:
+
+```json
 {
-  "operation": "preAuthorizationReversal",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  "finStatus": "AUTHORISED",
+  "type": "PRE_AUTHORIZATION_REVERSAL",
+  "transactionID": "f7a8b9c0-8192-11eb-9aca-ad4b0e95f241",
+  "originalEFTTransactionID": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
 }
 ```
+
+`originalGuid` is the `transactionID` from the Pre-Authorization Create result. The gateway determines whether this is a void (Step 3b) or a capture reversal (Step 4) based on the current state of the original transaction.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -401,20 +425,16 @@ Not all acquirers support Capture Reversal. Check the [acquirer capabilities mat
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
+Sent straight to the gateway — **no terminal involved, result returned synchronously.** Pass the `transactionID` from the **Capture** result as `originalGuid`.
 
-{
-  "operation": "preAuthorizationReversal",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "originalTransactionId": "01236fc0-8192-11eb-9aca-ad4b0e95f241"
-}
+```bash
+curl -X POST https://cloud.handpoint.com/reversal \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "originalGuid": "e5f6a7b8-8192-11eb-9aca-ad4b0e95f241" }'
 ```
 
-The `originalTransactionId` here is the `transactionID` from the **Capture** result, not the original pre-auth.
+The gateway determines whether this is a void (Step 3b) or a capture reversal based on the current state of the original transaction.
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -448,9 +468,9 @@ Not confirmed on Cordova. Use Cloud API or Android SDK (PAX) directly.
 
 Query the full pre-auth operation chain at any time using the `transactionReference` you sent on the Create:
 
-```http
-GET https://transactions.handpoint.com/transactions/2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f/status/all
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```bash
+curl https://transactions.handpoint.com/transactions/2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f/status/all \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
 ```
 
 **Example response — Create → Increase → Capture chain:**
@@ -576,3 +596,11 @@ Discover follows card-not-present authorization hold rules similar to Visa. Stan
 ---
 
 > **Source:** Visa Core Rules and Visa Product and Service Rules; Mastercard Transaction Processing Rules. Rules are subject to change — always verify with the current card network rulebooks for your region.
+
+---
+
+## Related pages
+
+- [Operations Reference](/reference/cloud-api-operations#pre-authorization) — curl examples for pre-auth create, capture, and error responses
+- [Error Handling Guide](/reference/error-handling-guide) — pre-auth capability errors (`preAuthAllowed = false`), capture error shapes
+- [Transaction Reference](/reference/transaction-reference) — how `transactionReference` links the full pre-auth chain and enables `/status/all` queries

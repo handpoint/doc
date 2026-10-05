@@ -127,6 +127,8 @@ HAPI.endOfDay(successCallback, errorCallback)
 | `'CANCELLED'` | Cardholder cancelled | Allow retry |
 | `'FAILED'` | Terminal error | Check `statusMessage` |
 | `'UNDEFINED'` | No result received | Do not retry — recover via status call |
+| `'PARTIAL_APPROVAL'` | Partial amount approved (US only) | Fulfil at `totalAmount`; prompt for remaining balance or send reversal |
+| `'IN_PROGRESS'` | Still processing | Keep polling via `getTransactionStatus` |
 
 ## UNDEFINED recovery
 
@@ -149,8 +151,8 @@ HAPI.getTransactionStatus(
 
 Or query the Cloud API status endpoint directly:
 ```http
-GET https://cloud.handpoint.com/status/{transactionReference}
-ApiKeyCLoud: YOUR_MERCHANT_API_KEY
+GET https://transactions.handpoint.com/transactions/{transactionReference}/status
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
 ```
 
 **HiLite Bluetooth path:** `getTransactionStatus()` is not supported. Use the Transaction Feed API — load `optional/transaction-feed.md` for the full query and field reference.
@@ -259,6 +261,12 @@ HAPI.sale({ amount: 1000, currency: 'USD', customerReference: 'ORDER-123' }, suc
 | `"Can't send <operation> operation to device. Incorrect parameters"` | JSON parse error on your config object |
 | `"Handpoint SDK method not defined: <action>"` | Unknown method name — check plugin version |
 | `"Error initializing Handpoint SDK <error>"` | SDK init failed — check `sharedSecret` / `cloudApiKey` |
+
+## Fee mitigation
+
+**Not supported on this path.** The Cordova plugin does not carry surcharge, admin fee or dual
+pricing. Use a PAX terminal with the Android SDK. Reference:
+https://developer.handpoint.com/reference/fee-mitigation
 
 ## See also
 

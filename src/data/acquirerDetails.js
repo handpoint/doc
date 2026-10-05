@@ -37,9 +37,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           },
           "sale-and-tip": {
             "label": "Sale with Tip",
@@ -75,9 +76,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           }
         }
       },
@@ -105,18 +107,20 @@ export const ACQUIRER_DETAILS = [
         }
       },
       "tip-adjustment": {
-        "cloud-api": "public",
+        "cloud-api": "not-supported",
         "android-pax": "public",
         "android-hilite": "public",
         "ios-hilite": "not-supported",
-        "cordova": "public"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "pre-auth": {
         "cloud-api": "public",
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "public"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "moto": {
         "cloud-api": "public",
@@ -138,7 +142,8 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           }
         }
       },
@@ -155,10 +160,15 @@ export const ACQUIRER_DETAILS = [
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "not-supported"
+        "cordova": "not-supported",
+        "backoffice": "public"
       },
       "avs-for-moto": {
         "cloud-api": "public",
+        "android-pax": "public"
+      },
+      "fee-mitigation": {
+        "cloud-api": "coming-soon",
         "android-pax": "public"
       }
     }
@@ -199,9 +209,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           },
           "sale-and-tip": {
             "label": "Sale with Tip",
@@ -237,9 +248,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           }
         }
       },
@@ -267,18 +279,20 @@ export const ACQUIRER_DETAILS = [
         }
       },
       "tip-adjustment": {
-        "cloud-api": "public",
+        "cloud-api": "not-supported",
         "android-pax": "public",
         "android-hilite": "public",
         "ios-hilite": "not-supported",
-        "cordova": "public"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "pre-auth": {
         "cloud-api": "public",
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "public"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "moto": {
         "cloud-api": "public",
@@ -373,6 +387,13 @@ export const ACQUIRER_DETAILS = [
             "android-hilite": "public",
             "ios-hilite": "public",
             "cordova": "public"
+          },
+          "sale-and-tip": {
+            "label": "Sale with Tip",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "android-hilite": "public",
+            "cordova": "public"
           }
         }
       },
@@ -418,10 +439,11 @@ export const ACQUIRER_DETAILS = [
       },
       "tip-adjustment": {
         "cloud-api": "not-supported",
-        "android-pax": "not-supported",
-        "android-hilite": "not-supported",
+        "android-pax": "public",
+        "android-hilite": "public",
         "ios-hilite": "not-supported",
-        "cordova": "not-supported"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "tokenization": {
         "cloud-api": "public",
@@ -469,7 +491,8 @@ export const ACQUIRER_DETAILS = [
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "not-supported"
+        "cordova": "not-supported",
+        "backoffice": "public"
       },
       "sale": {
         "cloud-api": "public",
@@ -493,9 +516,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           },
           "sale-and-tokenize": {
             "label": "Sale with Tokenization",
@@ -503,6 +527,13 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
+            "cordova": "public"
+          },
+          "sale-and-tip": {
+            "label": "Sale with Tip",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "android-hilite": "public",
             "cordova": "public"
           }
         }
@@ -524,9 +555,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           }
         }
       },
@@ -558,7 +590,8 @@ export const ACQUIRER_DETAILS = [
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "public"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "moto": {
         "cloud-api": "public",
@@ -612,7 +645,8 @@ export const ACQUIRER_DETAILS = [
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "not-supported"
+        "cordova": "not-supported",
+        "backoffice": "public"
       },
       "sale": {
         "cloud-api": "public",
@@ -636,9 +670,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-sale": {
             "label": "Remote Sale (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           },
           "sale-and-tokenize": {
             "label": "Sale with Tokenization",
@@ -646,6 +681,13 @@ export const ACQUIRER_DETAILS = [
             "android-pax": "public",
             "android-hilite": "public",
             "ios-hilite": "public",
+            "cordova": "public"
+          },
+          "sale-and-tip": {
+            "label": "Sale with Tip",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "android-hilite": "public",
             "cordova": "public"
           }
         }
@@ -667,9 +709,10 @@ export const ACQUIRER_DETAILS = [
           },
           "moto-refund": {
             "label": "Remote Refund (MOTO)",
-            "cloud-api": "public",
+            "cloud-api": "not-supported",
             "android-pax": "public",
-            "cordova": "public"
+            "cordova": "public",
+            "backoffice": "public"
           }
         }
       },
@@ -708,7 +751,8 @@ export const ACQUIRER_DETAILS = [
         "android-pax": "public",
         "android-hilite": "not-supported",
         "ios-hilite": "not-supported",
-        "cordova": "public"
+        "cordova": "public",
+        "backoffice": "public"
       },
       "moto": {
         "cloud-api": "public",
