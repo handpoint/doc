@@ -95,6 +95,7 @@ const sidebars = {
             'reference/partial-approval',
             'reference/moto-guide',
             'reference/avs',
+            'reference/surcharging',
             'reference/multi-mid',
             'reference/fee-mitigation',
             'reference/tipping-guide',

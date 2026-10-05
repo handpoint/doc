@@ -1,0 +1,266 @@
+---
+title: "Surcharging"
+sidebar_label: "Surcharging"
+description: "Add a percentage fee to credit card transactions, using a rate configured on the terminal, and confirm what the gateway actually applied."
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import NotSupported from '@site/src/components/NotSupported';
+
+:::caution Preview — Unreleased SDK
+This feature requires **Android SDK 7.1014.0** / **App 4.14.0** / **REST API 2.28.0**, which have not all shipped yet. The page is published here for early review and integration planning. Do not build against it in production until GA is announced.
+:::
+
+# Surcharging
+
+Add a percentage fee to credit card transactions to recover the cost of card acceptance, using a rate configured on the terminal.
+
+:::info Availability
+Available via **Cloud API** and **Android SDK (PAX)**. For now, only on **EPI**.
+:::
+
+## Overview
+
+The rate and the rules live in the terminal configuration, not in your code, so a merchant can be switched on, switched off or re-rated from the Handpoint Terminal Management System without you shipping a new build.
+
+Three parties each own part of the outcome:
+
+| Who | Owns |
+|---|---|
+| **Terminal configuration** | Whether surcharging is on, the rate, and what goes into the surcharge base |
+| **Your application** | The sale, tax and tip amounts, and the resulting surcharge amount |
+| **The gateway** | Whether the surcharge is actually applied to this card, and the final recorded amount |
+
+Handpoint has no visibility of your tax or tip figures, so you calculate the surcharge and send it. The gateway validates it, applies it if the card qualifies, and reports back what it did.
+
+:::warning Tell the cardholder first
+Card scheme rules and, in the US, state regulations require the cardholder to be told that a surcharge may apply **before** the transaction is processed. Show a clear notice at the point of sale, or make sure visible signage is in place. This is your responsibility as the integrator — neither the SDK nor the terminal displays it for you.
+:::
+
+## Prerequisites
+
+- Handpoint Android SDK (hapi-android) **7.1014.0 or later**, or **REST API 2.28.0 or later** for Cloud API.
+- The surcharge parameters provisioned on the terminal template by Handpoint.
+- Surcharging enabled for the merchant on EPI.
+
+## Configuration
+
+These five read-only parameters are provisioned on the terminal by Handpoint. There is no self-service toggle.
+
+| Key | Type | Description |
+|---|---|---|
+| `surcharge` | boolean | Master switch. `true` means the terminal is configured to surcharge. |
+| `surchargePercent` | decimal | The rate as a percentage. `2.5` means 2.5 %. |
+| `surchargeApplyToTax` | boolean | Include the tax amount in the surcharge base. |
+| `surchargeApplyToTip` | boolean | Include the tip amount in the surcharge base. |
+| `bypassSurcharge` | boolean | When `true`, your app may offer the merchant a way to waive the surcharge on a single transaction. |
+
+On the Android SDK these are read at runtime through the Configuration Manager (see [Code](#code)). The Cloud API has no equivalent runtime read — server-side integrations get the rate from their own configuration, or from the [TMS APIs](/back-office/tms-apis).
+
+:::note
+Use `bypassSurcharge` to decide whether to show a "waive surcharge" option in your UI. If it is `false`, do not offer the option at all.
+:::
+
+## Calculating the surcharge
+
+Build the base from the amounts your system already holds, then apply the rate. All amounts are in the minor unit of the currency — 12.50 USD is `1250`.
+
+```
+surchargeBase  = saleAmount
+surchargeBase += taxAmount   (only if surchargeApplyToTax is true)
+surchargeBase += tipAmount   (only if surchargeApplyToTip is true)
+
+surchargeAmount = round(surchargeBase × surchargePercent / 100)
+```
+
+For a 50.00 sale with 4.00 tax and 5.00 tip, on a terminal configured at 3 % with `surchargeApplyToTax = true` and `surchargeApplyToTip = false`:
+
+| Step | Value |
+|---|---|
+| Sale | `5000` |
+| Tax, included | `+ 400` |
+| Tip, excluded | `+ 0` |
+| Surcharge base | `5400` |
+| Surcharge at 3 % | `162` (1.62) |
+| **Total charged** | **`5562`** (55.62) |
+
+Omit the surcharge field entirely when surcharging is off or the merchant waived it — do not send a zero.
+
+## How the amount is assembled {#amount-semantics}
+
+:::danger The two paths differ
+The Cloud API and the Android SDK expect the transaction amount to be built differently. Sending an Android-shaped amount to the Cloud API overcharges the cardholder by the surcharge and tax; sending a Cloud-shaped amount to the SDK double-counts them.
+:::
+
+| Path | What `amount` must contain | Result |
+|---|---|---|
+| **Cloud API** | The **total**, surcharge and tax already included | `amount: 5562`, `surchargeAmount: 162`, `taxAmount: 400` |
+| **Android SDK** — sale, MOTO sale, refund | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
+| **Android SDK** — pre-auth capture | The **total**, surcharge and tax already included | The capture amount is sent verbatim |
+
+## Code {#code}
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+`surchargeAmount` is the portion of `amount` that is the surcharge — it is **already included** in `amount`, not added to it.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "5562",
+  "surchargeAmount": "162",
+  "taxAmount": "400",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Both `surchargeAmount` and `taxAmount` are optional strings in the minor unit of currency. Omit them when they do not apply.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+Read the configuration once when your checkout screen is created, then set `surchargeAmount` on the options object. Pass the **base** amount — the SDK adds the surcharge and tax on top.
+
+```kotlin
+// 1. Read the terminal configuration (once, not per transaction)
+val config = hapi.getConfigurationManager().await()
+
+val enabled = try {
+    config[config.getKey("surcharge").asBooleanKey()]
+} catch (e: ConfigurationKeyNotFoundException) {
+    false   // not provisioned on this terminal — surcharging is off
+}
+
+val percent    = config[config.getKey("surchargePercent").asDecimalKey()]
+val applyToTax = config[config.getKey("surchargeApplyToTax").asBooleanKey()]
+val applyToTip = config[config.getKey("surchargeApplyToTip").asBooleanKey()]
+
+// 2. Calculate
+var base = saleAmount                       // 5000
+if (applyToTax) base += taxAmount           // + 400
+if (applyToTip) base += tipAmount
+
+val surcharge = BigDecimal(base)
+    .multiply(percent)
+    .divide(BigDecimal(100), 0, RoundingMode.HALF_UP)
+    .toBigInteger()                         // 162
+
+// 3. Send — cardholder is charged 5000 + 400 + 162 = 5562
+val options = SaleOptions().apply {
+    surchargeAmount = if (enabled) surcharge else null
+    this.taxAmount  = BigInteger.valueOf(taxAmount)
+}
+hapi.sale(BigInteger.valueOf(saleAmount), Currency.USD, options)
+```
+
+`surchargeAmount` is also available on `MoToOptions` (MOTO sale), `RefundOptions` (refund), and the base `Options` type used by `preAuthorizationCapture`. Passing `null` omits the field from the request.
+
+Do not set it on the pre-authorization itself — the surcharge is realized at capture, and the SDK drops it on the initial authorization.
+
+Terminal configuration can change remotely at any time. Reload your cached values when the SDK raises `Events.ConfigurationUpdatesEvent`:
+
+```kotlin
+override fun newConfigurations(items: List<ConfigurationKeyValuePair<*>>) {
+    if (items.any { it.key.name.startsWith("surcharge") || it.key.name == "bypassSurcharge" }) {
+        lifecycleScope.launch { loadSurchargeConfiguration() }
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Surcharging is delivered through the SmartPOS app on PAX and Telpo terminals. HiLite Bluetooth readers do not carry the surcharge fields."
+  useInstead="Cloud API from your server, or an Android (PAX) integration."
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="The iOS SDK does not implement surcharging."
+  useInstead="Cloud API from your server."
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="The Cordova plugin does not expose the surcharge fields."
+  useInstead="Cloud API from your server."
+/>
+
+</TabItem>
+</Tabs>
+
+## What comes back
+
+The gateway decides whether the surcharge sticks — a debit card, for example, may be exempt. The [transaction result](/reference/transaction-result-object) reports what was actually applied.
+
+| Field | Notes |
+|---|---|
+| `amount` | The surcharge the gateway recorded, in **major** units. Note that the amount you *sent* was in minor units. |
+| `applied` | `true` when the surcharge was applied to this transaction. |
+| `reason` | The card funding type behind the decision, for example `CREDIT` or `DEBIT`. |
+
+```kotlin
+override fun transactionResultReady(result: TransactionResult, device: Device) {
+    val surcharge = result.surcharge
+    if (surcharge != null && surcharge.applied) {
+        val applied = surcharge.amount   // BigDecimal, major units — 1.62
+        // show on your receipt, store for accounting
+    }
+}
+```
+
+Always record the returned value rather than the figure you calculated — the gateway's value is the one that was charged.
+
+## Refunds
+
+When you refund part of a purchase, the surcharge is refunded in proportion to the part being returned:
+
+```
+ratio           = refundBaseAmount / originalBaseAmount
+refundSurcharge = round(appliedSurcharge × ratio)
+refundTax       = round(originalTax × ratio)   (only if surchargeApplyToTax was true)
+refundTotal     = refundBaseAmount + refundTax + refundSurcharge
+```
+
+Refunding 25.00 of the 50.00 sale above gives a ratio of 0.5, so 2.00 of tax and 0.81 of surcharge come back, for a refund total of 27.81. For a full refund, use the original base amount as `refundBaseAmount` and the whole surcharge is returned.
+
+Tips are not refunded proportionally — handle them separately according to your own business rules, and keep them out of the refund surcharge base.
+
+## Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| The `surcharge` parameter is missing from the terminal | Treat it as off. The Android SDK throws `ConfigurationKeyNotFoundException` on the key lookup — catch it and default to disabled. |
+| `surchargePercent` is `0` | Do not send a surcharge amount. A zero surcharge can fail gateway validation. |
+| Both `surchargeApplyToTax` and `surchargeApplyToTip` are `false` | Normal. The surcharge is calculated on the sale amount alone. |
+| Tax or tip is `0` | Nothing special — they contribute zero to the base. |
+| The surcharge block is absent from the result | No surcharge information came back. Record no surcharge for this transaction. |
+| `applied` is `false` | The gateway chose not to apply it, typically because the card was debit. Record no surcharge. |
+| The merchant waives the surcharge | Only offer this when `bypassSurcharge` is `true`, and omit the field. |
+| Surcharge set on a pre-authorization | Dropped. The surcharge belongs on the capture. |
+
+## What to persist after a transaction
+
+Store the following so a later refund can be calculated correctly.
+
+| Field to store | Source | Notes |
+|---|---|---|
+| `originalTransactionId` | `TransactionResult.transactionId` / API transaction id | Required to link the refund. |
+| `baseAmount` | Your local variable at sale time | The sale amount before tax, tip and surcharge. |
+| `taxAmount` / `tipAmount` | Your local variables at sale time | Needed to reproduce the surcharge base. |
+| `appliedSurchargeAmount` | The surcharge amount from the result | Gateway-confirmed value, in major units — convert on storage. |
+| `surchargeApplyToTax` / `surchargeApplyToTip` | The configuration in force at sale time | The rate and rules can change before the refund is issued. |
