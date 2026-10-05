@@ -57,7 +57,7 @@ If omitted, you must poll `GET /transaction-result/{transactionResultId}` for th
 
 ### Card token
 
-A surrogate string that represents a real card number, stored securely by a token provider (ProCharge, TokenEx, or Paysafe vault). Returned as `cardToken` in `TransactionResult` when tokenization is enabled for a merchant. Used for MOTO back-office charges — no cardholder or terminal required. EPI only for back-office remote sale; EmerchantPay and Paystrax support keyed-entry MOTO only.
+A surrogate string that represents a real card number, stored securely by a token provider (Cygma, TokenEx, or Paysafe vault). Returned as `cardToken` in `TransactionResult` when tokenization is enabled for a merchant. Used for MOTO back-office charges — no cardholder or terminal required. EPI only for back-office remote sale; EmerchantPay and Paystrax support keyed-entry MOTO only.
 
 ---
 
@@ -85,7 +85,7 @@ See also: [Fee Mitigation](/reference/fee-mitigation)
 
 ### EPI
 
-Handpoint's North American acquirer. Supports Visa, Mastercard, Amex, Discover. Region: US and Canada. Features: batch close, tip adjustment (post-sale), partial reversal, pre-authorization, MOTO (both paths), tokenization (ProCharge / EPI token provider).
+Handpoint's North American acquirer. Supports Visa, Mastercard, Amex, Discover. Region: US and Canada. Features: batch close, tip adjustment (post-sale), partial reversal, pre-authorization, MOTO (both paths), tokenization (Cygma / EPI token provider).
 
 ---
 
@@ -162,9 +162,9 @@ See also: [Pre-authorization guide](/reference/pre-authorization-guide)
 
 ---
 
-### ProCharge
+### Cygma
 
-EPI's card tokenization vault. `cardToken` values beginning with a ProCharge-specific prefix are stored in ProCharge. Used for EPI back-office remote sale. Not available for EmerchantPay or Paystrax back-office charges (those acquirers do not support back-office card-token remote sale).
+EPI's card tokenization vault. `cardToken` values beginning with a Cygma-specific prefix are stored in Cygma. Used for EPI back-office remote sale. Not available for EmerchantPay or Paystrax back-office charges (those acquirers do not support back-office card-token remote sale).
 
 ---
 
@@ -198,7 +198,7 @@ Cloud API: `POST /transactions/{transactionID}/tip-adjustment`
 
 ### TokenEx
 
-An external card tokenization vault used by some PAYSAFE merchants as an alternative to the ProCharge token provider. `cardToken` values from TokenEx merchants are formatted differently from ProCharge tokens.
+An external card tokenization vault used by some PAYSAFE merchants as an alternative to the Cygma token provider. `cardToken` values from TokenEx merchants are formatted differently from Cygma tokens.
 
 ---
 

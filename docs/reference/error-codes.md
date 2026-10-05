@@ -193,7 +193,7 @@ These errors are returned synchronously by the remote sale back-office endpoints
 | `code` | `message` | Meaning | What to do |
 |---|---|---|---|
 | `3107` | `CVV required` | The merchant account has "CVV/CV2 input mandatory" configured for Card Not Present, but the remote sale no-reader endpoint cannot accept a CVV. | Contact Handpoint to disable mandatory CVV for this merchant's remote sale configuration, or use a terminal-based (on-terminal) remote sale flow instead. |
-| `5252` | `Card token failure` | The card token provider (ProCharge, etc.) is temporarily down or unreachable. The stored `cardToken` is valid — tokens do not expire. (`details.httpStatus` is `404` internally.) | Retry the charge when the provider recovers. If persistent (>5 min), contact Handpoint to verify token provider availability. |
+| `5252` | `Card token failure` | The card token provider (Cygma, etc.) is temporarily down or unreachable. The stored `cardToken` is valid — tokens do not expire. (`details.httpStatus` is `404` internally.) | Retry the charge when the provider recovers. If persistent (>5 min), contact Handpoint to verify token provider availability. |
 
 ### `POST /moto/refund` errors
 

@@ -245,7 +245,7 @@ hapi.getTransactionStatus(ref)
 | **Reversal / Void** | |
 | **Pre-Authorization** (create, capture, increase, reverse) | |
 | **MOTO Sale** | EPI, EmerchantPay |
-| **Tokenization** | EPI (proCharge), Paysafe, TokenEx |
+| **Tokenization** | EPI (Cygma), Paysafe, TokenEx |
 | **Tip Adjustment** | EPI, PAYSAFE (non-Interac cards only) |
 | **Get Transaction Status** | All (PAX only) |
 

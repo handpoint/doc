@@ -465,7 +465,7 @@ A **card-not-present sale** submitted directly to the gateway using a stored car
 Use for recurring billing, subscription charges, or any scenario where you hold a card-on-file token from a prior tokenization or card-present transaction. A card token must already exist before this operation can be sent.
 
 :::info No raw card data — tokens only
-Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. ProCharge, Paysafe, TokenEx). The token provider de-tokenizes at processing time — the ISV never handles card data.
+Handpoint back-office MOTO does not accept raw PAN, expiry, or CVV from the ISV. All charges use a `cardToken` issued by a supported provider (e.g. Cygma, Paysafe, TokenEx). The token provider de-tokenizes at processing time — the ISV never handles card data.
 :::
 
 
@@ -1805,7 +1805,7 @@ Reads the card at the terminal and stores it in the **TokenEx token vault** — 
 Use for **loyalty programs** and **card-matching** flows — identifying that the same card is being used across multiple visits or transactions. TokenEx tokens let you correlate card-present transactions to a loyalty account or stored profile without ever handling PAN data.
 
 :::caution No detokenization — not for MOTO / remote charging
-TokenEx tokens cannot be detokenized through Handpoint. They **cannot** be used for back-office MOTO charges or remote sales. If you need card-not-present charging from a stored token, see the proCharge flavor (EPI acquirer) or Paysafe Single-Use Token flavor (Paysafe acquirer).
+TokenEx tokens cannot be detokenized through Handpoint. They **cannot** be used for back-office MOTO charges or remote sales. If you need card-not-present charging from a stored token, see the Cygma flavor (EPI acquirer) or Paysafe Single-Use Token flavor (Paysafe acquirer).
 :::
 
 #### Implementation notes
