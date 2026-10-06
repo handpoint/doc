@@ -41,7 +41,6 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         val token = result.cardToken           // Paysafe single-use token
-        val provider = result.cardTokenProvider // "PAYSAFE"
         // Pass token to Paysafe Customer Vault API — not to Handpoint MOTO
     }
 }
@@ -126,7 +125,6 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | Field | Description |
 |---|---|
 | `cardToken` | Paysafe single-use token — pass to Paysafe Customer Vault API; **not** for Handpoint MOTO |
-| `cardTokenProvider` | `"PAYSAFE"` |
 | `finStatus` | `AUTHORISED` on success |
 
 #### Using the token

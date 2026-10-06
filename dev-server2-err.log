@@ -1,0 +1,18 @@
+[WARNING] The `siteConfig.onBrokenMarkdownLinks` config option is deprecated and will be removed in Docusaurus v4.
+Please migrate and move this option to `siteConfig.markdown.hooks.onBrokenMarkdownLinks` instead.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/android-hilite.md` in source file "docs/reference/android-hilite-integration-guide.md" (13:89) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/android-pax.md` in source file "docs/reference/android-pax-integration-guide.md" (13:89) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/optional/back-office.md` in source file "docs/reference/backoffice-integration-guide.md" (13:79) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/cloud-api.md` in source file "docs/reference/cloud-api-integration-guide.md" (13:89) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/cordova.md` in source file "docs/reference/cordova-integration-guide.md" (10:89) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/ios-hilite.md` in source file "docs/reference/ios-hilite-integration-guide.md" (10:89) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/cloud-api.md` in source file "docs/reference/javascript-sdk-integration-guide.md" (10:110) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.
+[WARNING] Markdown link with URL `/.well-known/skills/paths/cloud-api.md` in source file "docs/reference/windows-sdk-integration-guide.md" (10:146) couldn't be resolved.
+Make sure it references a local Markdown file that exists within the current plugin.

@@ -41,7 +41,6 @@ Authorization: YOUR_API_KEY
 | `currency` | ISO 4217 currency code |
 | `type` | Transaction type: `SALE`, `REFUND`, `REVERSAL`, etc. |
 | `status` | `APPROVED`, `DECLINED`, `REVERSED` |
-| `cardTokenProvider` | Token provider if tokenization was used |
 | `timestamp` | ISO 8601 timestamp |
 
 :::note Fee mitigation is not in the feed yet

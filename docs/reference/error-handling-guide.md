@@ -184,7 +184,7 @@ Capability restrictions produce different error shapes depending on which layer 
 
 > `FAILED` (not `DECLINED`) — ViscusDummy returns a technical error when MOTO is disabled. Real acquirers may return `DECLINED`. Always branch on `finStatus`.
 
-**Tokenization not enabled** — `cardTokenProvider = null`
+**Tokenization not enabled**
 
 ```json
 // Poll result — acquirer was never contacted

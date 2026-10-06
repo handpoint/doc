@@ -39,7 +39,6 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "tipAmount": 0,
   "tipPercentage": 0,
   "dueAmount": 0,
-  "taxAmount": null,
   "surcharge": {
     "amount": 0,
     "applied": false,
@@ -140,7 +139,6 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipAmount` | integer | Tip amount. `0` if no tip. |
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
-| `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
 | `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 
@@ -399,7 +397,6 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+; null when not applicable)
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
@@ -502,7 +499,6 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger? | Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
@@ -512,7 +508,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 Populated on `result.fee` when the request carried a `Fee`. Read
 [Fee Mitigation](fee-mitigation.mdx) for the programs and the rules.
 
-**These amounts are `BigDecimal` in major units**, like `taxAmount` — not `BigInteger` minor units.
+**These amounts are `BigDecimal` in major units** — not `BigInteger` minor units.
 The `Fee` you send uses minor units, so the units change between the request and the result.
 
 | Field | Type | Description |

@@ -140,8 +140,21 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 Your Android application and the Handpoint SDK run directly on the PAX SmartPOS terminal — one device handles your POS UI and the payment flow, with no external server required.
 
 :::info Latest version
-**7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/reference/development-hardware).
+**7.1014.1** — requires a PAX debug device for unsigned APK development. See [Development hardware](/reference/development-hardware).
 :::
+
+### 7.1014.1
+
+**New Features**
+
+- **AVS for MoTo** — Address Verification Service backported from 7.1014.0. Pass cardholder billing details via [`MoToOptions.billing`](/reference/avs) or enable on-screen collection with `MoToOptions.enableAvsFields`. Result returned as `TransactionResult.addressVerification.resultCode`.
+
+**Bug Fixes**
+
+- **False "device busy" on Cloud sales** (SDKS-354) — a race during Pusher subscription setup caused a duplicate channel subscription, making the SDK report the device as busy when it was not. Fixed.
+- **TransactionResult not delivered in error scenarios** (SDKS-126) — metadata containing certain special characters caused Cloud delivery of `TransactionResult` to fail silently (204 instead of the FAILED result). Fixed.
+
+---
 
 ### 7.1014.0
 
@@ -766,8 +779,19 @@ The Handpoint Payments App is distributed by Handpoint. Contact your Handpoint i
 :::
 
 :::info Latest version
-**4.14.0** — uses Android SDK **7.1014.0**
+**4.14.1** — uses Android SDK **7.1014.1**
 :::
+
+### 4.14.1
+
+Uses Android SDK **7.1014.1**.
+
+**Bug Fixes**
+
+- **Kiosk mode not re-locking after power-source disconnect** (APP-81) — when the terminal was removed from a charging base or cable while kiosk mode was active, the lock was not reinstated on reconnect. Fixed.
+- **Onboarding wizard** (APP-74) — the onboarding wizard no longer appears on fully-provisioned terminals where currency and language are already configured, avoiding unnecessary steps.
+
+---
 
 ### 4.14.0
 

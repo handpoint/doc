@@ -78,7 +78,7 @@ Not available on HiLite paths (no manual entry keypad).
 **Remote (card token — no terminal):**
 ```json
 POST https://cloud.handpoint.com/moto/sale
-{ "amount": "10.00", "currency": "USD", "cardToken": "PROCHARGE_OR_EPI_TOKEN", "transactionReference": "<uuid-v4>" }
+{ "amount": "10.00", "currency": "USD", "cardToken": "CYGMA_OR_EPI_TOKEN", "transactionReference": "<uuid-v4>" }
 ```
 `amount` is a major-unit decimal string — `"10.00"` = $10.00.  
 Token source: Cygma or EPI token provider — stored from a prior tokenization transaction.  

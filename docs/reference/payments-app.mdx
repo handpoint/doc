@@ -1,0 +1,191 @@
+---
+id: payments-app
+title: Handpoint Payments App
+sidebar_label: Payments App
+description: A complete guide to the Handpoint Payments App — modes, features, setup, and version compatibility for PAX SmartPOS and Bluetooth mPOS terminals.
+---
+
+# Handpoint Payments App
+
+The Handpoint Payments App is the payment software that ships on Handpoint-provisioned terminals. Two variants exist — one for **PAX SmartPOS** terminals and one for **Bluetooth mPOS** readers (HiLite / Datecs). Both share the same backend but differ in where they run and how the card reader is attached.
+
+:::info Installation and updates
+The app is distributed by Handpoint. Contact your Handpoint relationship manager for installation, updates, or to confirm which version is running on your terminals.
+:::
+
+---
+
+## SmartPOS (PAX)
+
+The SmartPOS app runs directly on PAX Android terminals. The card reader is built into the device.
+
+<div style={{display:'flex', gap:'16px', justifyContent:'center', flexWrap:'wrap', marginBottom:'1.5rem'}}>
+  <div style={{textAlign:'center'}}>
+    <img src="/img/payments-app/01-charge-home.png" alt="Handpoint Payments App — charge screen with numeric keypad" style={{height:'340px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.15)'}} />
+    <div style={{fontSize:'0.8rem', color:'#666', marginTop:'6px'}}>Charge screen</div>
+  </div>
+  <div style={{textAlign:'center'}}>
+    <img src="/img/payments-app/02-transactions.png" alt="Handpoint Payments App — transaction history list" style={{height:'340px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.15)'}} />
+    <div style={{fontSize:'0.8rem', color:'#666', marginTop:'6px'}}>Transaction history</div>
+  </div>
+  <div style={{textAlign:'center'}}>
+    <img src="/img/payments-app/05-transaction-details.png" alt="Handpoint Payments App — transaction detail view" style={{height:'340px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.15)'}} />
+    <div style={{fontSize:'0.8rem', color:'#666', marginTop:'6px'}}>Transaction detail</div>
+  </div>
+</div>
+
+### Standalone Mode
+
+In standalone mode the terminal operates independently — no POS integration required. A cashier enters the sale amount on the terminal keypad, and the card reader collects the payment.
+
+This is the default mode for all newly provisioned PAX terminals.
+
+**Supported operations in standalone:**
+
+| Operation | Available |
+|---|---|
+| Sale | ✓ |
+| Refund | ✓ |
+| Reversal (void) | ✓ |
+| Pre-authorization | ✓ |
+| MOTO (no card reader) | — |
+| Tip adjustment | — |
+
+### Integrated Mode (Cloud API)
+
+Integrated mode connects the terminal to your POS software via the Handpoint Cloud. Your server sends payment commands through the REST API; the cashier no longer enters amounts on the terminal. The payment UI and card-reading flow on the terminal are otherwise identical to standalone.
+
+**Key behavioral differences from standalone:**
+
+- Transaction initiation comes from the POS, not the keypad
+- Sale amount is sent by the POS and displayed on the terminal (keypad is locked)
+- MOTO transactions and tip adjustments are available
+
+**To enable integrated mode on the terminal:**
+
+1. Open **Settings** in the app.
+2. Toggle **Integrated Mode** on.
+3. Enter the integration code provided by your Handpoint integration engineer.
+
+:::info
+Integrated mode must also be provisioned by Handpoint on the merchant account before the terminal will accept Cloud API commands. Contact your Handpoint integration engineer to enable it and obtain an API key.
+:::
+
+See the [Cloud API Integration Guide](/reference/cloud-api-integration-guide) for full API usage details.
+
+### Kiosk & Unattended Modes
+
+| Mode | Description |
+|---|---|
+| **Kiosk** | Android nav buttons disabled — prevents navigation away from the payment app. Used for customer-facing self-service kiosks. |
+| **Unattended** | Fully automated mode for vending machines, parking meters, etc. Terminal shows a standby screen until a Cloud API command triggers a transaction. |
+
+Both modes require Handpoint provisioning. Contact your Handpoint relationship manager to enable them.
+
+### Transaction History
+
+<div style={{display:'flex', gap:'24px', alignItems:'flex-start', flexWrap:'wrap', marginBottom:'1.5rem'}}>
+  <img src="/img/payments-app/02-transactions.png" alt="Transaction history list" style={{height:'280px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.15)', flexShrink:0}} />
+  <div>
+
+The **Transactions** tab shows all transactions in the current open batch. For each entry merchants can:
+
+- View the full transaction detail (card scheme, amount, auth code, reference number)
+- Print or re-print a customer or merchant receipt
+- Initiate a reversal or refund from the detail screen
+
+Transactions accumulate in the open batch until settlement. You can close a batch manually from the app's **Batch** menu or remotely via the [Cloud API batch operations](/acquirers/epi#batching).
+
+  </div>
+</div>
+
+### Analytics
+
+<div style={{display:'flex', gap:'24px', alignItems:'flex-start', flexWrap:'wrap', marginBottom:'1.5rem'}}>
+  <img src="/img/payments-app/03-analytics.png" alt="Analytics tab showing sales totals and charts" style={{height:'280px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.15)', flexShrink:0}} />
+  <div>
+
+The **Analytics** tab provides a summary of sales activity for the current batch period: total sales count and value, breakdowns by card scheme and transaction type, and trend charts.
+
+Data shown is local to the terminal (the current open batch). For multi-terminal or portfolio-level reporting, use the [Handpoint merchant dashboard](https://dashboard.handpoint.com) or the [txnFeed API](/reference/txnfeed).
+
+  </div>
+</div>
+
+### Settings
+
+<div style={{display:'flex', gap:'24px', alignItems:'flex-start', flexWrap:'wrap', marginBottom:'1.5rem'}}>
+  <img src="/img/payments-app/04-settings.png" alt="Settings / configuration screen" style={{height:'280px', borderRadius:'12px', boxShadow:'0 2px 12px rgba(0,0,0,0.15)', flexShrink:0}} />
+  <div>
+
+| Setting | Description |
+|---|---|
+| Integrated Mode | Enable / disable Cloud API integration |
+| Display | Screen brightness and auto-lock timeout |
+| Language & Region | Currency display and receipt language |
+| Receipt Options | Customer copy, signature line, tip prompt |
+| Security Policy | Granular device restrictions — hide tab bar, lock system UI, dim screen, require password to exit |
+| Device Info | App version, SDK version, serial number, TMS merchant ID |
+
+  </div>
+</div>
+
+### Security Policy {#security-policy}
+
+:::info Available from App 4.14.1 (Android SDK 7.1014.1)
+:::
+
+Security Policy replaces the all-or-nothing kiosk mode with four independent restrictions. Each can be enabled or disabled separately via the Cloud API `set-security-policy` command.
+
+| Restriction | What it does |
+|---|---|
+| **Hide tab bar** (`hideTabBar`) | Hides the bottom navigation (Analytics, Transactions, Settings). The payment screen stays in the foreground; Android system menus (Wi-Fi, status bar) remain reachable. Use this for staff-facing checkout where you want to prevent navigation away from the payment screen without fully locking the device. |
+| **Block system UI** (`blockSystemUI`) | Locks the Android status bar and navigation bar. Combined with `hideTabBar`, this is equivalent to full OS-level lockdown. |
+| **Dim on idle** (`brightness`) | Dims the screen to minimum brightness during idle periods. |
+| **Password to exit** (`passwordToExit`) | Requires a PIN or password to disable active restrictions. Use alongside `hideTabBar` or `blockSystemUI` to prevent merchants from disabling the policy at the terminal. |
+
+To configure Security Policy remotely, see [`set-security-policy`](/back-office/device-commands#set-security-policy).
+
+Settings survive app restarts and device reboots — the device synchronizes the policy from the server on start-up.
+
+### Version Compatibility
+
+The app embeds the Android SDK — the app version determines which SDK version is active on the terminal.
+
+| App Version | Android SDK | Notable Changes |
+|---|---|---|
+| **4.14.1** | 7.1014.1 | AVS for MOTO; kiosk lock fix after power disconnect |
+| 4.14.0 | 7.1014.0 | AVS for MOTO introduced |
+| 4.13.0 | 7.1013.1 | Duplicate check for MOTO; contactless improvements |
+| 4.12.3 | 7.1012.3 | Mastercard contactless decline fix |
+| 4.11.0 | 7.1011.0 | PAX A3700 / A6630 support; MOTO recovery |
+| 4.10.6 | 7.1010.6 | Transaction timeout and processing improvements |
+
+For full release notes see [Release Notes → Handpoint App — PAX tab](/release-notes).
+
+### Terminal Compatibility
+
+The SmartPOS app runs on all PAX terminals supported by Handpoint:
+
+- PAX A920 / A920 Pro
+- PAX A35 / A50
+- PAX A77 / A80
+- PAX A3700 / A6630
+
+For the full list see [Devices](/reference/devices).
+
+---
+
+## mPOS (HiLite / Datecs) {#mpos-app}
+
+The Handpoint mPOS app runs on the **merchant's own Android or iOS device** and connects to a portable card reader (HiLite or Datecs) over Bluetooth. It provides the same charge screen, transaction history, and analytics as the SmartPOS app.
+
+| | SmartPOS App | mPOS App |
+|---|---|---|
+| Runs on | PAX SmartPOS terminal | Merchant's Android / iOS phone or tablet |
+| Card reader | Built into the terminal | HiLite or Datecs over Bluetooth |
+| Distribution | PAX Store (via Handpoint) | Google Play / Apple App Store |
+| Integrated mode | ✓ | ✓ |
+| Kiosk / Unattended | ✓ | — |
+
+For a full hardware comparison see [HiLite vs PAX SmartPOS](/reference/hilite-vs-pax).

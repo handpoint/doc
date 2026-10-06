@@ -157,6 +157,54 @@ Returns `400 Bad Request` if `hour` is outside 0–23.
 
 ---
 
+## `set-security-policy`
+
+:::info Available from App 4.14.1
+:::
+
+Configure granular device restrictions independently. Unlike `set-unattended-mode`, which applies a fixed bundle of restrictions, `set-security-policy` lets you enable each restriction separately — for example, hiding the app's tab bar while keeping Android system menus reachable.
+
+```http
+POST https://cloud.handpoint.com/devices/PAXA920/082104578/set-security-policy
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "hideTabBar": true,
+  "blockSystemUI": false,
+  "brightness": true,
+  "passwordToExit": true
+}
+```
+
+**Response**
+
+```json
+// HTTP 202 Accepted
+{ "status": "Accepted" }
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `hideTabBar` | boolean | No | `true` to hide the app's bottom navigation bar (Analytics, Transactions, Settings), keeping the payment screen in the foreground. Android system menus (Wi-Fi, status bar) remain accessible. |
+| `blockSystemUI` | boolean | No | `true` to lock the Android system UI bars — the device is locked at OS level, preventing access to system settings. |
+| `brightness` | boolean | No | `true` to dim the screen to minimum brightness during idle periods. |
+| `passwordToExit` | boolean | No | `true` to require a password or PIN to disable active restrictions. |
+
+**Partial updates**: Fields you omit remain unchanged. Send only the fields you want to change.
+
+**Persistence**: Settings survive app restarts and device reboots — the device synchronizes the policy from the server on start-up.
+
+**Common combinations**
+
+| Use case | `hideTabBar` | `blockSystemUI` | `brightness` | `passwordToExit` |
+|---|---|---|---|---|
+| Staff-facing checkout (hide app nav, keep Wi-Fi access) | `true` | `false` | — | `true` |
+| Fully locked kiosk (no system UI) | `true` | `true` | `true` | `true` |
+| Idle brightness only | — | — | `true` | — |
+
+---
+
 ## URL path parameters
 
 | Parameter | Description | Example |

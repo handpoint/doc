@@ -1,0 +1,165 @@
+---
+id: ai-agents
+title: AI Agents
+sidebar_label: AI Agents
+sidebar_position: 2
+description: How AI coding agents should use Handpoint machine-readable documentation — llms.txt, capability support, and implementation guidance.
+---
+
+# Build with Handpoint using an AI coding agent
+
+Handpoint provides machine-readable documentation to help coding agents identify the correct acquirer, integration path, payment functionality and implementation guidance before generating code.
+
+**Start with [`/llms.txt`](/llms.txt).**
+
+Before generating implementation code, determine:
+
+1. The region and acquirer
+2. The integration path
+3. The payment functionality being implemented
+4. Whether that functionality is supported for the selected acquirer and integration path
+5. The relevant implementation and reference documentation
+
+Integration paths are not mutually exclusive. Different workflows in the same product can use different Handpoint integration paths.
+
+For example, a product could use the Cloud API for a counter terminal, Android HiLite for mobile staff and supported back-office payment operations for later or remote transactions.
+
+---
+
+## Check capability support before generating code
+
+Payment functionality can vary by acquirer and integration path.
+
+Use the machine-readable acquirer × integration-path × functionality data in `/llms.txt` and the associated acquirer and reference pages to establish support before generating an implementation.
+
+Do not assume that a capability supported by one acquirer or integration path is supported identically by another.
+
+**Acquirer pages:**
+- **EPI →** [/acquirers/epi](/acquirers/epi)
+- **Paysafe →** [/acquirers/paysafe](/acquirers/paysafe)
+- **EmerchantPay →** [/acquirers/emerchantpay](/acquirers/emerchantpay)
+- **Paystrax →** [/acquirers/paystrax](/acquirers/paystrax)
+- **SmartBoard ecommerce →** [/acquirers/smartboard](/acquirers/smartboard)
+
+---
+
+## Use the exact endpoint rules
+
+After identifying the correct setup, use the linked reference documentation for endpoint-specific implementation details.
+
+Important implementation details include:
+
+- Authentication requirements
+- Amount units and formats
+- Valid `operation` values
+- `finStatus` values and whether a status is final
+- Transaction recovery behavior
+- Required and optional parameters
+- Acquirer- and integration-path-specific requirements
+
+---
+
+## Handle transaction state before retrying
+
+Do not treat a lost connection as proof that a payment failed.
+
+When the transaction result is uncertain, use the documented transaction-recovery flow to determine transaction state before initiating another payment.
+
+[**Transaction recovery →**](/reference/transaction-recovery)
+
+---
+
+## Critical implementation details for Cloud API code generation
+
+### Amount units differ by endpoint
+
+Do **not** apply one amount-formatting rule indiscriminately across endpoint families.
+
+| Endpoint | Amount format | Example |
+|---|---|---|
+| `POST /transactions` | Minor units as a string — no decimal | `"1000"` = $10.00 |
+| `POST /moto/sale`, `POST /moto/refund`, `POST /reversal` | Major-unit decimal | `"10.00"` = $10.00 |
+
+### Authentication header
+
+```
+ApiKeyCloud: YOUR_API_KEY
+```
+
+Not `Authorization`. Not `X-Api-Key`.
+
+### `finStatus` — complete enum
+
+Generate exhaustive switch/match blocks. Every value has defined behavior.
+
+| Value | Final? | Meaning |
+|---|---|---|
+| `IN_PROGRESS` | No | Keep polling |
+| `UNDEFINED` | No | Run recovery flow before retrying |
+| `AUTHORISED` | Yes | Approved |
+| `DECLINED` | Yes | Declined — do not retry without cardholder action |
+| `FAILED` | Yes | Technical failure — run recovery flow before retrying |
+| `PARTIAL_APPROVAL` | No | Terminal showing accept/decline prompt (US only); poll for 60s+; can become `CANCELLED` |
+| `CANCELLED` | Yes | Cardholder cancelled |
+| `PROCESSED` | Yes | Non-financial operation complete (e.g. `tokenizeCard`) |
+| `REFUNDED` | Yes | Refund processed |
+| `CAPTURED` | Yes | Pre-auth captured |
+
+### `operation` — valid values for `POST /transactions`
+
+Generate only documented values. Do not infer names from payment terminology.
+
+```
+sale, refund, saleAndTokenizeCard, tokenizeCard
+moToSale, moToRefund, moToPreAuthorization, moToReversal
+preAuthorization, preAuthorizationIncrease, preAuthorizationCapture, preAuthorizationReversal
+saleReversal, refundReversal
+stopCurrentTransaction, pingDevice, printReceipt
+```
+
+---
+
+## Vertical guidance
+
+Do not encode a merchant vertical as a single integration path. A merchant workflow determines which integration path or combination of paths fits.
+
+Use the vertical guides as workflow context:
+
+- **Restaurants & hospitality →** [/guides/restaurant-guide](/guides/restaurant-guide)
+- **Field service →** [/guides/field-service-guide](/guides/field-service-guide)
+- **Practice management →** [/guides/practice-management-guide](/guides/practice-management-guide)
+- **Salons & spas →** [/guides/salons-guide](/guides/salons-guide)
+- **Stadiums & events →** [/guides/events-guide](/guides/events-guide)
+
+---
+
+## Core implementation references
+
+- **Cloud API integration →** [/reference/cloud-api-integration-guide](/reference/cloud-api-integration-guide)
+- **Android PAX integration →** [/reference/android-pax-integration-guide](/reference/android-pax-integration-guide)
+- **Android HiLite integration →** [/reference/android-hilite-integration-guide](/reference/android-hilite-integration-guide)
+- **iOS HiLite integration →** [/reference/ios-hilite-integration-guide](/reference/ios-hilite-integration-guide)
+- **Back Office integration →** [/reference/backoffice-integration-guide](/reference/backoffice-integration-guide)
+- **MOTO →** [/reference/moto-guide](/reference/moto-guide)
+- **Transaction recovery →** [/reference/transaction-recovery](/reference/transaction-recovery)
+- **Multi-MID →** [/reference/multi-mid](/reference/multi-mid)
+- **Supported devices →** [/reference/devices](/reference/devices)
+- **TMS APIs →** [/back-office/tms-apis](/back-office/tms-apis)
+- **Device Control Commands →** [/back-office/device-commands](/back-office/device-commands)
+- **Transaction Feed API →** [/back-office/transaction-feed-api](/back-office/transaction-feed-api)
+- **Cloud API — Operations Reference →** [/reference/cloud-api-operations](/reference/cloud-api-operations)
+
+---
+
+## Key architecture facts
+
+The following concepts must remain part of any agent's understanding of the Handpoint platform:
+
+- Integration paths are not mutually exclusive. A product can combine terminal, on-device, mobile and back-office payment experiences.
+- Capability support can vary by acquirer and integration path. Do not assume a feature supported by one acquirer is supported identically by another.
+- Supported transactions can continue from the software company's back office without a new terminal interaction.
+- Transaction state should be established before retrying an uncertain payment.
+- Payment tokens can support eligible later-payment and card-on-file workflows.
+- Multi-acquirer, BIN-based routing/rules and Multi-MID are distinct parts of the payment architecture.
+- Handpoint provides deployment and operations capabilities including TMS APIs, Device Control Commands and Transaction Feed.
+- European ecommerce is part of the Handpoint Developer Center (SmartBoard).
