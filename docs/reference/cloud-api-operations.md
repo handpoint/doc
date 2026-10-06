@@ -13,7 +13,7 @@ For authentication, environments, and callback vs polling delivery, see the [Clo
 For error code definitions and error shapes, see [Error codes](/reference/error-codes).
 
 :::caution Level II data (`taxInformation`/`purchaseOrderNumber`) — limited operation support
-The cloud bridge only accepts Level II data on `sale` (including `saleAndTokenizeCard`), `moToSale` (MOTO sale), and the pre-authorization capture step. Sending `taxInformation` or `purchaseOrderNumber` on any other operation is rejected rather than silently dropped. This mirrors the Android SDK's `@HapiExperimental` `taxInformation`/`purchaseOrderNumber` fields — see the [Android Objects Reference](android-objects-reference.md#options-base-class).
+The cloud bridge only accepts Level II data on the `sale`, `saleAndTokenizeCard`, `moToSale`, and `preAuthorizationCapture` operations. Sending `taxInformation` or `purchaseOrderNumber` on any other operation is rejected rather than silently dropped. This mirrors the Android SDK's `@HapiExperimental` `taxInformation`/`purchaseOrderNumber` fields — see the [Android Objects Reference](android-objects-reference.md#options-base-class).
 :::
 
 ---
