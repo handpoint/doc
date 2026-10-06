@@ -306,6 +306,8 @@ hapi.preAuthorizationReversal(preAuthID)
 
 Both Capture and Reversal results arrive in `endOfTransaction`. Always reverse unused pre-auths — unreleased holds affect cardholder available credit and expire after 7–30 days.
 
+To send Level II data on capture (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`), pass [`PreAuthorizationCaptureOptions`](android-objects-reference.md#preauthorizationcaptureoptions): `hapi.preAuthorizationCapture(amount, currency, preAuthID, PreAuthorizationCaptureOptions().apply { ... })`. The `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is deprecated and has no Level II fields.
+
 ### MOTO Sale (Key Entry)
 
 Use when a cardholder reads their card details over the phone and an operator keys them directly on the PAX terminal's touchscreen. Despite using the physical terminal, this is processed as a MOTO (card-not-present) transaction and incurs higher interchange rates — confirm the fee structure with your acquirer.
@@ -323,6 +325,8 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 ```
 
 Requires `cloudApiKey` in `HandpointCredentials` and MOTO enabled for the merchant by Handpoint. Check `result.finStatus` — `CANCELLED` means the operator exited the entry screen.
+
+To send Level II data (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`), pass [`MoToSaleOptions`](android-objects-reference.md#motosaleoptions) instead: `hapi.motoSale(amount, currency, MoToSaleOptions().apply { ... })`. The `motoSale(amount, currency, options: MoToOptions)` overload is deprecated and has no Level II fields to set.
 
 ### Tokenization
 
@@ -361,6 +365,8 @@ val accepted: Boolean = hapi.tipAdjustment(
 ```
 
 `true` means the SDK sent the adjustment to the gateway. Must be called before batch close — see the [Utility methods table](#utility-methods--verified-return-values-pax-a920) for confirmed PAX return values.
+
+To send Level II tax data (`taxInformation` only, `@HapiExperimental` — there is no `purchaseOrderNumber` field here), pass [`TipAdjustmentOptions`](android-objects-reference.md#tipadjustmentoptions): `hapi.tipAdjustment(tipAmount, currency, originalTransactionID, TipAdjustmentOptions().apply { ... })`. The `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options)` overload is deprecated and has no Level II fields.
 
 ### Automatic Refund
 

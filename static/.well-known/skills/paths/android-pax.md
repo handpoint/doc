@@ -156,6 +156,12 @@ hapi.preAuthorization(BigInteger("1000"), Currency.USD)
 // Capture — completes the pre-auth (can capture different amount than held)
 hapi.preAuthorizationCapture(BigInteger("1000"), Currency.USD, "transactionID-from-preauth")
 
+// Capture with Level II data (@HapiExperimental) — PreAuthorizationCaptureOptions, not the deprecated Options overload
+hapi.preAuthorizationCapture(BigInteger("1000"), Currency.USD, "transactionID-from-preauth", PreAuthorizationCaptureOptions().apply {
+    taxInformation = TaxInformation(BigInteger("100"), false)
+    purchaseOrderNumber = "PO-4711"
+})
+
 // Increase — raises the held amount before capture
 hapi.preAuthorizationIncrease(BigInteger("200"), Currency.USD, "transactionID-from-preauth")
 
@@ -171,6 +177,11 @@ hapi.preAuthorizationReversal(BigInteger("500"), Currency.USD, "transactionID-fr
 // Returns Boolean directly (not OperationStartResult), does NOT fire endOfTransaction
 val accepted: Boolean = hapi.tipAdjustment(BigInteger("200"), Currency.USD, "transactionID-from-sale")
 // true = tip recorded; false = rejected (unsupported by acquirer or wrong reference)
+
+// With Level II tax data (@HapiExperimental) — TipAdjustmentOptions has taxInformation only, no purchaseOrderNumber field
+hapi.tipAdjustment(BigInteger("200"), Currency.USD, "transactionID-from-sale", TipAdjustmentOptions().apply {
+    taxInformation = TaxInformation(BigInteger("50"), false)
+})
 ```
 
 Do not call for EmerchantPay / Paystrax — include tip in SaleOptions.tipConfiguration at sale time.
@@ -196,6 +207,12 @@ val options = MoToOptions().apply {
     channel = MoToChannel.TO    // TO = telephone order, MO = mail order
     tokenize = true             // also tokenize the card
 }
+
+// With Level II data (@HapiExperimental) — MoToSaleOptions (extends MoToOptions), not the deprecated MoToOptions overload
+hapi.motoSale(BigInteger("1000"), Currency.USD, MoToSaleOptions().apply {
+    taxInformation = TaxInformation(BigInteger("100"), false)
+    purchaseOrderNumber = "PO-4711"
+})
 
 // MOTO refund (linked)
 hapi.motoRefund(BigInteger("1000"), Currency.USD, "transactionID-from-moto-sale", MoToOptions())
@@ -239,7 +256,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 - **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
 - **`taxOnFee` sits inside `amount`.** It is never added on top.
-- Level II: set `Options.taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)`. **`Options.purchaseOrderNumber` is mandatory whenever `taxInformation` is set.** Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount`.
+- Level II (`@HapiExperimental`): `taxInformation`/`purchaseOrderNumber` are NOT on the base `Options` class — only `SaleOptions`/`SaleAndTokenizeOptions`, `MoToSaleOptions`, and `PreAuthorizationCaptureOptions` have both fields; `TipAdjustmentOptions` has `taxInformation` only (no `purchaseOrderNumber`). Every other options class, including plain `RefundOptions`/`MoToOptions`, has neither. Set `taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)` on one of those classes. **`purchaseOrderNumber` is mandatory whenever `taxInformation` is set**, except on `TipAdjustmentOptions`. Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount`.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
@@ -400,8 +417,11 @@ hapi.setLocale(SupportedLocales.en_US)             // set SDK UI locale
 | `TransactionResult` | `com.handpoint.api.shared` | Full result in `endOfTransaction`. See transaction-result-object reference. |
 | `StatusInfo` | `com.handpoint.api.shared` | Mid-transaction updates + InitialisationComplete. |
 | `DeviceStatus` | `com.handpoint.api.shared` | Terminal state snapshot (battery, app version, serial). |
-| `SaleOptions` | `com.handpoint.api.shared.options` | Options for sale/saleAndTokenize. |
-| `MoToOptions` | `com.handpoint.api.shared.options` | Options for MOTO operations. |
+| `SaleOptions` | `com.handpoint.api.shared.options` | Options for sale/saleAndTokenize. Has Level II fields (`@HapiExperimental`). |
+| `MoToOptions` | `com.handpoint.api.shared.options` | Options for MOTO operations. No Level II fields. |
+| `MoToSaleOptions` | `com.handpoint.api.shared.options` | Extends `MoToOptions`; adds Level II fields (`@HapiExperimental`) for `motoSale()`. |
+| `PreAuthorizationCaptureOptions` | `com.handpoint.api.shared.options` | Options for `preAuthorizationCapture()` with Level II fields (`@HapiExperimental`). |
+| `TipAdjustmentOptions` | `com.handpoint.api.shared.options` | Options for `tipAdjustment()` with `taxInformation` only (`@HapiExperimental`, no `purchaseOrderNumber`). |
 | `TipConfiguration` | `com.handpoint.api.shared.options` | On-device tip prompt config. |
 | `MerchantAuth` | `com.handpoint.api.shared.options` | Multi-MID credential override. |
 | `Metadata` | `com.handpoint.api.shared` | Custom key-value data echoed in result. |

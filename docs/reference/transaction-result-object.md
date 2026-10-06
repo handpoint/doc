@@ -508,11 +508,13 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `taxAmount` | BigInteger? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
 | `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
 | `purchaseOrderNumber` | String? | Level II purchase order number echoed back. `null` means none was sent/returned — not empty. Mandatory on the request whenever `taxInformation` is sent. |
-
-`taxInformation` and `purchaseOrderNumber` are populated for Sale, Authorization (chip, contactless, magstripe), Pre-Authorization and Pre-Authorization Capture, Sale-and-Tokenize, Refund, Linked Refund, Reversal, standalone card Tokenize and Card PAN decrypt (card-present and MoTo). For operations where the gateway does not carry tax data (e.g. standalone Tokenize, PAN decrypt) they are `null` in practice.
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
+
+:::caution Experimental API — which operations can populate these
+`taxInformation`/`purchaseOrderNumber` are marked `@HapiExperimental` in the SDK. They can only be non-`null` for operations whose **request-side** options class actually carries Level II data: Sale (`SaleOptions`/`SaleAndTokenizeOptions`), Keyed Entry Sale via the `MoToSaleOptions` overload, and Pre-Authorization Capture via the `PreAuthorizationCaptureOptions` overload (both fields); Tip Adjustment via the `TipAdjustmentOptions` overload (`taxInformation` only — `purchaseOrderNumber` is always `null` there, since that options class has no such field). For every other operation — Refund, Reversal, standalone Tokenize, Card PAN, and the deprecated shared-type `motoSale`/`preAuthorizationCapture`/`tipAdjustment(options: Options)` overloads — the options class has no Level II fields to send, so both are always `null`. See [Options objects](android-objects-reference.md#options-objects) for the full breakdown.
+:::
 
 ### `FeeResult`
 
