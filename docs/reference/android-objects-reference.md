@@ -515,7 +515,7 @@ Available on every options object — the root of the options inheritance chain.
 | `taxAmount` | `BigInteger?` | **Deprecated** — use `taxInformation.taxAmount` on the options classes that support Level II data (see below). |
 
 :::caution Level II data is not a base-class field
-`taxInformation` / `purchaseOrderNumber` do **not** live on `Options` — only the options classes for operations that actually support Level II data have these fields at all. Today that's [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), and [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions) (both fields), plus [`TipAdjustmentOptions`](#tipadjustmentoptions) (`taxInformation` only — no `purchaseOrderNumber`). Every other options class — including plain `RefundOptions` and `MoToOptions` — does not have these fields at all. Both fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`) — the shape may still change in a future release.
+`taxInformation` / `purchaseOrderNumber` do **not** live on `Options` — only the options classes for operations that actually support Level II data have these fields at all: [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), and [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions) (both fields), plus [`TipAdjustmentOptions`](#tipadjustmentoptions) (`taxInformation` only — no `purchaseOrderNumber`). Both fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`) — the shape may still change in a future release.
 :::
 
 ---
@@ -585,8 +585,6 @@ Additional field:
 - `checkDuplicates: Boolean` — same as `SaleOptions`.
 - `moneyRemittanceOptions: MoneyRemittanceOptions?` — Mastercard remittance.
 
-`RefundOptions` does **not** carry Level II data — it has no `taxInformation` or `purchaseOrderNumber` fields. Only [`SaleOptions`](#saleoptions), [`MoToSaleOptions`](#motosaleoptions), [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions), and [`TipAdjustmentOptions`](#tipadjustmentoptions) (tax data only) support it.
-
 ---
 
 ### `MoToOptions`
@@ -603,8 +601,6 @@ Options for all MOTO/keyed-entry operations.
 | `billing` | `Billing?` | Billing address for AVS checks. |
 | `enableAvsFields` | `Boolean` | `true` to prompt the cardholder to enter AVS fields on the terminal. Ignored if `billing` is set. |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Mastercard remittance options. |
-
-`MoToOptions` does **not** carry Level II data. Use [`MoToSaleOptions`](#motosaleoptions) below with the `motoSale(amount, currency, options: MoToSaleOptions)` overload when you need `taxInformation`/`purchaseOrderNumber`.
 
 ---
 
@@ -632,7 +628,7 @@ val options = MoToSaleOptions().apply {
 api.motoSale(BigInteger.valueOf(1000), Currency.USD, options)
 ```
 
-The older `motoSale(amount, currency, options: MoToOptions)` overload is **deprecated**. It still works for non-Level-II MOTO sales, but `MoToOptions` has no `taxInformation`/`purchaseOrderNumber` fields to set.
+The older `motoSale(amount, currency, options: MoToOptions)` overload is **deprecated** in favor of the one above.
 
 ---
 
@@ -668,7 +664,7 @@ val options = PreAuthorizationCaptureOptions().apply {
 api.preAuthorizationCapture(BigInteger.valueOf(9500), Currency.USD, preAuthID, options)
 ```
 
-The older `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is **deprecated**. The bare `Options` type carries `customerReference`/`metadata` only — no Level II fields.
+The older `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is **deprecated** in favor of the one above.
 
 ---
 
@@ -695,7 +691,7 @@ val options = TipAdjustmentOptions().apply {
 api.tipAdjustment(BigInteger.valueOf(200), Currency.USD, originalTransactionID, options)
 ```
 
-The older `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options)` overload is **deprecated**. The bare `Options` type has no Level II fields at all.
+The older `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options)` overload is **deprecated** in favor of the one above.
 
 ---
 
@@ -822,7 +818,7 @@ AVS result — present on `TransactionResult.addressVerification` for MOTO trans
 
 ## `TaxInformation`
 
-Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `taxInformation` field of an options class that supports Level II data — [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions), or [`TipAdjustmentOptions`](#tipadjustmentoptions) (tax data only) — to send it to the gateway; it is echoed back on `TransactionResult.taxInformation`. No other options class has a `taxInformation` field.
+Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `taxInformation` field of an options class that supports Level II data — [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions), or [`TipAdjustmentOptions`](#tipadjustmentoptions) (tax data only) — to send it to the gateway; it is echoed back on `TransactionResult.taxInformation`.
 
 | Property | Type | Description |
 |---|---|---|

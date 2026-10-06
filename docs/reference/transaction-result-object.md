@@ -513,7 +513,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `currency` | Currency | Currency enum. |
 
 :::caution Experimental API — which operations can populate these
-`taxInformation`/`purchaseOrderNumber` are marked `@HapiExperimental` in the SDK. They can only be non-`null` for operations whose **request-side** options class actually carries Level II data: Sale (`SaleOptions`/`SaleAndTokenizeOptions`), Keyed Entry Sale via the `MoToSaleOptions` overload, and Pre-Authorization Capture via the `PreAuthorizationCaptureOptions` overload (both fields); Tip Adjustment via the `TipAdjustmentOptions` overload (`taxInformation` only — `purchaseOrderNumber` is always `null` there, since that options class has no such field). For every other operation — Refund, Reversal, standalone Tokenize, Card PAN, and the deprecated shared-type `motoSale`/`preAuthorizationCapture`/`tipAdjustment(options: Options)` overloads — the options class has no Level II fields to send, so both are always `null`. See [Options objects](android-objects-reference.md#options-objects) for the full breakdown.
+`taxInformation`/`purchaseOrderNumber` are marked `@HapiExperimental` in the SDK. They can only be non-`null` for operations whose **request-side** options class actually carries Level II data: Sale (`SaleOptions`/`SaleAndTokenizeOptions`), Keyed Entry Sale via the `MoToSaleOptions` overload, and Pre-Authorization Capture via the `PreAuthorizationCaptureOptions` overload (both fields); Tip Adjustment via the `TipAdjustmentOptions` overload (`taxInformation` only). See [Options objects](android-objects-reference.md#options-objects) for the full breakdown.
 :::
 
 ### `FeeResult`

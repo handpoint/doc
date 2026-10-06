@@ -803,7 +803,7 @@ The cardholder keys their card details directly into the PAX terminal — no phy
 
 | Operation | Signature | Notes |
 |---|---|---|
-| Keyed entry sale | `motoSale(amount, currency, options: MoToOptions)` (**deprecated**) or `motoSale(amount, currency, options: MoToSaleOptions)` | Card details entered on terminal keypad. `MoToSaleOptions` (extends `MoToOptions`) adds `taxInformation`/`purchaseOrderNumber` (`@HapiExperimental`) — the deprecated `MoToOptions` overload has no Level II fields. |
+| Keyed entry sale | `motoSale(amount, currency, options: MoToOptions)` (**deprecated**) or `motoSale(amount, currency, options: MoToSaleOptions)` | Card details entered on terminal keypad. `MoToSaleOptions` (extends `MoToOptions`) adds `taxInformation`/`purchaseOrderNumber` (`@HapiExperimental`). |
 | Keyed entry refund | `motoRefund(amount, currency, originalTransactionID, options: MoToOptions)` | Refund against a prior keyed entry sale |
 | Keyed entry reversal | `motoReversal(originalTransactionID)` or `motoReversal(originalTransactionID, options: MoToOptions)` or `motoReversal(amount: String?, currency: String?, originalTransactionID)` (partial) | Reverses a keyed entry sale. ⚠️ **The partial-amount overload uses `String?` for amount and `String?` for currency** — not `BigInteger`/`Currency` like every other operation. Example: `motoReversal("100", "USD", originalId)` for a $1.00 partial reversal. Passing `BigInteger`/`Currency` types will cause a compile error or overload resolution failure. |
 | Keyed entry pre-auth | `motoPreauthorization(amount, currency)` or `motoPreauthorization(amount, currency, options: MoToOptions)` | Note: lowercase 'a' — `motoPreauthorization`, not `motoPreAuthorization`. |
@@ -935,7 +935,7 @@ options.channel = MoToChannel.ECOMMERCE  // e-commerce / online
 // null — let the acquirer apply its default channel classification
 ```
 
-For basic MOTO, `MoToOptions()` with no configuration is sufficient. `MoToOptions` does not carry Level II data (`taxInformation`/`purchaseOrderNumber`) — use [`MoToSaleOptions`](android-objects-reference.md#motosaleoptions) with the dedicated `motoSale(amount, currency, options: MoToSaleOptions)` overload for that.
+For basic MOTO, `MoToOptions()` with no configuration is sufficient.
 
 ### `MerchantAuthOptions` and multi-MID authentication
 

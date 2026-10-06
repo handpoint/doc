@@ -256,7 +256,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 - **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
 - **`taxOnFee` sits inside `amount`.** It is never added on top.
-- Level II (`@HapiExperimental`): `taxInformation`/`purchaseOrderNumber` are NOT on the base `Options` class — only `SaleOptions`/`SaleAndTokenizeOptions`, `MoToSaleOptions`, and `PreAuthorizationCaptureOptions` have both fields; `TipAdjustmentOptions` has `taxInformation` only (no `purchaseOrderNumber`). Every other options class, including plain `RefundOptions`/`MoToOptions`, has neither. Set `taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)` on one of those classes. **`purchaseOrderNumber` is mandatory whenever `taxInformation` is set**, except on `TipAdjustmentOptions`. Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount`.
+- Level II (`@HapiExperimental`): `taxInformation`/`purchaseOrderNumber` are NOT on the base `Options` class — only `SaleOptions`/`SaleAndTokenizeOptions`, `MoToSaleOptions`, and `PreAuthorizationCaptureOptions` have both fields; `TipAdjustmentOptions` has `taxInformation` only (no `purchaseOrderNumber`). Set `taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)` on one of those classes. **`purchaseOrderNumber` is mandatory whenever `taxInformation` is set**, except on `TipAdjustmentOptions`. Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount`.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
@@ -418,7 +418,7 @@ hapi.setLocale(SupportedLocales.en_US)             // set SDK UI locale
 | `StatusInfo` | `com.handpoint.api.shared` | Mid-transaction updates + InitialisationComplete. |
 | `DeviceStatus` | `com.handpoint.api.shared` | Terminal state snapshot (battery, app version, serial). |
 | `SaleOptions` | `com.handpoint.api.shared.options` | Options for sale/saleAndTokenize. Has Level II fields (`@HapiExperimental`). |
-| `MoToOptions` | `com.handpoint.api.shared.options` | Options for MOTO operations. No Level II fields. |
+| `MoToOptions` | `com.handpoint.api.shared.options` | Options for MOTO operations. |
 | `MoToSaleOptions` | `com.handpoint.api.shared.options` | Extends `MoToOptions`; adds Level II fields (`@HapiExperimental`) for `motoSale()`. |
 | `PreAuthorizationCaptureOptions` | `com.handpoint.api.shared.options` | Options for `preAuthorizationCapture()` with Level II fields (`@HapiExperimental`). |
 | `TipAdjustmentOptions` | `com.handpoint.api.shared.options` | Options for `tipAdjustment()` with `taxInformation` only (`@HapiExperimental`, no `purchaseOrderNumber`). |
