@@ -83,14 +83,44 @@ public void EndOfTransaction(TransactionResult result, Device device)
 
 #### Parameters
 
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | `"moToSale"` — triggers card entry screen on terminal |
-| `amount` | string | Yes | Smallest currency unit — `"1000"` = $10.00 |
-| `currency` | string | Yes | ISO 4217 code |
-| `serial_number` | string | Yes (Cloud API) | PAX terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `operation` | string | Yes | Must be `"moToSale"` — triggers card entry screen on terminal |
+| `amount` | string | Yes | Amount in smallest currency unit — `"1000"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `"USD"` |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | PAX terminal serial number |
 | `transactionReference` | string | No | UUID v4 for idempotency and status queries |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit, e.g. `BigInteger("1000")` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Amount in smallest currency unit, e.g. `1000` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `'USD'` |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit, e.g. `new BigInteger(1000)` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

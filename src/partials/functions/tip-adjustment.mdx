@@ -91,21 +91,56 @@ BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
 
 #### Parameters
 
-**Backoffice** — `POST /transactions/{transactionID}/tip-adjustment`:
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Amount in **major currency units** — `9.00` = $9.00. Synchronous — result returned immediately.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result |
-| `amount` | number | Yes | Tip amount in major currency units (e.g. `9.00` for $9.00). `0` to void an existing tip |
+| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result (in the URL path) |
+| `amount` | number | Yes | Tip amount in **major currency units**, e.g. `9.00` for $9.00. Send `0` to void an existing tip |
 | `taxInformation.taxAmount` | number | No | Tax amount in major currency units (e.g. `1.50`). Note: **different format** from `POST /transactions`, where tax is a string in minor units. `taxExempt` is not supported on this endpoint and returns 400 |
 
-**Android SDK** — `tipAdjustment(tipAmount, currency, originalTransactionID)`:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
-| Parameter | Type | Description |
-|---|---|---|
-| `tipAmount` | `BigInteger` | Tip amount in minor units. `BigInteger("0")` to void |
-| `currency` | `Currency` | Currency of the original transaction |
-| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+Returns `Boolean` synchronously — no `endOfTransaction` callback fires.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `tipAmount` | `BigInteger` | Yes | Tip amount in minor currency units, e.g. `BigInteger("900")` = $9.00. `BigInteger("0")` to void |
+| `currency` | `Currency` | Yes | Currency of the original transaction, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `tipAmount` | `BigInteger` | Yes | Tip amount in minor currency units, e.g. `BigInteger("900")` = $9.00. `BigInteger("0")` to void |
+| `currency` | `Currency` | Yes | Currency of the original transaction, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `transaction` | `NSString *` | Yes | `transactionId` from the original sale result (note: NOT `eFTTransactionID`) |
+| `tipAmount` | integer | Yes | Tip amount in minor currency units, e.g. `900` = $9.00. `0` to void |
+| `callback` | block | Yes | `TipAdjustmentStatus`: `TipAdjustmentAuthorised`, `TipAdjustmentDeclined`, or `TipAdjustmentFailed` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="tipAdjustment is not implemented in the Cordova plugin — calling it has no effect on either Android or iOS. Use the Cloud API or Android SDK directly."
+  useInstead="Cloud API (Backoffice) or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
 
 #### Response
 

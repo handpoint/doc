@@ -147,34 +147,75 @@ handpoint.saleReversal(
 
 #### Parameters
 
-**Cloud API with reader** — `POST /transactions`:
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Routes through the terminal. Amount in **minor units** (e.g. `"1100"` = $11.00). Asynchronous — poll `GET /transaction-result/{transactionResultId}`.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `operation` | string | Yes | Must be `"saleReversal"` |
-| `amount` | string | Yes | Full original sale amount in **minor units** as a string, e.g. `"1100"` = $11.00 |
+| `amount` | string | Yes | Full original sale amount in minor units as a string, e.g. `"1100"` = $11.00 |
 | `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | Terminal serial number |
 | `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
-| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` |
-| `token` | string | No | Opaque value included alongside the result in the push notification. Only used when `callbackUrl` is set |
+| `callbackUrl` | string | No | URL to receive the result via HTTP POST. If omitted, poll `GET /transaction-result/{transactionResultId}` |
+| `token` | string | No | Opaque value included with the push notification. Only used when `callbackUrl` is set |
 
-**Backoffice** — `POST /reversal`:
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Direct to the gateway — no terminal required. Amount in **major units** (decimal string, e.g. `"12.00"`). Synchronous — result in the response body.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the original transaction (any type) |
-| `amount` | string | No | Amount to reverse in **major units** as a decimal string, e.g. `"12.00"`. Omit for a full reversal. Required for partial reversals on merchants that support it |
+| `amount` | string | No | Amount to reverse in major units as a decimal string, e.g. `"12.00"`. Omit for a full reversal |
 | `currency` | string | No | ISO 4217 currency code. Required when `amount` is provided |
 
-**Android SDK / iOS SDK** — reversal sent through the connected reader:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
-| Name | Type | Description |
-|---|---|---|
-| `amount` | `BigInteger` | Full original sale amount in minor currency units |
-| `currency` | `Currency` | Currency of the original sale |
-| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+Routes through the connected reader. Amount in **minor units**.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Yes | Currency of the original sale, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Routes through the connected reader. Amount in **minor units**.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Yes | Currency of the original sale, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code as string, e.g. `@"USD"` |
+| `transaction` | `NSString *` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Full original sale amount in minor currency units |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

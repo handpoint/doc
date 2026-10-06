@@ -138,26 +138,78 @@ public void EndOfTransaction(TransactionResult result, Device device)
 
 #### Parameters
 
-**Cloud API** — `POST /transactions`:
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Routes through the terminal. Amount in **minor units** (e.g. `"1100"` = $11.00). Asynchronous — poll `GET /transaction-result/{transactionResultId}`.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `operation` | string | Yes | Must be `"saleReversal"` |
-| `amount` | string | Yes | Full original sale amount in **minor units** as a string, e.g. `"1100"` = $11.00 |
+| `amount` | string | Yes | Full original sale amount in minor units as a string, e.g. `"1100"` = $11.00 |
 | `currency` | string | Yes | ISO 4217 currency code — must match the original sale |
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | Terminal serial number |
 | `originalTransactionId` | string | Yes | `transactionID` from the original sale result |
-| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete |
-| `token` | string | No | Opaque value included alongside the push notification. Only used when `callbackUrl` is set |
+| `callbackUrl` | string | No | URL to receive the result via HTTP POST. If omitted, poll `GET /transaction-result/{transactionResultId}` |
+| `token` | string | No | Opaque value included with the push notification. Only used when `callbackUrl` is set |
 
-**Android SDK / iOS SDK**:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
-| Name | Type | Description |
-|---|---|---|
-| `amount` | `BigInteger` | Full original sale amount in minor currency units |
-| `currency` | `Currency` | Currency of the original sale |
-| `originalTransactionID` | `String` | `transactionID` from the original sale result |
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Yes | Currency of the original sale, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Yes | Currency of the original sale, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code as string, e.g. `@"USD"` |
+| `transaction` | `NSString *` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Full original sale amount in minor currency units |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Full original sale amount in minor currency units |
+| `currency` | string | Yes | ISO 4217 code, e.g. `'USD'` |
+| `originalTransactionID` | string | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in minor currency units |
+| `currency` | `Currency` | Yes | Currency of the original sale, e.g. `Currency.USD` |
+| `originalTransactionID` | `string` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

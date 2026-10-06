@@ -64,26 +64,50 @@ handpoint.preAuthorizationCapture(
 </TabItem>
 </Tabs>
 
-**Backoffice** — `POST /preauthorization/capture`:
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Amount in **major currency units** — `"95.00"` = $95.00. Synchronous — result returned immediately.
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-authorization result (UUID v4) |
-| `capturedAmount` | string | Yes | Capture amount in **major currency units** as a decimal string, e.g. `"95.00"` for $95.00 |
-| `tipAmount` | string | No | Optional tip amount in **major currency units** as a decimal string |
+| `capturedAmount` | string | Yes | Capture amount in **major currency units**, e.g. `"95.00"` for $95.00 |
+| `tipAmount` | string | No | Optional tip in **major currency units** — Cloud API only; not supported in SDK paths |
 
-**Android SDK** — `preAuthorizationCapture(amount, currency, originalTransactionID, options?)`:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
-| Parameter | Type | Description |
-|---|---|---|
-| `amount` | `BigInteger` | Capture amount in minor currency units |
-| `currency` | `Currency` | Currency of the original pre-authorization |
-| `originalTransactionID` | `String` | `transactionID` from the pre-authorization result |
-| `options` | `Options?` | Optional — supports `customerReference` |
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Capture amount in smallest currency unit, e.g. `BigInteger("9500")` = $95.00 |
+| `currency` | `Currency` | Yes | Currency of the original pre-authorization, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the pre-authorization result |
+| `options` | `Options?` | No | Optional — supports `customerReference` |
 
-:::note
-The Android SDK `preAuthorizationCapture()` does not accept a `tipAmount` parameter. `tipAmount` is a Cloud API-only field.
-:::
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Capture amount in smallest currency unit, e.g. `9500` = $95.00 |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the pre-authorization result |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 
