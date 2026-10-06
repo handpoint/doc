@@ -105,7 +105,7 @@ curl --location --request POST 'https://cloud.handpoint.com/reversal' \
 </TabItem>
 <TabItem value="not-found" label="Not Found">
 
-`originalGuid` not found or batch already closed — no transaction to reverse.
+`originalGuid` not found — no transaction to reverse. Check that the GUID is the `transactionID` from the original result, not `eFTTransactionID`.
 
 ```json
 {
@@ -174,11 +174,11 @@ Errors arrive in the polled result — see [Reversal — Errors](#reversal).
 </TabItem>
 <TabItem value="backoffice" label="Backoffice">
 
-Synchronous — errors are returned immediately in the response body:
+Synchronous — errors are returned immediately in the response body as a Viscus error object. Relevant fields are in `error.details.body.error`:
 
 | HTTP | `errorCode` | `reason` | Meaning | What to do |
 |---|---|---|---|---|
-| `400` | `3158` | `Original transaction not found` | `originalGuid` not found or batch already closed | Verify the GUID; if batch closed, send a post-settlement Refund |
+| `400` | `3158` | `Original transaction not found` | `originalGuid` not found | Verify the GUID is the `transactionID` from the original result (not `eFTTransactionID`). If the batch has already closed, send a post-settlement Refund instead |
 | `400` | `3051` | `Already reversed` | Transaction has already been reversed | No further action needed |
 | `400` | `4066` | `Partial reversal amount exceeds original amount` | `amount` exceeds the original transaction amount | Omit `amount` for a full reversal, or reduce below the original amount |
 | `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |

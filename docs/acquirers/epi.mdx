@@ -4295,4 +4295,18 @@ A required field (`serialNumber` or `deviceType`) is absent.
 </TabItem>
 </Tabs>
 
+#### Errors
+
+Errors apply to all three batch operations. `issuerResponseCode` and `issuerResponseText` are nested inside `error.details.body.*`.
+
+| HTTP | `issuerResponseCode` | `issuerResponseText` | Meaning |
+|---|---|---|---|
+| `400` | `03` | `NOT ALLOWED` | Batch is already closed (Batch Close only) |
+| `400` | `02` | `COULD NOT FIND` | Batch not found, or closed batch has no transactions |
+| `403` | — | — | `serialNumber` does not belong to the calling merchant's account |
+| `422` | — | — | Required field missing (`serialNumber` or `deviceType`) |
+
+#### Testing
+Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.
+
 </FlavorSection>

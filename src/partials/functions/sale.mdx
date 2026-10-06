@@ -120,10 +120,12 @@ handpoint.sale(
 | `currency` | string | Yes | ISO 4217 currency code, e.g. `"USD"`, `"GBP"`, `"EUR"` |
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | Target terminal serial number |
-| `transactionReference` | string | No | UUID v4. Required for status queries. Send on **original transactions only** — not on subsequent operations |
+| `transactionReference` | string | No | UUID v4. Required for status queries. Send on **original transactions only** (Sale, MOTO Sale, Pre-Auth, unlinked Refund) — not on subsequent operations. Not supported on HiLite paths |
 | `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
-| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` |
-| `token` | string | No | Opaque value included with the push notification for caller identification. Only used when `callbackUrl` is set |
+| `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` for the outcome |
+| `token` | string | No | Opaque value included alongside the result in the push notification, for caller identification. Only used when `callbackUrl` is set |
+| `taxInformation` | object | No | Tax data forwarded to the acquirer: `taxAmount` (string, minor units, e.g. `"100"` = $1.00) and `taxExempt` (boolean — when `true`, `taxAmount` must be `"0"`). Returned in `TransactionResult` via `/transaction-result/{id}` when the terminal sends it back; not available via `GET /transactions/{ref}/status` |
+| `purchaseOrderNumber` | string | No | Purchase order number forwarded to the acquirer. Returned in `TransactionResult` via `/transaction-result/{id}` when the terminal sends it back |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">

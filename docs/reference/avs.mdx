@@ -142,7 +142,25 @@ Use this to conditionally show or hide billing fields in your own UI — the `"A
 
 ## What comes back
 
-The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a Remote Sale or Keyed Entry Sale with billing data attached, on both the native SDK and Cloud API.
+The issuer/acquirer returns an AVS result alongside the usual approve/decline outcome for a Remote Sale or Keyed Entry Sale with billing data attached. Starting with REST API 2.31.0, `TransactionResult` (via `/transaction-result/{id}`) and `GET /transactions/{ref}/status` include an `addressVerification.resultCode` field for MOTO Sale and MOTO Pre-Authorization when an AVS result is available.
+
+| `resultCode` | Meaning |
+|---|---|
+| `FULL_MATCH` | Postal code and street address both match |
+| `EXACT_MATCH` | Exact match (issuer-specific variant of full match) |
+| `ADDRESS_MATCH` | Street address matches; postal code does not |
+| `ZIP_MATCH` | 5-digit postal code matches; address does not |
+| `ZIP9_MATCH` | 9-digit postal code matches; address does not |
+| `NO_MATCH` | Neither postal code nor address matches |
+| `UNSUPPORTED` | Card type or issuer does not support AVS |
+| `INTERNATIONAL` | Non-US card — issuer does not participate in AVS |
+| `RETRY` | Issuer system unavailable; try again |
+| `UNAVAILABLE` | AVS not available for this transaction |
+| `UNKNOWN` | Result code not recognised; treat as unverified |
+
+:::note
+A match does not guarantee fraud prevention — an approved transaction with `FULL_MATCH` can still be disputed. A mismatch does not mean the transaction must be declined; the decision remains with you and your acquirer. The field is omitted from the response when no AVS result is returned (for example, on card-present transactions).
+:::
 
 ## Edge cases
 
