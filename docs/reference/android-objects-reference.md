@@ -540,10 +540,10 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 | `budgetNumber` | `String?` | South Africa — split payments over a number of months. 2-digit string (e.g. `"06"` = 6 months). |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Required for Mastercard money remittance (MCC 4829/6540). |
 | `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. Optional — the SDK does not require it alongside `taxInformation` (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Required whenever `taxInformation` is set** (see caution below). |
 
-:::caution Experimental API
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. The SDK does not enforce `purchaseOrderNumber` as mandatory whenever `taxInformation` is set — only a negative `taxAmount`, or a non-zero `taxAmount` with `taxExempt = true`, is rejected. Whether the gateway itself requires `purchaseOrderNumber` is unconfirmed with product/the gateway team.
+:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated sale requests enforce this**, rejecting `taxInformation` sent without a `purchaseOrderNumber`. **Native `HapiImpl.sale` calls do not currently enforce this** — set it anyway.
 :::
 
 ```kotlin
@@ -614,13 +614,13 @@ Options for the `motoSale(amount, currency, options: MoToSaleOptions)` overload.
 
 | Property | Type | Description |
 |---|---|---|
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. Optional — the SDK does not require it alongside `taxInformation` (see caution below). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Required whenever `taxInformation` is set** (see caution below). |
 
 All other fields (`channel`, `tokenize`, `cardToken`, `billing`, `enableAvsFields`, `moneyRemittanceOptions`, `customerReference`, `merchantAuth`) are inherited from `MoToOptions`.
 
-:::caution Experimental API
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. The SDK does not enforce `purchaseOrderNumber` as mandatory whenever `taxInformation` is set — whether the gateway requires it is unconfirmed with product/the gateway team.
+:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated MoTo sale requests enforce this**, rejecting `taxInformation` sent without a `purchaseOrderNumber`. **Native `HapiImpl.motoSale` calls do not currently enforce this** — set it anyway.
 :::
 
 ```kotlin
@@ -653,11 +653,11 @@ Options for the `preAuthorizationCapture(amount, currency, originalTransactionID
 |---|---|---|
 | `customerReference` | `String` | (inherited) Reference string. |
 | `metadata` | `Metadata?` | (inherited) Custom data. |
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. Optional — the SDK does not require it alongside `taxInformation` (see caution below). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Required whenever `taxInformation` is set** (see caution below). |
 
-:::caution Experimental API
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. The SDK does not enforce `purchaseOrderNumber` as mandatory whenever `taxInformation` is set — whether the gateway requires it is unconfirmed with product/the gateway team.
+:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated pre-authorization capture requests enforce this**, rejecting `taxInformation` sent without a `purchaseOrderNumber`. **Native `HapiImpl.preAuthorizationCapture` calls do not currently enforce this** — set it anyway.
 :::
 
 ```kotlin
@@ -829,10 +829,10 @@ Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `ta
 | `taxAmount` | `BigInteger` | Tax amount in minor currency units, same denomination as the transaction amount. Must be `0` when `taxExempt` is `true`. |
 | `taxExempt` | `Boolean` | `false` = local sales tax applies. `true` = the transaction is tax-exempt. |
 
-:::caution Experimental API — `purchaseOrderNumber` is not enforced by the SDK
+:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
 `TaxInformation` and the `taxInformation`/`purchaseOrderNumber` fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`, ships in SDK 7.1015.0+ — pending release) — the shape may still change in a future release, and code using them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
 
-The SDK does **not** require `purchaseOrderNumber` whenever you send `taxInformation` — `TaxInformationVerifier` only rejects a negative `taxAmount`, or a non-zero `taxAmount` when `taxExempt` is `true`. Whether the **gateway** requires `purchaseOrderNumber` for Level II processing (and what happens when it's omitted) is not yet confirmed with product/the gateway team — treat it as optional until that's settled. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all.)
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated requests enforce this**: the SDK rejects `taxInformation` sent without a `purchaseOrderNumber` for Sale, Sale-and-Tokenize, Keyed Entry Sale (MoTo sale), and Pre-Authorization Capture. **Native SDK calls do not currently enforce this** — `HapiImpl.sale`/`motoSale`/`preAuthorizationCapture` will accept `taxInformation` without a `purchaseOrderNumber`, so omitting it won't fail client-side on that path; set it anyway. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
 :::
 
 ```kotlin

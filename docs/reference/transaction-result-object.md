@@ -507,7 +507,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
 | `taxAmount` | BigDecimal? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable — always null-check before use. **Not a like-for-like swap:** `taxInformation.taxAmount` is a `BigInteger` in **minor units**, while this field is a `BigDecimal` in **major units** — both the type and the unit change when you migrate. |
 | `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
-| `purchaseOrderNumber` | String? | Level II purchase order number echoed back. `null` means none was sent/returned — not empty. The SDK does not enforce this as mandatory alongside `taxInformation` (see the caution below) — whether the gateway requires it is unconfirmed. |
+| `purchaseOrderNumber` | String? | Level II purchase order number echoed back. `null` means none was sent/returned — not empty. **Required whenever `taxInformation` is set** (see the caution below). |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
@@ -517,7 +517,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not rely on these fields before that SDK version is out.
 
-The SDK does not require `purchaseOrderNumber` whenever `taxInformation` is set — `TaxInformationVerifier` only rejects a negative `taxAmount`, or a non-zero `taxAmount` when `taxExempt` is `true`. Whether the **gateway** requires `purchaseOrderNumber` for Level II processing (and what happens when it's missing) is not yet confirmed with product/the gateway team.
+`purchaseOrderNumber` **is required whenever `taxInformation` is set** for Level II processing — always set both together. **Cloud-originated requests enforce this**: the SDK rejects `taxInformation` sent without a `purchaseOrderNumber` for Sale, Sale-and-Tokenize, Keyed Entry Sale (MoTo sale), and Pre-Authorization Capture. **Native SDK calls do not currently enforce this** (`HapiImpl.sale`/`motoSale`/`preAuthorizationCapture` will accept `taxInformation` without a `purchaseOrderNumber`), so omitting it won't fail client-side on that path — set it anyway.
 :::
 
 ### `FeeResult`
