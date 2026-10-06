@@ -79,23 +79,54 @@ handpoint.motoPreauthorization(
 </TabItem>
 </Tabs>
 
-**Cloud API** — `POST /transactions`:
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `operation` | string | Yes | Must be `"moToPreAuthorization"` |
-| `amount` | string | Yes | Amount in **smallest currency unit** — `"10000"` = $100.00 |
-| `currency` | string | Yes | ISO 4217 currency code |
+| `amount` | string | Yes | Amount in smallest currency unit — `"10000"` = $100.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `"USD"` |
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | PAX terminal serial number |
-| `transactionReference` | string | Recommended | UUID v4 for idempotency |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency and lifecycle recovery |
 
-**Android SDK** — `motoPreauthorization(amount, currency)`:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `amount` | `BigInteger` | Yes | Pre-auth hold amount in minor currency units |
-| `currency` | `Currency` | Yes | ISO 4217 currency |
+| `amount` | `BigInteger` | Yes | Pre-auth hold amount in smallest currency unit, e.g. `BigInteger("10000")` = $100.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="MOTO operations require a PAX device in integrated mode."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="MOTO operations are PAX-only features."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Pre-auth hold amount in smallest currency unit, e.g. `10000` = $100.00 |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+
+</TabItem>
+</Tabs>
 
 ### Testing
 

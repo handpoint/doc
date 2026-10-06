@@ -92,13 +92,55 @@ public void EndOfTransaction(TransactionResult result, Device device)
 
 #### Parameters
 
-**Backoffice** (`POST /moto/refund`):
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — result returned immediately.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `amount` | string | Yes | Refund amount in **major currency units** — `"10.00"` = $10.00 |
-| `currency` | string | Yes | ISO 4217 code |
-| `originalGuid` | string | Yes | `efttransactionID` from the original MOTO sale. The gateway retrieves the card token from the original transaction — do not pass `cardToken` on refunds |
+| `currency` | string | Yes | ISO 4217 code, e.g. `"USD"` |
+| `originalGuid` | string | Yes | `efttransactionID` from the original MOTO sale. Gateway retrieves the card token — do not pass `cardToken` on refunds |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Refund amount in smallest currency unit, e.g. `BigInteger("1000")` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original MOTO sale result |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Refund amount in smallest currency unit, e.g. `1000` = $10.00 |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the original MOTO sale result |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Refund amount in smallest currency unit, e.g. `1000` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `'USD'` |
+| `options.originalTransactionID` | string | Yes | `transactionID` from the original MOTO sale result |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Refund amount in smallest currency unit, e.g. `new BigInteger(1000)` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `originalTransactionID` | `string` | Yes | `transactionID` from the original MOTO sale result |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

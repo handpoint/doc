@@ -24,7 +24,7 @@ const CAPABILITY_PARTIALS = {
   'pre-auth-capture-reversal':['pre-auth-capture-void'],
   moto:                       ['moto'],
   tokenization:               ['tokenization'],
-  batching:                   ['batching'],
+  batching:                   ['batch-close', 'batch-summary', 'batch-detail'],
   'money-remittance':         ['money-remittance'],
   void:                       ['void'],
   interac:                    ['interac'],
@@ -55,7 +55,8 @@ const FLAVOR_DESCRIPTIONS = {
     'key-entry-sale':    { description: 'On-device · operator keys card number' },
     'moto-sale':         { description: 'Back-office · charges a stored card token', anchor: 'remote-sale' },
     'sale-and-tip':      { description: 'On-device · tip collected at checkout' },
-    'sale-and-tokenize': { description: 'On-device · stores card token for future charges' },
+    'sale-and-tokenize':       { description: 'On-device · stores card token for future charges' },
+    'sale-and-paysafe-token': { description: 'On-device · captures a Paysafe single-use token for Customer Vault API' },
   },
   refund: {
     'card-present':      { description: 'On-device · card present at terminal', anchor: 'emv-refund' },
@@ -91,7 +92,9 @@ const FLAVOR_DESCRIPTIONS = {
     moto: { description: 'Back-office · mail order / telephone order' },
   },
   batching: {
-    batching: { description: 'Manually close or query the current settlement batch' },
+    'batch-close':   { description: 'Settle the current open batch with the acquirer' },
+    'batch-summary': { description: 'Aggregate totals — transaction count and net amounts by type' },
+    'batch-detail':  { description: 'Individual transactions in a batch, paginated (5 per page)' },
   },
   'money-remittance': {
     'money-remittance': { description: 'Send funds to a recipient account' },

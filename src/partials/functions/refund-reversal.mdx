@@ -95,40 +95,57 @@ handpoint.refundReversal(
 </TabItem>
 </Tabs>
 
-**Cloud API** — `POST /transactions`:
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `operation` | string | Yes | Must be `"refundReversal"` |
-| `amount` | string | Yes | Amount in minor currency units — must match original refund exactly |
-| `currency` | string | Yes | ISO 4217 currency code — must match the original refund |
+| `amount` | string | Yes | Amount in smallest currency unit — must match original refund exactly |
+| `currency` | string | Yes | ISO 4217 code — must match the original refund |
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | Terminal serial number |
 | `originalTransactionId` | string | Yes | `transactionID` from the refund result |
 
-**Android SDK** — `refundReversal(amount, currency, originalTransactionID)`:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `amount` | `BigInteger` | Yes | Amount of the refund to reverse — must match original refund |
-| `currency` | `Currency` | Yes | Currency of the original refund |
+| `amount` | `BigInteger` | Yes | Amount of the refund to reverse in smallest currency unit — must match original refund |
+| `currency` | `Currency` | Yes | Currency of the original refund, e.g. `Currency.USD` |
 | `originalTransactionID` | `String` | Yes | `transactionID` from the refund result |
 
-**iOS HiLite** — `refundVoidWithAmount:currency:transaction:`:
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
 
-| Parameter | Type | Description |
-|---|---|---|
-| `amount` | `NSInteger` | Amount in minor currency units — must match original refund |
-| `currency` | `NSString *` | ISO 4217 currency code string |
-| `transaction` | `NSString *` | `eFTTransactionID` from the refund result |
+<NotSupported
+  reason="Refund Reversal is a PAX-only feature."
+  useInstead="Android SDK (PAX)"
+/>
 
-**Cordova** — `handpoint.refundReversal(config, success, error)` — Android only:
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
 
-| Field | Type | Description |
-|---|---|---|
-| `amount` | number | Amount in minor currency units |
-| `currency` | number | `handpoint.Currency.USD` (or other currency enum) |
-| `originalTransactionID` | string | `transactionID` from the refund result |
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Amount in smallest currency unit — must match original refund |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code string, e.g. `@"USD"` |
+| `transaction` | `NSString *` | Yes | `eFTTransactionID` from the refund result (not `transactionID`) |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Amount in smallest currency unit — must match original refund |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the refund result |
+
+</TabItem>
+</Tabs>
 
 ### Testing
 
