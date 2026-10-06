@@ -540,17 +540,17 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 | `budgetNumber` | `String?` | South Africa — split payments over a number of months. 2-digit string (e.g. `"06"` = 6 months). |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Required for Mastercard money remittance (MCC 4829/6540). |
 | `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Required whenever `taxInformation` is set** (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see caution below). |
 
 :::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated sale requests enforce this**, rejecting `taxInformation` sent without a `purchaseOrderNumber`. **Native `HapiImpl.sale` calls do not currently enforce this** — set it anyway.
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together. **Cloud-originated sale requests enforce both rules**, rejecting `taxInformation` sent without a `purchaseOrderNumber` or a `purchaseOrderNumber` with non-alphanumeric characters. **Native `HapiImpl.sale` calls do not currently enforce either rule** — follow them anyway.
 :::
 
 ```kotlin
 val options = SaleOptions().apply {
     customerReference = "ORDER-123"
     taxInformation = TaxInformation(BigInteger("100"), false)  // 1.00 tax, not exempt
-    purchaseOrderNumber = "PO-4711"                            // optional — not enforced by the SDK
+    purchaseOrderNumber = "PO4711"                              // required alongside taxInformation; alphanumeric only
     tipConfiguration = TipConfiguration().apply {
         tipPercentages = listOf(10, 15, 20)
         isEnterAmountEnabled = true
@@ -615,19 +615,19 @@ Options for the `motoSale(amount, currency, options: MoToSaleOptions)` overload.
 | Property | Type | Description |
 |---|---|---|
 | `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Required whenever `taxInformation` is set** (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see caution below). |
 
 All other fields (`channel`, `tokenize`, `cardToken`, `billing`, `enableAvsFields`, `moneyRemittanceOptions`, `customerReference`, `merchantAuth`) are inherited from `MoToOptions`.
 
 :::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated MoTo sale requests enforce this**, rejecting `taxInformation` sent without a `purchaseOrderNumber`. **Native `HapiImpl.motoSale` calls do not currently enforce this** — set it anyway.
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together. **Cloud-originated MoTo sale requests enforce both rules**, rejecting `taxInformation` sent without a `purchaseOrderNumber` or a `purchaseOrderNumber` with non-alphanumeric characters. **Native `HapiImpl.motoSale` calls do not currently enforce either rule** — follow them anyway.
 :::
 
 ```kotlin
 val options = MoToSaleOptions().apply {
     channel = MoToChannel.TO
     taxInformation = TaxInformation(BigInteger("100"), false)
-    purchaseOrderNumber = "PO-4711"  // optional — not enforced by the SDK
+    purchaseOrderNumber = "PO4711"   // required alongside taxInformation; alphanumeric only
 }
 api.motoSale(BigInteger.valueOf(1000), Currency.USD, options)
 ```
@@ -654,16 +654,16 @@ Options for the `preAuthorizationCapture(amount, currency, originalTransactionID
 | `customerReference` | `String` | (inherited) Reference string. |
 | `metadata` | `Metadata?` | (inherited) Custom data. |
 | `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. **Required whenever `taxInformation` is set** (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see caution below). |
 
 :::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated pre-authorization capture requests enforce this**, rejecting `taxInformation` sent without a `purchaseOrderNumber`. **Native `HapiImpl.preAuthorizationCapture` calls do not currently enforce this** — set it anyway.
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together. **Cloud-originated pre-authorization capture requests enforce both rules**, rejecting `taxInformation` sent without a `purchaseOrderNumber` or a `purchaseOrderNumber` with non-alphanumeric characters. **Native `HapiImpl.preAuthorizationCapture` calls do not currently enforce either rule** — follow them anyway.
 :::
 
 ```kotlin
 val options = PreAuthorizationCaptureOptions().apply {
     taxInformation = TaxInformation(BigInteger("100"), false)
-    purchaseOrderNumber = "PO-4711"  // optional — not enforced by the SDK
+    purchaseOrderNumber = "PO4711"   // required alongside taxInformation; alphanumeric only
 }
 api.preAuthorizationCapture(BigInteger.valueOf(9500), Currency.USD, preAuthID, options)
 ```
@@ -832,13 +832,13 @@ Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `ta
 :::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
 `TaxInformation` and the `taxInformation`/`purchaseOrderNumber` fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`, ships in SDK 7.1015.0+ — pending release) — the shape may still change in a future release, and code using them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
 
-`purchaseOrderNumber` **must be set whenever `taxInformation` is set** — always set both together. **Cloud-originated requests enforce this**: the SDK rejects `taxInformation` sent without a `purchaseOrderNumber` for Sale, Sale-and-Tokenize, Keyed Entry Sale (MoTo sale), and Pre-Authorization Capture. **Native SDK calls do not currently enforce this** — `HapiImpl.sale`/`motoSale`/`preAuthorizationCapture` will accept `taxInformation` without a `purchaseOrderNumber`, so omitting it won't fail client-side on that path; set it anyway. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together. **Cloud-originated requests enforce both rules**: the SDK rejects `taxInformation` sent without a `purchaseOrderNumber`, or a `purchaseOrderNumber` with non-alphanumeric characters, for Sale, Sale-and-Tokenize, Keyed Entry Sale (MoTo sale), and Pre-Authorization Capture. **Native SDK calls do not currently enforce either rule** — `HapiImpl.sale`/`motoSale`/`preAuthorizationCapture` will accept `taxInformation` without a `purchaseOrderNumber`, or a `purchaseOrderNumber` with punctuation, so neither omission nor invalid characters will fail client-side on that path; follow both rules anyway. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
 :::
 
 ```kotlin
 val options = SaleOptions().apply {
     taxInformation = TaxInformation(BigInteger("100"), false)
-    purchaseOrderNumber = "PO-4711"  // optional — not enforced by the SDK
+    purchaseOrderNumber = "PO4711"   // required alongside taxInformation; alphanumeric only
 }
 api.sale(BigInteger.valueOf(1000), Currency.USD, options)
 ```
