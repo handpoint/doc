@@ -507,7 +507,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
 | `taxAmount` | BigDecimal? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable — always null-check before use. **Not a like-for-like swap:** `taxInformation.taxAmount` is a `BigInteger` in **minor units**, while this field is a `BigDecimal` in **major units** — both the type and the unit change when you migrate. |
 | `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
-| `purchaseOrderNumber` | String? | Level II purchase order number echoed back, alphanumeric only. `null` means none was sent/returned — not empty. **Required whenever `taxInformation` is set** (see the caution below). |
+| `purchaseOrderNumber` | String? | Level II purchase order number echoed back, alphanumeric only. `null` means none was sent/returned — not empty. **Required whenever `taxInformation` is set** (see info box below). |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
@@ -516,7 +516,9 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 `taxInformation`/`purchaseOrderNumber` are marked `@HapiExperimental` in the SDK. They can only be non-`null` for operations whose **request-side** options class actually carries Level II data: Sale (`SaleOptions`/`SaleAndTokenizeOptions`), Keyed Entry Sale via the `MoToSaleOptions` overload, and Pre-Authorization Capture via the `PreAuthorizationCaptureOptions` overload (both fields); Tip Adjustment via the `TipAdjustmentOptions` overload (`taxInformation` only). See [Options objects](android-objects-reference.md#options-objects) for the full breakdown.
 
 Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not rely on these fields before that SDK version is out.
+:::
 
+:::info Level II Information
 `purchaseOrderNumber` **is required whenever `taxInformation` is set** for Level II processing, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
 :::
 

@@ -537,11 +537,15 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 | `tipConfiguration` | `TipConfiguration?` | Configures the on-device tipping prompt. |
 | `budgetNumber` | `String?` | South Africa — split payments over a number of months. 2-digit string (e.g. `"06"` = 6 months). |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Required for Mastercard money remittance (MCC 4829/6540). |
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see caution below). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). **Requires `purchaseOrderNumber` to be set too** (see info box below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see info box below). |
 
-:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+:::caution Experimental API
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
 :::
 
 ```kotlin
@@ -612,13 +616,17 @@ Options for the `motoSale(amount, currency, options: MoToSaleOptions)` overload.
 
 | Property | Type | Description |
 |---|---|---|
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see caution below). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see info box below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see info box below). |
 
 All other fields (`channel`, `tokenize`, `cardToken`, `billing`, `enableAvsFields`, `moneyRemittanceOptions`, `customerReference`, `merchantAuth`) are inherited from `MoToOptions`.
 
-:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+:::caution Experimental API
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
 :::
 
 ```kotlin
@@ -651,11 +659,15 @@ Options for the `preAuthorizationCapture(amount, currency, originalTransactionID
 |---|---|---|
 | `customerReference` | `String` | (inherited) Reference string. |
 | `metadata` | `Metadata?` | (inherited) Custom data. |
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see caution below). |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see caution below). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see info box below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see info box below). |
 
-:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+:::caution Experimental API
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
 :::
 
 ```kotlin
@@ -827,9 +839,11 @@ Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `ta
 | `taxAmount` | `BigInteger` | Tax amount in minor currency units, same denomination as the transaction amount. Must be `0` when `taxExempt` is `true`. |
 | `taxExempt` | `Boolean` | `false` = local sales tax applies. `true` = the transaction is tax-exempt. |
 
-:::caution Experimental API — `purchaseOrderNumber` is required alongside `taxInformation`
+:::caution Experimental API
 `TaxInformation` and the `taxInformation`/`purchaseOrderNumber` fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`, ships in SDK 7.1015.0+ — pending release) — the shape may still change in a future release, and code using them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
+:::
 
+:::info Level II Information
 `purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
 :::
 
