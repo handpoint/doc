@@ -339,7 +339,6 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         val token = result.cardToken          // store securely for future motoSale()
-        // result.cardTokenProvider           // "EPI" / "CYGMA" — identifies the vault
     }
 }
 ```

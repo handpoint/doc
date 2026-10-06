@@ -124,10 +124,29 @@ Data shown is local to the terminal (the current open batch). For multi-terminal
 | Display | Screen brightness and auto-lock timeout |
 | Language & Region | Currency display and receipt language |
 | Receipt Options | Customer copy, signature line, tip prompt |
+| Security Policy | Granular device restrictions — hide tab bar, lock system UI, dim screen, require password to exit |
 | Device Info | App version, SDK version, serial number, TMS merchant ID |
 
   </div>
 </div>
+
+### Security Policy {#security-policy}
+
+:::info Available from App 4.14.1 (Android SDK 7.1014.1)
+:::
+
+Security Policy replaces the all-or-nothing kiosk mode with four independent restrictions. Each can be enabled or disabled separately via the Cloud API `set-security-policy` command.
+
+| Restriction | What it does |
+|---|---|
+| **Hide tab bar** (`hideTabBar`) | Hides the bottom navigation (Analytics, Transactions, Settings). The payment screen stays in the foreground; Android system menus (Wi-Fi, status bar) remain reachable. Use this for staff-facing checkout where you want to prevent navigation away from the payment screen without fully locking the device. |
+| **Block system UI** (`blockSystemUI`) | Locks the Android status bar and navigation bar. Combined with `hideTabBar`, this is equivalent to full OS-level lockdown. |
+| **Dim on idle** (`brightness`) | Dims the screen to minimum brightness during idle periods. |
+| **Password to exit** (`passwordToExit`) | Requires a PIN or password to disable active restrictions. Use alongside `hideTabBar` or `blockSystemUI` to prevent merchants from disabling the policy at the terminal. |
+
+To configure Security Policy remotely, see [`set-security-policy`](/back-office/device-commands#set-security-policy).
+
+Settings survive app restarts and device reboots — the device synchronizes the policy from the server on start-up.
 
 ### Version Compatibility
 

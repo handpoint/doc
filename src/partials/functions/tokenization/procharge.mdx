@@ -82,7 +82,6 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 // Token arrives via endOfTransaction
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     val token = result.cardToken        // store for future motoSale()
-    val provider = result.cardTokenProvider  // "EPI" / "PROCHARGE"
 }
 ```
 
@@ -171,7 +170,6 @@ handpoint.tokenizeCard(
 | Field | Description |
 |---|---|
 | `cardToken` | Opaque Cygma token. Store this — use for future MOTO charges |
-| `cardTokenProvider` | Token issuer — `"EPI"` or `"PROCHARGE"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
 #### Errors

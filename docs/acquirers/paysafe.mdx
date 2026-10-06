@@ -2477,7 +2477,6 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     val token = result.cardToken          // Paysafe single-use token
-    val provider = result.cardTokenProvider  // "PAYSAFE"
 }
 ```
 
@@ -2553,7 +2552,6 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | Field | Description |
 |---|---|
 | `cardToken` | Paysafe single-use token — pass to Paysafe APIs; not for Handpoint MOTO |
-| `cardTokenProvider` | `"PAYSAFE"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
 #### Testing
@@ -2633,7 +2631,6 @@ hapi.sale(BigInteger("1000"), Currency.USD, options)
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     val token = result.cardToken          // TokenEx token — store for loyalty/matching
-    val provider = result.cardTokenProvider  // "TOKENEX"
 }
 ```
 
@@ -2709,7 +2706,6 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | Field | Description |
 |---|---|
 | `cardToken` | TokenEx token — stable card identifier for loyalty / card-matching. Cannot be used for MOTO |
-| `cardTokenProvider` | `"TOKENEX"` |
 | `expiryDateMMYY` | Token expiry (matches card expiry) |
 
 #### Testing
