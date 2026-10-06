@@ -306,7 +306,7 @@ hapi.preAuthorizationReversal(preAuthID)
 
 Both Capture and Reversal results arrive in `endOfTransaction`. Always reverse unused pre-auths — unreleased holds affect cardholder available credit and expire after 7–30 days.
 
-To send Level II data on capture (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`PreAuthorizationCaptureOptions`](android-objects-reference.md#preauthorizationcaptureoptions): `hapi.preAuthorizationCapture(amount, currency, preAuthID, PreAuthorizationCaptureOptions().apply { ... })`. The `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, and must be alphanumeric only — Cloud-originated pre-auth-capture requests enforce both rules; native calls do not yet, so follow them anyway.
+To send Level II data on capture (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`PreAuthorizationCaptureOptions`](android-objects-reference.md#preauthorizationcaptureoptions): `hapi.preAuthorizationCapture(amount, currency, preAuthID, PreAuthorizationCaptureOptions().apply { ... })`. The `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, and must be alphanumeric only.
 
 ### MOTO Sale (Key Entry)
 
@@ -326,7 +326,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 Requires `cloudApiKey` in `HandpointCredentials` and MOTO enabled for the merchant by Handpoint. Check `result.finStatus` — `CANCELLED` means the operator exited the entry screen.
 
-To send Level II data (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`MoToSaleOptions`](android-objects-reference.md#motosaleoptions) instead: `hapi.motoSale(amount, currency, MoToSaleOptions().apply { ... })`. The `motoSale(amount, currency, options: MoToOptions)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, and must be alphanumeric only — Cloud-originated MoTo-sale requests enforce both rules; native calls do not yet, so follow them anyway.
+To send Level II data (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`MoToSaleOptions`](android-objects-reference.md#motosaleoptions) instead: `hapi.motoSale(amount, currency, MoToSaleOptions().apply { ... })`. The `motoSale(amount, currency, options: MoToOptions)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, and must be alphanumeric only.
 
 ### Tokenization
 

@@ -517,7 +517,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 
 Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not rely on these fields before that SDK version is out.
 
-`purchaseOrderNumber` **is required whenever `taxInformation` is set** for Level II processing, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule. **Cloud-originated requests enforce both rules**: the SDK rejects `taxInformation` sent without a `purchaseOrderNumber`, or a `purchaseOrderNumber` with non-alphanumeric characters, for Sale, Sale-and-Tokenize, Keyed Entry Sale (MoTo sale), and Pre-Authorization Capture. **Native SDK calls do not currently enforce either rule** (`HapiImpl.sale`/`motoSale`/`preAuthorizationCapture` will accept `taxInformation` without a `purchaseOrderNumber`, or with punctuation in it), so neither omission nor invalid characters will fail client-side on that path — follow both rules anyway.
+`purchaseOrderNumber` **is required whenever `taxInformation` is set** for Level II processing, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
 :::
 
 ### `FeeResult`
