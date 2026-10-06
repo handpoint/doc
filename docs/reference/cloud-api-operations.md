@@ -12,6 +12,10 @@ Complete request/response examples for every Cloud API operation. Each section s
 For authentication, environments, and callback vs polling delivery, see the [Cloud API Integration Guide](/reference/cloud-api-integration-guide).  
 For error code definitions and error shapes, see [Error codes](/reference/error-codes).
 
+:::caution Level II data (`taxInformation`/`purchaseOrderNumber`) — limited operation support
+The cloud bridge only accepts Level II data on `sale` (including `saleAndTokenizeCard`), `moToSale` (MOTO sale), and the pre-authorization capture step. Sending `taxInformation` or `purchaseOrderNumber` on any other operation is rejected rather than silently dropped. This mirrors the Android SDK's `@HapiExperimental` `taxInformation`/`purchaseOrderNumber` fields — see the [Android Objects Reference](android-objects-reference.md#options-base-class).
+:::
+
 ---
 
 ## Response pattern

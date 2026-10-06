@@ -399,7 +399,7 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // DEPRECATED — use result.taxInformation?.taxAmount
+result.taxAmount                // DEPRECATED, BigDecimal? major units — NOT a like-for-like swap, see below
 result.taxInformation?.taxAmount  // BigInteger("100") — echo of what was sent; null if none sent/returned
 result.taxInformation?.taxExempt  // false
 result.purchaseOrderNumber      // "PO-4711" — null if none sent/returned
@@ -505,15 +505,19 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
+| `taxAmount` | BigDecimal? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable — always null-check before use. **Not a like-for-like swap:** `taxInformation.taxAmount` is a `BigInteger` in **minor units**, while this field is a `BigDecimal` in **major units** — both the type and the unit change when you migrate. |
 | `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
-| `purchaseOrderNumber` | String? | Level II purchase order number echoed back. `null` means none was sent/returned — not empty. Mandatory on the request whenever `taxInformation` is sent. |
+| `purchaseOrderNumber` | String? | Level II purchase order number echoed back. `null` means none was sent/returned — not empty. The SDK does not enforce this as mandatory alongside `taxInformation` (see the caution below) — whether the gateway requires it is unconfirmed. |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
 
 :::caution Experimental API — which operations can populate these
 `taxInformation`/`purchaseOrderNumber` are marked `@HapiExperimental` in the SDK. They can only be non-`null` for operations whose **request-side** options class actually carries Level II data: Sale (`SaleOptions`/`SaleAndTokenizeOptions`), Keyed Entry Sale via the `MoToSaleOptions` overload, and Pre-Authorization Capture via the `PreAuthorizationCaptureOptions` overload (both fields); Tip Adjustment via the `TipAdjustmentOptions` overload (`taxInformation` only). See [Options objects](android-objects-reference.md#options-objects) for the full breakdown.
+
+Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not rely on these fields before that SDK version is out.
+
+The SDK does not require `purchaseOrderNumber` whenever `taxInformation` is set — `TaxInformationVerifier` only rejects a negative `taxAmount`, or a non-zero `taxAmount` when `taxExempt` is `true`. Whether the **gateway** requires `purchaseOrderNumber` for Level II processing (and what happens when it's missing) is not yet confirmed with product/the gateway team.
 :::
 
 ### `FeeResult`

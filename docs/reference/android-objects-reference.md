@@ -515,7 +515,11 @@ Available on every options object — the root of the options inheritance chain.
 | `taxAmount` | `BigInteger?` | **Deprecated** — use `taxInformation.taxAmount` on the options classes that support Level II data (see below). |
 
 :::caution Level II data is not a base-class field
-`taxInformation` / `purchaseOrderNumber` do **not** live on `Options` — only the options classes for operations that actually support Level II data have these fields at all: [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), and [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions) (both fields), plus [`TipAdjustmentOptions`](#tipadjustmentoptions) (`taxInformation` only — no `purchaseOrderNumber`). Both fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`) — the shape may still change in a future release.
+`taxInformation` / `purchaseOrderNumber` do **not** live on `Options` — only the options classes for operations that actually support Level II data have these fields at all: [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), and [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions) (both fields), plus [`TipAdjustmentOptions`](#tipadjustmentoptions) (`taxInformation` only — no `purchaseOrderNumber`). Both fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`) — the shape may still change in a future release, and code touching them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
+
+Ships in **SDK 7.1015.0+** — not yet released at the time of writing. Don't rely on these classes before that SDK version is out.
+
+The cloud bridge only forwards Level II data for `sale`/`saleAndTokenizeCard`, `moToSale`, and `preAuthorizationCapture` — it rejects the request if `taxInformation`/`purchaseOrderNumber` is set on any other cloud-originated operation. See the [Cloud API Operations Reference](cloud-api-operations.md) for the per-operation Cloud/REST behavior.
 :::
 
 ---
@@ -535,18 +539,18 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 | `tipConfiguration` | `TipConfiguration?` | Configures the on-device tipping prompt. |
 | `budgetNumber` | `String?` | South Africa — split payments over a number of months. 2-digit string (e.g. `"06"` = 6 months). |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Required for Mastercard money remittance (MCC 4829/6540). |
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). Requires `purchaseOrderNumber`. |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. Mandatory with `taxInformation`. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. Optional — the SDK does not require it alongside `taxInformation` (see caution below). |
 
 :::caution Experimental API
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK — the shape of these fields may still change in a future release.
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. The SDK does not enforce `purchaseOrderNumber` as mandatory whenever `taxInformation` is set — only a negative `taxAmount`, or a non-zero `taxAmount` with `taxExempt = true`, is rejected. Whether the gateway itself requires `purchaseOrderNumber` is unconfirmed with product/the gateway team.
 :::
 
 ```kotlin
 val options = SaleOptions().apply {
     customerReference = "ORDER-123"
     taxInformation = TaxInformation(BigInteger("100"), false)  // 1.00 tax, not exempt
-    purchaseOrderNumber = "PO-4711"                            // mandatory with taxInformation
+    purchaseOrderNumber = "PO-4711"                            // optional — not enforced by the SDK
     tipConfiguration = TipConfiguration().apply {
         tipPercentages = listOf(10, 15, 20)
         isEnterAmountEnabled = true
@@ -610,20 +614,20 @@ Options for the `motoSale(amount, currency, options: MoToSaleOptions)` overload.
 
 | Property | Type | Description |
 |---|---|---|
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. Requires `purchaseOrderNumber`. |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. Mandatory with `taxInformation`. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. Optional — the SDK does not require it alongside `taxInformation` (see caution below). |
 
 All other fields (`channel`, `tokenize`, `cardToken`, `billing`, `enableAvsFields`, `moneyRemittanceOptions`, `customerReference`, `merchantAuth`) are inherited from `MoToOptions`.
 
 :::caution Experimental API
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK — the shape of these fields may still change in a future release.
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. The SDK does not enforce `purchaseOrderNumber` as mandatory whenever `taxInformation` is set — whether the gateway requires it is unconfirmed with product/the gateway team.
 :::
 
 ```kotlin
 val options = MoToSaleOptions().apply {
     channel = MoToChannel.TO
     taxInformation = TaxInformation(BigInteger("100"), false)
-    purchaseOrderNumber = "PO-4711"
+    purchaseOrderNumber = "PO-4711"  // optional — not enforced by the SDK
 }
 api.motoSale(BigInteger.valueOf(1000), Currency.USD, options)
 ```
@@ -649,17 +653,17 @@ Options for the `preAuthorizationCapture(amount, currency, originalTransactionID
 |---|---|---|
 | `customerReference` | `String` | (inherited) Reference string. |
 | `metadata` | `Metadata?` | (inherited) Custom data. |
-| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. Requires `purchaseOrderNumber`. |
-| `purchaseOrderNumber` | `String?` | Level II purchase order number. Mandatory with `taxInformation`. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. Not enforced as requiring `purchaseOrderNumber` by the SDK (see caution below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number. Optional — the SDK does not require it alongside `taxInformation` (see caution below). |
 
 :::caution Experimental API
-`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK — the shape of these fields may still change in a future release.
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning. The SDK does not enforce `purchaseOrderNumber` as mandatory whenever `taxInformation` is set — whether the gateway requires it is unconfirmed with product/the gateway team.
 :::
 
 ```kotlin
 val options = PreAuthorizationCaptureOptions().apply {
     taxInformation = TaxInformation(BigInteger("100"), false)
-    purchaseOrderNumber = "PO-4711"
+    purchaseOrderNumber = "PO-4711"  // optional — not enforced by the SDK
 }
 api.preAuthorizationCapture(BigInteger.valueOf(9500), Currency.USD, preAuthID, options)
 ```
@@ -678,10 +682,10 @@ Options for the `tipAdjustment(tipAmount, currency, originalTransactionID, optio
 | `metadata` | `Metadata?` | (inherited) Custom data. |
 | `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. |
 
-`TipAdjustmentOptions` has **no `purchaseOrderNumber` field** — the underlying wire request for tip adjustment carries no purchase order number, so `taxInformation` is the only Level II field here and has no mandatory pairing.
+`TipAdjustmentOptions` has **no `purchaseOrderNumber` field** — the underlying wire request for tip adjustment carries no purchase order number, so `taxInformation` is the only Level II field here. (Even on the classes that do have both fields, the SDK does not require them to be paired — see [`Options`](#options-base-class).)
 
 :::caution Experimental API
-`taxInformation` is marked `@HapiExperimental` in the SDK — the shape of this field may still change in a future release.
+`taxInformation` is marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of this field may still change in a future release; code using it needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
 :::
 
 ```kotlin
@@ -825,14 +829,16 @@ Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `ta
 | `taxAmount` | `BigInteger` | Tax amount in minor currency units, same denomination as the transaction amount. Must be `0` when `taxExempt` is `true`. |
 | `taxExempt` | `Boolean` | `false` = local sales tax applies. `true` = the transaction is tax-exempt. |
 
-:::caution Experimental API — `purchaseOrderNumber` required
-`TaxInformation` and the `taxInformation`/`purchaseOrderNumber` fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`) — the shape may still change in a future release. `purchaseOrderNumber` is mandatory whenever you send `taxInformation`, except on `TipAdjustmentOptions`, which has no `purchaseOrderNumber` field at all.
+:::caution Experimental API — `purchaseOrderNumber` is not enforced by the SDK
+`TaxInformation` and the `taxInformation`/`purchaseOrderNumber` fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`, ships in SDK 7.1015.0+ — pending release) — the shape may still change in a future release, and code using them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
+
+The SDK does **not** require `purchaseOrderNumber` whenever you send `taxInformation` — `TaxInformationVerifier` only rejects a negative `taxAmount`, or a non-zero `taxAmount` when `taxExempt` is `true`. Whether the **gateway** requires `purchaseOrderNumber` for Level II processing (and what happens when it's omitted) is not yet confirmed with product/the gateway team — treat it as optional until that's settled. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all.)
 :::
 
 ```kotlin
 val options = SaleOptions().apply {
     taxInformation = TaxInformation(BigInteger("100"), false)
-    purchaseOrderNumber = "PO-4711"
+    purchaseOrderNumber = "PO-4711"  // optional — not enforced by the SDK
 }
 api.sale(BigInteger.valueOf(1000), Currency.USD, options)
 ```

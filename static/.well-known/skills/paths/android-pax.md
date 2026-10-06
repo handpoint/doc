@@ -156,7 +156,9 @@ hapi.preAuthorization(BigInteger("1000"), Currency.USD)
 // Capture — completes the pre-auth (can capture different amount than held)
 hapi.preAuthorizationCapture(BigInteger("1000"), Currency.USD, "transactionID-from-preauth")
 
-// Capture with Level II data (@HapiExperimental) — PreAuthorizationCaptureOptions, not the deprecated Options overload
+// Capture with Level II data (@HapiExperimental, SDK 7.1015.0+ — pending release) — PreAuthorizationCaptureOptions,
+// not the deprecated Options overload. Needs @OptIn(HapiExperimental::class) on the enclosing declaration,
+// or the compiler emits a warning.
 hapi.preAuthorizationCapture(BigInteger("1000"), Currency.USD, "transactionID-from-preauth", PreAuthorizationCaptureOptions().apply {
     taxInformation = TaxInformation(BigInteger("100"), false)
     purchaseOrderNumber = "PO-4711"
@@ -174,11 +176,15 @@ hapi.preAuthorizationReversal(BigInteger("500"), Currency.USD, "transactionID-fr
 ## Tip adjustment (EPI only — post-sale)
 
 ```kotlin
-// Returns Boolean directly (not OperationStartResult), does NOT fire endOfTransaction
+// Returns Boolean directly (not OperationStartResult) — but it DOES still fire endOfTransaction:
+// TipAdjustmentResponseCallback builds a TransactionResult (taxInformation included, when sent) and
+// delivers it via EventHandler.endOfTransaction, same as other financial operations.
 val accepted: Boolean = hapi.tipAdjustment(BigInteger("200"), Currency.USD, "transactionID-from-sale")
 // true = tip recorded; false = rejected (unsupported by acquirer or wrong reference)
 
-// With Level II tax data (@HapiExperimental) — TipAdjustmentOptions has taxInformation only, no purchaseOrderNumber field
+// With Level II tax data (@HapiExperimental, SDK 7.1015.0+ — pending release) — TipAdjustmentOptions has
+// taxInformation only, no purchaseOrderNumber field. Needs @OptIn(HapiExperimental::class) on the
+// enclosing declaration, or the compiler emits a warning.
 hapi.tipAdjustment(BigInteger("200"), Currency.USD, "transactionID-from-sale", TipAdjustmentOptions().apply {
     taxInformation = TaxInformation(BigInteger("50"), false)
 })
@@ -208,7 +214,9 @@ val options = MoToOptions().apply {
     tokenize = true             // also tokenize the card
 }
 
-// With Level II data (@HapiExperimental) — MoToSaleOptions (extends MoToOptions), not the deprecated MoToOptions overload
+// With Level II data (@HapiExperimental, SDK 7.1015.0+ — pending release) — MoToSaleOptions (extends MoToOptions),
+// not the deprecated MoToOptions overload. Needs @OptIn(HapiExperimental::class) on the enclosing declaration,
+// or the compiler emits a warning.
 hapi.motoSale(BigInteger("1000"), Currency.USD, MoToSaleOptions().apply {
     taxInformation = TaxInformation(BigInteger("100"), false)
     purchaseOrderNumber = "PO-4711"
@@ -256,7 +264,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 - **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
 - **`taxOnFee` sits inside `amount`.** It is never added on top.
-- Level II (`@HapiExperimental`): `taxInformation`/`purchaseOrderNumber` are NOT on the base `Options` class — only `SaleOptions`/`SaleAndTokenizeOptions`, `MoToSaleOptions`, and `PreAuthorizationCaptureOptions` have both fields; `TipAdjustmentOptions` has `taxInformation` only (no `purchaseOrderNumber`). Set `taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)` on one of those classes. **`purchaseOrderNumber` is mandatory whenever `taxInformation` is set**, except on `TipAdjustmentOptions`. Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount`.
+- Level II (`@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` or expect a compiler warning): `taxInformation`/`purchaseOrderNumber` are NOT on the base `Options` class — only `SaleOptions`/`SaleAndTokenizeOptions`, `MoToSaleOptions`, and `PreAuthorizationCaptureOptions` have both fields; `TipAdjustmentOptions` has `taxInformation` only (no `purchaseOrderNumber`). Set `taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)` on one of those classes. **The SDK does not enforce `purchaseOrderNumber` as mandatory alongside `taxInformation`** — `TaxInformationVerifier` only rejects a negative `taxAmount` or a non-zero `taxAmount` with `taxExempt = true`. Whether the gateway requires `purchaseOrderNumber` is unconfirmed with product/the gateway team — treat it as optional for now. Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount` (note: `result.taxAmount` is `BigDecimal` major units, `taxInformation.taxAmount` is `BigInteger` minor units — type and unit both change).
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
