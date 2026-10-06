@@ -545,7 +545,7 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 :::
 
 :::info Level II Information
-`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules.
 :::
 
 ```kotlin
@@ -626,7 +626,7 @@ All other fields (`channel`, `tokenize`, `cardToken`, `billing`, `enableAvsField
 :::
 
 :::info Level II Information
-`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules.
 :::
 
 ```kotlin
@@ -667,7 +667,7 @@ Options for the `preAuthorizationCapture(amount, currency, originalTransactionID
 :::
 
 :::info Level II Information
-`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules.
 :::
 
 ```kotlin
@@ -844,7 +844,7 @@ Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `ta
 :::
 
 :::info Level II Information
-`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
 :::
 
 ```kotlin

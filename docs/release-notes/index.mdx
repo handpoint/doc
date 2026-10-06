@@ -158,6 +158,7 @@ Your Android application and the Handpoint SDK run directly on the PAX SmartPOS 
 
 - `taxInformation` and `purchaseOrderNumber` are no longer available on `Options`, `MoToOptions`, `MerchantAuthOptions`, or `RefundOptions` — use the dedicated options classes above instead. Code that set these fields on those shared types no longer compiles.
 - Level II data (`taxInformation`/`purchaseOrderNumber`) is never sent for `refund`, the initial `preAuthorization`, `motoRefund`, `motoReversal`, or `motoPreauthorization` — these operations' options classes don't support it.
+- `purchaseOrderNumber` must now be 25 characters or fewer, enforced on both Cloud-originated and native requests — see the [Options objects reference](/reference/android-objects-reference#options-objects).
 
 **Deprecated**
 
