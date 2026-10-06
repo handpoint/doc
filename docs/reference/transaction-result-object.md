@@ -519,7 +519,7 @@ Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not r
 :::
 
 :::info Level II Information
-These fields are echoed back from the request, not set independently here. On the request side, `purchaseOrderNumber` is required whenever `taxInformation` is set, and must be alphanumeric only (no hyphens, spaces, or punctuation) — see the [Options objects reference](android-objects-reference.md#options-objects) for the request-side rules.
+These fields are echoed back from the request, not set independently here. On the request side, `purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only (no hyphens, spaces, or punctuation), and must be 25 characters or fewer — see the [Options objects reference](android-objects-reference.md#options-objects) for the request-side rules.
 :::
 
 ### `FeeResult`
