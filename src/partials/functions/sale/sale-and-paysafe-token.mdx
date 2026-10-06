@@ -1,0 +1,138 @@
+Charge the card and simultaneously capture a **Paysafe single-use token** — a short-lived, one-time credential that lets you securely pass card data to Paysafe's Customer Vault API without your server ever handling the raw PAN.
+
+:::caution Paysafe-ecosystem token — not for Handpoint MOTO
+This token is intended for use on **Paysafe's Customer Vault API**, not Handpoint's Remote Sale (MOTO) endpoint. Handpoint Gateway does not detokenize Paysafe single-use tokens for MOTO processing.
+
+Contact the **Paysafe team** before building a token-based flow to confirm the token format Handpoint returns meets your integration requirements.
+:::
+
+#### When to use it
+Use when onboarding a customer in person — take the first payment as a normal card-present sale and simultaneously capture a Paysafe single-use token. Your system then calls the Paysafe Customer Vault API to vault the card and receive a permanent `paymentToken` for future recurring charges.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "saleAndTokenizeCard",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The `cardToken` in the result is a Paysafe single-use token — pass it to the Paysafe Customer Vault API. It is **not** for use with Handpoint's `/moto/sale` endpoint.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val token = result.cardToken           // Paysafe single-use token
+        // Pass token to Paysafe Customer Vault API — not to Handpoint MOTO
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val options = SaleAndTokenizeOptions()
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    val token = result.cardToken  // Paysafe single-use token
+}
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```swift
+// Sale with tokenization — token returned in result.cardToken
+heftClient.saleWithAmount(1000, currency: "USD", cardIsPresent: true)
+// Access token: result.cardToken (Paysafe single-use)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.saleAndTokenizeCard(
+  { amount: 1000, currency: handpoint.Currency.USD },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      const token = result.cardToken;  // Paysafe single-use token
+      // Pass to Paysafe Customer Vault API
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+const { transactionResult } = hp.saleAndTokenizeCard(
+  1000,
+  'USD',
+  { terminalType: 'PAXA920', serialNumber: '082104578' }
+);
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  const token = result.cardToken;  // Paysafe single-use token
+  // Pass to Paysafe Customer Vault API — not to Handpoint MOTO
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var options = new SaleAndTokenizeOptions();
+var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        string token = result.CardToken;           // Paysafe single-use token
+        string provider = result.CardTokenProvider; // "PAYSAFE"
+        // Pass token to Paysafe Customer Vault API
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Result fields
+
+| Field | Description |
+|---|---|
+| `cardToken` | Paysafe single-use token — pass to Paysafe Customer Vault API; **not** for Handpoint MOTO |
+| `finStatus` | `AUTHORISED` on success |
+
+#### Using the token
+
+Pass the single-use token to Paysafe's Customer Vault API to vault the card and receive a permanent `paymentToken` for future recurring charges. The single-use token expires in ~15 minutes — vault it promptly.
+
+For implementation details, see the [Paysafe Single-Use Token section](#paysafe-token) in Tokenization.
+
+:::caution Token scope
+Paysafe tokens are specific to the merchant configuration. Test tokens (from `api.test.paysafe.com`) are not valid in production.
+:::

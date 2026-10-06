@@ -106,19 +106,66 @@ handpoint.automaticRefund(
 
 ### Parameters
 
-**Full refund** — `automaticRefund(originalGuid)`:
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+<NotSupported
+  reason="The Automatic Refund operation is an Android SDK feature. For Cloud API back-office refunds, use the standard refund endpoint with the originalTransactionId field."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**Full refund** — `hapi.automaticRefund(originalGuid)`:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | `String` | Yes | `transactionID` from the original sale result |
 
-**Partial refund** — `automaticRefund(amount, currency, originalGuid)`:
+**Partial refund** — `hapi.automaticRefund(amount, currency, originalGuid)`:
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `amount` | `BigInteger` | Yes | Refund amount in minor currency units |
-| `currency` | `Currency` | Yes | Currency of the original sale |
+| `amount` | `BigInteger` | Yes | Refund amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency of the original sale, e.g. `Currency.USD` |
 | `originalGuid` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Automatic Refund is a PAX-only back-office feature that submits directly to the gateway. HiLite requires card-present refunds."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Automatic Refund is a PAX-only back-office feature."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+**Full refund** — `handpoint.automaticRefund({ originalTransactionID }, success, error)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalTransactionID` | string | Yes | `transactionID` from the original sale result |
+
+**Partial refund** — include `amount` and `currency`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Refund amount in smallest currency unit |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+</Tabs>
 
 ### Errors
 

@@ -135,26 +135,94 @@ public void EndOfTransaction(TransactionResult result, Device device)
 
 #### Parameters
 
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | `"sale"` |
-| `amount` | string / BigInteger | Yes | Smallest currency unit — `"1000"` = $10.00 |
+| `operation` | string | Yes | Must be `"sale"` |
+| `amount` | string | Yes | Smallest currency unit as a string — `"1000"` = $10.00 |
 | `currency` | string | Yes | ISO 4217 code, e.g. `"USD"`, `"EUR"`, `"CAD"` |
-| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
-| `transactionReference` | string | No (Cloud API / JS SDK) | UUID v4 — send on original transactions only; omit on reversals and linked refunds |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
+| `transactionReference` | string | No | UUID v4 — send on original transactions only; omit on reversals and linked refunds |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
-| `callbackUrl` | string | No (Cloud API) | URL to receive the result via POST; if omitted, poll `GET /transaction-result/{id}` |
+| `callbackUrl` | string | No | URL to receive the result via POST; if omitted, poll `GET /transaction-result/{id}` |
+| `token` | string | No | Opaque value included with the push notification. Only used when `callbackUrl` is set |
 
-**Android SDK `SaleOptions` fields** (optional third argument to `hapi.sale()`):
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit. `BigInteger("1000")` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleOptions?` | No | Optional — see fields below |
+
+**`SaleOptions` fields:**
 
 | Field | Type | Description |
 |---|---|---|
-| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
-| `tipConfiguration` | `TipConfiguration?` | Pre-configure tip prompt on the terminal |
-| `pinBypass` | `Boolean` | Offer PIN bypass where acquirer-supported |
-| `checkDuplicates` | `Boolean` | Enable duplicate detection on the gateway |
-| `merchantAuth` | `MerchantAuth?` | Override MID/TID for multi-MID merchants |
+| `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` and forwarded to the acquirer |
+| `tipConfiguration` | `TipConfiguration?` | Pre-configure tip prompt on the terminal (percentages, amounts, or skip) |
+| `budgetNumber` | `String?` | Instalment / budget number (South African acquirers only) |
+| `pinBypass` | `Boolean` | `true` to offer PIN bypass where acquirer-supported |
+| `signatureBypass` | `Boolean` | `true` to skip signature capture where acquirer-supported |
+| `checkDuplicates` | `Boolean` | `true` to enable duplicate detection on the gateway |
+| `merchantAuth` | `MerchantAuth?` | Override MID / TID for multi-MID merchants |
+| `metadata` | `Metadata?` | Custom key-value pairs echoed in result and stored in txn feed |
+| `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Fields for regulated money transfer transactions |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit. `BigInteger("1000")` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleOptions?` | No | Optional — same fields as Android PAX above |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Amount in smallest currency unit. `1000` = $10.00 |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code as string, e.g. `@"USD"` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Amount in smallest currency unit. `1000` = $10.00 |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Amount in smallest currency unit. `1000` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `'USD'` |
+| `options.terminalType` | string | Yes | Terminal model, e.g. `'PAXA920'` |
+| `options.serialNumber` | string | Yes | Terminal serial number |
+| `options.customerReference` | string | No | Merchant reference forwarded to the acquirer |
+| `options.transactionReference` | string | No | UUID v4 — send on original transactions only |
+| `options.callbackUrl` | string | No | URL to receive the result via POST |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit. `new BigInteger(1000)` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleOptions?` | No | Optional — same fields as Android PAX above |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

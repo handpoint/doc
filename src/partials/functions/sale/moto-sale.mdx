@@ -75,23 +75,46 @@ handpoint.motoSale(
 
 #### Parameters
 
-**Backoffice** (`POST /moto/sale`):
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — result returned immediately in the response body.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00 (note: different from with-reader which uses minor units) |
-| `currency` | string | Yes | ISO 4217 code |
-| `cardToken` | string | Yes | Token from a supported provider — never a raw PAN |
-| `transactionReference` | string | Recommended | UUID v4. Send on every original transaction — required to recover the outcome via `GET /transactions/{reference}/status/all` when no result is received or when `finStatus: UNDEFINED` is returned. See [Transaction Recovery](/reference/transaction-recovery). |
+| `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00 |
+| `currency` | string | Yes | ISO 4217 code, e.g. `"USD"` |
+| `cardToken` | string | Yes | Card-on-file token from a supported provider — never a raw PAN |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency and recovery via `GET /transactions/{reference}/status/all` |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 
-**Android SDK `MoToOptions` fields**:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit, e.g. `BigInteger("1000")` = $10.00 |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `MoToOptions?` | No | Optional — see fields below |
+
+**`MoToOptions` fields:**
 
 | Field | Type | Description |
 |---|---|---|
-| `cardToken` | `String?` | Card token for back-office MOTO — omit to show terminal entry screen instead |
+| `cardToken` | `String?` | Card-on-file token for back-office MOTO — omit to show terminal card entry screen |
 | `channel` | `MoToChannel?` | `MAIL_ORDER` or `TELEPHONE_ORDER` |
 | `customerReference` | `String?` | Merchant reference echoed in `TransactionResult` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Amount in smallest currency unit, e.g. `1000` = $10.00 |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

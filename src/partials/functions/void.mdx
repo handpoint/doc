@@ -100,14 +100,56 @@ handpoint.saleReversal(
 
 #### Parameters
 
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | Must be `"refund"` |
+| `operation` | string | Yes | Must be `"refund"` — gateway maps to TNS VOID automatically |
 | `amount` | string | Yes | Full original sale amount in smallest currency unit as a string |
 | `currency` | string | Yes | Must be `"CAD"` for Interac |
-| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
 | `originalTransactionId` | string | Yes | `transactionID` from the original Interac sale result |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Must be `Currency.CAD` for Interac |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original Interac sale result |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Full original sale amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Must be `Currency.CAD` for Interac |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original Interac sale result |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Full original sale amount in smallest currency unit |
+| `currency` | `NSString *` | Yes | Must be `@"CAD"` for Interac |
+| `transaction` | `NSString *` | Yes | `transactionID` from the original Interac sale result |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Full original sale amount in smallest currency unit |
+| `currency` | string | Yes | Must be `"CAD"` for Interac |
+| `originalTransactionID` | string | Yes | `transactionID` from the original Interac sale result |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

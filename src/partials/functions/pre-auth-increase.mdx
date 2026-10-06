@@ -106,7 +106,10 @@ handpoint.preAuthorizationIncrease(
 </TabItem>
 </Tabs>
 
-**Cloud API with reader** — `POST /transactions`:
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -117,7 +120,8 @@ handpoint.preAuthorizationIncrease(
 | `serial_number` | string | Yes | Terminal serial number |
 | `originalTransactionId` | string | Yes | `transactionID` from the pre-auth create result |
 
-**Backoffice** — `POST /preauthorization/increase`:
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
@@ -127,14 +131,37 @@ handpoint.preAuthorizationIncrease(
 | `tipAmount` | string | No | Tip amount in major units as a decimal string, e.g. `"2.00"` |
 | `customerReference` | string | No | Integrator-defined reference forwarded as-is to the gateway |
 
-**Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID, options?)`:
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
 
-| Parameter | Type | Description |
-|---|---|---|
-| `amount` | `BigInteger` | Delta in minor currency units. Pass a **negative** value to decrease |
-| `currency` | `Currency` | Currency of the original pre-authorization |
-| `originalTransactionID` | `String` | `transactionID` from the pre-auth create result |
-| `options` | `Options?` | Optional — supports `customerReference` |
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Delta in minor currency units. Pass a **negative** value to decrease |
+| `currency` | `Currency` | Yes | Currency of the original pre-authorization |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the pre-auth create result |
+| `options` | `Options?` | No | Optional — supports `customerReference` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<ComingSoon />
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Delta in minor currency units. Pass a negative value to decrease, e.g. `-2000` |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | Yes | `transactionID` from the pre-auth create result |
+
+</TabItem>
+</Tabs>
 
 ### Errors
 
