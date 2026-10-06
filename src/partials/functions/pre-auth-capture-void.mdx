@@ -72,6 +72,53 @@ hapi.preAuthorizationReversal("01236fc0-8192-11eb-9aca-ad4b0e95f241", options)
 </TabItem>
 </Tabs>
 
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"preAuthorizationReversal"` |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
+| `originalTransactionId` | string | Yes | `transactionID` from the pre-authorization **capture** result |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalTransactionID` | `String` | Yes | `transactionID` from the pre-authorization **capture** result |
+| `options` | `Options?` | No | Optional — supports `customerReference` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the HiLite Bluetooth path."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal is not available on the iOS HiLite path."
+  useInstead="Cloud API"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Pre-Authorization Capture Reversal via Cordova is not confirmed."
+  useInstead="REST API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
 #### Errors
 
 <Tabs groupId="integration-path">

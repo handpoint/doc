@@ -152,15 +152,89 @@ public void EndOfTransaction(TransactionResult result, Device device)
 
 #### Parameters
 
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | `"refund"` |
-| `amount` | string | Yes | Refund amount in smallest currency unit. Can be less than original for partial refund |
+| `operation` | string | Yes | Must be `"refund"` |
+| `amount` | string | Yes | Refund amount in smallest currency unit. Can be less than original for a partial refund |
 | `currency` | string | Yes | ISO 4217 code — must match original sale |
-| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
 | `originalTransactionId` | string | Linked only | `transactionID` from the original sale result. Do NOT combine with `transactionReference` |
-| `transactionReference` | string | Unlinked only (Cloud API) | UUID v4 — include on unlinked refunds; omit on linked refunds |
+| `transactionReference` | string | Unlinked only | UUID v4 — include on unlinked refunds; omit on linked refunds |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Refund amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `originalTransactionID` | `String?` | No | `transactionID` from the original sale — omit for an unlinked refund |
+| `options` | `RefundOptions?` | No | Optional — see fields below |
+
+**`RefundOptions` fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `customerReference` | `String?` | Merchant reference echoed in result and forwarded to the acquirer |
+| `checkDuplicates` | `Boolean` | `true` (default) to enable duplicate detection |
+| `pinBypass` | `Boolean` | `true` to offer PIN bypass where acquirer-supported |
+| `signatureBypass` | `Boolean` | `true` to skip signature capture where acquirer-supported |
+| `merchantAuth` | `MerchantAuth?` | Override MID / TID for multi-MID |
+| `metadata` | `Metadata?` | Custom key-value pairs echoed in result and stored in txn feed |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Refund amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `originalTransactionID` | `String?` | No | `transactionID` from the original sale — omit for an unlinked refund |
+| `options` | `RefundOptions?` | No | Optional — same fields as Android PAX above |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Refund amount in smallest currency unit |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code as string, e.g. `@"USD"` |
+| `transaction` | `NSString *` | No | `transactionID` from the original sale — omit for an unlinked refund |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Refund amount in smallest currency unit |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `originalTransactionID` | string | No | `transactionID` from the original sale — omit for an unlinked refund |
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Refund amount in smallest currency unit |
+| `currency` | string | Yes | ISO 4217 code, e.g. `'USD'` |
+| `options.originalTransactionId` | string | Linked only | `transactionID` from the original sale |
+| `options.transactionReference` | string | Unlinked only | UUID v4 — include on unlinked refunds; omit on linked refunds |
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Refund amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `originalTransactionID` | `string?` | No | `transactionID` from the original sale — omit for an unlinked refund |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 

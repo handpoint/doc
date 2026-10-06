@@ -136,15 +136,33 @@ curl --location --request POST 'https://cloud.handpoint.com/reversal' \
 
 #### Parameters
 
-**Cloud API** — `POST /transactions`: see [Reversal](#reversal) section for the full parameter list.
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
 
-**Backoffice** — `POST /reversal`:
+Routes through the terminal — same parameters as the on-device [Reversal](#reversal). Amount in **minor units** (e.g. `"1100"` = $11.00).
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"saleReversal"` |
+| `amount` | string | Yes | Original sale amount in smallest currency unit, e.g. `"1100"` = $11.00 |
+| `currency` | string | Yes | ISO 4217 code — must match the original sale |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Terminal serial number |
+| `originalTransactionId` | string | Yes | `transactionID` from the original transaction result |
+
+</TabItem>
+<TabItem value="backoffice" label="Backoffice">
+
+Direct to the gateway — no terminal required. Amount in **major units** — `"8.00"` = $8.00. Synchronous — result returned immediately.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the original transaction result (any type) |
 | `amount` | string | No | New final amount in **major units** as a decimal string, e.g. `"8.00"`. Omit for a full reversal. Required when `currency` is provided |
 | `currency` | string | No | ISO 4217 currency code. Required when `amount` is provided |
+
+</TabItem>
+</Tabs>
 
 #### Errors
 
