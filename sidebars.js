@@ -2,6 +2,7 @@
 const sidebars = {
   getStartedSidebar: [
     'get-started/index',
+    'get-started/ai-agents',
     {
       type: 'category',
       label: 'Guides',
