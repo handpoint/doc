@@ -129,29 +129,86 @@ handpoint.tokenizeCard(
 
 #### Parameters
 
-**Card-present tokenization** (`tokenizeCard` / `saleAndTokenizeCard`):
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+**Tokenize only** (`POST /transactions` with `operation: "tokenizeCard"`):
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | `"tokenizeCard"` for tokenize-only, `"saleAndTokenizeCard"` for sale+tokenize |
-| `amount` | string | Yes (saleAndTokenizeCard) | Amount in smallest currency unit as a string |
-| `currency` | string | Yes (saleAndTokenizeCard) | ISO 4217 currency code |
-| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `operation` | string | Yes | Must be `"tokenizeCard"` |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
 
-**Deferred tokenization** — `hapi.deferredTokenization(originalTransactionID)` (Android SDK 7.1013.1+):
+**Sale and tokenize** (`POST /transactions` with `operation: "saleAndTokenizeCard"`):
 
-| Parameter | Type | Description |
-|---|---|---|
-| `originalTransactionID` | `String` | `EFTTransactionID` (UUID) from the original transaction result — NOT `transactionID` (the internal device number) |
-| `options` | `Options?` | Optional — supports `customerReference` |
-| **Returns** | `Boolean` | `true` if the command was sent to the device; `false` if not (device not connected or command failed to send). The tokenization result arrives via `endOfTransaction`. |
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | Must be `"saleAndTokenizeCard"` |
+| `amount` | string | Yes | Amount in smallest currency unit as a string |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
+| `transactionReference` | string | No | UUID v4 for idempotency |
 
-**Deferred tokenization** — Cloud API (`GET /transactions/{transactionID}/token`):
+**Deferred tokenization** (`GET /transactions/{transactionID}/token` — no terminal required):
 
 | Parameter | Description |
 |---|---|
 | `{transactionID}` | The `transactionID` (GUID) from the original card-present transaction |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**Tokenize only** — `hapi.tokenizeCard()`: no parameters.
+
+**Sale and tokenize** — `hapi.sale(amount, currency, options)` with `SaleAndTokenizeOptions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleAndTokenizeOptions` | Yes | Pass a `SaleAndTokenizeOptions` instance to enable tokenization |
+
+**Deferred tokenization** — `hapi.deferredTokenization(originalTransactionID)` (SDK 7.1013.1+):
+
+| Parameter | Type | Description |
+|---|---|---|
+| `originalTransactionID` | `String` | `EFTTransactionID` (UUID) from the original result — NOT `transactionID` (internal device number) |
+| **Returns** | `Boolean` | `true` if sent to device; `false` if not connected. Token arrives via `endOfTransaction` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+**Tokenize only** — `hapi.tokenizeCard()`: no parameters.
+
+**Sale and tokenize** — `hapi.sale(amount, currency, options)` with `SaleAndTokenizeOptions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleAndTokenizeOptions` | Yes | Pass a `SaleAndTokenizeOptions` instance to enable tokenization |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+**Tokenize only** — `heftClient.tokenizeCard()`: no parameters.
+
+**Sale and tokenize** — `heftClient.saleAndTokenizeCardWithAmount(amount, currency:)`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Amount in smallest currency unit |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code as string, e.g. `@"USD"` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+**Tokenize only** — `handpoint.tokenizeCard({}, successCallback, errorCallback)`: pass an empty config object. Token is returned in `result.cardToken`.
+
+</TabItem>
+</Tabs>
 
 #### Response fields
 

@@ -24,7 +24,7 @@ const CAPABILITY_PARTIALS = {
   'pre-auth-capture-reversal':['pre-auth-capture-void'],
   moto:                       ['moto'],
   tokenization:               ['tokenization'],
-  batching:                   ['batching'],
+  batching:                   ['batch-close', 'batch-summary', 'batch-detail'],
   'money-remittance':         ['money-remittance'],
   void:                       ['void'],
   interac:                    ['interac'],
@@ -91,7 +91,9 @@ const FLAVOR_DESCRIPTIONS = {
     moto: { description: 'Back-office · mail order / telephone order' },
   },
   batching: {
-    batching: { description: 'Manually close or query the current settlement batch' },
+    'batch-close':   { description: 'Settle the current open batch with the acquirer' },
+    'batch-summary': { description: 'Aggregate totals — transaction count and net amounts by type' },
+    'batch-detail':  { description: 'Individual transactions in a batch, paginated (5 per page)' },
   },
   'money-remittance': {
     'money-remittance': { description: 'Send funds to a recipient account' },

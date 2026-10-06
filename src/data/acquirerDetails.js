@@ -167,6 +167,14 @@ export const ACQUIRER_DETAILS = [
             "javascript-sdk": "public",
             "windows-sdk": "public"
           },
+          "pre-auth-adjust": {
+            "label": "Pre-Auth Adjust (Increase / Decrease)",
+            "cloud-api": "public",
+            "android-pax": "public",
+            "cordova": "public",
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
+          },
           "pre-auth-capture": {
             "label": "Pre-Auth Capture",
             "backoffice": "public",
@@ -432,9 +440,8 @@ export const ACQUIRER_DETAILS = [
       "interac": {
         "cloud-api": "public",
         "android-pax": "public",
-        "android-hilite": "public",
-        "ios-hilite": "public",
-        "cordova": "public"
+        "javascript-sdk": "public",
+        "windows-sdk": "public"
       }
     }
   },

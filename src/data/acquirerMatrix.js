@@ -918,9 +918,8 @@ export const MATRIX_SECTIONS = [
           "paysafe": {
             "cloud-api": "public",
             "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public"
+            "javascript-sdk": "public",
+            "windows-sdk": "public"
           }
         }
       },

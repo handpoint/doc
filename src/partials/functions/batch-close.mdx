@@ -1,0 +1,123 @@
+### Batch Close {#batch-close}
+
+Closes the current open batch and triggers settlement with the acquirer. Omit `batchNumber` to close the currently open batch.
+
+**When to use:** When you need to settle at a specific time rather than waiting for automatic batch close. Most US host-capture merchants use automatic batch close (~11pm EST) — manual close is only needed for specific settlement timing requirements.
+
+**Implementation notes:**
+1. **US host-capture acquirers only.** EU acquirers use automatic settlement and do not require manual batch close.
+2. After batch close, tip adjustments and reversals are no longer possible — only post-settlement refunds.
+3. Auto-close is the default for US host-capture merchants at approximately 11pm EST. Manual close is an alternative, not an addition.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+```http
+POST https://cloud.handpoint.com/batch/close
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920"
+}
+```
+
+<Tabs>
+<TabItem value="success" label="Success">
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "batchStatus": "CLOSED",
+  "closeBatchGuid": "d1988a50-49fb-11f1-b64d-2969d719a012",
+  "closedAt": "20260928214051578",
+  "customFields": {
+    "entry": {
+      "key": "issuerBatchCloseLocalTimestamp",
+      "value": "2026-09-28T02:40:51"
+    }
+  },
+  "issuerResponseCode": "00",
+  "issuerResponseText": "ACCEPTED"
+}
+```
+
+</TabItem>
+<TabItem value="already-closed" label="Already Closed">
+
+The batch is already closed — auto-close ran or a previous `/batch/close` call succeeded.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "closebatch": {
+          "httpStatus": "403",
+          "batchNumber": "63",
+          "closeBatchGuid": "34645ff0-bcb2-11f1-a903-a92d2c2c7176",
+          "issuerResponseCode": "03",
+          "issuerResponseText": "NOT ALLOWED",
+          "batchStatus": "CLOSED"
+        }
+      }
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="missing-fields" label="Missing Fields">
+
+A required field (`serialNumber` or `deviceType`) is absent.
+
+```json
+{
+  "error": {
+    "statusCode": 422,
+    "name": "UnprocessableEntityError",
+    "code": "VALIDATION_FAILED",
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "details": [
+      {
+        "code": "required",
+        "info": { "missingProperty": "serialNumber" },
+        "message": "must have required property 'serialNumber'",
+        "path": ""
+      }
+    ]
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `serialNumber` | string | Yes | Terminal serial number |
+| `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `batchNumber` | string | No | Batch number to close. If omitted, the gateway resolves the terminal's current open batch |
+
+</TabItem>
+</Tabs>
+
+#### Testing
+
+Test batch close on the staging device (PAX debug). Batch operations are server-side REST API calls — no card interaction required.

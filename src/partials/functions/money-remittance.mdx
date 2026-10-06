@@ -93,16 +93,67 @@ handpoint.sale(
 
 #### Parameters
 
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `operation` | string | Yes (Cloud API) | Must be `"sale"` |
+| `operation` | string | Yes | Must be `"sale"` |
 | `amount` | string | Yes | Transfer amount in smallest currency unit as a string |
 | `currency` | string | Yes | ISO 4217 currency code |
-| `serial_number` | string | Yes (Cloud API) | Target terminal serial number |
-| `terminal_type` | string | Yes (Cloud API) | Terminal model, e.g. `"PAXA920"` |
+| `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `serial_number` | string | Yes | Target terminal serial number |
 | `moneyRemittanceOptions.fullName` | string | Yes | Recipient's full name (max 30 characters) |
-| `moneyRemittanceOptions.countryCode` | string | Yes | Recipient's country code in ISO 3166-1 alpha-3 format, e.g. `"USA"`, `"GBR"`, `"MEX"` |
-| `transactionReference` | string | No (Cloud API) | UUID v4 for idempotency and result retrieval |
+| `moneyRemittanceOptions.countryCode` | string | Yes | Recipient's country in ISO 3166-1 alpha-3 format, e.g. `"USA"`, `"GBR"`, `"MEX"` |
+| `transactionReference` | string | No | UUID v4 for idempotency and result retrieval |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Transfer amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleOptions` | Yes | Pass `SaleOptions` with `moneyRemittanceOptions` set |
+
+**`MoneyRemittanceOptions` fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `fullName` | `String` | Recipient's full name (max 30 characters) |
+| `countryCode` | `CountryCode` | ISO 3166-1 alpha-3 enum, e.g. `CountryCode.USA` |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `BigInteger` | Yes | Transfer amount in smallest currency unit |
+| `currency` | `Currency` | Yes | Currency enum, e.g. `Currency.USD` |
+| `options` | `SaleOptions` | Yes | Pass `SaleOptions` with `moneyRemittanceOptions` set — same fields as Android PAX |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | `NSInteger` | Yes | Transfer amount in smallest currency unit |
+| `currency` | `NSString *` | Yes | ISO 4217 currency code as string, e.g. `@"USD"` |
+
+Contact the Handpoint integration team to enable money remittance options on iOS HiLite.
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `amount` | number | Yes | Transfer amount in smallest currency unit |
+| `currency` | string | Yes | Currency constant, e.g. `handpoint.Currency.USD` |
+| `moneyRemittanceOptions.fullName` | string | Yes | Recipient's full name (max 30 characters) |
+| `moneyRemittanceOptions.countryCode` | string | Yes | ISO 3166-1 alpha-3 code, e.g. `"USA"` |
+
+</TabItem>
+</Tabs>
 
 #### Testing
 Test money remittance transactions on the TEST/DEMO merchant or staging device the same way as standard sales.
