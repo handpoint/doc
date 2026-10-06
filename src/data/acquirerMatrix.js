@@ -862,14 +862,6 @@ export const MATRIX_SECTIONS = [
             "ios-hilite": "not-supported",
             "cordova": "not-supported",
             "backoffice": "public"
-          },
-          "paysafe": {
-            "cloud-api": "not-supported",
-            "android-pax": "not-supported",
-            "android-hilite": "not-supported",
-            "ios-hilite": "not-supported",
-            "cordova": "not-supported",
-            "backoffice": "public"
           }
         }
       },

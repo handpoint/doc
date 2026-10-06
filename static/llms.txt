@@ -1,10 +1,10 @@
 # Handpoint Developer Documentation
 # Fetch the acquirer URL for full implementation detail.
-# Generated: 2026-10-06T08:12:47.769Z
+# Generated: 2026-10-06T08:30:49.334Z
 
 ## Acquirers
 EPI | geography: US, Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-tokenize), refund(card-present+moto-refund+key-entry-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth(pre-auth-create+key-entry-pre-auth+pre-auth-adjust+pre-auth-capture+pre-auth-void), moto, tokenization(procharge), batching, pre-auth-capture-reversal, avs-for-moto, fee-mitigation | cards: VISA, MC, Discover | url: /acquirers/epi
-PAYSAFE | geography: US & Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-paysafe-token), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(paysafe-token+tokenex), batching, void, interac | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe
+PAYSAFE | geography: US & Canada | sale(emv-sale+key-entry-sale+moto-sale+sale-and-tip+sale-and-paysafe-token), refund(card-present+moto-refund), reversal(reversal+remote-reversal), tip-adjustment, pre-auth, moto, tokenization(paysafe-token+tokenex), void, interac | cards: VISA, MC, AMEX, Discover, Interac | interac: true | url: /acquirers/paysafe
 EmerchantPay | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize+sale-and-tip), refund(card-present+moto-refund+key-entry-refund), reversal(reversal+remote-reversal), pre-auth(pre-auth-create+key-entry-pre-auth+pre-auth-capture+pre-auth-void), moto, tokenization(tokenex), money-remittance | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/emerchantpay
 Paystrax | geography: EU | pre-auth-capture-reversal, sale(emv-sale+key-entry-sale+moto-sale+sale-and-tokenize+sale-and-tip), refund(card-present+moto-refund+key-entry-refund), reversal(reversal+remote-reversal), pre-auth(pre-auth-create+key-entry-pre-auth+pre-auth-capture+pre-auth-void), moto, tokenization(tokenex) | cards: VISA, MC, AMEX, UnionPay | url: /acquirers/paystrax
 

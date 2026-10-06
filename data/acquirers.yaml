@@ -385,13 +385,6 @@ acquirers:
             cordova: public
             javascript-sdk: public
             windows-sdk: public
-      batching:
-        cloud-api: not-supported
-        android-pax: not-supported
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
-        backoffice: public
       void:
         cloud-api: public
         android-pax: public
@@ -556,13 +549,6 @@ acquirers:
             android-hilite: public
             ios-hilite: public
             cordova: public
-      batching:
-        cloud-api: not-supported
-        android-pax: not-supported
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
-        backoffice: public
       void:
         cloud-api: public
         android-pax: public
@@ -1282,12 +1268,6 @@ acquirers:
       moto:
         cloud-api: public
         android-pax: public
-        android-hilite: not-supported
-        ios-hilite: not-supported
-        cordova: not-supported
-      batching:
-        cloud-api: public
-        android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
         cordova: not-supported
