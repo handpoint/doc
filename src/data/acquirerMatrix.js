@@ -333,15 +333,6 @@ export const MATRIX_SECTIONS = [
             "javascript-sdk": "public",
             "windows-sdk": "public"
           },
-          "paysafe": {
-            "cloud-api": "public",
-            "android-pax": "public",
-            "android-hilite": "public",
-            "ios-hilite": "public",
-            "cordova": "public",
-            "javascript-sdk": "public",
-            "windows-sdk": "public"
-          },
           "emerchantpay": {
             "cloud-api": "public",
             "android-pax": "public",

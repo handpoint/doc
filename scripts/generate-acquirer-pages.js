@@ -55,7 +55,8 @@ const FLAVOR_DESCRIPTIONS = {
     'key-entry-sale':    { description: 'On-device · operator keys card number' },
     'moto-sale':         { description: 'Back-office · charges a stored card token', anchor: 'remote-sale' },
     'sale-and-tip':      { description: 'On-device · tip collected at checkout' },
-    'sale-and-tokenize': { description: 'On-device · stores card token for future charges' },
+    'sale-and-tokenize':       { description: 'On-device · stores card token for future charges' },
+    'sale-and-paysafe-token': { description: 'On-device · captures a Paysafe single-use token for Customer Vault API' },
   },
   refund: {
     'card-present':      { description: 'On-device · card present at terminal', anchor: 'emv-refund' },

@@ -301,7 +301,7 @@ export const ACQUIRER_DETAILS = [
             "javascript-sdk": "public",
             "windows-sdk": "public"
           },
-          "sale-and-tokenize": {
+          "sale-and-paysafe-token": {
             "label": "Sale with Paysafe Token",
             "cloud-api": "public",
             "android-pax": "public",
