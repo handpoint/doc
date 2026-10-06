@@ -692,7 +692,7 @@ Options for the `tipAdjustment(tipAmount, currency, originalTransactionID, optio
 | `metadata` | `Metadata?` | (inherited) Custom data. |
 | `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. |
 
-`TipAdjustmentOptions` has **no `purchaseOrderNumber` field** — the underlying wire request for tip adjustment carries no purchase order number, so `taxInformation` is the only Level II field here. (Even on the classes that do have both fields, the SDK does not require them to be paired — see [`Options`](#options-base-class).)
+`TipAdjustmentOptions` has **no `purchaseOrderNumber` field** — the underlying wire request for tip adjustment carries no purchase order number, so `taxInformation` is the only Level II field here. (On the classes that do have both fields, `purchaseOrderNumber` is required whenever `taxInformation` is set — see [`SaleOptions`](#saleoptions).)
 
 :::caution Experimental API
 `taxInformation` is marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of this field may still change in a future release; code using it needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
