@@ -152,6 +152,12 @@ Your Android application and the Handpoint SDK run directly on the PAX SmartPOS 
 **New Features**
 
 - **Dedicated options classes per operation**: `MoToSaleOptions`, `PreAuthorizationCaptureOptions`, and `TipAdjustmentOptions` — each carries only the fields its operation actually supports, instead of the shared `Options`/`MoToOptions` base class. `SaleOptions`/`SaleAndTokenizeOptions` gain `taxInformation`/`purchaseOrderNumber`; `MoToSaleOptions` and `PreAuthorizationCaptureOptions` add the same two fields; `TipAdjustmentOptions` adds `taxInformation` only. See [TaxInformation](/reference/android-objects-reference#taxinformation) and the [Options objects reference](/reference/android-objects-reference#options-objects).
+- `TransactionResult.taxInformation` / `TransactionResult.purchaseOrderNumber`: response-side fields echoing back what was sent on the request, for the operations above. `TransactionResult.taxAmount` is now deprecated in favor of `taxInformation.taxAmount` (note: the type and unit both change — see [TransactionResult](/reference/transaction-result-object)).
+
+**Breaking Changes**
+
+- `taxInformation` and `purchaseOrderNumber` are no longer available on `Options`, `MoToOptions`, `MerchantAuthOptions`, or `RefundOptions` — use the dedicated options classes above instead. Code that set these fields on those shared types no longer compiles.
+- Level II data (`taxInformation`/`purchaseOrderNumber`) is never sent for `refund`, the initial `preAuthorization`, `motoRefund`, `motoReversal`, or `motoPreauthorization` — these operations' options classes don't support it.
 
 **Deprecated**
 
@@ -159,7 +165,7 @@ Your Android application and the Handpoint SDK run directly on the PAX SmartPOS 
 - `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options): Boolean` is deprecated in favor of `tipAdjustment(tipAmount, currency, originalTransactionID, options: TipAdjustmentOptions): Boolean`.
 - `motoSale(amount, currency, options: MoToOptions)` is deprecated in favor of `motoSale(amount, currency, options: MoToSaleOptions)`.
 
-It's recommended to start migrating to the new overloads. They behave exactly like the ones they replace — the only difference is that each now takes an options object specific to that operation instead of the shared one.
+It's recommended to start migrating to the new overloads. For a call that doesn't use the new per-operation fields, they behave like the ones they replace — the only difference is that each now takes an options object specific to that operation instead of the shared one.
 
 ### 7.1014.0
 

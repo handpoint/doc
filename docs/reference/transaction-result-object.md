@@ -402,7 +402,7 @@ result.dueAmount                // BigInteger("0")
 result.taxAmount                // DEPRECATED, BigDecimal? major units — NOT a like-for-like swap, see below
 result.taxInformation?.taxAmount  // BigInteger("100") — echo of what was sent; null if none sent/returned
 result.taxInformation?.taxExempt  // false
-result.purchaseOrderNumber      // "PO-4711" — null if none sent/returned
+result.purchaseOrderNumber      // "PO4711" — null if none sent/returned
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
@@ -507,7 +507,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
 | `taxAmount` | BigDecimal? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable — always null-check before use. **Not a like-for-like swap:** `taxInformation.taxAmount` is a `BigInteger` in **minor units**, while this field is a `BigDecimal` in **major units** — both the type and the unit change when you migrate. |
 | `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
-| `purchaseOrderNumber` | String? | Level II purchase order number echoed back, alphanumeric only. `null` means none was sent/returned — not empty. **Required whenever `taxInformation` is set** (see info box below). |
+| `purchaseOrderNumber` | String? | Level II purchase order number echoed back, alphanumeric only. `null` means none was sent/returned — not empty. Always echoed alongside `taxInformation` (see info box below — the SDK requires both to be sent together on the request). |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
@@ -519,7 +519,7 @@ Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not r
 :::
 
 :::info Level II Information
-`purchaseOrderNumber` **is required whenever `taxInformation` is set** for Level II processing, and **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation) — always set both together and follow the character rule.
+These fields are echoed back from the request, not set independently here. On the request side, `purchaseOrderNumber` is required whenever `taxInformation` is set, and must be alphanumeric only (no hyphens, spaces, or punctuation) — see the [Options objects reference](android-objects-reference.md#options-objects) for the request-side rules.
 :::
 
 ### `FeeResult`
