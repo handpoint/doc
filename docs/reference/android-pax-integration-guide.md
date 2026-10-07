@@ -306,6 +306,8 @@ hapi.preAuthorizationReversal(preAuthID)
 
 Both Capture and Reversal results arrive in `endOfTransaction`. Always reverse unused pre-auths — unreleased holds affect cardholder available credit and expire after 7–30 days.
 
+To send Level II data on capture (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`PreAuthorizationCaptureOptions`](android-objects-reference.md#preauthorizationcaptureoptions): `hapi.preAuthorizationCapture(amount, currency, preAuthID, PreAuthorizationCaptureOptions().apply { ... })`. The `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only, and must be 25 characters or fewer.
+
 ### MOTO Sale (Key Entry)
 
 Use when a cardholder reads their card details over the phone and an operator keys them directly on the PAX terminal's touchscreen. Despite using the physical terminal, this is processed as a MOTO (card-not-present) transaction and incurs higher interchange rates — confirm the fee structure with your acquirer.
@@ -323,6 +325,8 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 ```
 
 Requires `cloudApiKey` in `HandpointCredentials` and MOTO enabled for the merchant by Handpoint. Check `result.finStatus` — `CANCELLED` means the operator exited the entry screen.
+
+To send Level II data (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`MoToSaleOptions`](android-objects-reference.md#motosaleoptions) instead: `hapi.motoSale(amount, currency, MoToSaleOptions().apply { ... })`. The `motoSale(amount, currency, options: MoToOptions)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only, and must be 25 characters or fewer.
 
 ### Tokenization
 
@@ -351,7 +355,9 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 Use in tip-at-table flows — the cardholder signs a paper receipt after the sale and writes in a tip, and the cashier enters it before batch close. This is distinct from Sale with Tip, which collects the tip at checkout before authorisation.
 
 ```kotlin
-// Returns Boolean synchronously — no endOfTransaction callback fires
+// Returns Boolean synchronously, but endOfTransaction DOES still fire: TipAdjustmentResponseCallback
+// builds a TransactionResult (taxInformation included, when sent) and delivers it via
+// EventHandler.endOfTransaction, same as other financial operations.
 val accepted: Boolean = hapi.tipAdjustment(
     BigInteger("200"),                               // 200 = $2.00 tip in minor units
     Currency.USD,
@@ -361,6 +367,8 @@ val accepted: Boolean = hapi.tipAdjustment(
 ```
 
 `true` means the SDK sent the adjustment to the gateway. Must be called before batch close — see the [Utility methods table](#utility-methods--verified-return-values-pax-a920) for confirmed PAX return values.
+
+To send Level II tax data (`taxInformation` only, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning — there is no `purchaseOrderNumber` field here), pass [`TipAdjustmentOptions`](android-objects-reference.md#tipadjustmentoptions): `hapi.tipAdjustment(tipAmount, currency, originalTransactionID, TipAdjustmentOptions().apply { ... })`. The `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one.
 
 ### Automatic Refund
 
@@ -573,7 +581,7 @@ Brief reference for terminal management methods available on the `Hapi` instance
 | `stopCurrentTransaction()` | `false` when idle | Returns `false` when no transaction is in progress — only returns `true` when it successfully interrupts an active transaction. Do not interpret `false` as an error; check `OperationStartResult.operationStarted` instead. |
 | `getDeviceLogs()` | `false` on PAX | Returns `false` even when the call was accepted. Device log delivery goes through the `PrinterEvents` channel — implement `Events.PrinterEvents` and handle `onPrintFailure(PrintError.CantConnectToPrinter)` when no host printer is reachable. |
 | `update()` | `true` | Returns `true` immediately; update check runs asynchronously. |
-| `tipAdjustment()` | `true` | Fire-and-forget; no callback. |
+| `tipAdjustment()` | `true` | Also fires `endOfTransaction` with the result (`TipAdjustmentResponseCallback`), same as other financial operations — not fire-and-forget. |
 | `getTransactionStatus()` | `true` | Result delivered via `transactionResultReady()`. |
 
 ## Test amounts

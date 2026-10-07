@@ -791,10 +791,10 @@ No card interaction. Operate on a previously completed transaction by its ID, GU
 | Sale reversal | `saleReversal(amount, currency, originalTransactionID)` | Reverses a completed sale — no card presented |
 | Refund (linked) | `refund(amount, currency, originalTransactionID)` | Linked refund against original transaction |
 | Refund reversal | `refundReversal(amount, currency, originalTransactionID)` | Reverses a previously issued refund |
-| Pre-auth capture | `preAuthorizationCapture(amount, currency, originalTransactionID)` or `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` | Captures a previously authorized hold. `Options` carries `customerReference` and `metadata` only. |
+| Pre-auth capture | `preAuthorizationCapture(amount, currency, originalTransactionID)` or `preAuthorizationCapture(amount, currency, originalTransactionID, options: PreAuthorizationCaptureOptions)` | Captures a previously authorized hold. `PreAuthorizationCaptureOptions` adds `taxInformation`/`purchaseOrderNumber` (`@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` or expect a compiler warning). See [Release Notes](/release-notes) for the deprecated `options: Options` overload. |
 | Pre-auth increase | `preAuthorizationIncrease(amount, currency, originalTransactionID)` | Increases an existing pre-auth hold before capture |
 | Pre-auth reversal | `preAuthorizationReversal(originalTransactionID)` or `preAuthorizationReversal(amount, currency, originalTransactionID)` | Cancels an uncaptured pre-auth hold. Amount and currency are optional — omit to cancel the full hold; include for a partial release. |
-| Tip adjustment | `tipAdjustment(tipAmount, currency, originalTransactionID): Boolean` | See note below |
+| Tip adjustment | `tipAdjustment(tipAmount, currency, originalTransactionID): Boolean` or `tipAdjustment(tipAmount, currency, originalTransactionID, options: TipAdjustmentOptions): Boolean` | See note below. `TipAdjustmentOptions` adds `taxInformation` (`@HapiExperimental`, SDK 7.1015.0+ — pending release; no `purchaseOrderNumber` field; needs `@OptIn(HapiExperimental::class)` or expect a compiler warning). See [Release Notes](/release-notes) for the deprecated `options: Options` overload. |
 | Automatic refund | `automaticRefund(originalTransactionID)` | Full refund by original transaction ID — no card interaction, no amount required. Useful for post-transaction refunds from a back-office flow. Result delivered via `endOfTransaction`. |
 
 ### Keyed entry operations
@@ -803,7 +803,7 @@ The cardholder keys their card details directly into the PAX terminal — no phy
 
 | Operation | Signature | Notes |
 |---|---|---|
-| Keyed entry sale | `motoSale(amount, currency, options: MoToOptions)` | Card details entered on terminal keypad |
+| Keyed entry sale | `motoSale(amount, currency, options: MoToSaleOptions)` | Card details entered on terminal keypad. `MoToSaleOptions` (extends `MoToOptions`) adds `taxInformation`/`purchaseOrderNumber` (`@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` or expect a compiler warning). See [Release Notes](/release-notes) for the deprecated `options: MoToOptions` overload. |
 | Keyed entry refund | `motoRefund(amount, currency, originalTransactionID, options: MoToOptions)` | Refund against a prior keyed entry sale |
 | Keyed entry reversal | `motoReversal(originalTransactionID)` or `motoReversal(originalTransactionID, options: MoToOptions)` or `motoReversal(amount: String?, currency: String?, originalTransactionID)` (partial) | Reverses a keyed entry sale. ⚠️ **The partial-amount overload uses `String?` for amount and `String?` for currency** — not `BigInteger`/`Currency` like every other operation. Example: `motoReversal("100", "USD", originalId)` for a $1.00 partial reversal. Passing `BigInteger`/`Currency` types will cause a compile error or overload resolution failure. |
 | Keyed entry pre-auth | `motoPreauthorization(amount, currency)` or `motoPreauthorization(amount, currency, options: MoToOptions)` | Note: lowercase 'a' — `motoPreauthorization`, not `motoPreAuthorization`. |
@@ -828,7 +828,7 @@ The `originalTransactionID` parameter in reversal, refund, and capture operation
 :::
 
 :::note `tipAdjustment` return type and concurrent safety
-`tipAdjustment` returns `Boolean` directly (the underlying SDK method) — not `OperationStartResult`. It does **not** interact with the card and does **not** fire `endOfTransaction`. `true` means the tip was recorded successfully; `false` means it was rejected (e.g. unsupported by acquirer, wrong transaction reference). No recovery polling is needed. **Note:** wrapper implementations that gate behind `requireInit()` (as HpSdk.kt does) will return `Boolean?` — callers should use `== true` rather than trusting a non-null return.
+`tipAdjustment` returns `Boolean` directly (the underlying SDK method) — not `OperationStartResult`. It does **not** interact with the card, but it **does** still fire `endOfTransaction`: `TipAdjustmentResponseCallback` builds a `TransactionResult` (with `taxInformation` populated when sent) and delivers it via `EventHandler.endOfTransaction`, same as other financial operations. The synchronous `Boolean` only tells you whether the SDK accepted and sent the request (`false` means it was rejected before sending, e.g. unsupported by acquirer, wrong transaction reference) — it does not tell you whether the tip was recorded by the gateway. Read the eventual `endOfTransaction` result for that. No recovery polling is needed. **Note:** wrapper implementations that gate behind `requireInit()` (as HpSdk.kt does) will return `Boolean?` — callers should use `== true` rather than trusting a non-null return.
 
 Unlike all other financial operations, **`tipAdjustment` does not need to be blocked during active recovery** — it adjusts a previously completed transaction and does not risk double-charge. If you implement a `requireNoRecovery()` guard in your wrapper, do not apply it to `tipAdjustment`.
 :::

@@ -512,6 +512,13 @@ Available on every options object — the root of the options inheritance chain.
 |---|---|---|
 | `customerReference` | `String` | Arbitrary identifier echoed in `TransactionResult.customerReference`. Use for order IDs, booking references, etc. Max 25 characters. |
 | `metadata` | `Metadata?` | Custom key-value data echoed in the transaction result. |
+| `taxAmount` | `BigInteger?` | **Deprecated** — use `taxInformation.taxAmount` on the options classes that support Level II data (see below). |
+
+:::caution Level II data is not a base-class field
+`taxInformation` / `purchaseOrderNumber` do **not** live on `Options` — only the options classes for operations that actually support Level II data have these fields at all: [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), and [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions) (both fields), plus [`TipAdjustmentOptions`](#tipadjustmentoptions) (`taxInformation` only — no `purchaseOrderNumber`). Both fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`) — the shape may still change in a future release, and code touching them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
+
+Ships in **SDK 7.1015.0+** — not yet released at the time of writing. Don't rely on these classes before that SDK version is out.
+:::
 
 ---
 
@@ -530,10 +537,22 @@ Options for `sale()` and `saleAndTokenize()`. Inherits from `BypassOptions` → 
 | `tipConfiguration` | `TipConfiguration?` | Configures the on-device tipping prompt. |
 | `budgetNumber` | `String?` | South Africa — split payments over a number of months. 2-digit string (e.g. `"06"` = 6 months). |
 | `moneyRemittanceOptions` | `MoneyRemittanceOptions?` | Required for Mastercard money remittance (MCC 4829/6540). |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. `SaleOptions` implements `Level2Options` directly (not inherited from `Options`). **Requires `purchaseOrderNumber` to be set too** (see info box below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see info box below). |
+
+:::caution Experimental API
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules.
+:::
 
 ```kotlin
 val options = SaleOptions().apply {
     customerReference = "ORDER-123"
+    taxInformation = TaxInformation(BigInteger("100"), false)  // 1.00 tax, not exempt
+    purchaseOrderNumber = "PO4711"                              // required alongside taxInformation; alphanumeric only
     tipConfiguration = TipConfiguration().apply {
         tipPercentages = listOf(10, 15, 20)
         isEnterAmountEnabled = true
@@ -591,12 +610,102 @@ Options for all MOTO/keyed-entry operations.
 
 ---
 
+### `MoToSaleOptions`
+
+Options for the `motoSale(amount, currency, options: MoToSaleOptions)` overload. Extends `MoToOptions` and adds Level II support — it's the only MOTO options class with `taxInformation`/`purchaseOrderNumber`.
+
+| Property | Type | Description |
+|---|---|---|
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see info box below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see info box below). |
+
+All other fields (`channel`, `tokenize`, `cardToken`, `billing`, `enableAvsFields`, `moneyRemittanceOptions`, `customerReference`, `merchantAuth`) are inherited from `MoToOptions`.
+
+:::caution Experimental API
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules.
+:::
+
+```kotlin
+val options = MoToSaleOptions().apply {
+    channel = MoToChannel.TO
+    taxInformation = TaxInformation(BigInteger("100"), false)
+    purchaseOrderNumber = "PO4711"   // required alongside taxInformation; alphanumeric only
+}
+api.motoSale(BigInteger.valueOf(1000), Currency.USD, options)
+```
+
+The older `motoSale(amount, currency, options: MoToOptions)` overload is **deprecated** in favor of the one above.
+
+---
+
 ### `MoToChannel`
 
 | Value | Description |
 |---|---|
 | `MO` | Mail order. |
 | `TO` | Telephone order. |
+
+---
+
+### `PreAuthorizationCaptureOptions`
+
+Options for the `preAuthorizationCapture(amount, currency, originalTransactionID, options: PreAuthorizationCaptureOptions)` overload. Extends `Options` directly.
+
+| Property | Type | Description |
+|---|---|---|
+| `customerReference` | `String` | (inherited) Reference string. |
+| `metadata` | `Metadata?` | (inherited) Custom data. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. **Requires `purchaseOrderNumber` to be set too** (see info box below). |
+| `purchaseOrderNumber` | `String?` | Level II purchase order number, alphanumeric only. **Required whenever `taxInformation` is set** (see info box below). |
+
+:::caution Experimental API
+`taxInformation` and `purchaseOrderNumber` are marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of these fields may still change in a future release; code using them needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules.
+:::
+
+```kotlin
+val options = PreAuthorizationCaptureOptions().apply {
+    taxInformation = TaxInformation(BigInteger("100"), false)
+    purchaseOrderNumber = "PO4711"   // required alongside taxInformation; alphanumeric only
+}
+api.preAuthorizationCapture(BigInteger.valueOf(9500), Currency.USD, preAuthID, options)
+```
+
+The older `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is **deprecated** in favor of the one above.
+
+---
+
+### `TipAdjustmentOptions`
+
+Options for the `tipAdjustment(tipAmount, currency, originalTransactionID, options: TipAdjustmentOptions)` overload. Extends `Options` directly.
+
+| Property | Type | Description |
+|---|---|---|
+| `customerReference` | `String` | (inherited) Reference string. |
+| `metadata` | `Metadata?` | (inherited) Custom data. |
+| `taxInformation` | [`TaxInformation?`](#taxinformation) | Level II tax data. |
+
+`TipAdjustmentOptions` has **no `purchaseOrderNumber` field** — the underlying wire request for tip adjustment carries no purchase order number, so `taxInformation` is the only Level II field here. (On the classes that do have both fields, `purchaseOrderNumber` is required whenever `taxInformation` is set — see [`SaleOptions`](#saleoptions).)
+
+:::caution Experimental API
+`taxInformation` is marked `@HapiExperimental` in the SDK (ships in SDK 7.1015.0+, pending release) — the shape of this field may still change in a future release; code using it needs `@OptIn(HapiExperimental::class)` or expect a compiler warning.
+:::
+
+```kotlin
+val options = TipAdjustmentOptions().apply {
+    taxInformation = TaxInformation(BigInteger("50"), false)
+}
+api.tipAdjustment(BigInteger.valueOf(200), Currency.USD, originalTransactionID, options)
+```
+
+The older `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options)` overload is **deprecated** in favor of the one above.
 
 ---
 
@@ -718,6 +827,35 @@ AVS result — present on `TransactionResult.addressVerification` for MOTO trans
 | `resultCode` | `AvsResultCode` | Outcome of the AVS check. |
 
 `AvsResultCode` enum values: `FULL_MATCH`, `EXACT_MATCH`, `ADDRESS_MATCH`, `ZIP_MATCH`, `ZIP9_MATCH`, `NO_MATCH`, `UNSUPPORTED`, `INTERNATIONAL`, `RETRY`, `UNAVAILABLE`, `UNKNOWN`.
+
+---
+
+## `TaxInformation`
+
+Level II tax data (`com.handpoint.api.shared.TaxInformation`). Set it on the `taxInformation` field of an options class that supports Level II data — [`SaleOptions`](#saleoptions) (and `SaleAndTokenizeOptions`), [`MoToSaleOptions`](#motosaleoptions), [`PreAuthorizationCaptureOptions`](#preauthorizationcaptureoptions), or [`TipAdjustmentOptions`](#tipadjustmentoptions) (tax data only) — to send it to the gateway; it is echoed back on `TransactionResult.taxInformation`.
+
+| Property | Type | Description |
+|---|---|---|
+| `taxAmount` | `BigInteger` | Tax amount in minor currency units, same denomination as the transaction amount. Must be `0` when `taxExempt` is `true`. |
+| `taxExempt` | `Boolean` | `false` = local sales tax applies. `true` = the transaction is tax-exempt. |
+
+:::caution Experimental API
+`TaxInformation` and the `taxInformation`/`purchaseOrderNumber` fields are marked `@HapiExperimental` in the SDK (`com.handpoint.api.HapiExperimental`, ships in SDK 7.1015.0+ — pending release) — the shape may still change in a future release, and code using them needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or the compiler emits a warning.
+:::
+
+:::info Level II Information
+`purchaseOrderNumber` **must be set whenever `taxInformation` is set**, **may only contain alphanumeric characters** (no hyphens, spaces, or punctuation), and **must be 25 characters or fewer** — always set both together and follow these rules. (`TipAdjustmentOptions` has no `purchaseOrderNumber` field at all — it only carries `taxInformation`.)
+:::
+
+```kotlin
+val options = SaleOptions().apply {
+    taxInformation = TaxInformation(BigInteger("100"), false)
+    purchaseOrderNumber = "PO4711"   // required alongside taxInformation; alphanumeric only
+}
+api.sale(BigInteger.valueOf(1000), Currency.USD, options)
+```
+
+Read it back from the result: see [`TransactionResult`](transaction-result-object.md).
 
 ---
 
