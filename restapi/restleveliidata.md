@@ -69,7 +69,7 @@ Level 2 data comes back in one of two shapes, depending on where the response co
 }
 ```
 
-**Gateway responses**, with amounts in decimal major units ([`GET /transactions/{transactionReference}/status`](restendpoints.md#retrieve-transaction-status), `POST /moto/sale`, `POST /preauthorization/capture` and the tip adjustment response): the tax as the gateway recorded it, with `taxAmountIdentifier` instead of `taxExempt`:
+**Gateway responses** ([`GET /transactions/{transactionReference}/status`](restendpoints.md#retrieve-transaction-status), `POST /moto/sale` and `POST /preauthorization/capture`): when the gateway returns Level 2 data, it carries the tax as the gateway recorded it, in decimal major units, with `taxAmountIdentifier` instead of `taxExempt`:
 
 ```json
 {
@@ -86,7 +86,19 @@ Level 2 data comes back in one of two shapes, depending on where the response co
 | `"1"` | Local sales tax applies (`taxExempt: false`) |
 | `"2"` | Tax exempt (`taxExempt: true`) |
 
-On the tip adjustment response, `taxAmount` is a Number in major units. In every case, the fields are left out when they are not available.
+**Tip adjustment response** (`POST /transactions/{guid}/tip-adjustment`): only `taxInformation`, with `taxAmount` as a Number in major units and `taxAmountIdentifier`, when the gateway returns them. It never includes `purchaseOrderNumber`:
+
+```json
+{
+  "statusMessage": "tip adjusted",
+  "taxInformation": {
+    "taxAmount": 0.50,
+    "taxAmountIdentifier": "1"
+  }
+}
+```
+
+In every case, the fields are left out when they are not available.
 
 ## Validation errors
 
@@ -97,7 +109,7 @@ Every rule below returns `400 Bad Request`. A field with the wrong type, for exa
   "error": {
     "statusCode": 400,
     "name": "BadRequestError",
-    "message": "Missing or empty purchaseOrderNumber, mandatory when taxInformation is present"
+    "message": "Missing purchaseOrderNumber, mandatory when taxInformation is present"
   }
 }
 ```
@@ -108,14 +120,15 @@ Every rule below returns `400 Bad Request`. A field with the wrong type, for exa
 | `purchaseOrderNumber is not supported for operation [<operation>]` | `purchaseOrderNumber` sent on a `POST /transactions` operation that does not support it, including `tipAdjustment` |
 | `Invalid purchaseOrderNumber, must be 25 characters or fewer` | `purchaseOrderNumber` longer than 25 characters |
 | `Invalid purchaseOrderNumber, must contain only alphanumeric characters` | `purchaseOrderNumber` empty or with characters other than `A-Z a-z 0-9` |
-| `Missing or empty purchaseOrderNumber, mandatory when taxInformation is present` | `taxInformation` sent without `purchaseOrderNumber` (not on tip adjustments) |
+| `Missing purchaseOrderNumber, mandatory when taxInformation is present` | `taxInformation` sent without `purchaseOrderNumber` (not on tip adjustments) |
 | `Missing taxInformation, mandatory when purchaseOrderNumber is present` | `purchaseOrderNumber` sent without `taxInformation` |
 | `Missing taxInformation.taxAmount, mandatory when taxInformation.taxExempt is false` | `taxInformation` sent without `taxAmount` and `taxExempt` not `true` (not on tip adjustments) |
 | `Invalid taxInformation.taxAmount, must be in the minor unit of currency (1000 is 10.00 EUR)` | `POST /transactions`: `taxAmount` is not 1 to 12 digits |
 | `Invalid taxInformation.taxAmount, must be in the major unit of currency (20.50 is 20.50 EUR)` | `POST /moto/sale`, `POST /preauthorization/capture`: `taxAmount` is not a decimal number such as `"20.50"`, has leading zeros other than a single `0` before the decimal point, or is longer than 12 digits (13 characters with a decimal point) |
 | `Invalid taxInformation.taxAmount, must be "0" when taxInformation.taxExempt is true` | `taxExempt` is `true` and `taxAmount` is not `0` or is missing (on tip adjustments, only when `taxAmount` is sent) |
 | `Invalid taxInformation.taxAmount, must be greater than "0" when taxInformation.taxExempt is false` | `taxAmount` is `0` and `taxExempt` is `false` or missing (not on tip adjustments) |
-| `Invalid taxInformation.taxAmount, must not exceed amount` | `taxAmount` is greater than the operation amount (`amount`, or `capturedAmount` on a capture) |
+| `Invalid taxInformation.taxAmount, must not exceed amount` | `POST /transactions`, `POST /moto/sale`: `taxAmount` is greater than `amount` |
+| `Invalid taxInformation.taxAmount, must not exceed capturedAmount` | `POST /preauthorization/capture`: `taxAmount` is greater than `capturedAmount` |
 
 `POST /transactions/{guid}/tip-adjustment` has two more messages of its own:
 

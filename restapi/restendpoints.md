@@ -1905,7 +1905,7 @@ curl -X POST \
   "error": {
     "statusCode": 400,
     "name": "BadRequestError",
-    "message": "Invalid taxInformation.taxAmount, must not exceed amount"
+    "message": "Invalid taxInformation.taxAmount, must not exceed capturedAmount"
   }
 }
 ```
@@ -2098,7 +2098,7 @@ A very common cause of **3107** is having "CVV/CV2 input mandatory" enabled for 
   "error": {
     "statusCode": 400,
     "name": "BadRequestError",
-    "message": "Missing or empty purchaseOrderNumber, mandatory when taxInformation is present"
+    "message": "Missing purchaseOrderNumber, mandatory when taxInformation is present"
   }
 }
 ```
