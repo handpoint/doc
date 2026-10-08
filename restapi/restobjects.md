@@ -563,7 +563,7 @@ Level 2 tax data sent on a request, together with `purchaseOrderNumber`. See [Le
 
 `TaxInformationResult` <span class="badge badge--info">Object</span>
 
-Level 2 tax data returned in a response, as recorded by the gateway. Responses carry `taxAmountIdentifier` instead of `taxExempt`.
+Level 2 tax data returned by the gateway: on [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status), `POST /moto/sale` and `POST /preauthorization/capture`. Carries `taxAmountIdentifier` instead of `taxExempt`. The terminal's transaction result echoes [`TaxInformation`](#tax-information) instead.
 
 **Properties**
 
@@ -857,8 +857,8 @@ An object holding information about the result of a transaction.
 | `multiLanguageErrorMessages`  <br />*Map	*   | `map` containing the error message in a human readable format for all the supported locales.|
 | `cardHolderName`  <br />*String	*   | Name of the cardholder|
 | `transactionReference`  <br />*String*   | The unique UUID associated with the transaction, it can be used to query the [get transaction status](restendpoints.md#transactionstransactionreferencestatus)  endpoint.|
-| `taxInformation`  <br />[*TaxInformationResult*](#tax-information-result)   | Level 2 tax data as recorded by the gateway. Absent when not available.|
-| `purchaseOrderNumber`  <br />*String*   | Level 2 purchase order number as recorded by the gateway. Absent when not available.|
+| `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Level 2 tax data, echoed by the terminal as sent (`taxAmount`, `taxExempt`). On [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status) it is the gateway's [*TaxInformationResult*](#tax-information-result) (`taxAmount`, `taxAmountIdentifier`) instead. Absent when not available.|
+| `purchaseOrderNumber`  <br />*String*   | Level 2 purchase order number, as sent. Absent when not available.|
 
 **Code example**
 
@@ -930,7 +930,7 @@ An object holding information about the result of a transaction.
   "transactionReference": "3e665342-a95b-49c1-b6fe-b3f102305a76",
   "taxInformation": {
     "taxAmount": "100",
-    "taxAmountIdentifier": "1"
+    "taxExempt": false
   },
   "purchaseOrderNumber": "PO4711"
 }

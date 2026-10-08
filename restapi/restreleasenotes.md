@@ -17,7 +17,7 @@ Extended [Level 2 purchasing data](restleveliidata.md) (`taxInformation` with `t
 
 - [`POST /moto/sale`](restendpoints.md#moto-sale) and [`POST /preauthorization/capture`](restendpoints.md#preauthorization-capture) now accept `taxInformation` and `purchaseOrderNumber`, with `taxAmount` in decimal major units.
 - [`POST /transactions/{guid}/tip-adjustment`](restendpoints.md#tip-adjustment) now accepts `taxInformation.taxExempt`, and returns `taxInformation.taxAmountIdentifier`.
-- Responses return the gateway's [`taxInformation`](restobjects.md#tax-information-result) (`taxAmount`, `taxAmountIdentifier`) and `purchaseOrderNumber`, including on [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status).
+- [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status) now returns the gateway's [`taxInformation`](restobjects.md#tax-information-result) (`taxAmount`, `taxAmountIdentifier`) and `purchaseOrderNumber`.
 
 :::caution Breaking changes on `POST /transactions`
 Level 2 rules are now enforced, and requests that previously succeeded can now return `400 Bad Request`:

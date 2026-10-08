@@ -52,7 +52,21 @@ Tip adjustments accept `taxInformation` with relaxed rules, both on `POST /trans
 
 ## Response fields
 
-Responses report the tax as the gateway recorded it, with `taxAmountIdentifier` instead of `taxExempt`:
+Level 2 data comes back in one of two shapes, depending on where the response comes from.
+
+**Transaction result** ([callback or `GET /transaction-result`](/reference/transaction-result-object)): the payment terminal echoes `taxInformation` and `purchaseOrderNumber` as they were sent, with `taxExempt`:
+
+```json
+{
+  "taxInformation": {
+    "taxAmount": "100",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO4711"
+}
+```
+
+**Gateway responses** ([`GET /transactions/{transactionReference}/status`](/reference/cloud-api-operations#recovery--check-transaction-status), `POST /moto/sale`, `POST /preauthorization/capture` and the tip adjustment response): the tax as the gateway recorded it, with `taxAmountIdentifier` instead of `taxExempt`:
 
 ```json
 {
@@ -69,11 +83,7 @@ Responses report the tax as the gateway recorded it, with `taxAmountIdentifier` 
 | `"1"` | Local sales tax applies (`taxExempt: false`) |
 | `"2"` | Tax exempt (`taxExempt: true`) |
 
-Both fields are left out of the response when the gateway does not return them. They are returned by:
-
-- The [Transaction Result Object](/reference/transaction-result-object), for example through [`GET /transactions/{transactionReference}/status`](/reference/cloud-api-operations#recovery--check-transaction-status).
-- The `POST /moto/sale` and `POST /preauthorization/capture` responses.
-- The tip adjustment response, where `taxAmount` is a Number in major units.
+On the tip adjustment response, `taxAmount` is a Number in major units. In every case, the fields are left out when they are not available.
 
 ## Validation errors
 
