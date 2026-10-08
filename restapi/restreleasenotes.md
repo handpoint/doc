@@ -23,9 +23,12 @@ Extended [Level 2 purchasing data](restleveliidata.md) (`taxInformation` with `t
 Level 2 rules are now enforced, and requests that previously succeeded can now return `400 Bad Request`:
 
 - `taxInformation` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard`, `preAuthorizationCapture` and `tipAdjustment`.
-- `purchaseOrderNumber` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, and is mandatory whenever `taxInformation` is sent there.
+- `purchaseOrderNumber` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, and must be sent together with `taxInformation` there: one without the other is rejected.
 - `purchaseOrderNumber` must be alphanumeric, 25 characters or fewer.
-- `taxInformation.taxAmount` must not exceed `amount`, and must be greater than `"0"` unless `taxExempt` is `true`.
+- Except on `tipAdjustment`, `taxInformation.taxAmount` is required unless `taxExempt` is `true`, must not exceed `amount`, and must be greater than `"0"` unless `taxExempt` is `true`.
+- An empty `taxInformation.taxAmount` (`""`) is rejected.
+
+The top-level `taxAmount` is deprecated in favour of `taxInformation.taxAmount`. It is kept for compatibility and will be removed in a future release.
 
 See [Level 2 Purchasing Data](restleveliidata.md#validation-errors) for every validation message.
 :::

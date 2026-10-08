@@ -36,9 +36,13 @@ Level 2 data must be enabled on the merchant's agreement with the acquirer. Cont
 
 | Field | Rules |
 | ----- | ----- |
-| `taxInformation.taxAmount` | Portion of the amount that is tax. Must not exceed the operation amount. Must be `0` when `taxExempt` is `true`, and greater than `0` otherwise. |
+| `taxInformation.taxAmount` | Portion of the amount that is tax. Required unless `taxExempt` is `true`. Must not exceed the operation amount. Must be `0` when `taxExempt` is `true`, and greater than `0` otherwise. |
 | `taxInformation.taxExempt` | *Boolean*, default `false`. `true` means the transaction is tax exempt, and requires `taxAmount` to be `0`. |
-| `purchaseOrderNumber` | Mandatory whenever `taxInformation` is sent. Alphanumeric only (`A-Z a-z 0-9`), 25 characters or fewer. `null` is treated as not sent. |
+| `purchaseOrderNumber` | Must be sent together with `taxInformation`: one without the other is rejected. Alphanumeric only (`A-Z a-z 0-9`), 25 characters or fewer. `null` is treated as not sent. |
+
+:::note
+The top-level `taxAmount` of `POST /transactions` is deprecated: use `taxInformation.taxAmount` instead. It is kept for compatibility and will be removed in a future release.
+:::
 
 ### Tip adjustment
 
@@ -65,12 +69,12 @@ Level 2 data comes back in one of two shapes, depending on where the response co
 }
 ```
 
-**Gateway responses** ([`GET /transactions/{transactionReference}/status`](restendpoints.md#retrieve-transaction-status), `POST /moto/sale`, `POST /preauthorization/capture` and the tip adjustment response): the tax as the gateway recorded it, with `taxAmountIdentifier` instead of `taxExempt`:
+**Gateway responses**, with amounts in decimal major units ([`GET /transactions/{transactionReference}/status`](restendpoints.md#retrieve-transaction-status), `POST /moto/sale`, `POST /preauthorization/capture` and the tip adjustment response): the tax as the gateway recorded it, with `taxAmountIdentifier` instead of `taxExempt`:
 
 ```json
 {
   "taxInformation": {
-    "taxAmount": "100",
+    "taxAmount": "1.00",
     "taxAmountIdentifier": "1"
   },
   "purchaseOrderNumber": "PO4711"
@@ -86,7 +90,7 @@ On the tip adjustment response, `taxAmount` is a Number in major units. In every
 
 ## Validation errors
 
-Every rule returns `400 Bad Request`:
+Every rule below returns `400 Bad Request`. A field with the wrong type, for example a non-boolean `taxExempt`, is rejected earlier with `422 Unprocessable Entity` by schema validation.
 
 ```json
 {
@@ -105,6 +109,8 @@ Every rule returns `400 Bad Request`:
 | `Invalid purchaseOrderNumber, must be 25 characters or fewer` | `purchaseOrderNumber` longer than 25 characters |
 | `Invalid purchaseOrderNumber, must contain only alphanumeric characters` | `purchaseOrderNumber` empty or with characters other than `A-Z a-z 0-9` |
 | `Missing or empty purchaseOrderNumber, mandatory when taxInformation is present` | `taxInformation` sent without `purchaseOrderNumber` (not on tip adjustments) |
+| `Missing taxInformation, mandatory when purchaseOrderNumber is present` | `purchaseOrderNumber` sent without `taxInformation` |
+| `Missing taxInformation.taxAmount, mandatory when taxInformation.taxExempt is false` | `taxInformation` sent without `taxAmount` and `taxExempt` not `true` (not on tip adjustments) |
 | `Invalid taxInformation.taxAmount, must be in the minor unit of currency (1000 is 10.00 EUR)` | `POST /transactions`: `taxAmount` is not 1 to 12 digits |
 | `Invalid taxInformation.taxAmount, must be in the major unit of currency (20.50 is 20.50 EUR)` | `POST /moto/sale`, `POST /preauthorization/capture`: `taxAmount` is not a decimal number such as `"20.50"` |
 | `Invalid taxInformation.taxAmount, must be "0" when taxInformation.taxExempt is true` | `taxExempt` is `true` and `taxAmount` is not `0` or is missing (on tip adjustments, only when `taxAmount` is sent) |

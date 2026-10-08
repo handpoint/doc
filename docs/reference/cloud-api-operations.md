@@ -134,8 +134,8 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `metadata` | object | No | — | `{ "metadata1": "…", …, "metadata5": "…" }` — max 250 chars each |
 | `moneyRemittanceOptions` | object | No | — | EmerchantPay only — see [moneyRemittanceOptions](#moneyremittanceoptions) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in minor units, like `amount`. Requires `purchaseOrderNumber`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 chars. |
+| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in minor units, like `amount`. Must be sent with `purchaseOrderNumber`; `taxAmount` is required unless `taxExempt` is `true`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
+| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
 ---
 
@@ -361,8 +361,8 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 | `capturedAmount` | string | **Yes** | — | Amount to capture. Max 32 chars. ⚠️ See unit note below. |
 | `tipAmount` | string | No | — | Optional tip to add to the capture. Same unit as `capturedAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `capturedAmount`. Requires `purchaseOrderNumber`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 chars. |
+| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `capturedAmount`. Must be sent with `purchaseOrderNumber`; `taxAmount` is required unless `taxExempt` is `true`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
+| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
 :::note `capturedAmount` uses major units (decimal)
 Pass `capturedAmount` as a **major-unit decimal string** — e.g. `"45.00"` for $45.00, `"120.00"` for $120.00. This matches `increaseAmount` and the `/reversal` `amount` field. It is **not** minor units.
@@ -823,8 +823,8 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700645247 \
 | `merchantAuth` | array | No | — | Multi-MID override |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in minor units, like `amount`. Requires `purchaseOrderNumber`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 chars. |
+| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in minor units, like `amount`. Must be sent with `purchaseOrderNumber`; `taxAmount` is required unless `taxExempt` is `true`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
+| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
 :::warning `transactionReference` bug on moToSale (CUS-837)
 The `transactionReference` you send is ignored by the Cloud API for `moToSale` — the returned result contains a system-generated reference that does not match your value. Recovery via `GET /transactions/{ref}/status` will not work for keyed-entry MOTO. Use `transactionResultId` to poll instead, and store `transactionID` from the result for recovery. Status: open as of 2026-09-06.
@@ -1015,8 +1015,8 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 | `customerReference` | string | No | — | Free-text reference. Max 50 chars. |
 | `channel` | string | No | — | `"MO"` (mail order) or `"TO"` (telephone order) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }`. Postal code and optional street address forwarded to the acquirer for address verification. Requires `avsForMoto` enabled for the merchant. See [AVS](/reference/avs). |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `amount`. Requires `purchaseOrderNumber`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 chars. |
+| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `amount`. Must be sent with `purchaseOrderNumber`; `taxAmount` is required unless `taxExempt` is `true`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
+| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
 **`POST /moto/refund` — request parameters**
 

@@ -140,7 +140,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipAmount` | integer | Tip amount. `0` if no tip. |
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
-| `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
+| `taxAmount` | integer | **Deprecated — use `taxInformation.taxAmount`; kept for compatibility and will be removed in a future release.** Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
 | `taxInformation` | object | [Level 2](/reference/level-2-purchasing-data) tax data, echoed by the terminal as it was sent: `taxAmount` (minor units) and `taxExempt` (boolean). Absent when none was sent. `GET /transactions/{transactionReference}/status` returns `taxAmountIdentifier` instead of `taxExempt` — see [Level 2 response fields](/reference/level-2-purchasing-data#response-fields). |
 | `purchaseOrderNumber` | string | [Level 2](/reference/level-2-purchasing-data) purchase order number, echoed as it was sent. Absent when none was sent. |
 | `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
