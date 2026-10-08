@@ -278,6 +278,10 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 `capturedAmount` and `tipAmount` are **major-unit decimal strings** — consistent with all Cloud API back-office (no-reader) calls. `"95.00"` captures $95.00. This differs from on-device operations (Android SDK `preAuthorizationCapture`), which take minor-unit integers (`BigInteger("9500")`).
 :::
 
+:::info Level 2 purchasing data
+The capture also accepts `taxInformation` (`taxAmount` in decimal major units, like `capturedAmount`, and `taxExempt`) together with `purchaseOrderNumber`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data).
+:::
+
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
