@@ -9,6 +9,27 @@ id: restreleasenotes
 Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!
 :::
 
+## 2.34.0
+
+**Features:**
+
+Extended [Level 2 purchasing data](restleveliidata.md) (`taxInformation` with `taxAmount` and `taxExempt`, and `purchaseOrderNumber`), which can qualify commercial and corporate card transactions for a lower interchange rate:
+
+- [`POST /moto/sale`](restendpoints.md#moto-sale) and [`POST /preauthorization/capture`](restendpoints.md#preauthorization-capture) now accept `taxInformation` and `purchaseOrderNumber`, with `taxAmount` in decimal major units.
+- [`POST /transactions/{guid}/tip-adjustment`](restendpoints.md#tip-adjustment) now accepts `taxInformation.taxExempt`, and returns `taxInformation.taxAmountIdentifier`.
+- Responses return the gateway's [`taxInformation`](restobjects.md#tax-information-result) (`taxAmount`, `taxAmountIdentifier`) and `purchaseOrderNumber`, including on [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status).
+
+:::caution Breaking changes on `POST /transactions`
+Level 2 rules are now enforced, and requests that previously succeeded can now return `400 Bad Request`:
+
+- `taxInformation` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard`, `preAuthorizationCapture` and `tipAdjustment`.
+- `purchaseOrderNumber` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, and is mandatory whenever `taxInformation` is sent there.
+- `purchaseOrderNumber` must be alphanumeric, 25 characters or fewer.
+- `taxInformation.taxAmount` must not exceed `amount`, and must be greater than `"0"` unless `taxExempt` is `true`.
+
+See [Level 2 Purchasing Data](restleveliidata.md#validation-errors) for every validation message.
+:::
+
 ## 2.30.0
 
 **Features:**
