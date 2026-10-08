@@ -149,6 +149,8 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 | `callbackUrl` | string | No | URL to receive the result via POST; if omitted, poll `GET /transaction-result/{id}` |
 | `token` | string | No | Opaque value included with the push notification. Only used when `callbackUrl` is set |
+| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
+| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">

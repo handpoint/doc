@@ -121,6 +121,7 @@ Amount in **major currency units** — `"95.00"` = $95.00. Synchronous — resul
 | `400` | `4066` | `Partial reversal amount exceeds original amount` | `capturedAmount` exceeds the pre-auth hold amount | Reduce the capture amount |
 | `400` | `3051` | `Already reversed` | Pre-auth was already voided | Check your records — void and capture are mutually exclusive; you cannot capture after a void |
 | `400` | `3211` | *(pre-auth already settled)* | Pre-auth has already been captured — a second capture is not possible | Verify state via the TXN Feed API; if the first capture succeeded, issue a refund if needed |
+| `400` | — | `Invalid capturedAmount, must be in the major unit of currency (20.50 is 20.50 EUR)` | `capturedAmount` doesn't match the format above | Send a decimal string such as `"95.00"` |
 | `400` | — | *(Level 2 validation message)* | Invalid `taxInformation` or `purchaseOrderNumber`, for example `Invalid taxInformation.taxAmount, must not exceed amount` | Fix the field — see [Level 2 validation errors](/reference/level-2-purchasing-data#validation-errors) |
 | `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
 | `422` | `VALIDATION_FAILED` | Missing required field | Request body is missing `originalGuid` or `capturedAmount` | See `details` array in response for the specific field |

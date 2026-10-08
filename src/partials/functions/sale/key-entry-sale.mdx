@@ -94,6 +94,8 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | PAX terminal serial number |
 | `transactionReference` | string | No | UUID v4 for idempotency and status queries |
+| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
+| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">

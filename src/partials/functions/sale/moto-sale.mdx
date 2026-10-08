@@ -82,11 +82,13 @@ Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — resul
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00 |
+| `amount` | string | Yes | Amount in **major currency units** — `"10.00"` = $10.00. Must match `^\d+(\.\d+)?$`, otherwise `422`; within that, at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`, otherwise `400` |
 | `currency` | string | Yes | ISO 4217 code, e.g. `"USD"` |
 | `cardToken` | string | Yes | Card-on-file token from a supported provider — never a raw PAN |
 | `transactionReference` | string | Recommended | UUID v4 for idempotency and recovery via `GET /transactions/{reference}/status/all` |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`; at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
+| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -123,3 +125,4 @@ Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — resul
 | `DECLINED` | Issuer declined | Request another payment method from the customer |
 | `INVALID_TOKEN` | Token not recognised or expired | Verify token and token provider match acquirer |
 | `MOTO_NOT_ENABLED` | MOTO not provisioned for this merchant | Contact Handpoint team |
+| `400` (validation) | Invalid `amount` format, or invalid `taxInformation` / `purchaseOrderNumber` | Fix the field — see [Level 2 validation errors](/reference/level-2-purchasing-data#validation-errors) |
