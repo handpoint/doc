@@ -600,7 +600,7 @@ Possible values
 
 | Property      | Description |
 | ----------- | ----------- |
-| `amount`  <br />*Biginteger*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
+| `amount`  <br />*Number*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
 | `taxInformation` <br />*Object* | Optional Level 2 tax data: `taxAmount` (*Number*, major units, for example `0.50`) and `taxExempt` (*Boolean*). `taxAmount` is optional; when `taxExempt` is `true` it must be `0`. `0` with `taxExempt` `false` corrects the tax of the tip adjustment to zero. No other field is accepted. See [Level 2 Purchasing Data](restleveliidata.md#tip-adjustment). |
 
 **Code example**

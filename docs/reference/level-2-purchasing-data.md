@@ -113,7 +113,7 @@ Every rule below returns `400 Bad Request`. A field with the wrong type, for exa
 | `Missing taxInformation, mandatory when purchaseOrderNumber is present` | `purchaseOrderNumber` sent without `taxInformation` |
 | `Missing taxInformation.taxAmount, mandatory when taxInformation.taxExempt is false` | `taxInformation` sent without `taxAmount` and `taxExempt` not `true` (not on tip adjustments) |
 | `Invalid taxInformation.taxAmount, must be in the minor unit of currency (1000 is 10.00 EUR)` | `POST /transactions`: `taxAmount` is not 1 to 12 digits |
-| `Invalid taxInformation.taxAmount, must be in the major unit of currency (20.50 is 20.50 EUR)` | `POST /moto/sale`, `POST /preauthorization/capture`: `taxAmount` is not a decimal number such as `"20.50"` |
+| `Invalid taxInformation.taxAmount, must be in the major unit of currency (20.50 is 20.50 EUR)` | `POST /moto/sale`, `POST /preauthorization/capture`: `taxAmount` is not a decimal number such as `"20.50"`, has leading zeros, or is longer than 12 digits (13 characters with a decimal point) |
 | `Invalid taxInformation.taxAmount, must be "0" when taxInformation.taxExempt is true` | `taxExempt` is `true` and `taxAmount` is not `0` or is missing (on tip adjustments, only when `taxAmount` is sent) |
 | `Invalid taxInformation.taxAmount, must be greater than "0" when taxInformation.taxExempt is false` | `taxAmount` is `0` and `taxExempt` is `false` or missing (not on tip adjustments) |
 | `Invalid taxInformation.taxAmount, must not exceed amount` | `taxAmount` is greater than the operation amount (`amount`, or `capturedAmount` on a capture) |

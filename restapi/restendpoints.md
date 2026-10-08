@@ -1985,7 +1985,7 @@ Typical flow:
 Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRequest) for full details):
 
 - `cardToken` <span class="badge badge--primary">Required</span> – Token representing the card stored in the gateway (e.g. `"665630867"`).
-- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00). Must be a positive integer string.
+- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00), using a dot (`.`) as decimal separator.
 - `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 currency code (e.g. `"EUR"`).
 - Optional references for reconciliation: `customerReference`, `transactionReference`, etc.
 - Optional Level 2 purchasing data: `taxInformation` (`taxAmount` in decimal major units, `taxExempt`) and `purchaseOrderNumber`. See [Level 2 Purchasing Data](restleveliidata.md).
@@ -1996,7 +1996,7 @@ Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRe
 | ------ | ----- |
 | `200` | Sale successfully processed. The response body is a `motoSaleResponse` [Moto Transaction Response](restobjects#motoTransactionResponse) with the authorization result (approved/declined), authorization code, masked card details, acquirer TID, timestamps, etc. |
 | `400` | Business rule error from the payment gateway (for example, CVV required, card token failure), returned as `BadRequestError` with `error.code` and `error.details` containing the gateway error code and description; or a Level 2 validation error, returned as `BadRequestError` with a `message` only. |
-| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (invalid amount (must be a positive integer string in minor units), currency length, etc.). |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (invalid amount (must be a decimal string in major units, such as `"20.00"`), currency length, etc.). |
 | `5xx` | Internal error or gateway unavailability. The final outcome may be unknown and may require reconciliation. |
 
 #### Code Example
@@ -2153,7 +2153,7 @@ original transaction. No card data is passed in the refund request.
 Typical fields (see [MotoRefundRequest](restobjects#motoRefundRequest) for full details):
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be refunded (e.g. `"1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"`).
-* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in MAJOR units (e.g. `"5.00"` for $5.00). Must be a positive integer string.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in MAJOR units (e.g. `"5.00"` for $5.00), using a dot (`.`) as decimal separator.
 * `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code (e.g. `"EUR"`, `"USD"`).
 * Optional: `customerReference`.
 
@@ -2262,7 +2262,7 @@ Reversals are typically used to cancel a MOTO sale shortly after authorization, 
 Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for full details):
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
-* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00). Must be a positive integer string.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00), using a dot (`.`) as decimal separator.
 * `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
 * Optional merchant references: `customerReference`, `transactionReference`.
 
