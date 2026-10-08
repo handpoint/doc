@@ -53,7 +53,7 @@ See [Level 2 Purchasing Data](/reference/level-2-purchasing-data#validation-erro
 :::
 
 :::caution Breaking changes on `POST /moto/sale` and `POST /preauthorization/capture`
-`amount` on `POST /moto/sale` and `capturedAmount` on `POST /preauthorization/capture` must now be decimal major-unit strings with no leading zeros and at most 12 digits (13 characters with a decimal point). Other values, such as `"010.00"`, return `400 Bad Request`. This applies to every request, with or without Level 2 data.
+`amount` on `POST /moto/sale` and `capturedAmount` on `POST /preauthorization/capture` must now be decimal major-unit strings with no leading zeros except a single `0` before the decimal point, as in `0.50`, and at most 12 digits (13 characters with a decimal point). Other values, such as `"010.00"`, return `400 Bad Request`. This applies to every request, with or without Level 2 data.
 :::
 
 ### 2.30.0

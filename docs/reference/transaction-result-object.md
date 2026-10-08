@@ -142,7 +142,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
 | `taxAmount` | integer | **Deprecated — use `taxInformation.taxAmount`; kept for compatibility and will be removed in a future release.** Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
 | `taxInformation` | object | [Level 2](/reference/level-2-purchasing-data) tax data, echoed by the terminal as it was sent: `taxAmount` (minor units) and `taxExempt` (boolean). Absent when none was sent. `GET /transactions/{transactionReference}/status` returns the gateway's values instead: `taxAmount` in decimal major units (for example `"1.00"`) and `taxAmountIdentifier` instead of `taxExempt` — see [Level 2 response fields](/reference/level-2-purchasing-data#response-fields). |
-| `purchaseOrderNumber` | string | [Level 2](/reference/level-2-purchasing-data) purchase order number, echoed as it was sent. Absent when none was sent. |
+| `purchaseOrderNumber` | string | [Level 2](/reference/level-2-purchasing-data) purchase order number, echoed by the terminal as it was sent. Absent when none was sent. `GET /transactions/{transactionReference}/status` returns the value recorded by the gateway instead. |
 | `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 

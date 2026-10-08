@@ -973,7 +973,7 @@ Object used by the [`POST /preauthorization/capture`](restendpoints.md#preauthor
 | Property | Description |
 | -------- | ----------- |
 | `originalGuid` <span class="badge badge--primary">Required</span> <br />*String* | GUID of the original pre-authorization transaction. Maximum 64 characters. |
-| `capturedAmount` <span class="badge badge--primary">Required</span> <br />*String* | Amount to capture, in decimal major units (for example `"120.00"`): at most 12 digits, or 13 characters with a decimal point, no leading zeros. Can be less than the authorized amount for a partial capture. |
+| `capturedAmount` <span class="badge badge--primary">Required</span> <br />*String* | Amount to capture, in decimal major units (for example `"120.00"`): at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`. Can be less than the authorized amount for a partial capture. |
 | `tipAmount` <br />*String* | Tip amount to include in the captured total, in decimal major units (for example `"5.00"`). |
 | `customerReference` <br />*String* | Integrator-defined reference, forwarded as-is to the gateway. Maximum 64 characters. |
 | `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Level 2 tax data, with `taxAmount` in decimal major units like `capturedAmount`. Must not exceed `capturedAmount`. See [Level 2 Purchasing Data](restleveliidata.md). |
@@ -1007,7 +1007,7 @@ Object used by the [`POST /moto/sale`](restendpoints#moto-operations-no-reader) 
 
 | Property | Description |
 | -------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span> <br />*String* | Amount of the operation in major units, using a dot (`.`) as decimal separator. Valid examples: `"20"`, `"20.0"`, `"20.00"`. At most 12 digits, or 13 characters with a decimal point, and no leading zeros. |
+| `amount` <span class="badge badge--primary">Required</span> <br />*String* | Amount of the operation in major units, using a dot (`.`) as decimal separator. Valid examples: `"20"`, `"20.0"`, `"20.00"`. Must match the pattern `^\d+(\.\d+)?$`, otherwise `422`. Within that, at most 12 digits, or 13 characters with a decimal point, and no leading zeros except a single `0` before the decimal point, as in `0.50`, otherwise `400`. |
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](#currency) | ISO 4217 3-character currency code (for example, `"EUR"`, `"USD"`). |
 | `cardToken` <span class="badge badge--primary">Required</span> <br />*String* | Token that represents the card stored securely in the gateway. This token is obtained in a previous operation (for example, `saleAndTokenizeCard`) and allows the integrator to avoid handling PAN/CVV directly. |
 | `customerReference` <br />*String* | Merchant-defined reference for the operation. Useful for back-office reconciliation and reporting. |
