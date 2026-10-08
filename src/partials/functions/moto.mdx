@@ -176,6 +176,8 @@ handpoint.motoReversal(
 | `serial_number` | string | Yes | PAX terminal serial number — triggers card entry screen on device |
 | `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
 | `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
+| `taxInformation` | object | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). Requires `purchaseOrderNumber` |
+| `purchaseOrderNumber` | string | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 characters |
 
 **Without reader — back-office** (`POST /moto/sale`, `/moto/refund`):
 
@@ -187,6 +189,8 @@ handpoint.motoReversal(
 | `originalGuid` | string | Refund only | GUID of the original MOTO sale to refund. Replaces `cardToken` on refunds — the gateway retrieves the card from the original transaction |
 | `transactionReference` | string | Sale | UUID v4 for idempotency. Do not include on refunds (linked operation) |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+| `taxInformation` | object | No | Sale only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`) and `taxExempt` (boolean). Requires `purchaseOrderNumber` |
+| `purchaseOrderNumber` | string | No | Sale only. [Level 2](/reference/level-2-purchasing-data) purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">

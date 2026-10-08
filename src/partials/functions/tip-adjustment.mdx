@@ -100,7 +100,8 @@ Amount in **major currency units** — `9.00` = $9.00. Synchronous — result re
 |---|---|---|---|
 | `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result (in the URL path) |
 | `amount` | number | Yes | Tip amount in **major currency units**, e.g. `9.00` for $9.00. Send `0` to void an existing tip |
-| `taxInformation.taxAmount` | number | No | Tax amount in major currency units (e.g. `1.50`). Note: **different format** from `POST /transactions`, where tax is a string in minor units. `taxExempt` is not supported on this endpoint and returns 400 |
+| `taxInformation.taxAmount` | number | No | Tax amount in major currency units (e.g. `1.50`). Note: **different format** from `POST /transactions`, where tax is a string in minor units. `0` corrects the tax of the tip adjustment to zero |
+| `taxInformation.taxExempt` | boolean | No | [Level 2](/reference/level-2-purchasing-data#tip-adjustment) tax-exempt flag. When `true`, `taxAmount`, if sent, must be `0` |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -152,12 +153,13 @@ Returns `Boolean` synchronously — no `endOfTransaction` callback fires.
   "statusMessage": "tip adjusted",
   "batchNumber": "123",
   "taxInformation": {
-    "taxAmount": 1.50
+    "taxAmount": 1.50,
+    "taxAmountIdentifier": "1"
   }
 }
 ```
 
-`taxInformation` is only present when `taxInformation.taxAmount` was sent in the request.
+`taxInformation` is only present when the gateway returns it. `taxAmountIdentifier` is `"1"` for local sales tax, `"2"` for tax exempt.
 
 </TabItem>
 <TabItem value="batch-closed" label="Batch Closed">
@@ -181,7 +183,8 @@ The batch has already been closed — tip adjustments are only available on unse
 |---|---|---|
 | `statusMessage` | string | `"tip adjusted"` on success |
 | `batchNumber` | string | The current open batch number, if returned by the acquirer. May be absent |
-| `taxInformation.taxAmount` | number | The tax amount echoed back in major units. Only present when `taxInformation.taxAmount` was sent in the request |
+| `taxInformation.taxAmount` | number | The tax amount recorded by the gateway, in major units. Absent when not returned |
+| `taxInformation.taxAmountIdentifier` | string | `"1"` local sales tax, `"2"` tax exempt. Absent when not returned |
 
 #### Errors
 

@@ -124,8 +124,8 @@ handpoint.sale(
 | `customerReference` | string | No | Optional merchant reference forwarded to the acquirer |
 | `callbackUrl` | string | No | URL to receive the transaction result via HTTP POST when complete. If omitted, poll `GET /transaction-result/{transactionResultId}` for the outcome |
 | `token` | string | No | Opaque value included alongside the result in the push notification, for caller identification. Only used when `callbackUrl` is set |
-| `taxInformation` | object | No | Tax data forwarded to the acquirer: `taxAmount` (string, minor units, e.g. `"100"` = $1.00) and `taxExempt` (boolean — when `true`, `taxAmount` must be `"0"`). Returned in `TransactionResult` via `/transaction-result/{id}` when the terminal sends it back; not available via `GET /transactions/{ref}/status` |
-| `purchaseOrderNumber` | string | No | Purchase order number forwarded to the acquirer. Returned in `TransactionResult` via `/transaction-result/{id}` when the terminal sends it back |
+| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units, e.g. `"100"` = $1.00) and `taxExempt` (boolean). `taxAmount` must not exceed `amount`; it must be `"0"` when `taxExempt` is `true`, and greater than `"0"` otherwise. Requires `purchaseOrderNumber` |
+| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Mandatory with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
