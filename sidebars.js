@@ -138,6 +138,7 @@ const sidebars = {
             'reference/partial-approval',
             'reference/moto-guide',
             'reference/avs',
+            'reference/level-2-purchasing-data',
             'reference/multi-mid',
             'reference/fee-mitigation',
             'reference/tipping-guide',
