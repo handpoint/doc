@@ -1791,7 +1791,7 @@ curl -X POST \
 Typical fields in the request body (see [PreauthCaptureRequest](restobjects#preauthCaptureRequest) for full details):
 
 - `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original pre-authorization transaction.
-- `capturedAmount` <span class="badge badge--primary">Required</span> – Amount to capture and charge (for example, `"120.00"`).
+- `capturedAmount` <span class="badge badge--primary">Required</span> – Amount to capture and charge, in decimal major units (for example, `"120.00"`): at most 12 digits, or 13 characters with a decimal point, no leading zeros.
 - `tipAmount` <span class="badge badge--secondary">Optional</span> – Tip amount to include in the captured total (for example, `"5.00"`).
 - `customerReference` <span class="badge badge--secondary">Optional</span> – Integrator-defined reference, forwarded as-is to the gateway.
 - `taxInformation`, `purchaseOrderNumber` <span class="badge badge--secondary">Optional</span> – Level 2 purchasing data, with `taxAmount` in decimal major units like `capturedAmount`. See [Level 2 Purchasing Data](restleveliidata.md).
@@ -1985,7 +1985,7 @@ Typical flow:
 Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRequest) for full details):
 
 - `cardToken` <span class="badge badge--primary">Required</span> – Token representing the card stored in the gateway (e.g. `"665630867"`).
-- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00), using a dot (`.`) as decimal separator.
+- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00), using a dot (`.`) as decimal separator: at most 12 digits, or 13 characters with a decimal point, no leading zeros.
 - `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 currency code (e.g. `"EUR"`).
 - Optional references for reconciliation: `customerReference`, `transactionReference`, etc.
 - Optional Level 2 purchasing data: `taxInformation` (`taxAmount` in decimal major units, `taxExempt`) and `purchaseOrderNumber`. See [Level 2 Purchasing Data](restleveliidata.md).

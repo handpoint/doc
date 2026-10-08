@@ -74,7 +74,7 @@ Amount in **major currency units** — `"95.00"` = $95.00. Synchronous — resul
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `originalGuid` | string | Yes | `transactionID` from the pre-authorization result (UUID v4) |
-| `capturedAmount` | string | Yes | Capture amount in **major currency units**, e.g. `"95.00"` for $95.00 |
+| `capturedAmount` | string | Yes | Capture amount in **major currency units**, e.g. `"95.00"` for $95.00; at most 12 digits, or 13 characters with a decimal point, no leading zeros |
 | `tipAmount` | string | No | Optional tip in **major currency units** — Cloud API only; not supported in SDK paths |
 | `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"9.50"`) and `taxExempt` (boolean). Must not exceed `capturedAmount`. Must be sent with `purchaseOrderNumber`; `taxAmount` is required unless `taxExempt` is `true` |
 | `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |

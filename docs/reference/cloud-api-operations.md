@@ -358,7 +358,7 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `originalGuid` | string | **Yes** | — | `transactionID` from the Pre-Authorization create result. Max 64 chars. |
-| `capturedAmount` | string | **Yes** | — | Amount to capture. Max 32 chars. ⚠️ See unit note below. |
+| `capturedAmount` | string | **Yes** | — | Amount to capture: at most 12 digits, or 13 characters with a decimal point, no leading zeros, otherwise `400` `Invalid capturedAmount, must be in the major unit of currency (20.50 is 20.50 EUR)`. ⚠️ See unit note below. |
 | `tipAmount` | string | No | — | Optional tip to add to the capture. Same unit as `capturedAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |
 | `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `capturedAmount`. Must be sent with `purchaseOrderNumber`; `taxAmount` is required unless `taxExempt` is `true`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
@@ -1008,7 +1008,7 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `amount` | string | **Yes** | — | **Major-unit** decimal string — `"20.00"` = $20.00. Pattern: `^\d+(\.\d+)?$`. This endpoint uses major units, unlike `POST /transactions` which uses minor units. |
+| `amount` | string | **Yes** | — | **Major-unit** decimal string — `"20.00"` = $20.00: at most 12 digits, or 13 characters with a decimal point, no leading zeros, otherwise `400` `Invalid amount, must be in the major unit of currency (20.50 is 20.50 EUR)`. This endpoint uses major units, unlike `POST /transactions` which uses minor units. |
 | `currency` | string | **Yes** | — | ISO 4217. Exactly 3 characters. |
 | `cardToken` | string | **Yes** | — | Stored card token from a prior `saleAndTokenizeCard`. Max 64 chars. |
 | `transactionReference` | string | No | — | UUID v4 recommended. Max 50 chars. |
