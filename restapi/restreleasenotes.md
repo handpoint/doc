@@ -25,12 +25,16 @@ Level 2 rules are now enforced, and requests that previously succeeded can now r
 - `taxInformation` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard`, `preAuthorizationCapture` and `tipAdjustment`.
 - `purchaseOrderNumber` is only accepted on `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, and must be sent together with `taxInformation` there: one without the other is rejected.
 - `purchaseOrderNumber` must be alphanumeric, 25 characters or fewer.
-- Except on `tipAdjustment`, `taxInformation.taxAmount` is required unless `taxExempt` is `true`, must not exceed `amount`, and must be greater than `"0"` unless `taxExempt` is `true`.
+- Except on `tipAdjustment`, `taxInformation.taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`.
 - An empty `taxInformation.taxAmount` (`""`) is rejected.
 
 The top-level `taxAmount` is deprecated in favour of `taxInformation.taxAmount`. It is kept for compatibility and will be removed in a future release.
 
 See [Level 2 Purchasing Data](restleveliidata.md#validation-errors) for every validation message.
+:::
+
+:::caution Breaking changes on `POST /moto/sale` and `POST /preauthorization/capture`
+`amount` on `POST /moto/sale` and `capturedAmount` on `POST /preauthorization/capture` must now be decimal major-unit strings with no leading zeros and at most 12 digits (13 characters with a decimal point). Other values, such as `"010.00"`, return `400 Bad Request`. This applies to every request, with or without Level 2 data.
 :::
 
 ## 2.30.0

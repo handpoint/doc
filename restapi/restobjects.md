@@ -544,7 +544,7 @@ Level 2 tax data sent on a request, together with `purchaseOrderNumber`. See [Le
 
 | Property      | Description |
 | ----------- | ----------- |
-| `taxAmount` <br />*String* | Portion of the amount that is tax, in the same format as the request's amount: minor units on [`POST /transactions`](#transactionRequest) (`"100"` is 1.00), decimal major units on [`POST /moto/sale`](#motoSaleRequest) and [`POST /preauthorization/capture`](#preauthCaptureRequest) (`"1.00"`). Required unless `taxExempt` is `true`. Must not exceed the amount. Must be `"0"` when `taxExempt` is `true`, and greater than `"0"` otherwise. Tip adjustments relax these rules, see [Level 2 Purchasing Data](restleveliidata.md#tip-adjustment). |
+| `taxAmount` <br />*String* | Portion of the amount that is tax, in the same format as the request's amount: minor units on [`POST /transactions`](#transactionRequest) (`"100"` is 1.00), decimal major units on [`POST /moto/sale`](#motoSaleRequest) and [`POST /preauthorization/capture`](#preauthCaptureRequest) (`"1.00"`). Required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above the amount. Tip adjustments relax these rules, see [Level 2 Purchasing Data](restleveliidata.md#tip-adjustment). |
 | `taxExempt` <br />*Boolean* | Whether the transaction is tax exempt. Default `false`. |
 
 **Code example**

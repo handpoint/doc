@@ -37,7 +37,7 @@ Available via the **Cloud API**. Level 2 data must be enabled on the merchant's 
 
 | Field | Rules |
 |---|---|
-| `taxInformation.taxAmount` | Portion of the amount that is tax. Required unless `taxExempt` is `true`. Must not exceed the operation amount. Must be `0` when `taxExempt` is `true`, and greater than `0` otherwise. |
+| `taxInformation.taxAmount` | Portion of the amount that is tax. Required: `0` when `taxExempt` is `true`, greater than `0` otherwise, and never above the operation amount. |
 | `taxInformation.taxExempt` | Boolean, default `false`. `true` means the transaction is tax exempt, and requires `taxAmount` to be `0`. |
 | `purchaseOrderNumber` | Must be sent together with `taxInformation`: one without the other is rejected. Alphanumeric only (`A-Z a-z 0-9`), 25 characters or fewer. `null` is treated as not sent. |
 

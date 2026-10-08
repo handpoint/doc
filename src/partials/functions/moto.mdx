@@ -176,7 +176,7 @@ handpoint.motoReversal(
 | `serial_number` | string | Yes | PAX terminal serial number — triggers card entry screen on device |
 | `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
 | `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
-| `taxInformation` | object | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required unless `taxExempt` is `true`; it must be `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and must not exceed `amount`. Must be sent with `purchaseOrderNumber` |
+| `taxInformation` | object | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
 | `purchaseOrderNumber` | string | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 **Without reader — back-office** (`POST /moto/sale`, `/moto/refund`):
@@ -189,7 +189,7 @@ handpoint.motoReversal(
 | `originalGuid` | string | Refund only | GUID of the original MOTO sale to refund. Replaces `cardToken` on refunds — the gateway retrieves the card from the original transaction |
 | `transactionReference` | string | Sale | UUID v4 for idempotency. Do not include on refunds (linked operation) |
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
-| `taxInformation` | object | No | Sale only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`; at most 12 digits, or 13 characters with a decimal point, no leading zeros) and `taxExempt` (boolean). `taxAmount` is required unless `taxExempt` is `true`; it must be `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and must not exceed `amount`. Must be sent with `purchaseOrderNumber` |
+| `taxInformation` | object | No | Sale only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`; at most 12 digits, or 13 characters with a decimal point, no leading zeros) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
 | `purchaseOrderNumber` | string | No | Sale only. [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
