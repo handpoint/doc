@@ -608,7 +608,9 @@ A gated key is `read` with a `reason`. The gate blocks only the value that **ena
 2. `null` (delete the stored value) is accepted.
 3. `"true"` is `400` `Setting {key} accepts only false: {reason}`.
 
-If the acquirer forces linked refunds and `refunds` is on, a partner sees `linkedRefund` and `refundCardMatch` as `read` and `"true"`, and `refundOtherCard` as `read` and `"false"`. A partner can send only that value for these keys. A `null` for these keys is `400` for a partner.
+A gate applies only to a key that your role can write. A write to a `MERCHANT` key, or to a key that is not terminal-editable, is `403` for each value.
+
+If the acquirer forces linked refunds, a partner sees `linkedRefund`, `refundCardMatch` and `refundOtherCard` as `read` with a `reason`. A partner can send only the forced value: `"true"` for `linkedRefund` and `refundCardMatch`, and `"false"` for `refundOtherCard`. A `null` for these keys is `400` for a partner. The gate does not change the value that you read. You read the value that the reader uses.
 
 A merchant without an agreement has no gates.
 
