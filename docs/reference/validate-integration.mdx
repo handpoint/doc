@@ -15,8 +15,9 @@ Before going live, every Handpoint integration must pass a set of mandatory vali
 Handpoint Integration Support reviews your results before issuing a production API key or merchant credentials. Run all required scenarios on a staging/DEMO merchant and document the outcomes. Contact your integration engineer to schedule a certification call.
 :::
 
-:::tip SDK-specific validation pages
-Android SDK (PAX) integrations have additional requirements: build process (RC vs production SDK), PAX Store submission, merchant credential mapping, UI screen requirements, logging, and receipt handling. See the **[Android SDK — Validation & Certification](/reference/validate-integration-android-sdk)** page for the full checklist.
+:::tip Integration-path-specific validation pages
+- **Android SDK (PAX):** build process (RC vs production SDK), PAX Store submission, merchant credential mapping, UI screen requirements, logging, and receipt handling — see **[Android SDK — Validation & Certification](/reference/validate-integration-android-sdk)**.
+- **Cloud API / REST API:** timeout requirements (6 min minimum), `stopCurrentTransaction`, recovery wait time, callback URL setup, and refund field requirements — see **[Cloud API — Validation & Certification](/reference/validate-integration-cloud-api)**.
 :::
 
 :::tip Before you start: test your edge cases first
@@ -245,7 +246,7 @@ Handpoint does not enforce a global operation timeout — your application must 
 
 | Integration path | How to implement timeout |
 |---|---|
-| Cloud API | Use an HTTP client timeout for the initial POST. For polling, set a max poll duration and retry interval (recommended: poll every 2s, give up after 90s, then reverse). |
+| Cloud API | Use an HTTP client timeout for the initial POST. For polling, wait at least **6 minutes** before giving up — real terminals can take several minutes under load. Poll every 4s; on timeout, call `GET /status` and wait 31s before treating `IN_PROGRESS` as timed out. |
 | Android SDK | Implement a countdown in your UI thread. Do not call a second operation until `endOfTransaction` fires. Android SDK integrations must apply a **7-minute timeout**. |
 | iOS SDK | Use a `DispatchWorkItem` or `Timer`. Cancel and reverse if no delegate response within the timeout window. |
 | Cordova | Use `setTimeout` in JavaScript wrapping the `handpoint.*` call. |
