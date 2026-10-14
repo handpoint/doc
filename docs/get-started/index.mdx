@@ -12,6 +12,14 @@ import IntegrationWizard from '@site/src/components/IntegrationWizard';
 
 Your merchants didn't choose your software because they needed a card reader — they chose it to run their business better. Handpoint gives software companies the tools to build the physical payment experience their product and their merchants actually need: connect your software to a branded terminal, put your application directly on an Android payment device, or shape the transaction before, during, and after the card is presented.
 
+:::info Already working with Handpoint or one of our payments partners?
+You're in the right place. Follow the onboarding process you've been given for hardware and commercial setup. Handpoint Integration Support will work with your development team on the technical integration and validation — your dedicated Slack channel is where that happens.
+:::
+
+:::tip Evaluating Handpoint independently?
+Use the Developer Center to understand integration paths, payment capabilities, supported acquirers and devices before you talk to us. When you're ready to move from evaluation to building with test credentials and real payment hardware, [talk to Handpoint](mailto:sales@handpoint.com).
+:::
+
 ---
 
 ## Before you build
@@ -39,7 +47,7 @@ Handpoint assigns a **dedicated Slack channel** to every ISV integration. The In
 
 Once your test app is validated, Handpoint issues an **app certificate** documenting exactly what was tested and approved — issued per application, not per ISV. A prerequisite for going live with merchants.
 
-To start, reach out to your Account Manager or contact [support@handpoint.com](mailto:support@handpoint.com).
+To start, reach out to your Account Manager or contact [sales@handpoint.com](mailto:sales@handpoint.com).
 
 ---
 
@@ -71,6 +79,10 @@ Pre-auth capture, increase, reversal, and sale reversal are available both on th
 :::
 
 For a list of supported hardware, see [Supported Devices](/reference/devices).
+
+:::note Explore by acquirer and integration path
+Capability availability varies by acquirer. Use the **Acquirer** and **Integration Path** selectors at the top of the Developer Center to filter to your exact setup, then open **Functionalities** to see what that combination supports and how each payment flow works.
+:::
 
 ---
 
@@ -358,6 +370,23 @@ Once your integration is running, Handpoint provides APIs for the operational la
 
 ---
 
+## Already know how you want to integrate?
+
+Go directly to the implementation guide for your path.
+
+| Path | Guide |
+|---|---|
+| **Cloud API** | [Cloud API integration guide →](/reference/cloud-api-integration-guide) |
+| **Android SDK (PAX)** | [Android PAX integration guide →](/reference/android-pax-integration-guide) |
+| **Android SDK (HiLite)** | [Android HiLite integration guide →](/reference/android-hilite-integration-guide) |
+| **iOS SDK (HiLite)** | [iOS HiLite integration guide →](/reference/ios-hilite-integration-guide) |
+| **JavaScript SDK** | [JavaScript SDK integration guide →](/reference/javascript-sdk-integration-guide) |
+| **Windows SDK** | [Windows SDK integration guide →](/reference/windows-sdk-integration-guide) |
+| **Back Office APIs** | [Back Office integration guide →](/reference/backoffice-integration-guide) |
+| **Supported Devices** | [Supported Devices →](/reference/devices) |
+
+---
+
 ## Not sure which path fits?
 
 The wizard below asks three questions — region, integration type, acquirer — and generates a personalised checklist of authentication requirements, validation scenarios, and documentation links for your exact setup.
@@ -423,3 +452,17 @@ stopCurrentTransaction, pingDevice, printReceipt
 
 **Full parameter tables with types, required/optional flags, and enum values:** [Cloud API — Operations Reference](/reference/cloud-api-operations#parameter-reference)
 :::
+
+---
+
+## Ready to build?
+
+### Already working with Handpoint or one of our payments partners?
+
+Continue through the integration process you've been given. Handpoint Integration Support will work with your development team on the technical integration and validation.
+
+### Evaluating Handpoint independently?
+
+[Talk to Handpoint →](mailto:sales@handpoint.com)
+
+We'll learn what you're building and help determine the appropriate payments setup, integration path and next steps for moving from evaluation to development.
