@@ -40,6 +40,7 @@ const config = {
   baseUrl: '/',
   onBrokenLinks: 'warn',
   markdown: {
+    mermaid: true,
     hooks: {
       onBrokenMarkdownLinks: 'warn',
     },
@@ -47,6 +48,8 @@ const config = {
   favicon: 'img/favicon.png',
   organizationName: 'handpoint',
   projectName: 'handpoint.github.io',
+
+  themes: ['@docusaurus/theme-mermaid'],
 
   presets: [
     [

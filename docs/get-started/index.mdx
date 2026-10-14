@@ -194,7 +194,44 @@ Take phone orders, process remote refunds, or run pre-authorizations without a t
 
 ## Card-present integrations
 
-Your software connects to a PAX SmartPOS terminal or HiLite Bluetooth reader. Card data never reaches your application unmasked — Handpoint keeps you out of PCI scope.
+Your software connects to a PAX SmartPOS terminal or HiLite Bluetooth reader.
+
+```mermaid
+flowchart LR
+    subgraph cloud_path["POS Software (Cloud)"]
+        A["Your Software\n(Cloud API · JS SDK · Windows SDK)"]
+    end
+    subgraph pax_path["Standalone App (PAX)"]
+        B["Your App\n(Handpoint SDK)"]
+    end
+    subgraph hilite_path["Standalone App (HiLite)"]
+        C["Your Mobile App\n(Handpoint SDK)"] <-->|Bluetooth LE| HL["HiLite Reader"]
+    end
+
+    HP(["Handpoint Cloud"])
+    GW["Handpoint Gateway"]
+    ACQ[("Acquirer / Bank")]
+    TERM["PAX Terminal (Handpoint App)"]
+
+    A -->|HTTPS| HP
+    HP -->|Commands| TERM
+    TERM --> GW
+    B --> GW
+    C --> GW
+    GW --> ACQ
+
+    classDef your fill:#2c3e50,color:#fff,stroke:#34495e
+    classDef hp fill:#2980b9,color:#fff,stroke:#1a6fa0
+    classDef acq fill:#27ae60,color:#fff,stroke:#1e8449
+    classDef hw fill:#ecf0f1,color:#2c3e50,stroke:#95a5a6
+
+    class A,B,C your
+    class HP,GW hp
+    class ACQ acq
+    class HL,TERM hw
+```
+
+Card data never reaches your application unmasked — Handpoint keeps you out of PCI scope.
 
 <div className="integration-types">
 
@@ -284,6 +321,27 @@ Best suited for ISVs building .NET-based POS software on Windows who want a nati
 </div>
 
 </div>
+
+---
+
+## Card-not-present integrations
+
+No terminal required. Your software calls the Cloud API directly — Handpoint Cloud routes the transaction to the gateway without any physical device in the loop. Used for MOTO (mail/telephone order), back-office operations, and remote refunds.
+
+```mermaid
+flowchart LR
+    A["Your Software"] -->|HTTPS| HP(["Handpoint Cloud"])
+    HP --> GW["Handpoint Gateway"]
+    GW --> ACQ[("Acquirer / Bank")]
+
+    classDef your fill:#2c3e50,color:#fff,stroke:#34495e
+    classDef hp fill:#2980b9,color:#fff,stroke:#1a6fa0
+    classDef acq fill:#27ae60,color:#fff,stroke:#1e8449
+
+    class A your
+    class HP,GW hp
+    class ACQ acq
+```
 
 ---
 
