@@ -43,28 +43,52 @@ To start, reach out to your Account Manager or contact [support@handpoint.com](m
 
 ---
 
-## What you can do with Handpoint
+## What each path supports
 
-More than start a transaction. Handpoint gives your software ways to stay involved with the payment as part of the merchant workflow.
+Choose the integration path that covers the capabilities your product needs. Rows marked **acquirer** depend on your specific acquirer — see the [EPI](/acquirers/epi), [PAYSAFE](/acquirers/paysafe), [EmerchantPay](/acquirers/emerchantpay), and [Paystrax](/acquirers/paystrax) pages for per-feature availability.
 
-| Capability | Details |
-|---|---|
-| **Sale, refund, void** | Standard card-present and card-not-present operations across all acquirers |
-| **Tip and tip adjustment** | On-screen tip prompt at checkout, or post-transaction tip adjustment from the back office |
-| **Pre-authorization** | Authorize a hold, capture later — for tabs, hotel check-ins, and service jobs |
-| **MOTO / remote sale** | Card-not-present payments without a terminal, for phone orders and back-office workflows |
-| **Multi-MID** | Route transactions to different merchant accounts using a single credential — any terminal assigned to the merchant, one `externalId` per provider |
-| **Partial reversal** | Release part of an authorized amount without requiring the customer to re-present the card |
-| **Transaction feed** | Query and stream transaction data for reporting, reconciliation, and support tools |
-| **Payment tokens** | Return a token from an in-person transaction for eligible recurring or back-office workflows |
+| Capability | Cloud API · JS · Windows | Android PAX | Android / iOS HiLite | Back Office |
+|---|---|---|---|---|
+| **Sale** | ✓ | ✓ | ✓ | — |
+| **Refund** | ✓ | ✓ | ✓ | — |
+| **[Pre-authorization](/reference/pre-authorization-guide)** | ✓ acquirer | ✓ acquirer | ✓ acquirer | — |
+| **[Tip at checkout](/reference/tipping-guide)** | ✓ | ✓ | ✓ | — |
+| **Partial approval** | ✓ acquirer | ✓ acquirer | ✓ acquirer | — |
+| **Linked refund** | ✓ | ✓ | ✓ | ✓ |
+| **[Sale / refund reversal](/reference/terminal-reversals)** | ✓ | ✓ | ✓ | ✓ |
+| **[Pre-auth capture / release](/reference/pre-authorization-guide)** | ✓ acquirer | ✓ acquirer | ✓ acquirer | ✓ acquirer |
+| **[Pre-auth increase](/reference/pre-authorization-guide)** | ✓ acquirer | ✓ acquirer | ✓ acquirer | ✓ acquirer |
+| **[Tip adjustment](/reference/tipping-guide)** | ✓ acquirer | ✓ acquirer | ✓ acquirer | ✓ acquirer |
+| **[MOTO](/reference/moto-guide)** | ✓ acquirer | ✓ acquirer | — | ✓ acquirer |
+| **Custom receipt printing** | — | ✓ | — | — |
+| **[Transaction recovery](/reference/transaction-recovery)** | ✓ | ✓ | — | ✓ |
+| **Tokenize card (card-present)** | ✓ acquirer | ✓ acquirer | ✓ acquirer | — |
+| **[Multi-MID](/reference/multi-mid)** | ✓ | ✓ | ✓ | ✓ |
+| **[Multi-acquirer routing](/reference/multi-mid)** | ✓ acquirer | ✓ acquirer | ✓ acquirer | — |
 
-For supported features by acquirer, see the [EPI](/acquirers/epi), [PAYSAFE](/acquirers/paysafe), [EmerchantPay](/acquirers/emerchantpay), and [Paystrax](/acquirers/paystrax) acquirer pages. For a list of supported hardware, see [Supported Devices](/reference/devices).
+:::note Back Office vs terminal SDK for post-checkout operations
+Pre-auth capture, increase, reversal, and sale reversal are available both on the terminal SDKs and through the Back Office API. Where you have a server-side integration, prefer the Back Office — it is a direct synchronous API call with no async terminal round-trip and fewer points of failure. Use the native SDK method when you have no back-office server component.
+:::
+
+For a list of supported hardware, see [Supported Devices](/reference/devices).
 
 ---
 
 ## How do I get started?
 
 The right integration path depends on what your software and merchants are trying to accomplish — not just how you want to connect a card reader.
+
+**Start with the experience, then pick the path:**
+
+| If your software... | Integration path |
+|---|---|
+| Runs as an Android app **directly on** a PAX payment terminal | [Android SDK (PAX)](#native-integration----android-sdk-pax) |
+| Is an Android app that pairs with a **portable Bluetooth reader** | [Android SDK (HiLite)](#bluetooth-integration----android--ios-sdk-hilite) |
+| Is an iOS app that pairs with a **portable Bluetooth reader** | [iOS SDK (HiLite)](#bluetooth-integration----android--ios-sdk-hilite) |
+| Runs in a **web browser** | [JavaScript SDK](#javascript-sdk) |
+| Is a **.NET / Windows desktop** application | [Windows SDK (.NET)](#windows-sdk-net) |
+| Runs on a **server, cloud, or any other platform** | [Cloud API](#cloud-integration----rest-api) |
+| Needs to operate on existing transactions **without a terminal** | [Back Office APIs](/reference/backoffice-integration-guide) |
 
 :::tip You don't have to choose just one
 A single merchant can use different physical payment experiences on the same Handpoint platform. REST API at the counter. Android SDK at tableside. HiLite in the field. Cloud API for back-office MOTO. ISVs can combine integration paths within the same application or across different use cases of the same merchant.
@@ -319,6 +343,18 @@ SmartBoard is Handpoint's online payment gateway for EU merchants. It supports s
 | **Mobile SDKs** | Out of scope | Native Android / iOS in-app payments with card tokenisation |
 
 </div>
+
+---
+
+## Build for deployment and scale
+
+Once your integration is running, Handpoint provides APIs for the operational layer of your product.
+
+| Tool | What it does |
+|---|---|
+| **[TMS APIs](/back-office/tms-apis)** | Integrate merchant and terminal onboarding into your own workflows. Create merchants, assign readers, and manage terminal configuration programmatically — without a manual portal step. |
+| **[Device Control Commands](/back-office/device-commands)** | Manage terminal settings and operations remotely: reboot, locale, brightness, unattended mode, and more. |
+| **[Transaction Feed API](/back-office/transaction-feed-api)** | Bring Handpoint transaction data into your own reporting, reconciliation, merchant-facing products, support tools, and operational workflows. |
 
 ---
 
