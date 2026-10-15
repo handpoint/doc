@@ -534,6 +534,53 @@ A class containing information about the status of the transaction.
 | `deviceStatus` <br />[*DeviceStatus*](#device-status) | A `DeviceStatus` object containing information about the payment terminal.        |
 
 
+## Tax Information {#tax-information}
+
+`TaxInformation` <span class="badge badge--info">Object</span>
+
+Level 2 tax data sent on a request, together with `purchaseOrderNumber`. See [Level 2 Purchasing Data](restleveliidata.md) for the supported operations and every validation rule.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `taxAmount` <br />*String* | Portion of the amount that is tax, in the same format as the request's amount: minor units on [`POST /transactions`](#transactionRequest) (`"100"` is 1.00), decimal major units on [`POST /moto/sale`](#motoSaleRequest) and [`POST /preauthorization/capture`](#preauthCaptureRequest) (`"1.00"`). Required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above the amount. Tip adjustments relax these rules, see [Level 2 Purchasing Data](restleveliidata.md#tip-adjustment). |
+| `taxExempt` <br />*Boolean* | Whether the transaction is tax exempt. Default `false`. |
+
+**Code example**
+
+````json
+{
+    "taxInformation": {
+        "taxAmount": "100",
+        "taxExempt": false
+    },
+    "purchaseOrderNumber": "PO4711"
+}
+````
+
+## Tax Information Result {#tax-information-result}
+
+`TaxInformationResult` <span class="badge badge--info">Object</span>
+
+Level 2 tax data returned by the gateway: on [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status), `POST /moto/sale` and `POST /preauthorization/capture`. Carries `taxAmountIdentifier` instead of `taxExempt`. The terminal's transaction result echoes [`TaxInformation`](#tax-information) instead.
+
+**Properties**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `taxAmount` <br />*String* | Portion of the amount that is tax, in decimal major units (for example `"1.00"`). |
+| `taxAmountIdentifier` <br />*String* | `"1"` local sales tax applies, `"2"` tax exempt. |
+
+**Code example**
+
+````json
+{
+    "taxAmount": "1.00",
+    "taxAmountIdentifier": "1"
+}
+````
+
 ## Tender Type{#tenderType}
 
 `TenderType` <span class="badge badge--info">Enum</span>
@@ -553,7 +600,8 @@ Possible values
 
 | Property      | Description |
 | ----------- | ----------- |
-| `amount`  <br />*Biginteger*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
+| `amount`  <br />*Number*   | Exact amount of the tip, including decimal digits. Currency will be extracted from the original transaction.      |
+| `taxInformation` <br />*Object* | Optional Level 2 tax data: `taxAmount` (*Number*, major units, for example `0.50`) and `taxExempt` (*Boolean*). `taxAmount` is optional; when `taxExempt` is `true` it must be `0`. `0` with `taxExempt` `false` corrects the tax of the tip adjustment to zero. No other field is accepted. See [Level 2 Purchasing Data](restleveliidata.md#tip-adjustment). |
 
 **Code example**
 
@@ -565,7 +613,23 @@ Possible values
 {
     "amount": 20
 }
+
+{
+    "amount": 5.25,
+    "taxInformation": {
+        "taxAmount": 0.50,
+        "taxExempt": false
+    }
+}
 ````
+
+**Response**
+
+| Property      | Description |
+| ----------- | ----------- |
+| `statusMessage` <br />*String* | Always `"tip adjusted"`. |
+| `batchNumber` <br />*String* | Batch number returned by the processor. Absent when not returned. |
+| `taxInformation` <br />*Object* | Tax data recorded by the gateway: `taxAmount` (*Number*, major units) and `taxAmountIdentifier` (`"1"` local sales tax, `"2"` tax exempt). Absent when not returned. |
 
 ## Tip Configuration
 
@@ -633,6 +697,8 @@ An object to store information about the request sent to the payment terminal.
 | `MoneyRemittanceOptions`  <br />[*MoneyRemittanceOptions*](restobjects.md#money-remittance-options)   | An object representing options for Mastercard money remittance transactions. The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund |
 | `tokenize`  <br />*Boolean*   | Used to enable the tokenization flow in Tokenized Payments Operationss. See [Android SDK 7.1009.5](/android/androidreleasenotes#710095) and [Tokenized Payments Operations](/android/androidtransactions#cloudTokenizedPaymentsOperations) for detailed information.|
 | `cardPresent`  <br />*Boolean*   | Optional parameter to indicate that a reversal operation will imply an actual present card, and this will be taken into account in the payments flow. See [Android SDK 7.1010.5](/android/androidreleasenotes#710105) and [Handling card present reversals with Elavon acquirers](https://handpoint.atlassian.net/wiki/spaces/PD/pages/5104533505/Handling+card+present+reversals+with+Elavon+acquirers) for detailed information on how to use this feature.|
+| `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Level 2 tax data, in minor units. Only supported for operations `sale`, `moToSale`, `saleAndTokenizeCard`, `preAuthorizationCapture` and `tipAdjustment`. See [Level 2 Purchasing Data](restleveliidata.md).|
+| `purchaseOrderNumber`  <br />*String*   | Level 2 purchase order number. Only supported for operations `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, where it must be sent together with `taxInformation`. Alphanumeric, 25 characters or fewer. `null` is treated as not sent.|
 
 **Code example**
 
@@ -791,6 +857,8 @@ An object holding information about the result of a transaction.
 | `multiLanguageErrorMessages`  <br />*Map	*   | `map` containing the error message in a human readable format for all the supported locales.|
 | `cardHolderName`  <br />*String	*   | Name of the cardholder|
 | `transactionReference`  <br />*String*   | The unique UUID associated with the transaction, it can be used to query the [get transaction status](restendpoints.md#transactionstransactionreferencestatus)  endpoint.|
+| `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Level 2 tax data, echoed by the terminal as sent (`taxAmount`, `taxExempt`). On [Retrieve Transaction Status](restendpoints.md#retrieve-transaction-status) it is the gateway's [*TaxInformationResult*](#tax-information-result) (`taxAmount`, `taxAmountIdentifier`) instead. Absent when not available.|
+| `purchaseOrderNumber`  <br />*String*   | Level 2 purchase order number, as sent. Absent when not available.|
 
 **Code example**
 
@@ -859,7 +927,12 @@ An object holding information about the result of a transaction.
   "tipPercentage": 0,
   "recoveredTransaction": false,
   "cardHolderName": "Mr/Mrs card holder full name",
-  "transactionReference": "3e665342-a95b-49c1-b6fe-b3f102305a76"
+  "transactionReference": "3e665342-a95b-49c1-b6fe-b3f102305a76",
+  "taxInformation": {
+    "taxAmount": "100",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO4711"
 }
 
 ````
@@ -887,6 +960,41 @@ Possible values:
 
 `UNDEFINED` `SIGNATURE` `PIN` `PIN_SIGNATURE` `FAILED` `NOT_REQUIRED` `MOBILE_PASS_CODE`
 
+## Pre-Authorization {#preauthorization}
+
+### PreauthCaptureRequest {#preauthCaptureRequest}
+
+`PreauthCaptureRequest` <span class="badge badge--info">Object</span>
+
+Object used by the [`POST /preauthorization/capture`](restendpoints.md#preauthorization-capture) endpoint to capture (finalize) an open pre-authorization **without a reader**.
+
+**Properties**
+
+| Property | Description |
+| -------- | ----------- |
+| `originalGuid` <span class="badge badge--primary">Required</span> <br />*String* | GUID of the original pre-authorization transaction. Maximum 64 characters. |
+| `capturedAmount` <span class="badge badge--primary">Required</span> <br />*String* | Amount to capture, in decimal major units (for example `"120.00"`): at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`. Can be less than the authorized amount for a partial capture. |
+| `tipAmount` <br />*String* | Tip amount to include in the captured total, in decimal major units (for example `"5.00"`). |
+| `customerReference` <br />*String* | Integrator-defined reference, forwarded as-is to the gateway. Maximum 64 characters. |
+| `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Level 2 tax data, with `taxAmount` in decimal major units like `capturedAmount`. Must not exceed `capturedAmount`. See [Level 2 Purchasing Data](restleveliidata.md). |
+| `purchaseOrderNumber` <br />*String* | Level 2 purchase order number. Must be sent together with `taxInformation`. Alphanumeric, 25 characters or fewer. `null` is treated as not sent. |
+
+**Code example**
+
+```json
+{
+  "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+  "capturedAmount": "120.00",
+  "taxInformation": {
+    "taxAmount": "10.00",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO4711"
+}
+```
+
+---
+
 ## Moto 
 
 ### MotoSaleRequest {#motoSaleRequest}
@@ -899,12 +1007,14 @@ Object used by the [`POST /moto/sale`](restendpoints#moto-operations-no-reader) 
 
 | Property | Description |
 | -------- | ----------- |
-| `amount` <span class="badge badge--primary">Required</span> <br />*String* | Amount of the operation in major units, using a dot (`.`) as decimal separator. Valid examples: `"20"`, `"20.0"`, `"20.00"`. Must match the pattern `^\d+(\.\d+)?$`. |
+| `amount` <span class="badge badge--primary">Required</span> <br />*String* | Amount of the operation in major units, using a dot (`.`) as decimal separator. Valid examples: `"20"`, `"20.0"`, `"20.00"`. Must match the pattern `^\d+(\.\d+)?$`, otherwise `422`. Within that, at most 12 digits, or 13 characters with a decimal point, and no leading zeros except a single `0` before the decimal point, as in `0.50`, otherwise `400`. |
 | `currency` <span class="badge badge--primary">Required</span> <br />[*Currency*](#currency) | ISO 4217 3-character currency code (for example, `"EUR"`, `"USD"`). |
 | `cardToken` <span class="badge badge--primary">Required</span> <br />*String* | Token that represents the card stored securely in the gateway. This token is obtained in a previous operation (for example, `saleAndTokenizeCard`) and allows the integrator to avoid handling PAN/CVV directly. |
 | `customerReference` <br />*String* | Merchant-defined reference for the operation. Useful for back-office reconciliation and reporting. |
 | `transactionReference` <br />*String* | Unique identifier for the transaction (for example, a UUID v4) generated by the integrator for traceability and reconciliation. |
 | `billing`  <br />[*Billing*](#billing)   | Billing address used for Address Verification Service (AVS). Optional; only applied when AVS is enabled on the merchant's agreement with the acquirer, otherwise the request is rejected. |
+| `taxInformation`  <br />[*TaxInformation*](#tax-information)   | Level 2 tax data, with `taxAmount` in decimal major units like `amount` (for example `"2.50"`). See [Level 2 Purchasing Data](restleveliidata.md). |
+| `purchaseOrderNumber` <br />*String* | Level 2 purchase order number. Must be sent together with `taxInformation`. Alphanumeric, 25 characters or fewer. `null` is treated as not sent. |
 
 **Code example**
 
@@ -918,7 +1028,12 @@ Object used by the [`POST /moto/sale`](restendpoints#moto-operations-no-reader) 
   "billing": {
     "zipCode": "SW1A 1AA",
     "address": "10 Downing Street"
-  }
+  },
+  "taxInformation": {
+    "taxAmount": "2.50",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO12345"
 }
 ```
 

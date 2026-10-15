@@ -112,6 +112,10 @@ Make sure that your transactionReference is unique per request, and change it fo
 `transactionReference` should only be included in **original** operations (Sale, Pre-Auth, MOTO Sale, or an **unlinked** MOTO Refund). Linked operations — such as Refund, Reversal, Pre-Auth Increase/Capture — should **not** include a `transactionReference`. These operations will be automatically logged under the `transactionReference` of the original transaction.
 :::
 
+:::info Level 2 purchasing data
+`taxInformation` and `purchaseOrderNumber` are accepted on the `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture` operations, and `taxInformation` alone on `tipAdjustment`. Any other operation returns `400 Bad Request`. See [Level 2 Purchasing Data](restleveliidata.md).
+:::
+
 **Requests**
 
 <Tabs>
@@ -129,6 +133,30 @@ curl -X POST \
      "serial_number":"1547854757",
      "customerReference":"op15248",
      "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+ }' \
+ "https://cloud.handpoint.com/transactions" (production)
+ "https://cloud.handpoint.io/transactions" (development)
+```
+
+</TabItem>
+<TabItem value="with-level2" label="Sale (with Level 2 data)">
+
+```shell
+curl -X POST \
+ -H "ApiKeyCLoud: MeRcHaNt-ApIkEy" \
+ -H "Content-Type: application/json" \
+ -d '{
+     "operation":"sale",
+     "amount":"10000",
+     "currency":"EUR",
+     "terminal_type":"PAXA920",
+     "serial_number":"1547854757",
+     "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f",
+     "taxInformation": {
+         "taxAmount": "500",
+         "taxExempt": false
+     },
+     "purchaseOrderNumber": "PO4711"
  }' \
  "https://cloud.handpoint.com/transactions" (production)
  "https://cloud.handpoint.io/transactions" (development)
@@ -451,6 +479,8 @@ The main transaction result [*FinancialStatus*](restobjects.md#financialStatus) 
 - UNDEFINED (NOT FOUND) -  The transaction does not exist in the Handpoint gateway. If this status is returned within 90s of the start of a transaction, there could be a chance that the cardholder has not inserted, swiped or tapped his card yet on the terminal and the Handpoint gateway might soon receive the transaction. If the `UNDEFINED` status is returned after 90s, it means that the transaction processed has not reached the Handpoint gateway and it will NOT be charged.
 - IN_PROGRESS - The transaction has been received by the gateway but the outcome is not known yet, try again after a few seconds.
 - REFUNDED - Transaction was refunded.
+
+When the gateway recorded Level 2 data for the transaction, the result also includes [`taxInformation`](restobjects.md#tax-information-result) (`taxAmount`, `taxAmountIdentifier`) and `purchaseOrderNumber`. See [Level 2 Purchasing Data](restleveliidata.md#response-fields).
 
 ![getTrxStatusEndpoint](/img/getTransactionStatusEndpoint.drawio.png) 
 
@@ -1218,7 +1248,7 @@ Note: If two tip adjustments are sent for the same original transaction, only th
 | ----------- | ----------- |
 | `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
 | `Path parameter: guid` <span class="badge badge--primary">Required</span>   <br />*String*    | The guid of the transaction to be adjusted. |
-| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the tip amount (as a *String* in MAJOR units, e.g. `"5.25"`) and currency of the tip adjustment.  |
+| `Request Body: Tip Adjustment` <span class="badge badge--primary">Required</span>  <br />[TipAdjustment](restobjects.md#tip-adjustment)    | Object containing the tip amount (as a *Number* in MAJOR units, e.g. `5.25`) and, optionally, Level 2 `taxInformation` (`taxAmount`, `taxExempt`). See [Level 2 Purchasing Data](restleveliidata.md#tip-adjustment).  |
 
 **Returns**
 
@@ -1241,7 +1271,23 @@ curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da78
 --header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "amount": "5.25"  //5 => 5.00
+    "amount": 5.25  //5 => 5.00
+}'
+```
+
+</TabItem>
+<TabItem value="with-level2" label="Request (with Level 2 data)">
+
+```shell
+curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da784-8b57-11ed-9891-ebe2a88ff071/tip-adjustment' \
+--header 'ApiKeyCloud: MeRcHaNt-ApI-KeY' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "amount": 5.25,
+    "taxInformation": {
+        "taxAmount": 0.50,
+        "taxExempt": false
+    }
 }'
 ```
 
@@ -1256,6 +1302,20 @@ curl --location --request POST 'https://cloud.handpoint.com/transactions/ff6da78
 ```json
 {
   "statusMessage": "tip adjusted"
+}
+```
+
+</TabItem>
+<TabItem value="200-level2" label="200 OK (with Level 2 data)">
+
+```json
+{
+  "statusMessage": "tip adjusted",
+  "batchNumber": "123",
+  "taxInformation": {
+    "taxAmount": 0.50,
+    "taxAmountIdentifier": "1"
+  }
 }
 ```
 
@@ -1731,16 +1791,17 @@ curl -X POST \
 Typical fields in the request body (see [PreauthCaptureRequest](restobjects#preauthCaptureRequest) for full details):
 
 - `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original pre-authorization transaction.
-- `capturedAmount` <span class="badge badge--primary">Required</span> – Amount to capture and charge (for example, `"120.00"`).
+- `capturedAmount` <span class="badge badge--primary">Required</span> – Amount to capture and charge, in decimal major units (for example, `"120.00"`): at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`.
 - `tipAmount` <span class="badge badge--secondary">Optional</span> – Tip amount to include in the captured total (for example, `"5.00"`).
 - `customerReference` <span class="badge badge--secondary">Optional</span> – Integrator-defined reference, forwarded as-is to the gateway.
+- `taxInformation`, `purchaseOrderNumber` <span class="badge badge--secondary">Optional</span> – Level 2 purchasing data, with `taxAmount` in decimal major units like `capturedAmount`. See [Level 2 Purchasing Data](restleveliidata.md).
 
 #### Returns
 
 | Result | Notes |
 | ------ | ----- |
 | `200` | Pre-authorization capture accepted. Response body is a parsed gateway object. |
-| `400` | Business rule error from the gateway (for example, unknown `originalGuid`, pre-authorization already captured, or captured amount exceeds authorized amount). Returned as `BadRequestError` with `error.code` and `error.details`. |
+| `400` | Business rule error from the gateway (for example, unknown `originalGuid`, pre-authorization already captured, or captured amount exceeds authorized amount), returned as `BadRequestError` with `error.code` and `error.details`; or a Level 2 validation error, returned as `BadRequestError` with a `message` only. |
 | `403` | Forbidden — the API key does not belong to a merchant. Partner keys are not accepted by this endpoint. |
 | `422` | Payload validation error (`VALIDATION_FAILED`) — `originalGuid` or `capturedAmount` is missing. |
 
@@ -1774,6 +1835,25 @@ curl -X POST \
     "capturedAmount": "120.00",
     "tipAmount": "5.00",
     "customerReference": "hotel-folio-4422"
+  }' \
+  "https://cloud.handpoint.io/preauthorization/capture"
+```
+
+</TabItem>
+<TabItem value="with-level2" label="With Level 2 data">
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "originalGuid": "0c9d9df0-48ec-11eb-81a1-470a19c80d3a",
+    "capturedAmount": "120.00",
+    "taxInformation": {
+        "taxAmount": "10.00",
+        "taxExempt": false
+    },
+    "purchaseOrderNumber": "PO4711"
   }' \
   "https://cloud.handpoint.io/preauthorization/capture"
 ```
@@ -1816,6 +1896,21 @@ curl -X POST \
     "preAuthorizationCaptureGuid": "adad5660-37e6-11f1-9d29-81969834b189"
 }
 ```
+
+</TabItem>
+<TabItem value="400-level2" label="400 Level 2 validation">
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Invalid taxInformation.taxAmount, must not exceed capturedAmount"
+  }
+}
+```
+
+See [Level 2 Purchasing Data](restleveliidata.md#validation-errors) for every validation message.
 
 </TabItem>
 <TabItem value="422" label="422 Validation Error">
@@ -1890,17 +1985,18 @@ Typical flow:
 Typical fields in the request body (see [MotoSaleRequest](restobjects#motoSaleRequest) for full details):
 
 - `cardToken` <span class="badge badge--primary">Required</span> – Token representing the card stored in the gateway (e.g. `"665630867"`).
-- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00). Must be a positive integer string.
+- `amount` <span class="badge badge--primary">Required</span> – String amount in MAJOR units (e.g. `"20.00"` for 20.00), using a dot (`.`) as decimal separator: at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`.
 - `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 currency code (e.g. `"EUR"`).
 - Optional references for reconciliation: `customerReference`, `transactionReference`, etc.
+- Optional Level 2 purchasing data: `taxInformation` (`taxAmount` in decimal major units, `taxExempt`) and `purchaseOrderNumber`. See [Level 2 Purchasing Data](restleveliidata.md).
 
 #### Returns
 
 | Result | Notes |
 | ------ | ----- |
 | `200` | Sale successfully processed. The response body is a `motoSaleResponse` [Moto Transaction Response](restobjects#motoTransactionResponse) with the authorization result (approved/declined), authorization code, masked card details, acquirer TID, timestamps, etc. |
-| `400` | Business rule error from the payment gateway (for example, CVV required, card token failure). Returned as `BadRequestError`, with `error.code` and `error.details` containing the gateway error code and description. |
-| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (invalid amount (must be a positive integer string in minor units), currency length, etc.). |
+| `400` | Business rule error from the payment gateway (for example, CVV required, card token failure), returned as `BadRequestError` with `error.code` and `error.details` containing the gateway error code and description; or a Level 2 validation error, returned as `BadRequestError` with a `message` only. |
+| `422` | Payload validation error (`VALIDATION_FAILED`) when required fields are missing or do not match the schema (invalid amount (must be a decimal string in major units, such as `"20.00"`), currency length, etc.). |
 | `5xx` | Internal error or gateway unavailability. The final outcome may be unknown and may require reconciliation. |
 
 #### Code Example
@@ -1920,6 +2016,27 @@ curl -X POST \
     "cardToken": "665630867",
     "customerReference": "order-12345",
     "transactionReference": "b7b2360d-3e9e-4b62-9a3a-2e6ef6c5cd01"
+  }' \
+  "https://cloud.handpoint.io/moto/sale"
+```
+
+</TabItem>
+<TabItem value="with-level2" label="MOTO Sale (with Level 2 data)">
+
+```shell
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "ApiKeyCloud: XXXXXXX-XXXXXXX-XXXXXXX-XXXXXXX" \
+  -d '{
+    "amount": "20.00",
+    "currency": "EUR",
+    "cardToken": "665630867",
+    "transactionReference": "b7b2360d-3e9e-4b62-9a3a-2e6ef6c5cd01",
+    "taxInformation": {
+        "taxAmount": "2.50",
+        "taxExempt": false
+    },
+    "purchaseOrderNumber": "PO12345"
   }' \
   "https://cloud.handpoint.io/moto/sale"
 ```
@@ -1974,6 +2091,21 @@ A very common cause of **3107** is having "CVV/CV2 input mandatory" enabled for 
 ```
 
 </TabItem>
+<TabItem value="400-level2" label="400 Level 2 validation">
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Missing purchaseOrderNumber, mandatory when taxInformation is present"
+  }
+}
+```
+
+See [Level 2 Purchasing Data](restleveliidata.md#validation-errors) for every validation message.
+
+</TabItem>
 <TabItem value="422" label="422 Validation Error">
 
 ```json
@@ -2021,7 +2153,7 @@ original transaction. No card data is passed in the refund request.
 Typical fields (see [MotoRefundRequest](restobjects#motoRefundRequest) for full details):
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be refunded (e.g. `"1a41d9f0-cf72-11f0-95b2-770b7d1d8e67"`).
-* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in MAJOR units (e.g. `"5.00"` for $5.00). Must be a positive integer string.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to be refunded in MAJOR units (e.g. `"5.00"` for $5.00), using a dot (`.`) as decimal separator.
 * `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code (e.g. `"EUR"`, `"USD"`).
 * Optional: `customerReference`.
 
@@ -2130,7 +2262,7 @@ Reversals are typically used to cancel a MOTO sale shortly after authorization, 
 Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for full details):
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
-* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00). Must be a positive integer string.
+* `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00), using a dot (`.`) as decimal separator.
 * `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
 * Optional merchant references: `customerReference`, `transactionReference`.
 

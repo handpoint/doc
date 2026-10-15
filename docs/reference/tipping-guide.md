@@ -102,6 +102,10 @@ curl -X POST "https://cloud.handpoint.com/transactions/{transactionID}/tip-adjus
 
 Multiple adjustments on the same transaction are accepted. The last one before batch close is the value that settles.
 
+### Tax data (Level 2)
+
+A tip adjustment can carry `taxInformation`: `taxAmount` (Number, major units, optional) and `taxExempt` (boolean). When `taxExempt` is `true`, `taxAmount`, if sent, must be `0`; `0` with `taxExempt` `false` corrects the tax of the tip adjustment to zero. `purchaseOrderNumber` is not supported. The response includes `taxInformation` with `taxAmountIdentifier` (`"1"` local sales tax, `"2"` tax exempt) when the gateway returns it. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data#tip-adjustment).
+
 See the acquirer page for full SDK examples: [EPI](/acquirers/epi#tip-adjustment) · [PAYSAFE](/acquirers/paysafe#tip-adjustment).
 
 ## Which approach to use
