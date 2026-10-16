@@ -1,0 +1,103 @@
+.panel {
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  padding: 1rem 1.25rem 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.heading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0 0 0.75rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ifm-color-emphasis-600);
+  padding: 0.25rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  white-space: nowrap;
+}
+
+.capCol {
+  text-align: left !important;
+  width: 40%;
+}
+
+.pathCol {
+  width: 15%;
+}
+
+.table tbody tr:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.table tbody td {
+  padding: 0.3rem 0.75rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-100);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.capName {
+  color: var(--ifm-font-color-base);
+  font-size: 0.875rem;
+}
+
+.cell {
+  text-align: center;
+}
+
+.yes {
+  color: #27ae60;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.soon {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #e67e22;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 1px 4px;
+  line-height: 1.4;
+}
+
+.no {
+  color: var(--ifm-color-emphasis-400);
+  font-size: 1rem;
+}
+
+.legend {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-500);
+  margin: 0.6rem 0 0;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}

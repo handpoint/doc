@@ -457,6 +457,7 @@ function buildPage(slug, a, processors) {
     "import NotSupported from '@site/src/components/NotSupported';",
     "import ComingSoon from '@site/src/components/ComingSoon';",
     "import AcquirerPageHeader from '@site/src/components/AcquirerPageHeader';",
+    "import AcquirerCapabilitySummary from '@site/src/components/AcquirerCapabilitySummary';",
   ];
   if (hasFlavors || usedFlavorSection) {
     imports.push("import FlavorSection from '@site/src/components/FlavorSection';");
@@ -468,6 +469,8 @@ function buildPage(slug, a, processors) {
     ...imports,
     '',
     `<AcquirerPageHeader currentSlug="${slug}" />`,
+    '',
+    `<AcquirerCapabilitySummary slug="${slug}" />`,
     '',
     ...sections,
   ].join('\n');
