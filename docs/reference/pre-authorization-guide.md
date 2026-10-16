@@ -423,7 +423,7 @@ The same `preAuthorizationReversal` operation is used for both Void hold (Step 3
 **Partial capture reversal (EPI only):** EPI supports reversing part of a capture — for example, if you captured $95 but only $70 should have been charged, you can reverse $25 rather than the full capture amount. On other acquirers, capture reversal is full-amount only.
 
 :::info Acquirer support
-Not all acquirers support Capture Reversal. Check the [acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) for current support per acquirer and integration path.
+Not all acquirers support Capture Reversal. Check your acquirer page for current support: [EPI](/acquirers/epi#pre-auth-capture-reversal) · [TSYS](/acquirers/tsys#pre-auth-capture-reversal) · [EmerchantPay](/acquirers/emerchantpay#pre-auth-capture-reversal) · [Paystrax](/acquirers/paystrax#pre-auth-capture-reversal).
 :::
 
 <Tabs groupId="integration-path">

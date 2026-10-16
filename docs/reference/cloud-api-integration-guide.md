@@ -544,7 +544,7 @@ The table below covers all payment operations supported on the Cloud API path. C
 | **Tokenization** | Store card for future charges, deferred token retrieval | [EPI](/acquirers/epi#tokenization) · [PAYSAFE](/acquirers/paysafe#tokenization) · [EmerchantPay](/acquirers/emerchantpay#tokenization) · [Paystrax](/acquirers/paystrax#tokenization) |
 | **Batch Operations** | Batch close, summary, detail — Backoffice path | [EPI](/acquirers/epi#batch-close) |
 
-For the full acquirer × feature matrix across all integration paths: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix).
+For per-acquirer feature availability across all integration paths, open your acquirer page: [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe).
 
 :::tip Pre-authorization: only Create requires the terminal
 The initial Pre-Authorization Create goes through the PAX terminal — the cardholder presents their card and a hold is placed. Every subsequent operation in the lifecycle (increase/decrease, capture, pre-auth reversal, capture reversal) is a **back-office operation** submitted directly to the Handpoint API from your server. The cardholder does not need to be present and the terminal does not need to be actively attended. You can capture or release a hold hours or days later with a single API call.

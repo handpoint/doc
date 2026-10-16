@@ -99,13 +99,13 @@ Operations missing from HiLite SDKs can often be performed server-side via the [
 | EmerchantPay | ✅ | ❌ | ❌ | ❌ | ❌ (Back Office ✅) |
 | Paystrax | ✅ | ❌ | ❌ | ❌ | ❌ |
 
-For the full multi-path, multi-acquirer matrix see the [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix).
+For per-acquirer feature availability, open your acquirer page: [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe).
 
 ---
 
 ## Related pages
 
-- [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — full per-acquirer, per-path support table
+- [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe) — per-acquirer capability pages
 - [Back Office integration guide](/reference/backoffice-integration-guide) — server-side operations that complement HiLite gaps
 - [Android HiLite integration guide](/reference/android-hilite-integration-guide)
 - [iOS HiLite integration guide](/reference/ios-hilite-integration-guide)

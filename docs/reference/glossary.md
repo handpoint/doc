@@ -12,7 +12,7 @@ description: Definitions for key terms used across Handpoint developer documenta
 
 A financial institution or payment company that processes card transactions on behalf of a merchant and settles funds into the merchant's bank account. In Handpoint docs, acquirer names (EPI, PAYSAFE, EmerchantPay, Paystrax) are what ISVs configure per merchant. Acquirers determine which features are available — batch close, tip adjustment, pre-authorization, etc.
 
-See also: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix)
+See also: [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe)
 
 ---
 

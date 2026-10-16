@@ -78,6 +78,6 @@ This means:
 - A sale from a **Cloud API** integration can have a partial reversal submitted via the same endpoint, even if the merchant also uses Android SDK terminals for other operations.
 - **Multi-MID** back-office operations use the same API key with `externalId` to route to the correct sub-merchant account — see [Multi-MID](/reference/multi-mid).
 
-The only requirement is that the back-office operation is supported by the acquirer for that transaction type. See the [Acquirer Capabilities Matrix](/reference/acquirer-capabilities-matrix) for per-acquirer support.
+The only requirement is that the back-office operation is supported by the acquirer for that transaction type. Open your acquirer page for per-path availability: [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe).
 
 **See also:** [Multi-MID](/reference/multi-mid) — route transactions to different merchant accounts from a single credential, across any terminal assigned to the merchant.

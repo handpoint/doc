@@ -241,7 +241,7 @@ hapi.GetTransactionStatus(transactionReference);
 | **Get Transaction Status** | `hapi.GetTransactionStatus(transactionReference)` |
 | **Stop Transaction** | `hapi.StopCurrentTransaction()` |
 
-Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `cloud-api` column (same underlying path as Cloud REST API for PAX).
+Acquirer-specific availability: open your acquirer page — [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe).
 
 ---
 

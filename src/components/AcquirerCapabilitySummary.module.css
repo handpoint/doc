@@ -75,18 +75,6 @@
   font-size: 1rem;
 }
 
-.soon {
-  display: inline-block;
-  font-size: 0.65rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: #e67e22;
-  border: 1px solid currentColor;
-  border-radius: 3px;
-  padding: 1px 4px;
-  line-height: 1.4;
-}
 
 .no {
   color: var(--ifm-color-emphasis-400);

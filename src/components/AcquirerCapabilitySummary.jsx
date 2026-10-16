@@ -25,6 +25,7 @@ const COLUMN_GROUPS = [
   },
 ];
 
+// Modifiers and unreleased capabilities are excluded — panel shows only released operations.
 const CAPABILITY_LABELS = {
   sale: 'Sale',
   refund: 'Refund',
@@ -38,24 +39,18 @@ const CAPABILITY_LABELS = {
   batching: 'Batch Operations',
   void: 'Void',
   interac: 'Interac',
-  'avs-for-moto': 'AVS',
-  'fee-mitigation': 'Fee Mitigation',
   'money-remittance': 'Money Remittance',
 };
 
 function groupStatus(capData, paths) {
-  let best = null;
   for (const p of paths) {
-    const v = capData[p];
-    if (v === 'public') return 'public';
-    if (v === 'coming-soon') best = 'coming-soon';
+    if (capData[p] === 'public') return 'public';
   }
-  return best;
+  return null;
 }
 
 function StatusIcon({ status }) {
   if (status === 'public') return <span className={styles.yes} title="Supported">✓</span>;
-  if (status === 'coming-soon') return <span className={styles.soon} title="Coming soon">Soon</span>;
   return <span className={styles.no} title="Not supported">—</span>;
 }
 
@@ -106,8 +101,7 @@ export default function AcquirerCapabilitySummary({ slug }) {
       </div>
       <p className={styles.legend}>
         <span className={styles.yes}>✓</span> Supported &nbsp;
-        <span className={styles.soon}>Soon</span> Coming soon &nbsp;
-        <span className={styles.no}>—</span> Not available
+        <span className={styles.no}>—</span> Not available on this path
       </p>
     </div>
   );

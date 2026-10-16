@@ -620,5 +620,5 @@ If two tip adjustments are submitted for the same transaction, the second overri
 
 - [iOS HiLite Integration Guide](/reference/ios-hilite-integration-guide) — setup, discovery, transaction lifecycle, simulator test amounts
 - [Transaction Recovery](/reference/backoffice-integration-guide) — server-side UNDEFINED recovery via Transaction Feed API
-- [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — per-acquirer operation availability for the `ios-hilite` path
+- [EPI](/acquirers/epi) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) — per-acquirer operation availability
 - [Validate your integration](/reference/validate-integration) — certification checklist

@@ -1075,7 +1075,7 @@ The full transaction result object delivered to `responseFinanceStatus:`. Inheri
 
 \* `tipAdjustment()` in `HapiRemoteService` calls the Handpoint cloud API directly — not a device command. Requires `setupHandpointApiConnection(sharedSecret:)` to be called first. Alternatively, use the [Back Office integration guide](/reference/backoffice-integration-guide) server-side with `ApiKeyCloud`. Acquirers: EPI, PAYSAFE (non-Interac cards only).
 
-Acquirer-specific availability: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix) — `ios-hilite` column.
+Acquirer-specific availability: open your acquirer page — [EPI](/acquirers/epi) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax).
 
 ## Validation & certification
 
