@@ -223,9 +223,14 @@ acquirers:
         # A modifier, not an operation. So it has no partial and no CAPABILITY_LABELS
         # entry, and it renders nowhere. Same model as avs-for-moto.
         # Full detail: docs/reference/fee-mitigation.mdx
+        # NOTE: fee-mitigation (fee programs: surcharge, cash discount, dual pricing, admin fee)
+        # is NOT the same as surchargeAmount (@HapiExperimental in 7.1014.0).
+        # Targeting Android SDK 7.1015.0. Once published, set:
+        #   android-pax: public
+        #   min-sdk:
+        #     android-pax: "7.1015.0"
         cloud-api: coming-soon
-        android-pax: public
-        # min-sdk: add { android-pax: "X.Y.Z" } once the production SDK version is confirmed with the SDK team
+        android-pax: coming-soon
 
   tsys:
     name: "TSYS"
@@ -434,9 +439,12 @@ acquirers:
         cloud-api: public
         android-pax: public
       fee-mitigation:
+        # Same note as EPI: targeting Android SDK 7.1015.0. Once published, set:
+        #   android-pax: public
+        #   min-sdk:
+        #     android-pax: "7.1015.0"
         cloud-api: coming-soon
-        android-pax: public
-        # min-sdk: add { android-pax: "X.Y.Z" } once the production SDK version is confirmed with the SDK team
+        android-pax: coming-soon
 
   paysafe:
     name: "PAYSAFE"

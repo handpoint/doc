@@ -934,7 +934,7 @@ export const MATRIX_SECTIONS = [
         "byAcquirer": {
           "epi": {
             "cloud-api": "coming-soon",
-            "android-pax": "public"
+            "android-pax": "coming-soon"
           }
         }
       }

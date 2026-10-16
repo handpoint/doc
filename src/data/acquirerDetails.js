@@ -240,7 +240,7 @@ export const ACQUIRER_DETAILS = [
       },
       "fee-mitigation": {
         "cloud-api": "coming-soon",
-        "android-pax": "public"
+        "android-pax": "coming-soon"
       }
     }
   },
@@ -482,7 +482,7 @@ export const ACQUIRER_DETAILS = [
       },
       "fee-mitigation": {
         "cloud-api": "coming-soon",
-        "android-pax": "public"
+        "android-pax": "coming-soon"
       }
     }
   },
