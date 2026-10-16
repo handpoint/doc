@@ -63,8 +63,62 @@ The skills index is at [`/.well-known/skills/index.json`](pathname:///.well-know
 - **Do not assume all acquirers support the same features.** EPI requires daily batch close; PAYSAFE does not support remote sale or pre-authorization; EmerchantPay/Paystrax include tipAmount in the sale, not post-sale. Always load `acquirer-selection` first.
 - **Do not retry UNDEFINED transactions.** `finStatus: UNDEFINED` means the result is unknown — retrying may double-charge. Use the Transaction Feed API to recover.
 - **The header is `ApiKeyCloud`**, not `Authorization` or `Api-Key`.
-- **Amounts are in minor currency units.** `1000` = $10.00, not $1000.
+- **Amount units differ by endpoint** — see [Cloud API code-generation facts](#cloud-api-code-generation-facts) below.
 - **Reversals are synchronous; sales and refunds are asynchronous.** Poll for sales and refunds; reversal response is immediate.
+- **Determine the acquirer and integration path before generating implementation code** — not all features are supported by all acquirers, and SDK methods differ per integration path.
+
+## Merchant vertical → integration path
+
+| Merchant vertical | Primary path | Key features | Detailed guide |
+|---|---|---|---|
+| Restaurant (tableside) | Android SDK (PAX) | Pre-auth tabs, tip adjustment, batch close | [/guides/restaurant](/guides/restaurant-guide) |
+| Restaurant (counter POS) | Cloud API | Same features, server-led | [/guides/restaurant](/guides/restaurant-guide) |
+| Practice Management | Cloud API or Android PAX + Multi-MID | `externalId` routing, MOTO for phone payments | [/guides/practice-management](/guides/practice-management-guide) |
+| Salons & Spas | Cloud API, Android/iOS HiLite + Multi-MID | Per-worker MIDs, on-device tipping, mobile reader | [/guides/salons](/guides/salons-guide) |
+| Field service (mobile) | Android or iOS SDK (HiLite) | Bluetooth reader, transaction recovery | [/guides/field-service](/guides/field-service-guide) |
+| Retail / Counter POS | Cloud API, JavaScript SDK, or Windows SDK | Standard sale/refund/reversal | [/reference/cloud-api-integration-guide](/reference/cloud-api-integration-guide) |
+| Events / Stadium | Android SDK (PAX) | High-volume, Interac, multi-MID, UNDEFINED recovery, batch close | [/guides/events](/guides/events-guide) |
+| Back office / MOTO | Cloud API back-office endpoints | No terminal needed | [/reference/backoffice-integration-guide](/reference/backoffice-integration-guide) |
+
+**Integration paths are not mutually exclusive.** A single ISV can implement multiple paths under one Handpoint account. Example: Cloud API at the counter + Android HiLite for field staff + back-office MOTO for phone orders — all sharing the same merchant credentials and transaction feed.
+
+**Back-office operations are always available regardless of integration path.** Tip adjustment, reversal, refund, MOTO, pre-auth capture, and deferred tokenization are server-side REST calls that work alongside any card-present integration. Subject to acquirer support — see your acquirer's page for per-feature availability: [EPI](/acquirers/epi) · [PAYSAFE](/acquirers/paysafe) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax).
+
+## Cloud API code-generation facts
+
+Common sources of incorrect code.
+
+**Amount units differ by endpoint:**
+- `POST /transactions` → `amount` is **minor units** as a string (digits only, no decimal) — `"1000"` = $10.00
+- `POST /moto/sale`, `POST /moto/refund`, `POST /reversal` → `amount` is **major-unit decimal** — `"10.00"` = $10.00
+- Do not use the same amount-formatting logic for both endpoint families.
+
+**`finStatus` — complete enum (use this to generate exhaustive switch/match blocks):**
+```
+IN_PROGRESS   → not final, keep polling
+UNDEFINED     → not final, run recovery flow before retrying
+AUTHORISED    → final, approved
+DECLINED      → final, declined — do not retry without cardholder action
+FAILED        → final, technical failure — run recovery flow before retrying
+PARTIAL_APPROVAL → NOT final — terminal showing accept/decline prompt (US only); continue polling for 60s+ or until final transaction-result; can change to CANCELLED if declined
+CANCELLED     → final, cardholder cancelled
+PROCESSED     → final, non-financial operation complete (tokenizeCard)
+REFUNDED      → final, refund processed
+CAPTURED      → final, pre-auth captured
+```
+
+**`operation` — valid values for `POST /transactions`:**
+```
+sale, refund, saleAndTokenizeCard, tokenizeCard
+moToSale, moToRefund, moToPreAuthorization, moToReversal
+preAuthorization, preAuthorizationIncrease, preAuthorizationCapture, preAuthorizationReversal
+saleReversal, refundReversal
+stopCurrentTransaction, pingDevice, printReceipt
+```
+
+**Auth header:** `ApiKeyCloud: YOUR_API_KEY` (not `Authorization`, not `X-Api-Key`)
+
+**Full parameter tables with types, required/optional flags, and enum values:** [Cloud API — Operations Reference](/reference/cloud-api-operations#parameter-reference)
 
 ## Full documentation
 
