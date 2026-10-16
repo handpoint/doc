@@ -225,6 +225,7 @@ acquirers:
         # Full detail: docs/reference/fee-mitigation.mdx
         cloud-api: coming-soon
         android-pax: public
+        # min-sdk: add { android-pax: "X.Y.Z" } once the production SDK version is confirmed with the SDK team
 
   tsys:
     name: "TSYS"
@@ -435,6 +436,7 @@ acquirers:
       fee-mitigation:
         cloud-api: coming-soon
         android-pax: public
+        # min-sdk: add { android-pax: "X.Y.Z" } once the production SDK version is confirmed with the SDK team
 
   paysafe:
     name: "PAYSAFE"

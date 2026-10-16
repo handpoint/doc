@@ -69,16 +69,55 @@
   text-align: center;
 }
 
+.supported {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .yes {
   color: #27ae60;
   font-weight: 700;
   font-size: 1rem;
 }
 
-
 .no {
   color: var(--ifm-color-emphasis-400);
   font-size: 1rem;
+}
+
+/* Version hint icon with CSS tooltip */
+.versionHint {
+  position: relative;
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-500);
+  cursor: help;
+  line-height: 1;
+  vertical-align: super;
+}
+
+.versionHint::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ifm-color-emphasis-800);
+  color: var(--ifm-color-emphasis-100);
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 3px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.versionHint:hover::after {
+  opacity: 1;
 }
 
 .legend {
@@ -86,6 +125,7 @@
   color: var(--ifm-color-emphasis-500);
   margin: 0.6rem 0 0;
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }

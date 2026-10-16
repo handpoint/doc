@@ -49,9 +49,29 @@ function groupStatus(capData, paths) {
   return null;
 }
 
-function StatusIcon({ status }) {
-  if (status === 'public') return <span className={styles.yes} title="Supported">✓</span>;
-  return <span className={styles.no} title="Not supported">—</span>;
+// Returns the lowest min-sdk version required for any path in this group, or null.
+function groupMinSdk(capData, paths) {
+  const sdkMap = capData['min-sdk'];
+  if (!sdkMap || typeof sdkMap !== 'object') return null;
+  for (const p of paths) {
+    if (sdkMap[p]) return sdkMap[p];
+  }
+  return null;
+}
+
+function StatusCell({ status, minSdk }) {
+  if (status !== 'public') {
+    return <span className={styles.no}>—</span>;
+  }
+  if (!minSdk) {
+    return <span className={styles.yes}>✓</span>;
+  }
+  return (
+    <span className={styles.supported}>
+      <span className={styles.yes}>✓</span>
+      <span className={styles.versionHint} data-tooltip={`Min SDK: ${minSdk}`}>ⓘ</span>
+    </span>
+  );
 }
 
 export default function AcquirerCapabilitySummary({ slug }) {
@@ -60,7 +80,7 @@ export default function AcquirerCapabilitySummary({ slug }) {
 
   const caps = acquirer.capabilities || {};
 
-  // Only show capabilities that are supported on at least one path
+  // Only show capabilities that are supported on at least one path.
   const visibleCaps = Object.keys(CAPABILITY_LABELS).filter(capKey => {
     const capData = caps[capKey];
     if (!capData) return false;
@@ -68,6 +88,29 @@ export default function AcquirerCapabilitySummary({ slug }) {
   });
 
   if (visibleCaps.length === 0) return null;
+
+  // Collect footnotes for min-sdk requirements.
+  const footnotes = [];
+  const footnoteMap = {}; // "group.key:capKey" -> footnote index
+
+  visibleCaps.forEach(capKey => {
+    const capData = caps[capKey] || {};
+    COLUMN_GROUPS.forEach(group => {
+      const minSdk = groupMinSdk(capData, group.paths);
+      if (minSdk && groupStatus(capData, group.paths) === 'public') {
+        const key = `${group.key}:${capKey}`;
+        if (!footnoteMap[key]) {
+          const existing = footnotes.findIndex(f => f.sdk === minSdk && f.note.includes('Android'));
+          if (existing >= 0) {
+            footnoteMap[key] = existing + 1;
+          } else {
+            footnotes.push({ sdk: minSdk, note: `Android SDK ${minSdk}+` });
+            footnoteMap[key] = footnotes.length;
+          }
+        }
+      }
+    });
+  });
 
   return (
     <div className={styles.panel}>
@@ -88,11 +131,15 @@ export default function AcquirerCapabilitySummary({ slug }) {
               return (
                 <tr key={capKey}>
                   <td className={styles.capName}>{CAPABILITY_LABELS[capKey]}</td>
-                  {COLUMN_GROUPS.map(group => (
-                    <td key={group.key} className={styles.cell}>
-                      <StatusIcon status={groupStatus(capData, group.paths)} />
-                    </td>
-                  ))}
+                  {COLUMN_GROUPS.map(group => {
+                    const status = groupStatus(capData, group.paths);
+                    const minSdk = groupMinSdk(capData, group.paths);
+                    return (
+                      <td key={group.key} className={styles.cell}>
+                        <StatusCell status={status} minSdk={minSdk} />
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
@@ -102,6 +149,14 @@ export default function AcquirerCapabilitySummary({ slug }) {
       <p className={styles.legend}>
         <span className={styles.yes}>✓</span> Supported &nbsp;
         <span className={styles.no}>—</span> Not available on this path
+        {footnotes.length > 0 && (
+          <>
+            &nbsp;&nbsp;
+            {footnotes.map((f, i) => (
+              <span key={i}> · <span className={styles.versionHint} data-tooltip={f.note}>ⓘ</span> {f.note}</span>
+            ))}
+          </>
+        )}
       </p>
     </div>
   );

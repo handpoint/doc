@@ -35,6 +35,7 @@ generate-acquirer-pages.js merges all three → docs/acquirers/*.mdx
 | Acquirer slug | Name | Processor |
 |---|---|---|
 | `epi` | EPI | `tsys` |
+| `tsys` | TSYS | `tsys` |
 | `paysafe` | PAYSAFE | `tsys` (Interac cards auto-route to TNS; invisible to ISVs) |
 | `emerchantpay` | EmerchantPay | `omnipay` |
 | `paystrax` | Paystrax | `omnipay` |
@@ -65,6 +66,19 @@ key-entry-sale:
       body: >
         Markdown body text. Supports `inline code` and [links](/reference/avs).
 ```
+
+### `min-sdk` — minimum Android SDK version for a capability
+
+An optional map inside a capability entry indicating the minimum production Android SDK version required for specific paths. Rendered in `AcquirerCapabilitySummary` as a hover tooltip (ⓘ) next to the ✓ indicator in the capability panel.
+
+```yaml
+some-capability:
+  android-pax: public
+  min-sdk:
+    android-pax: "7.1015.0"   # minimum production SDK version — confirm with SDK team
+```
+
+Only set `min-sdk` once the SDK version is confirmed in production. Leave a YAML comment as a placeholder until then. The generator passes the raw capability object through, so no generator changes are needed when adding this field.
 
 ### `notes` — acquirer-level note (all capabilities)
 
