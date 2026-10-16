@@ -1,5 +1,6 @@
 import React from 'react';
 import { ACQUIRER_DETAILS } from '../data/acquirerDetails';
+import { CAPABILITY_PANEL_LABELS } from '../data/capabilities';
 import styles from './AcquirerCapabilitySummary.module.css';
 
 const COLUMN_GROUPS = [
@@ -27,20 +28,7 @@ const COLUMN_GROUPS = [
 
 // Modifiers and unreleased capabilities are excluded — panel shows only released operations.
 // Note: partial-reversal is a flavor of 'reversal', not a top-level capability key.
-const CAPABILITY_LABELS = {
-  sale: 'Sale',
-  refund: 'Refund',
-  reversal: 'Reversal',
-  'tip-adjustment': 'Tip Adjustment',
-  'pre-auth': 'Pre-Authorization',
-  'pre-auth-capture-reversal': 'Pre-Auth Capture Reversal',
-  moto: 'MOTO',
-  tokenization: 'Tokenization',
-  batching: 'Batch Operations',
-  void: 'Void',
-  interac: 'Interac',
-  'money-remittance': 'Money Remittance',
-};
+// CAPABILITY_PANEL_LABELS is auto-generated from data/capabilities.yaml via the generator.
 
 function groupStatus(capData, paths) {
   for (const p of paths) {
@@ -81,7 +69,7 @@ export default function AcquirerCapabilitySummary({ slug }) {
   const caps = acquirer.capabilities || {};
 
   // Only show capabilities that are supported on at least one path.
-  const visibleCaps = Object.keys(CAPABILITY_LABELS).filter(capKey => {
+  const visibleCaps = Object.keys(CAPABILITY_PANEL_LABELS).filter(capKey => {
     const capData = caps[capKey];
     if (!capData) return false;
     return COLUMN_GROUPS.some(group => groupStatus(capData, group.paths) !== null);
@@ -130,7 +118,7 @@ export default function AcquirerCapabilitySummary({ slug }) {
               const capData = caps[capKey] || {};
               return (
                 <tr key={capKey}>
-                  <td className={styles.capName}>{CAPABILITY_LABELS[capKey]}</td>
+                  <td className={styles.capName}>{CAPABILITY_PANEL_LABELS[capKey]}</td>
                   {COLUMN_GROUPS.map(group => {
                     const status = groupStatus(capData, group.paths);
                     const minSdk = groupMinSdk(capData, group.paths);

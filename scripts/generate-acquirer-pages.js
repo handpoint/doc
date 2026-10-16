@@ -8,106 +8,19 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const ACQUIRERS_FILE = path.join(ROOT, 'data', 'acquirers.yaml');
 const PROCESSORS_FILE = path.join(ROOT, 'data', 'processors.yaml');
+const CAPABILITIES_FILE = path.join(ROOT, 'data', 'capabilities.yaml');
 const PARTIALS_DIR = path.join(ROOT, 'src', 'partials', 'functions');
 const OUTPUT_DIR = path.join(ROOT, 'docs', 'acquirers');
 const LLMS_OUT = path.join(ROOT, 'static', 'llms.txt');
 const ACQUIRERS_DATA_OUT = path.join(ROOT, 'src', 'data', 'acquirers.js');
 const ACQUIRER_DETAILS_OUT = path.join(ROOT, 'src', 'data', 'acquirerDetails.js');
 
-const CAPABILITY_PARTIALS = {
-  sale:                       ['sale'],
-  refund:                     ['refund'],
-  reversal:                   ['reversal'],
-  'partial-reversal':         ['partial-reversal'],
-  'tip-adjustment':           ['tip-adjustment'],
-  'pre-auth':                 ['pre-auth-create', 'pre-auth-capture', 'pre-auth-void'],
-  'pre-auth-capture-reversal':['pre-auth-capture-void'],
-  moto:                       ['moto'],
-  tokenization:               ['tokenization'],
-  batching:                   ['batch-close', 'batch-summary', 'batch-detail'],
-  'money-remittance':         ['money-remittance'],
-  void:                       ['void'],
-  interac:                    ['interac'],
-};
-
-// Human-readable labels for capability section headings
-const CAPABILITY_HEADINGS = {
-  sale:                       'Sale',
-  refund:                     'Refund',
-  reversal:                   'Reversal',
-  'partial-reversal':         'Partial Reversal',
-  'tip-adjustment':           'Tip Adjustment',
-  'pre-auth':                 'Pre-Authorization',
-  'pre-auth-capture-reversal':'Pre-Auth Capture Reversal',
-  moto:                       'MOTO (Mail Order / Telephone Order)',
-  tokenization:               'Tokenization',
-  batching:                   'Batch Operations',
-  'money-remittance':         'Money Remittance',
-  void:                       'Void',
-  interac:                    'Interac Card Transactions',
-};
-
-// Short one-liner + optional anchor override shown in the FlavorSection summary header.
-// If 'anchor' is omitted the flavorKey itself is used as the anchor ID.
-const FLAVOR_DESCRIPTIONS = {
-  sale: {
-    'emv-sale':          { description: 'On-device · chip, contactless, or magstripe' },
-    'key-entry-sale':    { description: 'On-device · operator keys card number' },
-    'moto-sale':         { description: 'Back-office · charges a stored card token', anchor: 'remote-sale' },
-    'sale-and-tip':      { description: 'On-device · tip collected at checkout' },
-    'sale-and-tokenize':       { description: 'On-device · stores card token for future charges' },
-    'sale-and-paysafe-token': { description: 'On-device · captures a Paysafe single-use token for Customer Vault API' },
-  },
-  refund: {
-    'card-present':      { description: 'On-device · card present at terminal', anchor: 'emv-refund' },
-    'moto-refund':       { description: 'Back-office · linked to original MOTO sale' },
-    'key-entry-refund':  { description: 'On-device · operator keys card number' },
-  },
-  reversal: {
-    'reversal':        { description: 'On-device · no card required' },
-    'remote-reversal': { description: 'Back-office · no reader required' },
-  },
-  'pre-auth': {
-    'pre-auth-create':    { description: 'On-device · chip, contactless, or magstripe', anchor: 'pre-auth-create' },
-    'key-entry-pre-auth': { description: 'On-device · operator keys card number', anchor: 'key-entry-pre-auth' },
-    'pre-auth-capture':   { description: 'No card required — settle the held amount', anchor: 'pre-auth-capture' },
-    'pre-auth-void':      { description: 'Release the hold without charging', anchor: 'pre-auth-void' },
-    'pre-auth-adjust':    { description: 'Raise or lower the held amount before capture', anchor: 'pre-auth-adjust' },
-  },
-  tokenization: {
-    'procharge':     { description: 'EPI · Cygma vault — MOTO detokenization by gateway; ISV stays out of PCI scope' },
-    'paysafe-token': { description: 'Paysafe · single-use token — for use on Paysafe APIs; consult Paysafe team' },
-    'tokenex':       { description: '3rd-party · TokenEx — loyalty / card-matching; no detokenization through Handpoint' },
-  },
-  'partial-reversal': {
-    'partial-reversal': { description: 'Partially cancel an open authorization before settlement' },
-  },
-  'tip-adjustment': {
-    'tip-adjustment': { description: 'Post-authorization · adjust tip before batch close' },
-  },
-  'pre-auth-capture-reversal': {
-    'pre-auth-capture-void': { description: 'Void a captured pre-authorization — releases the charge' },
-  },
-  moto: {
-    moto: { description: 'Back-office · mail order / telephone order' },
-  },
-  batching: {
-    'batch-close':   { description: 'Settle the current open batch with the acquirer' },
-    'batch-summary': { description: 'Aggregate totals — transaction count and net amounts by type' },
-    'batch-detail':  { description: 'Individual transactions in a batch, paginated (5 per page)' },
-  },
-  'money-remittance': {
-    'money-remittance': { description: 'Send funds to a recipient account' },
-  },
-  void: {
-    void: { description: 'Cancel a transaction before settlement — card must be present' },
-  },
-  interac: {
-    interac: { description: 'Interac card transactions — full void only, card present required' },
-  },
-};
-
-const CAPABILITY_ORDER = Object.keys(CAPABILITY_PARTIALS);
+// Derived from data/capabilities.yaml at startup inside main().
+// Declared at module scope so exported functions (buildSummaryTable, buildPage, etc.) can read them.
+let CAPABILITY_PARTIALS;
+let CAPABILITY_HEADINGS;
+let FLAVOR_DESCRIPTIONS;
+let CAPABILITY_ORDER;
 
 const PATHS = ['cloud-api', 'android-pax', 'android-hilite', 'ios-hilite', 'cordova', 'javascript-sdk', 'windows-sdk', 'backoffice'];
 const PATH_LABELS = {
@@ -575,6 +488,13 @@ function buildAcquirersData(acquirers) {
 }
 
 function main() {
+  const capsRaw = yaml.load(fs.readFileSync(CAPABILITIES_FILE, 'utf8'));
+  const CAPS_DEF = capsRaw.capabilities;
+  CAPABILITY_ORDER = Object.keys(CAPS_DEF);
+  CAPABILITY_PARTIALS = Object.fromEntries(Object.entries(CAPS_DEF).map(([k, v]) => [k, v.partials || []]));
+  CAPABILITY_HEADINGS = Object.fromEntries(Object.entries(CAPS_DEF).map(([k, v]) => [k, v.heading || k]));
+  FLAVOR_DESCRIPTIONS = Object.fromEntries(Object.entries(CAPS_DEF).map(([k, v]) => [k, v.flavors || {}]));
+
   const raw = yaml.load(fs.readFileSync(ACQUIRERS_FILE, 'utf8'));
   const acquirers = raw.acquirers || raw;
 
@@ -600,6 +520,21 @@ function main() {
   fs.writeFileSync(ACQUIRERS_DATA_OUT, buildAcquirersData(acquirers));
   fs.writeFileSync(ACQUIRER_DETAILS_OUT, buildAcquirerDetailsData(acquirers));
 
+  const CAPABILITIES_DATA_OUT = path.join(ROOT, 'src', 'data', 'capabilities.js');
+  const panelLabels = Object.fromEntries(
+    Object.entries(CAPS_DEF)
+      .filter(([, v]) => v['panel-label'])
+      .map(([k, v]) => [k, v['panel-label']])
+  );
+  const capabilitiesDataContent = [
+    '// Auto-generated from data/capabilities.yaml — do not edit directly.',
+    '// Regenerated by: node scripts/generate-acquirer-pages.js',
+    '',
+    `export const CAPABILITY_PANEL_LABELS = ${JSON.stringify(panelLabels, null, 2)};`,
+    '',
+  ].join('\n');
+  fs.writeFileSync(CAPABILITIES_DATA_OUT, capabilitiesDataContent);
+
   // Also regenerate the capability matrix data file
   try {
     require('./generate-matrix-data');
@@ -607,7 +542,7 @@ function main() {
     console.warn('[matrix] generate-matrix-data.js failed:', e.message);
   }
 
-  console.log(`✓ Generated ${count} acquirer pages + static/llms.txt + src/data/acquirers.js + src/data/acquirerDetails.js + src/data/acquirerMatrix.js`);
+  console.log(`✓ Generated ${count} acquirer pages + static/llms.txt + src/data/acquirers.js + src/data/acquirerDetails.js + src/data/acquirerMatrix.js + src/data/capabilities.js`);
 }
 
 if (require.main === module) main();
