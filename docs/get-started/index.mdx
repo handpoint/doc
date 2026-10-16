@@ -71,6 +71,41 @@ If you're already working with Handpoint or one of our payments partners, follow
 
 ## Start with the in-person experience you're building.
 
+```mermaid
+flowchart LR
+    subgraph p1["1 · Cloud API"]
+        A["Your Software\n(REST API · JS SDK · Windows SDK)"]
+    end
+    subgraph p2["2 · Native PAX Integration"]
+        B["Your App\n(Handpoint SDK)"]
+    end
+    subgraph p3["3 · HiLite Integration"]
+        C["Your Mobile App\n(Handpoint SDK)"] <-->|Bluetooth LE| HL["HiLite Reader"]
+    end
+
+    HP(["Handpoint Cloud"])
+    GW["Handpoint Gateway"]
+    ACQ[("Acquirer / Bank")]
+    TERM["PAX Terminal\n(Handpoint App)"]
+
+    A -->|HTTPS| HP
+    HP -->|Commands| TERM
+    TERM --> GW
+    B --> GW
+    C --> GW
+    GW --> ACQ
+
+    classDef your fill:#2c3e50,color:#fff,stroke:#34495e
+    classDef hp fill:#2980b9,color:#fff,stroke:#1a6fa0
+    classDef acq fill:#27ae60,color:#fff,stroke:#1e8449
+    classDef hw fill:#ecf0f1,color:#2c3e50,stroke:#95a5a6
+
+    class A,B,C your
+    class HP,GW hp
+    class ACQ acq
+    class HL,TERM hw
+```
+
 ### Connect your software to a payment terminal.
 
 If your software runs on a POS, browser, server or other system, it can initiate a payment on a separate Handpoint-powered terminal.
@@ -164,6 +199,21 @@ Some payment workflows don't begin with an in-person checkout at all.
 Use supported MOTO capabilities for phone orders, back-office payments and other eligible card-not-present transactions.
 
 Supported workflows can include remote sales, refunds and preauthorizations. For example, a restaurant could take a catering order by phone and preauthorize the payment remotely.
+
+```mermaid
+flowchart LR
+    A["Your Software"] -->|HTTPS| HP(["Handpoint Cloud"])
+    HP --> GW["Handpoint Gateway"]
+    GW --> ACQ[("Acquirer / Bank")]
+
+    classDef your fill:#2c3e50,color:#fff,stroke:#34495e
+    classDef hp fill:#2980b9,color:#fff,stroke:#1a6fa0
+    classDef acq fill:#27ae60,color:#fff,stroke:#1e8449
+
+    class A your
+    class HP,GW hp
+    class ACQ acq
+```
 
 [**MOTO guide →**](/reference/moto-guide)
 

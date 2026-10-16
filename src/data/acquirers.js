@@ -8,6 +8,11 @@ export const ACQUIRERS = [
     "geography": "US, Canada"
   },
   {
+    "slug": "tsys",
+    "name": "TSYS",
+    "geography": "US, Canada"
+  },
+  {
     "slug": "paysafe",
     "name": "PAYSAFE",
     "geography": "US & Canada"
