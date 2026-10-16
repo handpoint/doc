@@ -26,11 +26,11 @@ const COLUMN_GROUPS = [
 ];
 
 // Modifiers and unreleased capabilities are excluded — panel shows only released operations.
+// Note: partial-reversal is a flavor of 'reversal', not a top-level capability key.
 const CAPABILITY_LABELS = {
   sale: 'Sale',
   refund: 'Refund',
   reversal: 'Reversal',
-  'partial-reversal': 'Partial Reversal',
   'tip-adjustment': 'Tip Adjustment',
   'pre-auth': 'Pre-Authorization',
   'pre-auth-capture-reversal': 'Pre-Auth Capture Reversal',
