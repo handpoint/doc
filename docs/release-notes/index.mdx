@@ -167,33 +167,27 @@ New [Get Transaction Status](/reference/error-codes#undefined-status) endpoint. 
 Your Android application and the Handpoint SDK run directly on the PAX SmartPOS terminal — one device handles your POS UI and the payment flow, with no external server required.
 
 :::info Latest version
-**7.1014.0** — requires a PAX debug device for unsigned APK development. See [Development hardware](/reference/development-hardware).
+**7.1014.1** — requires a PAX debug device for unsigned APK development. See [Development hardware](/reference/development-hardware).
 :::
 
-### 7.1015.0
-
-:::caution Pending release
-7.1015.0 has not shipped yet at the time of writing — do not rely on the classes and methods below before this SDK version is out.
-:::
+### 7.1014.1
 
 **New Features**
 
-- **Dedicated options classes per operation**: `MoToSaleOptions`, `PreAuthorizationCaptureOptions`, and `TipAdjustmentOptions` — each carries only the fields its operation actually supports, instead of the shared `Options`/`MoToOptions` base class. `SaleOptions`/`SaleAndTokenizeOptions` gain `taxInformation`/`purchaseOrderNumber`; `MoToSaleOptions` and `PreAuthorizationCaptureOptions` add the same two fields; `TipAdjustmentOptions` adds `taxInformation` only. See [TaxInformation](/reference/android-objects-reference#taxinformation) and the [Options objects reference](/reference/android-objects-reference#options-objects).
-- `TransactionResult.taxInformation` / `TransactionResult.purchaseOrderNumber`: response-side fields echoing back what was sent on the request, for the operations above. `TransactionResult.taxAmount` is now deprecated in favor of `taxInformation.taxAmount` (note: the type and unit both change — see [TransactionResult](/reference/transaction-result-object)).
+- **Security policy updates**: the SDK now handles `SecurityPolicyUpdate` commands pushed from Handpoint's platform. When a policy update is received, the SDK calls `eventHandler.securityPolicyUpdate(payload)` on the registered delegate. Configurable fields include tab bar visibility, system UI blocking, screen brightness, and exit password (all nullable — absent means "leave unchanged").
 
-**Breaking Changes**
+**Improvements**
 
-- `taxInformation` and `purchaseOrderNumber` are no longer available on `Options`, `MoToOptions`, `MerchantAuthOptions`, or `RefundOptions` — use the dedicated options classes above instead. Code that set these fields on those shared types no longer compiles.
-- Level II data (`taxInformation`/`purchaseOrderNumber`) is never sent for `refund`, the initial `preAuthorization`, `motoRefund`, `motoReversal`, or `motoPreauthorization` — these operations' options classes don't support it.
-- `purchaseOrderNumber` must now be 25 characters or fewer, enforced on both Cloud-originated and native requests — see the [Options objects reference](/reference/android-objects-reference#options-objects).
+- `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE` permissions are no longer required. PAX device updates are now handled via PAX Store.
 
-**Deprecated**
+**Bug Fixes**
 
-- `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` is deprecated in favor of `preAuthorizationCapture(amount, currency, originalTransactionID, options: PreAuthorizationCaptureOptions)`.
-- `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options): Boolean` is deprecated in favor of `tipAdjustment(tipAmount, currency, originalTransactionID, options: TipAdjustmentOptions): Boolean`.
-- `motoSale(amount, currency, options: MoToOptions)` is deprecated in favor of `motoSale(amount, currency, options: MoToSaleOptions)`.
-
-It's recommended to start migrating to the new overloads. For a call that doesn't use the new per-operation fields, they behave like the ones they replace — the only difference is that each now takes an options object specific to that operation instead of the shared one.
+- Fixed a crash on cold start where EMV kernel version logging ran before the PAX kernel libraries finished loading, causing an `UnsatisfiedLinkError` that killed the app process.
+- Fixed `saleReversal` and `refundReversal` hanging indefinitely with no result when called as the first financial operation in a new SDK session. Regression from 7.1011.0.
+- Fixed a cloud sale dispatcher leak where a "Device is busy" refusal left a stale dispatcher claiming the next approved sale's result, causing `GET /transaction-result/{id}` to return 204 for a completed transaction.
+- Fixed a race where two simultaneous Pusher initialization triggers produced duplicate cloud operation delivery, with the second rejected as "Device is busy".
+- Fixed transaction results not delivered via the Cloud API when the transaction metadata contained unsupported characters.
+- The `autoSelectVisaDebitAid` terminal configuration parameter now also applies to Mastercard US debit chip card selection.
 
 ### 7.1014.0
 
