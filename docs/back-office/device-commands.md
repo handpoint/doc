@@ -27,9 +27,49 @@ All endpoints return `202 Accepted` immediately. Command delivery to the device 
 
 ---
 
+## `set-security-policy`
+
+Configure individual terminal security restrictions independently. Each restriction is a separate boolean flag; omitting a field leaves that restriction unchanged, so you can update a single setting without affecting the rest.
+
+Requires **Handpoint Payments App 4.14.1** or later.
+
+```http
+POST https://cloud.handpoint.com/devices/PAXA920/082104578/set-security-policy
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "hideTabBar": true,
+  "blockSystemUI": false
+}
+```
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `hideTabBar` | boolean | No | `true` hides the app's bottom tab bar, making History, Analytics, and Settings unreachable while leaving Android system menus (Wi-Fi, notifications) accessible. `false` restores it. |
+| `blockSystemUI` | boolean | No | `true` locks the Android status and navigation bars, preventing access to system menus. `false` restores them. |
+| `brightness` | boolean | No | `true` dims the screen to minimum when the terminal is idle and restores brightness when a transaction starts. `false` disables automatic dimming. |
+| `passwordToExit` | boolean | No | `true` requires a PIN before any active restrictions can be lifted. `false` removes the PIN requirement. |
+
+Returns `202 Accepted`. Changes take effect immediately and survive app restarts and device reboots. When the command is received, the app automatically navigates to the payment screen.
+
+:::tip Partial updates
+Send only the fields you want to change. An empty body `{}` is accepted and changes nothing.
+:::
+
+:::info Relationship to other commands
+`set-security-policy` provides finer-grained control than [`set-unattended-mode`](#set-unattended-mode), which always enables `hideTabBar` and `blockSystemUI` together. Both commands continue to work — `set-security-policy` is the recommended approach for new integrations.
+:::
+
+---
+
 ## `set-unattended-mode`
 
 Enable or disable unattended (kiosk) mode on the terminal. When enabled, the bottom navigation bar (Home, Back, Recents) is hidden and the payment screen is always in the foreground. History, Analytics, and Settings tabs become inaccessible.
+
+:::note
+[`set-security-policy`](#set-security-policy) (App 4.14.1+) provides the same control as `set-unattended-mode` but with each restriction configurable independently.
+:::
 
 ```http
 POST https://cloud.handpoint.com/devices/PAXA920/082104578/set-unattended-mode
