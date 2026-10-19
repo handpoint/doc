@@ -34,11 +34,20 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 
 Address Verification Service (AVS) support for MoTo transactions, introduced in [7.1014.0](#71140), is now also available on this release line. See [`MoToOptions.billing`](androidobjects.md#moto-options) / [`MoToOptions.enableAvsFields`](androidobjects.md#moto-options) and [`TransactionResult.addressVerification`](androidobjects.md#25) / [Address Verification](androidobjects.md#address-verification) for details.
 
+The SDK now handles the `SecurityPolicyUpdate` cloud command. When Handpoint's platform pushes a security policy update to the device, the SDK calls `eventHandler.securityPolicyUpdate(payload)` on the registered delegate. The payload fields are `hideTabBar`, `blockSystemUI`, `brightness`, and `passwordToExit` — all nullable (absent means "leave unchanged").
+
+**Improvements**
+
+- `WRITE_EXTERNAL_STORAGE` and `READ_EXTERNAL_STORAGE` permissions are no longer required. The firmware/software update flow has been removed from this release line; PAX device updates are handled via PAX Store.
+
 **Bug fixes**
 
 - Fixed a crash during SDK initialization on PAX devices where the EMV kernel version logging (`printKernelInfo`) could run before the PAX kernel libraries finished loading, causing an `UnsatisfiedLinkError` that killed the integrator's app process on cold start. The fix ensures library loading completes before the SDK initialization listener runs, and makes kernel version logging non-fatal.
 - Fixed `saleReversal` and `refundReversal` hanging indefinitely with no `endOfTransaction` callback when called as the first financial operation in a new SDK session (before any card-present transaction). The event listener required to process the reversal was only registered on the first card-present transaction, causing the request to be silently dropped. Regression introduced in 7.1011.0.
 - Fixed a race condition on PAX devices where a cloud sale refused with "Device is busy" (because a local transaction was already in progress) leaked its result dispatcher. The stale dispatcher would claim the next cloud sale's approved result and post it under the refused sale's `transactionResultId`, leaving `GET /transaction-result/{id}` returning 204 for the approved sale — the cardholder is charged but the ISV application never receives a result.
+- Fixed a race where `InitialisationComplete` and `UpdateConfigFinished` events could both trigger Pusher initialization at the same time, resulting in two live subscriptions on the same device channel. Every subsequent cloud operation was then delivered twice; the second delivery was rejected as "Device is busy", which caused the ISV to receive no result for a transaction that completed on the device.
+- Fixed a case where a transaction result was not delivered via the Cloud API when the transaction's metadata contained characters unsupported by the gateway's metadata field.
+- The `autoSelectVisaDebitAid` terminal configuration parameter now also applies to Mastercard US debit (A0000000042203): when a chip card presents both a Mastercard US debit application and another Mastercard application, the SDK applies the same exclusion logic it already used for Visa US debit.
 
 ## 7.1014.0
 **BREAKING CHANGE:**
