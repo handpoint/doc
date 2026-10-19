@@ -6,7 +6,7 @@ Acquirer-first, AI agent-readable developer documentation for Handpoint payment 
 
 Each payment acquirer (EPI/TSYS, PAYSAFE TSYS, OMNIPAY EmerchantPay, OMNIPAY Paystrax) has a single comprehensive page listing every supported payment function with code examples for all integration paths: Cloud API, Android SDK (PAX), Android SDK (HiLite), iOS SDK (HiLite), Cordova, JavaScript SDK, Windows (.NET) SDK, and Back-office (token-based MOTO).
 
-The site is generated from `data/acquirers.yaml` — one YAML file controls what gets documented and for which acquirer. Code examples live in `src/partials/functions/` — edit once, shows on every acquirer that supports it.
+The site is generated from three YAML files (`data/capabilities.yaml`, `data/acquirers.yaml`, `data/processors.yaml`) and a directory of MDX partials. Edit a partial once — it shows on every acquirer that supports the capability.
 
 ## Prerequisites
 
@@ -41,10 +41,13 @@ The site opens at **http://localhost:3000**.
 
 ## Data model
 
-Three layers feed into the generated acquirer pages. ISVs only see the final page — they never see processor names.
+Four layers feed into the generated acquirer pages. ISVs only see the final page — they never see processor names.
 
 ```
 data/processors.yaml          Processor-level known-issues and metadata
+        ↓
+data/capabilities.yaml        Capability registry — headings, panel labels, partials lists,
+                              and flavor descriptions for all 13 capabilities
         ↓
 data/acquirers.yaml           Which processor each acquirer uses;
                               which capabilities are enabled per integration path
@@ -52,7 +55,7 @@ data/acquirers.yaml           Which processor each acquirer uses;
 src/partials/functions/       How to implement each capability:
                               code examples, parameters, errors, testing, edge cases
         ↓
-scripts/generate-acquirer-pages.js   Merges all three → docs/acquirers/*.mdx
+scripts/generate-acquirer-pages.js   Merges all four → docs/acquirers/*.mdx
 ```
 
 **Rule: never edit `docs/acquirers/` directly.** Run `node scripts/generate-acquirer-pages.js` after any change to the YAML or generator.
@@ -121,6 +124,64 @@ my-acquirer:
 2. Run `node scripts/generate-acquirer-pages.js` — the page is generated automatically.
 
 3. Add a skill file at `static/.well-known/skills/acquirers/my-acquirer.md` (see the Agent skills section below).
+
+---
+
+### Add a new top-level capability
+
+A capability is a brand-new top-level operation that doesn't yet exist in the registry (e.g. Deferred Authorization). Use the scaffold script:
+
+```bash
+node scripts/new-capability.js <key> "<Heading>" "<Panel label>"
+# key must be kebab-case; script validates for duplicates automatically
+node scripts/new-capability.js deferred-auth "Deferred Authorization" "Deferred Auth"
+```
+
+The script appends to `data/capabilities.yaml` and creates a template partial at `src/partials/functions/<key>/<key>.mdx`.
+
+**After scaffolding:**
+
+1. Fill in the flavor description in `data/capabilities.yaml` (the scaffold marks it `TODO`).
+2. Add the capability to each acquirer's `capabilities:` block in `data/acquirers.yaml` (see [Add a capability to an acquirer](#add-a-capability-to-an-acquirer)).
+3. Write the implementation content in the generated partial. Keep the `{/* ACQUIRER_NOTE_INJECTION_POINT */}` marker.
+4. Regenerate and validate:
+
+```bash
+node scripts/generate-acquirer-pages.js
+node scripts/validate.js
+```
+
+---
+
+### Add a new flavor to an existing capability
+
+A flavor is a variant of an existing capability (e.g. `pre-auth-increase` under `pre-auth`). No scaffold script — create files directly:
+
+1. Write the partial at `src/partials/functions/<capability>/<flavor-key>.mdx`.
+
+2. Add the flavor to `data/capabilities.yaml` under the parent's `flavors:` block, and add the partial to the parent's `partials:` list:
+
+```yaml
+  pre-auth:
+    partials: [pre-auth-create, pre-auth-capture, pre-auth-void, pre-auth-increase]
+    flavors:
+      pre-auth-increase:
+        description: "Raise the held amount before capture"
+        anchor: pre-auth-increase    # optional — overrides the default #anchor
+```
+
+3. Wire the flavor under the parent capability in `data/acquirers.yaml` for each supporting acquirer:
+
+```yaml
+  pre-auth:
+    cloud-api: public
+    android-pax: public
+    pre-auth-increase:         # nested inside parent
+      cloud-api: public
+      android-pax: public
+```
+
+4. Run `node scripts/generate-acquirer-pages.js` and `node scripts/validate.js`.
 
 ---
 
@@ -380,6 +441,17 @@ The skills are plain Markdown files — no build step, no generator. Changes are
 
 For step-by-step instructions on adding a new acquirer, a new path, or a new optional skill, see [`static/.well-known/skills/README.md`](static/.well-known/skills/README.md).
 
+## Maintaining this site with AI agents
+
+Two files provide in-context guidance when using an AI coding agent to work on this site:
+
+| File | Who it's for | How to use |
+|---|---|---|
+| [`AGENTS.md`](AGENTS.md) | Any AI agent (Cursor, Copilot, Codex, Claude, etc.) | Read at session start |
+| `agent-harness-main/.agents/skills/docs-v2/SKILL.md` | Claude Code | Type `/docs-v2` in Claude Code |
+
+`AGENTS.md` covers the four-layer data model, both editing workflows (new capability, new flavor), the "never edit generated files" rules, and the full script reference — everything an agent needs to make correct changes without being walked through it each session.
+
 ## Tests
 
 ```bash
@@ -391,7 +463,9 @@ yarn test
 ## Project structure
 
 ```
+AGENTS.md               ← AI agent guide (Claude Code, Cursor, Copilot, Codex, etc.)
 data/
+  capabilities.yaml       ← capability registry — headings, labels, partials, flavor descriptions
   acquirers.yaml          ← acquirer list, capabilities per path, processor reference
   processors.yaml         ← processor definitions and known-issues (injected into acquirer pages)
 docs/
@@ -402,6 +476,8 @@ docs/
   deprecated/             ← JS SDK and Windows SDK migration guides
 scripts/
   generate-acquirer-pages.js   ← reads YAML + partials → writes docs/acquirers/
+  new-capability.js            ← scaffold a new capability (YAML entry + template partial)
+  validate.js                  ← validate consistency across YAML and partials
   __tests__/              ← Jest unit tests for the generator
 src/
   partials/functions/     ← per-function docs, organised by capability/flavor subfolder
