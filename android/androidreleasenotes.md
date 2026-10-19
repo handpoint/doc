@@ -34,6 +34,12 @@ Don’t miss any updates on our latest releases. Contact your Handpoint relation
 
 Address Verification Service (AVS) support for MoTo transactions, introduced in [7.1014.0](#71140), is now also available on this release line. See [`MoToOptions.billing`](androidobjects.md#moto-options) / [`MoToOptions.enableAvsFields`](androidobjects.md#moto-options) and [`TransactionResult.addressVerification`](androidobjects.md#25) / [Address Verification](androidobjects.md#address-verification) for details.
 
+**Bug fixes**
+
+- Fixed a crash during SDK initialization on PAX devices where the EMV kernel version logging (`printKernelInfo`) could run before the PAX kernel libraries finished loading, causing an `UnsatisfiedLinkError` that killed the integrator's app process on cold start. The fix ensures library loading completes before the SDK initialization listener runs, and makes kernel version logging non-fatal.
+- Fixed `saleReversal` and `refundReversal` hanging indefinitely with no `endOfTransaction` callback when called as the first financial operation in a new SDK session (before any card-present transaction). The event listener required to process the reversal was only registered on the first card-present transaction, causing the request to be silently dropped. Regression introduced in 7.1011.0.
+- Fixed a race condition on PAX devices where a cloud sale refused with "Device is busy" (because a local transaction was already in progress) leaked its result dispatcher. The stale dispatcher would claim the next cloud sale's approved result and post it under the refused sale's `transactionResultId`, leaving `GET /transaction-result/{id}` returning 204 for the approved sale — the cardholder is charged but the ISV application never receives a result.
+
 ## 7.1014.0
 **BREAKING CHANGE:**
 
