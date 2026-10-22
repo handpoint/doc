@@ -263,6 +263,10 @@ Detailed card entry path.
 | `MAGSTRIPE` | Card swiped (magnetic stripe). |
 | `MAGSTRIPECONTACTLESS` | Contactless magnetic stripe (legacy contactless cards). |
 | `CHIPFAILMAGSTRIPE` | Chip failed — fell back to magnetic stripe. |
+| `CONTACTLESS` | Contactless chip or NFC payment. |
+| `CHIP_RECEIPT` | Chip transaction requiring a receipt confirmation step. |
+| `SWIPED` | Magnetic stripe swipe (explicit scenario, distinct from `MAGSTRIPE`). |
+| `FALLBACK_SWIPE` | Contactless or chip fallback to magnetic stripe swipe. |
 | `MOTO` | Mail order / telephone order (card not present). |
 | `UNKNOWN` | Unknown scenario — common on reversals and cancelled transactions. |
 
@@ -951,6 +955,33 @@ Supported acquirers for merchant authentication.
 | `TSYS` |
 | `VANTIV` |
 | `SANDBOX` |
+
+---
+
+## `TransactionOrigin` enum
+
+Indicates how a transaction was initiated. Returned as `TransactionResult.transactionOrigin`.
+
+| Value | Description |
+|---|---|
+| `STANDALONE` | Transaction initiated natively via the Android SDK on the device. |
+| `CLOUD` | Transaction triggered remotely via the Cloud API (Pusher websocket). |
+
+This field is useful for differentiating card-present SDK transactions from cloud-triggered ones in reporting and audit logic.
+
+---
+
+## `Surcharge` object
+
+Fee mitigation surcharge detail. Returned as `TransactionResult.surcharge` (as a `BigInteger` of the surcharge amount — see [Transaction Result Object](/reference/transaction-result-object) for the flat field). The structured object fields below are available when the SDK exposes surcharge as a composite:
+
+| Property | Type | Description |
+|---|---|---|
+| `amount` | `BigDecimal` | Surcharge amount in minor units. |
+| `applied` | `Boolean` | `true` if the surcharge was charged to the cardholder. |
+| `reason` | `String` | Why the surcharge was or was not applied — e.g. `"CREDIT_CARD"`, `"NOT_ELIGIBLE_DEBIT"`, `"MERCHANT_NOT_CONFIGURED"`. |
+
+Only present when fee mitigation is enabled for the merchant. See [Fee Mitigation](/reference/fee-mitigation) for merchant configuration details.
 
 ---
 
