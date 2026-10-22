@@ -1061,6 +1061,571 @@ Test on the TEST/DEMO merchant or staging device.
 
 
 
+### Tokenize and Modify {#tokenize-and-modify}
+
+<FlavorSection description="On-device · two-phase tokenize then decide the operation and amount" paths={["cloud-api","android-pax","android-hilite"]}>
+
+Reads and tokenizes the card in **Phase 1**, pauses while your application runs business logic (loyalty lookup, fraud check, amount calculation), then charges in **Phase 2** with the operation and amount you specify. The Phase 2 amount can differ from Phase 1 — that is the "modify" in tokenize-and-modify.
+
+:::tip Loyalty use case
+Hold the `ResumeCallback` open, call your loyalty API to look up or enroll the cardholder by token, apply any discount, then call `callback.resume()` with the final amount. If the token comes back empty (provider not configured), decide whether to charge anyway or cancel — that is an ISV business decision.
+:::
+
+**Four flows:**
+- **Native two-phase** — `tokenizedOperation(amount, currency)` on the device: SDK fires `cardTokenized` callback, ISV calls `resume(OperationDto)`, `finishWithoutCardOperation()`, or `cancel()`. Token is available in the result even if `cancel()` is called.
+- **Native seamless (Refund)** — `tokenizedOperation(currency, OperationDto.Refund(...))`: card tap required; tokenize + run refund in one shot; no `cardTokenized` callback fires
+- **Native seamless (SaleReversal)** — `tokenizedOperation(currency, OperationDto.SaleReversal(...))`: no card tap; reversal sent via `originalTransactionID`; `cardToken` empty in result; result `type`: `VOID_SALE`
+- **Cloud-triggered** — `POST /transactions` with `"tokenize": true`: server triggers Phase 1 remotely; same `cardTokenized` callback fires on the Android SDK; `transactionOrigin`: `CLOUD` in result
+
+#### Sequence diagrams
+
+**Flow 1 — Native two-phase:**
+
+```mermaid
+sequenceDiagram
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Terminal as PAX Terminal
+    participant Issuer as Issuer/Token Provider
+
+    App->>SDK: tokenizedOperation(amount, currency)
+    SDK->>Terminal: Start Phase 1 tokenization
+    Terminal->>Issuer: Card read + tokenize request
+    Issuer-->>Terminal: Token issued
+    Terminal-->>SDK: cardTokenized event
+    SDK-->>App: cardTokenized(callback, CardTokenizationData)
+    Note over App: Run loyalty / fraud logic<br/>Decide on final amount
+    App->>SDK: callback.resume(OperationDto.Sale(finalAmount, ...))
+    SDK->>Terminal: Phase 2 — process sale
+    Terminal->>Issuer: Authorization request
+    Issuer-->>Terminal: Approved
+    Terminal-->>SDK: Transaction complete
+    SDK-->>App: endOfTransaction(TransactionResult)
+```
+
+**Flow 2 — Native seamless Refund (card tap required):**
+
+```mermaid
+sequenceDiagram
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Terminal as PAX Terminal
+    participant Issuer as Issuer/Token Provider
+
+    App->>SDK: tokenizedOperation(currency, OperationDto.Refund(...))
+    SDK->>Terminal: Prompt card tap
+    Terminal->>Issuer: Card read + tokenize + refund
+    Issuer-->>Terminal: Approved
+    Terminal-->>SDK: Transaction complete
+    SDK-->>App: endOfTransaction(TransactionResult)
+    Note over App: No cardTokenized callback fires
+```
+
+**Flow 3 — Native seamless SaleReversal (no card tap):**
+
+```mermaid
+sequenceDiagram
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Gateway as Handpoint Gateway
+
+    App->>SDK: tokenizedOperation(currency, OperationDto.SaleReversal(originalId))
+    SDK->>Gateway: Reversal via originalTransactionID (no card read)
+    Gateway-->>SDK: Approved (type: VOID_SALE, cardToken: empty)
+    SDK-->>App: endOfTransaction(TransactionResult)
+```
+
+**Flow 4 — Cloud-triggered two-phase:**
+
+```mermaid
+sequenceDiagram
+    participant Server as ISV Server
+    participant CloudAPI as Cloud API
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Terminal as PAX Terminal
+    participant Issuer as Issuer/Token Provider
+
+    Server->>CloudAPI: POST /transactions {tokenize: true}
+    CloudAPI-->>Server: 202 + transactionResultId
+    CloudAPI->>SDK: Pusher — trigger Phase 1
+    SDK->>Terminal: Start tokenization
+    Terminal->>Issuer: Card read + tokenize request
+    Issuer-->>Terminal: Token issued
+    Terminal-->>SDK: cardTokenized event
+    SDK-->>App: cardTokenized(callback, CardTokenizationData)
+    Note over App: Business logic
+    App->>SDK: callback.resume(OperationDto.Sale(finalAmount, ...))
+    SDK->>Terminal: Phase 2 — process sale
+    Terminal->>Issuer: Authorization
+    Issuer-->>Terminal: Approved
+    Server->>CloudAPI: GET /transaction-result/{id}
+    CloudAPI-->>Server: AUTHORISED result (transactionOrigin: CLOUD)
+```
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Trigger Phase 1 from your server. A physical PAX terminal is required — the Cloud API delivers the command via Pusher; the `cardTokenized` callback fires on the Android SDK.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "10.00",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "YOUR_TERMINAL_SERIAL",
+  "tokenize": true,
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Response (`202 Accepted`):
+
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "YOUR_SERIAL-20241022T143027",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Phase 2 is driven from the Android SDK (see Android tab). Poll for the final result:
+
+```http
+GET https://cloud.handpoint.com/transaction-result/{transactionResultId}
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+
+The result's `transactionOrigin` will be `CLOUD`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**Two-phase flow** — SDK pauses after tokenization for your business logic:
+
+```kotlin
+// Phase 1: terminal reads and tokenizes the card
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+// Implement Events.CardTokenization in your Hapi listener
+override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+    val token = cardTokenizationData.token      // empty string if provider not configured
+    val brand = cardTokenizationData.cardBrand  // e.g. "Visa"
+
+    if (token.isBlank()) {
+        // No token provider configured — decide whether to charge anyway
+        callback.cancel()
+        return
+    }
+
+    // Run loyalty API call, fraud check, calculate final amount...
+    val finalAmount = lookUpLoyaltyDiscount(token) // your logic
+
+    // Option A: proceed with (potentially modified) sale
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger(finalAmount.toString()),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
+
+    // Option B: finish without charging (loyalty-only scan)
+    // callback.finishWithoutCardOperation()
+
+    // Option C: cancel — note: cardToken IS still populated in the result
+    // callback.cancel()
+}
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    // Always store the token — it is populated even when cancel() was called
+    val token = result.cardToken
+    // result.type == TOKENIZED_OPERATION when cancel() was called
+    // result.transactionOrigin == STANDALONE (native) or CLOUD (cloud-triggered)
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // charge succeeded
+    }
+}
+```
+
+:::caution Token available after cancel
+`callback.cancel()` still completes tokenization. The result has `finStatus: CANCELLED` and `type: TOKENIZED_OPERATION`, but `cardToken` is populated. Store the token even on cancel — the card was already tokenized.
+:::
+
+**Seamless Refund** — card tap required; tokenize + run refund in one shot:
+
+```kotlin
+hapi.tokenizedOperation(
+    Currency.USD,
+    OperationDto.Refund(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        originalTransactionID = "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+        options = RefundOptions()
+    )
+)
+// No cardTokenized callback — single endOfTransaction result
+```
+
+**Seamless SaleReversal** — no card tap; uses `originalTransactionID`:
+
+```kotlin
+hapi.tokenizedOperation(
+    Currency.USD,
+    OperationDto.SaleReversal(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        originalTransactionID = "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+        options = SaleReversalOptions()
+    )
+)
+// result.type == VOID_SALE; result.cardToken is EMPTY for reversals
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same API as Android (PAX) — two-phase flow only:
+
+```kotlin
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Result fields
+
+| Scenario | `finStatus` | `type` | `cardToken` | `transactionOrigin` |
+|---|---|---|---|---|
+| Two-phase → `resume()` AUTHORISED | `AUTHORISED` | `SALE` | Populated | `STANDALONE` or `CLOUD` |
+| Two-phase → `cancel()` | `CANCELLED` | `TOKENIZED_OPERATION` | **Populated** | `STANDALONE` or `CLOUD` |
+| Seamless Refund | `AUTHORISED` | `REFUND` | Populated | `STANDALONE` |
+| Seamless SaleReversal | `AUTHORISED` | `VOID_SALE` | Empty | `STANDALONE` |
+
+#### Parameters
+
+**Cloud API** — `POST /transactions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | `"sale"` |
+| `amount` | string | Yes | Phase 1 display amount in major units (e.g. `"10.00"`). Phase 2 amount set in `resume()` |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | PAX terminal model (e.g. `"PAXA920"`) |
+| `serial_number` | string | Yes | Terminal serial number |
+| `tokenize` | boolean | Yes | `true` |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency |
+
+**Android SDK** — `tokenizedOperation(amount, currency)` two-phase:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Phase 1 amount in minor units (e.g. `BigInteger("1000")` = $10.00) |
+| `currency` | `Currency` | Currency enum |
+
+**`CardTokenizationData`** fields available in the callback:
+
+| Field | Type | Description |
+|---|---|---|
+| `token` | `String` | Card token — empty if provider not configured |
+| `cardBrand` | `String` | Card brand (e.g. `"Visa"`) |
+| `expiryDate` | `String` | Card expiry |
+| `tenderType` | `TenderType` | How the card was presented |
+| `tipAmount` | `BigInteger` | Tip collected on-screen (0 if none) |
+
+</FlavorSection>
+
+
+### Sale with Tip {#sale-and-tip}
+
+<FlavorSection description="On-device · tip collected at checkout" paths={["cloud-api","android-pax","android-hilite","cordova","javascript-sdk","windows-sdk"]}>
+
+Configure a **tip prompt on the terminal** as part of the sale — the cardholder selects a tip amount before completing payment. This is distinct from Tip Adjustment (which adds a tip after the sale is authorised).
+
+#### When to use it
+Use in hospitality environments (restaurants, taxis, salons) where tipping is expected at point of sale. The tip is collected at the terminal, included in the authorised amount, and settled together with the base sale — no second operation is needed.
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "tipConfiguration": {
+    "baseAmount": "1000",
+    "tipPercentages": [10, 15, 20],
+    "enterAmountEnabled": true,
+    "skipEnabled": true,
+    "footer": "Thank you!"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+`baseAmount` is used to calculate the percentage amounts displayed. `enterAmountEnabled: true` lets the cardholder type a custom tip. `skipEnabled: true` adds a "No tip" option.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+val tipConfig = TipConfiguration(
+    baseAmount = BigInteger("1000"),
+    headerName = "Tip",
+    tipPercentages = listOf(5, 10, 15, 20),
+    enterAmountEnabled = true,
+    skipEnabled = true,
+    footer = "Thank you!"
+)
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.tipAmount — tip selected by cardholder
+        // result.totalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val tipConfig = TipConfiguration()
+tipConfig.baseAmount = BigInteger("1000")
+tipConfig.tipPercentages = listOf(5, 10, 15, 20)
+tipConfig.isEnterAmountEnabled = true
+tipConfig.isSkipEnabled = true
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.sale(
+  {
+    amount: 1000,
+    currency: handpoint.Currency.USD,
+    tipConfiguration: {
+      baseAmount: 1000,
+      tipPercentages: [10, 15, 20],
+      enterAmountEnabled: true,
+      skipEnabled: true
+    }
+  },
+  function(result) {
+    if (result.finStatus === "AUTHORISED") {
+      console.log("Tip:", result.tipAmount, "Total:", result.totalAmount);
+    }
+  },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+// @handpoint/cloud-js-sdk
+const { transactionReference, transactionResult } = hp.sale(
+  1000,
+  'USD',
+  {
+    terminalType: 'PAXA920',
+    serialNumber: '082104578',
+    tipConfiguration: {
+      baseAmount: 1000,
+      tipPercentages: [10, 15, 20],
+      enterAmountEnabled: true,
+      skipEnabled: true,
+    },
+  }
+);
+
+const result = await transactionResult;
+if (result.finStatus === 'AUTHORISED') {
+  console.log('Tip:', result.tipAmount, 'Total:', result.totalAmount);
+}
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+var tipConfig = new TipConfiguration
+{
+    BaseAmount = new BigInteger(1000),
+    TipPercentages = new List<int> { 10, 15, 20 },
+    EnterAmountEnabled = true,
+    SkipEnabled = true,
+    Footer = "Thank you!"
+};
+
+var options = new SaleOptions { TipConfiguration = tipConfig };
+var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+
+public void EndOfTransaction(TransactionResult result, Device device)
+{
+    if (result.FinStatus == FinancialStatus.AUTHORISED)
+    {
+        // result.TipAmount — tip chosen by cardholder
+        // result.TotalAmount — base + tip
+    }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### TipConfiguration fields
+
+| Field | Type | Description |
+|---|---|---|
+| `baseAmount` | string / BigInteger | Base sale amount used to calculate percentage tip values shown on screen |
+| `tipPercentages` | array of integers | Tip percentage options to display, e.g. `[10, 15, 20]` |
+| `enterAmountEnabled` | boolean | `true` to show a "Custom amount" entry option |
+| `skipEnabled` | boolean | `true` to show a "No tip / Skip" option |
+| `footer` | string | Optional message shown at the bottom of the tip screen |
+
+#### Result fields
+
+| Field | Description |
+|---|---|
+| `tipAmount` | Tip amount chosen by the cardholder (minor units) |
+| `totalAmount` | Base amount + tip — what was authorised and will settle |
+
+#### Pre-selected tip (ISV-collected)
+
+Use this variant when your application has **already collected the tip from the cardholder** — for example, your POS shows a custom tip screen and the cardholder selects a tip amount before the card is presented. Pass `TipConfiguration(tipAmount)` with the pre-determined amount; the terminal skips its own tip-selection screen and charges base + tip in a single authorisation.
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "1000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "tipConfiguration": {
+    "tipAmount": "500"
+  },
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+The terminal charges `amount + tipAmount` in a single authorisation. No tip-selection screen is shown on the terminal.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// ISV collected $5.00 tip on their own screen — pass it directly
+val tipConfig = TipConfiguration(BigInteger("500"))  // terminal skips its tip-selection screen
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+// Cardholder is charged $15.00 total (base $10.00 + pre-selected tip $5.00)
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // result.tipAmount   → 500  (the pre-set tip)
+        // result.totalAmount → 1500 (base + tip)
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+val tipConfig = TipConfiguration(BigInteger("500"))
+
+val options = SaleOptions()
+options.tipConfiguration = tipConfig
+
+hapi.sale(BigInteger("1000"), Currency.USD, options)
+```
+
+</TabItem>
+</Tabs>
+
+:::note Tip Adjustment vs Sale with Tip
+**Sale with Tip** collects the tip at the terminal before authorisation — the total (base + tip) is authorised in one step. **Tip Adjustment** adds a tip _after_ an already-authorised sale, updating the settlement amount. Use Sale with Tip when the cardholder is at the terminal; use Tip Adjustment for tip-at-table flows where you capture a signature and enter the tip later.
+:::
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `DECLINED` | Issuer declined (after tip selection) | Ask cardholder to try another card |
+| `CANCELLED` | Cardholder cancelled at tip screen or payment screen | No action required — no amount was authorised |
+| `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `COMMUNICATION_ERROR` | Network failure | Verify connectivity; retry |
+
+#### Edge cases
+
+| Scenario | Behaviour |
+|---|---|
+| Cardholder skips tip | `tipAmount` is `0` or absent in the result; `totalAmount` equals the base amount |
+| `baseAmount` differs from sale `amount` | Tip percentages are calculated on `baseAmount` — use this intentionally (e.g. to exclude tax from the tip base) |
+| Pre-selected tip + card decline | Full `amount + tipAmount` was attempted; no partial capture — treat as a standard decline |
+
+#### Testing
+
+Test on the TEST/DEMO merchant or staging device.
+
+| Scenario | How to trigger |
+|---|---|
+| Tip from percentage | Set `tipPercentages: [10, 15, 20]` — select a percentage at terminal — verify `tipAmount` and `totalAmount` in result |
+| Custom tip | Set `enterAmountEnabled: true` — enter a custom amount — verify `totalAmount = baseAmount + entered tip` |
+| Skip tip | Set `skipEnabled: true` — select No Tip — verify `tipAmount: 0`, `totalAmount` equals base |
+| Pre-selected tip | Pass `TipConfiguration(tipAmount: 500)` — verify terminal skips tip screen, `totalAmount = amount + 500` |
+| Cardholder cancels | Cancel at tip screen — verify `CANCELLED` and no charge |
+
+
+</FlavorSection>
+
+
 ## Refund {#refund}
 
 
