@@ -71,6 +71,10 @@ await db.SavePendingTransactionAsync(transactionRef);
 | `REFUNDED` | Refund processed | **Final.** Do not retry. |
 | `CAPTURED` | Pre-authorisation captured | **Final.** Do not retry. |
 
+:::danger Never retry before confirming the outcome
+Retrying a sale before confirming the previous transaction was not charged risks double-charging the cardholder. Always obtain a final non-`AUTHORISED` status from the recovery flow before initiating a new sale.
+:::
+
 ---
 
 ## Recovery flow
@@ -504,6 +508,77 @@ public static async Task RecoverOnStartupAsync(string apiKey)
     }
 }
 ```
+
+## Windows application lifecycle — suspend and crash recovery
+
+Windows can suspend or terminate a process during power transitions, logoff, or system shutdown. If a sale is in progress when the process ends, `EndOfTransaction` never fires for the current instance.
+
+### Persist the reference to a file
+
+In addition to your database, write the pending reference to a local file immediately after `OperationStarted`. File I/O survives process termination even when a database transaction does not:
+
+```csharp
+private static readonly string PendingFile = Path.Combine(
+    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+    "handpoint_pending_ref.txt");
+
+private static void PersistPendingRef(string transactionRef)
+    => File.WriteAllText(PendingFile, transactionRef);
+
+private static void ClearPendingRef()
+    { if (File.Exists(PendingFile)) File.Delete(PendingFile); }
+
+private static string? ReadPendingRef()
+    => File.Exists(PendingFile) ? File.ReadAllText(PendingFile).Trim() : null;
+```
+
+Call `PersistPendingRef(transactionRef)` immediately after `opResult.OperationStarted` is confirmed, and `ClearPendingRef()` once recovery completes or the result arrives normally.
+
+### WPF — handle session end and shutdown
+
+Subscribe to `SystemEvents.SessionEnding` to flush any pending reference before Windows logs off or reboots:
+
+```csharp
+SystemEvents.SessionEnding += (s, e) =>
+{
+    var pending = db.GetPendingTransactionSync();
+    if (pending != null) PersistPendingRef(pending);
+};
+```
+
+### Startup recovery — file-first
+
+On next launch, check the file **before** initializing the SDK. The REST API does not require an active SDK connection:
+
+```csharp
+protected override async void OnStartup(StartupEventArgs e)
+{
+    base.OnStartup(e);
+
+    // File survives process kill — check before SDK init
+    var diskRef = ReadPendingRef();
+    if (diskRef != null)
+    {
+        var (outcome, txId) = await EvaluateTransactionStatusAsync(diskRef, apiKey);
+        switch (outcome)
+        {
+            case RecoveryOutcome.Authorised:
+                await SendReversalAsync(txId!, diskRef);
+                await db.MarkReversedAsync(diskRef);
+                break;
+            case RecoveryOutcome.NotCharged:
+                await db.ClearPendingAsync(diskRef);
+                break;
+            // NotFound / StillResolving → continue via SDK once initialized
+        }
+        ClearPendingRef();
+    }
+
+    // ... initialize SDK normally, then call StartBackgroundRecovery if still needed ...
+}
+```
+
+---
 
 :::note Partial approvals (US only)
 If `FinStatus` is `PARTIAL_APPROVAL`, the device may be showing an accept/decline prompt to the cardholder with approximately a 30-second timeout. The 60-second wait built into the recovery flow above covers this window. Do not act on a partial approval result immediately — always allow the full wait period to elapse.
