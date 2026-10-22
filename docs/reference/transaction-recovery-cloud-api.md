@@ -50,6 +50,10 @@ curl -X POST https://cloud.handpoint.com/transactions \
 | `REFUNDED` | Refund processed | **Final.** Do not retry. |
 | `CAPTURED` | Pre-authorisation captured | **Final.** Do not retry. |
 
+:::danger Never retry before confirming the outcome
+Retrying a sale before confirming the previous transaction was not charged risks double-charging the cardholder. Always obtain a final non-`AUTHORISED` status from the recovery flow before initiating a new sale.
+:::
+
 ## Recovery flow
 
 The recommended pattern has two layers: an **application timeout** that prevents your backend from waiting indefinitely, and **background polling** that resolves the outcome and auto-reverses if needed.
