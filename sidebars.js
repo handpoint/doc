@@ -212,11 +212,6 @@ const sidebars = {
     },
   ],
 
-  internalSidebar: [
-    'reference/full-matrix',
-    'reference/acquirer-capabilities-matrix',
-  ],
-
   deprecatedSidebar: [
     {
       type: 'category',

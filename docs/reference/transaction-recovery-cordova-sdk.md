@@ -53,6 +53,10 @@ All device-originated events come through `handpoint.eventHandler()`. The `trans
 | `REFUNDED` | Refund processed | **Final.** Do not retry. |
 | `CAPTURED` | Pre-authorisation captured | **Final.** Do not retry. |
 
+:::danger Never retry before confirming the outcome
+Retrying a sale before confirming the previous transaction was not charged risks double-charging the cardholder. Always obtain a final non-`AUTHORISED` status from the recovery flow before initiating a new sale.
+:::
+
 ---
 
 ## Recovery flow
@@ -457,6 +461,68 @@ async function recoverOnStartup(apiKey) {
   }
 }
 ```
+
+## Cordova lifecycle — pause, resume, and WebView reload
+
+Cordova's `pause` and `resume` events fire when the host app goes to the background or returns to the foreground. A transaction in progress survives backgrounding — the terminal processes the card autonomously — but your in-memory state (including `pendingRef`) is at risk if the OS reclaims the WebView.
+
+### Persist the reference on pause
+
+If the user switches apps during a sale, flush the pending reference to `localStorage` immediately:
+
+```javascript
+document.addEventListener('pause', function () {
+  if (pendingRef) {
+    try { localStorage.setItem('hp_pending_ref', pendingRef) } catch (e) {}
+  }
+}, false)
+```
+
+### Recover on resume
+
+When the app returns to the foreground, check whether recovery is still needed:
+
+```javascript
+document.addEventListener('resume', function () {
+  try {
+    var savedRef = localStorage.getItem('hp_pending_ref')
+    if (savedRef && !pendingRef) {
+      pendingRef = savedRef
+      startBackgroundRecovery(savedRef)
+    }
+  } catch (e) {}
+}, false)
+```
+
+### deviceready — recover after WebView reload
+
+If the WebView is restarted by the OS or by a plugin, all in-memory state is lost. Check persistent storage as soon as Cordova is ready:
+
+```javascript
+document.addEventListener('deviceready', function () {
+  try {
+    var savedRef = localStorage.getItem('hp_pending_ref')
+    if (savedRef) {
+      startBackgroundRecovery(savedRef)
+    }
+  } catch (e) {}
+}, false)
+```
+
+Clear the stored reference once recovery resolves:
+
+```javascript
+function onRecoveryComplete(ref) {
+  try { localStorage.removeItem('hp_pending_ref') } catch (e) {}
+  db.clearPending(ref)
+}
+```
+
+:::note localStorage reliability
+`localStorage` survives WebView reloads on most platforms but may be cleared under OS storage pressure or in private browsing mode. Always mirror the reference to your backend in `db.savePendingTransaction()` — the REST recovery path (`/status/all`) works without any SDK or device connection.
+:::
+
+---
 
 :::note Partial approvals (US only)
 If `finStatus` is `PARTIAL_APPROVAL`, the device may be showing an accept/decline prompt to the cardholder with approximately a 30-second timeout. The 60-second wait built into the background recovery above covers this window. Do not act on a partial approval result immediately — always allow the full wait period to elapse.

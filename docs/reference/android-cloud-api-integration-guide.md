@@ -23,6 +23,15 @@ In **integrated mode**, a PAX SmartPOS terminal accepts transactions from two so
 
 Both flows deliver their result through the same `endOfTransaction` callback. From the SDK's perspective, they are identical once the transaction starts. You do not need separate code paths for each.
 
+:::tip Distinguishing the source in `endOfTransaction`
+If you need to know which path triggered a given result, check `result.transactionOrigin`:
+
+- `TransactionOrigin.STANDALONE` — initiated from the on-terminal app (`hapi.sale()` / `hapi.refund()` / …)
+- `TransactionOrigin.CLOUD` — triggered by the Cloud REST API
+
+This is useful for analytics, logging, or suppressing UI prompts that only apply to one path (for example, asking for a tip after a card-present sale but not after a server-triggered charge).
+:::
+
 ## When to use it
 
 | ✅ Good fit | ❌ Not a good fit |
@@ -244,8 +253,14 @@ class MyHapiManager : Events.SmartposRequired, Events.TransactionStarted {
     }
 
     override fun endOfTransaction(result: TransactionResult, device: Device) {
+        // transactionOrigin distinguishes how the transaction was triggered
+        val isCloud = result.transactionOrigin == TransactionOrigin.CLOUD
+
         when (result.finStatus) {
-            FinancialStatus.AUTHORISED       -> chargeCard(result)
+            FinancialStatus.AUTHORISED       -> {
+                chargeCard(result)
+                if (!isCloud) offerTipAdjustment(result) // tip prompt only for card-present
+            }
             FinancialStatus.DECLINED         -> showDeclined()
             FinancialStatus.CANCELLED        -> showCancelled()
             FinancialStatus.PARTIAL_APPROVAL -> handlePartialApproval(result)
@@ -310,3 +325,4 @@ For Cloud API–initiated transactions, the `transactionReference` is assigned b
 - [ ] 15 s timeout implemented after `InitialisationComplete` — surface an error if `CloudConnected` does not arrive
 - [ ] Both card-present and Cloud API–initiated transactions tested end-to-end
 - [ ] `transactionReference` from `transactionStarted()` persisted for recovery
+- [ ] `result.transactionOrigin` checked in `endOfTransaction` where source-specific behaviour is needed (`STANDALONE` vs `CLOUD`)
