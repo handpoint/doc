@@ -96,8 +96,8 @@ curl -X POST https://cloud.handpoint.com/transactions \
 
 Pass a `MerchantAuth` containing a `Credential` in the options. The recommended approach for Handpoint-managed sub-MIDs is `externalId` — the Handpoint backend resolves it to the correct acquirer credentials, so the app never stores raw MID/TID values.
 
-:::info externalId is configured by the onboarding team in Handpoint Portal
-The `externalId` strings are configured in the Handpoint Portal / TMS by the **onboarding team** when provisioning your sub-MIDs. Contact the onboarding team to get the `externalId` values for your merchant accounts before going live. An `externalId` that does not exactly match a provisioned sub-MID (case-sensitive) will result in a declined transaction (`"Invalid Merchant"`).
+:::info externalId must be provisioned by Handpoint
+The `externalId` strings are configured in the Handpoint Portal / TMS by the **Handpoint onboarding team** when provisioning your sub-MIDs. Contact Handpoint Integration Support to get the `externalId` values for your merchant accounts before going live. An `externalId` that does not exactly match a provisioned sub-MID will result in a declined transaction (`"Invalid Merchant"`).
 :::
 
 ```kotlin
