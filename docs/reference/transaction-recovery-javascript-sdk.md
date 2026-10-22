@@ -40,6 +40,10 @@ The `callback` parameter of `hp.sale()` is a **status update callback** — it f
 | `REFUNDED` | Refund processed | **Final.** Do not retry. |
 | `CAPTURED` | Pre-authorisation captured | **Final.** Do not retry. |
 
+:::danger Never retry before confirming the outcome
+Retrying a sale before confirming the previous transaction was not charged risks double-charging the cardholder. Always obtain a final non-`AUTHORISED` status from the recovery flow before initiating a new sale.
+:::
+
 ## Recovery flow
 
 The recommended pattern has two layers: a **UI timeout** that unblocks the clerk immediately, and a **background recovery** that resolves the outcome and auto-reverses if needed.

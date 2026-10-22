@@ -52,6 +52,12 @@ db.savePendingTransaction(ref)
 | `REFUNDED` | Refund processed | **Final.** Do not retry. |
 | `CAPTURED` | Pre-authorisation captured | **Final.** Do not retry. |
 
+:::danger Never retry before confirming the outcome
+Retrying a sale before confirming the previous transaction was not charged risks double-charging the cardholder. Always obtain a final non-`AUTHORISED` status from the recovery flow before initiating a new sale.
+
+**PAX Android — duplicate check screen:** If the same physical card is tapped again during a potential retry, the Handpoint Payments App shows a **"Duplicate transaction — Cancel or Accept"** prompt to the cardholder. This is a last-resort safeguard, not a replacement for status recovery. Passing `SaleOptions(duplicateCheck = false)` skips this prompt entirely and is **not recommended**.
+:::
+
 ## Recovery flow
 
 The recommended pattern has two layers: a **UI timeout** that unblocks the clerk immediately, and **background polling** that resolves the outcome and auto-reverses if needed.
