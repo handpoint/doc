@@ -30,7 +30,7 @@ The `callback` parameter of `hp.sale()` is a **status update callback** — it f
 | `finStatus` | Meaning | What to do |
 |---|---|---|
 | `IN_PROGRESS` | Transaction still processing on device or host | Keep polling |
-| `UNDEFINED` | Result received but status could not be resolved | Keep polling |
+| `UNDEFINED` | Result received but status could not be resolved | **Do not act.** Poll `/status` — card may have been charged. |
 | `AUTHORISED` | Approved — card charged | **Final.** Do not retry. |
 | `DECLINED` | Declined by issuer | **Final.** Card not charged. Safe to retry. |
 | `PROCESSED` | Completed (tokenization, MOTO) | **Final.** Do not retry. |
@@ -202,6 +202,45 @@ if (pending) {
   recoverInBackground(pending.ref, null) // no saleOp — go straight to polling
 }
 ```
+
+## Browser navigation and page unload
+
+For single-page apps (SPAs), navigating away from the payment screen while a transaction is active carries the same risk as closing the tab: the in-memory `saleOp.transactionResult` promise is lost. The `transactionReference` saved in your backend (Step 1) is the only recovery path once the page is gone.
+
+### Intercept tab close and page reload
+
+Use `beforeunload` to warn the user when a transaction is in progress:
+
+```javascript
+let transactionActive = false
+
+window.addEventListener('beforeunload', (e) => {
+  if (transactionActive) {
+    e.preventDefault()
+    e.returnValue = '' // triggers the browser's generic "Leave site?" dialog
+  }
+})
+```
+
+Set `transactionActive = true` before calling `hp.sale()` and clear it when the result handler runs (normal or background recovery path).
+
+### SPA route change (React / Vue / Angular)
+
+When your framework unmounts the payment component mid-transaction, the in-flight promise is abandoned. Before unmounting, confirm the `transactionReference` is already persisted in your backend. The `recoverInBackground` async function (Step 4) continues running as long as the browser tab stays open — component unmount does not cancel it.
+
+```javascript
+// React — cleanup on unmount
+useEffect(() => {
+  return () => {
+    // Component unmounting: transactionReference is in DB, background recovery continues.
+    // If the tab closes before recovery completes, it resumes on next page load via
+    // db.getPendingTransaction() in the "Recovering on page load" pattern above.
+    transactionActive = false
+  }
+}, [])
+```
+
+If the tab closes before recovery finishes, `recoverInBackground(savedRef, null)` on next page load — passing `null` for `saleOp` skips the promise race and goes straight to polling.
 
 :::note Partial approvals (US only)
 If `finStatus` is `PARTIAL_APPROVAL`, the device may be showing an accept/decline prompt to the cardholder with approximately a 30-second timeout. The 60-second wait built into the recovery flow above covers this window. Do not act on a partial approval result immediately — always allow the full wait period to elapse before sending a reversal.

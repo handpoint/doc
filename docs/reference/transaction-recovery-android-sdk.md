@@ -42,7 +42,7 @@ db.savePendingTransaction(ref)
 | `finStatus` | Meaning | What to do |
 |---|---|---|
 | `IN_PROGRESS` | Transaction still processing on device or host | Keep polling |
-| `UNDEFINED` | Result received but status could not be resolved | Keep polling |
+| `UNDEFINED` | Result received but status could not be resolved | **Do not act.** Call `getTransactionStatus` and poll until final — card may have been charged. See [UNDEFINED handling](#undefined-finstatus--critical-behavior). |
 | `AUTHORISED` | Approved — card charged | **Final.** Do not retry. |
 | `DECLINED` | Declined by issuer | **Final.** Card not charged. Safe to retry. |
 | `PROCESSED` | Completed (tokenization, MOTO) | **Final.** Do not retry. |
@@ -160,7 +160,10 @@ private fun handleRecoveredResult(result: TransactionResult) {
         return
     }
 
-    // Final status — wait 60 s for endOfTransaction to arrive naturally
+    // Final status — wait 60 s for endOfTransaction to arrive naturally.
+    // The SDK retries result delivery every ~5 s for up to ~100 s after the terminal
+    // completes. If getTransactionStatus returns AUTHORISED before endOfTransaction
+    // fires, the delivery may still be in transit — the 60 s wait covers this window.
     coroutineScope.launch {
         delay(RESULT_WAIT_MS) // 60 s
         if (result.finStatus == FinancialStatus.AUTHORISED) {
@@ -237,6 +240,55 @@ override fun onCreate(savedInstanceState: Bundle?) {
     }
 }
 ```
+
+## Activity lifecycle — navigation and backgrounding
+
+Android's activity lifecycle can interrupt transaction delivery if your payment screen is destroyed or goes to the background before `endOfTransaction` fires.
+
+### Back button or fragment replacement
+
+If the user presses Back or your app navigates to another screen while a transaction is in progress, **do not call `stopCurrentTransaction`**. The terminal processes the card autonomously — cancelling at the SDK level does not undo an authorisation that the acquirer has already processed.
+
+When the payment activity is recreated (or a new screen takes its place), re-register the event listener and check for pending references:
+
+```kotlin
+override fun onResume() {
+    super.onResume()
+    api.registerEventsDelegate(this)
+
+    val pendingRef = db.getPendingTransaction()
+    if (pendingRef != null) {
+        startBackgroundRecovery(pendingRef)
+    }
+}
+```
+
+### App going to background
+
+When the user presses Home or switches apps, the activity pauses but the process usually survives. `endOfTransaction` may still fire while the activity is in the background — your listener receives it as long as the SDK connection is alive.
+
+If the OS kills the process while a transaction is in progress, the pending `transactionReference` must already be in your database (persisted in Step 2). On next startup, query it in `onCreate` — see [Recovering on app restart](#recovering-on-app-restart).
+
+:::warning Do not cancel on navigation
+Never call `stopCurrentTransaction` when the user navigates away. The terminal may have already sent the authorisation request — cancelling at the SDK level does not undo a network transaction the acquirer has already processed.
+:::
+
+## UNDEFINED finStatus — critical behavior {#undefined-finstatus--critical-behavior}
+
+`UNDEFINED` is **not** a safe non-charge. It means the SDK received a response from the terminal but could not resolve the final status. The most common causes are:
+
+- The terminal is still processing (cardholder interacting, awaiting host response)
+- A network disruption between the terminal and the gateway is resolving
+- The transaction reached the acquirer but the response has not propagated yet
+
+**Rules when you see `FinancialStatus.UNDEFINED`:**
+
+1. **Do not record the transaction as failed.** The card may have been charged.
+2. **Do not issue a reversal yet.** There is no confirmed `transactionID` to reverse against.
+3. **Do not retry the sale.** You could double-charge the cardholder.
+4. **Continue polling** via `getTransactionStatus` until a final status is confirmed.
+
+After your active-recovery timeout (recommended: 6 minutes from sale initiation), if the status is still `UNDEFINED`, flag the transaction for **manual reconciliation** rather than auto-reversing or auto-accepting.
 
 :::note Partial approvals (US only)
 If `finStatus` is `PARTIAL_APPROVAL`, the device may be showing an accept/decline prompt to the cardholder with approximately a 30-second timeout. The 60-second wait built into the recovery flow above covers this window. Do not act on a partial approval result immediately — always allow the full wait period to elapse.
