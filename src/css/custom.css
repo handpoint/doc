@@ -48,6 +48,68 @@
   --header-select-bg:  #243344;
 }
 
+/* ── Page filter ─────────────────────────────── */
+
+.page-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+}
+
+.page-filter__icon {
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.page-filter__input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--ifm-font-color-base);
+  outline: none;
+  min-width: 0;
+}
+
+.page-filter__input::placeholder {
+  color: var(--ifm-color-emphasis-500);
+}
+
+/* Remove browser's native search clear button — we provide our own */
+.page-filter__input::-webkit-search-cancel-button { display: none; }
+
+.page-filter__count {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-500);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.page-filter__clear {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--ifm-color-emphasis-500);
+  padding: 0 0.15rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.page-filter__clear:hover {
+  color: var(--ifm-color-emphasis-900);
+}
+
+[data-theme='dark'] .page-filter {
+  border-color: var(--ifm-color-emphasis-300);
+}
+
 /* ── Flavor sections ─────────────────────────── */
 
 .flavor-section {
