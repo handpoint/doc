@@ -421,13 +421,6 @@ MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
 
 api.motoSale(new BigInteger("1000"), Currency.USD, moToOptions);
 
-//Adding AVS billing details directly
-Billing billing = new Billing("90210", "123 Main Street");
-options.setBilling(billing);
-
-//Or letting the MoTo Dialog collect the AVS fields from the cardholder instead
-options.setEnableAvsFields(true);
-
 ```
 
 **Events invoked**
@@ -440,7 +433,7 @@ Invoked during a transaction,  it fetches statuses coming from the sdk (ex : 'pr
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction. When AVS was used, the returned [`TransactionResult`](androidobjects.md#25) carries the check outcome on [`addressVerification`](androidobjects.md#address-verification).
+Invoked when the terminal finishes processing the transaction.
 ***
 
 **Returns**
@@ -483,13 +476,6 @@ MoneyRemittanceOptions moneyRemittanceOptions = new MoneyRemittanceOptions("John
 MoToOptions moToOptions = new MoToOptions(moneyRemittanceOptions);
 
 api.motoRefund(new BigInteger("1000"), Currency.USD,"00000000-0000-0000-0000-000000000000", moToOptions);
-
-//Adding AVS billing details directly
-Billing billing = new Billing("90210", "123 Main Street");
-options.setBilling(billing);
-
-//Or letting the MoTo Dialog collect the AVS fields from the cardholder instead
-options.setEnableAvsFields(true);
 ```
 **Events invoked**
 
@@ -501,7 +487,7 @@ Invoked during a transaction,  it fetches statuses coming from the sdk (ex : 'pr
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction. When AVS was used, the returned [`TransactionResult`](androidobjects.md#25) carries the check outcome on [`addressVerification`](androidobjects.md#address-verification).
+Invoked when the terminal finishes processing the transaction.
 ***
 
 **Returns**
@@ -533,13 +519,6 @@ MoToOptions options = new MoToOptions();
 options.setCustomerReference("MoTo Reversal Example");
 
 api.motoReversal("00000000-0000-0000-0000-000000000000",options);
-
-//Adding AVS billing details directly
-Billing billing = new Billing("90210", "123 Main Street");
-options.setBilling(billing);
-
-//Or letting the MoTo Dialog collect the AVS fields from the cardholder instead
-options.setEnableAvsFields(true);
 ```
 **Events invoked**
 
@@ -551,7 +530,7 @@ Invoked during a transaction,  it fetches statuses coming from the sdk (ex : 'pr
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction. When AVS was used, the returned [`TransactionResult`](androidobjects.md#25) carries the check outcome on [`addressVerification`](androidobjects.md#address-verification).
+Invoked when the terminal finishes processing the transaction.
 ***
 
 **Returns**
@@ -584,13 +563,6 @@ MoToOptions options = new MoToOptions();
 options.setCustomerReference("MoTo Sale Example");
 
 api.motoPreauthorization(new BigInteger("1000"), Currency.EUR, options);
-
-//Adding AVS billing details directly
-Billing billing = new Billing("90210", "123 Main Street");
-options.setBilling(billing);
-
-//Or letting the MoTo Dialog collect the AVS fields from the cardholder instead
-options.setEnableAvsFields(true);
 ```
 
 **Events invoked**
@@ -603,7 +575,7 @@ Invoked during a transaction,  it fetches statuses coming from the sdk (ex : 'pr
 
 [**endOfTransaction**](androideventlisteners.md#16)
 
-Invoked when the terminal finishes processing the transaction. When AVS was used, the returned [`TransactionResult`](androidobjects.md#25) carries the check outcome on [`addressVerification`](androidobjects.md#address-verification).
+Invoked when the terminal finishes processing the transaction.
 ***
 
 **Returns**
