@@ -4,7 +4,11 @@ sidebar_position: 11
 description: Complete reference for all Android SDK Events interfaces — SmartposRequired, MposRequired, PosRequired, Log, ReceiptEvent, SignatureRequired, and all optional event interfaces.
 ---
 
+import PageFilter from '@site/src/components/PageFilter';
+
 # Android SDK — Events Reference
+
+<PageFilter mode="reference" placeholder="Filter event interfaces…" />
 
 The Handpoint Android SDK delivers all results and status updates through listener interfaces in the `Events` namespace. Your delegate class implements one or more of these interfaces and is registered via `api.registerEventsDelegate(this)`.
 

@@ -1,19 +1,19 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 
 /**
- * Per-page operation filter for acquirer pages.
+ * Per-page filter for acquirer pages and reference pages.
  *
- * Scans the article for (h3 → FlavorSection*) groups.
- * When a query is active, hides h3s and all their trailing FlavorSections
- * whose heading text does not include the query.
+ * mode="acquirer" (default): hides h3 + trailing FlavorSection elements.
+ * mode="reference": hides h3 + ALL trailing content until the next heading.
  *
- * Also hides the h2 section if every h3 beneath it is hidden.
+ * In both modes, hides the parent h2 when all its child h3s are filtered out.
  *
- * Usage (at the top of an acquirer MDX page, after AcquirerPageHeader):
+ * Usage:
  *   import PageFilter from '@site/src/components/PageFilter';
- *   <PageFilter />
+ *   <PageFilter />                              // acquirer page
+ *   <PageFilter mode="reference" placeholder="Filter objects…" />
  */
-export default function PageFilter({ placeholder = 'Filter operations…' }) {
+export default function PageFilter({ placeholder = 'Filter operations…', mode = 'acquirer' }) {
   const [query, setQuery] = useState('');
   const [hiddenCount, setHiddenCount] = useState(0);
   const timerRef = useRef(null);
@@ -34,11 +34,17 @@ export default function PageFilter({ placeholder = 'Filter operations…' }) {
 
       h3.style.display = matches ? '' : 'none';
 
-      // Walk siblings until the next h2 or h3 and show/hide FlavorSections
+      // Walk siblings until the next h2 or h3
       let el = h3.nextElementSibling;
       while (el && !['H2', 'H3'].includes(el.tagName)) {
-        if (el.classList.contains('flavor-section')) {
+        if (mode === 'reference') {
+          // Hide all content blocks between headings
           el.style.display = matches ? '' : 'none';
+        } else {
+          // Acquirer pages: only hide FlavorSection details elements
+          if (el.classList.contains('flavor-section')) {
+            el.style.display = matches ? '' : 'none';
+          }
         }
         el = el.nextElementSibling;
       }
