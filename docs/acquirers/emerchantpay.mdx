@@ -781,6 +781,294 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 
 </FlavorSection>
 
+### Tokenize and Modify {#tokenize-and-modify}
+
+<FlavorSection description="On-device · two-phase tokenize then decide the operation and amount" paths={["cloud-api","android-pax","android-hilite"]}>
+
+Reads and tokenizes the card in **Phase 1**, pauses while your application runs business logic (loyalty lookup, fraud check, amount calculation), then charges in **Phase 2** with the operation and amount you specify. The Phase 2 amount can differ from Phase 1 — that is the "modify" in tokenize-and-modify.
+
+:::tip Loyalty use case
+Hold the `ResumeCallback` open, call your loyalty API to look up or enroll the cardholder by token, apply any discount, then call `callback.resume()` with the final amount. If the token comes back empty (provider not configured), decide whether to charge anyway or cancel — that is an ISV business decision.
+:::
+
+**Four flows:**
+- **Native two-phase** — `tokenizedOperation(amount, currency)` on the device: SDK fires `cardTokenized` callback, ISV calls `resume(OperationDto)`, `finishWithoutCardOperation()`, or `cancel()`. Token is available in the result even if `cancel()` is called.
+- **Native seamless (Refund)** — `tokenizedOperation(currency, OperationDto.Refund(...))`: card tap required; tokenize + run refund in one shot; no `cardTokenized` callback fires
+- **Native seamless (SaleReversal)** — `tokenizedOperation(currency, OperationDto.SaleReversal(...))`: no card tap; reversal sent via `originalTransactionID`; `cardToken` empty in result; result `type`: `VOID_SALE`
+- **Cloud-triggered** — `POST /transactions` with `"tokenize": true`: server triggers Phase 1 remotely; same `cardTokenized` callback fires on the Android SDK; `transactionOrigin`: `CLOUD` in result
+
+#### Sequence diagrams
+
+**Flow 1 — Native two-phase:**
+
+```mermaid
+sequenceDiagram
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Terminal as PAX Terminal
+    participant Issuer as Issuer/Token Provider
+
+    App->>SDK: tokenizedOperation(amount, currency)
+    SDK->>Terminal: Start Phase 1 tokenization
+    Terminal->>Issuer: Card read + tokenize request
+    Issuer-->>Terminal: Token issued
+    Terminal-->>SDK: cardTokenized event
+    SDK-->>App: cardTokenized(callback, CardTokenizationData)
+    Note over App: Run loyalty / fraud logic<br/>Decide on final amount
+    App->>SDK: callback.resume(OperationDto.Sale(finalAmount, ...))
+    SDK->>Terminal: Phase 2 — process sale
+    Terminal->>Issuer: Authorization request
+    Issuer-->>Terminal: Approved
+    Terminal-->>SDK: Transaction complete
+    SDK-->>App: endOfTransaction(TransactionResult)
+```
+
+**Flow 2 — Native seamless Refund (card tap required):**
+
+```mermaid
+sequenceDiagram
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Terminal as PAX Terminal
+    participant Issuer as Issuer/Token Provider
+
+    App->>SDK: tokenizedOperation(currency, OperationDto.Refund(...))
+    SDK->>Terminal: Prompt card tap
+    Terminal->>Issuer: Card read + tokenize + refund
+    Issuer-->>Terminal: Approved
+    Terminal-->>SDK: Transaction complete
+    SDK-->>App: endOfTransaction(TransactionResult)
+    Note over App: No cardTokenized callback fires
+```
+
+**Flow 3 — Native seamless SaleReversal (no card tap):**
+
+```mermaid
+sequenceDiagram
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Gateway as Handpoint Gateway
+
+    App->>SDK: tokenizedOperation(currency, OperationDto.SaleReversal(originalId))
+    SDK->>Gateway: Reversal via originalTransactionID (no card read)
+    Gateway-->>SDK: Approved (type: VOID_SALE, cardToken: empty)
+    SDK-->>App: endOfTransaction(TransactionResult)
+```
+
+**Flow 4 — Cloud-triggered two-phase:**
+
+```mermaid
+sequenceDiagram
+    participant Server as ISV Server
+    participant CloudAPI as Cloud API
+    participant App as ISV App (Android)
+    participant SDK as Handpoint SDK
+    participant Terminal as PAX Terminal
+    participant Issuer as Issuer/Token Provider
+
+    Server->>CloudAPI: POST /transactions {tokenize: true}
+    CloudAPI-->>Server: 202 + transactionResultId
+    CloudAPI->>SDK: Pusher — trigger Phase 1
+    SDK->>Terminal: Start tokenization
+    Terminal->>Issuer: Card read + tokenize request
+    Issuer-->>Terminal: Token issued
+    Terminal-->>SDK: cardTokenized event
+    SDK-->>App: cardTokenized(callback, CardTokenizationData)
+    Note over App: Business logic
+    App->>SDK: callback.resume(OperationDto.Sale(finalAmount, ...))
+    SDK->>Terminal: Phase 2 — process sale
+    Terminal->>Issuer: Authorization
+    Issuer-->>Terminal: Approved
+    Server->>CloudAPI: GET /transaction-result/{id}
+    CloudAPI-->>Server: AUTHORISED result (transactionOrigin: CLOUD)
+```
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Trigger Phase 1 from your server. A physical PAX terminal is required — the Cloud API delivers the command via Pusher; the `cardTokenized` callback fires on the Android SDK.
+
+```http
+POST https://cloud.handpoint.com/transactions
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "operation": "sale",
+  "amount": "10.00",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "YOUR_TERMINAL_SERIAL",
+  "tokenize": true,
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Response (`202 Accepted`):
+
+```json
+{
+  "statusMessage": "Operation Accepted",
+  "transactionResultId": "YOUR_SERIAL-20241022T143027",
+  "transactionReference": "2bfde1fc-23b1-4c67-93d9-1d4a557f4d4f"
+}
+```
+
+Phase 2 is driven from the Android SDK (see Android tab). Poll for the final result:
+
+```http
+GET https://cloud.handpoint.com/transaction-result/{transactionResultId}
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+```
+
+The result's `transactionOrigin` will be `CLOUD`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+**Two-phase flow** — SDK pauses after tokenization for your business logic:
+
+```kotlin
+// Phase 1: terminal reads and tokenizes the card
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+// Implement Events.CardTokenization in your Hapi listener
+override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+    val token = cardTokenizationData.token      // empty string if provider not configured
+    val brand = cardTokenizationData.cardBrand  // e.g. "Visa"
+
+    if (token.isBlank()) {
+        // No token provider configured — decide whether to charge anyway
+        callback.cancel()
+        return
+    }
+
+    // Run loyalty API call, fraud check, calculate final amount...
+    val finalAmount = lookUpLoyaltyDiscount(token) // your logic
+
+    // Option A: proceed with (potentially modified) sale
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger(finalAmount.toString()),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
+
+    // Option B: finish without charging (loyalty-only scan)
+    // callback.finishWithoutCardOperation()
+
+    // Option C: cancel — note: cardToken IS still populated in the result
+    // callback.cancel()
+}
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    // Always store the token — it is populated even when cancel() was called
+    val token = result.cardToken
+    // result.type == TOKENIZED_OPERATION when cancel() was called
+    // result.transactionOrigin == STANDALONE (native) or CLOUD (cloud-triggered)
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        // charge succeeded
+    }
+}
+```
+
+:::caution Token available after cancel
+`callback.cancel()` still completes tokenization. The result has `finStatus: CANCELLED` and `type: TOKENIZED_OPERATION`, but `cardToken` is populated. Store the token even on cancel — the card was already tokenized.
+:::
+
+**Seamless Refund** — card tap required; tokenize + run refund in one shot:
+
+```kotlin
+hapi.tokenizedOperation(
+    Currency.USD,
+    OperationDto.Refund(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        originalTransactionID = "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+        options = RefundOptions()
+    )
+)
+// No cardTokenized callback — single endOfTransaction result
+```
+
+**Seamless SaleReversal** — no card tap; uses `originalTransactionID`:
+
+```kotlin
+hapi.tokenizedOperation(
+    Currency.USD,
+    OperationDto.SaleReversal(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        originalTransactionID = "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+        options = SaleReversalOptions()
+    )
+)
+// result.type == VOID_SALE; result.cardToken is EMPTY for reversals
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+Same API as Android (PAX) — two-phase flow only:
+
+```kotlin
+hapi.tokenizedOperation(BigInteger("1000"), Currency.USD)
+
+override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardTokenizationData) {
+    callback.resume(OperationDto.Sale(
+        amount = BigInteger("1000"),
+        currency = Currency.USD,
+        options = SaleOptions()
+    ))
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Result fields
+
+| Scenario | `finStatus` | `type` | `cardToken` | `transactionOrigin` |
+|---|---|---|---|---|
+| Two-phase → `resume()` AUTHORISED | `AUTHORISED` | `SALE` | Populated | `STANDALONE` or `CLOUD` |
+| Two-phase → `cancel()` | `CANCELLED` | `TOKENIZED_OPERATION` | **Populated** | `STANDALONE` or `CLOUD` |
+| Seamless Refund | `AUTHORISED` | `REFUND` | Populated | `STANDALONE` |
+| Seamless SaleReversal | `AUTHORISED` | `VOID_SALE` | Empty | `STANDALONE` |
+
+#### Parameters
+
+**Cloud API** — `POST /transactions`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `operation` | string | Yes | `"sale"` |
+| `amount` | string | Yes | Phase 1 display amount in major units (e.g. `"10.00"`). Phase 2 amount set in `resume()` |
+| `currency` | string | Yes | ISO 4217 currency code |
+| `terminal_type` | string | Yes | PAX terminal model (e.g. `"PAXA920"`) |
+| `serial_number` | string | Yes | Terminal serial number |
+| `tokenize` | boolean | Yes | `true` |
+| `transactionReference` | string | Recommended | UUID v4 for idempotency |
+
+**Android SDK** — `tokenizedOperation(amount, currency)` two-phase:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Phase 1 amount in minor units (e.g. `BigInteger("1000")` = $10.00) |
+| `currency` | `Currency` | Currency enum |
+
+**`CardTokenizationData`** fields available in the callback:
+
+| Field | Type | Description |
+|---|---|---|
+| `token` | `String` | Card token — empty if provider not configured |
+| `cardBrand` | `String` | Card brand (e.g. `"Visa"`) |
+| `expiryDate` | `String` | Card expiry |
+| `tenderType` | `TenderType` | How the card was presented |
+| `tipAmount` | `BigInteger` | Tip collected on-screen (0 if none) |
+
+</FlavorSection>
+
 
 ### Sale with Tip {#sale-and-tip}
 
