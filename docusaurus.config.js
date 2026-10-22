@@ -111,15 +111,6 @@ const config = {
         minHeadingLevel: 2,
         maxHeadingLevel: 3,
       },
-      algolia: {
-        // Algolia DocSearch credentials — apply at https://docsearch.algolia.com/apply/
-        // Replace these placeholders once DocSearch approves the site.
-        appId: 'YOUR_APP_ID',
-        apiKey: 'YOUR_SEARCH_API_KEY', // public search-only key, safe to commit
-        indexName: 'handpoint_developer',
-        contextualSearch: true, // respects the active SDK version filter
-        searchPagePath: 'search',
-      },
     }),
 };
 
