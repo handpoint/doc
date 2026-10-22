@@ -1,0 +1,53 @@
+# Processor definitions — internal reference for Handpoint staff.
+# ISVs never see processor names; this layer drives known-issue injection
+# into acquirer pages and (future) certifiable capability tracking per processor.
+#
+# affects: flat partial name (no .mdx, no path) where the note is injected.
+#          Use a list for multiple partials.
+# severity: docusaurus admonition type — caution, note, warning, info, tip
+#
+# Acquirer → processor mapping lives in acquirers.yaml under the `processor:` key.
+
+processors:
+  tsys:
+    name: TSYS
+    description: "Primary processor for EPI and PAYSAFE — US & Canada"
+    card-brands: [VISA, MC, AMEX, Discover]
+    known-issues:
+      - id: tip-adjustment-partial-refund-ordering
+        title: Tip adjustment + partial refund ordering
+        severity: caution
+        affects: tip-adjustment
+        note: |
+          If you need to perform a **partial refund on a transaction that already has a tip adjustment**, follow this sequence:
+
+          1. Send a `$0` tip adjustment to zero out the existing tip
+          2. Perform the partial refund
+          3. Send a new tip adjustment for the correct tip amount on the remaining balance
+
+          **Why:** This acquirer's backend links the tip to the original authorization amount. A partial refund against a tipped transaction can produce incorrect settlement figures unless the tip is zeroed first. Sending a new tip adjustment after the refund restores the correct tip on the adjusted balance.
+
+  omnipay:
+    name: Omnipay
+    description: "Gateway processor for EmerchantPay and Paystrax — Europe"
+    card-brands: [VISA, MC, AMEX, Discover, UnionPay]
+    known-issues: []
+
+  tns:
+    name: TNS
+    description: "Interac network processor for Canadian card-present transactions. Merchants are explicitly onboarded on TNS, TSYS, or both. When a merchant has both processors configured, the Handpoint gateway routes Interac cards to TNS and all other cards to TSYS."
+    card-brands: [Interac]
+    # via-acquirers: acquirers whose merchants may be onboarded on this processor
+    # as part of a multi-processor routing configuration.
+    # TNS has no standalone acquirer entry in acquirers.yaml because ISVs see
+    # only the PAYSAFE acquirer — the processor layer is internal.
+    via-acquirers: [paysafe]
+    known-issues: []
+
+  amex:
+    name: AMEX
+    description: "AMEX network routing for processors that don't support AMEX natively. Handpoint routes AMEX card transactions to AMEX as the processing party when configured on top of a primary processor. Merchants are not onboarded on AMEX directly — it is additive routing only. Applies to Omnipay acquirers (EmerchantPay, Paystrax). TSYS handles AMEX natively so no separate AMEX routing is needed there."
+    card-brands: [AMEX]
+    # via-acquirers: acquirers where AMEX routing is added on top of the primary processor.
+    via-acquirers: [emerchantpay, paystrax]
+    known-issues: []

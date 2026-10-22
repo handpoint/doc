@@ -1,0 +1,79 @@
+---
+title: Full capabilities matrix
+sidebar_position: 0
+description: Complete matrix of all payment operations per acquirer and per integration path.
+hide_table_of_contents: true
+visibility: internal
+---
+
+import { FullMatrix, CrossAcquirerMatrix } from '@site/src/components/FullMatrix';
+
+# Full capabilities matrix
+
+**Legend:** ✅ = Supported &nbsp;|&nbsp; ❌ = Not supported
+
+Capabilities are driven by [src/data/acquirerCaps.js](../../src/data/acquirerCaps.js) — edit that file to update any acquirer; both this page and the individual acquirer Functionalities tables will reflect the change automatically.
+
+---
+
+## Per-acquirer tables
+
+<FullMatrix />
+
+## Cross-acquirer summary
+
+<CrossAcquirerMatrix />
+
+¹ EPI partial reversal: available via Cloud API, Android (PAX), and Back Office (REST API). Not supported on Amex transactions.  
+² Pre-Auth Capture Reversal: EPI + OMNIPAY (EmerchantPay, Paystrax). Cloud API + Android (PAX) for card-present; also via Back Office for increase/decrease and capture (initial pre-auth must be card-present). EPI also supports partial capture reversal.  
+³ Void: PAYSAFE — Interac cards only, card must be physically present at terminal.
+
+---
+
+## Integration path capabilities
+
+:::info REST API — integrated mode
+REST API card-present operations require a PAX terminal running the Handpoint Android SDK initialised in **cloud/integrated mode**. The REST API sends commands to the Handpoint Cloud, which forwards them to the terminal. Back Office operations (reversal, tip adjustment, remote sale, pre-auth capture) are a separate capability — no terminal required.
+:::
+
+| Integration path | Card-present ops | Remote Sale | Batch Operations | Partial Rev | Notes |
+|---|---|---|---|---|---|
+| **REST API** | ✅ All (PAX in integrated mode required) | ✅ On-terminal via PAX screen or Cygma token — acquirer-dependent | ✅ Where acquirer supports | ✅ EPI only | PAX debug → `.io`; PAX prod → `.com` |
+| **Android (PAX)** | ✅ All except batch | ✅ On-terminal (PAX shows card entry screen) — PAX only | ❌ | ✅ EPI only | Runs natively on PAX terminal |
+| **Android (HiLite)** | ✅ Sale, refund, reversal, tokenize. Tip adj ✅. Pre-auth ❌ | ❌ | ❌ | ❌ | BT to HiLite (DATECS); no remote sale/batch/partial rev |
+| **iOS (HiLite)** | ✅ Sale, refund, reversal, tokenize. No tip adj | ❌ | ❌ | ❌ | BT to HiLite; tip adj not supported on iOS |
+| **Cordova** | ✅ Same as Android (PAX) for PAX; same as Android (HiLite) for HiLite | ❌ | ❌ | ❌ | Single JS API for both device types |
+| **REST API (Back Office)** | ❌ Sale and refund require card-present | ✅ EPI + OMNIPAY via card token (no reader) | ✅ EPI only | ✅ EPI only | No terminal required. Reversal ✅ all acquirers. Tip adj ✅ EPI, PAYSAFE (not Interac cards). Pre-auth capture/increase/decrease ✅ EPI + OMNIPAY (initial pre-auth must be card-present). |
+
+---
+
+## Card brand support
+
+The Handpoint platform CardBrand enum (viscus-lib-core) defines these brands: **VISA, Mastercard, Maestro, AMEX, Discover, JCB, Diners, UnionPay, Interac.**
+
+| Card brand | Where confirmed |
+|---|---|
+| JCB | Platform supported; acceptance depends on acquirer agreement — verify per merchant |
+| UnionPay | OMNIPAY (EmerchantPay, Paystrax) — `CardBrandValidator` and `PayFacIdValidator` handle UnionPay separately |
+| Interac | PAYSAFE (merchants with Interac enabled) |
+
+Other acquirers (EPI, PAYSAFE): JCB and UnionPay acceptance depends on acquirer agreement — verify with integration team per merchant.
+
+---
+
+## Open items
+
+| Item | Status |
+|---|---|
+| **JCB on EPI / PAYSAFE** | Platform supports it; verify acquirer agreement enables it per merchant |
+| **UnionPay on EPI** | Platform supports it; verify acquirer agreement |
+| **PAYSAFE pre-auth / Remote Sale** | Confirmed NOT supported — Paysafe acquirer restriction |
+
+---
+
+## Related guides
+
+- [Pre-Authorization Guide](/reference/pre-authorization-guide) — Full lifecycle with code examples
+- [Transaction Recovery & Status](/reference/transaction-recovery) — Polling `/transaction-result/{id}`, `/status/all`, worst-case timeout
+- [Testing Edge Cases](/reference/testing-edge-cases) — How to reproduce declined, network-drop, card fallback, and pre-auth lifecycle scenarios
+- [Transaction Result Object](/reference/transaction-result-object) — Full field reference with real JSON example

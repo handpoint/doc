@@ -1,0 +1,1419 @@
+"use strict";
+(globalThis["webpackChunkmy_website"] = globalThis["webpackChunkmy_website"] || []).push([[1032],{
+
+/***/ 2588
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
+
+// ESM COMPAT FLAG
+__webpack_require__.r(__webpack_exports__);
+
+// EXPORTS
+__webpack_require__.d(__webpack_exports__, {
+  assets: () => (/* binding */ assets),
+  contentTitle: () => (/* binding */ contentTitle),
+  "default": () => (/* binding */ MDXContent),
+  frontMatter: () => (/* binding */ frontMatter),
+  metadata: () => (/* reexport */ site_android_versioned_docs_version_android_sdk_7_1012_3_androidreleasenotes_md_f9d_namespaceObject),
+  toc: () => (/* binding */ toc)
+});
+
+;// ./.docusaurus/docusaurus-plugin-content-docs/android/site-android-versioned-docs-version-android-sdk-7-1012-3-androidreleasenotes-md-f9d.json
+const site_android_versioned_docs_version_android_sdk_7_1012_3_androidreleasenotes_md_f9d_namespaceObject = /*#__PURE__*/JSON.parse('{"id":"androidreleasenotes","title":"Release Notes","description":"Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!","source":"@site/android_versioned_docs/version-Android SDK 7.1012.3/androidreleasenotes.md","sourceDirName":".","slug":"/androidreleasenotes","permalink":"/legacy/android/Android SDK 7.1012.3/androidreleasenotes","draft":false,"unlisted":false,"tags":[],"version":"Android SDK 7.1012.3","sidebarPosition":2,"frontMatter":{"sidebar_position":2,"id":"androidreleasenotes"},"sidebar":"tutorialSidebar","previous":{"title":"Introduction","permalink":"/legacy/android/Android SDK 7.1012.3/androidintroduction"},"next":{"title":"Migration from 6.X to 7.X","permalink":"/legacy/android/Android SDK 7.1012.3/androidmigrationguide"}}');
+// EXTERNAL MODULE: ./node_modules/react/jsx-runtime.js
+var jsx_runtime = __webpack_require__(74848);
+// EXTERNAL MODULE: ./node_modules/@mdx-js/react/lib/index.js
+var lib = __webpack_require__(28453);
+;// ./android_versioned_docs/version-Android SDK 7.1012.3/androidreleasenotes.md
+
+
+const frontMatter = {
+	sidebar_position: 2,
+	id: 'androidreleasenotes'
+};
+const contentTitle = 'Release Notes';
+
+const assets = {
+
+};
+
+
+
+const toc = [{
+  "value": "7.1012.3",
+  "id": "710123",
+  "level": 2
+}, {
+  "value": "7.1011.0",
+  "id": "710110",
+  "level": 2
+}, {
+  "value": "7.1010.8",
+  "id": "710108",
+  "level": 2
+}, {
+  "value": "7.1010.7",
+  "id": "710107",
+  "level": 2
+}, {
+  "value": "7.1010.6",
+  "id": "710106",
+  "level": 2
+}, {
+  "value": "7.1010.5",
+  "id": "710105",
+  "level": 2
+}, {
+  "value": "7.1010.3",
+  "id": "710103",
+  "level": 2
+}, {
+  "value": "7.1010.2",
+  "id": "710102",
+  "level": 2
+}, {
+  "value": "7.1010.1",
+  "id": "710101",
+  "level": 2
+}, {
+  "value": "7.1009.5",
+  "id": "710095",
+  "level": 2
+}, {
+  "value": "7.1008.6",
+  "id": "710086",
+  "level": 2
+}, {
+  "value": "7.1008.4",
+  "id": "710084",
+  "level": 2
+}, {
+  "value": "7.1008.3",
+  "id": "710083",
+  "level": 2
+}, {
+  "value": "7.1008.1",
+  "id": "710081",
+  "level": 2
+}, {
+  "value": "7.1008.0",
+  "id": "710080",
+  "level": 2
+}, {
+  "value": "7.1006.3",
+  "id": "710063",
+  "level": 2
+}, {
+  "value": "7.1006.2",
+  "id": "710062",
+  "level": 2
+}, {
+  "value": "7.1006.1",
+  "id": "710061",
+  "level": 2
+}, {
+  "value": "7.1006.0",
+  "id": "710060",
+  "level": 2
+}, {
+  "value": "7.1005.4",
+  "id": "710054",
+  "level": 2
+}, {
+  "value": "7.1005.3",
+  "id": "710053",
+  "level": 2
+}, {
+  "value": "7.1005.2",
+  "id": "710052",
+  "level": 2
+}, {
+  "value": "7.1005.1",
+  "id": "710051",
+  "level": 2
+}, {
+  "value": "7.1005.0",
+  "id": "710050",
+  "level": 2
+}, {
+  "value": "7.1004.2",
+  "id": "710042",
+  "level": 2
+}, {
+  "value": "7.1004.1",
+  "id": "710041",
+  "level": 2
+}, {
+  "value": "7.1004.0",
+  "id": "710040",
+  "level": 2
+}, {
+  "value": "7.1002.0",
+  "id": "710020",
+  "level": 2
+}, {
+  "value": "7.1001.0",
+  "id": "710010",
+  "level": 2
+}, {
+  "value": "7.0.2",
+  "id": "702",
+  "level": 2
+}, {
+  "value": "7.0.1",
+  "id": "701",
+  "level": 2
+}, {
+  "value": "6.7.4",
+  "id": "674",
+  "level": 2
+}, {
+  "value": "6.7.3",
+  "id": "673",
+  "level": 2
+}, {
+  "value": "6.7.2",
+  "id": "672",
+  "level": 2
+}, {
+  "value": "6.7.0",
+  "id": "670",
+  "level": 2
+}, {
+  "value": "6.6.7",
+  "id": "667",
+  "level": 2
+}, {
+  "value": "6.6.3",
+  "id": "663",
+  "level": 2
+}, {
+  "value": "6.6.0",
+  "id": "660",
+  "level": 2
+}, {
+  "value": "6.5.0",
+  "id": "650",
+  "level": 2
+}, {
+  "value": "6.4.1",
+  "id": "641",
+  "level": 2
+}, {
+  "value": "6.4.0",
+  "id": "640",
+  "level": 2
+}, {
+  "value": "6.3.0",
+  "id": "630",
+  "level": 2
+}, {
+  "value": "6.2.2",
+  "id": "622",
+  "level": 2
+}, {
+  "value": "6.2.1",
+  "id": "621",
+  "level": 2
+}, {
+  "value": "6.2.0",
+  "id": "620",
+  "level": 2
+}, {
+  "value": "6.1.1",
+  "id": "611",
+  "level": 2
+}, {
+  "value": "6.1.0",
+  "id": "610",
+  "level": 2
+}];
+function _createMdxContent(props) {
+  const _components = {
+    a: "a",
+    admonition: "admonition",
+    code: "code",
+    em: "em",
+    h1: "h1",
+    h2: "h2",
+    header: "header",
+    hr: "hr",
+    li: "li",
+    p: "p",
+    strong: "strong",
+    ul: "ul",
+    ...(0,lib/* useMDXComponents */.R)(),
+    ...props.components
+  };
+  return (0,jsx_runtime.jsxs)(jsx_runtime.Fragment, {
+    children: [(0,jsx_runtime.jsx)(_components.header, {
+      children: (0,jsx_runtime.jsx)(_components.h1, {
+        id: "release-notes",
+        children: "Release Notes"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.admonition, {
+      type: "tip",
+      children: (0,jsx_runtime.jsx)(_components.p, {
+        children: "Don’t miss any updates on our latest releases. Contact your Handpoint relationship manager to subscribe to the Handpoint Newsletter!"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710123",
+      children: "7.1012.3"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Payments libraries have been updated to comply with latest TSYS requirements"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Bug fixes"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Fixed an issue where, if a forced reversal failed, the system reported the reversal result instead of the original transaction result, which should always be returned."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Fixed error due emvData was included in request when magstripe fallback and duplicate check enabled"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Amount in preauthorization reversals was not consistent with sale reversals"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Include transactionReference in the transaction result object for MoTo failed / UNDEFINED operations"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710110",
+      children: "7.1011.0"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "New Features"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "PAX A6630 model is supported now"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "MOTO sales can now be performed by using a token"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "MOTO partial reversals are now supported"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "The Get Transaction Status service is used now also in MOTO operations"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Improvements"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Some duplicate events scenarios have been addressed"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Some minor visual issues have been addressed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710108",
+      children: "7.1010.8"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Minor fix in payments flow to improve error handling"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710107",
+      children: "7.1010.7"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Deprecated coroutines APIs have been removed to improve compatibility for integrators"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710106",
+      children: "7.1010.6"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsxs)(_components.p, {
+          children: [(0,jsx_runtime.jsx)(_components.code, {
+            children: "Partial Voids"
+          }), " (also known as Partial Reversals) are now supported for ", (0,jsx_runtime.jsx)(_components.em, {
+            children: "TSYS US"
+          }), " acquirer. Please see ", (0,jsx_runtime.jsx)(_components.a, {
+            href: "https://handpoint.atlassian.net/wiki/spaces/PD/pages/5210701825/Handling+Partial+Voids+with+TSYS+US",
+            children: "Handling Partial Voids with TSYS US"
+          }), " for further information on this."]
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Support for PAX A3700 reader has been added"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Processing misalignment between SDK and Gateway has been fixed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710105",
+      children: "7.1010.5"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["A new ", (0,jsx_runtime.jsx)(_components.code, {
+        children: "cardPresent"
+      }), " flag is supported in Integrated mode, which comes from our ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/restapi/restintroduction",
+        children: "REST API"
+      }), " or its related Cloud clients ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/javascript/javascriptintroduction",
+        children: "JavaScript SDK"
+      }), " and ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/windows/windowsintroduction",
+        children: "Windows SDK"
+      }), ". This new flag allows to indicate the payments flow that a Reversal operation will imply an actual present card. Please see ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "https://handpoint.atlassian.net/wiki/spaces/PD/pages/5104533505/Handling+card+present+reversals+with+Elavon+acquirers",
+        children: "Handling card present reversals with Elavon acquirers"
+      }), " for further information on the purpose of this flag."]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710103",
+      children: "7.1010.3"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Some timeout-ed authorization requests in the reader were still reaching the gateway. This was causing double charges."
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710102",
+      children: "7.1010.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Network stability has been improved"
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710101",
+      children: "7.1010.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "\"Cash\" and \"Other\" transaction types now have a Transaction ID"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "A scenario where double charges could happen has been fixed"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "The customer receipt now is fully in the card's language (when the language tag is available)"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Some Fiserv and Elavon certification issues have been addressed"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710095",
+      children: "7.1009.5"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We're excited to announce the latest update to our Android SDK, featuring support of ", (0,jsx_runtime.jsx)(_components.em, {
+        children: (0,jsx_runtime.jsx)(_components.strong, {
+          children: "Tokenized Payments Operations"
+        })
+      }), ", as well as supporting a new PAX card readers model: ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "IM25"
+      }), ". This new Tokenized Payments Operations feature is an expansion of our former Tokenize and Modify feature, fully replacing and complementing it."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Tokenized Payments Operations"
+      }), " enable merchants to securely capture a customer's card information (without storing the raw card details) and use that token to immediately perform a payment-related operation. This streamlines loyalty flows, subscriptions, refunds, or reversals while keeping card data safe and PCI-compliant."]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Thanks to our new Tokenize Payments Operations feature, integrators can now first tokenize card, and right after this, apply their own bussiness logic before resuming the operation to decide how the final operation will be according to customer's loyalty points, current discount policy, or some other particular use cases."
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "There are two main modes for how this works, depending on integration needs: Standalone or Cloud."
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsxs)(_components.p, {
+          children: [(0,jsx_runtime.jsx)(_components.a, {
+            href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#standalone-tokenized-payments-operations",
+            children: "Standalone Tokenized Payments Operations"
+          }), ". In this mode, Android SDK integrators can directly use the methods this SDK offers in the app they are building on top of it, to implement their loyalty, subscriptions or related uses logic."]
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsxs)(_components.p, {
+          children: [(0,jsx_runtime.jsx)(_components.a, {
+            href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#cloud-tokenized-payments-operations",
+            children: "Cloud Tokenized Payments Operations"
+          }), ". In this mode, Tokenized Payments Operations methods and flows of the Android SDK are commanded via our Cloud clients, which can be either ", (0,jsx_runtime.jsx)(_components.a, {
+            href: "/restapi/restintroduction",
+            children: "REST API"
+          }), ", ", (0,jsx_runtime.jsx)(_components.a, {
+            href: "/javascript/javascriptintroduction",
+            children: "JavaScript SDK"
+          }), " or ", (0,jsx_runtime.jsx)(_components.a, {
+            href: "/windows/windowsintroduction",
+            children: "Windows SDK"
+          }), ". This allows to execute all operations programmatically, offering seamless integration with their existing workflows."]
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Several EMV certification issues have been addressed"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Transaction Result was not being delivered in some cases. Now it is working properly in all use cases."
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Refunds and Reversals didn't include the transactionReference field. This has been fixed."
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710086",
+      children: "7.1008.6"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Some translations have been corrected, as well as error messages from our Gateway"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710084",
+      children: "7.1008.4"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Several minor stability issues have been fixed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710083",
+      children: "7.1008.3"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "In account type selection, the order is first \"Credit\" and then \"Debit\" now."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "An issue with the remove card event has been addressed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710081",
+      children: "7.1008.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Several certification issues have been addressed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710080",
+      children: "7.1008.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Brightness level control is offered as a public method now"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Internal payments libraries of PAX devices have been updated"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Some EMV related issues have been solved"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Volume controls were accessible during payment signature screen in some use cases where the shouldn't"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710063",
+      children: "7.1006.3"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Signature was missing in receipts in some use cases"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710062",
+      children: "7.1006.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Several minor stability issues have been fixed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710061",
+      children: "7.1006.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Fix for language selection menu (only for Interac cards)"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710060",
+      children: "7.1006.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Now just \"CARD\" in shown in receipts when the card brand is not in the language library"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Tokenize and Modify: A second \"remove card\" was being displayed after providing phone number"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Some EMV related issues have been solved"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710054",
+      children: "7.1005.4"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "The RRN was missing in the ReceiptDataKeeper object"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710053",
+      children: "7.1005.3"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Several minor stability issues have been fixed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710052",
+      children: "7.1005.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Operations with 0 amount and/or tip supported"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Receipt uploaded event's behavior has been fixed"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Transactions corrections"
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Minor fixes in tokenization"
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710051",
+      children: "7.1005.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Several minor stability issues have been fixed"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710050",
+      children: "7.1005.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsxs)(_components.p, {
+          children: ["Speed improvements: We're excited to announce the release of Handpoint Android SDK version ", (0,jsx_runtime.jsx)(_components.strong, {
+            children: "7.1005.0"
+          }), ", focused on delivering significant improvements in transaction processing speeds. This update empowers your app to handle transactions quicker and more efficiently, enhancing the overall user experience for your customers."]
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsx)(_components.p, {
+          children: "Enhanced Cloud Mode Performance: Cloud initialization will now be faster, leading to quicker overall transaction processing. Cloud transactions will benefit from these optimizations as well."
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.admonition, {
+      type: "caution",
+      children: (0,jsx_runtime.jsxs)(_components.p, {
+        children: [(0,jsx_runtime.jsx)(_components.strong, {
+          children: "Cloud Mode"
+        }), " users: There might be a short delay in accessing your receipt after a transaction is completed in Cloud Mode. While the transaction itself will process successfully, the receipt URL you receive might return a 404 error message for a few seconds after the transaction finishes."]
+      })
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710042",
+      children: "7.1004.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Automatic Refunds. These new methods empowers users to seamlessly process refunds without the need for any physical card or card details."
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsxs)(_components.p, {
+          children: [(0,jsx_runtime.jsx)(_components.a, {
+            href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#automatic-refund",
+            children: "Automatic Refund"
+          }), ", users can effortlessly initiate a refund transaction without requiring the cardholder to dip, tap, or swipe their card.  Users only need to pass the Original Transaction ID (GUID) to the Automatic Refund function. The system will automatically process the refund, and the refunded amount will mirror the original sale amount, simplifying the entire refund process."]
+        }), "\n"]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["\n", (0,jsx_runtime.jsxs)(_components.p, {
+          children: [(0,jsx_runtime.jsx)(_components.a, {
+            href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#automatic-partial-refund",
+            children: "Automatic Partial Refunds"
+          }), ". This operation allows you to PARTIALLY refund a card automatically without requiring the cardholder to dip/tap/swipe his card. In its simplest form you only have to pass the amount, currency and the Original Transaction ID (GUID)."]
+        }), "\n"]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "By eliminating the need for physical card involvement, Automatic Refund streamlines the refund process, saving time for both merchants and customers. This efficiency boost enhances overall transaction management, contributing to a more seamless and customer-centric experience."
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Inconsistency when formatting currencies using Slovenian as the locale."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710041",
+      children: "7.1004.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We're excited to announce the latest update to our Android SDK, featuring support of Mastercard MoneySend fields for money remittance merchants. In order to use this functionality, we provide you with an object called ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidobjects#money-remittance-options",
+        children: "Money Remittance Options"
+      }), " which must be sent for all Mastercard transactions."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["The supported operations are Sale, Sale & Tokenize, Refund, Linked Refunds, Reversals, MoTo Sale, MoTo Refund. For Linked Refunds and Reversals, Money Remittance fields should be taken from the original Sale/MoTo/Refund when using the field ", (0,jsx_runtime.jsx)(_components.code, {
+        children: "originalTransactionID"
+      }), "."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["*", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Please note"
+      }), ": Money Remittance is available only for some acquirers and geographies. Please check with your Handpoint relationship manager about the availability of this functionality for your merchants."]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710040",
+      children: "7.1004.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We are introducing a new transaction type called ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#pre-auth",
+        children: "Pre-Authorization"
+      }), ". A pre-authorization charge, also known as a pre-auth or authorization hold, is a temporary hold placed on a customer's payment card. It's used to verify that the account is valid and has sufficient funds to cover a pending transaction, without actually debiting the cardholder's account upfront."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["A pre-authorized transaction can be increased or decreased (", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#pre-auth-increasedecrease",
+        children: "Pre-Auth Increase"
+      }), "), for example if a tab was opened and the consumer is adding new orders going above the initial pre-authorized amount."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["A pre-authorized transaction can be captured (", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#pre-auth-capture",
+        children: "Pre-Auth Capture"
+      }), ") to actually debit the cardholder's account. Depending on the merchant category code, the capture needs to happen between 7 and 31 days after the original pre-authorization. If not captured the funds will be automatically released by the issuing bank."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["A pre-authorized transaction can be fully released (", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#pre-authcapture-reversal",
+        children: "Pre-Auth Reversal"
+      }), "), for example when renting a car, the pre-auth reversal allows the merchant to release the funds if the car was not damaged"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We are also introducing the ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidtransactions#tokenize-and-modify",
+        children: "Tokenize And Modify"
+      }), " operation. A tokenize and modify operation allows you to start a financial operation for an initial amount, tokenize the card being dipped/tapped/swiped and modify the amount before the transaction is sent for processing. This feature allows you to bring your own loyalty engine and apply for example an instant discount at the point of sale for loyal customers."]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710020",
+      children: "7.1002.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We are introducing a new feature called ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androiddevicemanagement#getTransactionStatus",
+        children: "Get Transaction Status"
+      }), ". This new feature allows you to query the Handpoint Gateway for the status of a transaction at any given time. For example, in case of an app crash, timeout, or connection problem, you are now able to use the ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidobjects#OperationStartResult",
+        children: "transaction reference"
+      }), " returned at the start of a financial operation to get the status of a transaction in real time. You can use this feature to track the progress of your payments and troubleshoot any issues that may arise. This feature is available for all payment methods and currencies."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["Cloud integrations: A new parameter called ", (0,jsx_runtime.jsx)(_components.code, {
+          children: "transactionReference"
+        }), " has been added to the ", (0,jsx_runtime.jsx)(_components.a, {
+          href: "/legacy/android/Android%20SDK%207.1012.3/androideventlisteners#transactionStarted",
+          children: "transactionStarted"
+        }), " method. This means that when implementing this method in a class, you need to update the method signature to include the new parameter."]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: "Added Estonian language 🇪🇪"
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "710010",
+      children: "7.1001.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["We are introducing a new feature called ", (0,jsx_runtime.jsx)(_components.a, {
+        href: "/legacy/android/Android%20SDK%207.1012.3/androidobjects#metadata",
+        children: "Transaction Metadata"
+      }), ". This new feature helps the customer to persist and echo back some data that belongs to the customer business domain at transaction time. The Transaction Metadata is sent in the request and echoed back in the response from the gateway. In addition, customers will be able to use the Transaction Metadata to search matching transactions from our Transaction Feed API.*****"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["The Transaction Metadata feature will be available when the Handpoint Android SDK ", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "v7.1001.0"
+      }), " or higher is used."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: ["*", (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Please note"
+      }), ": Transactions will be available in TXN Feed API only if the request has reached the gateway."]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "German language support."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Support for PAX A800 devices."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Bug related to automatic printing."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Log improvements."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "702",
+      children: "7.0.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Norwegian and Italian language support."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Card reader capabilities identification."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Kiosk mode management."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Log improvements for support purposes."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "701",
+      children: "7.0.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["Removed the ", (0,jsx_runtime.jsx)(_components.code, {
+          children: "Events.Required"
+        }), " interface and divided it into ", (0,jsx_runtime.jsx)(_components.a, {
+          href: "/legacy/android/Android%20SDK%207.1012.3/androidmigrationguide#1-new-integration-interfaces",
+          children: "3 different interfaces"
+        })]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["All ", (0,jsx_runtime.jsx)(_components.a, {
+          href: "/legacy/android/Android%20SDK%207.1012.3/androidmigrationguide#3",
+          children: "financial operations"
+        }), " will now be returning an ", (0,jsx_runtime.jsx)(_components.a, {
+          href: "/legacy/android/Android%20SDK%207.1012.3/androidobjects#operation-start-result",
+          children: "OperationStartResult"
+        }), " object instead of a boolean to indicate that the operation was successfully sent to the payment terminal."]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["Introducing a new feature called ", (0,jsx_runtime.jsx)(_components.strong, {
+          children: "duplicate payment check"
+        }), "."]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["The ", (0,jsx_runtime.jsx)(_components.code, {
+          children: "deviceCapabilities"
+        }), " event has been renamed to ", (0,jsx_runtime.jsx)(_components.code, {
+          children: "supportedCardBrands"
+        })]
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["For more information please check our ", (0,jsx_runtime.jsx)(_components.a, {
+          href: "/legacy/android/Android%20SDK%207.1012.3/androidmigrationguide",
+          children: "migration guide"
+        }), "."]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "674",
+      children: "6.7.4"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: [(0,jsx_runtime.jsx)(_components.code, {
+          children: "customerReference"
+        }), " correctly populated when card is removed in the middle of a transaction"]
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "MOTO: Correct handling of expired access and refresh tokens"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CLOUD: Channel connection/subscription handling"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "673",
+      children: "6.7.3"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "MOTO: Linked Refund only with GUID."
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: ["Correctly populated transaction result the ", (0,jsx_runtime.jsx)(_components.code, {
+          children: "originalEFTTransactionID"
+        }), " on Linked Refunds."]
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Correctly populated on transaction result amounts on \"Already reversed\" operations."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Crashes identified in the field."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "672",
+      children: "6.7.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "MOTO: Retry token and configuration download if missing for MoTo transactions"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CLOUD: device status moving terminals between merchants."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CLOUD: REST-API transaction result delivery."
+      }), "\n", (0,jsx_runtime.jsxs)(_components.li, {
+        children: [(0,jsx_runtime.jsx)(_components.code, {
+          children: "requestedAmount"
+        }), " field in Transaction Result correctly populated."]
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "670",
+      children: "6.7.0"
+    }), "\n", (0,jsx_runtime.jsx)(_components.p, {
+      children: (0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      })
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "A35 support added"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Swedish language support"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Field customerReference added to TransactionResult"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Cloud client shows \"Unable to process your request\" while the request reach the device"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Contactless card tokenization fixed"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CVM fixed in receipts for MOTO transactions"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Amount fields are now populated in case of FAILURE and DECLINE"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Interact/AMEX certification fixes"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Fix minor issues and app crashes"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "667",
+      children: "6.6.7"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "SCA scenarios on PAX A80"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CLOUD: receipt printing"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Deadman mechanism for not completed trx. App dies in the middle of a trx, will be auto cancelled in the restart"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "663",
+      children: "6.6.3"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "DATECS: Stop reconnection loop on api.disconnect()"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "660",
+      children: "6.6.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "MoTo (Mail Order Telephone Order)"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CLOUD: Connection stability."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "AID parsing for Discover cards."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "PIN input on physical keyboards."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "650",
+      children: "6.5.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Card brand display: 2 new events deviceCapabilities (supportedCardBrands) and readCard to show the supported card brands and card used during a transaction respectively."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Update webview for devices that do not support co-branding."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Correct handling of stopCurrentTransaction operation result for cloud operations."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Pin bypass for contactless transactions."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Automatic reconnection logic for android Datecs devices."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "641",
+      children: "6.4.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Automatic Cancellation parameters."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "640",
+      children: "6.4.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Populate operation timeout on CLOUD operations."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Max attempts on Cancellation retries."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Generic screen to show text messages."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Base amount handling in TipDialog"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Cancellation service max retry window"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Verification method on transaction result object"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Correct population of MessageReasonCode"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Error message multi-language translation"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Cardholder name for contact operations"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Amount presentation in transactions report"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Analytics and Cloud services stability moving terminals between merchants"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Refactor"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Deprecated jcenter repository"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Improved structure of cryptography module"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Legacy code removal"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "630",
+      children: "6.3.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Print Report v2."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "PAXA80 physical keyboard full support."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Deadman mechanism for not completed trx."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Addition of customer reference on transaction result for cancelled of timed out trx"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Certification scenarios."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Unification of sdk dialogs styles."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Card reading during tokenizations."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Contactless light thread handling."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Xml parsing."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Printing html using uncommon characters."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Monospace font for printing."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "SCA cases on contact."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "PAX A80 Pin bypass handling."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Receipts for partial approvals."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Correct message on empty config update."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Refactor"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Internal Emv Classes to improve performance."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.hr, {}), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "622",
+      children: "6.2.2"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Compatibility issues with Android 11 devices."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "CLOUD: Improved logic to wake up device and start trx during device sleep mode."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.hr, {}), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "621",
+      children: "6.2.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Improved bluetooth connection logic (Datecs)"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.hr, {}), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "620",
+      children: "6.2.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "New Tip Dialog."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Multi-mid Phase 2."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Physical Keyboard PAX-A80."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Visa debit US app selection."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "cardHolderName filed in Transaction Result object"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Temporarily block during consecutive operations (Datecs devices)."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Translations."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Compatibility with Android 11."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.hr, {}), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "611",
+      children: "6.1.1"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Translations"
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsx)(_components.hr, {}), "\n", (0,jsx_runtime.jsx)(_components.h2, {
+      id: "610",
+      children: "6.1.0"
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Features"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "End of the day report."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "New printing framework."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Transaction limit exceeds event."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Multi-language in Status and End of Transaction → Transaction Result new fields: multiLanguageStatusMessages and multiLanguageErrorMessages."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Support for MerchantAuth and Bypass options for Cloud + REST-API."
+      }), "\n"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.p, {
+      children: [(0,jsx_runtime.jsx)(_components.strong, {
+        children: "Fixes"
+      }), ":"]
+    }), "\n", (0,jsx_runtime.jsxs)(_components.ul, {
+      children: ["\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Receipt adjustments for mobile wallets."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Receipt adjustments for empty tags."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Fields in TransactionResult."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Contactless lights after card reading error."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "REST-API ACK."
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Translations"
+      }), "\n", (0,jsx_runtime.jsx)(_components.li, {
+        children: "Error handling prior connecting to device"
+      }), "\n"]
+    })]
+  });
+}
+function MDXContent(props = {}) {
+  const {wrapper: MDXLayout} = {
+    ...(0,lib/* useMDXComponents */.R)(),
+    ...props.components
+  };
+  return MDXLayout ? (0,jsx_runtime.jsx)(MDXLayout, {
+    ...props,
+    children: (0,jsx_runtime.jsx)(_createMdxContent, {
+      ...props
+    })
+  }) : _createMdxContent(props);
+}
+
+
+
+/***/ },
+
+/***/ 28453
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
+
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   R: () => (/* binding */ useMDXComponents),
+/* harmony export */   x: () => (/* binding */ MDXProvider)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(96540);
+/**
+ * @import {MDXComponents} from 'mdx/types.js'
+ * @import {Component, ReactElement, ReactNode} from 'react'
+ */
+
+/**
+ * @callback MergeComponents
+ *   Custom merge function.
+ * @param {Readonly<MDXComponents>} currentComponents
+ *   Current components from the context.
+ * @returns {MDXComponents}
+ *   Additional components.
+ *
+ * @typedef Props
+ *   Configuration for `MDXProvider`.
+ * @property {ReactNode | null | undefined} [children]
+ *   Children (optional).
+ * @property {Readonly<MDXComponents> | MergeComponents | null | undefined} [components]
+ *   Additional components to use or a function that creates them (optional).
+ * @property {boolean | null | undefined} [disableParentContext=false]
+ *   Turn off outer component context (default: `false`).
+ */
+
+
+
+/** @type {Readonly<MDXComponents>} */
+const emptyComponents = {}
+
+const MDXContext = react__WEBPACK_IMPORTED_MODULE_0__.createContext(emptyComponents)
+
+/**
+ * Get current components from the MDX Context.
+ *
+ * @param {Readonly<MDXComponents> | MergeComponents | null | undefined} [components]
+ *   Additional components to use or a function that creates them (optional).
+ * @returns {MDXComponents}
+ *   Current components.
+ */
+function useMDXComponents(components) {
+  const contextComponents = react__WEBPACK_IMPORTED_MODULE_0__.useContext(MDXContext)
+
+  // Memoize to avoid unnecessary top-level context changes
+  return react__WEBPACK_IMPORTED_MODULE_0__.useMemo(
+    function () {
+      // Custom merge via a function prop
+      if (typeof components === 'function') {
+        return components(contextComponents)
+      }
+
+      return {...contextComponents, ...components}
+    },
+    [contextComponents, components]
+  )
+}
+
+/**
+ * Provider for MDX context.
+ *
+ * @param {Readonly<Props>} properties
+ *   Properties.
+ * @returns {ReactElement}
+ *   Element.
+ * @satisfies {Component}
+ */
+function MDXProvider(properties) {
+  /** @type {Readonly<MDXComponents>} */
+  let allComponents
+
+  if (properties.disableParentContext) {
+    allComponents =
+      typeof properties.components === 'function'
+        ? properties.components(emptyComponents)
+        : properties.components || emptyComponents
+  } else {
+    allComponents = useMDXComponents(properties.components)
+  }
+
+  return react__WEBPACK_IMPORTED_MODULE_0__.createElement(
+    MDXContext.Provider,
+    {value: allComponents},
+    properties.children
+  )
+}
+
+
+/***/ }
+
+}]);

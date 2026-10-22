@@ -1,0 +1,131 @@
+.panel {
+  background: var(--ifm-card-background-color, var(--ifm-background-surface-color));
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: 8px;
+  padding: 1rem 1.25rem 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.heading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ifm-color-emphasis-600);
+  margin: 0 0 0.75rem;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ifm-color-emphasis-600);
+  padding: 0.25rem 0.75rem;
+  text-align: center;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  white-space: nowrap;
+}
+
+.capCol {
+  text-align: left !important;
+  width: 40%;
+}
+
+.pathCol {
+  width: 15%;
+}
+
+.table tbody tr:hover {
+  background: var(--ifm-color-emphasis-100);
+}
+
+.table tbody td {
+  padding: 0.3rem 0.75rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-100);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.capName {
+  color: var(--ifm-font-color-base);
+  font-size: 0.875rem;
+}
+
+.cell {
+  text-align: center;
+}
+
+.supported {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.yes {
+  color: #27ae60;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.no {
+  color: var(--ifm-color-emphasis-400);
+  font-size: 1rem;
+}
+
+/* Version hint icon with CSS tooltip */
+.versionHint {
+  position: relative;
+  display: inline-block;
+  font-size: 0.7rem;
+  color: var(--ifm-color-emphasis-500);
+  cursor: help;
+  line-height: 1;
+  vertical-align: super;
+}
+
+.versionHint::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ifm-color-emphasis-800);
+  color: var(--ifm-color-emphasis-100);
+  font-size: 0.7rem;
+  font-weight: 500;
+  white-space: nowrap;
+  padding: 3px 7px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.versionHint:hover::after {
+  opacity: 1;
+}
+
+.legend {
+  font-size: 0.75rem;
+  color: var(--ifm-color-emphasis-500);
+  margin: 0.6rem 0 0;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}

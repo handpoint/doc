@@ -1,0 +1,121 @@
+## Pre-Auth Adjust (Increase / Decrease) {#pre-auth-adjust}
+
+Adjusts the held amount **before capture** — use this when the final charge differs from the original hold (hotel stay extended, car returned early, etc.).
+
+**Adjustments are cumulative deltas, not new totals.** To raise a $100 hold to $120, send $20 — not $120. Always reference the **original** pre-authorization `transactionID`; adjustments are never chained to a previous increase.
+
+:::info Card brand restrictions
+**Interac** (Canadian debit) never supports increase or decrease — see [Interac VOID](/reference/interac-void).
+**Amex** cards may reject increases when the merchant holds a separate Amex agreement.
+:::
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+Sent straight to the gateway — no terminal involved, result returned synchronously. Amount in **major units** as a decimal string, always positive.
+
+```http
+POST https://cloud.handpoint.com/preauthorization/increase
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "originalGuid": "01236fc0-8192-11eb-9aca-ad4b0e95f241",
+  "increaseAmount": "20.00"
+}
+```
+
+To **decrease**: add `"subtract": "1"` to the body. `increaseAmount` is always positive — the `subtract` field controls direction.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+Pass the delta in minor units. A **negative** value decreases.
+
+```kotlin
+// Increase a $100 hold to $120
+hapi.preAuthorizationIncrease(
+    BigInteger("2000"),                          // delta, not the new total
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"      // transactionID from the Create
+)
+
+// Decrease it back to $100
+hapi.preAuthorizationIncrease(BigInteger("-2000"), Currency.USD, "01236fc0-...")
+```
+
+</TabItem>
+<TabItem value="javascript-sdk" label="JavaScript SDK">
+
+```javascript
+handpoint.preAuthorizationIncrease(
+  {
+    amount: 2000,                                // delta in minor units; negative to decrease
+    currency: Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+<TabItem value="windows-sdk" label="Windows (.NET)">
+
+```csharp
+// Increase: positive amount
+api.PreAuthorizationIncrease(new BigInteger(2000), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241");
+
+// Decrease: negative amount
+api.PreAuthorizationIncrease(new BigInteger(-2000), Currency.USD, "01236fc0-8192-11eb-9aca-ad4b0e95f241");
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+```javascript
+handpoint.preAuthorizationIncrease(
+  {
+    amount: 2000,                                // delta in minor units; negative to decrease
+    currency: handpoint.Currency.USD,
+    originalTransactionID: "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+  },
+  function(result) { /* handle */ },
+  function(error) { console.error(error); }
+);
+```
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+**Cloud API** — `POST /preauthorization/increase`:
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `originalGuid` | string | Yes | `transactionID` from the pre-auth Create result |
+| `increaseAmount` | string | Yes | Delta in major units, e.g. `"20.00"`. Always positive |
+| `subtract` | string | No | `"1"` subtracts the delta (decrease). Omit to add |
+| `customerReference` | string | No | Integrator-defined reference, forwarded as-is |
+
+**Android SDK** — `preAuthorizationIncrease(amount, currency, originalTransactionID)`:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `amount` | `BigInteger` | Delta in minor units. Negative to decrease |
+| `currency` | `Currency` | Must match the original pre-auth |
+| `originalTransactionID` | `String` | `transactionID` from the Create result |
+
+#### Response
+
+The result returns:
+- `holdAmount` — the running total after this adjustment
+- `increaseAmount` — the delta you sent
+- `originalAmount` — the amount approved on the Create
+
+A declined adjustment leaves the hold unchanged. See the [Pre-Authorization Guide](/reference/pre-authorization-guide#increase-decrease) for full lifecycle details and error codes.

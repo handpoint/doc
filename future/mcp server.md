@@ -1,0 +1,3 @@
+MCP server — Stripe and Payroc both have one; as AI coding agents become the primary integration path, this becomes infrastructure rather than a nice-to-have.
+
+On MCP servers — no licensing cost. The MCP protocol is open source (Anthropic published the spec for free). Building one costs engineering time to implement it (roughly 2–4 weeks of dev work) plus hosting (~$50–100/month for a small API server). Both Stripe and Payroc built their own and open-sourced them on GitHub. It's a resource/roadmap decision, not a purchasing one. Worth flagging to the team as a "when we have engineering bandwidth" item.

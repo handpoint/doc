@@ -1,0 +1,11 @@
+"use strict";
+(globalThis["webpackChunkmy_website"] = globalThis["webpackChunkmy_website"] || []).push([[8246],{
+
+/***/ 98410
+(module) {
+
+module.exports = /*#__PURE__*/JSON.parse('{"version":{"pluginId":"default","version":"current","label":"Next","banner":null,"badge":false,"noIndex":false,"className":"docs-version-current","isLast":true,"docsSidebars":{},"docs":{"faq":{"id":"faq","title":"FAQ","description":"What is the difference between a Debug device and a Prod device?"},"intro":{"id":"intro","title":"REST API","description":"Introduction"}}}}');
+
+/***/ }
+
+}]);

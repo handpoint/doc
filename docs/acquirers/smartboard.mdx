@@ -1,0 +1,298 @@
+---
+id: smartboard
+title: "Smartboard"
+description: "Handpoint's European eCommerce gateway — Direct integration, Hosted Payment Fields, Hosted Payment Page, and Pay Button. Supports SALE, VERIFY, PREAUTH and management operations over HTTPS."
+geography: "Europe"
+status: active
+pagination_next: null
+pagination_prev: null
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Smartboard
+
+Smartboard is Handpoint's European eCommerce payment gateway. It accepts online card payments over HTTPS with no terminal hardware required. Four integration methods cover the full range of PCI scope and UX requirements.
+
+## Integration methods
+
+| Method | PCI scope | Card data handled by | Best for |
+|---|---|---|---|
+| [Direct Integration](#direct-integration) | High (SAQ D) | Merchant server | Full control; recurring/CA |
+| [Hosted Payment Fields (HPF)](#hosted-payment-fields-hpf) | Low (SAQ A) | Gateway iframes | Custom form + digital wallets |
+| [Hosted Payment Page (HPP)](#hosted-payment-page-hpp) | Low (SAQ A) | Gateway-hosted page | Fastest integration |
+| [Pay Button](#pay-button) | Low (SAQ A) | Gateway-hosted page | No-code / link-based payments |
+
+---
+
+## Authentication
+
+All requests use the same authentication scheme. Each request must include:
+
+| Field | Description |
+|---|---|
+| `merchantID` | Your Merchant ID, provided during onboarding |
+| `merchantPwd` | Optional password for additional security |
+| `signature` | HMAC-SHA512 hash of the request fields (see below) |
+
+**Signature calculation:**
+
+1. Collect all request fields (excluding `signature` itself)
+2. Sort them alphabetically by field name (`ksort`)
+3. URL-encode the sorted key=value pairs into a query string
+4. Append your secret key to the query string
+5. Hash with HMAC-SHA512
+
+```
+signature = HMAC-SHA512( url_encode( ksort( fields ) ) + secret_key )
+```
+
+If `merchantPwd` is included, hash it with SHA512 before adding it to the field list.
+
+---
+
+## Transaction types
+
+### Supported operations per integration
+
+| Operation | Direct | HPF | HPP | Pay Button |
+|---|---|---|---|---|
+| SALE | ✓ | ✓ | ✓ | ✓ |
+| VERIFY | ✓ | ✓ | ✓ | ✓ |
+| PREAUTH | ✓ | ✓ | ✓ | ✓ |
+| REFUND\_SALE | ✓ | ✓ | — | — |
+| REFUND | ✓ | ✓ | — | — |
+| CAPTURE | ✓ | ✓ | — | — |
+| CANCEL | ✓ | ✓ | — | — |
+| QUERY | ✓ | ✓ | — | — |
+
+### Payment type codes
+
+| `type` | Payment type |
+|---|---|
+| `1` | ECOM — standard online card payment |
+| `2` | MOTO — mail order / telephone order (back-office entry) |
+| `9` | CA — Continuous Authority (recurring/subscriptions) — Direct and HPF only |
+
+---
+
+## Shared request fields
+
+These fields apply across all integration methods.
+
+### Mandatory
+
+| Field | Type | Description |
+|---|---|---|
+| `merchantID` | string | Your Merchant ID |
+| `signature` | string | HMAC-SHA512 request signature |
+| `action` | string | `SALE`, `VERIFY`, `PREAUTH`, `REFUND_SALE`, `REFUND`, `CAPTURE`, `CANCEL`, `QUERY` |
+| `amount` | integer | Amount in minor units (e.g. `1099` for £10.99) |
+| `type` | integer | Payment type: `1` (ECOM), `2` (MOTO), `9` (CA) |
+| `countryCode` | string | ISO 3166-1 two-letter country code |
+| `currencyCode` | string | ISO 4217 three-letter currency code |
+
+### Common optional
+
+| Field | Type | Description |
+|---|---|---|
+| `merchantPwd` | string | Optional merchant password |
+| `transactionUnique` | string | Integrator-defined unique reference |
+| `orderRef` | string | Order reference shown on statements |
+| `captureDelay` | integer | Days before automatic capture (`-1` = manual capture) |
+| `xref` | string | Reference to a previous transaction (tokenisation, refunds) |
+| `redirectURL` | string | Where the cardholder is sent after payment (mandatory for HPP) |
+| `callbackURL` | string | URL for a server-to-server POST copy of the response |
+| `remoteAddress` | string | Cardholder's IP address |
+
+### Response fields (always returned)
+
+| Field | Description |
+|---|---|
+| `responseCode` | `0` = success; non-zero = decline/error |
+| `responseStatus` | `0` = approved, `1` = referred, `2` = declined, `3` = retry |
+| `responseMessage` | Human-readable result message |
+| `transactionID` | Gateway transaction ID |
+| `xref` | Cross-reference for future transactions |
+| `state` | Transaction state (`captured`, `approved`, `declined`, …) |
+| `cardNumberMask` | Masked PAN (e.g. `4929 **** **** 0001`) |
+| `cardType` | Card type name |
+| `cardScheme` | Card scheme (Visa, Mastercard, …) |
+| `cardIssuer` | Issuing bank name |
+| `cardIssuerCountry` | Issuing country name |
+| `timestamp` | Gateway timestamp |
+
+---
+
+## Direct Integration
+
+The merchant server collects card data and posts it directly to the gateway. No iframes or redirects for card capture.
+
+**When to use:** You need full control over the payment form, support recurring/CA payments, or require management operations (CAPTURE, CANCEL, QUERY) server-side.
+
+**PCI note:** Your server touches raw card data — SAQ D applies. SSL certificate required.
+
+### Additional mandatory fields
+
+| Field | Description |
+|---|---|
+| `cardNumber` | Full PAN |
+| `cardExpiryMonth` | Two-digit expiry month |
+| `cardExpiryYear` | Two-digit expiry year |
+| `cardCVV` | Card security code |
+
+### 3D Secure
+
+Direct integration requires your server to manage the 3DS challenge redirect. The gateway returns an `acsUrl` and `threeDSMethodData` for the initial method URL call, then a challenge URL after the `creq`. See the legacy portal for the full 3DS flow example.
+
+### Recurring / Continuous Authority
+
+Set `type=9` and `rtAgreementType` to `recurring`, `instalment`, or `unscheduled`. Use `xref` from the initial CIT to reference the cardholder's stored credential in subsequent MIT transactions.
+
+---
+
+## Hosted Payment Fields (HPF)
+
+The gateway injects iframes for the card number and CVV fields only. Your page controls everything else. On submit, the gateway returns a payment token; your server then calls the Direct API with that token — never touching raw card data.
+
+**When to use:** You want a custom-branded form, support for digital wallets (Apple Pay, Google Pay), and minimum PCI burden.
+
+**PCI note:** SAQ A — your server never sees card data.
+
+### JavaScript library
+
+Load the HPF library from the gateway and construct fields programmatically:
+
+```html
+<!-- Include the HPF library (URL provided at onboarding) -->
+<script src="https://commerce-api.handpoint.com/hosted/js/hostedfields.js"></script>
+```
+
+Fields are injected into named containers and styled via CSS classes. The library exposes:
+
+- `hostedFields.create(config)` — build the iframes  
+- `hostedFields.submit()` — tokenise and submit  
+- Form events: `validated`, `tokenised`, `error`  
+- Field events: `focus`, `blur`, `change`, `valid`, `invalid`
+
+### Digital wallets
+
+Apple Pay and Google Pay are supported via HPF. The gateway handles the wallet session and returns the result through the same response path as a card payment.
+
+---
+
+## Hosted Payment Page (HPP)
+
+The cardholder is redirected (or shown a lightbox/iframe) to a gateway-hosted page that handles all card data collection, 3DS, and wallet support. Your server sends a signed POST; the gateway redirects back to your `redirectURL` with the result.
+
+**When to use:** You want the fastest integration with the lowest PCI overhead and don't need digital wallets or advanced recurring.
+
+**PCI note:** SAQ A — `redirectURL` is mandatory.
+
+### HPP-only fields
+
+| Field | Description |
+|---|---|
+| `formResponsive` | `1` to enable responsive layout |
+| `formAllowCancel` | `1` to show a cancel button |
+| `formAmountEditable` | `1` to let the cardholder change the amount (e.g. donations) |
+| `allowedPaymentMethods` | Comma-separated list to restrict payment methods |
+| `customerName`, `customerEmail`, etc. | Pre-fill customer details |
+| `cardCVVMandatory`, `customerNameMandatory`, … | Make specific fields mandatory |
+
+### Embed modes
+
+<Tabs>
+<TabItem value="redirect" label="Full redirect">
+
+```http
+POST https://commerce-api.handpoint.com/hosted/
+Content-Type: application/x-www-form-urlencoded
+
+merchantID=...&action=SALE&amount=1099&type=1&...&signature=...
+```
+
+The cardholder is sent to the payment page; after payment they are redirected back to `redirectURL`.
+
+</TabItem>
+<TabItem value="lightbox" label="Lightbox / Modal">
+
+Include the HPP JS library and call `hostedRequest()` — the payment page opens in an overlay above your page. On completion the overlay closes and the response is posted to `redirectURL`.
+
+</TabItem>
+<TabItem value="iframe" label="iframe embed">
+
+Embed the payment page inside an `<iframe>` in your own page. Same signed POST, result returns to `redirectURL`. Useful when you need the payment form inline without a full redirect.
+
+</TabItem>
+</Tabs>
+
+### Limitations
+
+- Google Pay and Apple Pay are **not** supported on HPP
+- Only `type=1` (ECOM) and `type=2` (MOTO) — no Continuous Authority
+- Management operations (REFUND, CANCEL, CAPTURE, QUERY) require Direct or HPF
+
+---
+
+## Pay Button
+
+Creates a branded payment link, QR code, or embeddable button — no server-side code required.
+
+**When to use:** Simple one-off payments, donation pages, or anywhere you need a payment link without a full integration.
+
+### Basic (no-code)
+
+Generate a pay button directly from the Handpoint Virtual Terminal. Choose the action (SALE, PREAUTH, VERIFY), currency, amount, and copy the generated button HTML, link, or QR code.
+
+### Advanced (programmatic)
+
+Build the button URL manually for dynamic amounts or custom references:
+
+```
+https://commerce-api.handpoint.com/button/?fields=<base64>
+```
+
+Where `<base64>` is a URL-safe Base64 encoding of the URL-encoded signed field string (same signature scheme as Direct/HPF/HPP).
+
+**Mandatory fields for Pay Button:**
+
+| Field | Description |
+|---|---|
+| `merchantID` | Your Merchant ID |
+| `amount` | Amount in minor units |
+| `action` | `SALE`, `PREAUTH`, or `VERIFY` |
+| `type` | `1` (ECOM) or `2` (MOTO) |
+| `redirectURL` | Where to send the customer after payment |
+| `countryCode` | ISO country code |
+| `currencyCode` | ISO currency code |
+| `signature` | HMAC-SHA512 signature |
+
+---
+
+## Advanced features
+
+| Feature | Direct | HPF | HPP |
+|---|---|---|---|
+| AVS / CV2 checking | ✓ | ✓ | ✓ |
+| 3D Secure (EMV 3DS) | ✓ | ✓ | ✓ (gateway-managed) |
+| Apple Pay / Google Pay | — | ✓ | — |
+| Credentials on File (CIT/MIT) | ✓ | ✓ | CIT only |
+| Continuous Authority (type=9) | ✓ | ✓ | — |
+| Gateway Wallet (tokenisation) | ✓ | ✓ | ✓ |
+| Risk checking | ✓ | ✓ | ✓ |
+| Dynamic billing descriptor | ✓ | ✓ | — |
+| Payment Facilitators | ✓ | ✓ | — |
+
+---
+
+## Getting started
+
+Contact your Handpoint onboarding team for:
+
+- Your `merchantID` and secret key
+- The gateway endpoint URL for your environment
+- Test card numbers and sandbox access
+
+Full code examples (PHP) for each integration method are available in the [legacy eCommerce documentation](https://developer-ecomm.handpoint.io).

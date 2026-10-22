@@ -1,0 +1,191 @@
+### Batch Detail {#batch-detail}
+
+Retrieves individual transactions in a batch for reconciliation. Results are **paginated**: each call returns at most **5 transactions**, in **descending order** (most recent first). The page size is fixed and cannot be configured.
+
+**Pagination:**
+
+1. On the first call, omit `retrievalReferenceNumber`. The response contains the 5 most recent transactions of the batch, most recent first.
+2. To get the next page (older transactions), send the same request with `retrievalReferenceNumber` set to the `retrievalReferenceNumber` of the **last (oldest) item** in `details`.
+3. Repeat until `details` is empty or missing.
+
+:::warning Do not stop on a short page
+A page can contain fewer than 5 items even when older transactions remain: the gateway leaves out transaction types that it does not report (for example voids). Stop only when `details` is empty or missing.
+:::
+
+```js
+let cursor;
+const transactions = [];
+do {
+  const res = await batchDetail({ ...request, retrievalReferenceNumber: cursor });
+  const page = [].concat(res.details ?? []);
+  transactions.push(...page);
+  cursor = page.at(-1)?.retrievalReferenceNumber;
+} while (cursor);
+```
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+<Tabs>
+<TabItem value="page-1" label="Page 1">
+
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "132"
+}
+```
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800445", "amount": "1200" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800444", "amount": "1002" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800443", "amount": "21000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800442", "amount": "27000" },
+    { "transactionType": "SALE", "retrievalReferenceNumber": "627121800441", "amount": "26000" }
+  ],
+  "batchDetailGuid": "f02e9130-bbe3-11f1-9efa-074a901f9b3c",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
+}
+```
+
+</TabItem>
+<TabItem value="page-2" label="Page 2">
+
+Pass the `retrievalReferenceNumber` of the last item from the previous page (`627121800441`) as the cursor:
+
+```http
+POST https://cloud.handpoint.com/batch/detail
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "serialNumber": "082104578",
+  "deviceType": "PAXA920",
+  "batchNumber": "132",
+  "retrievalReferenceNumber": "627121800441"
+}
+```
+
+```json
+{
+  "httpStatus": "200",
+  "batchNumber": "132",
+  "closedAt": "20260928214051578",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "DATA RETRIEVED",
+  "details": [
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800440", "amount": "19001" },
+    { "transactionType": "REFUND", "retrievalReferenceNumber": "627121800439", "amount": "1857" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627121800438", "amount": "5542" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800437", "amount": "1683" },
+    { "transactionType": "SALE",   "retrievalReferenceNumber": "627120800436", "amount": "1347" }
+  ],
+  "batchDetailGuid": "0b9d45b0-bbe4-11f1-9da8-4ba186f642f0",
+  "customFields": {
+    "entry": { "key": "issuerBatchCloseLocalTimestamp", "value": "2026-09-28T02:40:51" }
+  },
+  "batchStatus": "CLOSED"
+}
+```
+
+Stop paginating when `details` is empty or missing.
+
+</TabItem>
+<TabItem value="not-found" label="Not Found">
+
+The specified batch number does not exist. `batchStatus: "UNKNOWN"` confirms the batch could not be located.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Viscus operation failed",
+    "details": {
+      "status": 403,
+      "body": {
+        "batchDetail": {
+          "httpStatus": "403",
+          "issuerResponseCode": "02",
+          "issuerResponseText": "COULD NOT FIND",
+          "batchDetailGuid": "d5206e00-bcb9-11f1-a903-a92d2c2c7176",
+          "batchStatus": "UNKNOWN"
+        }
+      }
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="missing-fields" label="Missing Fields">
+
+A required field (`serialNumber` or `deviceType`) is absent.
+
+```json
+{
+  "error": {
+    "statusCode": 422,
+    "name": "UnprocessableEntityError",
+    "code": "VALIDATION_FAILED",
+    "message": "The request body is invalid. See error object `details` property for more info.",
+    "details": [
+      {
+        "code": "required",
+        "info": { "missingProperty": "serialNumber" },
+        "message": "must have required property 'serialNumber'",
+        "path": ""
+      }
+    ]
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+#### Response fields
+
+| Field | Description |
+|---|---|
+| `details[].transactionType` | `SALE`, `REFUND`, `TIP_ADJUSTMENT`, `PREAUTHORIZATION_INCREASE` or `PREAUTHORIZATION_CAPTURE`. A pre-authorization is reported as `SALE` — the gateway does not distinguish it in the batch detail. |
+| `details[].retrievalReferenceNumber` | RRN of the transaction. Items are in descending order (most recent first), so the last item of the page is the oldest: use its RRN as the cursor for the next page. |
+| `details[].amount` | In minor units. For a `CLOSED` batch it is the settled amount; for an `OPEN` batch it is the authorized amount. `PREAUTHORIZATION_INCREASE` always shows the increase amount and `PREAUTHORIZATION_CAPTURE` always shows the captured amount. |
+
+#### Notes
+
+- **Open batches:** new transactions go to the top of the batch, so they do not appear in the pages that follow. To include them, start again without `retrievalReferenceNumber`. The cursor is an RRN, not a page number, so you never get duplicates when new transactions arrive.
+- **Reconciliation:** Batch Detail does not list every transaction type. To check totals, use [Batch Summary](#batch-summary).
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `serialNumber` | string | Yes | Terminal serial number |
+| `deviceType` | string | Yes | Terminal model, e.g. `"PAXA920"` |
+| `batchNumber` | string | No | Batch number to query. If omitted, the gateway resolves the terminal's current open batch |
+| `retrievalReferenceNumber` | string | No | Pagination cursor: pass the `retrievalReferenceNumber` of the last (oldest) item in the previous page to get the next page. Omit to get the most recent page |
+
+</TabItem>
+</Tabs>

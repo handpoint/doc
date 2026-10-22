@@ -1,0 +1,89 @@
+## Card PAN
+
+### What this does
+Prompts the cardholder to tap or insert their card, reads the card data (PAN, expiry, card scheme), and returns it without processing a payment. No transaction is created.
+
+### When to use it
+Use for enrollment flows where you need to associate a card with an account before the first transaction — for example, registering a loyalty card or creating an on-file payment method. The PAN returned is the raw PAN from the chip or magnetic stripe, **not a token**. Handle and store it only if your system is PCI-DSS compliant. For most use cases, use Tokenization instead to receive a safe card token.
+
+:::caution PCI scope
+`cardPan()` returns the unmasked PAN. Your system becomes PCI in-scope if you store or transmit it. Use [Tokenization](/functions/tokenization) instead unless you have a specific need for the raw PAN and are operating within a PCI-compliant environment.
+:::
+
+### Implementation notes
+
+1. The cardholder taps or inserts their card at the terminal — chip and contactless are both supported.
+2. The result arrives in the `endOfTransaction` callback. Check `result.unMaskedPan` for the full PAN.
+3. This is a PAX-only operation — HiLite does not support standalone card read without a transaction.
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="cloud-api" label="Cloud API">
+
+<NotSupported
+  reason="Card PAN is a card-present terminal operation and is not available via the Cloud API."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+hapi.cardPan()
+
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED) {
+        val pan = result.unMaskedPan     // full PAN — handle within PCI scope
+        val expiry = result.expiryDateMMYY
+        val scheme = result.cardSchemeName
+    }
+}
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+<NotSupported
+  reason="Card PAN is a PAX-only feature."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+<NotSupported
+  reason="Card PAN is a PAX-only feature."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="Card PAN is not available via the Cordova plugin."
+  useInstead="Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+### Parameters
+
+`cardPan()` takes no required parameters. An optional `Options` object can be passed to override connection or merchant configuration.
+
+### Testing
+
+<Tabs groupId="integration-path">
+<TabItem value="android-pax" label="Android (PAX)">
+
+| Scenario | How to trigger |
+|---|---|
+| Read chip | Call `hapi.cardPan()`, insert test card — verify `unMaskedPan` populated in `endOfTransaction` |
+| Read contactless | Call `hapi.cardPan()`, tap test card — verify `unMaskedPan` populated |
+| No card presented | Call `hapi.cardPan()`, wait for timeout — verify `CANCELLED` or `FAILED` in result |
+
+</TabItem>
+</Tabs>

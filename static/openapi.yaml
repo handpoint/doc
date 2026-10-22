@@ -1,0 +1,1258 @@
+openapi: 3.1.0
+info:
+  title: Handpoint Cloud REST API
+  version: "1.0"
+  description: |
+    The Handpoint Cloud REST API lets you send payment operations to a PAX SmartPOS terminal
+    running the Handpoint Android SDK in integrated (cloud) mode, and perform back-office
+    operations (reversal, remote sale, pre-auth capture, batch close) without a terminal.
+
+    **Two environments:**
+    - Staging: `https://cloud.handpoint.io` (DEMO merchant, ViscusDummy mock acquirer)
+    - Production: `https://cloud.handpoint.com`
+
+    **Authentication:** all requests require the `ApiKeyCloud` header. Each merchant has a unique key.
+
+    **Async vs sync:**
+    - `POST /transactions` → 202 Accepted → poll `GET /transaction-result/{id}`
+      - HTTP 204 = still processing (empty body — do NOT call .json())
+      - HTTP 200 = result ready (JSON body with finStatus)
+    - `POST /reversal`, `POST /moto/sale`, `POST /batch/close`, `POST /preauthorization/capture` → synchronous HTTP 200
+
+    **Amount formats:**
+    - On-terminal operations (`POST /transactions`): `amount` is minor-unit string (`"1000"` = $10.00)
+    - Back-office operations (`POST /reversal`, `POST /moto/sale`): `amount` is major-unit decimal string (`"10.00"` = $10.00)
+    - Pre-auth capture (`capturedAmount`): major-unit decimal string (`"15.00"` = $15.00)
+
+  contact:
+    name: Handpoint Developer Support
+    url: https://developer.handpoint.com
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://cloud.handpoint.com
+    description: Production
+  - url: https://cloud.handpoint.io
+    description: Staging / DEMO
+
+security:
+  - ApiKeyCloud: []
+
+tags:
+  - name: Transactions
+    description: Card-present and MOTO on-terminal operations (async, requires PAX terminal)
+  - name: Transaction Results
+    description: Poll for the result of an async transaction
+  - name: Reversal
+    description: Remote reversal — synchronous, no terminal required
+  - name: MOTO Remote
+    description: Card token remote sale and refund — synchronous, no terminal required
+  - name: Pre-Authorization
+    description: Pre-auth capture, increase, and decrease — synchronous, no terminal required
+  - name: Batch
+    description: Batch close, summary, and detail (EPI/TSYS only)
+  - name: Devices
+    description: List terminals and their connection status
+  - name: Status
+    description: Transaction status by reference (recovery and reconciliation)
+
+paths:
+
+  /transactions:
+    post:
+      operationId: postTransaction
+      tags: [Transactions]
+      summary: Send a card-present or MOTO operation to a terminal
+      description: |
+        Sends a payment operation to the specified PAX terminal. The terminal must be online and
+        running the Handpoint Android SDK in integrated (cloud) mode.
+
+        Returns HTTP 202 immediately. Poll `GET /transaction-result/{transactionResultId}` for the result.
+
+        **operation values:**
+        - `sale` — standard card-present sale
+        - `refund` — card-present refund (linked or unlinked)
+        - `reversal` — on-terminal reversal (prefer `POST /reversal` instead — no reader required)
+        - `saleReversal` — recovery reversal (UNDEFINED recovery only)
+        - `preAuthorization` — create a pre-authorization hold
+        - `preAuthorizationReversal` — void an un-captured pre-auth hold
+        - `moToSale` — MOTO keyed-entry sale (EPI only, PAX shows card-entry screen)
+        - `stopCurrentTransaction` — cancel the operation currently in progress on the terminal
+        - `pingDevice` — check terminal connectivity (lightweight no-op)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+            examples:
+              sale:
+                summary: Standard sale
+                value:
+                  operation: sale
+                  amount: "1000"
+                  currency: USD
+                  terminal_type: PAXA920
+                  serial_number: "082104578"
+                  transactionReference: 550e8400-e29b-41d4-a716-446655440000
+              moto-sale:
+                summary: MOTO on-terminal keyed entry
+                value:
+                  operation: moToSale
+                  amount: "1000"
+                  currency: USD
+                  terminal_type: PAXA920
+                  serial_number: "082104578"
+                  transactionReference: 550e8400-e29b-41d4-a716-446655440000
+              pre-auth:
+                summary: Pre-authorization
+                value:
+                  operation: preAuthorization
+                  amount: "3000"
+                  currency: USD
+                  terminal_type: PAXA920
+                  serial_number: "082104578"
+                  transactionReference: 550e8400-e29b-41d4-a716-446655440000
+              stop:
+                summary: Cancel in-progress operation
+                value:
+                  operation: stopCurrentTransaction
+                  terminal_type: PAXA920
+                  serial_number: "082104578"
+              ping:
+                summary: Check device connectivity
+                value:
+                  operation: pingDevice
+                  terminal_type: PAXA920
+                  serial_number: "082104578"
+      responses:
+        '202':
+          description: Operation accepted — poll transactionResultId for the result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionAccepted'
+              example:
+                statusMessage: Operation Accepted
+                transactionResultId: 082104578-1787246766714
+                transactionReference: 550e8400-e29b-41d4-a716-446655440000
+        '400':
+          description: Terminal error (device busy, offline, auth failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerminalError'
+              examples:
+                busy:
+                  summary: Device busy (1001)
+                  value:
+                    error: 1001
+                    message: Device is busy
+                offline:
+                  summary: Device offline (1002)
+                  value:
+                    error: 1002
+                    message: No device listening at the other end of the secure channel
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /transaction-result/{transactionResultId}:
+    get:
+      operationId: getTransactionResult
+      tags: [Transaction Results]
+      summary: Poll for the result of an async transaction
+      description: |
+        Poll this endpoint after receiving a 202 from `POST /transactions`.
+
+        - **HTTP 204** — still processing. Empty body. Do NOT call .json(). Wait and retry.
+        - **HTTP 200** — result ready. Body is the TransactionResult object.
+
+        Recommended polling: every 4 seconds, up to 30 attempts (120 seconds total).
+        After 120s with no result, trigger the UNDEFINED recovery flow.
+      parameters:
+        - name: transactionResultId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 082104578-1787246766714
+          description: From the 202 response `transactionResultId` field
+      responses:
+        '200':
+          description: Transaction complete — check finStatus for outcome
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResult'
+        '204':
+          description: Still processing — retry after 4 seconds (empty body)
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          description: transactionResultId not found
+
+  /transactions/{transactionResultId}/tip-adjustment:
+    post:
+      operationId: tipAdjustment
+      tags: [Transactions]
+      summary: Add or modify a tip on a completed sale (EPI only)
+      description: |
+        Adjusts the tip on a completed sale before the batch closes.
+        `transactionID` in the path is the `transactionID` from the original sale result.
+        `amount` is in major currency units — `8` = $8.00.
+        Cannot be called after batch close — issue a Refund instead.
+        Not available on EmerchantPay or Paystrax (include tip in sale body for those acquirers).
+      parameters:
+        - name: transactionResultId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The transactionID from the original sale result
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount:
+                  type: number
+                  description: Tip amount in major currency units (8 = $8.00)
+                  example: 8
+      responses:
+        '200':
+          description: Tip adjusted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusMessage:
+                    type: string
+                    example: tip adjusted
+
+  /reversal:
+    post:
+      operationId: reversal
+      tags: [Reversal]
+      summary: Remote reversal — no terminal required (preferred reversal path)
+      description: |
+        Synchronous server-to-host reversal. No terminal or card interaction required.
+        Works for all transaction types: card-present, MOTO on-terminal, MOTO remote.
+
+        **Always prefer this endpoint over on-terminal reversal.** Benefits:
+        - No terminal required — works when terminal is offline
+        - Synchronous — immediate response, no polling
+        - Supports partial reversal (EPI only) by including `amount` + `currency`
+
+        **Success:** HTTP 200 with `httpStatus: 200` (integer). Note: `finStatus` is NOT present.
+        Verify `issuerResponseCode: "00"` and `issuerResponseText: "Successful"`.
+
+        **Partial reversal (EPI only):** include `amount` (major-unit decimal string) and `currency`.
+        `currency` is required when `amount` is present.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReversalRequest'
+            examples:
+              full-reversal:
+                summary: Full reversal
+                value:
+                  originalGuid: c8192770-9d8c-11f1-a7f7-fd472d9bb27f
+              partial-reversal:
+                summary: Partial reversal (EPI only)
+                value:
+                  originalGuid: c8192770-9d8c-11f1-a7f7-fd472d9bb27f
+                  amount: "50.05"
+                  currency: USD
+      responses:
+        '200':
+          description: Reversal accepted by the acquirer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReversalResult'
+        '400':
+          description: Reversal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackOfficeError'
+              examples:
+                already-reversed:
+                  summary: Already reversed (3051)
+                  value:
+                    error:
+                      statusCode: 400
+                      code: "3051"
+                      message: Already reversed
+                not-in-batch:
+                  summary: Not in open batch (3153)
+                  value:
+                    error:
+                      statusCode: 400
+                      code: "3153"
+                      message: Unable to find message to reverse
+                amount-exceeds:
+                  summary: Partial amount exceeds original (4066)
+                  value:
+                    error:
+                      statusCode: 400
+                      code: "4066"
+                      message: Amount exceeds original transaction amount
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moto/sale:
+    post:
+      operationId: motoSale
+      tags: [MOTO Remote]
+      summary: Remote sale — charge a stored card token (no terminal)
+      description: |
+        Synchronous card-not-present charge against a stored card token.
+        No terminal, no card interaction, no polling.
+
+        `amount` is in major-unit decimal string format — `"10.00"` = $10.00.
+        Token source: EPI ProCharge/EPI token, EmerchantPay token, Paystrax token.
+
+        **Success:** HTTP 200. Note: `finStatus` is NOT in the response.
+        Check `httpStatus: 200` (integer) for success.
+        The GUID for reversal is in the `guid` field — NOT `transactionID`.
+
+        Supported acquirers: EPI, EmerchantPay, Paystrax. Not supported: PAYSAFE.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MotoSaleRequest'
+            examples:
+              basic:
+                summary: Basic remote sale
+                value:
+                  amount: "10.00"
+                  currency: USD
+                  cardToken: STORED_TOKEN_FROM_PRIOR_TRANSACTION
+                  transactionReference: 550e8400-e29b-41d4-a716-446655440000
+              with-avs:
+                summary: With AVS (EPI only)
+                value:
+                  amount: "33.09"
+                  currency: USD
+                  cardToken: STORED_TOKEN
+                  transactionReference: 550e8400-e29b-41d4-a716-446655440000
+                  billing:
+                    zipCode: "10001"
+                    address: 123 Main St
+      responses:
+        '200':
+          description: Sale approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MotoSaleResult'
+        '400':
+          description: Sale declined or token error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackOfficeError'
+              examples:
+                token-failure:
+                  summary: Token provider down (5252)
+                  value:
+                    error:
+                      statusCode: 400
+                      name: BadRequestError
+                      message: Card token failure
+                      code: "5252"
+                      details:
+                        description: Card token failure
+                        errorCode: "5252"
+                        httpStatus: 404
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /moto/refund:
+    post:
+      operationId: motoRefund
+      tags: [MOTO Remote]
+      summary: Remote refund — linked or unlinked
+      description: |
+        Refund against a prior remote sale. Linked (by originalGuid) or unlinked (by cardToken).
+        `amount` is in major-unit decimal string format.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MotoRefundRequest'
+            examples:
+              linked:
+                summary: Linked refund
+                value:
+                  amount: "10.00"
+                  currency: USD
+                  originalGuid: 82c40d50-9d7f-11f1-9d23-43aed1037e3c
+              unlinked:
+                summary: Unlinked refund by card token
+                value:
+                  amount: "10.00"
+                  currency: USD
+                  cardToken: STORED_TOKEN
+      responses:
+        '200':
+          description: Refund approved
+        '400':
+          description: Refund error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackOfficeError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /preauthorization/capture:
+    post:
+      operationId: preAuthCapture
+      tags: [Pre-Authorization]
+      summary: Capture a pre-authorization
+      description: |
+        Finalise a pre-authorization and charge the cardholder. No terminal required.
+        `capturedAmount` is in major-unit decimal string format — `"15.00"` = $15.00.
+        Field is `capturedAmount`, NOT `amount`.
+        Use `preAuthorizationCaptureGuid` from the response as the identifier for this capture
+        (for a subsequent capture reversal).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreAuthCaptureRequest'
+            example:
+              originalGuid: 36997f50-9cbc-11f1-8d8a-a5d6c6242a44
+              capturedAmount: "15.00"
+      responses:
+        '200':
+          description: Capture approved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PreAuthCaptureResult'
+        '400':
+          description: Capture error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackOfficeError'
+              examples:
+                not-found:
+                  summary: originalGuid not found (5001)
+                  value:
+                    reason: NullPointerException
+                    errorCode: "5001"
+                    httpStatus: 500
+                already-settled:
+                  summary: Already captured (3211)
+                  value:
+                    error:
+                      code: "3211"
+                      message: Transaction already settled
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /preauthorization/increase:
+    post:
+      operationId: preAuthIncrease
+      tags: [Pre-Authorization]
+      summary: Increase or decrease a pre-authorization hold
+      description: |
+        Increase the hold amount (`subtract: "0"`) or decrease it (`subtract: "1"`).
+        `increaseAmount` is in major-unit decimal string format.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PreAuthIncreaseRequest'
+            examples:
+              increase:
+                summary: Increase hold
+                value:
+                  originalGuid: 36997f50-9cbc-11f1-8d8a-a5d6c6242a44
+                  increaseAmount: "20.00"
+                  subtract: "0"
+              decrease:
+                summary: Decrease hold
+                value:
+                  originalGuid: 36997f50-9cbc-11f1-8d8a-a5d6c6242a44
+                  increaseAmount: "10.00"
+                  subtract: "1"
+      responses:
+        '200':
+          description: Increase/decrease applied
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BackOfficeError'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /batch/close:
+    post:
+      operationId: batchClose
+      tags: [Batch]
+      summary: Close the current batch and trigger settlement (EPI/TSYS only)
+      description: |
+        Manually close the open batch and trigger settlement for EPI (TSYS) merchants.
+        Call once per business day at close of business.
+        Not required for EmerchantPay or Paystrax (auto-settlement).
+
+        Field names are `deviceType` and `serialNumber` (camelCase) —
+        NOT `terminal_type`/`serial_number`. Wrong names return 422.
+
+        **Staging/ViscusDummy only:** include `"batchNumber": "123"` — the simulator
+        does not track batch numbers automatically.
+
+        **Note:** `httpStatus` in this response is a **string** (`"200"`) — unlike
+        `POST /reversal` which returns it as an integer (`200`). Use type-safe comparison.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequest'
+            examples:
+              production:
+                summary: Production
+                value:
+                  deviceType: PAXA920
+                  serialNumber: "082104578"
+              staging:
+                summary: Staging / ViscusDummy
+                value:
+                  deviceType: PAXA920
+                  serialNumber: "082104578"
+                  batchNumber: "123"
+      responses:
+        '200':
+          description: Batch closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchCloseResult'
+        '400':
+          description: Batch error
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+
+  /batch/summary:
+    post:
+      operationId: batchSummary
+      tags: [Batch]
+      summary: Retrieve batch summary totals
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequest'
+      responses:
+        '200':
+          description: Batch summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchSummaryResult'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /batch/detail:
+    post:
+      operationId: batchDetail
+      tags: [Batch]
+      summary: Retrieve individual transaction line items for the current batch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchRequest'
+      responses:
+        '200':
+          description: Batch detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchDetailResult'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /devices:
+    get:
+      operationId: listDevices
+      tags: [Devices]
+      summary: List terminals assigned to this merchant
+      description: |
+        Returns all terminals configured for the API key's merchant account.
+        Use to confirm a terminal is online before sending a transaction.
+
+        Notable fields:
+        - `serialNumber` — use as `serial_number` in transaction requests
+        - `terminalType` — use as `terminal_type` in transaction requests
+        - `merchantStatus` — `ACTIVATED` means the terminal is paired with this merchant
+        - `ssk` — shared-secret key for Android/iOS SDK authentication only;
+          NOT needed for Cloud REST API calls
+      responses:
+        '200':
+          description: List of terminals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /transactions/{transactionReference}/status:
+    get:
+      operationId: getTransactionStatus
+      tags: [Status]
+      summary: Get transaction status by reference (recovery and reconciliation)
+      description: |
+        Query the authoritative outcome of a transaction using the `transactionReference`
+        UUID you generated before sending the original operation.
+
+        Use for:
+        - Recovery after a network failure or app crash
+        - Reconciliation — verify stored finStatus matches authoritative records
+        - UNDEFINED resolution after polling exhaustion
+
+        **Partial approval timing warning:** If this returns `finStatus: AUTHORISED`
+        and `totalAmount < requestedAmount`, the cardholder may still be deciding
+        on-terminal. Wait 60 seconds before saving as final — the SDK may auto-reverse
+        if the cardholder cancels, changing finStatus to CANCELLED.
+
+        Note: `transactionReference` is NOT echoed for MOTO on-terminal (`moToSale`)
+        due to a known platform bug — use `transactionResultId` polling for those.
+      parameters:
+        - name: transactionReference
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: UUID v4 you generated before sending the transaction
+      responses:
+        '200':
+          description: Transaction found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionStatus'
+        '404':
+          description: No transaction found for this reference (UNDEFINED — may still be IN_PROGRESS)
+
+  /transactions/{transactionReference}/status/all:
+    get:
+      operationId: getTransactionStatusAll
+      tags: [Status]
+      summary: Get all operations linked to a transaction reference
+      description: |
+        Returns an array of all transactions linked to this reference — for example,
+        a sale plus its subsequent reversal, or a pre-auth plus all lifecycle operations.
+        Useful for reconciliation and audit logging.
+      parameters:
+        - name: transactionReference
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Array of linked transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionStatus'
+
+components:
+  securitySchemes:
+    ApiKeyCloud:
+      type: apiKey
+      in: header
+      name: ApiKeyCloud
+      description: |
+        Merchant-specific API key. Unique per merchant account — never shared between merchants.
+        Case-insensitive header name; canonical spelling is `ApiKeyCloud`.
+
+  responses:
+    Forbidden:
+      description: Invalid or missing API key
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthError'
+          example:
+            error:
+              statusCode: 403
+              name: ForbiddenError
+              message: No valid key found in header
+
+    ValidationFailed:
+      description: Request body validation failed — check field names and types
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: VALIDATION_FAILED
+
+  schemas:
+
+    TransactionRequest:
+      type: object
+      required: [operation, terminal_type, serial_number]
+      properties:
+        operation:
+          type: string
+          enum: [sale, refund, reversal, saleReversal, preAuthorization, preAuthorizationReversal,
+                 moToSale, stopCurrentTransaction, pingDevice]
+          description: The operation to perform on the terminal
+        amount:
+          type: string
+          description: |
+            Minor-unit amount as string — `"1000"` = $10.00.
+            Required for sale, refund, preAuthorization, moToSale.
+          example: "1000"
+        currency:
+          type: string
+          description: ISO 4217 currency code
+          example: USD
+        terminal_type:
+          type: string
+          description: PAX model identifier
+          example: PAXA920
+        serial_number:
+          type: string
+          description: Terminal serial number
+          example: "082104578"
+        transactionReference:
+          type: string
+          format: uuid
+          description: |
+            UUID v4 you generate. Persist to durable storage BEFORE sending.
+            Required for recovery via GET /transactions/{ref}/status.
+            Do NOT include on subsequent operations (reversal, refund, capture).
+          example: 550e8400-e29b-41d4-a716-446655440000
+        originalTransactionId:
+          type: string
+          description: transactionID from the original sale — required for reversal, saleReversal, preAuthorizationReversal
+        customerReference:
+          type: string
+          description: Optional free-text order reference stored with the transaction
+        billing:
+          $ref: '#/components/schemas/Billing'
+
+    TransactionAccepted:
+      type: object
+      properties:
+        statusMessage:
+          type: string
+          example: Operation Accepted
+        transactionResultId:
+          type: string
+          description: Use this to poll GET /transaction-result/{transactionResultId}
+          example: 082104578-1787246766714
+        transactionReference:
+          type: string
+          format: uuid
+          description: Echoed back for sale and preAuthorization. Absent for moToSale (platform bug) and subsequent operations.
+
+    TransactionResult:
+      type: object
+      properties:
+        finStatus:
+          type: string
+          enum: [AUTHORISED, DECLINED, CANCELLED, FAILED, PARTIAL_APPROVAL, UNDEFINED]
+          description: |
+            The definitive outcome. Use this for all business logic — never use statusMessage.
+            AUTHORISED = approved and settled in next batch.
+            DECLINED = issuer declined — no charge.
+            CANCELLED = cardholder cancelled — no charge.
+            FAILED = terminal/network error — no charge (check statusMessage for detail).
+            PARTIAL_APPROVAL = partially approved (US prepaid cards) — totalAmount < requestedAmount.
+            UNDEFINED = no definitive result received — trigger recovery flow immediately.
+        transactionID:
+          type: string
+          format: uuid
+          description: |
+            Use for reversals, refunds, and pre-auth captures.
+            Empty string ("") when finStatus is FAILED or DECLINED — guard against empty string before use.
+        requestedAmount:
+          type: integer
+          description: Amount sent in the request (minor units)
+        totalAmount:
+          type: integer
+          description: Amount actually charged (minor units) — use this for receipts and reversals
+        tipAmount:
+          type: integer
+          description: Tip component (minor units)
+        dueAmount:
+          type: integer
+          description: Remaining balance for partial approvals (minor units)
+        currency:
+          type: string
+        type:
+          type: string
+          description: SALE, REFUND, REVERSAL, MOTO_SALE, PRE_AUTHORIZATION, etc.
+        cardSchemeName:
+          type: string
+          example: Visa
+        maskedCardNumber:
+          type: string
+          example: "************0936"
+        authorisationCode:
+          type: string
+        issuerResponseCode:
+          type: string
+          example: "00"
+        issuerResponseText:
+          type: string
+          example: Successful
+        batchNumber:
+          type: string
+        transactionReference:
+          type: string
+          format: uuid
+        merchantReceipt:
+          type: string
+          description: |
+            Hosted URL (https://receipts.handpoint.com/...) or raw HTML string.
+            Check startsWith("http") to determine which format.
+        customerReceipt:
+          type: string
+          description: Same dual-format as merchantReceipt — URL or raw HTML.
+        statusMessage:
+          type: string
+          description: |
+            Human-readable outcome in the cardholder's language (set by card issuer).
+            May be Spanish, French, etc. Display only — never use for logic.
+        cardToken:
+          type: string
+          description: Card token when tokenization is enabled for the merchant
+        applicationIdentifier:
+          type: string
+          description: EMV AID (chip only)
+        tvr:
+          type: string
+          description: Terminal Verification Results (chip only)
+        iad:
+          type: string
+          description: Issuer Application Data (chip only)
+        arc:
+          type: string
+          description: Authorisation Response Code (chip only)
+        retrievalReferenceNumber:
+          type: string
+        acquirerTid:
+          type: string
+        acquirerMid:
+          type: string
+
+    ReversalRequest:
+      type: object
+      required: [originalGuid]
+      properties:
+        originalGuid:
+          type: string
+          format: uuid
+          description: transactionID from the original sale result. For MOTO remote sale, use the `guid` field.
+        amount:
+          type: string
+          description: Partial reversal amount in major units ("50.05" = $50.05). EPI only. Omit for full reversal.
+        currency:
+          type: string
+          description: Required when amount is present.
+
+    ReversalResult:
+      type: object
+      properties:
+        httpStatus:
+          type: integer
+          description: |
+            200 on success. This is an integer — unlike /batch/close which returns a string "200".
+            Use type-safe comparison (=== 200, not == "200").
+          example: 200
+        amount:
+          type: string
+        currency:
+          type: string
+        approvalCode:
+          type: string
+        issuerResponseCode:
+          type: string
+          example: "00"
+        issuerResponseText:
+          type: string
+          example: Successful
+        cardTypeName:
+          type: string
+        maskedCardNumber:
+          type: string
+        batchNumber:
+          type: string
+        reversalGuid:
+          type: string
+          format: uuid
+          description: GUID for this reversal operation
+        originalGuid:
+          type: string
+          format: uuid
+        serverDateTime:
+          type: string
+
+    MotoSaleRequest:
+      type: object
+      required: [amount, currency, cardToken]
+      properties:
+        amount:
+          type: string
+          description: Major-unit decimal string — "10.00" = $10.00
+          example: "10.00"
+        currency:
+          type: string
+          example: USD
+        cardToken:
+          type: string
+          description: Stored card token from a prior tokenization transaction
+        transactionReference:
+          type: string
+          format: uuid
+          description: UUID v4. Persist before sending.
+        billing:
+          $ref: '#/components/schemas/Billing'
+
+    MotoSaleResult:
+      type: object
+      properties:
+        "@type":
+          type: string
+          example: sale
+        httpStatus:
+          type: integer
+          description: 200 on success (integer, not string)
+          example: 200
+        guid:
+          type: string
+          format: uuid
+          description: |
+            Use this as originalGuid for reversal — NOT transactionID (absent in this response).
+        amount:
+          type: string
+        currency:
+          type: string
+        approvalCode:
+          type: string
+        issuerResponseCode:
+          type: string
+          example: "00"
+        issuerResponseText:
+          type: string
+        maskedCardNumber:
+          type: string
+        retrievalReferenceNumber:
+          type: string
+        transactionReference:
+          type: string
+        expiryDateMMYY:
+          type: string
+        acquirerTid:
+          type: string
+        serverDateTime:
+          type: string
+        terminalDateTime:
+          type: string
+
+    MotoRefundRequest:
+      type: object
+      required: [amount, currency]
+      properties:
+        amount:
+          type: string
+          description: Major-unit decimal string
+        currency:
+          type: string
+        originalGuid:
+          type: string
+          description: transactionID from original sale (linked refund)
+        cardToken:
+          type: string
+          description: Card token (unlinked refund)
+
+    PreAuthCaptureRequest:
+      type: object
+      required: [originalGuid, capturedAmount]
+      properties:
+        originalGuid:
+          type: string
+          format: uuid
+          description: transactionID from the pre-authorization CREATE result
+        capturedAmount:
+          type: string
+          description: Major-unit decimal string ("15.00" = $15.00). Field name is capturedAmount, NOT amount.
+          example: "15.00"
+        tipAmount:
+          type: string
+          description: Optional tip in major-unit decimal string. Omit if no tip.
+
+    PreAuthCaptureResult:
+      type: object
+      properties:
+        httpStatus:
+          type: integer
+          example: 200
+        capturedAmount:
+          type: string
+        tipAmount:
+          type: string
+          description: Absent when no tip was applied — not guaranteed to be "0.00"
+        holdAmount:
+          type: string
+        originalAmount:
+          type: string
+        preAuthorizationGuid:
+          type: string
+          format: uuid
+        preAuthorizationCaptureGuid:
+          type: string
+          format: uuid
+          description: Use as originalGuid for a capture reversal
+        approvalCode:
+          type: string
+        issuerResponseCode:
+          type: string
+        issuerResponseText:
+          type: string
+        maskedCardNumber:
+          type: string
+        cardTypeName:
+          type: string
+        currency:
+          type: string
+        batchNumber:
+          type: string
+        serverDateTime:
+          type: string
+
+    PreAuthIncreaseRequest:
+      type: object
+      required: [originalGuid, increaseAmount, subtract]
+      properties:
+        originalGuid:
+          type: string
+          format: uuid
+        increaseAmount:
+          type: string
+          description: Major-unit decimal string
+        subtract:
+          type: string
+          enum: ["0", "1"]
+          description: '"0" = increase, "1" = decrease'
+
+    BatchRequest:
+      type: object
+      required: [deviceType, serialNumber]
+      properties:
+        deviceType:
+          type: string
+          description: PAX model — camelCase field name (NOT terminal_type)
+          example: PAXA920
+        serialNumber:
+          type: string
+          description: Terminal serial number — camelCase field name (NOT serial_number)
+          example: "082104578"
+        batchNumber:
+          type: string
+          description: Required for ViscusDummy staging only — omit in production
+
+    BatchCloseResult:
+      type: object
+      properties:
+        httpStatus:
+          type: string
+          description: |
+            String "200" on success — NOT an integer.
+            This differs from /reversal which returns integer 200.
+            Use type-safe comparison (=== "200").
+          example: "200"
+        batchNumber:
+          type: string
+        transactionCount:
+          type: string
+        netAmount:
+          type: string
+        closeBatchGuid:
+          type: string
+        closedAt:
+          type: string
+        issuerResponseCode:
+          type: string
+        issuerResponseText:
+          type: string
+        batchStatus:
+          type: string
+          example: CLOSED
+        customerReference:
+          type: object
+          description: Always present as empty object {} — reserved for future use, safe to ignore
+
+    BatchSummaryResult:
+      type: object
+      properties:
+        httpStatus:
+          type: string
+        batchNumber:
+          type: string
+        transactionCount:
+          type: string
+        netAmount:
+          type: string
+        batchSummaryGuid:
+          type: string
+        batchStatus:
+          type: string
+
+    BatchDetailResult:
+      type: object
+      properties:
+        httpStatus:
+          type: string
+        batchNumber:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              transactionType:
+                type: string
+              amount:
+                type: string
+              retrievalReferenceNumber:
+                type: string
+              batchDetailElementGuid:
+                type: string
+
+    Device:
+      type: object
+      properties:
+        serialNumber:
+          type: string
+          description: Use as serial_number in transaction requests
+        terminalType:
+          type: string
+          description: Use as terminal_type in transaction requests
+        merchantStatus:
+          type: string
+          description: ACTIVATED = paired with this merchant
+        ssk:
+          type: string
+          description: |
+            Shared-secret key for Android/iOS SDK authentication only.
+            NOT needed for Cloud REST API calls.
+
+    TransactionStatus:
+      type: object
+      properties:
+        finStatus:
+          type: string
+          enum: [AUTHORISED, DECLINED, CANCELLED, FAILED, PARTIAL_APPROVAL, UNDEFINED, IN_PROGRESS]
+          description: |
+            IN_PROGRESS = transaction is still being processed on the terminal.
+            UNDEFINED = no definitive result — trigger recovery flow.
+        transactionID:
+          type: string
+        totalAmount:
+          type: integer
+        requestedAmount:
+          type: integer
+        currency:
+          type: string
+        type:
+          type: string
+
+    Billing:
+      type: object
+      required: [zipCode]
+      properties:
+        zipCode:
+          type: string
+          description: Required when billing object is included
+          example: "10001"
+        address:
+          type: string
+          description: Optional street address
+          example: 123 Main St
+
+    TerminalError:
+      type: object
+      description: Flat error shape for terminal 400 errors (different from BackOfficeError)
+      properties:
+        error:
+          type: integer
+          example: 1001
+        message:
+          type: string
+          example: Device is busy
+
+    BackOfficeError:
+      type: object
+      description: Nested error shape for back-office endpoint errors
+      properties:
+        error:
+          type: object
+          properties:
+            statusCode:
+              type: integer
+            name:
+              type: string
+            message:
+              type: string
+            code:
+              type: string
+            details:
+              type: object
+
+    AuthError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            statusCode:
+              type: integer
+              example: 403
+            name:
+              type: string
+              example: ForbiddenError
+            message:
+              type: string
+              example: No valid key found in header

@@ -1,0 +1,29 @@
+---
+id: acquirer-capabilities-matrix
+title: Acquirer capabilities matrix
+sidebar_label: Capabilities matrix
+sidebar_position: 2
+description: Interactive capabilities matrix — filter by processor, acquirer, or integration path to see what's supported and where.
+hide_table_of_contents: true
+pagination_next: null
+pagination_prev: null
+visibility: internal
+---
+
+import CapabilityMatrix from '@site/src/components/CapabilityMatrix';
+
+# Acquirer capabilities matrix
+
+:::info Internal reference
+This page is generated from [`data/acquirers.yaml`](../../data/acquirers.yaml). To update it, edit the YAML and run:
+
+```bash
+node scripts/generate-matrix-data.js
+```
+
+**Do not merge to `main`** — this page is staging-only. It can be merged to `dev` from other branches.
+:::
+
+Use the filter bar below to focus on a processor, specific acquirers, or particular integration paths.
+
+<CapabilityMatrix />

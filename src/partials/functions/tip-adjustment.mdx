@@ -1,0 +1,200 @@
+## Tip Adjustment
+
+Modifies the tip amount on a completed sale **before batch close**. Used in restaurant/hospitality flows where the cardholder signs a paper receipt and adds a tip after the initial authorization.
+
+:::info Full guide
+For acquirer restrictions, batch-close deadline, cross-SDK usage, iOS HiLite specifics, and the Sale with Tip vs Tip Adjustment comparison, see the [Tipping Guide](/reference/tipping-guide).
+:::
+
+{/* ACQUIRER_NOTE_INJECTION_POINT */}
+
+#### Code
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Synchronous — the gateway responds immediately. No terminal, no polling.
+
+```http
+POST https://cloud.handpoint.com/transactions/01236fc0-8192-11eb-9aca-ad4b0e95f241/tip-adjustment
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+
+{
+  "amount": 9.00
+}
+```
+
+The `transactionID` from the original sale goes in the URL path. To void a tip, send `"amount": 0`.
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+```kotlin
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),  // 900 cents = $9.00
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+```kotlin
+// tipAdjustment returns Boolean synchronously — no endOfTransaction callback fires
+val accepted: Boolean = hapi.tipAdjustment(
+    BigInteger("900"),  // 900 cents = $9.00
+    Currency.USD,
+    "01236fc0-8192-11eb-9aca-ad4b0e95f241"
+)
+// To void a tip: pass BigInteger("0")
+```
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+```objc
+// Objective-C — tipAdjustment is a C function declared in HapiRemoteService.h
+#include "HapiRemoteService.h"
+
+// Call setupHandpointApiConnection once at startup (not per-adjustment)
+NSString* sharedSecret = @"YOUR_SHARED_SECRET";
+setupHandpointApiConnection(sharedSecret);
+
+// Tip adjust — use transactionId from the original sale's responseFinanceStatus
+// NOT eFTTransactionID — they are different fields
+NSString* transaction = @"01236fc0-8192-11eb-9aca-ad4b0e95f241";
+BOOL sent = tipAdjustment(transaction, 900, ^(TipAdjustmentStatus status) {
+    if (status == TipAdjustmentAuthorised) {
+        // Tip adjustment approved
+    } else if (status == TipAdjustmentDeclined) {
+        // Declined — do not retry
+    } else if (status == TipAdjustmentFailed) {
+        // System error or timeout — safe to retry once
+    }
+});
+```
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="tipAdjustment is not implemented in the Cordova plugin — calling it has no effect on either Android or iOS. Use the Cloud API or Android SDK directly."
+  useInstead="Cloud API or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Parameters
+
+<Tabs groupId="integration-path">
+<TabItem value="backoffice" label="Backoffice">
+
+Amount in **major currency units** — `9.00` = $9.00. Synchronous — result returned immediately.
+
+| Name | Type | Required | Description |
+|---|---|---|---|
+| `{transactionID}` | string (path) | Yes | `transactionID` from the original sale result (in the URL path) |
+| `amount` | number | Yes | Tip amount in **major currency units**, e.g. `9.00` for $9.00. Send `0` to void an existing tip |
+| `taxInformation.taxAmount` | number | No | Tax amount in major currency units (e.g. `1.50`). Note: **different format** from `POST /transactions`, where tax is a string in minor units. `0` corrects the tax of the tip adjustment to zero |
+| `taxInformation.taxExempt` | boolean | No | [Level 2](/reference/level-2-purchasing-data#tip-adjustment) tax-exempt flag. When `true`, `taxAmount`, if sent, must be `0` |
+
+</TabItem>
+<TabItem value="android-pax" label="Android (PAX)">
+
+Returns `Boolean` synchronously — no `endOfTransaction` callback fires.
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `tipAmount` | `BigInteger` | Yes | Tip amount in minor currency units, e.g. `BigInteger("900")` = $9.00. `BigInteger("0")` to void |
+| `currency` | `Currency` | Yes | Currency of the original transaction, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="android-hilite" label="Android (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `tipAmount` | `BigInteger` | Yes | Tip amount in minor currency units, e.g. `BigInteger("900")` = $9.00. `BigInteger("0")` to void |
+| `currency` | `Currency` | Yes | Currency of the original transaction, e.g. `Currency.USD` |
+| `originalTransactionID` | `String` | Yes | `transactionID` from the original sale result |
+
+</TabItem>
+<TabItem value="ios-hilite" label="iOS (HiLite)">
+
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `transaction` | `NSString *` | Yes | `transactionId` from the original sale result (note: NOT `eFTTransactionID`) |
+| `tipAmount` | integer | Yes | Tip amount in minor currency units, e.g. `900` = $9.00. `0` to void |
+| `callback` | block | Yes | `TipAdjustmentStatus`: `TipAdjustmentAuthorised`, `TipAdjustmentDeclined`, or `TipAdjustmentFailed` |
+
+</TabItem>
+<TabItem value="cordova" label="Cordova">
+
+<NotSupported
+  reason="tipAdjustment is not implemented in the Cordova plugin — calling it has no effect on either Android or iOS. Use the Cloud API or Android SDK directly."
+  useInstead="Cloud API (Backoffice) or Android SDK (PAX)"
+/>
+
+</TabItem>
+</Tabs>
+
+#### Response
+
+<Tabs>
+<TabItem value="success" label="Success">
+
+```json
+{
+  "statusMessage": "tip adjusted",
+  "batchNumber": "123",
+  "taxInformation": {
+    "taxAmount": 1.50,
+    "taxAmountIdentifier": "1"
+  }
+}
+```
+
+`taxInformation` is only present when the gateway returns it. `taxAmountIdentifier` is `"1"` for local sales tax, `"2"` for tax exempt.
+
+</TabItem>
+<TabItem value="batch-closed" label="Batch Closed">
+
+The batch has already been closed — tip adjustments are only available on unsettled transactions in the current open batch.
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "Tip adjustment not available — batch has closed"
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
+| Field | Type | Description |
+|---|---|---|
+| `statusMessage` | string | `"tip adjusted"` on success |
+| `batchNumber` | string | The current open batch number, if returned by the acquirer. May be absent |
+| `taxInformation.taxAmount` | number | The tax amount recorded by the gateway, in major units. Absent when not returned |
+| `taxInformation.taxAmountIdentifier` | string | `"1"` local sales tax, `"2"` tax exempt. Absent when not returned |
+
+#### Errors
+
+| Code | Meaning | Recovery |
+|---|---|---|
+| `ORIGINAL_NOT_FOUND` | Transaction ID not found | Verify the ID |
+| `BATCH_ALREADY_CLOSED` | Batch has closed | Refund the tip amount instead |
+| `TIP_ADJUSTMENT_NOT_ENABLED` | TMS config not set | Contact Handpoint onboarding team |
+| `AMOUNT_EXCEEDS_LIMIT` | Tip exceeds allowed percentage | Verify tip amount |
+| `400` (Level 2 validation) | Invalid `taxInformation`, for example a non-zero `taxAmount` with `taxExempt` `true`, or an unsupported field | Fix the field — see [Level 2 validation errors](/reference/level-2-purchasing-data#validation-errors) |
+
+#### Testing
+Test tip adjustment on the TEST/DEMO merchant or staging device. Tip adjustment is enabled by default — no additional configuration required. See the [Tipping guide](/reference/tipping-guide) for full details on tip-at-table flows.

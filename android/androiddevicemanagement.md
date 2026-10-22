@@ -342,7 +342,7 @@ Transaction will fail with status **CANCELLED**
 
 `update` <span class="badge badge--info">Method</span>
 
-The update operation checks for new software or configuration updates and initiates a download if required.
+The update operation checks for new configuration updates and initiates a download if required.
 
 **Parameters**
 
@@ -415,3 +415,50 @@ Invoked when the result of the getTransactionStatus request is available.
 | Parameter      | Notes |
 | ----------- | ----------- |
 |  `Boolean`| `true` if the operation was successfully.|
+
+## Security Policy Update{#securityPolicyUpdate}
+
+**This functionality is only available for SmartPos devices (PAX) running Handpoint Payments App 4.14.1+.**
+
+When Handpoint's platform pushes a `SecurityPolicyUpdate` cloud command to the device, the SDK decodes the payload and calls `securityPolicyUpdate` on any delegate that implements `SecurityPolicyEvent`. Implement this callback to react to remotely applied security policy changes — for example, to update your own app's UI when the tab bar visibility or system UI lock state changes.
+
+**Delegate interface**
+
+```kotlin
+interface SecurityPolicyEvent {
+    fun securityPolicyUpdate(policy: SecurityPolicyUpdatePayload)
+}
+```
+
+Your `EventHandler` implementation must include this method if you want to receive security policy notifications. `EventHandler` already extends `AppEvents`, which includes `SecurityPolicyEvent`.
+
+**`SecurityPolicyUpdatePayload` fields**
+
+| Field | Type | Description |
+|---|---|---|
+| `hideTabBar` | `Boolean?` | `true` if the app's bottom tab bar has been hidden. `false` if restored. `null` if this restriction was not part of the update. |
+| `blockSystemUI` | `Boolean?` | `true` if the Android status and navigation bars are locked. `false` if restored. `null` if not part of the update. |
+| `brightness` | `Boolean?` | `true` if automatic screen dimming on idle is active. `false` if disabled. `null` if not part of the update. |
+| `passwordToExit` | `Boolean?` | `true` if a PIN is required to lift active restrictions. `false` if removed. `null` if not part of the update. |
+
+A `null` field means that restriction was not included in this update — its current state on the device is unchanged.
+
+**Code example**
+
+```kotlin
+class MyEventHandler : EventHandler() {
+
+    override fun securityPolicyUpdate(policy: SecurityPolicyUpdatePayload) {
+        policy.hideTabBar?.let { hidden ->
+            // update your own UI if needed
+        }
+        policy.blockSystemUI?.let { blocked ->
+            // react to system UI lock change
+        }
+    }
+}
+```
+
+**See also**
+
+The `set-security-policy` [Device Control Command](/back-office/device-commands#set-security-policy) — the REST API endpoint that triggers this callback.
