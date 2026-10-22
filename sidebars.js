@@ -78,6 +78,7 @@ const sidebars = {
                 'reference/android-hilite-integration-guide',
                 'reference/android-hilite-integration-walkthrough',
                 'reference/android-cloud-api-integration-guide',
+                'reference/android-store-and-forward',
                 'reference/android-demo-app',
               ],
             },
