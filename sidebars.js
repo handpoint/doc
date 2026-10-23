@@ -47,7 +47,6 @@ const sidebars = {
           type: 'category',
           label: 'Back Office',
           items: [
-            'back-office/device-commands',
             'back-office/transaction-feed-api',
             'back-office/tms-apis',
           ],
@@ -109,6 +108,7 @@ const sidebars = {
               label: 'Cloud API',
               items: [
                 'reference/cloud-api-integration-guide',
+                'reference/cloud-api-device-commands',
               ],
             },
             {

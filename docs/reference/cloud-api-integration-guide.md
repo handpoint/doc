@@ -543,6 +543,7 @@ The table below covers all payment operations supported on the Cloud API path. C
 | **MOTO (Remote Sale)** | Card-not-present sale using a stored token | [EPI](/acquirers/epi#remote-sale) · [EmerchantPay](/acquirers/emerchantpay#remote-sale) |
 | **Tokenization** | Store card for future charges, deferred token retrieval | [EPI](/acquirers/epi#tokenization) · [PAYSAFE](/acquirers/paysafe#tokenization) · [EmerchantPay](/acquirers/emerchantpay#tokenization) · [Paystrax](/acquirers/paystrax#tokenization) |
 | **Batch Operations** | Batch close, summary, detail — Backoffice path | [EPI](/acquirers/epi#batch-close) |
+| **Device Management** | Kiosk/unattended mode, locale, brightness, reboot schedule — no card interaction required | [All acquirers](/reference/cloud-api-device-commands) |
 
 For per-acquirer feature availability across all integration paths, open your acquirer page: [EPI](/acquirers/epi) · [TSYS](/acquirers/tsys) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax) · [PAYSAFE](/acquirers/paysafe).
 
@@ -551,6 +552,62 @@ The initial Pre-Authorization Create goes through the PAX terminal — the cardh
 
 → [Pre-Authorization Guide](/reference/pre-authorization-guide) — full lifecycle, code examples for all steps, and acquirer support matrix.
 :::
+
+:::tip Device Management: acquirer-independent
+All Device Management Commands work identically regardless of acquirer. They use the same `ApiKeyCloud` and the same endpoint base (`/devices/{type}/{serial}/{command}`), and they can be called from your POS application at any time — before, between, or after transactions.
+:::
+
+## Device Management Commands
+
+Device commands let your POS application control the terminal experience remotely — no cardholder interaction needed. They share the same authentication and endpoint base as payment operations.
+
+```http
+POST https://cloud.handpoint.com/devices/{terminal_type}/{serial_number}/{command}
+ApiKeyCloud: YOUR_MERCHANT_API_KEY
+Content-Type: application/json
+```
+
+All commands return `202 Accepted` with `{"status": "Accepted"}` immediately. Delivery is asynchronous.
+
+### Common integration flows
+
+**Kiosk / unattended deployment**
+
+Lock the terminal to the payment screen and prevent cardholder access to settings, history, and analytics. Use `set-security-policy` to configure restrictions independently — you can hide the tab bar without blocking system UI, or require a PIN to exit without dimming the screen.
+
+```http
+POST /devices/PAXA920/{serial}/set-security-policy
+{ "hideTabBar": true, "blockSystemUI": true, "passwordToExit": true }
+```
+
+**Idle-screen brightness**
+
+Dim the terminal automatically between transactions to save energy. The screen restores to full brightness when a transaction starts.
+
+```http
+POST /devices/PAXA920/{serial}/set-security-policy
+{ "brightness": true }
+```
+
+**Locale change**
+
+Switch the terminal display language without physical access — useful when a deployment moves to a different region or when multi-language support is required at the same site.
+
+```http
+POST /devices/PAXA920/{serial}/set-locale
+{ "locale": "fr_FR" }
+```
+
+**Scheduled maintenance reboot**
+
+Schedule a nightly reboot during off-hours to satisfy PCI requirements and clear any accumulated state. The reboot fires at a random minute within the specified hour so devices don't all restart simultaneously.
+
+```http
+POST /devices/PAXA920/{serial}/set-reboot-time
+{ "hour": 2 }
+```
+
+→ [Full Device Management reference](/reference/cloud-api-device-commands) — all commands, parameters, error responses, and URL path parameter details.
 
 ## Rate limits
 
