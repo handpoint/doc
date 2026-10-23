@@ -47,7 +47,6 @@ const sidebars = {
           type: 'category',
           label: 'Back Office',
           items: [
-            'back-office/device-commands',
             'back-office/transaction-feed-api',
             'back-office/tms-apis',
           ],
@@ -109,6 +108,7 @@ const sidebars = {
               label: 'Cloud API',
               items: [
                 'reference/cloud-api-integration-guide',
+                'reference/cloud-api-device-commands',
               ],
             },
             {
@@ -138,9 +138,7 @@ const sidebars = {
             'reference/partial-approval',
             'reference/moto-guide',
             'reference/avs',
-            'reference/level-2-purchasing-data',
             'reference/multi-mid',
-            'reference/fee-mitigation',
             'reference/tipping-guide',
             'reference/callback-url',
             'reference/money-remittance-guide',

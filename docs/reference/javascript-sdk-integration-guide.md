@@ -804,7 +804,7 @@ const closed = await hp.closeBatch(serialNumber, deviceType, batchNumber);
 
 ---
 
-## Additional methods
+## Additional payment operations
 
 ### MOTO Pre-Authorization
 
@@ -830,6 +830,10 @@ const result = await hp.moToPreAuthorization('5000', 'USD', {}, (stat) => {
 ```
 
 ---
+
+## Device management
+
+Methods for managing the terminal connection, health, and firmware — separate from payment operations.
 
 ### Disconnect
 
