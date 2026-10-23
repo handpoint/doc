@@ -676,26 +676,27 @@ Note: This functionality is only available for the restaurant industry in the Un
 **Code example**
 
 ```kotlin
-val result: FinancialStatus = api.tipAdjustment(
+val sent: Boolean = api.tipAdjustment(
     BigInteger("1000"),
     Currency.GBP,
     "2bc23910-c3b3-11e6-9e62-07b2a5f091ec"
 )
-when (result) {
-    FinancialStatus.AUTHORISED -> { /* SUCCESS */ }
-    FinancialStatus.DECLINED   -> { /* DECLINED */ }
-    else                       -> { /* FAILED */ }
-}
+// Result arrives via endOfTransaction callback — check result.finStatus
 ```
 
 **Returns**
 
-
-Result of the tip adjustment transaction, it returns a FinancialStatus, the possible values are :
-
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **FinancialStatus**| - **FinancialStatus.AUTHORISED** (tip adjustment approved by the processor) <br />  - **FinancialStatus.FAILED** (system error or timeout)<br /> - **FinancialStatus.DECLINED** (tip adjustment declined by the processor).|
+| `Boolean` | `true` if the tip adjustment command was sent successfully to the gateway. `false` if sending failed (e.g. not connected). |
+
+The financial outcome arrives asynchronously via `endOfTransaction`. `finStatus` values:
+
+| `finStatus` | Meaning |
+| ----------- | ----------- |
+| `AUTHORISED` | Tip adjustment approved by the processor |
+| `DECLINED` | Tip adjustment declined by the processor |
+| `FAILED` | System error or timeout |
 
 If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
 
