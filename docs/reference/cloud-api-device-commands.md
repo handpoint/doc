@@ -1,12 +1,14 @@
 ---
-title: Device Control Commands
-sidebar_position: 4
-description: Remote device management commands — reboot, locale, brightness, unattended mode, and password protection via REST API.
+title: Device Management Commands
+sidebar_position: 2
+description: Remote device management commands via the Cloud REST API — security policy, unattended/kiosk mode, locale, brightness, reboot scheduling, and password protection.
 ---
 
-# Device Control Commands
+# Device Management Commands
 
 Use these endpoints to remotely configure and control PAX terminals via the Cloud API. Commands are delivered over the existing Cloud message channel — no cardholder interaction or client-side SDK is required to issue them.
+
+These are POS-level operations: a POS application can call them at any point in the session lifecycle (after setup, before a sale, during idle state) to control the terminal experience. They are **not** back-office-only — the same `ApiKeyCloud` used for transactions authorizes them.
 
 :::warning Cloud API + connected terminal required
 Device commands are **not** back-office/no-reader operations. They are instructions delivered to a physical PAX device and require the terminal to be online and enrolled in **Cloud (integrated) mode** via Handpoint TMS. Unlike transaction feed or TMS API calls, these commands cannot be used without a connected reader.
