@@ -1,4 +1,4 @@
----
+﻿---
 id: epi
 title: "EPI"
 description: "US, Canada card-present acquirer. Supports: sale, refund, reversal, tip-adjustment, pre-auth, moto, tokenization, batching, pre-auth-capture-reversal, avs-for-moto."
@@ -1135,6 +1135,9 @@ Tokens are specific to the merchant and acquirer configuration. A token issued o
 
 ### Tokenize and Modify {#tokenize-and-modify}
 
+:::info Handpoint SDK feature — available with all acquirers
+Tokenize and Modify is a Handpoint platform capability, not specific to this acquirer. It is supported across all Handpoint-connected acquirers.
+:::
 <FlavorSection description="On-device · two-phase tokenize then decide the operation and amount" paths={["cloud-api","android-pax","android-hilite"]}>
 
 Reads and tokenizes the card in **Phase 1**, pauses while your application runs business logic (loyalty lookup, fraud check, amount calculation), then charges in **Phase 2** with the operation and amount you specify. The Phase 2 amount can differ from Phase 1 — that is the "modify" in tokenize-and-modify.
@@ -1423,6 +1426,9 @@ override fun cardTokenized(callback: ResumeCallback, cardTokenizationData: CardT
 
 ### Tokenize and Modify {#tokenize-and-modify}
 
+:::info Handpoint SDK feature — available with all acquirers
+Tokenize and Modify is a Handpoint platform capability, not specific to this acquirer. It is supported across all Handpoint-connected acquirers.
+:::
 <FlavorSection description="On-device · two-phase tokenize then decide the operation and amount" paths={["cloud-api","android-pax","android-hilite"]}>
 
 Reads and tokenizes the card in **Phase 1**, pauses while your application runs business logic (loyalty lookup, fraud check, amount calculation), then charges in **Phase 2** with the operation and amount you specify. The Phase 2 amount can differ from Phase 1 — that is the "modify" in tokenize-and-modify.
