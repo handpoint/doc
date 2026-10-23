@@ -205,8 +205,6 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | `customerReference` | string | No | Merchant reference forwarded to the acquirer |
 | `callbackUrl` | string | No | URL to receive the result via POST; if omitted, poll `GET /transaction-result/{id}` |
 | `token` | string | No | Opaque value included with the push notification. Only used when `callbackUrl` is set |
-| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
-| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -468,8 +466,6 @@ public void EndOfTransaction(TransactionResult result, Device device)
 | `terminal_type` | string | Yes | Terminal model, e.g. `"PAXA920"` |
 | `serial_number` | string | Yes | PAX terminal serial number |
 | `transactionReference` | string | No | UUID v4 for idempotency and status queries |
-| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
-| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -604,8 +600,6 @@ Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — resul
 | `cardToken` | string | Yes | Card-on-file token from a supported provider — never a raw PAN |
 | `transactionReference` | string | Recommended | UUID v4 for idempotency and recovery via `GET /transactions/{reference}/status/all` |
 | `customerReference` | string | No | Free-text merchant reference (order or invoice number). Max 50 characters, otherwise `422`. Echoed in the response and stored on the transaction — filterable in the [Transaction Feed](/back-office/transaction-feed-api) |
-| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`; at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
-| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -642,7 +636,6 @@ Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — resul
 | `DECLINED` | Issuer declined | Request another payment method from the customer |
 | `INVALID_TOKEN` | Token not recognised or expired | Verify token and token provider match acquirer |
 | `MOTO_NOT_ENABLED` | MOTO not provisioned for this merchant | Contact Handpoint team |
-| `400` (validation) | Invalid `amount` format, or invalid `taxInformation` / `purchaseOrderNumber` | Fix the field — see [Level 2 validation errors](/reference/level-2-purchasing-data#validation-errors) |
 
 
 </FlavorSection>
@@ -3628,8 +3621,6 @@ Amount in **major currency units** — `"95.00"` = $95.00. Synchronous — resul
 | `originalGuid` | string | Yes | `transactionID` from the pre-authorization result (UUID v4) |
 | `capturedAmount` | string | Yes | Capture amount in **major currency units** as a decimal string, e.g. `"95.00"` for $95.00; at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50` |
 | `tipAmount` | string | No | Optional tip in **major currency units** — Cloud API only; not supported in SDK paths |
-| `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`; at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `capturedAmount`. Must be sent with `purchaseOrderNumber` |
-| `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -3692,7 +3683,6 @@ Amount in **major currency units** — `"95.00"` = $95.00. Synchronous — resul
 | `400` | `3051` | `Already reversed` | Pre-auth was already voided | Check your records — void and capture are mutually exclusive |
 | `400` | `3211` | *(pre-auth already settled)* | Pre-auth has already been captured | Verify state via the TXN Feed API; if the first capture succeeded, issue a refund if needed |
 | `400` | — | `Invalid capturedAmount, must be in the major unit of currency (20.50 is 20.50 EUR)` | `capturedAmount` doesn't match the format above | Send a decimal string such as `"95.00"` |
-| `400` | — | *(Level 2 validation message)* | Invalid `taxInformation` or `purchaseOrderNumber` | Fix the field — see [Level 2 validation errors](/reference/level-2-purchasing-data#validation-errors) |
 | `403` | — | `No valid key found in header` | Invalid API key | Check `ApiKeyCloud` header |
 | `422` | `VALIDATION_FAILED` | Missing required field | Request body is missing `originalGuid` or `capturedAmount` | See `details` array in response |
 
