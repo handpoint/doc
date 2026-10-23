@@ -23,7 +23,25 @@ ApiKeyCloud: YOUR_MERCHANT_API_KEY
 Content-Type: application/json
 ```
 
-All endpoints return `202 Accepted` immediately. Command delivery to the device is asynchronous.
+All endpoints return `202 Accepted` immediately with a JSON body:
+
+```json
+{ "status": "Accepted" }
+```
+
+Command delivery to the device is asynchronous. If the terminal is offline or not connected in integrated mode, the endpoint returns `400 Bad Request` instead:
+
+```json
+{
+  "error": {
+    "statusCode": 400,
+    "name": "BadRequestError",
+    "message": "{\"error\":1002,\"message\":\"No device listening at the other end of the secure channel\"}"
+  }
+}
+```
+
+> The `message` field is a JSON-encoded string. Parse it with `JSON.parse(error.message)` to read `error` (numeric code) and `message` (description).
 
 ---
 
@@ -31,7 +49,7 @@ All endpoints return `202 Accepted` immediately. Command delivery to the device 
 
 Configure individual terminal security restrictions independently. Each restriction is a separate boolean flag; omitting a field leaves that restriction unchanged, so you can update a single setting without affecting the rest.
 
-Requires **Handpoint Payments App 4.14.1** or later.
+Requires **Handpoint Payments App 4.14.1** or later. Available from Cloud API **2.33.0**.
 
 ```http
 POST https://cloud.handpoint.com/devices/PAXA920/082104578/set-security-policy
@@ -51,7 +69,7 @@ Content-Type: application/json
 | `brightness` | boolean | No | `true` dims the screen to minimum when the terminal is idle and restores brightness when a transaction starts. `false` disables automatic dimming. |
 | `passwordToExit` | boolean | No | `true` requires a PIN before any active restrictions can be lifted. `false` removes the PIN requirement. |
 
-Returns `202 Accepted`. Changes take effect immediately and survive app restarts and device reboots. When the command is received, the app automatically navigates to the payment screen.
+Changes take effect immediately and survive app restarts and device reboots. When the command is received, the app automatically navigates to the payment screen.
 
 :::tip Partial updates
 Send only the fields you want to change. An empty body `{}` is accepted and changes nothing.
