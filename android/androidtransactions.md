@@ -664,40 +664,28 @@ Invoked when the terminal finishes processing the transaction.
 A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day.
 Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
 
-Dependencies:
-The code example provided depends on RxJava, take a look a their documentation to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then AsyncTask, provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
-
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `tipAmount` <span class="badge badge--primary">Required</span> <br />*BigDecimal*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span> <br />*ENUM*     | Currency of the original transaction |
+| `tipAmount` <span class="badge badge--primary">Required</span> <br />*BigInteger*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />*[Currency](androidobjects.md#13)*     | Currency of the original transaction |
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Unique id of the original sale transaction as received from the card reader (EFTTransactionID)|
 
 **Code example**
 
-```java
-Observable.fromCallable(new Callable() {
-	@Override
-	public FinancialStatus call() throws Exception {
-		return api.tipAdjustment(new BigDecimal(1000), currency.GBP, "2bc23910-c3b3-11e6-9e62-07b2a5f091ec");
-	}
-})
-.subscribeOn(Schedulers.io())
-.observeOn(AndroidSchedulers.mainThread())
-.subscribe(new Consumer() {
-	@Override
-	public void accept(@NonNull FinancialStatus status) throws Exception {
-		if (status == FinancialStatus.AUTHORISED) {
-			//SUCCESS
-		} else if (status == FinancialStatus.DECLINED) {
-			//DECLINED
-		} else {
-			//FAILED
-	}
-});
+```kotlin
+val result: FinancialStatus = api.tipAdjustment(
+    BigInteger("1000"),
+    Currency.GBP,
+    "2bc23910-c3b3-11e6-9e62-07b2a5f091ec"
+)
+when (result) {
+    FinancialStatus.AUTHORISED -> { /* SUCCESS */ }
+    FinancialStatus.DECLINED   -> { /* DECLINED */ }
+    else                       -> { /* FAILED */ }
+}
 ```
 
 **Returns**
