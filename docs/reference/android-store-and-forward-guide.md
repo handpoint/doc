@@ -63,6 +63,33 @@ Your app must handle both callbacks on the same reference to avoid creating dupl
 A card accepted offline may be declined when forwarded — for example if the card was reported stolen after the transaction was stored. Build your UX to handle this case gracefully.
 :::
 
+## Card entry types — chip and contactless only
+
+SAF accepts **chip (EMV contact)** and **contactless (NFC)** transactions. Magnetic stripe (swipe) support is an open question with significant risk factors:
+
+| Factor | EMV chip / contactless | Mag stripe (swipe) |
+|---|---|---|
+| **Fraud risk** | EMV cryptogram verifies card was physically present | No cryptogram — a cloned card is indistinguishable |
+| **Liability shift** | Issuer bears fraud liability on chip-capable cards | Merchant bears 100% liability post-2015 EMV shift |
+| **Acquirer support** | Supported (TSYS, EPI confirmed) | Not confirmed — some US acquirers decline forwarded swipe transactions |
+| **Industry practice** | Universal | Stripe and Adyen block it; Square allows it |
+
+The Handpoint SDK does **not** block mag stripe at the API level. Your application code receives `AUTHORISED_DEFERRED` even for swipe transactions. Use `result.cardEntryType` (`CardEntryType.MSR`) to detect and handle swipe as your policy requires:
+
+```kotlin
+override fun endOfTransaction(result: TransactionResult, device: Device) {
+    if (result.finStatus == FinancialStatus.AUTHORISED_DEFERRED &&
+        result.cardEntryType == CardEntryType.MSR) {
+        // Policy decision: accept and forward, or delete immediately.
+        // If deleting: safApi.deleteStoredTransaction(TransactionReference(result.transactionReference))
+        appendLog("Warning: swipe stored — confirm acquirer will accept at forwarding")
+    }
+    // ... rest of handler
+}
+```
+
+Confirm with your Handpoint integration team whether your acquirer will accept forwarded mag stripe transactions before enabling swipe in SAF mode.
+
 ---
 
 ## Setup
@@ -271,7 +298,12 @@ override fun errorDeletingStoredTransaction(
     transactionReference: TransactionReference,
     reason: TransactionDeletionFailed
 ) {
-    // Log reason — common causes: already forwarded, reference not found
+    if (reason == TransactionDeletionFailed.NO_EXISTING_TRANSACTION) {
+        // Transaction is no longer on the terminal — it was already forwarded.
+        // Treat as sent (update status to APPROVED or PROCESSING), not as an error.
+    } else {
+        // Log other failures
+    }
 }
 ```
 
