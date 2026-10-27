@@ -17,6 +17,10 @@ Fetch the integration-path skill for machine-readable setup guidance and code ex
 Need the terminal to also accept transactions triggered by a back-office server or a separate POS? See [Android SDK (PAX) — Cloud API Integrated Mode](/reference/android-cloud-api-integration-guide).
 :::
 
+:::info Store-and-Forward (SAF)
+Need the terminal to accept card-present transactions when the gateway is unreachable — queueing them for forwarding when connectivity is restored? See [Store-and-Forward — Android SDK](/reference/android-store-and-forward-guide).
+:::
+
 ## What is this integration path?
 
 The Android SDK (PAX) path runs your application **directly on the PAX SmartPOS terminal**. The Handpoint Android SDK communicates with the Handpoint Payments App on the same device via IPC — no external server or network hop is required for the payment flow.

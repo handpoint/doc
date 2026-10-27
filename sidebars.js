@@ -137,6 +137,7 @@ const sidebars = {
             'reference/pre-authorization-guide',
             'reference/partial-approval',
             'reference/moto-guide',
+            'reference/android-store-and-forward-guide',
             'reference/avs',
             'reference/multi-mid',
             'reference/tipping-guide',
