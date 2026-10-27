@@ -151,11 +151,12 @@ As of SDK 7.1014.0, `HapiFactory.getStoreAndForwardPaymentsApi()` does not auto-
 
 ## SAF sale
 
+:::danger Always set `checkDuplicates = false` for SAF
+Pass `SaleOptions(checkDuplicates = false)` on every SAF sale. The SDK enables the duplicate check by default, but in SAF mode it runs at the **gateway when the transaction is forwarded** — potentially hours after the card was accepted. A transaction flagged as a duplicate is **permanently declined** with no cardholder present to confirm the retry. There is no recovery path.
+:::
+
 ```kotlin
 fun safSale(amountMinorUnits: Long): OperationStartResult =
-    // checkDuplicates=false is required: the gateway runs its own duplicate check at forwarding
-    // time with no cardholder present to confirm. A sale flagged as a duplicate is declined
-    // permanently. The SDK enables the check by default (SDKS-447).
     safApi.sale(BigInteger.valueOf(amountMinorUnits), Currency.EUR, SaleOptions(checkDuplicates = false))
 ```
 
