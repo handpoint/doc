@@ -249,12 +249,12 @@ Surcharge, admin fee and dual pricing travel in one `Fee` object. Set it on `Sal
 ```kotlin
 val options = SaleOptions().apply {
     fee = Fee(
-        amount            = BigInteger("360"),  // the whole fee, minor units
+        amount            = BigInteger("300"),  // the fee without any tax on it, minor units
         mitigationProgram = FeeMitigationProgram.SURCHARGE,
-        taxOnFee          = BigInteger("60")    // the tax part inside amount
+        taxOnFee          = BigInteger("60")    // 0.60, part of taxInformation.taxAmount (20.60), not part of amount
     )
 }
-hapi.sale(BigInteger("10000"), Currency.USD, options)   // pass the BASE amount
+hapi.sale(BigInteger("12060"), Currency.USD, options)   // 100.00 base + 20.60 tax, no fee
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     val fee = result.fee ?: return          // null when no fee was sent
@@ -262,8 +262,11 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 }
 ```
 
-- **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
-- **`taxOnFee` sits inside `amount`.** It is never added on top.
+- **Pass the amount without the fee to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
+- **`taxOnFee` is the sales tax charged on the fee.** It is part of `taxInformation.taxAmount`,
+  not part of `fee.amount`. The SDK never adds it on top. Set it only when the merchant taxes the
+  fee (tax on base + surcharge). A surcharge on tax ("apply surcharge to tax") goes in
+  `fee.amount`, with no `taxOnFee`.
 - Level II (`@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` or expect a compiler warning): `taxInformation`/`purchaseOrderNumber` are NOT on the base `Options` class — only `SaleOptions`/`SaleAndTokenizeOptions`, `MoToSaleOptions`, and `PreAuthorizationCaptureOptions` have both fields; `TipAdjustmentOptions` has `taxInformation` only (no `purchaseOrderNumber`). Set `taxInformation = TaxInformation(taxAmount: BigInteger /*minor units, 0 if taxExempt*/, taxExempt: Boolean)` on one of those classes. **`purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only** (no hyphens, spaces, or punctuation), **and must be 25 characters or fewer** — always set both together and follow these rules. Read back `result.taxInformation` / `result.purchaseOrderNumber` (both nullable; null = not sent/returned). `Options.taxAmount` and `result.taxAmount` are deprecated — use `taxInformation.taxAmount` (note: `result.taxAmount` is `BigDecimal` major units, `taxInformation.taxAmount` is `BigInteger` minor units — type and unit both change).
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.

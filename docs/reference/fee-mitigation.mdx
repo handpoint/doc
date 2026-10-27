@@ -182,12 +182,12 @@ adds `fee`, the shape matches the object below.
 ```json
 {
   "operation": "sale",
-  "amount": "10000",
+  "amount": "12060",
   "currency": "USD",
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "fee": {
-    "amount": "360",
+    "amount": "300",
     "mitigationProgram": "surcharge",
     "taxOnFee": "60"
   }
@@ -196,23 +196,26 @@ adds `fee`, the shape matches the object below.
 
 Amounts inside `fee` follow the rest of `POST /transactions`: minor units, as a string.
 
+This example is scenario S3 in [Tax on the fee](#tax-on-the-fee): a base of 100.00, a tax of 20.60
+inside `amount`, a fee of 3.00, and a tax on fee of 0.60. The customer pays 123.60.
+
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
-Build a `Fee`, set it on the options, and start the operation. Pass the **base amount** to
-`hapi.sale()`. The SDK adds `fee.amount` to it, so never add the fee yourself.
+Build a `Fee`, set it on the options, and start the operation. Pass the amount **without the fee**
+to `hapi.sale()`. The SDK adds `fee.amount` to it, so never add the fee yourself.
 
 ```kotlin
 val fee = Fee(
-    amount            = BigInteger("360"),   // 3.60
+    amount            = BigInteger("300"),   // 3.00, without any tax on it
     mitigationProgram = FeeMitigationProgram.SURCHARGE,
-    taxOnFee          = BigInteger("60")     // 0.60, already inside amount
+    taxOnFee          = BigInteger("60")     // 0.60, part of taxInformation.taxAmount (20.60), not part of amount
 )
 
 val options = SaleOptions()
 options.fee = fee
 
-hapi.sale(BigInteger("10000"), Currency.USD, options)   // 100.00
+hapi.sale(BigInteger("12060"), Currency.USD, options)   // 100.00 base + 20.60 tax
 
 override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
@@ -230,9 +233,9 @@ A Remote Sale uses the same object on `MoToOptions`:
 
 ```kotlin
 val options = MoToOptions()
-options.fee = Fee(BigInteger("360"), FeeMitigationProgram.SURCHARGE, BigInteger("60"))
+options.fee = Fee(BigInteger("300"), FeeMitigationProgram.SURCHARGE, BigInteger("60"))
 
-hapi.moToSale(BigInteger("10000"), Currency.USD, options)
+hapi.moToSale(BigInteger("12060"), Currency.USD, options)
 ```
 
 :::note The old `surchargeAmount` still works
@@ -275,9 +278,9 @@ The object you send.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer, minor units | Yes | The whole fee, including any tax inside it. The SDK adds it to the amount of the operation. Never negative |
+| `amount` | integer, minor units | Yes | The fee, without any tax on it. Never negative |
 | `mitigationProgram` | enum | Yes | `SURCHARGE`, `ADMIN_FEE`, `CASH_DISCOUNT` or `DUAL_PRICING`. On the wire: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing` |
-| `taxOnFee` | integer, minor units | No | The part of `amount` that is tax. Never added on top. Never negative. Absent reads as zero |
+| `taxOnFee` | integer, minor units | No | The sales tax charged on the fee. It is part of `taxInformation.taxAmount`, not part of `amount`. Never negative. Absent reads as zero |
 
 Three rules apply before the transaction starts.
 
@@ -295,7 +298,7 @@ nothing, not a zero.
 |---|---|---|---|
 | `amount` | decimal, major units | Yes | The fee the gateway recorded. When `applied` is `false`, this is what you asked for, not what the customer paid |
 | `mitigationProgram` | enum | No | The program the gateway applied the fee under. Empty when the gateway reports a program the SDK does not recognise |
-| `taxOnFee` | decimal, major units | Yes | The part of `amount` that is tax |
+| `taxOnFee` | decimal, major units | Yes | The sales tax charged on the fee. It is part of `taxInformation.taxAmount`, not part of `amount` |
 | `applied` | boolean | Yes | Whether the gateway charged the fee |
 | `reason` | enum | Yes | Why the gateway applied or dropped the fee |
 | `reasonDetail` | string | No | The raw text from the gateway. Set when `reason` is `UNKNOWN` |
@@ -343,29 +346,51 @@ instead of a transaction. See [Error handling](error-handling-guide.md).
 
 ## Tax on the fee
 
-A merchant can calculate the fee before the tax, or after it. Both orders reach the same total.
-They do not reach the same tax.
+A merchant can calculate the fee before the tax, or after it. The order changes the fee, the tax,
+or both. The values of `fee.amount` and `fee.taxOnFee` tell the gateway which order you used.
 
-`taxOnFee` names the part of `fee.amount` that is tax. It sits **inside** the fee. The platform
-never adds it on top of the transaction.
+- `fee.amount` is the fee, without any tax on it.
+- `fee.taxOnFee` is the sales tax charged on the fee. It is part of `taxInformation.taxAmount`. It
+  is not part of `fee.amount`.
+- The amount of the operation, before the SDK adds the fee, is the base plus the tip plus
+  `taxInformation.taxAmount`.
 
-Example. The base is 100.00. The tax is 20%, so the tax on the base is 20.00. The merchant
-surcharges 3%, and the merchant configuration applies the surcharge to the tax as well.
+Example. The base is 100.00. The tax is 20%. The merchant surcharges 3%.
 
-| Value | Amount | What you send |
+| Scenario | `fee.amount` | `fee.taxOnFee` | `taxInformation.taxAmount` | Credit price | Debit price |
+|---|---|---|---|---|---|
+| S1: surcharge on the base, tax on the base | 3.00 | 0.00 | 20.00 | 123.00 | 120.00 |
+| S2: surcharge on base + tax ("apply surcharge to tax") | 3.60 | 0.00 | 20.00 | 123.60 | 120.00 |
+| S3: tax on base + surcharge (taxable surcharge) | 3.00 | 0.60 | 20.60 | 123.60 | 120.00 |
+
+**A surcharge on tax is not a tax on fee.** In S2, the merchant applies the surcharge to the tax as
+well. The extra 0.60 is a surcharge on the 20.00 tax. It is part of the fee, so you send it in
+`fee.amount`. It is not a tax, so `fee.taxOnFee` stays zero.
+
+**Only S3 has a tax on fee.** The merchant charges tax on the surcharge. The 0.60 is tax, so you
+add it to `taxInformation.taxAmount` and send it in `fee.taxOnFee`. You do not add it to
+`fee.amount`.
+
+The credit price is the base, plus the tip, plus `taxInformation.taxAmount`, plus `fee.amount`. The
+SDK adds `fee.amount` to the amount of the operation. It never adds `fee.taxOnFee`, because the tax
+on fee is already inside `taxInformation.taxAmount`.
+
+You send the tax on fee, because only you know how you calculated it.
+
+### When the gateway drops the fee
+
+When the gateway drops a fee, for example for a debit card, it removes the fee and its tax:
+
+- The amount it sends to the acquirer is `amount − fee.amount − fee.taxOnFee`.
+- The tax it sends to the acquirer is `taxInformation.taxAmount − fee.taxOnFee`.
+
+In each scenario above, the debit price is 120.00 and the debit tax is 20.00.
+
+| Scenario | Credit price − `fee.amount` − `fee.taxOnFee` | `taxAmount` − `fee.taxOnFee` |
 |---|---|---|
-| Base | 100.00 | The amount of the operation, `10000` |
-| Fee on 120.00 at 3% | 3.60 | `fee.amount`, `360` |
-| The tax part inside that fee | 0.60 | `fee.taxOnFee`, `60` |
-| What the customer pays | 123.60 | The SDK adds the base and the fee |
-
-You send the part of the tax that belongs to the fee, because only you know how you calculated it.
-When the fee applies, that figure changes nothing.
-
-:::note The tax on a dropped fee
-When the gateway drops a fee, it removes the fee. The matching reduction of the declared tax is
-still in development. Until it ships, reconcile the tax yourself when `applied` is `false`.
-:::
+| S1 | 123.00 − 3.00 − 0.00 = 120.00 | 20.00 − 0.00 = 20.00 |
+| S2 | 123.60 − 3.60 − 0.00 = 120.00 | 20.00 − 0.00 = 20.00 |
+| S3 | 123.60 − 3.00 − 0.60 = 120.00 | 20.60 − 0.60 = 20.00 |
 
 ## What reaches the card networks
 

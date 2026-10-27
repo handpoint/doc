@@ -409,9 +409,9 @@ result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
 // --- Fee mitigation ---
-result.fee?.amount              // BigDecimal("3.60")   major units, not minor
+result.fee?.amount              // BigDecimal("3.00")   major units, not minor
 result.fee?.mitigationProgram   // FeeMitigationProgram.SURCHARGE
-result.fee?.taxOnFee            // BigDecimal("0.60")   inside amount
+result.fee?.taxOnFee            // BigDecimal("0.60")   part of taxInformation.taxAmount, not part of amount
 result.fee?.applied             // true
 result.fee?.reason              // FeeReason.APPLIED
 result.fee?.reasonDetail        // null
@@ -536,7 +536,7 @@ The `Fee` you send uses minor units, so the units change between the request and
 |---|---|---|
 | `amount` | BigDecimal | The fee the gateway recorded. When `applied` is `false`, this is what you asked for, not what the customer paid. |
 | `mitigationProgram` | FeeMitigationProgram? | `SURCHARGE` `ADMIN_FEE` `CASH_DISCOUNT` `DUAL_PRICING`. `null` when the gateway reports a program this SDK version does not recognise. |
-| `taxOnFee` | BigDecimal | The part of `amount` that is tax. Already inside `amount`. |
+| `taxOnFee` | BigDecimal | The sales tax charged on the fee. It is part of `taxInformation.taxAmount`, not part of `amount`. |
 | `applied` | Boolean | `true` when the gateway charged the fee. |
 | `reason` | FeeReason | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `UNKNOWN`. |
 | `reasonDetail` | String? | Raw gateway text. Set when `reason` is `UNKNOWN`. |
