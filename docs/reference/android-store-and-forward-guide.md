@@ -126,7 +126,10 @@ As of SDK 7.1014.0, `HapiFactory.getStoreAndForwardPaymentsApi()` does not auto-
 
 ```kotlin
 fun safSale(amountMinorUnits: Long): OperationStartResult =
-    safApi.sale(BigInteger.valueOf(amountMinorUnits), Currency.EUR, SaleOptions())
+    // checkDuplicates=false is required: the gateway runs its own duplicate check at forwarding
+    // time with no cardholder present to confirm. A sale flagged as a duplicate is declined
+    // permanently. The SDK enables the check by default (SDKS-447).
+    safApi.sale(BigInteger.valueOf(amountMinorUnits), Currency.EUR, SaleOptions(checkDuplicates = false))
 ```
 
 Check `operationStarted` before assuming the sale was queued:
@@ -197,14 +200,13 @@ fun listStoredTransactions(): Boolean = safApi.getStoredTransactions()
 override fun transactionsStoredList(
     transactions: List<TransactionReference>,
     currency: Currency,
-    totalAmount: BigInteger,   // SAF batch limit (despite the parameter name)
-    maxAmount: BigInteger,     // Total amount currently stored (despite the parameter name)
+    totalAmount: BigInteger,        // SAF batch limit (despite the parameter name)
+    amountProcessed: BigInteger,    // Total amount currently stored (despite the parameter name)
 ) {
-    // NOTE: SDK parameter naming is inverted.
-    // totalAmount = the configured batch ceiling (e.g. €1,000.00)
-    // maxAmount   = the sum of amounts currently in the queue
-    val batchLimit = totalAmount   // rename mentally or via local val
-    val amountStored = maxAmount
+    // NOTE: despite the name "totalAmount", this is the batch ceiling.
+    // "amountProcessed" is the sum of amounts currently queued.
+    val batchLimit   = totalAmount
+    val amountStored = amountProcessed
 
     val queueSize = transactions.size
     val storedTotal = amountStored.toLong()
@@ -212,7 +214,7 @@ override fun transactionsStoredList(
 ```
 
 :::note `transactionsStoredList` parameter naming
-The SDK's `totalAmount` parameter is the **batch limit** (ceiling configured in TMS) and `maxAmount` is the **amount currently stored**. The names are reversed from what you would expect — this is a known SDK quirk.
+The SDK's `totalAmount` parameter is the **batch limit** (ceiling configured in TMS) and `amountProcessed` is the **amount currently stored**. The names are reversed from what you would expect — this is a known SDK quirk.
 :::
 
 ### Forward stored transactions
@@ -287,10 +289,12 @@ override fun safTransactionStatus(
     status: SafTransactionStatus
 ) {
     // SafTransactionStatus values:
-    //   STORED      — still in queue, not forwarded
-    //   IN_PROGRESS — currently being forwarded
+    //   STORED       — still in queue, not forwarded
+    //   IN_PROGRESS  — currently being forwarded
     //   SUCCEEDED / CAPTURED — settled by acquirer
+    //   REFUNDED     — refund processed post-settlement
     //   FAILED / CANCELLED   — forwarding or authorisation failure
+    //   NOT_FOUND    — no longer on the terminal; treat as already forwarded
 }
 
 // Also implement:
@@ -426,6 +430,20 @@ The source is the internal `SAFDemo` project. Contact your Handpoint integration
 
 ---
 
+## MAGStripe (swipe) in Store-and-Forward
+
+The SDK does not block MAGStripe transactions in SAF mode — a swipe is stored and forwarded alongside chip and contactless transactions. However, there are important acquirer and card-scheme considerations, especially for US deployments:
+
+| Concern | Detail |
+|---|---|
+| **Liability shift** | US Visa and Mastercard rules: if a chip-capable terminal processes a swipe, the merchant bears liability for chargebacks — including transactions stored offline |
+| **Post-forward decline** | Some US acquirers (notably TSYS) reject mag-stripe SAF transactions at forwarding time. The merchant doesn't learn of the decline until hours after the sale |
+| **Fraud window** | A stolen or cloned mag-stripe card accepted offline isn't verified until forwarding — potentially many hours later |
+
+**Recommendation:** Do not block swipe in app code. Instead, configure the terminal's card reader policy in TMS to disable mag-stripe fallback for SAF merchants in the US. This ensures the terminal itself refuses a swipe attempt on a chip-capable card rather than silently storing it. Check with your Handpoint integration team and the specific acquirer before enabling SAF with mag-stripe allowed.
+
+---
+
 ## Common issues
 
 ### `sale()` returns `operationStarted = false` with no error message
@@ -434,7 +452,7 @@ The SDK was not fully initialised when `sale()` was called. Wait for `Initialisa
 
 ### `transactionsStoredList` fires with zero amounts when the queue is empty
 
-The SDK returns `Either.Left(NotFound)` internally when the queue is empty, which sets both `totalAmount` and `maxAmount` to zero even though a valid SAF config is loaded. Cache the `totalAmount` (batch limit) from the first non-zero callback and reuse it for display.
+The SDK returns `Either.Left(NotFound)` internally when the queue is empty, which sets both `totalAmount` and `amountProcessed` to zero even though a valid SAF config is loaded. Cache the `totalAmount` (batch limit) from the first non-zero callback and reuse it for display.
 
 ### Both `endOfTransaction` callbacks update the same row with `AUTHORISED_DEFERRED`
 
