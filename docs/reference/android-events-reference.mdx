@@ -267,6 +267,50 @@ class MyEventHandler : Events.SmartposRequired, Events.CardBrandDisplay {
 
 `CardBrands` enum values: `VISA`, `MASTERCARD`, `MAESTRO`, `AMEX`, `DISCOVER`, `DINERS`, `JCB`, `INTERAC`, `OTHER`.
 
+:::caution `readCard` is deprecated from SDK 7.1014.5
+Use [`Events.CardRead`](#eventscardread) instead. It gives the card brand and also the BIN, the last four digits and the entry mode, also for magstripe. The SDK continues to send `readCard`, so existing integrations do not change. `supportedCardBrands` is not deprecated.
+:::
+
+---
+
+### `Events.CardRead`
+
+Receive the BIN, the last four digits and other data of the card as soon as the terminal reads it (chip, contactless or magstripe), before the transaction goes to Handpoint. For example, show the BIN and the last four digits on screen while the transaction continues.
+
+Available from Android SDK 7.1014.5.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.CardRead {
+
+    // Fires as soon as the terminal reads the card.
+    override fun cardRead(cardReadData: CardReadData) {
+        // For example: show "VISA 47617390****0135"
+        showCard("${cardReadData.cardBrand} ${cardReadData.maskedPan}")
+    }
+}
+
+// Register the delegate once, after you create the Hapi instance:
+api.registerEventsDelegate(MyEventHandler())
+```
+
+The SDK does not wait for `cardRead`: the transaction continues while your app handles it, so the event does not add time to the transaction.
+
+**`CardReadData` fields:**
+
+| Field | Type | Description |
+|---|---|---|
+| `bin` | `String` | The first 8 digits of the PAN for a PAN of 16 digits or more, else the first 6 digits. |
+| `lastFourDigits` | `String` | The last four digits of the PAN. |
+| `maskedPan` | `String` | The PAN with every digit between `bin` and `lastFourDigits` as `*`. For example, `47617390****0135`. |
+| `cardBrand` | `CardBrands` | The card brand. `OTHER` when the SDK does not know it. A magstripe read always gives `OTHER`. |
+| `entryMode` | `CardEntryMode` | How the terminal read the card: `CHIP`, `CONTACTLESS` or `MAGSTRIPE`. |
+| `applicationLabel` | `String` | The EMV application label, for example `VISA CREDIT`. Empty for a magstripe read. |
+| `aid` | `String` | The EMV application identifier (AID), in hexadecimal. Empty for a magstripe read. |
+
+:::info PCI DSS
+`CardReadData` never contains the full PAN. It contains at most the BIN and the last four digits, which is the maximum that PCI DSS v4.0 (requirement 3.4.1) allows a system to show.
+:::
+
 ---
 
 ### `Events.CardTokenization`
