@@ -96,7 +96,8 @@ The Cloud API and the Android SDK expect the transaction amount to be built diff
 | Path | What `amount` must contain | Result |
 |---|---|---|
 | **Cloud API** | The **total**, surcharge and tax already included | `amount: 5562`, `surchargeAmount: 162`, `taxAmount: 400` |
-| **Android SDK** — sale, MOTO sale, refund | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
+| **Android SDK** — sale, MOTO sale | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
+| **Android SDK and Cloud API** — refund, MOTO refund | The **refund total**: base, tax and surcharge to return. Set no surcharge or tax field | `refund(2781)` with no `surchargeAmount`, `taxAmount` or `taxInformation` |
 | **Android SDK** — pre-auth capture | The **total**, surcharge and tax already included | The capture amount is sent verbatim |
 
 ## Code {#code}
@@ -162,7 +163,7 @@ val options = SaleOptions().apply {
 hapi.sale(BigInteger.valueOf(saleAmount), Currency.USD, options)
 ```
 
-`surchargeAmount` is also available on `MoToOptions` (MOTO sale), `RefundOptions` (refund), and the base `Options` type used by `preAuthorizationCapture`. Passing `null` omits the field from the request.
+`surchargeAmount` is also available on `MoToOptions` (MOTO sale) and on the base `Options` type used by `preAuthorizationCapture`. Passing `null` omits the field from the request. Do not set it on a refund: see [Refunds](#refunds).
 
 Do not set it on the pre-authorization itself — the surcharge is realized at capture, and the SDK drops it on the initial authorization.
 
@@ -237,6 +238,17 @@ refundTotal     = refundBaseAmount + refundTax + refundSurcharge
 ```
 
 Refunding 25.00 of the 50.00 sale above gives a ratio of 0.5, so 2.00 of tax and 0.81 of surcharge come back, for a refund total of 27.81. For a full refund, use the original base amount as `refundBaseAmount` and the whole surcharge is returned.
+
+Send `refundTotal` as the refund `amount`. Do not set `surchargeAmount`, `taxAmount` or `taxInformation` on a refund or a MOTO refund. From Android SDK 7.1014.5, the SDK does not start a refund that has one of these fields set, even to zero:
+
+- `refund(...)` and `motoRefund(...)` return `OperationStartResult(operationStarted = false)` with the error message `Refunds do not accept surcharge or tax amounts: send the refund total as the amount`.
+- `endOfTransaction` delivers a `FAILED` result with the same message.
+- A Cloud API refund (`"operation": "refund"` or `"moToRefund"`) with `surchargeAmount` or `taxAmount` fails on the terminal in the same way.
+
+```kotlin
+// Partial refund of the 55.62 sale above: 25.00 base + 2.00 tax + 0.81 surcharge
+hapi.refund(BigInteger.valueOf(2781), Currency.USD, originalTransactionId, RefundOptions())
+```
 
 Tips are not refunded proportionally — handle them separately according to your own business rules, and keep them out of the refund surcharge base.
 
