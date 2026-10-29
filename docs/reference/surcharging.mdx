@@ -205,11 +205,11 @@ override fun newConfigurations(items: List<ConfigurationKeyValuePair<*>>) {
 
 ## What comes back
 
-The gateway decides whether the surcharge sticks — a debit card, for example, may be exempt. The [transaction result](/reference/transaction-result-object) reports what was actually applied.
+The gateway decides whether the surcharge sticks — a debit card, for example, may be exempt. The [transaction result](/reference/transaction-result-object) reports what was actually applied in `result.surcharge`, a [`Surcharge`](/reference/transaction-result-object#surcharge-object) object. It is `null` when the gateway response has no surcharge block. The rule is the same for every operation.
 
 | Field | Notes |
 |---|---|
-| `amount` | The surcharge the gateway recorded, in **major** units. Note that the amount you *sent* was in minor units. |
+| `amount` | The surcharge the gateway recorded, in **major** units — `1.62` is USD 1.62. Note that the amount you *sent* was in minor units. `result.taxAmount` is in major units too. |
 | `applied` | `true` when the surcharge was applied to this transaction. |
 | `reason` | The card funding type behind the decision, for example `CREDIT` or `DEBIT`. |
 
@@ -248,7 +248,7 @@ Tips are not refunded proportionally — handle them separately according to you
 | `surchargePercent` is `0` | Do not send a surcharge amount. A zero surcharge can fail gateway validation. |
 | Both `surchargeApplyToTax` and `surchargeApplyToTip` are `false` | Normal. The surcharge is calculated on the sale amount alone. |
 | Tax or tip is `0` | Nothing special — they contribute zero to the base. |
-| The surcharge block is absent from the result | No surcharge information came back. Record no surcharge for this transaction. |
+| `result.surcharge` is `null` | The gateway response has no surcharge block, so no surcharge was requested or evaluated. Record no surcharge for this transaction. |
 | `applied` is `false` | The gateway chose not to apply it, typically because the card was debit. Record no surcharge. |
 | The merchant waives the surcharge | Only offer this when `bypassSurcharge` is `true`, and omit the field. |
 | Surcharge set on a pre-authorization | Dropped. The surcharge belongs on the capture. |
