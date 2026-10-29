@@ -96,8 +96,33 @@ The Cloud API and the Android SDK expect the transaction amount to be built diff
 | Path | What `amount` must contain | Result |
 |---|---|---|
 | **Cloud API** | The **total**, surcharge and tax already included | `amount: 5562`, `surchargeAmount: 162`, `taxAmount: 400` |
-| **Android SDK** — sale, MOTO sale, refund | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
+| **Android SDK** — sale (chip, contactless, swipe), MOTO sale, refund | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxInformation.taxAmount = 400` → 5562 charged |
+| **Android SDK** — pre-authorization (card-present and MOTO) | The **base only** (plus tip) | The SDK sends no surcharge and no tax. Add them at capture. |
 | **Android SDK** — pre-auth capture | The **total**, surcharge and tax already included | The capture amount is sent verbatim |
+
+### The SDK sale total {#sdk-sale-total}
+
+On every sale entry mode (chip, contactless, swipe) and on a MOTO sale, the SDK sends this amount:
+
+```
+amount = baseAmount + tipAmount + surchargeAmount + tax
+```
+
+The SDK uses one tax value:
+
+1. If you set `taxInformation`, the tax is `taxInformation.taxAmount`.
+2. If `taxInformation.taxExempt` is `true`, the tax is `0`.
+3. If you do not set `taxInformation`, the tax is the deprecated `taxAmount`.
+
+If you set both `taxInformation` and `taxAmount`, the SDK uses `taxInformation.taxAmount` and ignores `taxAmount`. The SDK never adds the tax two times. The request also sends this tax value in the `taxAmount` field.
+
+:::warning Do not put the tax in the amount
+Pass the base amount only. If you add the `taxInformation.taxAmount` to the amount yourself, the cardholder pays the tax two times. Earlier Android SDK 7.1014.x versions did not add `taxInformation.taxAmount` to the amount.
+:::
+
+### Pre-authorization {#pre-authorization}
+
+The original pre-authorization (card-present and MOTO) does not carry a surcharge or a tax. The SDK sends the base amount (plus tip) and does not send `surchargeAmount`, `taxAmount` or `taxInformation`. The SDK still sends `purchaseOrderNumber`. Send the surcharge and the tax on the [pre-authorization capture](#amount-semantics), in the capture amount.
 
 ## Code {#code}
 
@@ -157,14 +182,14 @@ val surcharge = BigDecimal(base)
 // 3. Send — cardholder is charged 5000 + 400 + 162 = 5562
 val options = SaleOptions().apply {
     surchargeAmount = if (enabled) surcharge else null
-    this.taxAmount  = BigInteger.valueOf(taxAmount)
+    taxInformation  = TaxInformation(BigInteger.valueOf(taxAmount), taxExempt = false)
 }
 hapi.sale(BigInteger.valueOf(saleAmount), Currency.USD, options)
 ```
 
 `surchargeAmount` is also available on `MoToOptions` (MOTO sale), `RefundOptions` (refund), and the base `Options` type used by `preAuthorizationCapture`. Passing `null` omits the field from the request.
 
-Do not set it on the pre-authorization itself — the surcharge is realized at capture, and the SDK drops it on the initial authorization.
+Do not set the surcharge or the tax on the pre-authorization itself. They belong on the capture, and the SDK does not send them on the original pre-authorization.
 
 Terminal configuration can change remotely at any time. Reload your cached values when the SDK raises `Events.ConfigurationUpdatesEvent`:
 
@@ -251,7 +276,9 @@ Tips are not refunded proportionally — handle them separately according to you
 | The surcharge block is absent from the result | No surcharge information came back. Record no surcharge for this transaction. |
 | `applied` is `false` | The gateway chose not to apply it, typically because the card was debit. Record no surcharge. |
 | The merchant waives the surcharge | Only offer this when `bypassSurcharge` is `true`, and omit the field. |
-| Surcharge set on a pre-authorization | Dropped. The surcharge belongs on the capture. |
+| Surcharge or tax set on a pre-authorization | Not sent. The surcharge and the tax belong on the capture. |
+| Both `taxInformation` and `taxAmount` set on an Android SDK sale | The SDK adds `taxInformation.taxAmount` only. |
+| `taxInformation.taxExempt` is `true` | The SDK adds no tax to the amount. |
 
 ## What to persist after a transaction
 
