@@ -214,16 +214,21 @@ if (!op.OperationStarted)
 // Wait for EndOfTransaction callback for the final result
 ```
 
-With optional metadata:
+With optional parameters, passed as typed options (see [Operation options](/reference/windows-objects-reference#operation-options)):
 
 ```csharp
-var map = new Dictionary<string, string>
+var options = new SaleOptions
 {
-    { "customerReference", "ORDER-1234" }
+    CustomerReference = "ORDER-1234",
+    Metadata = new Metadata { metadata1 = "table-7" }
 };
 
-hapi.Sale(amount, currency, map);
+hapi.Sale(amount, currency, options);
 ```
+
+:::note Dictionary options are deprecated
+Since SDK 5.0.0 the `Dictionary<string, string>` overloads are marked `[Obsolete]` and will be removed in a future major version. Use the typed options instead.
+:::
 
 :::info OperationStartResult
 `op.OperationStarted` is `true` when the SDK accepted the command and forwarded it to the terminal. It does **not** mean the transaction was approved — the final outcome arrives in `EndOfTransaction`.
