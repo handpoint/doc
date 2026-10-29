@@ -243,7 +243,7 @@ Send `refundTotal` as the refund `amount`. Do not set `surchargeAmount`, `taxAmo
 
 - `refund(...)` and `motoRefund(...)` return `OperationStartResult(operationStarted = false)` with the error message `Refunds do not accept surcharge or tax amounts: send the refund total as the amount`.
 - `endOfTransaction` delivers a `FAILED` result with the same message.
-- A Cloud API refund (`"operation": "refund"` or `"moToRefund"`) with `surchargeAmount` or `taxAmount` fails on the terminal in the same way.
+- A Cloud API refund (`"operation": "refund"` or `"moToRefund"`) with `surchargeAmount` or `taxAmount` does not start on the terminal, and its transaction result is `FAILED`.
 
 ```kotlin
 // Partial refund of the 55.62 sale above: 25.00 base + 2.00 tax + 0.81 surcharge
