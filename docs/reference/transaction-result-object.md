@@ -489,7 +489,7 @@ result.deviceStatus.serialNumber        // "1850025030"
 
 ### Amounts
 
-All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, etc.).
+All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, etc.), except `taxAmount` and `surcharge.amount`, which are `BigDecimal` in **major units**.
 
 | Field | Type | Description |
 |---|---|---|
