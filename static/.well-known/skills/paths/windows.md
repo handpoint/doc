@@ -83,17 +83,20 @@ void TransactionResultReady(TransactionResult result, Device device)
 
 ## Operations Quick Reference
 
-All operations return `OperationStartResult` synchronously. **Persist `TransactionReference` before calling.** Final result arrives in `EndOfTransaction` callback.
+All operations return `OperationStartResult` synchronously. **Persist `op.TransactionReference` as soon as the call returns** (the SDK generates it). Final result arrives in `EndOfTransaction` callback.
+
+Every financial operation takes an optional typed options object as its last argument (SDK 5.0.0+) — see [Optional Transaction Parameters](#optional-transaction-parameters). Do NOT generate code with the `Dictionary<string, string>` overloads: they are `[Obsolete]`.
 
 ### Sale
 ```csharp
-OperationStartResult op = hapi.Sale(new BigInteger("1000"), Currency.EUR);
-OperationStartResult op = hapi.Sale(new BigInteger("1000"), Currency.EUR, map);
+OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.EUR);
+OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.EUR,
+    new SaleOptions { CustomerReference = "ORDER-1234" });
 ```
 
 ### Sale And Tokenize Card
 ```csharp
-OperationStartResult op = hapi.SaleAndTokenizeCard(new BigInteger("1000"), Currency.GBP);
+OperationStartResult op = hapi.SaleAndTokenizeCard(new BigInteger(1000), Currency.GBP);
 // Token in EndOfTransaction: result.CardToken
 ```
 
@@ -123,18 +126,18 @@ OperationStartResult op = hapi.RefundReversal(new BigInteger(1000), Currency.GBP
 ### MoTo Sale (Card-Not-Present)
 ```csharp
 // Cardholder keys card details on terminal screen — no physical card
-OperationStartResult op = hapi.MotoSale(new BigInteger("1000"), Currency.EUR);
+OperationStartResult op = hapi.MoToSale(new BigInteger(1000), Currency.EUR);
 ```
 
 ### MoTo Refund
 ```csharp
-OperationStartResult op = hapi.MotoRefund(new BigInteger(1000), Currency.EUR);
-OperationStartResult op = hapi.MotoRefund(new BigInteger(1000), Currency.EUR, originalTransactionId);
+OperationStartResult op = hapi.MoToRefund(new BigInteger(1000), Currency.EUR);
+OperationStartResult op = hapi.MoToRefund(new BigInteger(1000), Currency.EUR, originalTransactionId);
 ```
 
 ### MoTo Reversal
 ```csharp
-OperationStartResult op = hapi.MotoReversal(originalTransactionId);
+OperationStartResult op = hapi.MoToReversal(originalTransactionId);
 ```
 
 ### MoTo Pre-Authorization
@@ -144,7 +147,7 @@ OperationStartResult op = hapi.moToPreAuthorization(new BigInteger(1000), Curren
 
 ### Pre-Authorization
 ```csharp
-OperationStartResult op = hapi.PreAuthorization(new BigInteger("5000"), Currency.USD);
+OperationStartResult op = hapi.PreAuthorization(new BigInteger(5000), Currency.USD);
 // Save efttransactionID from EndOfTransaction result for capture/increase/reversal
 ```
 - Capture expiry: Visa up to 31 days (lodging/car rental), same day (restaurants). Mastercard 30 days. Amex 7 days.
@@ -154,16 +157,16 @@ OperationStartResult op = hapi.PreAuthorization(new BigInteger("5000"), Currency
 ```csharp
 // Positive amount = increase hold; negative amount = partial release
 OperationStartResult op = hapi.PreAuthorizationIncrease(
-    new BigInteger("1000"), Currency.USD, originalPreAuthId);
+    new BigInteger(1000), Currency.USD, originalPreAuthId);
 
 OperationStartResult op = hapi.PreAuthorizationIncrease(
-    new BigInteger("-500"), Currency.USD, originalPreAuthId);
+    new BigInteger(-500), Currency.USD, originalPreAuthId);
 ```
 
 ### Pre-Authorization Capture
 ```csharp
 OperationStartResult op = hapi.PreAuthorizationCapture(
-    new BigInteger("5000"), Currency.USD, originalPreAuthId);
+    new BigInteger(5000), Currency.USD, originalPreAuthId);
 // EndOfTransaction returns FinancialStatus.CAPTURED on success
 ```
 
@@ -236,7 +239,7 @@ if (!op.OperationStarted)
     // Rejected — check op.ErrorMessage
     // Common causes: another transaction in progress, terminal not connected
 }
-// op.TransactionReference — PERSIST THIS before the call
+// op.TransactionReference — PERSIST THIS as soon as the call returns
 ```
 
 | Field | Type | Notes |
@@ -296,24 +299,19 @@ public void EndOfTransaction(TransactionResult result, Device device)
 ## Transaction Recovery Pattern
 
 ```csharp
-// 1. Generate reference BEFORE the call
-string txRef = Guid.NewGuid().ToString();
-db.SavePendingTransaction(txRef);
-
-// 2. Call with reference (pass in map or options)
-var map = new Dictionary<string, string>();
-// some SDKs accept transactionReference via a SaleOptions object
+// 1. Start the operation. The SDK generates the transaction reference;
+//    it can't be supplied by the caller.
 OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.EUR);
-// Note: the TransactionReference is returned in op.TransactionReference
 
-// 3. Save op.TransactionReference immediately
-db.UpdateTransactionReference(txRef, op.TransactionReference);
+// 2. Save op.TransactionReference immediately
+if (op.OperationStarted)
+    db.SavePendingTransaction(op.TransactionReference);
 
-// 4. If EndOfTransaction does not fire within 90 s:
+// 3. If EndOfTransaction does not fire within 90 s:
 hapi.GetTransactionStatus(op.TransactionReference);
 // Result arrives in TransactionResultReady
 
-// 5. On startup, check for unresolved transactions
+// 4. On startup, check for unresolved transactions
 foreach (var pending in db.GetPendingTransactions())
     hapi.GetTransactionStatus(pending.TransactionReference);
 ```
@@ -363,28 +361,43 @@ private void DisplaySignature(string signatureUrl)
 
 ## Optional Transaction Parameters
 
-Any operation that accepts `Dictionary<string, string> map`:
+SDK 5.0.0+: pass a typed options object as the last argument. Omitting it, or passing a typed `null`, means the defaults. A literal `null` does not compile (CS0121, ambiguous with the deprecated Dictionary overload).
+
+| Options type | Operations |
+|---|---|
+| `SaleOptions` | `Sale`, `SaleAndTokenizeCard` |
+| `RefundOptions` | `Refund` |
+| `MoToOptions` | `MoToSale`, `MoToRefund` |
+| `PreAuthOptions` | `PreAuthorization`, `moToPreAuthorization` |
+| `SaleReversalOptions` | `SaleReversal` |
+| `Options` | `RefundReversal`, `MoToReversal`, `PreAuthorizationIncrease`, `PreAuthorizationCapture`, `PreAuthorizationReversal`, `TokenizeCard` |
+
+| Field | Type | Default | On |
+|---|---|---|---|
+| `CustomerReference` | `string?` | `null` | all (up to 25 chars) |
+| `Metadata` | `Metadata?` | `null` | all (`metadata1`–`metadata5`, max 250 chars each) |
+| `TipConfiguration` | `TipConfiguration?` (`TipAmount`: `BigInteger`, minor units, ≥ 0) | `null` | `SaleOptions`, `MoToOptions` |
+| `DuplicateCheck` | `bool` | `true` | `SaleOptions`, `RefundOptions`, `MoToOptions`, `PreAuthOptions` |
+| `Tokenize` | `bool` | `false` | `SaleOptions`, `RefundOptions`, `MoToOptions` |
+| `MoneyRemittance` | `MoneyRemittanceOptions?` (`FullName`, `CountryCode`: both required strings) | `null` | `SaleOptions`, `RefundOptions`, `MoToOptions` |
+| `BudgetNumber` | `string?` | `null` | `SaleOptions` (HiLite only, ignored on Cloud) |
+| `CardPresent` | `bool` | `false` | `SaleReversalOptions` |
 
 ```csharp
-var map = new Dictionary<string, string>();
-
-// Customer reference (max 36 chars) — echoed in TransactionResult.customerReference
-map.Add(XmlTag.CustomerReference.Tag(), "ORDER-1234");
-
-// Metadata fields 1–5 (max 250 chars each) — echoed in TransactionResult.metadata
-map.Add(XmlTag.Metadata1.Tag(), "table-7");
-map.Add(XmlTag.Metadata2.Tag(), "server-alice");
-
-// Disable duplicate check (on by default since SDK 3.3.0)
-map.Add(XmlTag.DuplicateCheck.Tag(), "0");
-
-// Budget instalment (South Africa, sale only) — "03" to "24" months
-map.Add(XmlTag.Budget.Tag(), "12");
-
-// Mastercard money remittance
-map.Add(XmlTag.MoneyRemittanceCountryCode.Tag(), "USA");
-map.Add(XmlTag.MoneyRemittanceFullName.Tag(), "John Doe");
+var options = new SaleOptions
+{
+    CustomerReference = "ORDER-1234",                                         // echoed in TransactionResult.customerReference
+    Metadata = new Metadata { metadata1 = "table-7", metadata2 = "server-alice" }, // echoed in TransactionResult.metadata
+    TipConfiguration = new TipConfiguration { TipAmount = new BigInteger(150) },  // 1.50 tip, minor units
+    DuplicateCheck = false,                                                     // on by default
+    MoneyRemittance = new MoneyRemittanceOptions { FullName = "John Doe", CountryCode = "USA" } // Mastercard money remittance
+};
+OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.EUR, options);
 ```
+
+- A negative `TipAmount` throws `InvalidOptionsException` (an `ArgumentException`).
+- Deprecated: the `Dictionary<string, string>` overloads (`XmlTag` keys) still work but are `[Obsolete]` and will be removed in a future major version. Keys the operation's options type doesn't have are ignored.
+- Read tips from `TransactionResult.TipAmount`. `GratuityAmount` is deprecated.
 
 ---
 

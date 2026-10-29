@@ -143,11 +143,10 @@ const token = saleResult.cardToken;  // Paysafe single-use token
 
 ```csharp
 // Tokenize only
-var op = hapi.TokenizeCard(Currency.USD);
+var op = hapi.TokenizeCard();
 
 // Sale and tokenize
-var options = new SaleAndTokenizeOptions();
-var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+var saleOp = hapi.SaleAndTokenizeCard(new BigInteger(1000), Currency.USD);
 
 // Result delivered via EndOfTransaction callback
 public void EndOfTransaction(TransactionResult result, Device device)

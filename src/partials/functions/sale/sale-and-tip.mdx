@@ -128,14 +128,8 @@ if (result.finStatus === 'AUTHORISED') {
 <TabItem value="windows-sdk" label="Windows (.NET)">
 
 ```csharp
-var tipConfig = new TipConfiguration
-{
-    BaseAmount = new BigInteger(1000),
-    TipPercentages = new List<int> { 10, 15, 20 },
-    EnterAmountEnabled = true,
-    SkipEnabled = true,
-    Footer = "Thank you!"
-};
+// The Windows SDK TipConfiguration carries a tip amount, in minor units
+var tipConfig = new TipConfiguration { TipAmount = new BigInteger(150) }; // $1.50
 
 var options = new SaleOptions { TipConfiguration = tipConfig };
 var op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
@@ -144,7 +138,7 @@ public void EndOfTransaction(TransactionResult result, Device device)
 {
     if (result.FinStatus == FinancialStatus.AUTHORISED)
     {
-        // result.TipAmount — tip chosen by cardholder
+        // result.TipAmount — tip amount
         // result.TotalAmount — base + tip
     }
 }

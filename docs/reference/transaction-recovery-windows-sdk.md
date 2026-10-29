@@ -41,7 +41,7 @@ Recovery is required whenever your application might have missed the transaction
 `hapi.Sale()` returns an `OperationStartResult` synchronously. The `TransactionReference` property is the UUID identifying this transaction — persist it immediately. The actual result arrives later via `EndOfTransaction`.
 
 ```csharp
-var opResult = hapi.Sale(amount, currency, new Options());
+var opResult = hapi.Sale(amount, currency, new SaleOptions());
 
 if (!opResult.OperationStarted)
 {
@@ -131,7 +131,7 @@ private bool _uiTimedOut = false;
 
 public async Task StartSaleAsync(int amount, Currency currency)
 {
-    var opResult = hapi.Sale(amount, currency, new Options());
+    var opResult = hapi.Sale(amount, currency, new SaleOptions());
 
     if (!opResult.OperationStarted)
     {

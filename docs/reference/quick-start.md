@@ -329,15 +329,15 @@ public class PaymentHandler : Events.Required, Events.Status
 
     public void StartSale()
     {
-        // Persist the reference BEFORE calling Sale — needed for recovery if result is lost
-        var transactionReference = Guid.NewGuid().ToString();
-        db.SavePendingTransaction(transactionReference);
-
-        var options = new SaleOptions { TransactionReference = transactionReference };
-        OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.USD, options);
+        OperationStartResult op = hapi.Sale(new BigInteger(1000), Currency.USD);
 
         if (!op.OperationStarted)
+        {
             ShowError("SDK rejected the command — check terminal connection");
+            return;
+        }
+        // The SDK generates the reference — persist it now, it's needed for recovery if the result is lost
+        db.SavePendingTransaction(op.TransactionReference);
         // Final result arrives asynchronously in EndOfTransaction
     }
 
