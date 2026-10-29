@@ -40,11 +40,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "tipPercentage": 0,
   "dueAmount": 0,
   "taxAmount": null,
-  "surcharge": {
-    "amount": 0,
-    "applied": false,
-    "reason": ""
-  },
+  "surcharge": null,
   "currency": "USD",
 
   "cardEntryType": "ICC",
@@ -131,7 +127,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 
 ### Amounts
 
-All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
+All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.), except `taxAmount` and `surcharge.amount`, which are in **major units**.
 
 | Field | Type | Description |
 |---|---|---|
@@ -140,8 +136,8 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipAmount` | integer | Tip amount. `0` if no tip. |
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
-| `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
-| `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
+| `taxAmount` | number \| null | Tax amount included in the total, in **major units** — `8.00` is USD 8.00 (App 4.14.0 / REST API 2.28.0+). `null` when the gateway returned no tax amount. |
+| `surcharge` | object \| null | Surcharge returned by the gateway (App 4.14.0 / REST API 2.28.0+). `null` when the gateway response has no surcharge block. See [`Surcharge`](#surcharge-object) for the fields. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 
 ### Card
@@ -399,8 +395,8 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+; null when not applicable)
-result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
+result.taxAmount                // BigDecimal("8.00") or null — major units, not minor
+result.surcharge                // Surcharge(amount = BigDecimal("3.54"), applied = true, reason = "CREDIT") or null
 result.currency                 // Currency.USD
 
 // --- Fee mitigation ---
@@ -493,7 +489,7 @@ result.deviceStatus.serialNumber        // "1850025030"
 
 ### Amounts
 
-All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, etc.).
+All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, etc.), except `taxAmount` and `surcharge.amount`, which are `BigDecimal` in **major units**.
 
 | Field | Type | Description |
 |---|---|---|
@@ -502,10 +498,25 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger? | Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
-| `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `taxAmount` | BigDecimal? | Tax amount in **major units** — `8.00` is USD 8.00 (App 4.14.0 / SDK 7.1014.0+). `null` when the gateway returned no tax amount. |
+| `surcharge` | Surcharge? | Surcharge returned by the gateway (App 4.14.0 / SDK 7.1014.0+). `null` when the gateway response has no surcharge block. See below. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
+
+### `Surcharge` {#surcharge-object}
+
+Populated on `result.surcharge` when the gateway response has a surcharge block. The rule is the same
+for every operation: sale, pre-authorization, Remote Sale and pre-authorization capture.
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | BigDecimal | The surcharge the gateway recorded, in **major units** — `3.54` is USD 3.54. `0` when the gateway sent no amount. |
+| `applied` | Boolean | `true` when the gateway applied the surcharge. `false` when the gateway evaluated it and did not apply it, for example for a debit card. |
+| `reason` | String | The reason the gateway gave, for example `CREDIT` or `DEBIT`. Empty when the gateway gave none. |
+
+:::caution SDK 7.1014.5
+Before SDK 7.1014.5, `taxAmount` and `surcharge.amount` held minor units in a `BigDecimal` (`354` for USD 3.54), and a card-present sale without a surcharge block returned `Surcharge(amount = 0, applied = false, reason = "")` instead of `null`. If your integration divides these values by 100 or checks `applied` without a null-check, update it.
+:::
 
 ### `FeeResult`
 
