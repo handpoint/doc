@@ -158,6 +158,7 @@ const sidebars = {
             'reference/transaction-recovery-android-sdk',
             'reference/transaction-recovery-cloud-api',
             'reference/transaction-recovery-windows-sdk',
+            'reference/standalone-fallback-reconciliation',
           ],
         },
         {
