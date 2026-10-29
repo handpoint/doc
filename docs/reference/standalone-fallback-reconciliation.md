@@ -49,8 +49,13 @@ reconciliation.
 Your POS generates a `transactionReference` (UUID v4) **before** it sends each sale. See
 [Transaction Reference](/reference/transaction-reference). Store it at that point, before you send the request. Then:
 
-> Any payment in the feed, on your merchant's terminals, whose `transactionReference` your POS did not generate was
-> not started by your POS. It's a Standalone-mode payment (or another payment taken outside your system).
+> Any **original** payment in the feed, on your merchant's terminals, whose `transactionReference` your POS did not
+> generate was not started by your POS. It's a Standalone-mode payment (or another payment taken outside your
+> system).
+
+Follow-up operations work differently. A reversal, linked refund, capture or tip adjustment is requested with the
+**original transaction ID**, not a `transactionReference` of yours. In the feed, these carry
+`referenceObject.guid` = the `guid` of the original. Match them through that field, not through `transactionReference`.
 
 The feed has **no field that says whether a payment was Integrated or Standalone**. You find standalone payments by
 comparing the feed with your own list of references. Don't rely on matching amount and time for this step.
@@ -61,29 +66,41 @@ comparing the feed with your own list of references. Don't rely on matching amou
 - **Once a day**, before your merchants' batch close. It also catches results your POS missed for other reasons (see
   [Transaction Recovery](/reference/transaction-recovery)).
 
+### Keys and terminals
+
+- Reconcile **per merchant**. The `AnalyticsApiKey` is the merchant's Cloud API key, and it covers all of that
+  merchant's terminals. Keep a `merchant → API key` mapping on your side.
+- You don't need to list terminals to query the feed: the key already limits results to the merchant. To see which
+  terminals a merchant has, call `GET https://cloud.handpoint.com/devices` with the `ApiKeyCloud` header.
+- Staging uses `txnfeed.handpoint.io` and `cloud.handpoint.io`.
+
 ### Query the feed
 
 ```http
 POST https://txnfeed.handpoint.com/transactions
-AnalyticsApiKey: YOUR_API_KEY
+AnalyticsApiKey: MERCHANT_API_KEY
 Content-Type: application/json
 
 {
   "startDate": "20261029080000",
   "endDate": "20261029120000",
-  "terminalSerialNumbers": ["0821599465", "0821599466"],
   "onlySuccessful": true,
   "orderBy": [{ "value": "serverDateTime", "order": "asc" }],
   "limit": 1000
 }
 ```
 
+Dates are UTC and both ends are inclusive. This returns sales, refunds and reversals. For details on fields and
+filters, see the [Transaction Feed API](/back-office/transaction-feed-api).
+
 The response holds the matching transactions in `results`. Use these fields:
 
 | Field | Use |
 |---|---|
 | `guid` | Handpoint transaction ID. Unique. Store it on the order once linked |
-| `transactionReference` | Compare with the references your POS generated |
+| `transactionReference` | On original payments: compare with the references your POS generated |
+| `referenceObject.guid` | On refunds and reversals: the `guid` of the original payment |
+| `maskedCardNumber`, `cardTypeId` | Show these to staff when they match payments to orders |
 | `customerReference` | The free-text reference your POS sent, if any |
 | `terminalSerialNumber` | Which terminal took the payment |
 | `amount`, `tipAmount` | Amount and tip in **major units** as decimal strings, e.g. `"5.00000"` |
@@ -94,26 +111,39 @@ The response holds the matching transactions in `results`. Use these fields:
 ### Reconciliation loop (pseudocode)
 
 ```python
-known_refs = pos.references_generated(terminals, window)    # refs your POS created
-feed = txnfeed.transactions(terminals, window, only_successful=True)
+for merchant in pos.merchants():
+    key = merchant.handpoint_api_key                       # your merchant → API key mapping
+    known_refs = pos.references_generated(merchant, window) # refs your POS created for original payments
+    known_guids = pos.linked_guids(merchant)                # guids already stored on orders
+    feed = txnfeed.transactions(key, window, only_successful=True)   # oldest first
 
-for txn in feed:
-    if txn["transactionReference"] in known_refs:
-        pos.confirm(txn["transactionReference"], guid=txn["guid"])   # also catches missed results
-    else:
-        pos.add_orphan_payment(txn)            # Standalone payment: link it (section 3)
+    for txn in feed:
+        original = (txn.get("referenceObject") or {}).get("guid")
+        if original:                                        # refund / reversal
+            if original in known_guids:
+                pos.record_follow_up(original, txn)         # follow-up on a known payment
+            else:
+                pos.add_orphan_payment(txn)                 # follow-up on a payment you don't know
+        elif txn["transactionReference"] in known_refs:
+            pos.confirm(txn["transactionReference"], guid=txn["guid"])  # also catches missed results
+            known_guids.add(txn["guid"])
+        else:
+            pos.add_orphan_payment(txn)                     # Standalone payment: link it (section 3)
 ```
 
 ### Implementation notes
 
-- **Dates** must be exactly 14 characters, `yyyyMMddHHmmss`. Feed times are in UTC.
+- **Dates** must be exactly 14 characters, `yyyyMMddHHmmss`, in UTC, and both ends are inclusive. Convert to the
+  merchant's local time only when you show them to staff.
+- **Amounts are in major units** (`"3.50000"`), unlike most Handpoint request APIs, which use minor units.
 - **Filters are exact matches only.** `filters: [{ "field": "...", "value": "..." }]` must match the whole value,
   and multiple filters are combined with AND. There is no substring or wildcard search.
 - **Keep the window small** (for example one hour) rather than paging deep into a large result. `limit` is at most
   10,000 per request.
 - **Look up specific payments:** `GET /transactions/{guid}`, `GET /transactions/guids?listOfGuids=a,b`, and
   `GET /transactions/customer-reference/{customerReference}`.
-- **Refunds and reversals** taken in Standalone mode also appear in the feed. Handle every `type`, not just sales.
+- **Refunds and reversals** taken in Standalone mode also appear (`type` `Refund`, `Reversal`,
+  `Card Not Present Refund`). Process the feed oldest first, so an original payment is linked before its follow-ups.
 - The feed is **read-only reporting**. It can't start, reverse or change a transaction.
 
 ---
