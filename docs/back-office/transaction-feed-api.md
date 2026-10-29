@@ -20,29 +20,66 @@ https://txnfeed.handpoint.com
 
 ## Authentication
 
+Send your API key in the `AnalyticsApiKey` header:
+
 ```http
-Authorization: YOUR_API_KEY
+AnalyticsApiKey: YOUR_API_KEY
 ```
 
 ## Query transactions
 
+Searches use `POST` with a JSON body:
+
 ```http
-GET /transactions?terminal_serial_number=123456789&from=2026-01-01&to=2026-01-31
-Authorization: YOUR_API_KEY
+POST /transactions
+AnalyticsApiKey: YOUR_API_KEY
+Content-Type: application/json
+
+{
+  "startDate": "20260101000000",
+  "endDate": "20260131235959",
+  "terminalSerialNumbers": ["123456789"],
+  "onlySuccessful": true,
+  "limit": 1000
+}
 ```
+
+The matching transactions are returned in `results`.
+
+| Body field | Description |
+|---|---|
+| `startDate`, `endDate` | **Required.** Exactly 14 characters, `yyyyMMddHHmmss` |
+| `terminalSerialNumbers` | Limit to these terminals |
+| `onlySuccessful` | `true` returns approved transactions only |
+| `filters` | `[{ "field": "...", "value": "..." }]`. Exact match on the whole value, combined with AND. No substring or wildcard search |
+| `limit` | Rows per request, at most 10,000 |
+| `orderBy` | `[{ "value": "serverDateTime", "order": "asc" }]` |
+
+### Look up specific transactions
+
+| Request | Returns |
+|---|---|
+| `GET /transactions/{guid}` | One transaction by Handpoint transaction ID |
+| `GET /transactions/guids?listOfGuids=a,b` | Several transactions by ID |
+| `GET /transactions/customer-reference/{customerReference}` | Transactions carrying that `customerReference` |
 
 ## Key fields
 
 | Field | Description |
 |---|---|
-| `transactionId` | Unique transaction identifier |
+| `guid` | Handpoint transaction ID. Unique |
+| `transactionReference` | The reference sent with the original request. For Standalone-mode payments it is generated on the terminal |
+| `customerReference` | Free-text reference from the request, if one was sent |
 | `terminalSerialNumber` | Terminal that processed the transaction |
-| `amount` | Transaction amount in smallest currency unit |
-| `currency` | ISO 4217 currency code |
-| `type` | Transaction type: `SALE`, `REFUND`, `REVERSAL`, etc. |
-| `status` | `APPROVED`, `DECLINED`, `REVERSED` |
+| `amount`, `tipAmount` | Amount and tip in **major units** as decimal strings, e.g. `"5.00000"` |
+| `currCode` | ISO 4217 alphabetic currency code, e.g. `EUR` |
+| `type` | Transaction type, e.g. `Sale` |
+| `status` | Gateway status: `200` approved, `403` declined |
 | `cardTokenProvider` | Token provider if tokenization was used |
-| `timestamp` | ISO 8601 timestamp |
+| `serverDateTime` | Gateway processing time, `yyyyMMddHHmmss` in UTC |
+
+To reconcile Standalone-mode payments with your POS, see
+[Standalone Fallback & Reconciliation](/reference/standalone-fallback-reconciliation).
 
 :::note Fee mitigation is not in the feed yet
 The feed carries no fee amount, no program, and no applied flag. Persist the `fee` object from the
