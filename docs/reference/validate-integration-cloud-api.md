@@ -83,7 +83,7 @@ If your UI includes a Cancel button for in-progress card-present transactions, u
 **Required behaviour:**
 
 1. Send `POST /transactions` with body `{ "operation": "stopCurrentTransaction", "terminal_type": "...", "serial_number": "..." }`.
-2. **Wait for the result** via your normal polling path (`/transaction-result/{transactionResultId}`) before clearing the POS UI. The stop signal is advisory — the terminal may already be past the point where it can be cancelled (e.g. card has been read, processing has started). The terminal will deliver a final result regardless.
+2. **Wait for the result of the original operation** via your normal polling path (`/transaction-result/{transactionResultId}`, using the `transactionResultId` of the sale you are cancelling) before clearing the POS UI. The stop request's own `transactionResultId` does not deliver a result. The stop signal is advisory — the terminal may already be past the point where it can be cancelled (e.g. card has been read, processing has started). The terminal will deliver a final result regardless.
 3. The result arrives via the same `transaction-result` polling path as any other transaction. It reports whether the stop was honoured (`CANCELLED`) or the transaction completed normally (`AUTHORISED`, `DECLINED`).
 4. Act on the delivered result — do not assume cancellation succeeded because you sent the stop request.
 
@@ -104,7 +104,8 @@ async function cancelTransaction(terminalType, serialNumber, transactionResultId
     })
   });
 
-  // Always wait for the actual result — do not assume CANCELLED
+  // Always wait for the original sale's result: do not assume CANCELLED.
+  // transactionResultId is the one returned by the sale's 202, not by the stop request.
   const result = await awaitTransactionResult(transactionResultId);
   handleFinalResult(result);
 }

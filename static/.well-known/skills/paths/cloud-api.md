@@ -399,7 +399,9 @@ Content-Type: application/json
 }
 ```
 
-Returns 202 → poll as normal. Result `finStatus` will be `CANCELLED`.
+Returns 202. Keep polling the **original** operation's `transactionResultId`: it resolves to `CANCELLED` if the stop was honoured, or to its normal outcome if the card had already been read. The stop request's own `transactionResultId` does not deliver a result (it stays `204`), so don't poll it.
+
+`stopCurrentTransaction` takes no `transactionReference`: it stops whatever is running on that terminal. There is no `POST /transactions/{transactionReference}/stop` route.
 
 **Timing:** The operation must still be in a cancellable state when the cancel arrives. On fast simulator acquirers (ViscusDummy/staging) the operation may complete before the cancel is received — resulting in error 1003 even if sent within 1–2s. On production terminals the window is wider. Error responses:
 
@@ -407,18 +409,6 @@ Returns 202 → poll as normal. Result `finStatus` will be `CANCELLED`.
 |---|---|---|
 | `400` | `1003` | Cancel not allowed — operation has already completed or is not in a cancellable state |
 | `400` | `1001` | Device is busy with a different operation |
-
-**Alternative — `POST /cancelRequest` (sync, separate endpoint):**
-
-```http
-POST https://cloud.handpoint.com/cancelRequest
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{ "serial_number": "082104578" }
-```
-
-Synchronous. Returns 400 / error 1003 or 1005 if nothing is in a cancellable state.
 
 ## Check device connectivity — `pingDevice`
 

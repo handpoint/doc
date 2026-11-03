@@ -167,8 +167,8 @@ These are returned in the initial POST before the 202 is issued:
 | `400` | `{"error":1001,"message":"Device is busy"}` | Terminal is processing another operation | Wait and retry; implement a short backoff (2–5s) |
 | `400` | `{"error":1002,"message":"No device listening at the other end of the secure channel"}` | Terminal is not connected to the Handpoint Cloud channel — powered off, not on Wi-Fi, or Payments App not running | Check terminal power, Wi-Fi, and that the Handpoint Payments App is open |
 | `400` | `{"error":1004,"message":"Auth not available: ..."}` | Terminal serial or `terminal_type` is not assigned to the merchant account for this API key | Verify the terminal is assigned in Handpoint Portal; check `GET /devices` to see which serials are valid for this API key |
-| `400` | `{"error":1003,"message":"Cancel operation not allowed"}` | `cancelRequest` was sent when no cancellable operation is in progress | Only call `cancelRequest` while an operation is actively running on the terminal |
-| `400` | `{"error":1005,"message":"No transaction to cancel"}` | `cancelRequest` was received but no transaction is active on the terminal | Verify the terminal state before sending a cancel |
+| `400` | `{"error":1003,"message":"Cancel operation not allowed"}` | `stopCurrentTransaction` arrived when the running operation could no longer be cancelled, for example the card had already been read | Keep polling the original operation: it completes normally |
+| `400` | `{"error":1005,"message":"No transaction in progress to cancel"}` | `stopCurrentTransaction` was received but no operation is running on the terminal | Keep polling the original operation for its result. Don't treat the 1005 as the outcome of a sale you just sent |
 | `400` | `TransactionReference with wrong uuidv4 format ...` | `transactionReference` is not a valid UUID v4 | Generate a compliant UUID v4 — version digit (position 13) must be `4`, variant digit (position 17) must be `8`, `9`, `a`, or `b`. See [transactionReference usage](/reference/transaction-reference) |
 
 ## Error codes — Remote Sale back-office endpoints
