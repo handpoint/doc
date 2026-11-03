@@ -1364,7 +1364,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}",
+              "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\",\n  \"customerReference\": \"ORDER-10042\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

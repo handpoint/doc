@@ -75,11 +75,14 @@ Content-Type: application/json
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "TOKEN_FROM_PRIOR_CARD_PRESENT_TRANSACTION",
-  "transactionReference": "YOUR_UNIQUE_REFERENCE"
+  "transactionReference": "YOUR_UNIQUE_REFERENCE",
+  "customerReference": "ORDER-10042"
 }
 ```
 
 `amount` is in **major currency units** as a decimal string — `"10.00"` = $10.00.
+
+`customerReference` is optional free text for your own order or invoice number — max 50 characters (longer values return `422`). It is echoed in the response and stored on the transaction, so you can find the sale later in the [Transaction Feed](/back-office/transaction-feed-api) with a `customerReference` filter. `POST /moto/refund` accepts it too.
 
 **Response — HTTP 200:**
 ```json
@@ -92,6 +95,7 @@ Content-Type: application/json
   "batchNumber": "123",
   "cardTypeName": "Visa",
   "currency": "USD",
+  "customerReference": "ORDER-10042",
   "expiryDateMMYY": "1027",
   "guid": "7cd7a1d0-xxxx-11f1-xxxx-xxxxxxxxxxxx",
   "issuerResponseCode": "00",

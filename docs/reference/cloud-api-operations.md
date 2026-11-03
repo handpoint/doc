@@ -987,22 +987,37 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
   "amount": "20.00",
   "currency": "USD",
   "cardToken": "K33f40000000000093",
-  "transactionReference": "a1b2c3d4-0000-4000-8000-000000000002"
+  "transactionReference": "a1b2c3d4-0000-4000-8000-000000000002",
+  "customerReference": "ORDER-10042"
 }'
 ```
 
 ```json
-// HTTP 200 — synchronous result
+// HTTP 200 — synchronous result. No finStatus: success is httpStatus 200.
 {
-  "finStatus": "AUTHORISED",
-  "authorisationCode": "123456",
-  "transactionID": "7ef31400-a9f5-11f1-a943-f9c9f04151d9",
-  "paymentScenario": "MOTO",
-  "requestedAmount": 2000,
-  "totalAmount": 2000,
-  "type": "MOTO_SALE"
+  "@type": "sale",
+  "httpStatus": 200,
+  "acquirerTid": "ACQUIRER_TID",
+  "amount": "20.00",
+  "approvalCode": "123456",
+  "batchNumber": "1",
+  "cardTypeName": "MASTERCARD",
+  "currency": "USD",
+  "customerReference": "ORDER-10042",
+  "expiryDateMMYY": "1027",
+  "guid": "7ef31400-a9f5-11f1-a943-f9c9f04151d9",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "APPROVAL",
+  "maskedCardNumber": "************0936",
+  "retrievalReferenceNumber": "630712010195",
+  "serverDateTime": "20261103124928928",
+  "terminalDateTime": "20261103124928000",
+  "transactionCounter": "1",
+  "transactionReference": "a1b2c3d4-0000-4000-8000-000000000002"
 }
 ```
+
+Use `guid` (not `transactionID`) as `originalGuid` for `POST /reversal` or a linked `POST /moto/refund`.
 
 **`POST /moto/sale` — request parameters**
 
@@ -1012,7 +1027,7 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 | `currency` | string | **Yes** | — | ISO 4217. Exactly 3 characters. |
 | `cardToken` | string | **Yes** | — | Stored card token from a prior `saleAndTokenizeCard`. Max 64 chars. |
 | `transactionReference` | string | No | — | UUID v4 recommended. Max 50 chars. |
-| `customerReference` | string | No | — | Free-text reference. Max 50 chars. |
+| `customerReference` | string | No | — | Free-text merchant reference (order or invoice number). Max 50 chars, otherwise `422`. Echoed in the response and stored on the transaction — filterable in the [Transaction Feed](/back-office/transaction-feed-api). |
 | `channel` | string | No | — | `"MO"` (mail order) or `"TO"` (telephone order) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }`. Postal code and optional street address forwarded to the acquirer for address verification. Requires `avsForMoto` enabled for the merchant. See [AVS](/reference/avs). |
 | `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `amount`. Must be sent with `purchaseOrderNumber`. `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
