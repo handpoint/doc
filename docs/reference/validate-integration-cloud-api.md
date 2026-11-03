@@ -78,12 +78,12 @@ async function awaitTransactionResult(transactionResultId) {
 
 ### 2.2 Cancel button — `stopCurrentTransaction`
 
-If your UI includes a Cancel button for in-progress card-present transactions, use `POST /transactions/{transactionReference}/stop` (the `stopCurrentTransaction` endpoint).
+If your UI includes a Cancel button for in-progress card-present transactions, use `POST /transactions` with `operation: "stopCurrentTransaction"`.
 
 **Required behaviour:**
 
-1. Send `POST /transactions/{transactionReference}/stop`.
-2. **Wait for the result** via your normal polling path (`/transaction-result/{transactionResultId}`) before clearing the POS UI. The stop signal is advisory — the terminal may already be past the point where it can be cancelled (e.g. card has been read, processing has started). The terminal will deliver a final result regardless.
+1. Send `POST /transactions` with body `{ "operation": "stopCurrentTransaction", "terminal_type": "...", "serial_number": "..." }`.
+2. **Wait for the result of the original operation** via your normal polling path (`/transaction-result/{transactionResultId}`, using the `transactionResultId` of the sale you are cancelling) before clearing the POS UI. The stop request's own `transactionResultId` does not deliver a result. The stop signal is advisory — the terminal may already be past the point where it can be cancelled (e.g. card has been read, processing has started). The terminal will deliver a final result regardless.
 3. The result arrives via the same `transaction-result` polling path as any other transaction. It reports whether the stop was honoured (`CANCELLED`) or the transaction completed normally (`AUTHORISED`, `DECLINED`).
 4. Act on the delivered result — do not assume cancellation succeeded because you sent the stop request.
 
@@ -93,13 +93,19 @@ Cancellation is only possible before the card is read. Once the card has been in
 
 ```javascript
 // Cancel button handler
-async function cancelTransaction(transactionReference, transactionResultId) {
-  await fetch(`${BASE_URL}/transactions/${transactionReference}/stop`, {
+async function cancelTransaction(terminalType, serialNumber, transactionResultId) {
+  await fetch(`${BASE_URL}/transactions`, {
     method: 'POST',
-    headers: { ApiKeyCloud: API_KEY }
+    headers: { ApiKeyCloud: API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      operation: 'stopCurrentTransaction',
+      terminal_type: terminalType,
+      serial_number: serialNumber,
+    })
   });
 
-  // Always wait for the actual result — do not assume CANCELLED
+  // Always wait for the original sale's result: do not assume CANCELLED.
+  // transactionResultId is the one returned by the sale's 202, not by the stop request.
   const result = await awaitTransactionResult(transactionResultId);
   handleFinalResult(result);
 }
@@ -273,7 +279,7 @@ Poll the `transactionResultId` returned in the 202 body. Handle `204` (still pro
 | Pre-auth increase | `POST /pre-auth-increase` | `originalGuid`, `increaseAmount` | `originalGuid` = `eftTransactionId` from pre-auth |
 | Pre-auth capture | `POST /pre-auth-capture` | `originalGuid`, `capturedAmount` | |
 | Pre-auth reversal | `POST /pre-auth-reversal` | `originalGuid` | Voids without capturing |
-| Stop (cancel) | `POST /transactions/{transactionReference}/stop` | — | Always await result — see §2.2 |
+| Stop (cancel) | `POST /transactions` | `operation: "stopCurrentTransaction"`, `terminal_type`, `serial_number` | Always await result — see §2.2 |
 | Transaction status | `GET /transactions/{transactionReference}/status` | — | Recovery path — see §2.3 |
 | Transaction result | `GET /transaction-result/{transactionResultId}` | — | `204` = still processing; `200` = done |
 | Tokenize | `POST /transactions` | `operation: "tokenizeCard"`, `terminal_type`, `serial_number`, `transactionReference` | No charge; token in result |
@@ -310,7 +316,7 @@ Complete all items before requesting production credentials.
 **Timeout and cancellation:**
 - [ ] POS-side timeout is at least 6 minutes from the 202 response — never less
 - [ ] On timeout, recovery flow runs via `GET /status` before clearing the UI
-- [ ] Cancel button calls `POST /stop` and **awaits the result** before updating POS UI — does not assume cancellation succeeded
+- [ ] Cancel button calls `POST /transactions` (`operation: "stopCurrentTransaction"`) and **awaits the result** before updating POS UI — does not assume cancellation succeeded
 - [ ] 31-second wait implemented after an `IN_PROGRESS` `/status` response before re-querying
 
 **Transaction recovery:**
