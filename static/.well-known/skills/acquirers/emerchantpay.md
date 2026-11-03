@@ -66,7 +66,7 @@ Not available on HiLite paths.
 **Back-office (card token — no terminal):**
 ```json
 POST https://cloud.handpoint.com/moto/sale
-{ "amount": "10.00", "currency": "EUR", "cardToken": "STORED_TOKEN", "transactionReference": "<uuid-v4>" }
+{ "amount": "10.00", "currency": "EUR", "cardToken": "STORED_TOKEN", "transactionReference": "<uuid-v4>", "customerReference": "ORDER-10042" }
 ```
 `amount` is a major-unit decimal string — `"10.00"` = €10.00.  
 Token source: `cardToken` field in `TransactionResult` from a prior tokenization sale.

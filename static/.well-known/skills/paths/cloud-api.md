@@ -718,8 +718,8 @@ Logging is required for integration validation. Capture every request you send, 
 Synchronous — log the full request body and the complete response body immediately:
 
 ```
-→ POST /moto/sale   body: { "amount":"10.00", "currency":"USD", "cardToken":"...", "transactionReference":"<uuid>" }
-← 200 { "finStatus":"AUTHORISED", "efttransactionID":"...", ... }
+→ POST /moto/sale   body: { "amount":"10.00", "currency":"USD", "cardToken":"...", "transactionReference":"<uuid>", "customerReference":"ORDER-10042" }
+← 200 { "@type":"sale", "httpStatus":200, "guid":"...", "customerReference":"ORDER-10042", ... }   (no finStatus; reverse with guid)
 ```
 
 ## Partial approval — ISV requirements (US only)

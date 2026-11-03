@@ -341,6 +341,7 @@ paths:
                   currency: USD
                   cardToken: STORED_TOKEN_FROM_PRIOR_TRANSACTION
                   transactionReference: 550e8400-e29b-41d4-a716-446655440000
+                  customerReference: ORDER-10042
               with-avs:
                 summary: With AVS (EPI only)
                 value:
@@ -947,6 +948,13 @@ components:
           type: string
           format: uuid
           description: UUID v4. Persist before sending.
+        customerReference:
+          type: string
+          maxLength: 50
+          description: |
+            Optional free-text merchant reference (order or invoice number). Longer than 50 characters → 422.
+            Echoed in the response and stored on the transaction — filterable in the Transaction Feed.
+          example: ORDER-10042
         billing:
           $ref: '#/components/schemas/Billing'
 
@@ -982,6 +990,9 @@ components:
           type: string
         transactionReference:
           type: string
+        customerReference:
+          type: string
+          description: Echo of the request `customerReference`, when sent.
         expiryDateMMYY:
           type: string
         acquirerTid:
@@ -1006,6 +1017,10 @@ components:
         cardToken:
           type: string
           description: Card token (unlinked refund)
+        customerReference:
+          type: string
+          maxLength: 50
+          description: Optional free-text merchant reference. Longer than 50 characters → 422.
 
     PreAuthCaptureRequest:
       type: object

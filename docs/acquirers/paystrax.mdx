@@ -550,7 +550,8 @@ Content-Type: application/json
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "YOUR_STORED_CARD_TOKEN",
-  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9"
+  "transactionReference": "538f1ee7-9f6f-49b7-8a49-89f7cc3aaad9",
+  "customerReference": "ORDER-10042"
 }
 ```
 
@@ -601,7 +602,7 @@ Amount in **major currency units** — `"10.00"` = $10.00. Synchronous — resul
 | `currency` | string | Yes | ISO 4217 code, e.g. `"USD"` |
 | `cardToken` | string | Yes | Card-on-file token from a supported provider — never a raw PAN |
 | `transactionReference` | string | Recommended | UUID v4 for idempotency and recovery via `GET /transactions/{reference}/status/all` |
-| `customerReference` | string | No | Merchant reference forwarded to the acquirer |
+| `customerReference` | string | No | Free-text merchant reference (order or invoice number). Max 50 characters, otherwise `422`. Echoed in the response and stored on the transaction — filterable in the [Transaction Feed](/back-office/transaction-feed-api) |
 | `taxInformation` | object | No | [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, **major currency units**, e.g. `"1.00"`; at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
 | `purchaseOrderNumber` | string | No | [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
 
