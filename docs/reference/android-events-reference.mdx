@@ -246,9 +246,37 @@ The URL exists in the result immediately but the content returns HTTP 404 for 4�
 
 ---
 
+### `Events.CardRead` <span class="badge badge--success">New in 7.1014.5</span>
+
+Fires as soon as the SDK reads a card — chip, contactless, or magstripe — **before** the transaction is sent to Handpoint. The SDK does not wait for this callback: the transaction continues while your handler runs. Use it to show card info (masked PAN, card brand) in your POS UI immediately after tap/insert.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.CardRead {
+
+    override fun cardRead(cardReadData: CardReadData) {
+        // Safe to display: BIN + last four never expose the full PAN (PCI DSS 3.4.1)
+        val display = "${cardReadData.cardBrand} ···· ${cardReadData.lastFourDigits}"
+        // cardReadData.maskedPan  — e.g. "47610000****1234"
+        // cardReadData.bin        — first 8 digits (or 6 for a short PAN)
+        // cardReadData.entryMode  — CardEntryMode.CHIP / CONTACTLESS / MAGSTRIPE
+        // cardReadData.applicationLabel — EMV app label, e.g. "Visa Credit" (empty for magstripe)
+        // cardReadData.aid        — EMV AID in hex, e.g. "A0000000031010"   (empty for magstripe)
+        updateUI(display)
+    }
+}
+```
+
+`CardReadData` fields and the `CardEntryMode` enum are described in the [Android Objects Reference](/reference/android-objects-reference).
+
+`Events.CardBrandDisplay.readCard(usedCard: CardBrands)` is **deprecated** — it only delivers the card brand, with no BIN or masked PAN. Migrate to `Events.CardRead`.
+
+---
+
 ### `Events.CardBrandDisplay`
 
 Receive notifications about supported card brands and the brand of the card being used during a transaction. Used to update card brand logos in your UI.
+
+**`readCard` is deprecated** — use [`Events.CardRead`](#eventsCardRead) instead, which also provides the BIN, masked PAN, entry mode, and EMV data.
 
 ```kotlin
 class MyEventHandler : Events.SmartposRequired, Events.CardBrandDisplay {
@@ -258,7 +286,7 @@ class MyEventHandler : Events.SmartposRequired, Events.CardBrandDisplay {
         // Show card brand logos for: cardBrandsList
     }
 
-    // Fires when the card brand of the presented card is identified.
+    // Deprecated — use Events.CardRead.cardRead instead.
     override fun readCard(usedCard: CardBrands) {
         // Highlight the matching brand logo
     }

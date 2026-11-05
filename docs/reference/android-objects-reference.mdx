@@ -256,6 +256,34 @@ How the card was physically read by the terminal.
 
 ---
 
+### `CardReadData` <span class="badge badge--success">New in 7.1014.5</span>
+
+Delivered by [`Events.CardRead.cardRead()`](/reference/android-events-reference#eventsCardRead) as soon as the SDK reads a card, before the transaction is sent to Handpoint. Never contains the full PAN (PCI DSS 3.4.1).
+
+| Field | Type | Description |
+|---|---|---|
+| `bin` | `String` | First 8 digits of the PAN (or first 6 for PANs shorter than 16 digits). |
+| `lastFourDigits` | `String` | Last 4 digits of the PAN. |
+| `maskedPan` | `String` | Full PAN with middle digits replaced by `*` — e.g. `"47610000****1234"`. |
+| `cardBrand` | `CardBrands` | Detected card brand. `CardBrands.OTHER` for magstripe reads. |
+| `entryMode` | `CardEntryMode` | How the card was read — `CHIP`, `CONTACTLESS`, or `MAGSTRIPE`. |
+| `applicationLabel` | `String` | EMV application label (e.g. `"Visa Credit"`). Empty for magstripe. |
+| `aid` | `String` | EMV Application Identifier in hex (e.g. `"A0000000031010"`). Empty for magstripe. |
+
+---
+
+### `CardEntryMode` <span class="badge badge--success">New in 7.1014.5</span>
+
+How the card was read, as reported in [`CardReadData`](#CardReadData). Distinct from [`CardEntryType`](#CardEntryType) (which appears in the transaction result).
+
+| Value | Description |
+|---|---|
+| `CHIP` | Card inserted — contact EMV. |
+| `CONTACTLESS` | Card or device tapped — NFC. |
+| `MAGSTRIPE` | Card swiped — magnetic stripe. |
+
+---
+
 ### `PaymentScenario`
 
 Detailed card entry path.
@@ -520,7 +548,7 @@ Available on every options object — the root of the options inheritance chain.
 |---|---|---|
 | `customerReference` | `String` | Arbitrary identifier echoed in `TransactionResult.customerReference`. Use for order IDs, booking references, etc. Max 25 characters. |
 | `metadata` | `Metadata?` | Custom key-value data echoed in the transaction result. |
-| `taxAmount` | `BigInteger?` | **Deprecated.** |
+| `taxAmount` | `BigInteger?` | **Deprecated.** The SDK **adds** it to the operation amount: pass the amount before tax (`amount = 1000`, `taxAmount = 80` charges 10.80). Passing a tax-inclusive amount charges the tax twice. |
 
 ---
 
