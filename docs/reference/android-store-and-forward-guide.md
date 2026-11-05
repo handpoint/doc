@@ -65,30 +65,17 @@ A card accepted offline may be declined when forwarded — for example if the ca
 
 ## Card entry types — chip and contactless only
 
-SAF accepts **chip (EMV contact)** and **contactless (NFC)** transactions. Magnetic stripe (swipe) support is an open question with significant risk factors:
+SAF accepts **chip (EMV contact)** and **contactless (NFC)** transactions only.
+
+**From SDK 7.1014.4 (SDKS-449), the SDK actively declines every mag-stripe (swipe) attempt in SAF mode.** The terminal refuses the card and `endOfTransaction` returns `DECLINED` — the transaction is never stored. No application-side detection is needed or possible.
 
 | Factor | EMV chip / contactless | Mag stripe (swipe) |
 |---|---|---|
+| **SDK behaviour** | Stored and forwarded normally | **Declined at SDK level** (7.1014.4+) |
 | **Fraud risk** | EMV cryptogram verifies card was physically present | No cryptogram — a cloned card is indistinguishable |
 | **Liability shift** | Issuer bears fraud liability on chip-capable cards | Merchant bears 100% liability post-2015 EMV shift |
-| **Acquirer support** | Supported (TSYS, EPI confirmed) | Not confirmed — some US acquirers decline forwarded swipe transactions |
+| **Acquirer support** | Supported (TSYS, EPI confirmed) | Not supported — most US acquirers decline forwarded swipe |
 | **Industry practice** | Universal | Stripe and Adyen block it; Square allows it |
-
-The Handpoint SDK does **not** block mag stripe at the API level. Your application code receives `AUTHORISED_DEFERRED` even for swipe transactions. Use `result.cardEntryType` (`CardEntryType.MSR`) to detect and handle swipe as your policy requires:
-
-```kotlin
-override fun endOfTransaction(result: TransactionResult, device: Device) {
-    if (result.finStatus == FinancialStatus.AUTHORISED_DEFERRED &&
-        result.cardEntryType == CardEntryType.MSR) {
-        // Policy decision: accept and forward, or delete immediately.
-        // If deleting: safApi.deleteStoredTransaction(TransactionReference(result.transactionReference))
-        appendLog("Warning: swipe stored — confirm acquirer will accept at forwarding")
-    }
-    // ... rest of handler
-}
-```
-
-Confirm with your Handpoint integration team whether your acquirer will accept forwarded mag stripe transactions before enabling swipe in SAF mode.
 
 ---
 
@@ -473,7 +460,9 @@ The source is the internal `SAFDemo` project. Contact your Handpoint integration
 
 ## MAGStripe (swipe) in Store-and-Forward
 
-The SDK does not block MAGStripe transactions in SAF mode — a swipe is stored and forwarded alongside chip and contactless transactions. However, there are important acquirer and card-scheme considerations, especially for US deployments:
+**SDK 7.1014.4+ (SDKS-449) declines every swipe in SAF mode at the SDK level** — no swipe transaction is ever stored or forwarded. The terminal refuses the card, and `endOfTransaction` returns `DECLINED`. No application code is required to block swipe.
+
+On SDK versions before 7.1014.4, swipe transactions were stored and forwarded, with significant risks:
 
 | Concern | Detail |
 |---|---|
@@ -481,7 +470,7 @@ The SDK does not block MAGStripe transactions in SAF mode — a swipe is stored 
 | **Post-forward decline** | Some US acquirers (notably TSYS) reject mag-stripe SAF transactions at forwarding time. The merchant doesn't learn of the decline until hours after the sale |
 | **Fraud window** | A stolen or cloned mag-stripe card accepted offline isn't verified until forwarding — potentially many hours later |
 
-**Recommendation:** Do not block swipe in app code. Instead, configure the terminal's card reader policy in TMS to disable mag-stripe fallback for SAF merchants in the US. This ensures the terminal itself refuses a swipe attempt on a chip-capable card rather than silently storing it. Check with your Handpoint integration team and the specific acquirer before enabling SAF with mag-stripe allowed.
+Upgrade to SDK 7.1014.4 or later (minimum recommended for SAF anyway — see the version callout at the top of this guide).
 
 ---
 

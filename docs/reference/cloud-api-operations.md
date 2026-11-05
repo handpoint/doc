@@ -5,7 +5,11 @@ sidebar_position: 2
 description: Per-operation request and response examples for the Handpoint Cloud API — sale, pre-auth, refund, reversal, MOTO, and tokenization, with curl, JSON, and full parameter tables at each step.
 ---
 
+import PageFilter from '@site/src/components/PageFilter';
+
 # Cloud API — Operations Reference
+
+<PageFilter mode="reference" placeholder="Filter operations…" />
 
 Complete request/response examples for every Cloud API operation. Each section shows the full two-step flow — the curl command, the 202 acceptance, the poll, and the final result — alongside a parameter table and the most common error responses.
 
@@ -356,12 +360,12 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `originalGuid` | string | **Yes** | — | `transactionID` from the Pre-Authorization create result. Max 64 chars. |
-| `capturedAmount` | string | **Yes** | — | Amount to capture: at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`, otherwise `400` `Invalid capturedAmount, must be in the major unit of currency (20.50 is 20.50 EUR)`. ⚠️ See unit note below. |
-| `tipAmount` | string | No | — | Optional tip to add to the capture. Same unit as `capturedAmount`. Max 32 chars. |
+| `capturedAmount` | string | **Yes** | — | Amount to capture in the **minor unit** of currency (e.g. `"1000"` = $10.00, `"10000"` = $100.00). Can be less than the hold for a partial capture. |
+| `tipAmount` | string | No | — | Optional tip to add to the capture, in minor units. Same unit as `capturedAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |
 
-:::note `capturedAmount` uses major units (decimal)
-Pass `capturedAmount` as a **major-unit decimal string** — e.g. `"45.00"` for $45.00, `"120.00"` for $120.00. This matches `increaseAmount` and the `/reversal` `amount` field. It is **not** minor units.
+:::note `capturedAmount` uses minor units
+Unlike `increaseAmount` and the MOTO `amount` field (which use major-unit decimal strings), `capturedAmount` and `tipAmount` on this endpoint use **integer minor units** — e.g. `"10000"` for $100.00. Updated in Cloud API 2.33.2.
 :::
 
 **`POST /preauthorization/increase` — request parameters**
