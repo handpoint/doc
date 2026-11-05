@@ -99,12 +99,20 @@ Confirm with your Handpoint integration team whether your acquirer will accept f
 SAF uses the same SDK artifact as standard PAX integration. No separate dependency is required.
 
 ```kotlin
-// build.gradle.kts
-implementation("com.handpoint.api:sdk:<version>-SNAPSHOT") {
+// build.gradle.kts — use the latest stable 7.1014.x or later
+implementation("com.handpoint.api:sdk:7.1014.5") {
     exclude(group = "com.handpoint.api", module = "paymentsdk")
 }
-implementation("com.handpoint.api:paymentsdk:<version>-SNAPSHOT")
+implementation("com.handpoint.api:paymentsdk:7.1014.5")
 ```
+
+:::warning Minimum recommended version: 7.1014.4
+Several critical SAF bugs were fixed after the initial 7.1014.0 release:
+- **7.1014.3** (SDKS-448): Production SAF sales were routed to the **staging** SAF service — a critical data-loss bug affecting any integration on 7.1014.0–7.1014.2.
+- **7.1014.4** (SDKS-450, SDKS-454): The `storeAndForward` flag and the `checkDuplicates=false` override were not being sent in stored transactions, causing gateway duplicate-check failures at forwarding time.
+
+Upgrade to 7.1014.4 or later before testing or going live with SAF.
+:::
 
 See [Android SDK — Setup & Initialization](/reference/android-sdk-setup) for the full Gradle configuration including `abiFilters`, packaging, and desugaring options.
 

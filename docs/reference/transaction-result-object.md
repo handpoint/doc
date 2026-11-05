@@ -6,8 +6,11 @@ description: Complete transaction result schema per integration path — Cloud A
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import PageFilter from '@site/src/components/PageFilter';
 
 # Transaction result object
+
+<PageFilter mode="reference" placeholder="Filter fields…" />
 
 All payment operations return a transaction result asynchronously. The structure varies by integration path — select yours below.
 
@@ -30,6 +33,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "finStatus": "AUTHORISED",
   "statusMessage": "Aprobado o completado con éxito",
   "errorMessage": "",
+  "errorCode": null,
   "multiLanguageStatusMessages": {},
   "multiLanguageErrorMessages": {},
   "recoveredTransaction": false,
@@ -123,6 +127,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 | `type` | string | Transaction type. See [type values](#type-values) below. |
 | `statusMessage` | string | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. For example, a Spanish-issued Visa card returns `"Aprobado o completado con éxito"` even if the terminal is configured in English. |
 | `errorMessage` | string | Error detail if `finStatus` is `FAILED` or `DECLINED`. Empty on success. |
+| `errorCode` | string \| null | Gateway error code when the gateway refused the request (e.g. `"4066"` for a reversal above the original amount). `null` when not applicable. REST API 2.33.2+. |
 | `multiLanguageStatusMessages` | object | Map of locale code → localised status message. May be empty. |
 | `multiLanguageErrorMessages` | object | Map of locale code → localised error message. May be empty. |
 | `issuerResponseCode` | string | ISO 8583 response code from the issuer. `"00"` = approved. |
@@ -389,6 +394,7 @@ result.finStatus                // FinancialStatus.AUTHORISED
 result.type                     // TransactionType.SALE
 result.statusMessage            // "Approved"
 result.errorMessage             // ""
+result.errorCode                // null  (or e.g. "4066" on gateway refusal — SDK 7.1014.5+)
 result.issuerResponseCode       // "00"
 result.authorisationCode        // "123456"
 result.isRecoveredTransaction   // false
@@ -485,6 +491,7 @@ result.deviceStatus.serialNumber        // "1850025030"
 | `type` | TransactionType | Transaction type. See [TransactionType](#transactiontype-enum) below. |
 | `statusMessage` | String | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. |
 | `errorMessage` | String | Error detail on failure. |
+| `errorCode` | String? | Gateway error code when the gateway refused the request (e.g. `"4066"` for reversal above original amount). `null` when not applicable. SDK 7.1014.5+. |
 | `multiLanguageStatusMessages` | Map&lt;SupportedLocales, String&gt; | Localised status messages map. |
 | `multiLanguageErrorMessages` | Map&lt;SupportedLocales, String&gt; | Localised error messages map. |
 | `issuerResponseCode` | String | ISO 8583 issuer response code. `"00"` = approved. |
