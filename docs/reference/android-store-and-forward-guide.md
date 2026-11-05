@@ -9,7 +9,11 @@ import TabItem from '@theme/TabItem';
 
 # Store-and-Forward — Android SDK
 
-Store-and-Forward (SAF) lets a PAX SmartPOS terminal accept card-present transactions when the gateway is unreachable. Transactions are stored encrypted on the device and forwarded to the acquirer automatically once connectivity is restored.
+Store-and-Forward (SAF) lets a PAX SmartPOS terminal accept card-present transactions when the **gateway is unreachable**. Transactions are stored encrypted on the device and forwarded to the acquirer automatically once connectivity is restored.
+
+:::note Standalone (direct SDK) mode only
+SAF is a feature of the **Android SDK standalone integration** — your app runs directly on the PAX SmartPOS device and uses `HapiFactory.getStoreAndForwardPaymentsApi()`. It is not available through the Cloud REST API or Cloud API integrated mode (where the POS is a separate device communicating via REST). "Cloud connectivity" mentioned throughout this guide refers to the **terminal's connection to the Handpoint gateway**, not the Cloud REST API.
+:::
 
 :::info Minimum SDK version
 SAF requires Android SDK **7.1012.1** or later. Use the latest stable release for production; the latest RC build for staging/development.
@@ -23,9 +27,9 @@ SAF requires Android SDK **7.1012.1** or later. Use the latest stable release fo
 Card tap/insert
     │
     ▼
-Handpoint Payments App (on device)
-    │  offline? store encrypted on device
-    │  online?  process immediately
+ISV's Android app on PAX SmartPOS (using StoreAndForwardPaymentsApi)
+    │  gateway offline? store encrypted on device
+    │  gateway online?  process immediately
     ▼
 endOfTransaction (finStatus = AUTHORISED_DEFERRED)
     │  ← fired immediately when stored
