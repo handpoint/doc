@@ -23,7 +23,7 @@ function broadcast(path) {
   }
 }
 
-export default function GlobalFilters({ mobile = false }) {
+export default function GlobalFilters({ mobile = false, sidebar = false }) {
   const history  = useHistory();
   const location = useLocation();
 
@@ -119,10 +119,14 @@ export default function GlobalFilters({ mobile = false }) {
     if (slug) history.push(`/acquirers/${slug}`);
   };
 
-  const prefix = mobile ? 'mob' : 'nav';
+  // Docusaurus passes mobile={true} when rendering in the primary menu items list.
+  // We render there via the Layout swizzle instead, so skip the duplicate.
+  if (mobile && !sidebar) return null;
+
+  const prefix = sidebar ? 'mob' : 'nav';
 
   return (
-    <div className={mobile ? 'navbar-global-filters-mobile' : 'navbar-global-filters'}>
+    <div className={sidebar ? 'navbar-global-filters-mobile' : 'navbar-global-filters'}>
 
       <div className="navbar-filter-group">
         <label className="navbar-filter-label" htmlFor={`${prefix}-acquirer-select`}>Acquirer</label>

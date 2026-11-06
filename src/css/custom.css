@@ -333,13 +333,19 @@
   }
 }
 
-/* Mobile sidebar variant — rendered via mobile={true} prop in Docusaurus primary menu */
+/* Sidebar filter bar — pinned between the navbar brand and the sliding panels */
+.navbar-sidebar__filters {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Mobile sidebar variant — used inside .navbar-sidebar__filters */
 .navbar-global-filters-mobile {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding: 0.75rem 1rem 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
   width: 100%;
 }
 

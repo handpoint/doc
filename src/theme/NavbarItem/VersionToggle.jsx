@@ -1,6 +1,9 @@
 import React from 'react';
 
-export default function VersionToggle({ mobile = false }) {
+export default function VersionToggle({ mobile = false, sidebar = false }) {
+  // Rendered in the Layout swizzle instead — skip the primary menu duplicate
+  if (mobile && !sidebar) return null;
+
   const links = (
     <>
       {/* Full-page navigation — /legacy/ is a static site, not a React Router route */}
@@ -22,7 +25,7 @@ export default function VersionToggle({ mobile = false }) {
 
   return (
     <div
-      className={mobile ? 'navbar-version-toggle-mobile' : 'navbar-version-toggle'}
+      className={sidebar ? 'navbar-version-toggle-mobile' : 'navbar-version-toggle'}
       aria-label="Documentation version"
     >
       {links}
