@@ -23,7 +23,7 @@ function broadcast(path) {
   }
 }
 
-export default function GlobalFilters() {
+export default function GlobalFilters({ mobile = false, sidebar = false }) {
   const history  = useHistory();
   const location = useLocation();
 
@@ -119,13 +119,19 @@ export default function GlobalFilters() {
     if (slug) history.push(`/acquirers/${slug}`);
   };
 
+  // Docusaurus passes mobile={true} when rendering in the primary menu items list.
+  // We render there via the Layout swizzle instead, so skip the duplicate.
+  if (mobile && !sidebar) return null;
+
+  const prefix = sidebar ? 'mob' : 'nav';
+
   return (
-    <div className="navbar-global-filters">
+    <div className={sidebar ? 'navbar-global-filters-mobile' : 'navbar-global-filters'}>
 
       <div className="navbar-filter-group">
-        <label className="navbar-filter-label" htmlFor="nav-acquirer-select">Acquirer</label>
+        <label className="navbar-filter-label" htmlFor={`${prefix}-acquirer-select`}>Acquirer</label>
         <select
-          id="nav-acquirer-select"
+          id={`${prefix}-acquirer-select`}
           className="navbar-filter-select"
           value={selectedAcquirer}
           onChange={(e) => handleAcquirerChange(e.target.value)}
@@ -139,9 +145,9 @@ export default function GlobalFilters() {
       </div>
 
       <div className="navbar-filter-group">
-        <label className="navbar-filter-label" htmlFor="nav-path-select">Integration path</label>
+        <label className="navbar-filter-label" htmlFor={`${prefix}-path-select`}>Integration path</label>
         <select
-          id="nav-path-select"
+          id={`${prefix}-path-select`}
           className="navbar-filter-select"
           value={selectedPath}
           onChange={(e) => handlePathChange(e.target.value)}
