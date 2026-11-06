@@ -1,8 +1,8 @@
 import React from 'react';
 
-export default function VersionToggle() {
-  return (
-    <div className="navbar-version-toggle" aria-label="Documentation version">
+export default function VersionToggle({ mobile = false }) {
+  const links = (
+    <>
       {/* Full-page navigation — /legacy/ is a static site, not a React Router route */}
       <a
         href="/legacy/"
@@ -17,6 +17,15 @@ export default function VersionToggle() {
       >
         New
       </span>
+    </>
+  );
+
+  return (
+    <div
+      className={mobile ? 'navbar-version-toggle-mobile' : 'navbar-version-toggle'}
+      aria-label="Documentation version"
+    >
+      {links}
     </div>
   );
 }
