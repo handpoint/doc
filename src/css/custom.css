@@ -404,8 +404,16 @@
 }
 
 @media (max-width: 996px) {
-  .navbar-version-toggle {
+  .navbar__inner .navbar-version-toggle {
     display: none;
+  }
+
+  /* Mobile sidebar version */
+  .navbar-sidebar .navbar-version-toggle {
+    display: flex;
+    margin: 0.25rem 1rem 0.75rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
   }
 }
 
