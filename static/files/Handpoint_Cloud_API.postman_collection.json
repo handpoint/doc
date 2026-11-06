@@ -3699,6 +3699,133 @@
           ]
         },
         {
+          "name": "Set Security Policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  // All fields are optional — omit any field to leave that setting unchanged.\n  \"hideTabBar\": true,        // true = hide History/Analytics/Settings tabs | false = restore\n  \"blockSystemUI\": true,     // true = lock Android status & nav bars | false = restore\n  \"brightness\": true,        // true = dim to minimum when idle, restore on transaction | false = disable auto-dim\n  \"passwordToExit\": true     // true = require PIN to lift restrictions | false = remove PIN requirement\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/devices/{{terminal_type}}/{{serial_number}}/set-security-policy",
+              "protocol": "https",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "devices",
+                "{{terminal_type}}",
+                "{{serial_number}}",
+                "set-security-policy"
+              ]
+            },
+            "description": "Configures individual terminal security restrictions. Each field is an independent nullable boolean — send only the fields you want to change. An empty body `{}` is accepted and changes nothing.\n\n| Field | `true` | `false` |\n|---|---|---|\n| `hideTabBar` | Hides the History, Analytics and Settings tabs | Restores the tabs |\n| `blockSystemUI` | Locks Android status and navigation bars | Restores system bars |\n| `brightness` | Dims screen to minimum when idle; restores on transaction start | Disables auto-dim |\n| `passwordToExit` | Requires a PIN before any active restriction can be lifted | Removes PIN requirement |\n\nChanges take effect immediately, survive app restarts and reboots, and the app navigates to the payment screen on receipt.\n\n**Requires:** Handpoint Payments App 4.14.1+ · Cloud API 2.33.0+\n\n**Response:** `202 Accepted` with `{\"status\":\"Accepted\"}` — delivery is asynchronous. No poll result.\n\n**Offline:** returns `400` with error `1002` if the terminal is offline or not in integrated mode."
+          },
+          "response": [
+            {
+              "name": "202 Accepted — command delivered to terminal",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"hideTabBar\":true,\"blockSystemUI\":true}"
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/devices/{{terminal_type}}/{{serial_number}}/set-security-policy",
+                  "protocol": "https",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "{{terminal_type}}",
+                    "{{serial_number}}",
+                    "set-security-policy"
+                  ]
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\"status\":\"Accepted\"}"
+            },
+            {
+              "name": "400 Bad Request — terminal offline or not in integrated mode",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"hideTabBar\":true}"
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/devices/{{terminal_type}}/{{serial_number}}/set-security-policy",
+                  "protocol": "https",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "{{terminal_type}}",
+                    "{{serial_number}}",
+                    "set-security-policy"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\"error\":{\"statusCode\":400,\"name\":\"BadRequestError\",\"message\":\"{\\\"error\\\":1002,\\\"message\\\":\\\"No device listening at the other end of the secure channel\\\"}\"}}"
+            }
+          ]
+        },
+        {
           "name": "Set Locale",
           "request": {
             "method": "POST",

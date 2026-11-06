@@ -241,6 +241,25 @@ Always persist `transactionReference` before starting a transaction.
 
 Acquirer-specific availability: see your acquirer's page for supported features: [EPI](/acquirers/epi) · [PAYSAFE](/acquirers/paysafe) · [EmerchantPay](/acquirers/emerchantpay) · [Paystrax](/acquirers/paystrax).
 
+## Device management
+
+Methods available on the `Hapi` instance for managing the HiLite connection and terminal state.
+
+| Method | Signature | Notes |
+|---|---|---|
+| **Disconnect** | `hapi.disconnect(): Boolean` | Stops the active Bluetooth connection or reconnection attempt. Do not call mid-transaction — it ignores current state. |
+| **Get paired devices** | `hapi.getPairedDevices(method: ConnectionMethod): List<Device>` | Returns all terminals paired via the specified connection type. Use `ConnectionMethod.BLUETOOTH` for HiLite. |
+| **Get EMV configuration** | `hapi.getEMVConfiguration(): Boolean` | Async; fetches the EMV configuration report from the terminal. Result delivered via `Events.ReportResult`. |
+| **Flash reset** | `hapi.deleteDeviceConfig()` | Sends a command to delete the terminal's stored configuration (factory-style reset). |
+| **Set locale** | `hapi.setLocale(locale: SupportedLocales)` | Sets the SDK UI language and regional number/date formatting. |
+| **Get manufacturer** | `hapi.getDeviceManufacturer(): Manufacturer` | Returns `Manufacturer.DATECS` for all HiLite hardware. |
+| **Print receipt** | `hapi.printReceipt(receipt: String, printer: Device): Boolean` | Sends a receipt string to the HiLite's built-in printer. |
+| **Update** | `hapi.update(device: Device): Boolean` | Triggers a firmware update on the connected HiLite. The device reboots as part of the update. |
+
+:::note HiLite limitations
+`stopCurrentTransaction()` always returns `false` on HiLite (BluetoothConnection is not an AndroidPaymentConnection). `getTransactionStatus()` is PAX-only and is not available on HiLite.
+:::
+
 ## Validation & certification
 
 **Required for every integration:**
