@@ -764,13 +764,29 @@ This is validated during self-testing (trigger amount `3757`) and required for H
 
 ## Fee mitigation
 
-**Not available on this path yet.** `POST /transactions` carries the deprecated flat
-`surchargeAmount` only. It does not carry the `fee` object, so admin fee and dual pricing cannot be
-sent from the Cloud API. The terminal already accepts a nested `fee` object, so this path opens as
-soon as the Cloud API forwards one.
+`POST /transactions` accepts a nested `fee` object for `sale`, `moToSale`, `saleAndTokenizeCard` and
+`preAuthorizationCapture`. Any other operation with a `fee` returns `400`. `amount` is the base
+amount: the terminal adds the tip, the fee and the tax amount to it. Amounts are minor-unit strings.
 
-Use the Android SDK on a PAX terminal for fee mitigation today. Reference:
-https://developer.handpoint.com/reference/fee-mitigation
+```json
+{
+  "operation": "sale",
+  "amount": "10000",
+  "currency": "USD",
+  "terminal_type": "PAXA920",
+  "serial_number": "082104578",
+  "fee": { "amount": "300", "mitigationProgram": "surcharge", "taxOnFee": "60" },
+  "taxInformation": { "taxAmount": "2060", "taxExempt": false },
+  "purchaseOrderNumber": "PO42"
+}
+```
+
+- `fee.amount`: required, digits only, the fee without the tax on it.
+- `fee.mitigationProgram`: required, exactly `surcharge`, `adminFee`, `cashDiscount` or `dualPricing`.
+- `fee.taxOnFee`: optional, digits only. It is part of `taxInformation.taxAmount`, not of `fee.amount`. Level 2 data needs `purchaseOrderNumber` with `taxInformation`.
+- `surchargeAmount` is deprecated. Use `fee`.
+
+Reference: https://developer.handpoint.com/reference/fee-mitigation
 
 ## See also
 

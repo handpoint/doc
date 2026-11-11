@@ -8,7 +8,6 @@ last-reviewed: "2026-09-09"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import NotSupported from '@site/src/components/NotSupported';
-import ComingSoon from '@site/src/components/ComingSoon';
 
 :::caution Under development
 This page describes a feature we are building. It is not available in a released SDK or API version.
@@ -76,17 +75,16 @@ show the result      ◀──    return the outcome
 
 | Operation | Cloud API | Android (PAX) | Android (HiLite) | iOS (HiLite) | Cordova |
 |---|---|---|---|---|---|
-| Sale | 🕓 | ✅ | ❌ | ❌ | ❌ |
-| Sale with tip | 🕓 | ✅ | ❌ | ❌ | ❌ |
-| Sale with tokenization | 🕓 | ✅ | ❌ | ❌ | ❌ |
-| Remote Sale | 🕓 | ✅ | ❌ | ❌ | ❌ |
-| Pre-Authorization, capture | 🕓 | ✅ | ❌ | ❌ | ❌ |
+| Sale | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Sale with tip | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Sale with tokenization | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Remote Sale | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Pre-Authorization, capture | ✅ | ✅ | ❌ | ❌ | ❌ |
 | Every other operation | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-✅ available · 🕓 planned · ❌ not supported
+✅ available · ❌ not supported
 
-The Android SDK on a PAX terminal carries the feature first. The Cloud API needs one more change
-before it can forward the `fee` object; see the [Code](#code) section.
+The Cloud API forwards the `fee` object to the terminal. See the [Code](#code) section.
 
 ## Eligibility
 
@@ -143,8 +141,8 @@ receipt and your records must show the amount the gateway actually charged.
 Four rules explain every ❌ in that table.
 
 **A pre-authorization carries no fee.** The fee belongs to the capture, because the capture sets the
-amount the customer pays. If you set a fee on a pre-authorization, the SDK removes it. Set it on the
-capture instead.
+amount the customer pays. If you set a fee on a pre-authorization, the SDK removes it, and the
+Cloud API rejects the request with HTTP `400`. Set it on the capture instead.
 
 **Dual pricing needs a cash price.** A pre-authorization has no cash alternative to price against, so
 dual pricing applies to a sale and to a Remote Sale only.
@@ -173,11 +171,9 @@ carries that risk.
 <Tabs groupId="integration-path">
 <TabItem value="cloud-api" label="Cloud API">
 
-<ComingSoon />
-
-The terminal already accepts a nested `fee` object on a cloud request. The Cloud API does not send
-one yet: `POST /transactions` carries the deprecated flat `surchargeAmount` only. When the Cloud API
-adds `fee`, the shape matches the object below.
+`POST /transactions` accepts a nested `fee` object for `sale`, `moToSale`, `saleAndTokenizeCard` and
+`preAuthorizationCapture`. The `amount` of the request is the base amount. The terminal adds the
+tip, the fee and the tax amount to it.
 
 ```json
 {
@@ -187,14 +183,38 @@ adds `fee`, the shape matches the object below.
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "fee": {
-    "amount": "360",
+    "amount": "300",
     "mitigationProgram": "surcharge",
     "taxOnFee": "60"
-  }
+  },
+  "taxInformation": {
+    "taxAmount": "2060",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO42"
 }
 ```
 
+`amount` is the base amount, `10000` (100.00). The fee is `300` (3.00) without its tax. The tax on the
+fee, `60`, is separate, and `taxInformation.taxAmount` includes it. The terminal charges
+`10000 + 300 + 2060 = 12360`.
+
 Amounts inside `fee` follow the rest of `POST /transactions`: minor units, as a string.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | The fee, without the tax on it. Digits only, 12 digits at most |
+| `mitigationProgram` | string | Yes | `surcharge`, `adminFee`, `cashDiscount` or `dualPricing`. The match is exact |
+| `taxOnFee` | string | No | The tax on the fee. Digits only. It is part of `taxInformation.taxAmount` |
+
+The Cloud API checks only the format, the program and the operation. It returns HTTP `400` for an
+unknown program, an amount that is not digits only, or a `fee` on another operation. The terminal
+applies the other rules in this page, for example `taxOnFee` not above `taxInformation.taxAmount`.
+
+:::note The old `surchargeAmount` is deprecated
+`surchargeAmount` is deprecated in favour of `fee`. It is a surcharge that the terminal adds to the
+base `amount`. It is not already included in `amount`.
+:::
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
@@ -448,7 +468,6 @@ records until they arrive.
 |---|---|
 | Cash and e-gift tenders | The gateway processes card transactions. Your point of sale handles cash |
 | Cash discount at the gateway | It applies to a cash tender, which never reaches the gateway |
-| The Cloud API | The terminal accepts a `fee` object, but the Cloud API does not send one yet |
 | The iOS, Windows and Cordova SDKs | The Android SDK carries the feature |
 | A recalculation of the fee on a partial refund | The platform does not calculate it. You do |
 | Routing that depends on the fee | Out of scope |
