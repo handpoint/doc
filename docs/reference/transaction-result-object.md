@@ -399,8 +399,8 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // null or BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+; null when not applicable)
-result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
+result.taxAmount                // DEPRECATED
+result.surcharge                // DEPRECATED, use result.fee
 result.currency                 // Currency.USD
 
 // --- Fee mitigation ---
@@ -502,8 +502,8 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigInteger? | Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` or `BigInteger.ZERO` when not applicable — always null-check before use. |
-| `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `taxAmount` | BigDecimal? | **Deprecated.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable. |
+| `surcharge` | Surcharge? | **Deprecated.** Use `fee`. Acquirer surcharge detail (App 4.14.0 / SDK 7.1014.0+), with `amount` in major units. `null` when not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
 
@@ -519,9 +519,9 @@ The `Fee` you send uses minor units, so the units change between the request and
 |---|---|---|
 | `amount` | BigDecimal | The fee the gateway recorded. When `applied` is `false`, this is what you asked for, not what the customer paid. |
 | `mitigationProgram` | FeeMitigationProgram? | `SURCHARGE` `ADMIN_FEE` `CASH_DISCOUNT` `DUAL_PRICING`. `null` when the gateway reports a program this SDK version does not recognise. |
-| `taxOnFee` | BigDecimal | The part of `amount` that is tax. Already inside `amount`. |
+| `taxOnFee` | BigDecimal | The part of the tax amount that is tax on the fee. Not part of `amount`. |
 | `applied` | Boolean | `true` when the gateway charged the fee. |
-| `reason` | FeeReason | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `UNKNOWN`. |
+| `reason` | FeeReason | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `FEE_AMOUNT_MISSING` `UNKNOWN`. |
 | `reasonDetail` | String? | Raw gateway text. Set when `reason` is `UNKNOWN`. |
 
 For a surcharge the SDK fills `result.surcharge` as well, so an integration written against the

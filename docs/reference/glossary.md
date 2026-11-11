@@ -18,7 +18,7 @@ See also: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix
 
 ### Admin fee
 
-A [fee mitigation](#fee-mitigation) program. The merchant adds a flat or percentage fee to every payment method — cash, card and e-gift alike. It is deliberately universal: a carve-out for cash would turn it into a [cash discount](#cash-discount), and different rules would apply. The receipt shows it as a separate labelled line. Only a [surcharge](#surcharge) reaches the card networks, so an admin fee travels inside the transaction amount.
+A [fee mitigation](#fee-mitigation) program. The merchant adds a flat or percentage fee to every payment method — cash, card and e-gift alike. It is deliberately universal: a carve-out for cash would turn it into a [cash discount](#cash-discount), and different rules would apply. The receipt shows no fee line for it. Only a [surcharge](#surcharge) reaches the card networks, so an admin fee travels inside the transaction amount.
 
 See also: [Fee Mitigation](/reference/fee-mitigation)
 
@@ -71,7 +71,7 @@ See also: [Fee Mitigation](/reference/fee-mitigation)
 
 ### Dual pricing
 
-A [fee mitigation](#fee-mitigation) program. The merchant posts two prices — a cash price and a higher card price. Legally this is a pricing model, not a fee, so the restrictions that apply to a [surcharge](#surcharge) do not apply. The receipt shows **no** fee line: the card price is the posted price, and an itemised fee would undermine the model.
+A [fee mitigation](#fee-mitigation) program. The merchant posts two prices — a cash price and a higher card price. It is a fee that the gateway applies when the conditions of the program are met. The receipt shows no fee line for it. Only an applied [surcharge](#surcharge) prints one.
 
 See also: [Fee Mitigation](/reference/fee-mitigation)
 

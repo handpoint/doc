@@ -59,15 +59,16 @@ A transaction that carried a fee needs one more line, and the rule differs by pr
 | Program | The receipt shows | Condition |
 |---|---|---|
 | Surcharge | A separate line, clearly labelled. The card networks **require** it. Never inside the total, never mixed with the tax | `fee.applied` is `true` |
-| Admin fee | A separate line, with its own label | `fee.applied` is `true` |
-| Dual pricing | **No fee line.** The card price is the posted price | Always |
+| Admin fee | **No fee line** | Always |
+| Dual pricing | **No fee line** | Always |
 | Cash discount | Nothing. It is not a card transaction | Never reaches the gateway |
 
-The amount on the line is `fee.amount` from the result, in major units. A fee the gateway dropped
-(`fee.applied` is `false`) gets no line at all, because the customer never paid it.
+Only an applied surcharge prints a fee line. The amount on the line is `fee.amount` from the result,
+in major units. A fee the gateway dropped (`fee.applied` is `false`) gets no line at all, because the
+customer never paid it.
 
-:::warning Dual pricing prints no fee line, on purpose
-This looks like an omission. It is not. An itemised fee would present a price as a fee, and would undermine the model that makes dual pricing lawful. Do not add a fee line to a dual pricing receipt.
+:::note Admin fee and dual pricing print no fee line until a business rule changes this
+This is deliberate, not an omission. Do not add a fee line for either program on your own.
 :::
 
 ---
