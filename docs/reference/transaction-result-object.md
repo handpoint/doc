@@ -45,6 +45,13 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
     "applied": false,
     "reason": ""
   },
+  "fee": {
+    "amount": "0.30",
+    "mitigationProgram": "SURCHARGE",
+    "taxOnFee": "0",
+    "applied": false,
+    "reason": "NOT_ELIGIBLE_DEBIT"
+  },
   "currency": "USD",
 
   "cardEntryType": "ICC",
@@ -141,8 +148,25 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
 | `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
-| `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
+| `surcharge` | object | **Deprecated, use `fee`.** Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+), with `amount`, `applied` and `reason`. |
+| `fee` | object | The fee result: what the gateway answered about the fee of the payment. Absent when the transaction has no fee. See [`fee`](#fee) below. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
+
+#### `fee`
+
+`GET /transactions/{transactionReference}/status` returns the fee result with the same JSON shape as `TransactionResult.fee` in the Android SDK. Read [Fee Mitigation](fee-mitigation.mdx) for the programs and the rules.
+
+**The amounts in `fee` are strings in major units** (`"3.54"` is 3.54 USD). They are not integers in minor units like the amount fields above.
+
+| Field | Type | Description |
+|---|---|---|
+| `amount` | string | The fee, without the tax on fee. `"0"` when the gateway sends no amount. |
+| `mitigationProgram` | string | `SURCHARGE` `ADMIN_FEE` `CASH_DISCOUNT` `DUAL_PRICING`. Absent when the gateway reports a program that the Cloud API does not know. |
+| `taxOnFee` | string | The tax on fee. It is part of the tax amount, not part of `amount`. `"0"` when the gateway did not apply the fee. |
+| `applied` | boolean | `true` when the gateway charged the fee. |
+| `reason` | string | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `FEE_AMOUNT_MISSING` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `UNKNOWN`. |
+
+When the gateway does not apply the fee, `requestedAmount` is the amount without the fee and without the tax on fee, and `dueAmount` is `0`.
 
 ### Card
 
