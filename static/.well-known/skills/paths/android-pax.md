@@ -175,7 +175,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
   `PROGRAM_NOT_ENABLED`, `PROGRAM_NOT_SUPPORTED`, `UNKNOWN`. Only the first two occur today.
 - `Options.surchargeAmount` and `result.surcharge` are deprecated and still work. Never set both
   `fee` and `surchargeAmount` with different amounts — the gateway returns error `4268`.
-- Dual pricing is a fee that the gateway applies when the conditions of the program are met. Only an applied surcharge prints a fee line. Admin fee and dual pricing print none.
+- Dual pricing is a fee that the gateway applies when the conditions of the program are met. Only an applied surcharge prints a fee line. Admin fee and dual pricing print none: their fee is included in the amount line, so the receipt lines add up to the total.
 
 ## finStatus values
 
