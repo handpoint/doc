@@ -97,7 +97,7 @@ The Cloud API and the Android SDK expect the transaction amount to be built diff
 |---|---|---|
 | **Cloud API** | The **total**, surcharge and tax already included | `amount: 5562`, `surchargeAmount: 162`, `taxAmount: 400` |
 | **Android SDK** — sale, MOTO sale, refund | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
-| **Android SDK** — pre-auth capture | The **total**, surcharge and tax already included | The capture amount is sent verbatim |
+| **Android SDK** — pre-auth capture | The **base only** — the SDK adds fee and tax on top (7.1015.0, coming soon). See [how the SDK builds the amount](/reference/fee-mitigation#amount) | A capture with no fee and no tax captures the amount you send |
 
 ## Code {#code}
 
@@ -162,7 +162,7 @@ val options = SaleOptions().apply {
 hapi.sale(BigInteger.valueOf(saleAmount), Currency.USD, options)
 ```
 
-`surchargeAmount` is also available on `MoToOptions` (MOTO sale), `RefundOptions` (refund), and the base `Options` type used by `preAuthorizationCapture`. Passing `null` omits the field from the request.
+`surchargeAmount` is also available on `MoToOptions` (MOTO sale), `RefundOptions` (refund), and the base `Options` type used by `preAuthorizationCapture`. On a capture, use `fee` instead. Passing `null` omits the field from the request.
 
 Do not set it on the pre-authorization itself — the surcharge is realized at capture, and the SDK drops it on the initial authorization.
 

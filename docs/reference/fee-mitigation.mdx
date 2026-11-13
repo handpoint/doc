@@ -183,7 +183,15 @@ amount = base + tip + fee.amount + tax
   it uses the deprecated `taxAmount`. If you set both, it ignores `taxAmount`.
 - A tax-exempt `taxInformation` (`taxExempt = true`) adds `0`.
 - The original pre-authorization carries no fee and no tax, so its amount is the base amount (plus
-  the tip). The capture carries them.
+  the tip).
+- A pre-authorization capture uses the same rule. Send the base amount. The SDK adds `fee.amount`
+  and the tax. A capture with no fee and no tax captures the amount that you send. A Cloud API
+  capture on a terminal uses the same code.
+
+:::note Coming soon
+The capture rule is planned for Android SDK 7.1015.0. Until then, the SDK sends the fee and the
+tax, but it captures the amount that you send, with no fee and no tax added.
+:::
 
 :::warning Do not put the tax in `amount`
 Before SDK 7.1014.5, the SDK did not add `taxInformation.taxAmount` to `amount`. Some integrations
