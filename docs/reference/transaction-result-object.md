@@ -148,6 +148,8 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
 | `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
+| `taxInformation` | object | The Level II tax of the request: `taxAmount` (string, minor units) and `taxExempt` (boolean). Android SDK 7.1015.0+. Returned for a sale, a sale with tokenization and a Remote Sale. A refund result does not carry it. |
+| `purchaseOrderNumber` | string | The purchase order number of the request. Android SDK 7.1015.0+. Same operations as `taxInformation`. |
 | `surcharge` | object | **Deprecated, use `fee`.** Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+), with `amount`, `applied` and `reason`. |
 | `fee` | object | The fee result: what the gateway answered about the fee of the payment. Absent when the transaction has no fee. See [`fee`](#fee) below. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
@@ -527,6 +529,8 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
 | `taxAmount` | BigDecimal? | **Deprecated.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable. |
+| `taxInformation` | TaxInformation? | The Level II tax of the request (SDK 7.1015.0+). `null` when the request carried none. Not set on a refund result. |
+| `purchaseOrderNumber` | String? | The purchase order number of the request (SDK 7.1015.0+). Not set on a refund result. |
 | `surcharge` | Surcharge? | **Deprecated.** Use `fee`. Acquirer surcharge detail (App 4.14.0 / SDK 7.1014.0+), with `amount` in major units. `null` when not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |

@@ -917,6 +917,32 @@ See [Fee mitigation](/reference/fee-mitigation) for the rules that the terminal 
 
 ---
 
+### `taxInformation` and `purchaseOrderNumber`
+
+:::note Coming soon
+Level II data on the Cloud API needs Android SDK 7.1015.0 or later on the terminal. A terminal on
+7.1014.x ignores `taxInformation` and `purchaseOrderNumber`: it processes the sale without them
+and without the Level II tax. It does not return an error.
+:::
+
+Valid for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`. Any other operation returns `400`.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `taxInformation.taxAmount` | string | Yes | Tax amount. Minor units, digits only. The terminal adds it to the base `amount`. |
+| `taxInformation.taxExempt` | boolean | Yes | `true` for a tax-exempt sale. The terminal adds `0`. |
+| `purchaseOrderNumber` | string | Yes, with `taxInformation` | Purchase order number. |
+
+Send `taxInformation` and `purchaseOrderNumber` together. A request with only one of them returns `400`.
+The result returns both fields: see [`taxInformation`](/reference/transaction-result-object#amounts).
+
+:::caution Known issue: tax-exempt sale
+A sale with `taxExempt: true` is declined by the gateway on a merchant with Level II validation
+enabled (error `4265`). Do not use it until Handpoint announces a fix.
+:::
+
+---
+
 ### `merchantAuth`
 
 An array of `Credential` objects for multi-MID scenarios. Overrides the merchant's default credentials for a specific acquirer. At most one credential per acquirer.

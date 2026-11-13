@@ -168,6 +168,29 @@ refund that does not return the fee in proportion breaks card network rules, and
 carries that risk.
 :::
 
+## How the Android SDK builds the amount {#amount}
+
+You send the **base amount**. The Android SDK adds the other parts:
+
+```
+amount = base + tip + fee.amount + tax
+```
+
+- The SDK uses this rule for a sale on every entry mode: chip, contactless and swipe. A Remote Sale
+  uses the same rule, with no tip.
+- The card amount (EMV tag `9F02`) is the same amount. The card and the gateway get the same value.
+- The SDK adds the tax one time. It uses `taxInformation.taxAmount`. If `taxInformation` is not set,
+  it uses the deprecated `taxAmount`. If you set both, it ignores `taxAmount`.
+- A tax-exempt `taxInformation` (`taxExempt = true`) adds `0`.
+- The original pre-authorization carries no fee and no tax, so its amount is the base amount (plus
+  the tip). The capture carries them.
+
+:::warning Do not put the tax in `amount`
+Before SDK 7.1014.5, the SDK did not add `taxInformation.taxAmount` to `amount`. Some integrations
+put the tax in `amount` to work around this. Send the base amount only. If you keep the tax in
+`amount`, the customer pays the tax two times.
+:::
+
 ## Code {#code}
 
 <Tabs groupId="integration-path">
