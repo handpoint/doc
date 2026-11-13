@@ -764,8 +764,10 @@ This is validated during self-testing (trigger amount `3757`) and required for H
 
 ## Fee mitigation
 
-`POST /transactions` accepts a nested `fee` object for `sale`, `moToSale`, `saleAndTokenizeCard` and
-`preAuthorizationCapture`. Any other operation with a `fee` returns `400`. `amount` is the base
+**Coming soon on this path.** `POST /transactions` does not accept `fee` yet. Use the Android SDK on a
+PAX terminal for fee mitigation today. When the Cloud API accepts it, `POST /transactions` takes a
+nested `fee` object for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`.
+Any other operation with a `fee` returns `400`. `amount` is the base
 amount: the terminal adds the tip, the fee and the tax amount to it. Amounts are minor-unit strings.
 
 ```json
@@ -782,7 +784,7 @@ amount: the terminal adds the tip, the fee and the tax amount to it. Amounts are
 ```
 
 - `fee.amount`: required, digits only, the fee without the tax on it.
-- `fee.mitigationProgram`: required, exactly `surcharge`, `adminFee`, `cashDiscount` or `dualPricing`.
+- `fee.mitigationProgram`: required, exactly `surcharge`, `adminFee` or `dualPricing`. `cashDiscount`, and `dualPricing` on `preAuthorizationCapture`, return `400`.
 - `fee.taxOnFee`: optional, digits only. It is part of `taxInformation.taxAmount`, not of `fee.amount`. Level 2 data needs `purchaseOrderNumber` with `taxInformation`.
 - `surchargeAmount` is deprecated. Use `fee`.
 
