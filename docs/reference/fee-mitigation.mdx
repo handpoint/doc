@@ -105,10 +105,9 @@ Two facts decide the outcome: the type of the card, and the type of the transact
 discount program carries no fee, because the card price is the posted price. Such a request cannot
 be correct, so the gateway rejects it rather than accepting it quietly.
 
-:::note A cash discount flow is rejected on a card
-Do not send a cash discount on a card transaction. The gateway rejects the request with HTTP `400`
-and error `4272` (`FEE_PROGRAM_NOT_SUPPORTED`), and the transaction does not reach the acquirer.
-Apply a cash discount in your own application, on a cash or e-gift tender only.
+:::note A cash discount is rejected on a card
+The gateway returns HTTP `400` with error `4272` (`FEE_PROGRAM_NOT_SUPPORTED`). Apply a cash discount
+in your own application, on a cash or e-gift tender only.
 :::
 
 ### Dropped and refused are different
@@ -160,9 +159,8 @@ operation set no transaction amount, so no fee can apply to them.
 the acquirer requires the two values to match. You set nothing.
 
 :::warning A refund does not return the fee for you
-Do not set a fee on a refund. `RefundOptions` has the field, because it inherits it from the base
-options type. From Android SDK 7.1015.0, the SDK does not start a refund that sets it, and returns the error
-`Refunds do not accept surcharge or tax amounts: send the refund total as the amount`. See [Surcharging — Refunds](/reference/surcharging#refunds).
+Set no fee on a refund. From Android SDK 7.1015.0, the SDK does not start a refund with a fee. See
+[Surcharging — Refunds](/reference/surcharging#refunds).
 
 Calculate the returned fee in your own application, and add it to the refund amount you send. A
 refund that does not return the fee in proportion breaks card network rules, and the merchant
@@ -171,33 +169,26 @@ carries that risk.
 
 ## How the Android SDK builds the amount {#amount}
 
-You send the **base amount**. The Android SDK adds the other parts:
+Send the **base amount**. The Android SDK adds the tip, the fee and the tax:
 
 ```
 amount = base + tip + fee.amount + tax
 ```
 
-- The SDK uses this rule for a sale on every entry mode: chip, contactless and swipe. A Remote Sale
-  uses the same rule, with no tip.
-- The card amount (EMV tag `9F02`) is the same amount. The card and the gateway get the same value.
-- The SDK adds the tax one time. It uses `taxInformation.taxAmount`. If `taxInformation` is not set,
-  it uses the deprecated `taxAmount`. If you set both, it ignores `taxAmount`.
-- A tax-exempt `taxInformation` (`taxExempt = true`) adds `0`.
-- The original pre-authorization carries no fee and no tax, so its amount is the base amount (plus
-  the tip).
-- A pre-authorization capture uses the same rule. Send the base amount. The SDK adds `fee.amount`
-  and the tax. A capture with no fee and no tax captures the amount that you send. A Cloud API
-  capture on a terminal uses the same code.
+- The rule applies to a sale on every entry mode (chip, contactless and swipe) and to a Remote Sale,
+  which has no tip. The card amount (EMV tag `9F02`) is the same value.
+- `tax` is `taxInformation.taxAmount`, or `0` when `taxExempt` is `true`. The SDK uses the deprecated
+  `taxAmount` only when `taxInformation` is not set.
+- A pre-authorization carries no fee and no tax. Its capture uses the rule above.
 
 :::note Coming soon
-The capture rule is planned for Android SDK 7.1015.0. Until then, the SDK sends the fee and the
-tax, but it captures the amount that you send, with no fee and no tax added.
+The capture rule comes with Android SDK 7.1015.0. Until then, the SDK captures the amount that you
+send, and sends the fee and the tax as fields only.
 :::
 
 :::warning Do not put the tax in `amount`
-Before SDK 7.1014.5, the SDK did not add `taxInformation.taxAmount` to `amount`. Some integrations
-put the tax in `amount` to work around this. Send the base amount only. If you keep the tax in
-`amount`, the customer pays the tax two times.
+Before Android SDK 7.1014.5, the SDK did not add `taxInformation.taxAmount`. If your integration puts
+the tax in `amount`, the customer pays it two times.
 :::
 
 ## Code {#code}
@@ -369,14 +360,10 @@ major units, the same as every other amount on the result.
 | `APPLIED` | The gateway charged the fee | Print the fee line. Settle the total that the result carries |
 | `NOT_ELIGIBLE_DEBIT` | The customer presented a debit card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
 | `NOT_ELIGIBLE_PREPAID` | The customer presented a prepaid card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
-| `FEE_AMOUNT_MISSING` | The request had a `taxOnFee` but no fee `amount`, so there was no fee to apply | Print no fee line. Send the fee `amount` on the next request |
+| `FEE_AMOUNT_MISSING` | The fee had a `taxOnFee` but no `amount` | Print no fee line. Send `fee.amount` |
 | `PROGRAM_NOT_ENABLED` | The merchant is not configured for this program | Print no fee line. Ask the merchant to enable the program |
 | `PROGRAM_NOT_SUPPORTED` | The gateway does not carry this program | Print no fee line. Handle the program in your own application |
 | `UNKNOWN` | The gateway returned a reason this version of the SDK does not recognise | Read `reasonDetail`. Treat the fee as dropped unless `applied` is `true` |
-
-:::note Handle all seven values
-The gateway can return each value in the table. Handle all seven values.
-:::
 
 ## Errors
 
