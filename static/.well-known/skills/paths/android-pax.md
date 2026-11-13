@@ -153,9 +153,9 @@ Surcharge, admin fee and dual pricing travel in one `Fee` object. Set it on `Sal
 ```kotlin
 val options = SaleOptions().apply {
     fee = Fee(
-        amount            = BigInteger("360"),  // the whole fee, minor units
+        amount            = BigInteger("300"),  // the fee without tax, minor units
         mitigationProgram = FeeMitigationProgram.SURCHARGE,
-        taxOnFee          = BigInteger("60")    // the tax part inside amount
+        taxOnFee          = BigInteger("60")    // part of the tax amount, not of amount
     )
 }
 hapi.sale(BigInteger("10000"), Currency.USD, options)   // pass the BASE amount
@@ -166,8 +166,8 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 }
 ```
 
-- **Pass the base amount to the operation.** The SDK adds `fee.amount` to it. Never pre-add it.
-- **`taxOnFee` sits inside `amount`.** It is never added on top.
+- **Pass the base amount to the operation.** The SDK adds `fee.amount` and the tax amount to it. Never pre-add them.
+- **`taxOnFee` is part of the tax amount, not of `amount`.** Include it in `taxInformation.taxAmount`.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
@@ -175,7 +175,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
   `PROGRAM_NOT_ENABLED`, `PROGRAM_NOT_SUPPORTED`, `UNKNOWN`. Only the first two occur today.
 - `Options.surchargeAmount` and `result.surcharge` are deprecated and still work. Never set both
   `fee` and `surchargeAmount` with different amounts — the gateway returns error `4268`.
-- The receipt rule differs per program. Dual pricing prints **no** fee line.
+- Dual pricing is a fee that the gateway applies when the conditions of the program are met. Only an applied surcharge prints a fee line. Admin fee and dual pricing print none: their fee is included in the amount line, so the receipt lines add up to the total.
 
 ## finStatus values
 

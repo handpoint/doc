@@ -130,6 +130,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal screen — the merchant must accept or decline. **Accept** → a new authorisation request is sent to the gateway; the final result is delivered normally. **Decline** → `finStatus: CANCELLED` is delivered immediately; no card charge. Set `false` only when you are intentionally replaying a reference (e.g. after recovering an UNDEFINED result and confirming the transaction was not charged). |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` — see [bypassOptions](#bypassoptions) |
 | `tipConfiguration` | object | No | — | Tip selection screen — see [tipConfiguration](#tipconfiguration) |
+| `fee` | object | No | — | **Coming soon.** Fee mitigation fee — see [fee](#fee). `amount` stays the base amount. Replaces the deprecated `surchargeAmount`. |
 | `merchantAuth` | array | No | — | Multi-MID credential override — see [merchantAuth](#merchantauth) |
 | `metadata` | object | No | — | `{ "metadata1": "…", …, "metadata5": "…" }` — max 250 chars each |
 | `moneyRemittanceOptions` | object | No | — | EmerchantPay only — see [moneyRemittanceOptions](#moneyremittanceoptions) |
@@ -664,6 +665,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700645247 \
 | `merchantAuth` | array | No | — | Multi-MID override |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
+| `fee` | object | No | — | **Coming soon.** Fee mitigation fee — see [fee](#fee) |
 
 :::warning `transactionReference` bug on moToSale (CUS-837)
 The `transactionReference` you send is ignored by the Cloud API for `moToSale` — the returned result contains a system-generated reference that does not match your value. Recovery via `GET /transactions/{ref}/status` will not work for keyed-entry MOTO. Use `transactionResultId` to poll instead, and store `transactionID` from the result for recovery. Status: open as of 2026-09-06.
@@ -894,6 +896,24 @@ Valid for `sale` only (not `saleAndTokenizeCard`, `moToSale`, etc.).
 | `footer` | string | No | `""` | Footer text on the tip screen. |
 
 `tipAmount` appears in the **result** (not the request) with the amount the cardholder selected, in minor units.
+
+---
+
+### `fee`
+
+:::note Coming soon
+`POST /transactions` does not accept `fee` yet. This section describes the shape it will accept.
+:::
+
+Valid for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`. Any other operation returns `400`. The request `amount` is the base amount: the terminal adds the tip, the fee and the tax amount to it. `surchargeAmount` is deprecated; use `fee`.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | **Yes** | Fee without the tax on it. Minor units, digits only, max 12 characters. |
+| `mitigationProgram` | string | **Yes** | `"surcharge"`, `"adminFee"` or `"dualPricing"` (exact match). `"cashDiscount"`, `"dualPricing"` on `preAuthorizationCapture`, and any other value return `400`. |
+| `taxOnFee` | string | No | Tax on the fee. Minor units, digits only. Part of `taxInformation.taxAmount`. |
+
+See [Fee mitigation](/reference/fee-mitigation) for the rules that the terminal applies.
 
 ---
 

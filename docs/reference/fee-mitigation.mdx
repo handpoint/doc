@@ -38,8 +38,8 @@ The difference between these programs is legal, not arithmetic. Two programs can
 money and follow different rules.
 
 - A **surcharge** is a fee. The card networks regulate it, and several US states prohibit it.
-- **Dual pricing** is a price, not a fee. The merchant posts two prices, so the card price is
-  simply the price. This is why dual pricing avoids the restrictions that apply to a surcharge.
+- **Dual pricing** is a fee that the gateway applies when the conditions of the program are met.
+  The merchant posts two prices: a cash price and a higher card price.
 - A **cash discount** reduces the price when the customer pays cash. The card price is the standard
   price.
 - An **admin fee** applies to every payment method. It is deliberately universal. A carve-out for
@@ -85,8 +85,8 @@ show the result      ◀──    return the outcome
 
 ✅ available · 🕓 planned · ❌ not supported
 
-The Android SDK on a PAX terminal carries the feature first. The Cloud API needs one more change
-before it can forward the `fee` object; see the [Code](#code) section.
+The Android SDK on a PAX terminal carries the feature first. Cloud API support is coming soon;
+see the [Code](#code) section.
 
 ## Eligibility
 
@@ -175,9 +175,10 @@ carries that risk.
 
 <ComingSoon />
 
-The terminal already accepts a nested `fee` object on a cloud request. The Cloud API does not send
-one yet: `POST /transactions` carries the deprecated flat `surchargeAmount` only. When the Cloud API
-adds `fee`, the shape matches the object below.
+`POST /transactions` does not accept a `fee` object yet. When it does, it accepts a nested `fee`
+object for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, in the shape
+below. The `amount` of the request is the base amount. The terminal adds the tip, the fee and the
+tax amount to it.
 
 ```json
 {
@@ -187,26 +188,52 @@ adds `fee`, the shape matches the object below.
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
   "fee": {
-    "amount": "360",
+    "amount": "300",
     "mitigationProgram": "surcharge",
     "taxOnFee": "60"
-  }
+  },
+  "taxInformation": {
+    "taxAmount": "2060",
+    "taxExempt": false
+  },
+  "purchaseOrderNumber": "PO42"
 }
 ```
 
+`amount` is the base amount, `10000` (100.00). The fee is `300` (3.00) without its tax. The tax on the
+fee, `60`, is separate, and `taxInformation.taxAmount` includes it. The terminal charges
+`10000 + 300 + 2060 = 12360`.
+
 Amounts inside `fee` follow the rest of `POST /transactions`: minor units, as a string.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `amount` | string | Yes | The fee, without the tax on it. Digits only, 12 digits at most |
+| `mitigationProgram` | string | Yes | `surcharge`, `adminFee` or `dualPricing`. The match is exact |
+| `taxOnFee` | string | No | The tax on the fee. Digits only. It is part of `taxInformation.taxAmount` |
+
+The Cloud API checks only the format, the program and the operation. It returns HTTP `400` for an
+unknown program, `cashDiscount`, `dualPricing` on `preAuthorizationCapture`, an amount that is not
+digits only, or a `fee` on another operation. The terminal
+applies the other rules in this page, for example `taxOnFee` not above `taxInformation.taxAmount`.
+
+:::note The old `surchargeAmount` is deprecated
+`surchargeAmount` is deprecated in favour of `fee`. It is a surcharge that the terminal adds to the
+base `amount`. It is not already included in `amount`.
+:::
 
 </TabItem>
 <TabItem value="android-pax" label="Android (PAX)">
 
 Build a `Fee`, set it on the options, and start the operation. Pass the **base amount** to
-`hapi.sale()`. The SDK adds `fee.amount` to it, so never add the fee yourself.
+`hapi.sale()`. The SDK adds `fee.amount` and the tax amount to it, so never add them yourself.
+The `amount` of a request is always the base amount.
 
 ```kotlin
 val fee = Fee(
-    amount            = BigInteger("360"),   // 3.60
+    amount            = BigInteger("300"),   // 3.00, without tax
     mitigationProgram = FeeMitigationProgram.SURCHARGE,
-    taxOnFee          = BigInteger("60")     // 0.60, already inside amount
+    taxOnFee          = BigInteger("60")     // 0.60, part of the tax amount
 )
 
 val options = SaleOptions()
@@ -218,7 +245,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
     if (result.finStatus == FinancialStatus.AUTHORISED) {
         val feeResult = result.fee ?: return
         if (feeResult.applied) {
-            // print a fee line, settle result.totalAmount
+            // a surcharge prints its own fee line; settle result.totalAmount
         } else {
             // no fee line — read feeResult.reason
         }
@@ -230,7 +257,7 @@ A Remote Sale uses the same object on `MoToOptions`:
 
 ```kotlin
 val options = MoToOptions()
-options.fee = Fee(BigInteger("360"), FeeMitigationProgram.SURCHARGE, BigInteger("60"))
+options.fee = Fee(BigInteger("300"), FeeMitigationProgram.SURCHARGE, BigInteger("60"))
 
 hapi.moToSale(BigInteger("10000"), Currency.USD, options)
 ```
@@ -275,9 +302,9 @@ The object you send.
 
 | Name | Type | Required | Description |
 |---|---|---|---|
-| `amount` | integer, minor units | Yes | The whole fee, including any tax inside it. The SDK adds it to the amount of the operation. Never negative |
+| `amount` | integer, minor units | Yes | The fee without its tax. The SDK adds it to the base amount of the operation. Never negative |
 | `mitigationProgram` | enum | Yes | `SURCHARGE`, `ADMIN_FEE`, `CASH_DISCOUNT` or `DUAL_PRICING`. On the wire: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing` |
-| `taxOnFee` | integer, minor units | No | The part of `amount` that is tax. Never added on top. Never negative. Absent reads as zero |
+| `taxOnFee` | integer, minor units | No | The part of the tax amount that is tax on the fee. It is not part of `amount`. Never negative. Absent reads as zero |
 
 Three rules apply before the transaction starts.
 
@@ -295,7 +322,7 @@ nothing, not a zero.
 |---|---|---|---|
 | `amount` | decimal, major units | Yes | The fee the gateway recorded. When `applied` is `false`, this is what you asked for, not what the customer paid |
 | `mitigationProgram` | enum | No | The program the gateway applied the fee under. Empty when the gateway reports a program the SDK does not recognise |
-| `taxOnFee` | decimal, major units | Yes | The part of `amount` that is tax |
+| `taxOnFee` | decimal, major units | Yes | The part of the tax amount that is tax on the fee. It is not part of `amount` |
 | `applied` | boolean | Yes | Whether the gateway charged the fee |
 | `reason` | enum | Yes | Why the gateway applied or dropped the fee |
 | `reasonDetail` | string | No | The raw text from the gateway. Set when `reason` is `UNKNOWN` |
@@ -346,21 +373,23 @@ instead of a transaction. See [Error handling](error-handling-guide.md).
 A merchant can calculate the fee before the tax, or after it. Both orders reach the same total.
 They do not reach the same tax.
 
-`taxOnFee` names the part of `fee.amount` that is tax. It sits **inside** the fee. The platform
-never adds it on top of the transaction.
+`taxOnFee` names the part of the tax amount that is tax on the fee. It is not part of
+`fee.amount`. The gateway rejects a `taxOnFee` that is greater than the Level 2 tax, and when it
+drops a fee, it removes both `fee.amount` and `fee.taxOnFee` from the transaction amount.
 
 Example. The base is 100.00. The tax is 20%, so the tax on the base is 20.00. The merchant
-surcharges 3%, and the merchant configuration applies the surcharge to the tax as well.
+surcharges 3% of the base, and the merchant configuration applies tax to the surcharge as well.
 
 | Value | Amount | What you send |
 |---|---|---|
 | Base | 100.00 | The amount of the operation, `10000` |
-| Fee on 120.00 at 3% | 3.60 | `fee.amount`, `360` |
-| The tax part inside that fee | 0.60 | `fee.taxOnFee`, `60` |
-| What the customer pays | 123.60 | The SDK adds the base and the fee |
+| Fee on the base at 3% | 3.00 | `fee.amount`, `300` |
+| Tax on the fee at 20% | 0.60 | `fee.taxOnFee`, `60` |
+| Tax amount, with the tax on the fee | 20.60 | `taxInformation.taxAmount`, `2060` |
+| What the customer pays | 123.60 | The SDK adds the base, the fee and the tax amount |
 
-You send the part of the tax that belongs to the fee, because only you know how you calculated it.
-When the fee applies, that figure changes nothing.
+You send the tax on the fee, because only you know how you calculated it. Include it in the tax
+amount that you send.
 
 :::note The tax on a dropped fee
 When the gateway drops a fee, it removes the fee. The matching reduction of the declared tax is
@@ -372,8 +401,8 @@ still in development. Until it ships, reconcile the tax yourself when `applied` 
 **Only a surcharge.** The acquirer protocol has one field for a fee, and its specification calls
 that field the surcharge. It has no representation for the other three programs.
 
-An admin fee and a dual price travel inside the transaction amount, and nothing else. Reporting
-either one as a surcharge would misstate a fee to the card networks.
+An admin fee and a dual pricing fee travel inside the transaction amount, and nothing else.
+Reporting either one as a surcharge would misstate a fee to the card networks.
 
 ## The receipt
 
@@ -383,13 +412,14 @@ program has its own rule.
 | Program | The receipt shows |
 |---|---|
 | **Surcharge** | A separate line, clearly labelled. The card networks **require** it. Never inside the total, never mixed with the tax |
-| **Admin fee** | A separate line, with its own label |
-| **Dual pricing** | **No fee line.** The card price is the posted price |
+| **Admin fee** | No fee line. The fee is included in the amount line |
+| **Dual pricing** | No fee line. The fee is included in the amount line |
 | **Cash discount** | Nothing. It is not a card transaction |
 
-:::warning Dual pricing prints no fee line, on purpose
-This looks like an omission. It is not. An itemised fee would present a price as a fee, and would
-undermine the model that makes dual pricing lawful. Do not add a fee line to a dual pricing receipt.
+:::note Only an applied surcharge prints a fee line
+Admin fee and dual pricing print no fee line until a business rule changes this. Their fee is
+included in the amount line, so the amount, the tip, the tax and the fee lines always add up to the
+total. This is deliberate, not an omission. Do not add a fee line for either program on your own.
 :::
 
 See [Receipt Compliance](receipt-compliance.md) for the fields that every Handpoint receipt carries.
@@ -445,7 +475,7 @@ records until they arrive.
 |---|---|
 | Cash and e-gift tenders | The gateway processes card transactions. Your point of sale handles cash |
 | Cash discount at the gateway | It applies to a cash tender, which never reaches the gateway |
-| The Cloud API | The terminal accepts a `fee` object, but the Cloud API does not send one yet |
+| The Cloud API | Coming soon. The terminal accepts a `fee` object, but the Cloud API does not send one yet |
 | The iOS, Windows and Cordova SDKs | The Android SDK carries the feature |
 | A recalculation of the fee on a partial refund | The platform does not calculate it. You do |
 | Routing that depends on the fee | Out of scope |
