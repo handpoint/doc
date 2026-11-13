@@ -3,6 +3,10 @@ A **card-not-present refund** submitted directly to the gateway — no terminal 
 #### When to use it
 Use to refund a previously processed back-office MOTO or key-entry sale. The cardholder does not need to be present or provide their card again — the gateway retrieves the card from the original transaction.
 
+:::caution Send the refund total as the amount
+A refund carries no surcharge or tax field. Put the base, tax and surcharge to return in `amount`, and set no `surchargeAmount`, `taxAmount` or `taxInformation`. From Android SDK 7.1014.5, the SDK does not start a refund that sets one of these fields, and returns the error `Refunds do not accept surcharge or tax amounts: send the refund total as the amount`. See [Surcharging — Refunds](/reference/surcharging#refunds) for the calculation.
+:::
+
 #### Code
 
 <Tabs groupId="integration-path">
@@ -75,3 +79,4 @@ handpoint.motoRefund(
 | `DECLINED` | Amount exceeds original or issuer declined | Reduce to at most the original amount |
 | `ORIGINAL_NOT_FOUND` | `originalGuid` not found | Verify the GUID is from the MOTO sale result |
 | `MOTO_NOT_ENABLED` | MOTO not provisioned | Contact Handpoint team |
+| `Refunds do not accept surcharge or tax amounts: send the refund total as the amount` | Android SDK: `MoToOptions` sets `surchargeAmount`, `taxAmount` or `taxInformation`. The Remote Refund does not start | Add the surcharge and tax to return to `amount`, and remove the surcharge and tax fields |
