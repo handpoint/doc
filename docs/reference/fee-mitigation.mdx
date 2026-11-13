@@ -105,10 +105,10 @@ Two facts decide the outcome: the type of the card, and the type of the transact
 discount program carries no fee, because the card price is the posted price. Such a request cannot
 be correct, so the gateway rejects it rather than accepting it quietly.
 
-:::note Every program follows the surcharge rule today
-The gateway applies the debit rule to every program in the current build, and it does not yet
-refuse a cash discount. Treat the table above as the target behaviour, and read
-[`reason`](#reasons) on every result.
+:::note A cash discount flow is rejected on a card
+Do not send a cash discount on a card transaction. The gateway rejects the request with HTTP `400`
+and error `4272` (`FEE_PROGRAM_NOT_SUPPORTED`), and the transaction does not reach the acquirer.
+Apply a cash discount in your own application, on a cash or e-gift tender only.
 :::
 
 ### Dropped and refused are different
