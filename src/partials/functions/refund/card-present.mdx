@@ -11,6 +11,10 @@ Per merchant configuration, the **same card** used in the original sale must be 
 #### When to use it
 Use for returns after settlement has occurred. For cancellations of unsettled transactions, use Reversal — it is faster and incurs no interchange fees.
 
+:::caution Send the refund total as the amount
+Put the surcharge and the tax to return in `amount`, and set no surcharge, fee or tax field. The SDK does not start such a refund — see [Surcharging — Refunds](/reference/surcharging#refunds).
+:::
+
 #### Code
 
 <Tabs groupId="integration-path">
@@ -126,3 +130,4 @@ handpoint.refund(
 | `DECLINED` | Amount exceeds original or issuer declined | Reduce amount to at most original `totalAmount`; contact acquirer support |
 | `ORIGINAL_NOT_FOUND` | `originalTransactionId` not found | Verify the GUID is the `transactionID` from the sale result |
 | `TIMEOUT` | Terminal did not respond | Check connection; retry |
+| `Refunds do not accept surcharge or tax amounts: send the refund total as the amount` | A surcharge, fee or tax field is set. The refund does not start | Add them to `amount` and remove the fields |

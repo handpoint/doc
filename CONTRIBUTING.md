@@ -28,10 +28,12 @@ Use these names everywhere — headings, prose, link text, descriptions. The onl
 
 | Use this | Not this |
 |---|---|
-| Remote Sale | MOTO Sale, MoTo Sale, back-office MOTO |
+| MOTO Sale — a mail order or telephone order sale: the merchant keys in the card data | MoTo Sale, Remote Sale |
+| Remote Sale — a card-not-present sale with no terminal, such as a back-office charge of a stored card token | back-office MOTO, MOTO Sale |
 | Keyed Entry Sale | Key Entry Sale, MOTO key entry |
-| Remote Refund | MOTO Refund, back-office refund |
-| Remote Pre-Authorization | MOTO Pre-Auth |
+| MOTO Refund — the refund of a MOTO Sale | MoTo Refund, Remote Refund |
+| Remote Refund — the refund of a Remote Sale | back-office refund, MOTO Refund |
+| MOTO Pre-Authorization | MOTO Pre-Auth, Remote Pre-Authorization |
 | Partial Reversal | partial refund, partial reversal (lowercase in prose is fine) |
 | card-not-present | CNP (spell it out on first mention) |
 

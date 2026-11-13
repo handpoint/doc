@@ -3,6 +3,10 @@ A **card-not-present refund** submitted directly to the gateway — no terminal 
 #### When to use it
 Use to refund a previously processed back-office MOTO or key-entry sale. The cardholder does not need to be present or provide their card again — the gateway retrieves the card from the original transaction.
 
+:::caution Send the refund total as the amount
+Put the surcharge and the tax to return in `amount`, and set no surcharge, fee or tax field. The SDK does not start such a refund — see [Surcharging — Refunds](/reference/surcharging#refunds).
+:::
+
 #### Code
 
 <Tabs groupId="integration-path">
@@ -75,3 +79,4 @@ handpoint.motoRefund(
 | `DECLINED` | Amount exceeds original or issuer declined | Reduce to at most the original amount |
 | `ORIGINAL_NOT_FOUND` | `originalGuid` not found | Verify the GUID is from the MOTO sale result |
 | `MOTO_NOT_ENABLED` | MOTO not provisioned | Contact Handpoint team |
+| `Refunds do not accept surcharge or tax amounts: send the refund total as the amount` | A surcharge, fee or tax field is set on `MoToOptions`. The MOTO refund does not start | Add them to `amount` and remove the fields |

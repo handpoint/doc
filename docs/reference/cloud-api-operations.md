@@ -131,6 +131,8 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` — see [bypassOptions](#bypassoptions) |
 | `tipConfiguration` | object | No | — | Tip selection screen — see [tipConfiguration](#tipconfiguration) |
 | `fee` | object | No | — | **Coming soon.** Fee mitigation fee — see [fee](#fee). `amount` stays the base amount. Replaces the deprecated `surchargeAmount`. |
+| `taxInformation` | object | No | — | **Coming soon.** Level 2 tax — see [taxInformation](#taxinformation-and-purchaseordernumber). Replaces the deprecated `taxAmount`. |
+| `purchaseOrderNumber` | string | With `taxInformation` | — | **Coming soon.** Level 2 purchase order number. |
 | `merchantAuth` | array | No | — | Multi-MID credential override — see [merchantAuth](#merchantauth) |
 | `metadata` | object | No | — | `{ "metadata1": "…", …, "metadata5": "…" }` — max 250 chars each |
 | `moneyRemittanceOptions` | object | No | — | EmerchantPay only — see [moneyRemittanceOptions](#moneyremittanceoptions) |
@@ -914,6 +916,26 @@ Valid for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture
 | `taxOnFee` | string | No | Tax on the fee. Minor units, digits only. Part of `taxInformation.taxAmount`. |
 
 See [Fee mitigation](/reference/fee-mitigation) for the rules that the terminal applies.
+
+---
+
+### `taxInformation` and `purchaseOrderNumber`
+
+:::note Coming soon
+Needs Android SDK 7.1015.0 or later on the terminal. A terminal on 7.1014.x ignores both fields and completes the sale without the Level 2 tax, with no error.
+:::
+
+Valid for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`. Any other operation returns `400`. Send both fields together: a request with only one returns `400`. Both come back in the [transaction result](/reference/transaction-result-object#amounts).
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `taxInformation.taxAmount` | string | **Yes** | Tax. Minor units, digits only. The terminal adds it to the base `amount`. |
+| `taxInformation.taxExempt` | boolean | **Yes** | `true` for a tax-exempt sale. The terminal adds `0`. |
+| `purchaseOrderNumber` | string | **Yes** | Purchase order number. |
+
+:::warning Tax-exempt sale
+The gateway declines a sale with `taxExempt: true` when the merchant has Level 2 validation (error `4265`). Do not send one until Handpoint announces a fix.
+:::
 
 ---
 
