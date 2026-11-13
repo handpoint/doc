@@ -160,8 +160,9 @@ operation set no transaction amount, so no fee can apply to them.
 the acquirer requires the two values to match. You set nothing.
 
 :::warning A refund does not return the fee for you
-`RefundOptions` accepts a fee, because it inherits the field from the base options type. The gateway
-ignores it.
+Do not set a fee on a refund. `RefundOptions` has the field, because it inherits it from the base
+options type. From Android SDK 7.1015.0, the SDK does not start a refund that sets it, and returns the error
+`Refunds do not accept surcharge or tax amounts: send the refund total as the amount`. See [Surcharging — Refunds](/reference/surcharging#refunds).
 
 Calculate the returned fee in your own application, and add it to the refund amount you send. A
 refund that does not return the fee in proportion breaks card network rules, and the merchant
