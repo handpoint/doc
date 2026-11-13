@@ -40,11 +40,6 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "tipPercentage": 0,
   "dueAmount": 0,
   "taxAmount": null,
-  "surcharge": {
-    "amount": 0,
-    "applied": false,
-    "reason": ""
-  },
   "fee": {
     "amount": "0.30",
     "mitigationProgram": "SURCHARGE",
