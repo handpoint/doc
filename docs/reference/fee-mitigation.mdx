@@ -175,7 +175,7 @@ Send the **base amount**. The Android SDK adds the tip, the fee and the tax:
 amount = base + tip + fee.amount + tax
 ```
 
-- The rule applies to a sale on every entry mode (chip, contactless and swipe) and to a Remote Sale,
+- The rule applies to a sale on every entry mode (chip, contactless and swipe) and to a MOTO sale,
   which has no tip. The card amount (EMV tag `9F02`) is the same value.
 - `tax` is `taxInformation.taxAmount`, or `0` when `taxExempt` is `true`. The SDK uses the deprecated
   `taxAmount` only when `taxInformation` is not set.

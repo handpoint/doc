@@ -143,7 +143,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
 | `taxAmount` | integer | Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
-| `taxInformation` | object | Level 2 tax of the request: `taxAmount` (string, minor units) and `taxExempt` (boolean). Sale, sale with tokenization and Remote Sale only (Android SDK 7.1015.0+). |
+| `taxInformation` | object | Level 2 tax of the request: `taxAmount` (string, minor units) and `taxExempt` (boolean). Sale, sale with tokenization and MOTO sale only (Android SDK 7.1015.0+). |
 | `purchaseOrderNumber` | string | Purchase order number of the request. Same operations as `taxInformation`. |
 | `surcharge` | object | **Deprecated, use `fee`.** Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+), with `amount`, `applied` and `reason`. |
 | `fee` | object | The fee result: what the gateway answered about the fee of the payment. Absent when the transaction has no fee. See [`fee`](#fee) below. |

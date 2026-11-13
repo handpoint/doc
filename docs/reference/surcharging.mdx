@@ -96,9 +96,9 @@ The Cloud API and the Android SDK expect the transaction amount to be built diff
 | Path | What `amount` must contain | Result |
 |---|---|---|
 | **Cloud API** | The **total**, surcharge and tax already included | `amount: 5562`, `surchargeAmount: 162`, `taxAmount: 400` |
-| **Android SDK** — sale, Remote Sale | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
+| **Android SDK** — sale, MOTO sale | The **base only** — the SDK adds surcharge and tax on top | `sale(5000)` with `surchargeAmount = 162`, `taxAmount = 400` → 5562 charged |
 | **Android SDK** — pre-authorization capture | The **base only** — the SDK adds fee and tax on top (7.1015.0, coming soon) | See [how the SDK builds the amount](/reference/fee-mitigation#amount) |
-| **Android SDK and Cloud API** — refund, Remote Refund | The **refund total** — set no surcharge, fee or tax field | See [Refunds](#refunds) |
+| **Android SDK and Cloud API** — refund, MOTO refund | The **refund total** — set no surcharge, fee or tax field | See [Refunds](#refunds) |
 
 ## Code {#code}
 
@@ -163,7 +163,7 @@ val options = SaleOptions().apply {
 hapi.sale(BigInteger.valueOf(saleAmount), Currency.USD, options)
 ```
 
-`surchargeAmount` is also available on `MoToOptions` (Remote Sale). On a capture, use `fee`. Never set it on a refund — see [Refunds](#refunds). Passing `null` omits the field from the request.
+`surchargeAmount` is also available on `MoToOptions` (MOTO sale). On a capture, use `fee`. Never set it on a refund — see [Refunds](#refunds). Passing `null` omits the field from the request.
 
 Do not set it on the pre-authorization itself — the surcharge is realized at capture, and the SDK drops it on the initial authorization.
 
@@ -239,7 +239,7 @@ refundTotal     = refundBaseAmount + refundTax + refundSurcharge
 
 Refunding 25.00 of the 50.00 sale above gives a ratio of 0.5, so 2.00 of tax and 0.81 of surcharge come back, for a refund total of 27.81. For a full refund, use the original base amount as `refundBaseAmount` and the whole surcharge is returned.
 
-Send `refundTotal` as the refund `amount`, and set no `surchargeAmount`, `fee`, `taxAmount` or `taxInformation`. From Android SDK 7.1014.5 (7.1015.0 for `fee`), the SDK does not start a refund, Remote Refund or automatic refund that sets one of them, even to zero. It returns `operationStarted = false` and a `FAILED` result with the error `Refunds do not accept surcharge or tax amounts: send the refund total as the amount`. A Cloud API refund with one of these fields also ends `FAILED`.
+Send `refundTotal` as the refund `amount`, and set no `surchargeAmount`, `fee`, `taxAmount` or `taxInformation`. From Android SDK 7.1014.5 (7.1015.0 for `fee`), the SDK does not start a refund, MOTO refund or automatic refund that sets one of them, even to zero. It returns `operationStarted = false` and a `FAILED` result with the error `Refunds do not accept surcharge or tax amounts: send the refund total as the amount`. A Cloud API refund with one of these fields also ends `FAILED`.
 
 Tips are not refunded proportionally — handle them separately according to your own business rules, and keep them out of the refund surcharge base.
 
