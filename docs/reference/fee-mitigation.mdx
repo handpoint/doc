@@ -368,13 +368,13 @@ major units, the same as every other amount on the result.
 | `APPLIED` | The gateway charged the fee | Print the fee line. Settle the total that the result carries |
 | `NOT_ELIGIBLE_DEBIT` | The customer presented a debit card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
 | `NOT_ELIGIBLE_PREPAID` | The customer presented a prepaid card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
+| `FEE_AMOUNT_MISSING` | The request had a `taxOnFee` but no fee `amount`, so there was no fee to apply | Print no fee line. Send the fee `amount` on the next request |
 | `PROGRAM_NOT_ENABLED` | The merchant is not configured for this program | Print no fee line. Ask the merchant to enable the program |
 | `PROGRAM_NOT_SUPPORTED` | The gateway does not carry this program | Print no fee line. Handle the program in your own application |
 | `UNKNOWN` | The gateway returned a reason this version of the SDK does not recognise | Read `reasonDetail`. Treat the fee as dropped unless `applied` is `true` |
 
-:::note Two reasons occur today
-The current build returns `APPLIED` or `NOT_ELIGIBLE_DEBIT`. Handle all six values, because the
-other four arrive with the per-program rules and need no change on your side.
+:::note Handle all seven values
+The gateway can return each value in the table. Handle all seven values.
 :::
 
 ## Errors
