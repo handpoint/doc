@@ -283,7 +283,7 @@ result = resp.json()  # only on 200
 |---|---|---|
 | `IN_PROGRESS` | Still processing on terminal or gateway | Keep polling. |
 | `UNDEFINED` | Result received but status unresolved | Keep polling. Do **not** retry — run the [recovery flow](/reference/transaction-recovery-cloud-api). |
-| `AUTHORISED` | Approved — card charged | Wait for `transaction-result` delivery before saving as final. In rare cases (chip card removed mid-processing, internal card app decline), the SDK sends a forced-reversal and the final `transaction-result` resolves to `DECLINED`. Always poll until the result is delivered — do not act on a `/status` `AUTHORISED` alone. |
+| `AUTHORISED` | Approved — card charged | Wait for `transaction-result` delivery before saving as final. In rare cases (chip card removed mid-processing, internal card app decline), the SDK sends a forced-reversal and the final `transaction-result` resolves to `DECLINED`. Always poll until the result is delivered — do not act on a `/status` `AUTHORISED` alone. If `/status` returns `AUTHORISED` with an empty `transactionID`, re-poll after 2–3 s — the issuer response has not yet been persisted. Never save a sale as settled when `transactionID` is empty. See [AUTHORISED with empty transactionID](/reference/transaction-recovery-cloud-api#authorised-empty-transaction-id). Note: `/status` and `transaction-result` can return different `finStatus` values for the same transaction — see [finStatus divergence](/reference/transaction-recovery-cloud-api#status-vs-transaction-result-divergence). |
 | `DECLINED` | Declined by issuer or gateway | Final. Card not charged. Safe to retry after cardholder action. |
 | `FAILED` | Technical failure | Final. Run [recovery flow](/reference/transaction-recovery-cloud-api) before retrying. |
 | `CANCELLED` | Cancelled at terminal | Final. Card not charged. Safe to retry. |
@@ -381,6 +381,47 @@ The fix is the same as for partial approvals: never act on a `/status` result �
 **To reproduce in testing:** insert a chip card, wait until the terminal shows "Processing..." (after PIN entry), then quickly pull the card out. The terminal and SDK handle the forced-reversal automatically. Verify your integration receives and records the final `DECLINED` result, not the intermediate `AUTHORISED`.
 
 Do not ignore `PARTIAL_APPROVAL` — the cardholder was charged `totalAmount` and expects either a receipt or confirmation that the charge was reversed.
+
+### HTTP client timeout for the initial POST
+
+Set your HTTP client's **connect + read timeout** for `POST /transactions` to at least **30 seconds**.
+
+The Cloud API does not return `202 Accepted` until it has verified the terminal is reachable: internally it makes up to 3 ping attempts (2 s each) and up to 3 ack attempts (2.5 s each) before accepting the request. Under congested network conditions this can approach 15 s. A 5 s client timeout regularly cancels the POST while the terminal has already begun processing — the POS then has no `transactionResultId` and must fall back to recovery polling, which is where the [empty transactionID race](#authorised-empty-transaction-id) is most likely to be hit.
+
+**Reuse your HTTP client.** The first request on a new TCP connection includes DNS resolution, TCP handshake, and TLS negotiation — typically 3–4 s — while subsequent requests over the same keep-alive connection take ~1 s. Use a persistent/pooled HTTP client so each transaction request does not pay the full connection setup cost. If your POS server restarts frequently, budget for the connection setup time when setting your timeout.
+
+If your timeout fires before you receive the `202`, treat it as a network error — no card interaction may have occurred — and use the [recovery flow](/reference/transaction-recovery-cloud-api) with the `transactionReference` you persisted before sending. Check `/status` by reference before retrying.
+
+Do not confuse the HTTP client timeout with your application-level result timeout. The result (via callback or polling `transaction-result`) can take up to 6 minutes for a full EMV fallback path — that timeout governs when to start background recovery, not when to give up on the initial POST.
+
+### Checking whether the terminal is busy {#checking-terminal-busy}
+
+There is no REST endpoint that returns the terminal's current transaction state. `POST /transactions` with `operation: pingDevice` only proves the terminal is reachable — the reply is a `DeviceInfo` object with app/SDK/firmware/battery fields and no busy flag, and the **terminal responds to pings even mid-transaction**.
+
+The closest proxy is `stopCurrentTransaction`:
+
+```bash
+curl -X POST https://cloud.handpoint.com/transactions \
+  -H "ApiKeyCloud: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "operation": "stopCurrentTransaction",
+  "terminal_type": "PAXA920PRO",
+  "serial_number": "1850025030"
+}'
+```
+
+| Response | Meaning | Action |
+|---|---|---|
+| `202 Accepted` | The stop was delivered to the terminal — but the terminal may still approve. Keep polling the **original** operation's `transactionResultId`; the result may be `CANCELLED` (stop honoured) or `AUTHORISED` (card had already been read) | Poll the original `transactionResultId` for the actual outcome |
+| Error `1003` | Card is mid-authorisation — the result will arrive within seconds | Wait for the result; do not send a new request |
+| Error `1005` | Terminal is idle — it never received the request, or already finished | Query `/status` by reference to find the outcome |
+
+Send `stopCurrentTransaction` when your application gives up waiting rather than holding an open polling loop until the terminal times out naturally.
+
+:::note No transaction-status events over REST
+The terminal publishes real-time progress events (`waiting for card`, `reading card`, `processing`) per transaction on its device channel. The Android and Windows SDKs receive these. The Cloud REST API does not expose them — `POST /transactions` opens the Pusher channel only for the ack and closes it shortly after. REST integrators cannot observe in-flight transaction state; use `stopCurrentTransaction` as the busy-check proxy.
+:::
 
 ### HTTP errors on the initial POST
 

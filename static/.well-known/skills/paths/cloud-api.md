@@ -399,7 +399,7 @@ Content-Type: application/json
 }
 ```
 
-Returns 202. Keep polling the **original** operation's `transactionResultId`: it resolves to `CANCELLED` if the stop was honoured, or to its normal outcome if the card had already been read. The stop request's own `transactionResultId` does not deliver a result (it stays `204`), so don't poll it.
+Returns 202 — this means the terminal **received** the stop, not that the operation was cancelled. A stop sent 9 ms before a contactless tap still resulted in an APPROVED sale on staging (verified 2026-11-16). Keep polling the **original** operation's `transactionResultId`: it resolves to `CANCELLED` if the stop was honoured, or to its normal outcome if the card had already been read. The stop request's own `transactionResultId` does not deliver a result (it stays `204`), so don't poll it.
 
 `stopCurrentTransaction` takes no `transactionReference`: it stops whatever is running on that terminal. There is no `POST /transactions/{transactionReference}/stop` route.
 

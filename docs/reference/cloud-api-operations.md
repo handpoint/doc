@@ -16,6 +16,10 @@ Complete request/response examples for every Cloud API operation. Each section s
 For authentication, environments, and callback vs polling delivery, see the [Cloud API Integration Guide](/reference/cloud-api-integration-guide).  
 For error code definitions and error shapes, see [Error codes](/reference/error-codes).
 
+:::info Amount units
+`POST /transactions` (terminal-facing) uses **integer minor units** — `"1000"` = $10.00. All back-office endpoints with no reader (`/preauthorization/capture`, `/preauthorization/increase`, `/reversal`, `/moto/*`, tip-adjustment) use **major-unit decimal strings** — `"10.00"` = $10.00.
+:::
+
 ---
 
 ## Response pattern
@@ -131,7 +135,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `callbackUrl` | string | No | — | HTTPS endpoint. Result POSTed here when complete. |
 | `token` | string | No | — | Sent as `auth-token` header on the callback POST. Use a unique value per request. |
 | `customerReference` | string | No | — | Free-text order reference stored with the transaction. |
-| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal screen — the merchant must accept or decline. **Accept** → a new authorisation request is sent to the gateway; the final result is delivered normally. **Decline** → `finStatus: CANCELLED` is delivered immediately; no card charge. Set `false` only when you are intentionally replaying a reference (e.g. after recovering an UNDEFINED result and confirming the transaction was not charged). |
+| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal detects duplicate transactions by **card and amount** — not by `transactionReference`. A duplicate prompt can fire even with a brand-new reference. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal screen. **Accept** → a new authorisation is sent; the final result uses the same `transactionReference` but a **new `transactionID`** — always use `transactionID` from the final result. **Timeout (~30 s)** → `finStatus: FAILED`, `statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`; not charged. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery and confirming the transaction was not charged. |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` — see [bypassOptions](#bypassoptions) |
 | `tipConfiguration` | object | No | — | Tip selection screen — see [tipConfiguration](#tipconfiguration) |
 | `merchantAuth` | array | No | — | Multi-MID credential override — see [merchantAuth](#merchantauth) |
@@ -330,7 +334,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700629963 \
 | `callbackUrl` | string | No | — | HTTPS webhook endpoint |
 | `token` | string | No | — | Callback auth token |
 | `customerReference` | string | No | — | Free-text reference |
-| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal — accept sends a new authorisation, decline delivers `finStatus: CANCELLED`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
+| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal detects duplicates by **card and amount** — not by `transactionReference`. A duplicate prompt can fire even with a brand-new reference. If detected, a **30-second confirmation prompt** appears — accept sends a new authorisation under the same reference with a new `transactionID`; if the prompt times out, `finStatus: FAILED`, `statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` |
 | `merchantAuth` | array | No | — | Multi-MID override — see [merchantAuth](#merchantauth) |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
@@ -342,8 +346,7 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
   -H "Content-Type: application/json" \
   -d '{
   "originalGuid": "4b2c4470-a9f5-11f1-99ee-c974d92ef76f",
-  "capturedAmount": "10000",
-  "currency": "USD"
+  "capturedAmount": "100.00"
 }'
 ```
 
@@ -355,17 +358,29 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 }
 ```
 
+:::note Querying the pre-auth after capture
+After a successful capture, `GET /transactions/{originalRef}/status` on the **original pre-auth** `transactionReference` returns `finStatus: CAPTURED` — not `AUTHORISED`. This is the correct final state for a captured hold. The value `CAPTURED` does not appear in the terminal result channel; it is only returned by the `/status` endpoint.
+
+`GET /status/all` returns the full pre-auth chain (hold + capture + any increases). The capture item appears with `transactionID` equal to the original pre-auth GUID and `amount: 0` — the settled amount is recorded on the original hold item, not on the capture item. **To get the capture's own transactionID and authorisationCode, use the terminal result from the capture operation itself** — do not rely on `/status/all` for this.
+:::
+
+:::note `transactionReference` on follow-up operations
+`transactionReference` is only honoured on `sale`, `refund`, `saleAndTokenizeCard`, and `preAuthorization`. On **follow-up operations** (`preAuthorizationCapture`, `preAuthorizationReversal`, `preAuthorizationIncrease`, `saleReversal`), any `transactionReference` you send is silently dropped — the gateway copies the original transaction's reference onto the follow-up record instead, with no error.
+
+To correlate a follow-up result with your own records, use `originalEFTTransactionID` (the original pre-auth or sale `transactionID`) rather than `transactionReference`. To query `/status` for the chain, use the **original** transaction's `transactionReference`.
+:::
+
 **`POST /preauthorization/capture` — request parameters**
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `originalGuid` | string | **Yes** | — | `transactionID` from the Pre-Authorization create result. Max 64 chars. |
-| `capturedAmount` | string | **Yes** | — | Amount to capture in the **minor unit** of currency (e.g. `"1000"` = $10.00, `"10000"` = $100.00). Can be less than the hold for a partial capture. |
-| `tipAmount` | string | No | — | Optional tip to add to the capture, in minor units. Same unit as `capturedAmount`. Max 32 chars. |
+| `capturedAmount` | string | **Yes** | — | Amount to capture as a **major-unit decimal string** (e.g. `"10.00"` = $10.00, `"100.00"` = $100.00). Can be less than the hold for a partial capture. |
+| `tipAmount` | string | No | — | Optional tip to add to the capture. Same major-unit decimal format as `capturedAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |
 
-:::note `capturedAmount` uses minor units
-Unlike `increaseAmount` and the MOTO `amount` field (which use major-unit decimal strings), `capturedAmount` and `tipAmount` on this endpoint use **integer minor units** — e.g. `"10000"` for $100.00. Updated in Cloud API 2.33.2.
+:::note Amount units on back-office endpoints
+`capturedAmount`, `tipAmount`, `increaseAmount`, and the MOTO `amount` field all use **major-unit decimal strings** — e.g. `"100.00"` for $100.00. Only the terminal-facing `POST /transactions` endpoint uses integer minor units.
 :::
 
 **`POST /preauthorization/increase` — request parameters**
@@ -402,8 +417,7 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
   -H "Content-Type: application/json" \
   -d '{
   "originalGuid": "4b2c4470-a9f5-11f1-99ee-c974d92ef76f",
-  "capturedAmount": "15000",
-  "currency": "USD"
+  "capturedAmount": "150.00"
 }'
 ```
 
@@ -535,7 +549,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700667457 \
 | `callbackUrl` | string | No | — | HTTPS webhook endpoint |
 | `token` | string | No | — | Callback auth token |
 | `customerReference` | string | No | — | Free-text reference |
-| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal — accept sends a new authorisation, decline delivers `finStatus: CANCELLED`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
+| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal detects duplicates by **card and amount** — not by `transactionReference`. A duplicate prompt can fire even with a brand-new reference. If detected, a **30-second confirmation prompt** appears — accept sends a new authorisation under the same reference with a new `transactionID`; if the prompt times out, `finStatus: FAILED`, `statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` |
 | `merchantAuth` | array | No | — | Multi-MID override |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |

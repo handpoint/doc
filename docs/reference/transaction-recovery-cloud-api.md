@@ -71,7 +71,8 @@ T+Ns   Application timeout fires (e.g. 90 s, no callback received)
 
   Thread B — poll GET /transactions/{ref}/status every 10 s (acquirer view)
               IN_PROGRESS or PARTIAL_APPROVAL → terminal still processing; keep Thread A running
-              UNDEFINED        → acquirer has no record; card not charged; cancel both threads
+              UNDEFINED        → acquirer has no record — not charged IF terminal result is also final;
+                                  keep both threads running (Thread A may still deliver)
               AUTHORISED       → gateway charged card; no terminal result yet
                                   run pingDevice to check terminal reachability
                                   if unreachable → device offline; prompt ISV to connect;
@@ -149,31 +150,23 @@ stop_event = threading.Event()
 
 # ── Thread A — terminal result channel ────────────────────────────────────────
 
-def poll_terminal_result(ref, terminal_type, serial_number):
-    """Keep polling /transaction-result until the terminal delivers a final result."""
+def poll_terminal_result(ref, transaction_result_id):
+    """Poll /transaction-result/{id} until the terminal delivers a final result."""
     deadline = time.time() + OVERALL_TIMEOUT
     while not stop_event.is_set() and time.time() < deadline:
         time.sleep(TERMINAL_POLL)
         response = requests.get(
-            f'https://transactions.handpoint.com/transactions/{ref}/status',
+            f'https://cloud.handpoint.com/transaction-result/{transaction_result_id}',
             headers={'ApiKeyCloud': 'YOUR_MERCHANT_API_KEY'}
         )
+        if response.status_code == 204:
+            # Terminal still processing — keep polling
+            continue
         if not response.ok:
             continue
 
-        result     = response.json()
-        fin_status = result.get('finStatus')
-
-        if fin_status in ('IN_PROGRESS', 'PARTIAL_APPROVAL'):
-            # Terminal still processing (PARTIAL_APPROVAL = accept/decline prompt on screen)
-            continue
-
-        if fin_status == 'UNDEFINED':
-            # Terminal timed out — acquirer view needed (Thread B handles this)
-            # Keep polling in case connectivity is restored and a corrected result arrives
-            continue
-
-        # Terminal delivered a final result — this is authoritative
+        # HTTP 200 — terminal delivered a final result — this is authoritative
+        result = response.json()
         stop_event.set()
         if not db.transaction_already_processed(ref):
             db.save_transaction_result(ref, result)
@@ -416,4 +409,55 @@ If the device goes offline while waiting for the cardholder to accept or decline
 
 :::warning
 Never record a `PARTIAL_APPROVAL` from the `/status` endpoint as a settled charge. The cardholder may decline and the SDK may reverse — your final outcome comes from the terminal result channel (Thread A), not the acquirer status channel.
+:::
+
+## Edge case: AUTHORISED with empty transactionID {#authorised-empty-transaction-id}
+
+In a narrow window (~1 s) immediately after an authorization is recorded, `GET /transactions/{ref}/status` may return `finStatus: AUTHORISED` with `transactionID`, `maskedCardNumber`, `authorisationCode`, `totalAmount`, and receipts as empty strings. This is a race condition: cloud-api sets `finStatus` from the Viscus overall status (SUCCEEDED → AUTHORISED) before the issuer response (`IRES`) has been written to the message log by the gateway's response filter. A status read in that window returns the authorization fields populated but the response fields empty.
+
+The read is transient — the same reference returns the full record seconds later. This is not a rare edge case: it occurs whenever the POS uses a POST timeout shorter than the terminal's ack window (~15 s) and falls back to polling `/status` immediately after approval.
+
+:::warning Never save a final status without a transactionID
+A result with `finStatus: AUTHORISED` and an empty `transactionID` is **not complete**. Re-poll after 2–3 seconds — the full record will be available once the issuer response has been persisted. The same guard applies to `maskedCardNumber` and `authorisationCode`.
+:::
+
+**Polling cadence note:** the race window is under a second. Polling faster than every 2–3 s makes a blank read more likely. The check below matters more than the interval.
+
+```python
+def poll_status_with_field_check(ref, max_retries=5, delay=2):
+    for _ in range(max_retries):
+        r = requests.get(
+            f'https://transactions.handpoint.com/transactions/{ref}/status',
+            headers={'ApiKeyCloud': 'YOUR_MERCHANT_API_KEY'}
+        )
+        if not r.ok:
+            continue
+        result = r.json()
+        if result.get('finStatus') == 'AUTHORISED' and not result.get('transactionID'):
+            time.sleep(delay)  # issuer response not yet persisted — retry shortly
+            continue
+        return result
+    return None  # fall back to Thread A (terminal result channel)
+```
+
+The terminal result (Thread A) always delivers the complete record including `transactionID`. The `/status` endpoint is a supplementary check — the two-thread pattern in [Run two concurrent recovery threads](#step-3--run-two-concurrent-recovery-threads) handles this correctly without additional logic.
+
+## `/status` vs `transaction-result` — finStatus divergence {#status-vs-transaction-result-divergence}
+
+`GET /transactions/{ref}/status` and the terminal result channel (`/transaction-result/{id}`) can return different `finStatus` values for the same transaction. Always prefer the terminal result when available; use `/status` only as a supplementary check.
+
+| Outcome | `transaction-result` finStatus | `/status` finStatus | Notes |
+|---|---|---|---|
+| Sale / pre-auth approved | `AUTHORISED` | `AUTHORISED` | Match — but `/status` may return `AUTHORISED` with empty `transactionID` transiently (see above) |
+| Pre-auth declined, final | `DECLINED` | **`FAILED`** | These differ — do not assume `DECLINED` on `/status`; map `FAILED` as a decline. Final decline codes: 51, 54, 55, 59, 61. |
+| SCA soft decline — step-up required (code 65) | No result yet — SDK retries with chip+PIN | **`IN_PROGRESS`** (~2 min hold); if prompt abandoned → **`FAILED`** (`issuerResponseCode: "65"`) | **Not final on `/status`** — wait for `transaction-result`, which resolves in seconds once the terminal decides. |
+| PIN required (code 70) | No result yet — SDK prompts for PIN and retries | **`IN_PROGRESS`** (~2 min hold); if prompt abandoned → **`FAILED`** (`issuerResponseCode: "70"`) | **Not final on `/status`** — wait for `transaction-result`, which resolves in seconds once the terminal decides. |
+| Duplicate-payment check | No result yet — terminal shows confirm prompt | **`IN_PROGRESS`** (~2 min hold); if prompt abandoned → **`CANCELLED`** | **Not final on `/status`**. `transaction-result` resolves in seconds: `CANCELLED` if the cancel button was pressed, `FAILED` (`statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`) on 30-s timeout. The duplicate-flagged attempt appears in `/status/all` as `AUTHORISED` with empty `authorisationCode` and `issuerResponseCode` — reversing it returns 400. Use `/status` or the `/all` item with `issuerResponseCode: "00"`. |
+| Pre-auth captured | `AUTHORISED` with `type: PRE_AUTHORIZATION_CAPTURE` | **`CAPTURED`** | Polling `/status` on the original pre-auth reference after a capture returns `CAPTURED` |
+| Pre-auth reversed | `AUTHORISED` with `type: REVERSAL` | **`CANCELLED`** | `/status/all` lists the reversal with its own GUID |
+
+:::caution `IN_PROGRESS` on `/status` is not always idle
+Issuer response codes 65 (SCA/step-up), 70 (PIN required), and the duplicate-payment check produce `IN_PROGRESS` on `/status` for approximately 2 minutes while the terminal is **still processing** — do not treat it as an error or a final outcome. `transaction-result` resolves in seconds once the terminal decides; `/status` lags behind. If the prompt is abandoned: SCA/PIN → `FAILED` with the issuer code; duplicate check → `CANCELLED`.
+
+Final decline codes that are never retried include: 51 (insufficient funds), 54 (expired card), 55 (wrong PIN), 59 (suspected fraud), 61 (exceeds limit). Those produce `FAILED` immediately.
 :::
