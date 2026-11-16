@@ -23,6 +23,9 @@ export default function PageFilter({ placeholder = 'Filter operations…', mode 
     if (!article) return;
 
     const term = raw.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+    // ISVs use "void" and "reversal" interchangeably — match both when either is typed
+    const SYNONYMS = { void: ['reversal'], reversal: ['void'] };
+    const matchTerms = term ? [term, ...(SYNONYMS[term] || [])] : [];
     let hidden = 0;
 
     // Collect all h3s inside the article content (skip heading inside sidebar/toc)
@@ -30,7 +33,7 @@ export default function PageFilter({ placeholder = 'Filter operations…', mode 
 
     h3s.forEach((h3) => {
       const h3Text = h3.textContent.toLowerCase().replace(/[^a-z0-9\s]/g, '');
-      const matches = !term || h3Text.includes(term);
+      const matches = !term || matchTerms.some(t => h3Text.includes(t));
 
       h3.style.display = matches ? '' : 'none';
 
@@ -54,16 +57,30 @@ export default function PageFilter({ placeholder = 'Filter operations…', mode 
 
     // Hide h2 section headers whose every child h3 is hidden
     const h2s = Array.from(article.querySelectorAll('h2'));
-    h2s.forEach((h2) => {
+    const allH3s = Array.from(article.querySelectorAll('h3'));
+    h2s.forEach((h2, i) => {
       if (!term) { h2.style.display = ''; return; }
-      // Collect h3s between this h2 and the next h2
-      const ownH3s = [];
-      let el = h2.nextElementSibling;
-      while (el && el.tagName !== 'H2') {
-        if (el.tagName === 'H3') ownH3s.push(el);
-        el = el.nextElementSibling;
+      const h2Text = h2.textContent.toLowerCase().replace(/[^a-z0-9\s]/g, '');
+      const nextH2 = h2s[i + 1] ?? null;
+      // Use document position to find h3s belonging to this h2 section
+      // (avoids issues with h3s nested inside FlavorSection containers)
+      const ownH3s = allH3s.filter(h3 => {
+        const after = !!(h2.compareDocumentPosition(h3) & Node.DOCUMENT_POSITION_FOLLOWING);
+        const before = !nextH2 || !!(nextH2.compareDocumentPosition(h3) & Node.DOCUMENT_POSITION_PRECEDING);
+        return after && before;
+      });
+      if (ownH3s.length === 0) {
+        // Single-operation section (no H3 sub-ops): match on the H2 text itself
+        const h2Matches = matchTerms.some(t => h2Text.includes(t));
+        h2.style.display = h2Matches ? '' : 'none';
+        // Also hide/show its content
+        let sib = h2.nextElementSibling;
+        while (sib && sib.tagName !== 'H2') {
+          sib.style.display = h2Matches ? '' : 'none';
+          sib = sib.nextElementSibling;
+        }
+        return;
       }
-      if (ownH3s.length === 0) return; // no subsections, keep visible
       const allHidden = ownH3s.every((h) => h.style.display === 'none');
       h2.style.display = allHidden ? 'none' : '';
     });

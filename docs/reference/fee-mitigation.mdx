@@ -134,11 +134,13 @@ receipt and your records must show the amount the gateway actually charged.
 | Remote Pre-Authorization, capture | ✅ | ❌ | ✅ | ❌ |
 | Refund | ❌ | ❌ | ❌ | ❌ |
 | Remote Refund | ❌ | ❌ | ❌ | ❌ |
-| Reversal | Automatic | Automatic | Automatic | ❌ |
-| Capture reversal | Automatic | Automatic | Automatic | ❌ |
+| Reversal | Void¹ | Void¹ | Void¹ | ❌ |
+| Capture reversal | Void¹ | Void¹ | Void¹ | ❌ |
 | Tip adjustment | ❌ | ❌ | ❌ | ❌ |
 | Tokenization | ❌ | ❌ | ❌ | ❌ |
 | Batch operations | ❌ | ❌ | ❌ | ❌ |
+
+¹ A reversal cancels the authorization in full — no fee block appears in the result.
 
 Four rules explain every ❌ in that table.
 
@@ -156,12 +158,13 @@ below.
 **An operation with no amount carries no fee.** Tokenization, a tip adjustment and every batch
 operation set no transaction amount, so no fee can apply to them.
 
-**A reversal is automatic.** The reversal carries the same fee as the original transaction, because
-the acquirer requires the two values to match. You set nothing.
+**A reversal cancels the authorization in full, including the surcharge.** The gateway sends a full
+void — no fee block appears in the reversal result, because the authorization (and its fee) is
+cancelled before settlement. The cardholder is never charged. You set nothing.
 
 :::warning A refund does not return the fee for you
-`RefundOptions` accepts a fee, because it inherits the field from the base options type. The gateway
-ignores it.
+`RefundOptions` accepts a fee field, because it inherits from the base options type. The gateway
+**refuses** any refund request that carries a fee or surcharge amount.
 
 Calculate the returned fee in your own application, and add it to the refund amount you send. A
 refund that does not return the fee in proportion breaks card network rules, and the merchant

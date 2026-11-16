@@ -98,6 +98,7 @@ const config = {
           { type: 'docSidebar', sidebarId: 'referenceSidebar', label: 'Reference', position: 'left' },
           { type: 'docSidebar', sidebarId: 'releaseNotesSidebar', label: 'Release Notes', position: 'left' },
           { href: '/agents', label: 'AI Agents', position: 'left' },
+          { type: 'custom-ReferenceSearch', position: 'right' },
           { type: 'custom-VersionToggle', position: 'right' },
         ],
       },

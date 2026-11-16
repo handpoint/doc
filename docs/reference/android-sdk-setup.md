@@ -4,7 +4,11 @@ sidebar_position: 1
 description: Step-by-step guide to adding the Handpoint Android SDK to a new integration — Gradle, AndroidManifest, and initialization code.
 ---
 
+import PageFilter from '@site/src/components/PageFilter';
+
 # Android SDK — Setup & Initialization
+
+<PageFilter mode="reference" placeholder="Filter sections…" />
 
 This guide covers everything required to integrate the Handpoint Android SDK into a new project, from adding the Gradle dependency through receiving your first `InitialisationComplete` signal.
 
