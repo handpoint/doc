@@ -4,7 +4,11 @@ title: "Quick Start"
 sidebar_label: "Quick Start"
 ---
 
+import PageFilter from '@site/src/components/PageFilter';
+
 # Quick Start
+
+<PageFilter mode="reference" placeholder="Filter sections…" />
 
 Pick your integration path and copy the minimal working example to make your first sale.
 

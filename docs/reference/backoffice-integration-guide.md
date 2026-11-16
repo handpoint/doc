@@ -75,11 +75,14 @@ Content-Type: application/json
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "TOKEN_FROM_PRIOR_CARD_PRESENT_TRANSACTION",
-  "transactionReference": "YOUR_UNIQUE_REFERENCE"
+  "transactionReference": "YOUR_UNIQUE_REFERENCE",
+  "customerReference": "ORDER-10042"
 }
 ```
 
 `amount` is in **major currency units** as a decimal string — `"10.00"` = $10.00.
+
+`customerReference` is optional free text for your own order or invoice number — max 50 characters (longer values return `422`). It is echoed in the response and stored on the transaction, so you can find the sale later in the [Transaction Feed](/back-office/transaction-feed-api) with a `customerReference` filter. `POST /moto/refund` accepts it too.
 
 **Response — HTTP 200:**
 ```json
@@ -92,6 +95,7 @@ Content-Type: application/json
   "batchNumber": "123",
   "cardTypeName": "Visa",
   "currency": "USD",
+  "customerReference": "ORDER-10042",
   "expiryDateMMYY": "1027",
   "guid": "7cd7a1d0-xxxx-11f1-xxxx-xxxxxxxxxxxx",
   "issuerResponseCode": "00",
@@ -423,6 +427,36 @@ Each entry in `details` has `transactionType` (`"SALE"`, `"REFUND"`, etc.), `amo
 :::warning Batch close timing
 For EPI merchants, miss a daily batch close → `BATCH_NUM_ERR_005` next day. Schedule batch close before auto-close runs (~11 PM EST) if you need manual control of settlement timing.
 :::
+
+### Pre-auth reconciliation sweep
+
+Pre-authorizations that were never captured (holds placed but not finalized) do not appear in the batch and do not settle. At reconciliation time, sweep for open pre-auths that your system holds but never resolved — for example because a session ended before capture, or a network error meant the capture result was never received.
+
+For each pending pre-auth in your database, query the transaction chain:
+
+```bash
+curl https://cloud.handpoint.com/status/all?transactionReference={ref} \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY"
+```
+
+The response lists the full chain (hold + any increases + capture/reversal). Examine the last item:
+
+| Last item `finStatus` | Meaning | Action |
+|---|---|---|
+| `AUTHORISED` and `type: PRE_AUTHORIZATION` | Hold is still open | Capture if the guest stay is confirmed, or reverse if not |
+| `CAPTURED` / `finStatus: AUTHORISED` with `type: PRE_AUTHORIZATION_CAPTURE` | Already captured | Mark settled in your system |
+| `CANCELLED` | Reversed | Mark voided |
+
+After capture, `GET /transactions/{originalRef}/status` returns `finStatus: CAPTURED`. On `/status/all`, the capture item appears with `transactionID` equal to the original pre-auth GUID and `amount: 0` — the settled amount is recorded on the original hold item.
+
+Reverse any holds that remain open beyond your policy window (typically 7 days for hotels, varies by acquirer):
+
+```bash
+curl -X POST https://cloud.handpoint.com/reversal \
+  -H "ApiKeyCloud: YOUR_MERCHANT_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "originalGuid": "ORIGINAL_PRE_AUTH_TRANSACTION_ID" }'
+```
 
 ## Remote Reversal (all acquirers)
 

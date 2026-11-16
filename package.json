@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "generate": "node scripts/generate-acquirer-pages.js",
+    "generate:index": "node scripts/generate-reference-index.js",
     "start": "cross-env DOCS_ENV=staging docusaurus start",
     "build": "docusaurus build",
     "deploy": "docusaurus deploy",

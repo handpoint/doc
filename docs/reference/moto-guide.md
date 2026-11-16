@@ -145,11 +145,14 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "STORED_TOKEN_FROM_PRIOR_TRANSACTION",
-  "transactionReference": "550e8400-e29b-41d4-a716-446655440000"
+  "transactionReference": "550e8400-e29b-41d4-a716-446655440000",
+  "customerReference": "ORDER-10042"
 }'
 ```
 
 `amount` is in **major units** as a decimal string — `"10.00"` = $10.00.
+
+`customerReference` is optional free text for your own order or invoice number — max 50 characters (longer values return `422`). It is echoed in the response and stored on the transaction, so you can find the sale later in the [Transaction Feed](/back-office/transaction-feed-api) with a `customerReference` filter. `POST /moto/refund` accepts it too.
 
 **Success response (HTTP 200, synchronous):**
 ```json
@@ -167,6 +170,7 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
   "maskedCardNumber": "************0936",
   "retrievalReferenceNumber": "0000821725814",
   "transactionReference": "your-uuid",
+  "customerReference": "ORDER-10042",
   "expiryDateMMYY": "1027",
   "acquirerTid": "ACQUIRER_TID",
   "serverDateTime": "20260821164400549",

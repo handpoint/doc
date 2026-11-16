@@ -1364,7 +1364,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\"\n}",
+              "raw": "{\n  \"amount\": \"10.00\",\n  \"currency\": \"{{currency}}\",\n  \"cardToken\": \"{{card_token}}\",\n  \"transactionReference\": \"{{TXN_REF_ID}}\",\n  \"customerReference\": \"ORDER-10042\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -3456,7 +3456,7 @@
                 "transactions"
               ]
             },
-            "description": "Cancels the operation currently in progress on the terminal. Use after a polling timeout to free the terminal for the next transaction.\n\n**When to use:**\n- Your poll loop exhausted with `UNDEFINED` or no result and the terminal is stuck showing a processing screen\n- An on-terminal MOTO (`moToSale`) timed out but no operator is present to cancel\n\n**After sending:** poll this request's `TXN_RESULT_ID` until `finStatus: CANCELLED` before sending any new terminal request. Sending a new transaction while stop is in progress returns error `1001 Device is busy`.\n\n**Response codes:**\n- **202 Accepted** — stop request delivered to terminal. Poll `transaction-result/{transactionResultId}` to confirm the in-flight transaction was cancelled (the ongoing transaction's result arrives there).\n- **400 error 1005** — no transaction is currently in progress on this terminal (immediate response, no polling).\n- **400 error 1003** — cancel not allowed; the transaction is already being processed at the acquirer and cannot be interrupted."
+            "description": "Cancels the operation currently in progress on the terminal. Use after a polling timeout to free the terminal for the next transaction.\n\n**When to use:**\n- Your poll loop exhausted with `UNDEFINED` or no result and the terminal is stuck showing a processing screen\n- An on-terminal MOTO (`moToSale`) timed out but no operator is present to cancel\n\n**After sending:** keep polling the **original** operation's `transactionResultId` until it resolves (`CANCELLED` if the stop was honoured, its normal outcome if the card had already been read) before sending any new terminal request. This stop request's own `TXN_RESULT_ID` never delivers a result (it stays `204`), so don't poll it. Sending a new transaction while stop is in progress returns error `1001 Device is busy`.\n\n**Response codes:**\n- **202 Accepted** — stop request delivered to terminal. Confirm the outcome on the original operation's `transaction-result/{transactionResultId}` (the one returned by that operation's 202), not this request's.\n- **400 error 1005** — no transaction is currently in progress on this terminal (immediate response, no polling).\n- **400 error 1003** — cancel not allowed; the transaction is already being processed at the acquirer and cannot be interrupted."
           },
           "response": [
             {
@@ -3695,6 +3695,133 @@
                 }
               ],
               "body": "// 202 Accepted — command accepted for delivery to the terminal.\n// Delivery is asynchronous. There is no poll result."
+            }
+          ]
+        },
+        {
+          "name": "Set Security Policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "ApiKeyCloud",
+                "value": "{{api_key}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  // All fields are optional — omit any field to leave that setting unchanged.\n  \"hideTabBar\": true,        // true = hide History/Analytics/Settings tabs | false = restore\n  \"blockSystemUI\": true,     // true = lock Android status & nav bars | false = restore\n  \"brightness\": true,        // true = dim to minimum when idle, restore on transaction | false = disable auto-dim\n  \"passwordToExit\": true     // true = require PIN to lift restrictions | false = remove PIN requirement\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://cloud.handpoint.{{env}}/devices/{{terminal_type}}/{{serial_number}}/set-security-policy",
+              "protocol": "https",
+              "host": [
+                "cloud.handpoint.{{env}}"
+              ],
+              "path": [
+                "devices",
+                "{{terminal_type}}",
+                "{{serial_number}}",
+                "set-security-policy"
+              ]
+            },
+            "description": "Configures individual terminal security restrictions. Each field is an independent nullable boolean — send only the fields you want to change. An empty body `{}` is accepted and changes nothing.\n\n| Field | `true` | `false` |\n|---|---|---|\n| `hideTabBar` | Hides the History, Analytics and Settings tabs | Restores the tabs |\n| `blockSystemUI` | Locks Android status and navigation bars | Restores system bars |\n| `brightness` | Dims screen to minimum when idle; restores on transaction start | Disables auto-dim |\n| `passwordToExit` | Requires a PIN before any active restriction can be lifted | Removes PIN requirement |\n\nChanges take effect immediately, survive app restarts and reboots, and the app navigates to the payment screen on receipt.\n\n**Requires:** Handpoint Payments App 4.14.1+ · Cloud API 2.33.0+\n\n**Response:** `202 Accepted` with `{\"status\":\"Accepted\"}` — delivery is asynchronous. No poll result.\n\n**Offline:** returns `400` with error `1002` if the terminal is offline or not in integrated mode."
+          },
+          "response": [
+            {
+              "name": "202 Accepted — command delivered to terminal",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"hideTabBar\":true,\"blockSystemUI\":true}"
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/devices/{{terminal_type}}/{{serial_number}}/set-security-policy",
+                  "protocol": "https",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "{{terminal_type}}",
+                    "{{serial_number}}",
+                    "set-security-policy"
+                  ]
+                }
+              },
+              "status": "Accepted",
+              "code": 202,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\"status\":\"Accepted\"}"
+            },
+            {
+              "name": "400 Bad Request — terminal offline or not in integrated mode",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "ApiKeyCloud",
+                    "value": "{{api_key}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"hideTabBar\":true}"
+                },
+                "url": {
+                  "raw": "https://cloud.handpoint.{{env}}/devices/{{terminal_type}}/{{serial_number}}/set-security-policy",
+                  "protocol": "https",
+                  "host": [
+                    "cloud.handpoint.{{env}}"
+                  ],
+                  "path": [
+                    "devices",
+                    "{{terminal_type}}",
+                    "{{serial_number}}",
+                    "set-security-policy"
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\"error\":{\"statusCode\":400,\"name\":\"BadRequestError\",\"message\":\"{\\\"error\\\":1002,\\\"message\\\":\\\"No device listening at the other end of the secure channel\\\"}\"}}"
             }
           ]
         },

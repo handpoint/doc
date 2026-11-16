@@ -664,50 +664,39 @@ Invoked when the terminal finishes processing the transaction.
 A tip adjustment operation allows merchants to adjust the tip amount of a sale transaction before the batch of transactions is settled by the processor at the end of the day.
 Note: This functionality is only available for the restaurant industry in the United States and the processors currently supporting this functionality are TSYS and VANTIV.
 
-Dependencies:
-The code example provided depends on RxJava, take a look a their documentation to see how to easily include this dependency in your android project. If you do not want to use RxJava or any additional dependencies then AsyncTask, provided by android, can be used instead for this asynchronous processing. Still we recommend using RxJava as it improves readability and maintainability.
-
 **Parameters**
 
 
 | Parameter      | Notes |
 | ----------- | ----------- |
-| `tipAmount` <span class="badge badge--primary">Required</span> <br />*BigDecimal*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
-| `currency` <span class="badge badge--primary">Required</span> <br />*ENUM*     | Currency of the original transaction |
+| `tipAmount` <span class="badge badge--primary">Required</span> <br />*BigInteger*     | Tip amount added to the original (base) transaction amount - in the minor unit of currency (f.ex. 1000 is 10.00 GBP)|
+| `currency` <span class="badge badge--primary">Required</span> <br />*[Currency](androidobjects.md#13)*     | Currency of the original transaction |
 | `originalTransactionID` <span class="badge badge--primary">Required</span> <br />*String*     | Unique id of the original sale transaction as received from the card reader (EFTTransactionID)|
 
 **Code example**
 
-```java
-Observable.fromCallable(new Callable() {
-	@Override
-	public FinancialStatus call() throws Exception {
-		return api.tipAdjustment(new BigDecimal(1000), currency.GBP, "2bc23910-c3b3-11e6-9e62-07b2a5f091ec");
-	}
-})
-.subscribeOn(Schedulers.io())
-.observeOn(AndroidSchedulers.mainThread())
-.subscribe(new Consumer() {
-	@Override
-	public void accept(@NonNull FinancialStatus status) throws Exception {
-		if (status == FinancialStatus.AUTHORISED) {
-			//SUCCESS
-		} else if (status == FinancialStatus.DECLINED) {
-			//DECLINED
-		} else {
-			//FAILED
-	}
-});
+```kotlin
+val sent: Boolean = api.tipAdjustment(
+    BigInteger("1000"),
+    Currency.GBP,
+    "2bc23910-c3b3-11e6-9e62-07b2a5f091ec"
+)
+// Result arrives via endOfTransaction callback — check result.finStatus
 ```
 
 **Returns**
 
-
-Result of the tip adjustment transaction, it returns a FinancialStatus, the possible values are :
-
 | Parameter      | Notes |
 | ----------- | ----------- |
-| **FinancialStatus**| - **FinancialStatus.AUTHORISED** (tip adjustment approved by the processor) <br />  - **FinancialStatus.FAILED** (system error or timeout)<br /> - **FinancialStatus.DECLINED** (tip adjustment declined by the processor).|
+| `Boolean` | `true` if the tip adjustment command was sent successfully to the gateway. `false` if sending failed (e.g. not connected). |
+
+The financial outcome arrives asynchronously via `endOfTransaction`. `finStatus` values:
+
+| `finStatus` | Meaning |
+| ----------- | ----------- |
+| `AUTHORISED` | Tip adjustment approved by the processor |
+| `DECLINED` | Tip adjustment declined by the processor |
+| `FAILED` | System error or timeout |
 
 If two tip adjustments are sent for the same sale transaction, the second tip adjustment will override the first one. In case the transaction fails (not declined) we recommend that you prompt the user of the POS to retry the adjustment.
 

@@ -37,13 +37,22 @@ Available via the **Cloud API**. Level 2 data must be enabled on the merchant's 
 
 | Field | Rules |
 |---|---|
-| `taxInformation.taxAmount` | Portion of the amount that is tax. Required: `0` when `taxExempt` is `true`, greater than `0` otherwise, and never above the operation amount. |
+| `taxInformation.taxAmount` | Portion of the amount that is tax. For the Cloud API (`POST /transactions`), `amount` must already include the tax — `taxAmount` is reported as Level 2 data only, not added again. For the Android SDK 7.1014.5+, `taxAmount` **is added** to the amount by the SDK — send the base amount only. Required: `0` when `taxExempt` is `true`, greater than `0` otherwise, and never above the operation amount. |
 | `taxInformation.taxExempt` | Boolean, default `false`. `true` means the transaction is tax exempt, and requires `taxAmount` to be `0`. |
 | `purchaseOrderNumber` | Must be sent together with `taxInformation`: one without the other is rejected. Alphanumeric only (`A-Z a-z 0-9`), 25 characters or fewer. `null` is treated as not sent. |
 
-:::note
+:::warning The deprecated `taxAmount` is added to the amount
 The top-level `taxAmount` of `POST /transactions` is deprecated: use `taxInformation.taxAmount` instead. It is kept for compatibility and will be removed in a future release.
+
+It does **not** work like Cloud API `taxInformation.taxAmount`: the payment terminal **adds** it to `amount`. `amount: "100"` with `taxAmount: "10"` charges 1.10. If you still send it, send the amount before tax, and never send it together with `taxInformation`. An integration that sends a tax-inclusive amount plus `taxAmount` charges the tax twice.
 :::
+
+:::info Android SDK 7.1014.5+ — `taxInformation.taxAmount` is added to the amount
+On Android SDK 7.1014.5 and later, `taxInformation.taxAmount` **is added** to the amount by the SDK (like the deprecated top-level `taxAmount`). Send the **base amount before tax**; the SDK adds the tax before sending the IREQ.
+
+This differs from the Cloud API, where `amount` must already include the tax. If you send both Cloud API and Android SDK requests, use different amount-assembly logic for each.
+:::
+
 
 ### Tip adjustment
 

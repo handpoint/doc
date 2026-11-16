@@ -6,8 +6,11 @@ description: Complete transaction result schema per integration path — Cloud A
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import PageFilter from '@site/src/components/PageFilter';
 
 # Transaction result object
+
+<PageFilter mode="reference" placeholder="Filter fields…" />
 
 All payment operations return a transaction result asynchronously. The structure varies by integration path — select yours below.
 
@@ -30,6 +33,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
   "finStatus": "AUTHORISED",
   "statusMessage": "Aprobado o completado con éxito",
   "errorMessage": "",
+  "errorCode": null,
   "multiLanguageStatusMessages": {},
   "multiLanguageErrorMessages": {},
   "recoveredTransaction": false,
@@ -123,6 +127,7 @@ The result is delivered as a JSON POST to your `callbackUrl`, or retrieved via `
 | `type` | string | Transaction type. See [type values](#type-values) below. |
 | `statusMessage` | string | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. For example, a Spanish-issued Visa card returns `"Aprobado o completado con éxito"` even if the terminal is configured in English. |
 | `errorMessage` | string | Error detail if `finStatus` is `FAILED` or `DECLINED`. Empty on success. |
+| `errorCode` | string \| null | Gateway error code when the gateway refused the request (e.g. `"4066"` for a reversal above the original amount). `null` when not applicable. REST API 2.33.2+. |
 | `multiLanguageStatusMessages` | object | Map of locale code → localised status message. May be empty. |
 | `multiLanguageErrorMessages` | object | Map of locale code → localised error message. May be empty. |
 | `issuerResponseCode` | string | ISO 8583 response code from the issuer. `"00"` = approved. |
@@ -140,9 +145,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipAmount` | integer | Tip amount. `0` if no tip. |
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
-| `taxAmount` | integer | **Deprecated — use `taxInformation.taxAmount`; kept for compatibility and will be removed in a future release.** Tax amount included in the total (App 4.14.0 / REST API 2.28.0+). `0` if not applicable or not yet available. |
-| `taxInformation` | object | [Level 2](/reference/level-2-purchasing-data) tax data, echoed by the terminal as it was sent: `taxAmount` (minor units) and `taxExempt` (boolean). Absent when none was sent. `GET /transactions/{transactionReference}/status` returns the gateway's values instead: `taxAmount` in decimal major units (for example `"1.00"`) and `taxAmountIdentifier` instead of `taxExempt` — see [Level 2 response fields](/reference/level-2-purchasing-data#response-fields). |
-| `purchaseOrderNumber` | string | [Level 2](/reference/level-2-purchasing-data) purchase order number, echoed by the terminal as it was sent. Absent when none was sent. `GET /transactions/{transactionReference}/status` returns the value recorded by the gateway instead. |
+| `taxAmount` | integer | **Deprecated.** |
 | `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 
@@ -391,6 +394,7 @@ result.finStatus                // FinancialStatus.AUTHORISED
 result.type                     // TransactionType.SALE
 result.statusMessage            // "Approved"
 result.errorMessage             // ""
+result.errorCode                // null  (or e.g. "4066" on gateway refusal — SDK 7.1014.5+)
 result.issuerResponseCode       // "00"
 result.authorisationCode        // "123456"
 result.isRecoveredTransaction   // false
@@ -401,10 +405,7 @@ result.totalAmount              // BigInteger("100")
 result.tipAmount                // BigInteger("0")
 result.tipPercentage            // 0.0
 result.dueAmount                // BigInteger("0")
-result.taxAmount                // DEPRECATED, BigDecimal? major units — NOT a like-for-like swap, see below
-result.taxInformation?.taxAmount  // BigInteger("100") — echo of what was sent; null if none sent/returned
-result.taxInformation?.taxExempt  // false
-result.purchaseOrderNumber      // "PO4711" — null if none sent/returned
+result.taxAmount                // DEPRECATED
 result.surcharge                // BigInteger("0")  (App 4.14.0 / SDK 7.1014.0+)
 result.currency                 // Currency.USD
 
@@ -490,6 +491,7 @@ result.deviceStatus.serialNumber        // "1850025030"
 | `type` | TransactionType | Transaction type. See [TransactionType](#transactiontype-enum) below. |
 | `statusMessage` | String | Human-readable status in the **cardholder's card language** (`cardLanguagePreference`), not the terminal's configured language. |
 | `errorMessage` | String | Error detail on failure. |
+| `errorCode` | String? | Gateway error code when the gateway refused the request (e.g. `"4066"` for reversal above original amount). `null` when not applicable. SDK 7.1014.5+. |
 | `multiLanguageStatusMessages` | Map&lt;SupportedLocales, String&gt; | Localised status messages map. |
 | `multiLanguageErrorMessages` | Map&lt;SupportedLocales, String&gt; | Localised error messages map. |
 | `issuerResponseCode` | String | ISO 8583 issuer response code. `"00"` = approved. |
@@ -507,22 +509,10 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipAmount` | BigInteger | Tip amount. `BigInteger.ZERO` if none. |
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
-| `taxAmount` | BigDecimal? | **Deprecated — use `taxInformation.taxAmount`.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable — always null-check before use. **Not a like-for-like swap:** `taxInformation.taxAmount` is a `BigInteger` in **minor units**, while this field is a `BigDecimal` in **major units** — both the type and the unit change when you migrate. |
-| `taxInformation` | TaxInformation? | Level II tax data echoed back from the gateway response. `null` means none was sent/returned — not zero. See [`TaxInformation`](android-objects-reference.md#taxinformation). |
-| `purchaseOrderNumber` | String? | Level II purchase order number echoed back, alphanumeric only. `null` means none was sent/returned — not empty. Always echoed alongside `taxInformation` (see info box below — the SDK requires both to be sent together on the request). |
+| `taxAmount` | BigDecimal? | **Deprecated.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable. |
 | `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
-
-:::caution Experimental API — which operations can populate these
-`taxInformation`/`purchaseOrderNumber` are marked `@HapiExperimental` in the SDK. They can only be non-`null` for operations whose **request-side** options class actually carries Level II data: Sale (`SaleOptions`/`SaleAndTokenizeOptions`), Keyed Entry Sale via the `MoToSaleOptions` overload, and Pre-Authorization Capture via the `PreAuthorizationCaptureOptions` overload (both fields); Tip Adjustment via the `TipAdjustmentOptions` overload (`taxInformation` only). See [Options objects](android-objects-reference.md#options-objects) for the full breakdown.
-
-Ships in **SDK 7.1015.0+** — not yet released at the time of writing; do not rely on these fields before that SDK version is out.
-:::
-
-:::info Level II Information
-These fields are echoed back from the request, not set independently here. On the request side, `purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only (no hyphens, spaces, or punctuation), and must be 25 characters or fewer — see the [Options objects reference](android-objects-reference.md#options-objects) for the request-side rules.
-:::
 
 ### `FeeResult`
 

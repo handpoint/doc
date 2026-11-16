@@ -52,9 +52,30 @@ Content-Type: application/json
 {
   "name": "Merchant Name",
   "acquirer": "tsys-us",
-  "mcc": "5812"
+  "mcc": "5812",
+  "address": {
+    "country": "US",
+    "zip": "10001"
+  }
 }
 ```
+
+#### Zip / postal code validation
+
+When a `zip` (postal code) is provided, it is validated against the expected format for the merchant's `country` code using [Google libaddressinput](https://github.com/googlei18n/libaddressinput) patterns (178 countries covered). Validation applies to both creation and edit — if only one of `zip` or `country` is changed in an edit request, validation runs against the resulting combination.
+
+An invalid zip returns `400 Bad Request`:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid zip code '9999' for country 'US'. Expected format: #####  or #####-####",
+  "field": "zip",
+  "country": "US"
+}
+```
+
+Countries without a defined format rule are not validated. A missing or null `zip` is accepted.
 
 ### Assign terminal to merchant
 

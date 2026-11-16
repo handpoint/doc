@@ -5,12 +5,20 @@ sidebar_position: 2
 description: Per-operation request and response examples for the Handpoint Cloud API — sale, pre-auth, refund, reversal, MOTO, and tokenization, with curl, JSON, and full parameter tables at each step.
 ---
 
+import PageFilter from '@site/src/components/PageFilter';
+
 # Cloud API — Operations Reference
+
+<PageFilter mode="reference" placeholder="Filter operations…" />
 
 Complete request/response examples for every Cloud API operation. Each section shows the full two-step flow — the curl command, the 202 acceptance, the poll, and the final result — alongside a parameter table and the most common error responses.
 
 For authentication, environments, and callback vs polling delivery, see the [Cloud API Integration Guide](/reference/cloud-api-integration-guide).  
 For error code definitions and error shapes, see [Error codes](/reference/error-codes).
+
+:::info Amount units
+`POST /transactions` (terminal-facing) uses **integer minor units** — `"1000"` = $10.00. All back-office endpoints with no reader (`/preauthorization/capture`, `/preauthorization/increase`, `/reversal`, `/moto/*`, tip-adjustment) use **major-unit decimal strings** — `"10.00"` = $10.00.
+:::
 
 ---
 
@@ -127,15 +135,13 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
 | `callbackUrl` | string | No | — | HTTPS endpoint. Result POSTed here when complete. |
 | `token` | string | No | — | Sent as `auth-token` header on the callback POST. Use a unique value per request. |
 | `customerReference` | string | No | — | Free-text order reference stored with the transaction. |
-| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal screen — the merchant must accept or decline. **Accept** → a new authorisation request is sent to the gateway; the final result is delivered normally. **Decline** → `finStatus: CANCELLED` is delivered immediately; no card charge. Set `false` only when you are intentionally replaying a reference (e.g. after recovering an UNDEFINED result and confirming the transaction was not charged). |
+| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal detects duplicate transactions by **card and amount** — not by `transactionReference`. A duplicate prompt can fire even with a brand-new reference. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal screen. **Accept** → a new authorisation is sent; the final result uses the same `transactionReference` but a **new `transactionID`** — always use `transactionID` from the final result. **Timeout (~30 s)** → `finStatus: FAILED`, `statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`; not charged. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery and confirming the transaction was not charged. |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` — see [bypassOptions](#bypassoptions) |
 | `tipConfiguration` | object | No | — | Tip selection screen — see [tipConfiguration](#tipconfiguration) |
 | `merchantAuth` | array | No | — | Multi-MID credential override — see [merchantAuth](#merchantauth) |
 | `metadata` | object | No | — | `{ "metadata1": "…", …, "metadata5": "…" }` — max 250 chars each |
 | `moneyRemittanceOptions` | object | No | — | EmerchantPay only — see [moneyRemittanceOptions](#moneyremittanceoptions) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in minor units, like `amount`. Must be sent with `purchaseOrderNumber`. `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
 ---
 
@@ -328,7 +334,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700629963 \
 | `callbackUrl` | string | No | — | HTTPS webhook endpoint |
 | `token` | string | No | — | Callback auth token |
 | `customerReference` | string | No | — | Free-text reference |
-| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal — accept sends a new authorisation, decline delivers `finStatus: CANCELLED`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
+| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal detects duplicates by **card and amount** — not by `transactionReference`. A duplicate prompt can fire even with a brand-new reference. If detected, a **30-second confirmation prompt** appears — accept sends a new authorisation under the same reference with a new `transactionID`; if the prompt times out, `finStatus: FAILED`, `statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` |
 | `merchantAuth` | array | No | — | Multi-MID override — see [merchantAuth](#merchantauth) |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
@@ -340,8 +346,7 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
   -H "Content-Type: application/json" \
   -d '{
   "originalGuid": "4b2c4470-a9f5-11f1-99ee-c974d92ef76f",
-  "capturedAmount": "10000",
-  "currency": "USD"
+  "capturedAmount": "100.00"
 }'
 ```
 
@@ -353,19 +358,29 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
 }
 ```
 
+:::note Querying the pre-auth after capture
+After a successful capture, `GET /transactions/{originalRef}/status` on the **original pre-auth** `transactionReference` returns `finStatus: CAPTURED` — not `AUTHORISED`. This is the correct final state for a captured hold. The value `CAPTURED` does not appear in the terminal result channel; it is only returned by the `/status` endpoint.
+
+`GET /status/all` returns the full pre-auth chain (hold + capture + any increases). The capture item appears with `transactionID` equal to the original pre-auth GUID and `amount: 0` — the settled amount is recorded on the original hold item, not on the capture item. **To get the capture's own transactionID and authorisationCode, use the terminal result from the capture operation itself** — do not rely on `/status/all` for this.
+:::
+
+:::note `transactionReference` on follow-up operations
+`transactionReference` is only honoured on `sale`, `refund`, `saleAndTokenizeCard`, and `preAuthorization`. On **follow-up operations** (`preAuthorizationCapture`, `preAuthorizationReversal`, `preAuthorizationIncrease`, `saleReversal`), any `transactionReference` you send is silently dropped — the gateway copies the original transaction's reference onto the follow-up record instead, with no error.
+
+To correlate a follow-up result with your own records, use `originalEFTTransactionID` (the original pre-auth or sale `transactionID`) rather than `transactionReference`. To query `/status` for the chain, use the **original** transaction's `transactionReference`.
+:::
+
 **`POST /preauthorization/capture` — request parameters**
 
 | Parameter | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `originalGuid` | string | **Yes** | — | `transactionID` from the Pre-Authorization create result. Max 64 chars. |
-| `capturedAmount` | string | **Yes** | — | Amount to capture: at most 12 digits, or 13 characters with a decimal point, no leading zeros except a single `0` before the decimal point, as in `0.50`, otherwise `400` `Invalid capturedAmount, must be in the major unit of currency (20.50 is 20.50 EUR)`. ⚠️ See unit note below. |
-| `tipAmount` | string | No | — | Optional tip to add to the capture. Same unit as `capturedAmount`. Max 32 chars. |
+| `capturedAmount` | string | **Yes** | — | Amount to capture as a **major-unit decimal string** (e.g. `"10.00"` = $10.00, `"100.00"` = $100.00). Can be less than the hold for a partial capture. |
+| `tipAmount` | string | No | — | Optional tip to add to the capture. Same major-unit decimal format as `capturedAmount`. Max 32 chars. |
 | `customerReference` | string | No | — | Free-text reference. Max 64 chars. |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `capturedAmount`. Must be sent with `purchaseOrderNumber`. `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `capturedAmount`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
-:::note `capturedAmount` uses major units (decimal)
-Pass `capturedAmount` as a **major-unit decimal string** — e.g. `"45.00"` for $45.00, `"120.00"` for $120.00. This matches `increaseAmount` and the `/reversal` `amount` field. It is **not** minor units.
+:::note Amount units on back-office endpoints
+`capturedAmount`, `tipAmount`, `increaseAmount`, and the MOTO `amount` field all use **major-unit decimal strings** — e.g. `"100.00"` for $100.00. Only the terminal-facing `POST /transactions` endpoint uses integer minor units.
 :::
 
 **`POST /preauthorization/increase` — request parameters**
@@ -402,8 +417,7 @@ curl -X POST https://cloud.handpoint.com/preauthorization/capture \
   -H "Content-Type: application/json" \
   -d '{
   "originalGuid": "4b2c4470-a9f5-11f1-99ee-c974d92ef76f",
-  "capturedAmount": "15000",
-  "currency": "USD"
+  "capturedAmount": "150.00"
 }'
 ```
 
@@ -535,7 +549,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700667457 \
 | `callbackUrl` | string | No | — | HTTPS webhook endpoint |
 | `token` | string | No | — | Callback auth token |
 | `customerReference` | string | No | — | Free-text reference |
-| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal checks whether the same `transactionReference` was used recently. If a duplicate is detected, a **30-second confirmation prompt** is shown on the terminal — accept sends a new authorisation, decline delivers `finStatus: CANCELLED`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
+| `duplicate_check` | boolean | No | `true` | When `true` (default), the terminal detects duplicates by **card and amount** — not by `transactionReference`. A duplicate prompt can fire even with a brand-new reference. If detected, a **30-second confirmation prompt** appears — accept sends a new authorisation under the same reference with a new `transactionID`; if the prompt times out, `finStatus: FAILED`, `statusMessage: "DUPLICATE_CHECK_SCREEN:_TIMEOUT"`. Set `false` only when intentionally replaying a reference after an UNDEFINED recovery. |
 | `bypassOptions` | object | No | — | `{ "signatureBypass": bool, "pinBypass": bool }` |
 | `merchantAuth` | array | No | — | Multi-MID override |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
@@ -823,9 +837,6 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700645247 \
 | `merchantAuth` | array | No | — | Multi-MID override |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in minor units, like `amount`. Must be sent with `purchaseOrderNumber`. `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
-
 :::warning `transactionReference` bug on moToSale (CUS-837)
 The `transactionReference` you send is ignored by the Cloud API for `moToSale` — the returned result contains a system-generated reference that does not match your value. Recovery via `GET /transactions/{ref}/status` will not work for keyed-entry MOTO. Use `transactionResultId` to poll instead, and store `transactionID` from the result for recovery. Status: open as of 2026-09-06.
 :::
@@ -987,22 +998,37 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
   "amount": "20.00",
   "currency": "USD",
   "cardToken": "K33f40000000000093",
-  "transactionReference": "a1b2c3d4-0000-4000-8000-000000000002"
+  "transactionReference": "a1b2c3d4-0000-4000-8000-000000000002",
+  "customerReference": "ORDER-10042"
 }'
 ```
 
 ```json
-// HTTP 200 — synchronous result
+// HTTP 200 — synchronous result. No finStatus: success is httpStatus 200.
 {
-  "finStatus": "AUTHORISED",
-  "authorisationCode": "123456",
-  "transactionID": "7ef31400-a9f5-11f1-a943-f9c9f04151d9",
-  "paymentScenario": "MOTO",
-  "requestedAmount": 2000,
-  "totalAmount": 2000,
-  "type": "MOTO_SALE"
+  "@type": "sale",
+  "httpStatus": 200,
+  "acquirerTid": "ACQUIRER_TID",
+  "amount": "20.00",
+  "approvalCode": "123456",
+  "batchNumber": "1",
+  "cardTypeName": "MASTERCARD",
+  "currency": "USD",
+  "customerReference": "ORDER-10042",
+  "expiryDateMMYY": "1027",
+  "guid": "7ef31400-a9f5-11f1-a943-f9c9f04151d9",
+  "issuerResponseCode": "00",
+  "issuerResponseText": "APPROVAL",
+  "maskedCardNumber": "************0936",
+  "retrievalReferenceNumber": "630712010195",
+  "serverDateTime": "20261103124928928",
+  "terminalDateTime": "20261103124928000",
+  "transactionCounter": "1",
+  "transactionReference": "a1b2c3d4-0000-4000-8000-000000000002"
 }
 ```
+
+Use `guid` (not `transactionID`) as `originalGuid` for `POST /reversal` or a linked `POST /moto/refund`.
 
 **`POST /moto/sale` — request parameters**
 
@@ -1012,11 +1038,9 @@ curl -X POST https://cloud.handpoint.com/moto/sale \
 | `currency` | string | **Yes** | — | ISO 4217. Exactly 3 characters. |
 | `cardToken` | string | **Yes** | — | Stored card token from a prior `saleAndTokenizeCard`. Max 64 chars. |
 | `transactionReference` | string | No | — | UUID v4 recommended. Max 50 chars. |
-| `customerReference` | string | No | — | Free-text reference. Max 50 chars. |
+| `customerReference` | string | No | — | Free-text merchant reference (order or invoice number). Max 50 chars, otherwise `422`. Echoed in the response and stored on the transaction — filterable in the [Transaction Feed](/back-office/transaction-feed-api). |
 | `channel` | string | No | — | `"MO"` (mail order) or `"TO"` (telephone order) |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }`. Postal code and optional street address forwarded to the acquirer for address verification. Requires `avsForMoto` enabled for the merchant. See [AVS](/reference/avs). |
-| `taxInformation` | object | No | — | Level 2 — `{ "taxAmount": string, "taxExempt": boolean }`. `taxAmount` in decimal major units, like `amount`. Must be sent with `purchaseOrderNumber`. `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data). |
-| `purchaseOrderNumber` | string | No | — | Level 2 purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 chars. |
 
 **`POST /moto/refund` — request parameters**
 
@@ -1078,8 +1102,6 @@ curl https://transactions.handpoint.com/transactions/5c7056aa-b0a6-4ee9-891e-aae
 ```
 
 The path parameter is your `transactionReference` (the UUID you set). This endpoint does not return `customerReceipt` / `merchantReceipt` URLs — build the receipt from the result fields if needed.
-
-When the gateway recorded Level 2 data, the result also includes `taxInformation` (`taxAmount`, `taxAmountIdentifier`: `"1"` local sales tax, `"2"` tax exempt) and `purchaseOrderNumber`. See [Level 2 Purchasing Data](/reference/level-2-purchasing-data#response-fields).
 
 ```bash
 # Query the full operation chain (sale + all subsequent operations)

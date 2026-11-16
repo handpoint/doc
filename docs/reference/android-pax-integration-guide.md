@@ -17,6 +17,10 @@ Fetch the integration-path skill for machine-readable setup guidance and code ex
 Need the terminal to also accept transactions triggered by a back-office server or a separate POS? See [Android SDK (PAX) — Cloud API Integrated Mode](/reference/android-cloud-api-integration-guide).
 :::
 
+:::info Store-and-Forward (SAF)
+Need the terminal to accept card-present transactions when the gateway is unreachable — queueing them for forwarding when connectivity is restored? See [Store-and-Forward — Android SDK](/reference/android-store-and-forward-guide).
+:::
+
 ## What is this integration path?
 
 The Android SDK (PAX) path runs your application **directly on the PAX SmartPOS terminal**. The Handpoint Android SDK communicates with the Handpoint Payments App on the same device via IPC — no external server or network hop is required for the payment flow.
@@ -306,7 +310,7 @@ hapi.preAuthorizationReversal(preAuthID)
 
 Both Capture and Reversal results arrive in `endOfTransaction`. Always reverse unused pre-auths — unreleased holds affect cardholder available credit and expire after 7–30 days.
 
-To send Level II data on capture (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`PreAuthorizationCaptureOptions`](android-objects-reference.md#preauthorizationcaptureoptions): `hapi.preAuthorizationCapture(amount, currency, preAuthID, PreAuthorizationCaptureOptions().apply { ... })`. The `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only, and must be 25 characters or fewer.
+To pass a `customerReference` on capture, use [`PreAuthorizationCaptureOptions`](android-objects-reference.md#preauthorizationcaptureoptions): `hapi.preAuthorizationCapture(amount, currency, preAuthID, PreAuthorizationCaptureOptions().apply { customerReference = "..." })`. The `preAuthorizationCapture(amount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one.
 
 ### MOTO Sale (Key Entry)
 
@@ -325,8 +329,6 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 ```
 
 Requires `cloudApiKey` in `HandpointCredentials` and MOTO enabled for the merchant by Handpoint. Check `result.finStatus` — `CANCELLED` means the operator exited the entry screen.
-
-To send Level II data (`taxInformation`/`purchaseOrderNumber`, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning), pass [`MoToSaleOptions`](android-objects-reference.md#motosaleoptions) instead: `hapi.motoSale(amount, currency, MoToSaleOptions().apply { ... })`. The `motoSale(amount, currency, options: MoToOptions)` overload is deprecated in favor of this one. `purchaseOrderNumber` is required whenever `taxInformation` is set, must be alphanumeric only, and must be 25 characters or fewer.
 
 ### Tokenization
 
@@ -355,9 +357,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 Use in tip-at-table flows — the cardholder signs a paper receipt after the sale and writes in a tip, and the cashier enters it before batch close. This is distinct from Sale with Tip, which collects the tip at checkout before authorisation.
 
 ```kotlin
-// Returns Boolean synchronously, but endOfTransaction DOES still fire: TipAdjustmentResponseCallback
-// builds a TransactionResult (taxInformation included, when sent) and delivers it via
-// EventHandler.endOfTransaction, same as other financial operations.
+// Returns Boolean synchronously, but endOfTransaction DOES still fire
 val accepted: Boolean = hapi.tipAdjustment(
     BigInteger("200"),                               // 200 = $2.00 tip in minor units
     Currency.USD,
@@ -367,8 +367,6 @@ val accepted: Boolean = hapi.tipAdjustment(
 ```
 
 `true` means the SDK sent the adjustment to the gateway. Must be called before batch close — see the [Utility methods table](#utility-methods--verified-return-values-pax-a920) for confirmed PAX return values.
-
-To send Level II tax data (`taxInformation` only, `@HapiExperimental`, SDK 7.1015.0+ — pending release; needs `@OptIn(HapiExperimental::class)` on the enclosing declaration or expect a compiler warning — there is no `purchaseOrderNumber` field here), pass [`TipAdjustmentOptions`](android-objects-reference.md#tipadjustmentoptions): `hapi.tipAdjustment(tipAmount, currency, originalTransactionID, TipAdjustmentOptions().apply { ... })`. The `tipAdjustment(tipAmount, currency, originalTransactionID, options: Options)` overload is deprecated in favor of this one.
 
 ### Automatic Refund
 

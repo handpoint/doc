@@ -23,12 +23,14 @@ Content-Type: application/json
   "amount": "10.00",
   "currency": "USD",
   "cardToken": "STORED_TOKEN_FROM_PRIOR_TRANSACTION",
-  "transactionReference": "550e8400-e29b-41d4-a716-446655440000"
+  "transactionReference": "550e8400-e29b-41d4-a716-446655440000",
+  "customerReference": "ORDER-10042"
 }
 ```
 
 `amount` is a **major-unit decimal string** — `"10.00"` = $10.00. Not an integer, not minor units.  
-`transactionReference` is a UUID v4 you generate before the call — persist to DB first for recovery.
+`transactionReference` is a UUID v4 you generate before the call — persist to DB first for recovery.  
+`customerReference` (optional) is free text, max 50 chars (longer → `422`) — your order/invoice number. Echoed in the response and stored on the transaction; filter on it in the Transaction Feed. Also accepted on `POST /moto/refund`.
 
 With AVS (EPI — requires `avsForMoto` enabled per merchant by Handpoint):
 ```json
@@ -60,6 +62,7 @@ With AVS (EPI — requires `avsForMoto` enabled per merchant by Handpoint):
   "maskedCardNumber": "************0936",
   "retrievalReferenceNumber": "0000821725814",
   "transactionReference": "your-uuid",
+  "customerReference": "ORDER-10042",
   "expiryDateMMYY": "1027",
   "acquirerTid": "ACQUIRER_TID",
   "serverDateTime": "20260821164400549",
