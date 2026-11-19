@@ -32,7 +32,7 @@ export const KNOWN_ISSUES = [
     id: 'KI-2024-001',
     product: 'android-sdk',
     severity: 'high',
-    visibility: 'public',
+    visibility: 'internal',
     title: 'Pre-auth capture fails silently when terminal loses connectivity mid-capture',
     description:
       'If the terminal drops its connection to Handpoint Cloud between the pre-auth and the capture call, ' +
@@ -51,7 +51,7 @@ export const KNOWN_ISSUES = [
     id: 'KI-2024-002',
     product: 'android-sdk',
     severity: 'medium',
-    visibility: 'public',
+    visibility: 'internal',
     title: 'Tip adjustment returns SUCCESS status but amount is not updated in batch when applied within 60 s of the original sale',
     description:
       'A race condition in the batch reconciliation layer causes tip adjustments submitted less than ~60 seconds ' +
@@ -87,7 +87,7 @@ export const KNOWN_ISSUES = [
     id: 'KI-2024-004',
     product: 'ios-sdk',
     severity: 'medium',
-    visibility: 'public',
+    visibility: 'internal',
     title: 'HiLite Bluetooth reconnection fails after iOS 17.4 background refresh',
     description:
       'After an iOS background refresh cycle on iOS 17.4+, the HiLite device Bluetooth connection is ' +
@@ -108,7 +108,7 @@ export const KNOWN_ISSUES = [
     id: 'KI-2024-005',
     product: 'cloud-api',
     severity: 'high',
-    visibility: 'public',
+    visibility: 'internal',
     title: 'MOTO refund via GUID returns 200 but transaction is not refunded when original sale is older than 90 days',
     description:
       'Refund requests targeting transactions older than 90 days return HTTP 200 with a SUCCESS status, ' +
@@ -145,7 +145,7 @@ export const KNOWN_ISSUES = [
     id: 'KI-2023-007',
     product: 'javascript-sdk',
     severity: 'medium',
-    visibility: 'public',
+    visibility: 'internal',
     title: 'onMessageReceived callback not fired for STATUS_CHANGED events in Firefox 121+',
     description:
       'A change in Firefox 121\'s WebSocket event handling breaks the `onMessageReceived` listener ' +

@@ -71,9 +71,7 @@ Authorization: Bearer YOUR_TXNFEED_API_KEY
 | `customerReceipt` | Formatted receipt text |
 | `cardToken` | Present if tokenization enabled |
 
-**The feed carries no fee mitigation fields.** There is no fee amount, no program, and no applied
-flag. Persist the `fee` object from the transaction result in your own records. Reference:
-https://developer.handpoint.com/reference/fee-mitigation
+**Fee mitigation fields are present in the feed schema (txnFeed API 2.11.0+) but the feature is not yet generally available.** The `fee` object per transaction includes: `amount`, `mitigationProgram`, `taxOnFee`, `applied`, `reason`. Do not rely on these fields until fee mitigation is released. Reference: https://developer.handpoint.com/reference/fee-mitigation
 
 ## Recovery via Android SDK
 
