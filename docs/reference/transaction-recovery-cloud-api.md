@@ -26,7 +26,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
   -H "Content-Type: application/json" \
   -d '{
   "operation": "sale",
-  "serial_number": "0821599465",
+  "serial_number": "082104578",
   "terminal_type": "PAXA920",
   "amount": "1000",
   "currency": "GBP",
@@ -98,7 +98,7 @@ response = requests.post(
     headers={'ApiKeyCloud': 'YOUR_MERCHANT_API_KEY'},
     json={
         'operation': 'sale',
-        'serial_number': '0821599465',
+        'serial_number': '082104578',
         'terminal_type': 'PAXA920',
         'amount': '1000',
         'currency': 'GBP',
@@ -278,8 +278,8 @@ def notify_pos(message):
     pass  # implement as appropriate for your POS (push notification, webhook, etc.)
 
 # Start both recovery threads on timeout:
-threading.Thread(target=poll_terminal_result, args=(ref, 'PAXA920', '0821599465'), daemon=True).start()
-threading.Thread(target=poll_acquirer_status, args=(ref, 'PAXA920', '0821599465'), daemon=True).start()
+threading.Thread(target=poll_terminal_result, args=(ref, 'PAXA920', '082104578'), daemon=True).start()
+threading.Thread(target=poll_acquirer_status, args=(ref, 'PAXA920', '082104578'), daemon=True).start()
 ```
 
 ## Recovering on server restart

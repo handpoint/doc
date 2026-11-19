@@ -517,7 +517,7 @@ Run the full pre-auth lifecycle — do not certify pre-auth without testing all 
 | Void (release without capturing) | `preAuthorizationReversal` operation | Hold released; no settlement |
 | Attempt capture after void | `originalGuid` of voided pre-auth | Error `3051 Already reversed` (no-reader) |
 | Attempt capture after capture | `originalGuid` of already-captured pre-auth | Error `3211` (no-reader) — already settled |
-| Expired / unknown `originalGuid` | Random UUID | Error `5001` (no-reader) — gateway NPE (known issue CUS-832) |
+| Expired / unknown `originalGuid` | Random UUID | Error `5001` (no-reader) — gateway NPE |
 
 ### Tokenization
 

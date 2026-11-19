@@ -35,7 +35,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
 // HTTP 202 — accepted immediately; terminal begins processing
 {
   "statusMessage": "Operation Accepted",
-  "transactionResultId": "1850025030-1788700677769",
+  "transactionResultId": "082104578-1788700677769",
   "transactionReference": "5c7056aa-b0a6-4ee9-891e-aae6ce7ea725"
 }
 ```
@@ -43,7 +43,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
 **Step 2 — poll for the result**
 
 ```bash
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700677769 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -73,7 +73,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "15012",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "transactionReference": "5c7056aa-b0a6-4ee9-891e-aae6ce7ea725"
 }'
 ```
@@ -82,14 +82,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
 // HTTP 202
 {
   "statusMessage": "Operation Accepted",
-  "transactionResultId": "1850025030-1788700677769",
+  "transactionResultId": "082104578-1788700677769",
   "transactionReference": "5c7056aa-b0a6-4ee9-891e-aae6ce7ea725"
 }
 ```
 
 ```bash
 # Step 2 — poll (use transactionResultId from step 1)
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700677769 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700677769 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -155,14 +155,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "1215",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "transactionReference": "b777a62d-9bfb-4b6a-b188-7f842a930770"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700034700 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700034700 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -233,7 +233,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
   -d '{
   "operation": "tokenizeCard",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030"
+  "serial_number": "082104578"
 }'
 ```
 
@@ -241,13 +241,13 @@ curl -X POST https://cloud.handpoint.com/transactions \
 // HTTP 202
 {
   "statusMessage": "Operation Accepted",
-  "transactionResultId": "1850025030-1788700678000"
+  "transactionResultId": "082104578-1788700678000"
 }
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700678000 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700678000 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -293,14 +293,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "10000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "transactionReference": "e4826edd-7579-48ca-9553-743e5b76d855"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700629963 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700629963 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -447,14 +447,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   -d '{
   "operation": "preAuthorizationReversal",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "originalTransactionId": "4b2c4470-a9f5-11f1-99ee-c974d92ef76f"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700630100 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700630100 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -498,14 +498,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "5000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "transactionReference": "eb6a9a5e-ad43-4014-a8a0-b0b7243169d5"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700667457 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700667457 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -551,7 +551,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "5000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "originalTransactionId": "67905570-a9f5-11f1-a943-f9c9f04151d9",
   "transactionReference": "eb6a9a5e-ad43-4014-a8a0-b0b7243169d5"
 }'
@@ -614,14 +614,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "5000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "originalTransactionId": "5e88eeb0-a9f5-11f1-a943-f9c9f04151d9"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700668000 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700668000 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -779,7 +779,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "2000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "cardToken": "K33f40000000000093",
   "transactionReference": "a1b2c3d4-0000-4000-8000-000000000001"
 }'
@@ -787,7 +787,7 @@ curl -X POST https://cloud.handpoint.com/transactions \
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700645247 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700645247 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -823,7 +823,7 @@ curl https://cloud.handpoint.com/transaction-result/1850025030-1788700645247 \
 | `merchantAuth` | array | No | — | Multi-MID override |
 | `metadata` | object | No | — | Up to 5 string fields, max 250 chars each |
 | `billing` | object | No | — | AVS — `{ "zipCode": string (required), "address": string (optional) }` |
-:::warning `transactionReference` bug on moToSale (CUS-837)
+:::warning `transactionReference` bug on moToSale (known issue [KI-2026-008](/reference/known-issues))
 The `transactionReference` you send is ignored by the Cloud API for `moToSale` — the returned result contains a system-generated reference that does not match your value. Recovery via `GET /transactions/{ref}/status` will not work for keyed-entry MOTO. Use `transactionResultId` to poll instead, and store `transactionID` from the result for recovery. Status: open as of 2026-09-06.
 :::
 
@@ -839,14 +839,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "2000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "originalTransactionId": "57cd25a0-a9f5-11f1-a943-f9c9f04151d9"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700646000 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700646000 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -889,14 +889,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "2000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "originalTransactionId": "57cd25a0-a9f5-11f1-a943-f9c9f04151d9"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700647000 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700647000 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -935,14 +935,14 @@ curl -X POST https://cloud.handpoint.com/transactions \
   "amount": "10000",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "cardToken": "K33f40000000000093"
 }'
 ```
 
 ```bash
 # Step 2 — poll
-curl https://cloud.handpoint.com/transaction-result/1850025030-1788700648000 \
+curl https://cloud.handpoint.com/transaction-result/082104578-1788700648000 \
   -H "ApiKeyCloud: YOUR_API_KEY"
 ```
 
@@ -1158,7 +1158,7 @@ Enables or disables unattended mode. When enabled, the Android navigation bar (H
 | `status` | boolean | Yes | `true` to enable unattended mode, `false` to disable |
 
 ```bash
-curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-unattended-mode \
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/082104578/set-unattended-mode \
   -H "ApiKeyCloud: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "status": true }'
@@ -1181,7 +1181,7 @@ Sets the display language and region on the terminal.
 | `locale` | string | Yes | IETF BCP 47 language tag — e.g. `"en_US"`, `"en_CA"`, `"fr_CA"`, `"es_ES"` |
 
 ```bash
-curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-locale \
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/082104578/set-locale \
   -H "ApiKeyCloud: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "locale": "en_US" }'
@@ -1204,7 +1204,7 @@ Reboots the terminal. Use `force: false` (default) to check whether a transactio
 | `force` | boolean | Yes | `true` to reboot immediately even if a transaction is in progress. `false` to check status first — if a transaction is active, the reboot may be deferred. |
 
 ```bash
-curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/reboot \
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/082104578/reboot \
   -H "ApiKeyCloud: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "force": false }'
@@ -1228,7 +1228,7 @@ Sets the minimum and maximum screen brightness levels. Both values must be integ
 | `maximumBrightnessLevel` | integer | Yes | Maximum brightness (0–100) |
 
 ```bash
-curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-screen-brightness \
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/082104578/set-screen-brightness \
   -H "ApiKeyCloud: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "minimumBrightnessLevel": 20, "maximumBrightnessLevel": 100 }'
@@ -1255,7 +1255,7 @@ This command is only active on production devices. It has no effect on developme
 | `hour` | integer | Yes | Hour of day (0–23) when the device should reboot. The reboot occurs at a random minute within that hour. |
 
 ```bash
-curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-reboot-time \
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/082104578/set-reboot-time \
   -H "ApiKeyCloud: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "hour": 22 }'
@@ -1278,7 +1278,7 @@ Enables or disables password protection on the terminal's Payments App settings 
 | `status` | boolean | Yes | `true` to enable password protection, `false` to disable |
 
 ```bash
-curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/1850025030/set-password-protected \
+curl -X POST https://cloud.handpoint.com/devices/PAXA920PRO/082104578/set-password-protected \
   -H "ApiKeyCloud: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "status": true }'
