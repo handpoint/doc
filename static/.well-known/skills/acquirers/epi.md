@@ -55,9 +55,9 @@ EPI supports partial reversal (reduce the authorised amount before settlement). 
 
 **On-terminal reversal (`POST /transactions`, reader required):**
 ```json
-{ "operation": "reversal", "terminal_type": "PAXA920", "serial_number": "082104578", "originalTransactionId": "..." }
+{ "operation": "saleReversal", "amount": "5005", "currency": "USD", "terminal_type": "PAXA920", "serial_number": "082104578", "originalTransactionId": "..." }
 ```
-On the terminal path, the cardholder can perform a partial reversal via the terminal UI; the ISV does not pass `amount` in the request.
+On the terminal path, `amount` is in **minor units** (`"5005"` = $50.05) and `currency` is required. Send the full original amount, or a smaller amount for a partial reversal. Do not use `"operation": "reversal"`: the terminal can't process it and the call ends in `1002` after about 13 s.
 
 **Android SDK:** `hapi.reversal("transactionID", BigInteger("500"), Currency.USD, options)` — amount in minor units.
 
