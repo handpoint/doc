@@ -119,7 +119,7 @@ Returned synchronously by every financial operation (`sale()`, `refund()`, etc.)
 |---|---|---|
 | `operationStarted` | `Boolean` | `true` if the SDK accepted and started the operation. `false` if rejected (another operation in progress, SDK not initialized, etc.). |
 | `transactionReference` | `String?` | UUID v4. **Must be persisted to durable storage immediately.** Used to query the Handpoint Gateway via `getTransactionStatus()` if the result is not delivered. Not returned for linked refunds or reversals — those use the reference of the original transaction. Can be `null` even when `operationStarted == true` in rare edge cases; log and alert the merchant if `null`. |
-| `errorMessage` | `String` | Reason the operation was rejected (`operationStarted == false`). Empty on success. |
+| `errorMessage` | `String` | Reason the operation was rejected (`operationStarted == false`), translated. From 7.1016.0, every rejection has a reason. Empty on success. |
 
 ```kotlin
 val result = api.sale(BigInteger.valueOf(1000), Currency.USD) ?: return
@@ -281,6 +281,35 @@ How the card was read, as reported in [`CardReadData`](#CardReadData). Distinct 
 | `CHIP` | Card inserted — contact EMV. |
 | `CONTACTLESS` | Card or device tapped — NFC. |
 | `MAGSTRIPE` | Card swiped — magnetic stripe. |
+
+---
+
+### `TransactionNotStartedData` <span class="badge badge--success">New in 7.1016.0</span> {#TransactionNotStartedData}
+
+Delivered by [`Events.TransactionNotStarted.transactionNotStarted()`](/reference/android-events-reference#eventsTransactionNotStarted) when the SDK does not start a financial operation.
+
+| Field | Type | Description |
+|---|---|---|
+| `transactionReference` | `String` | The reference of the operation that did not start. Empty when the SDK does not know it. |
+| `errorCode` | `TransactionNotStartedCode` | Why the operation did not start. Check this value in your app. |
+| `errorDetail` | `String` | The same reason as translated text, to show to the merchant. Do not parse it. |
+
+---
+
+### `TransactionNotStartedCode` <span class="badge badge--success">New in 7.1016.0</span> {#TransactionNotStartedCode}
+
+Why a financial operation did not start, as reported in [`TransactionNotStartedData`](#TransactionNotStartedData).
+
+| Value | Description |
+|---|---|
+| `TERMINAL_BUSY` | Another operation runs on the terminal. |
+| `TERMINAL_NOT_CONNECTED` | The card reader is not connected, or its configuration is not ready. |
+| `MERCHANT_CHANGED` | The terminal was moved to another merchant. |
+| `NO_NETWORK` | The terminal has no network connection. |
+| `OPERATION_NOT_AVAILABLE` | The terminal does not offer this operation now, for example in Store and Forward mode. |
+| `APP_NOT_IN_FOREGROUND` | The operation needs the app in the foreground, for example for a manual card entry. |
+| `MOTO_DISABLED` | MOTO is disabled for the merchant. |
+| `INVALID_REQUEST` | A value of the request is not valid, for example the amount or the currency. |
 
 ---
 

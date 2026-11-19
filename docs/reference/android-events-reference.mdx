@@ -401,6 +401,29 @@ class MyEventHandler : Events.SmartposRequired, Events.TransactionStarted {
 
 ---
 
+### `Events.TransactionNotStarted` <span class="badge badge--success">New in 7.1016.0</span> {#eventsTransactionNotStarted}
+
+Fires once when the SDK does not start a financial operation that it was asked to run. Use it to show the merchant why nothing happened. An operation that started ends with `endOfTransaction`, not with this event.
+
+```kotlin
+class MyEventHandler : Events.SmartposRequired, Events.TransactionNotStarted {
+
+    override fun transactionNotStarted(data: TransactionNotStartedData) {
+        // data.errorCode tells your app why, for example TransactionNotStartedCode.TERMINAL_BUSY
+        // data.errorDetail is the same reason as translated text for the merchant
+        showMessage(data.errorDetail)
+    }
+}
+```
+
+- The event is optional. If your app does not implement it, the events that your app gets do not change.
+- A refusal that already sends a FAILED `endOfTransaction`, for example an invalid amount, still sends it.
+- A Cloud API request whose `transactionStarted` already went out ends with `endOfTransaction`, and gets no `transactionNotStarted`.
+
+`TransactionNotStartedData` and `TransactionNotStartedCode` are described in the [Android Objects Reference](/reference/android-objects-reference).
+
+---
+
 ### `Events.NetworkStatusChanged`
 
 Fires when the terminal's network connectivity changes.
