@@ -379,24 +379,19 @@ If the status endpoint is unreachable (network error on your side), do **not** r
 
 ## Partial approvals (US only) {#partial-approvals-us-only}
 
-`PARTIAL_APPROVAL` means the gateway authorised a lesser amount than requested (e.g. the card had insufficient balance). **It is not final in either the terminal result channel or the `/status` recovery channel.**
+`PARTIAL_APPROVAL` means the gateway authorised a lesser amount than requested (e.g. the card had insufficient balance). **`PARTIAL_APPROVAL` delivered by `/transaction-result` is final** — the cardholder accepted the partial amount and the card has been charged for `totalAmount`.
 
-### What each channel means
-
-| Channel | `PARTIAL_APPROVAL` means | Action |
-|---|---|---|
-| Terminal result (`/transaction-result`) | Terminal is showing an accept/decline prompt to the cardholder | Keep polling — the cardholder has ~60 s to decide |
-| Acquirer status (`/transactions/{ref}/status`) | Gateway authorised a partial amount; terminal still handling the prompt | Do **not** treat as final. Keep Thread A running |
+While the accept/decline prompt is still on screen, the `/status` endpoint returns `AUTHORISED` (with `dueAmount > 0`), **not** `PARTIAL_APPROVAL`. `PARTIAL_APPROVAL` only appears once the cardholder has responded.
 
 ### How the terminal resolves it
 
-Once the cardholder decides, the SDK delivers one of these outcomes via your `callbackUrl` and Thread A:
+Once the cardholder responds, the SDK delivers one of these outcomes via your `callbackUrl` and Thread A:
 
 ```
-PARTIAL_APPROVAL from /status (not final)
+Terminal showing accept/decline prompt → /status returns AUTHORISED (dueAmount > 0)
     │
     ├─ Cardholder accepts partial amount
-    │       SDK delivers finStatus = PARTIAL_APPROVAL  ← final; charge for partial amount
+    │       SDK delivers finStatus = PARTIAL_APPROVAL  ← final; charge for totalAmount
     │
     └─ Cardholder declines partial amount
             SDK sends reversal automatically

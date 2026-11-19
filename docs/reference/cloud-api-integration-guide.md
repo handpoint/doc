@@ -287,7 +287,7 @@ result = resp.json()  # only on 200
 | `DECLINED` | Declined by issuer or gateway | Final. Card not charged. Safe to retry after cardholder action. |
 | `FAILED` | Technical failure | Final. Run [recovery flow](/reference/transaction-recovery-cloud-api) before retrying. |
 | `CANCELLED` | Cancelled at terminal | Final. Card not charged. Safe to retry. |
-| `PARTIAL_APPROVAL` | Partial amount approved (US only). Terminal is showing accept/decline prompt — **not final**. | Keep polling `transaction-result` for at least 60 s. If cardholder declines, SDK auto-reverses and result changes to `CANCELLED`. See [Partial Approvals](/reference/partial-approval). |
+| `PARTIAL_APPROVAL` | Partial amount approved (US only). Card charged for `totalAmount`. **Final.** | Accept the partial amount or offer split tender for `dueAmount`. See [Partial Approvals](/reference/partial-approval). |
 | `REFUNDED` | Refund processed | Final. |
 | `CAPTURED` | Pre-auth captured | Final. |
 | `PROCESSED` | Completed (tokenization, MOTO) | Final. |
@@ -312,7 +312,7 @@ result = resp.json()  # only on 200
 }
 ```
 
-The polling endpoint returns the same `TransactionResult` shape as the callback payload. Stop polling when you receive a final `finStatus` — any value except `IN_PROGRESS`, `UNDEFINED`, and `PARTIAL_APPROVAL`. `PARTIAL_APPROVAL` is not final: the terminal is still showing an accept/decline prompt and the result can change to `CANCELLED`.
+The polling endpoint returns the same `TransactionResult` shape as the callback payload. Stop polling when you receive a final `finStatus` — any value except `IN_PROGRESS` and `UNDEFINED`. `PARTIAL_APPROVAL` is final when it arrives via `/transaction-result`: the cardholder accepted the partial amount and the card has been charged for `totalAmount`. While the accept/decline prompt is still on screen, the `/status` endpoint returns `AUTHORISED` (with `dueAmount > 0`), not `PARTIAL_APPROVAL`.
 
 ## Transaction recovery
 

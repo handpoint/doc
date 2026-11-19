@@ -146,7 +146,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
 | `taxAmount` | integer | **Deprecated.** |
-| `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
+| `surcharge` | integer | **Deprecated.** Surcharge amount in minor units (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. Use the `fee` object instead. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 
 ### Card
@@ -230,7 +230,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
-| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final when returned from `GET /transaction-result/{id}`.** The terminal presents an accept/decline prompt to the merchant/cardholder; if they decline, the SDK automatically reverses the transaction and the final outcome changes. Wait at least 60 seconds or until the final `transaction-result` is delivered before treating as settled. US acquirers only. |
+| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. The cardholder accepted the partial amount before this result was delivered. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. See [Partial Approval](/reference/partial-approval). |
 | `REFUNDED` | Transaction was subsequently refunded. Returned on status queries for original transactions that have been fully refunded. |
 | `PROCESSED` | Operation processed — used for non-financial operations such as `tokenizeCard`, Start of Day, and Host Init. |
 | `CAPTURED` | Pre-authorization was captured. |
@@ -510,7 +510,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
 | `taxAmount` | BigDecimal? | **Deprecated.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable. |
-| `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `surcharge` | Surcharge? | **Deprecated** (SDK 7.1014.5+). Surcharge object `{amount: BigDecimal (major units), applied: Boolean, reason: String}`. `null` if not applicable. Use `fee` instead. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
 
@@ -641,7 +641,7 @@ Linking is a **Handpoint gateway** concept, not an acquirer-level one. If a merc
 | `CANCELLED` | Cardholder cancelled, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. Run the recovery flow before retrying. |
 | `UNDEFINED` | No result received — call `hapi.getTransactionStatus(transactionReference)` to recover. |
-| `PARTIAL_APPROVAL` | Partially approved — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final `endOfTransaction` callback fires before treating as settled. US acquirers only. |
+| `PARTIAL_APPROVAL` | Partially approved — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. The cardholder accepted before this result was delivered via `endOfTransaction`. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. See [Partial Approval](/reference/partial-approval). |
 | `REFUNDED` | Transaction was refunded. |
 | `PROCESSED` | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `CAPTURED` | Pre-auth captured. |
@@ -766,7 +766,7 @@ All fields are strings unless noted. Values are extracted from the terminal's XM
 | `PROCESSED` | `EFT_FINANC_STATUS_TRANS_PROCESSED` (0x03) | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `FAILED` | `EFT_FINANC_STATUS_TRANS_NOT_PROCESSED` (0x04) | Technical failure — check `errorMessage`. |
 | `CANCELLED` | `EFT_FINANC_STATUS_TRANS_CANCELLED` (0x05) | Cancelled by the cardholder, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
-| `PARTIAL_APPROVAL` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final result callback fires before treating as settled. US acquirers only. |
+| `PARTIAL_APPROVAL` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. |
 | `UNDEFINED` | `EFT_FINANC_STATUS_UNDEFINED` (0x00) | No result received — query the `/status` endpoint. |
 | `REFUNDED` | *(no iOS constant)* | May appear on status queries for refunded transactions. |
 | `CAPTURED` | *(no iOS constant)* | May appear on status queries for captured pre-auths. |
@@ -865,7 +865,7 @@ handpoint.sale(
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received — query the `/status` endpoint. |
-| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final result callback fires before treating as settled. US acquirers only. |
+| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. |
 | `REFUNDED` | Transaction was subsequently refunded. |
 | `PROCESSED` | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `CAPTURED` | Pre-authorization was captured. |
