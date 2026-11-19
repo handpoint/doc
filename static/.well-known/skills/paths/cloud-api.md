@@ -267,28 +267,9 @@ Add `"amount": "50.05"` and `"currency": "USD"` to the body for a partial revers
 | 400 | `3153` | Not in open batch — fall back to refund |
 | 400 | `4066` | Partial amount exceeds original |
 
-### On-terminal reversal (PAX terminal processes it)
+### On-terminal reversal (`saleReversal`, PAX terminal processes it)
 
-Asynchronous — 202 → poll, same as a sale. The terminal handles the void.
-
-```http
-POST https://cloud.handpoint.com/transactions
-ApiKeyCloud: YOUR_MERCHANT_API_KEY
-Content-Type: application/json
-
-{
-  "operation": "reversal",
-  "terminal_type": "PAXA920",
-  "serial_number": "082104578",
-  "originalTransactionId": "transactionID-from-sale-result"
-}
-```
-
-Do NOT include `transactionReference` — reversal is a subsequent operation. Poll `GET /transaction-result/{id}` for `finStatus`. A successful on-terminal reversal returns `finStatus: "AUTHORISED"`.
-
-### Recovery reversal (`saleReversal`)
-
-Use ONLY in transaction recovery: when the status endpoint returns `AUTHORISED` for a transaction you have no record of (e.g. network failure mid-poll). Voids the sale before it settles.
+Asynchronous — 202 → poll, same as a sale. The terminal handles the void, so it must be online. Also the path for transaction recovery: when the status endpoint returns `AUTHORISED` for a transaction you have no record of, use this to void the sale before it settles.
 
 ```http
 POST https://cloud.handpoint.com/transactions
@@ -297,14 +278,17 @@ Content-Type: application/json
 
 {
   "operation": "saleReversal",
+  "amount": "1100",
+  "currency": "USD",
   "terminal_type": "PAXA920",
   "serial_number": "082104578",
-  "currency": "USD",
-  "originalTransactionId": "transactionID-from-status-response"
+  "originalTransactionId": "transactionID-from-sale-result"
 }
 ```
 
-`currency` is required (unlike plain `reversal`). Asynchronous — 202 → poll.
+`amount` (minor units, string) and `currency` are required. Do NOT include `transactionReference` — reversal is a subsequent operation. Poll `GET /transaction-result/{id}` for `finStatus`. A successful on-terminal reversal returns `finStatus: "AUTHORISED"`.
+
+**Do not send `"operation": "reversal"`.** The Cloud API accepts it, but the terminal cannot process it: the call returns error `1002` after ~13 s even when the terminal is online.
 
 ## Pre-authorization (EPI, EmerchantPay, Paystrax)
 
@@ -660,7 +644,7 @@ Note: this is a flat object with `"error"` as an integer key — different from 
 - Works for all transaction types: card-present, MOTO on-terminal, MOTO remote
 - Eliminates the entire class of "terminal busy during reversal" failures
 
-Only use the on-terminal `"operation": "reversal"` path if your acquirer specifically requires it or you have a specific terminal-side workflow reason.
+Use `"operation": "saleReversal"` for all on-terminal reversals. Do not use `"operation": "reversal"` — the terminal cannot process it and the call will time out.
 
 ## Logging
 
