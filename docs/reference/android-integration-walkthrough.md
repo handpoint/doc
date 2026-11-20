@@ -139,6 +139,8 @@ val result = api?.sale(BigInteger.valueOf(amountMinorUnits), currency) ?: return
 if (!result.operationStarted) {
     // SDK rejected the call (another operation in progress, terminal not ready, etc.)
     // Nothing started on the terminal — safe to show an error and let the merchant retry
+    // From SDK 7.1016.0, result.errorMessage is filled for every rejection, translated
+    showError(result.errorMessage)
     return
 }
 
@@ -160,6 +162,10 @@ if (ref == null) {
 recordPending(ref)
 // → endOfTransaction() or transactionResultReady() will arrive asynchronously
 ```
+
+:::note An operation that does not start (SDK 7.1016.0 and later)
+The SDK also sends the optional `Events.TransactionNotStarted` event, with an error code for your app logic and the same error detail. It is most useful for Cloud API requests, which have no start result in your code. See [Cloud API integrated mode](android-cloud-api-integration-guide).
+:::
 
 :::caution `transactionReference` must be persisted to durable storage
 `SharedPreferences`, a local database, or any storage that survives process death. Do not keep it only in memory. The recovery flow depends on reading this value after an app restart.

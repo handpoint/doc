@@ -136,6 +136,41 @@ hapi = HapiFactory.getAsyncInterface(
 hapi.registerEventsDelegate(myDelegate)  // required from SDK 7.1010.x onward
 ```
 
+#### When a Cloud request does not start (SDK 7.1016.0 and later)
+
+Sometimes the SDK does not start a request that the Cloud API sent, for example when MOTO is disabled for the merchant. The request then gets no `transactionStarted()`, and the POS gets a `FAILED` result with the reason in `errorMessage`. To show the reason on the terminal too, implement the optional `Events.TransactionNotStarted`:
+
+- A refusal that already sends a `FAILED` `endOfTransaction()`, for example an invalid amount, still sends it. Keep your `endOfTransaction()` handling.
+- If `transactionStarted()` already went out, the request ends with `endOfTransaction()` and gets no `transactionNotStarted()`.
+
+```kotlin
+class MyHapiDelegate : Events.SmartposRequired, Events.TransactionStarted, Events.TransactionNotStarted {
+
+    // Fires once for each financial operation that the SDK does not start.
+    override fun transactionNotStarted(data: TransactionNotStartedData) {
+        // data.errorCode: for your app logic, for example TransactionNotStartedCode.MOTO_DISABLED
+        // data.errorDetail: the same reason as translated text, for the merchant
+        // data.transactionReference: the reference of the request that did not start (can be empty)
+        showMessage(data.errorDetail)
+    }
+}
+```
+
+| `TransactionNotStartedCode` | Meaning |
+|---|---|
+| `TERMINAL_BUSY` | Another operation runs on the terminal. |
+| `TERMINAL_NOT_CONNECTED` | The card reader is not connected, or its configuration is not ready. |
+| `MERCHANT_CHANGED` | The terminal was moved to another merchant. |
+| `NO_NETWORK` | The terminal has no network connection. |
+| `OPERATION_NOT_AVAILABLE` | The terminal does not offer this operation now, for example in Store and Forward mode. |
+| `APP_NOT_IN_FOREGROUND` | The operation needs the app in the foreground, for example for a manual card entry. |
+| `MOTO_DISABLED` | MOTO is disabled for the merchant. |
+| `INVALID_REQUEST` | A value of the request is not valid, for example the amount or the currency. |
+
+:::note
+If a sale already runs on the terminal, the event can belong to another request. Do not close the screen of the running sale because of it.
+:::
+
 ### 4. Handle two separate readiness events
 
 Standalone and cloud initialization complete at different times and fire through different callbacks:
