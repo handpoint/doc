@@ -1,0 +1,1063 @@
+# Glossary of the Handpoint developer documentation.
+# Source: the published pages of origin/internal-preview at commit 7961e13, 2026-11-06.
+# Each term names one concept, and each concept has one term.
+categories:
+  - id: parties-and-accounts
+    title: "Parties and accounts"
+  - id: products-and-integration
+    title: "Handpoint products and integration"
+  - id: credentials-and-security
+    title: "Credentials and security"
+  - id: devices-and-connection
+    title: "Devices and connection"
+  - id: transaction-types
+    title: "Transaction types"
+  - id: results-and-statuses
+    title: "Transaction results and statuses"
+  - id: cards-and-card-data
+    title: "Cards and card data"
+  - id: batches-and-settlement
+    title: "Batches and settlement"
+  - id: acquirers-and-token-providers
+    title: "Acquirers and card token providers"
+  - id: fee-mitigation
+    title: "Fee mitigation"
+  - id: receipts
+    title: "Receipts"
+  - id: testing-and-environments
+    title: "Testing and environments"
+  - id: errors-and-recovery
+    title: "Errors and recovery"
+terms:
+  - term: "Cardholder"
+    category: parties-and-accounts
+    definition: "The person who pays with the card. The clerk, cashier or operator is the merchant-side person who uses the POS."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/partial-approval.md"]
+  - term: "Handpoint Integration Support"
+    category: parties-and-accounts
+    definition: "The support group of Handpoint that provisions staging environments, credentials and debug terminals. It also reviews certification."
+    sources: ["docs/reference/validate-integration.mdx", "docs/reference/multi-mid.md", "docs/reference/android-sdk-setup.md"]
+  - term: "ISV"
+    category: parties-and-accounts
+    definition: "An independent software vendor. An ISV builds a POS app and distributes it to many merchants."
+    sources: ["docs/reference/multi-mid.md", "docs/get-started/index.mdx", "docs/reference/android-demo-app.md"]
+  - term: "Live merchant"
+    category: parties-and-accounts
+    definition: "A merchant that processes real transactions with an acquirer. It has its own credentials."
+    sources: ["docs/reference/authentication.md", "docs/reference/android-sdk-setup.md", "docs/reference/android-pax-integration-guide.md"]
+  - term: "MCC"
+    category: parties-and-accounts
+    definition: "The merchant category code. It classifies the business of a merchant."
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/partial-approval.md", "docs/reference/cloud-api-operations.md"]
+  - term: "Merchant"
+    category: parties-and-accounts
+    definition: "The business that accepts card payments. A merchant has a record in TMS with its own credentials."
+    identifiers: ["MERCHANT"]
+    sources: ["docs/reference/android-demo-app.md", "docs/reference/authentication.md", "docs/reference/fee-mitigation.mdx"]
+  - term: "Merchant credential mapping"
+    category: parties-and-accounts
+    definition: "The ISV backend pattern that maps each merchant to its own Handpoint credentials. The app reinitializes the SDK when the merchant changes."
+    sources: ["docs/reference/validate-integration-android-sdk.md", "docs/reference/validate-integration.mdx", "docs/reference/android-demo-app.md"]
+  - term: "Merchant onboarding"
+    category: parties-and-accounts
+    definition: "The TMS operations that create a merchant and link a terminal to it."
+    sources: ["static/.well-known/skills/paths/cloud-api.md", "static/.well-known/skills/acquirers/emerchantpay.md", "static/.well-known/skills/acquirers/epi.md"]
+  - term: "Merchant vertical"
+    category: parties-and-accounts
+    definition: "A type of merchant business, such as restaurant, retail or events. Each vertical has a recommended integration path."
+    sources: ["docs/get-started/index.mdx"]
+  - term: "MID"
+    category: parties-and-accounts
+    definition: "The merchant ID. The acquirer assigns it to identify the merchant account."
+    identifiers: ["merchantID", "merchantId", "MERCHANT_ID", "merchant_id"]
+    sources: ["docs/reference/multi-mid.md", "docs/reference/validate-integration.mdx", "docs/reference/transaction-result-object.md"]
+  - term: "Multi-MID"
+    category: parties-and-accounts
+    definition: "A per-transaction override of the default MID and TID for a merchant. It routes transactions to different merchant accounts."
+    sources: ["docs/reference/hilite-vs-pax.md", "docs/get-started/index.mdx", "docs/guides/clinic.mdx"]
+  - term: "Partner account"
+    category: parties-and-accounts
+    definition: "The TMS account of a partner, such as an ISV. New merchants are created under it."
+    sources: ["docs/reference/android-demo-app.md"]
+  - term: "Referring partner"
+    category: parties-and-accounts
+    definition: "The entity that onboarded the developer to Handpoint. It arranges debug terminals and HiLite readers."
+    sources: ["docs/reference/development-hardware.md", "docs/reference/devices.md", "docs/reference/manual-injection.md"]
+  - term: "Sub-MID"
+    category: parties-and-accounts
+    definition: "A child merchant account under a main MID. The software sends a sub-MID identifier with each transaction to choose the account."
+    sources: ["docs/reference/multi-mid.md", "docs/guides/clinic.mdx", "docs/guides/events.mdx"]
+  - term: "TID"
+    category: parties-and-accounts
+    definition: "The terminal ID. The acquirer assigns it to the terminal."
+    sources: ["docs/reference/multi-mid.md", "docs/reference/validate-integration.mdx", "docs/reference/transaction-result-object.md"]
+  - term: "TMS"
+    category: parties-and-accounts
+    definition: "The Terminal Management System. Its web interface is the Handpoint Portal, where users create merchants, assign terminals, enable capabilities and keep credentials."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md", "docs/reference/multi-mid.md"]
+  - term: "Android HiLite"
+    category: products-and-integration
+    definition: "An integration path in which an Android or iOS POS app connects over Bluetooth to a HiLite card reader. The reader reads the card and encrypts the data."
+    sources: ["docs/reference/hilite-vs-pax.md", "docs/reference/testing-edge-cases.md", "docs/guides/field-service.mdx"]
+  - term: "Android PAX"
+    category: products-and-integration
+    definition: "An integration path in which the POS app runs on the PAX terminal. The Android SDK talks to the Handpoint Payments App on the same device."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/get-started/index.mdx", "docs/guides/events.mdx"]
+  - term: "Android SDK"
+    category: products-and-integration
+    definition: "The Handpoint software development kit for Android apps. Apps use it on a PAX terminal or with a HiLite reader."
+    sources: ["docs/reference/devices.md", "docs/reference/surcharging.mdx", "docs/reference/authentication.md"]
+  - term: "Back office"
+    category: products-and-integration
+    definition: "The Handpoint REST API for operations that go directly to the payment gateway, with no terminal or SDK. Examples are remote sale, remote refund and batch operations."
+    sources: ["docs/reference/hilite-vs-pax.md", "docs/get-started/index.mdx", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Callback URL"
+    category: products-and-integration
+    definition: "An HTTPS endpoint that the ISV supplies in a request. Handpoint sends the transaction result to it when the transaction completes."
+    identifiers: ["callbackUrl", "callbackURL"]
+    sources: ["docs/reference/callback-url.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/transaction-recovery.md"]
+  - term: "Cloud API"
+    category: products-and-integration
+    definition: "The Handpoint REST API. A server or separate POS app sends transaction requests to a terminal through the Handpoint Cloud."
+    sources: ["docs/get-started/index.mdx", "docs/reference/android-cloud-api-integration-guide.md", "docs/reference/testing-edge-cases.md"]
+  - term: "Cordova SDK"
+    category: products-and-integration
+    definition: "A cross-platform plugin for Cordova and Ionic apps. It wraps the native Android and iOS SDKs and supports PAX terminals and HiLite readers."
+    sources: ["docs/reference/hilite-vs-pax.md", "docs/reference/cordova-integration-guide.md", "docs/reference/cordova-events.md"]
+  - term: "Handpoint Cloud"
+    category: products-and-integration
+    definition: "The Handpoint-hosted service that relays commands to terminals and holds transaction results. A client can query a result by reference."
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/get-started/index.mdx", "docs/reference/android-demo-app.md"]
+  - term: "HPP"
+    category: products-and-integration
+    definition: "The SmartBoard hosted payment page. It is one of several integration methods, such as hosted fields, direct and batch."
+    sources: ["docs/get-started/index.mdx", "static/.well-known/skills/paths/ecommerce.md", "docs/acquirers/smartboard.mdx"]
+  - term: "Integration path"
+    category: products-and-integration
+    definition: "The way that an ISV connects its software to a terminal, for example Cloud API, Android PAX or Android HiLite."
+    sources: ["docs/get-started/index.mdx", "docs/reference/cloud-api-integration-guide.md", "docs/back-office/tms-apis.md"]
+  - term: "JavaScript SDK"
+    category: products-and-integration
+    definition: "An npm package that wraps the Cloud API and the Pusher WebSocket layer. Node.js and browser apps use it to start payments."
+    sources: ["docs/reference/javascript-sdk-setup.md", "docs/reference/javascript-sdk-integration-guide.md", "docs/get-started/index.mdx"]
+  - term: "Listener"
+    category: products-and-integration
+    definition: "The interfaces and handlers that the app implements to receive SDK callbacks and state changes."
+    identifiers: ["eventHandler"]
+    sources: ["docs/reference/android-integration-walkthrough.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/testing-edge-cases.md"]
+  - term: "Payments App"
+    category: products-and-integration
+    definition: "The Handpoint app on the PAX terminal that reads the card, encrypts the data and processes the transaction. The SDK reaches it through IPC."
+    sources: ["docs/reference/android-demo-app.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/android-pax-integration-guide.md"]
+  - term: "Polling"
+    category: products-and-integration
+    definition: "A result delivery method in which the client repeatedly asks the result endpoint until a final status appears."
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-integration-walkthrough.md"]
+  - term: "Pusher"
+    category: products-and-integration
+    definition: "The WebSocket channel that the Handpoint Cloud uses to push commands to the terminal and results to the SDK."
+    sources: ["docs/reference/android-cloud-api-integration-guide.md", "docs/reference/javascript-sdk-setup.md", "docs/reference/transaction-recovery-javascript-sdk.md"]
+  - term: "SmartBoard"
+    category: products-and-integration
+    definition: "The Handpoint card-not-present gateway for online payments. It runs on the CardStream platform and is separate from the card-present SDK stack."
+    sources: ["docs/get-started/index.mdx", "src/pages/agents.mdx", "static/.well-known/skills/paths/ecommerce.md"]
+  - term: "TMS API"
+    category: products-and-integration
+    definition: "The server-side APIs of TMS that manage merchants, terminals and feature configuration. They need a partner-level API key, which ISV partners receive."
+    sources: ["docs/back-office/tms-apis.md", "docs/back-office/device-commands.md", "docs/reference/surcharging.mdx"]
+  - term: "Transaction Feed API"
+    category: products-and-integration
+    definition: "A reporting API that returns processed transaction data. Clients use it for reconciliation and recovery."
+    identifiers: ["txn_feed"]
+    sources: ["docs/get-started/index.mdx", "docs/reference/glossary.md", "docs/reference/multi-mid.md"]
+  - term: "Windows SDK"
+    category: products-and-integration
+    definition: "A .NET NuGet package for Windows desktop POS apps. It connects to PAX terminals through the Handpoint Cloud or to HiLite readers over Bluetooth."
+    sources: ["docs/get-started/index.mdx", "docs/reference/windows-sdk-integration-guide.md", "docs/reference/windows-sdk-setup.md"]
+  - term: "3DS"
+    category: credentials-and-security
+    definition: "3-D Secure. A strong customer authentication method for online card payments."
+    sources: ["docs/get-started/index.mdx", "static/.well-known/skills/paths/ecommerce.md", "docs/acquirers/smartboard.mdx"]
+  - term: "API key"
+    category: credentials-and-security
+    definition: "A key that is unique to each merchant. It authenticates Cloud API and back-office calls in the ApiKeyCloud header."
+    identifiers: ["apiKey", "API_KEY", "api_key"]
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/validate-integration.mdx", "docs/reference/authentication.md"]
+  - term: "Callback token"
+    category: credentials-and-security
+    definition: "A unique value that the ISV generates for each request. The callback returns it so that the ISV can match the delivery to its request."
+    sources: ["docs/reference/cloud-api-operations.md"]
+  - term: "hiKeyLoader"
+    category: credentials-and-security
+    definition: "A PAX app that injects the staging SSK and Cloud API key into a debug terminal. This enrolls the terminal in staging TMS."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "Manual key injection"
+    category: credentials-and-security
+    definition: "The process that puts staging keys, with hiKeyLoader, and an unsigned debug APK, with ADB, on a debug terminal."
+    sources: ["docs/reference/manual-injection.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/development-hardware.md"]
+  - term: "P2PE"
+    category: credentials-and-security
+    definition: "Point-to-point encryption. The terminal or reader encrypts card data when it reads the card, so the integrator never handles raw card data."
+    sources: ["docs/reference/glossary.md", "docs/reference/android-hilite-integration-guide.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Password protection"
+    category: credentials-and-security
+    definition: "A terminal setting that requires a PIN to open the configuration screen."
+    sources: ["docs/back-office/device-commands.md"]
+  - term: "PCI scope"
+    category: credentials-and-security
+    definition: "The set of systems that store, process or send raw card data and must follow PCI rules. Tokens and P2PE keep an integrator out of scope."
+    sources: ["docs/get-started/index.mdx", "docs/guides/field-service.mdx", "docs/reference/android-pax-integration-guide.md"]
+  - term: "RKI"
+    category: credentials-and-security
+    definition: "Remote key injection. The production method that sends keys to a terminal through PAXStore, with no manual hiKeyLoader step."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md"]
+  - term: "Secure local storage"
+    category: credentials-and-security
+    definition: "The protected storage in which an app keeps merchant secrets, such as the Android Keystore. Plain preferences and hardcoded strings are not allowed."
+    sources: ["docs/reference/validate-integration-android-sdk.md"]
+  - term: "SSK"
+    category: credentials-and-security
+    definition: "A 64-character hex string that is unique to each merchant. It authenticates the app to the Payments App or HiLite reader."
+    identifiers: ["sharedSecret", "SHARED_SECRET", "SharedSecret"]
+    sources: ["docs/reference/android-demo-app.md", "docs/reference/android-sdk-setup.md", "docs/reference/android-cloud-api-integration-guide.md"]
+  - term: "Automatic reconnection"
+    category: devices-and-connection
+    definition: "An SDK setting that restores the terminal connection after a drop. The app does not call connect again."
+    identifiers: ["automaticReconnection"]
+    sources: ["docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-hilite-integration-guide.md", "docs/reference/hilite-vs-pax.md"]
+  - term: "Bluetooth permissions"
+    category: devices-and-connection
+    definition: "The Android runtime permissions that an app needs before it discovers or connects to a Bluetooth device."
+    sources: ["docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-hilite-integration-guide.md", "static/.well-known/skills/optional/prerequisites.md"]
+  - term: "Connection state"
+    category: devices-and-connection
+    definition: "The state of the link between the app and the terminal. Values include Connecting, Connected, Disconnecting, Disconnected, NotConfigured and CloudConnected."
+    identifiers: ["ConnectionStatus", "connectionStatus"]
+    sources: ["docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/validate-integration-android-sdk.md", "docs/reference/cordova-events.md"]
+  - term: "Device commands"
+    category: devices-and-connection
+    definition: "The Cloud API commands that configure or control a PAX terminal remotely, such as reboot, display language, brightness and unattended mode."
+    sources: ["docs/back-office/device-commands.md"]
+  - term: "Device discovery"
+    category: devices-and-connection
+    definition: "The process that finds a HiLite reader by scan or by the list of paired devices. The app then connects to the chosen device."
+    sources: ["docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-hilite-integration-guide.md", "docs/reference/android-sdk-setup.md"]
+  - term: "Display language"
+    category: devices-and-connection
+    definition: "The language that the terminal shows on its display. A language tag sets it."
+    sources: ["docs/back-office/device-commands.md"]
+  - term: "ECR"
+    category: devices-and-connection
+    definition: "An electronic cash register. It is also a terminal form factor that integrates with a point of sale."
+    sources: ["docs/reference/devices.md"]
+  - term: "Elys Workstation"
+    category: devices-and-connection
+    definition: "A PAX A3700 terminal combined with the L1400 tablet."
+    sources: ["docs/reference/devices.md"]
+  - term: "End of life"
+    category: devices-and-connection
+    definition: "The status of a device that has reached the end of its supported life."
+    sources: ["docs/reference/devices.md"]
+  - term: "HiLite"
+    category: devices-and-connection
+    definition: "An external Bluetooth card reader made by Datecs. It reads the card, encrypts the data and pairs with a phone, tablet or PC."
+    identifiers: ["HILITE"]
+    sources: ["docs/reference/hilite-vs-pax.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/testing-edge-cases.md"]
+  - term: "Integrated mode"
+    category: devices-and-connection
+    definition: "A terminal mode in which the terminal accepts commands from the Cloud API. Handpoint provisions it for the merchant, and a setting in the Payments App turns it on."
+    sources: ["docs/reference/android-cloud-api-integration-guide.md", "docs/reference/android-pax-integration-guide.md", "docs/reference/full-matrix.mdx"]
+  - term: "Keypad"
+    category: devices-and-connection
+    definition: "The physical keypad of a terminal, used to enter card details by hand. A HiLite reader has none, so it cannot take keyed entry."
+    sources: ["docs/reference/android-hilite-integration-guide.md", "docs/reference/android-sdk-setup.md", "docs/reference/hilite-vs-pax.md"]
+  - term: "PAX"
+    category: devices-and-connection
+    definition: "An all-in-one Android payment terminal from PAX that runs the Handpoint Payments App. It can also run the integrator's POS app."
+    sources: ["docs/reference/devices.md", "docs/reference/android-sdk-setup.md", "docs/get-started/index.mdx"]
+  - term: "PAXStore"
+    category: devices-and-connection
+    definition: "The PAX marketplace for app distribution. Release APKs, remote key injection and EMV kernel updates reach production terminals through it."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md", "docs/reference/manual-injection.md"]
+  - term: "Production terminal"
+    category: devices-and-connection
+    definition: "A PAX terminal with hardened firmware. It installs only signed APKs and processes real transactions."
+    sources: ["docs/reference/manual-injection.md", "docs/reference/android-sdk-setup.md", "docs/reference/development-hardware.md"]
+  - term: "Reboot"
+    category: devices-and-connection
+    definition: "A remote restart of the terminal. A forced reboot ignores an active transaction."
+    sources: ["docs/back-office/device-commands.md"]
+  - term: "Scanner"
+    category: devices-and-connection
+    definition: "The terminal function that reads QR codes and barcodes. The SDK reports the scan results as events."
+    sources: ["docs/reference/cordova-events.md"]
+  - term: "Screen brightness"
+    category: devices-and-connection
+    definition: "The minimum and maximum brightness level of the terminal display."
+    sources: ["docs/back-office/device-commands.md"]
+  - term: "Serial number"
+    category: devices-and-connection
+    definition: "The identifier of a physical terminal. It is assigned to a merchant in TMS, and a Cloud API request uses it to name the terminal."
+    identifiers: ["serial_number", "serialNumber"]
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-cloud-api-integration-guide.md", "docs/reference/error-codes.md"]
+  - term: "Standalone mode"
+    category: devices-and-connection
+    definition: "A terminal state in which the terminal takes payments with no connection to a POS app."
+    identifiers: ["STANDALONE"]
+    sources: ["docs/get-started/index.mdx", "docs/reference/android-cloud-api-integration-guide.md", "docs/reference/javascript-sdk-setup.md"]
+  - term: "Terminal"
+    category: devices-and-connection
+    definition: "The physical device that accepts card payments."
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/transaction-result-object.md", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "Terminal status"
+    category: devices-and-connection
+    definition: "The lifecycle state of a terminal in TMS: unactivated, initialized, active, closed or disabled."
+    identifiers: ["deviceStatus"]
+    sources: ["docs/reference/android-demo-app.md", "docs/reference/transaction-result-object.md", "docs/back-office/tms-apis.md"]
+  - term: "Terminal type"
+    category: devices-and-connection
+    definition: "The identifier of a kind of terminal, for example PAXA920. Requests send it, for example in the URL path of a device command."
+    identifiers: ["terminal_type", "deviceType", "terminalType"]
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/devices.md", "docs/reference/android-pax-integration-guide.md"]
+  - term: "Unattended mode"
+    category: devices-and-connection
+    definition: "A terminal mode, also called kiosk mode, for use with no operator. The terminal hides the navigation bar and keeps the payment screen in the foreground."
+    sources: ["docs/back-office/device-commands.md", "docs/reference/transaction-reference.md", "static/.well-known/skills/paths/ecommerce.md"]
+  - term: "Virtual terminal"
+    category: devices-and-connection
+    definition: "A gateway-side construct for MOTO processing that appears in the device list. Transactions never go to it directly."
+    sources: ["static/.well-known/skills/paths/cloud-api.md"]
+  - term: "Authorization"
+    category: transaction-types
+    definition: "The approval of an amount by the card issuer for a transaction."
+    identifiers: ["AUTHORIZATION"]
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/error-handling-guide.md", "docs/reference/transaction-recovery-cloud-api.md"]
+  - term: "Automatic refund"
+    category: transaction-types
+    definition: "A refund of a card-present sale to the original card with no cardholder or terminal. The gateway finds the card from the GUID of the original transaction."
+    identifiers: ["automaticRefund"]
+    sources: ["docs/reference/android-sdk-setup.md", "src/partials/functions/automatic-refund.mdx"]
+  - term: "Capture reversal"
+    category: transaction-types
+    definition: "An operation that cancels a pre-authorization capture before batch close. The hold returns to the authorized state."
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/cloud-api-integration-guide.md", "docs/guides/restaurant.mdx"]
+  - term: "Currency code"
+    category: transaction-types
+    definition: "The three-letter code of a currency, as ISO 4217 defines it."
+    identifiers: ["currencyCode"]
+    sources: ["docs/reference/cloud-api-operations.md", "docs/reference/transaction-result-object.md", "docs/back-office/transaction-feed-api.md"]
+  - term: "Deferred tokenization"
+    category: transaction-types
+    definition: "An operation that retrieves a card token for a transaction that was not tokenized when it happened."
+    identifiers: ["deferredTokenization"]
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/get-started/index.mdx", "docs/reference/android-hilite-integration-guide.md"]
+  - term: "Enrichment"
+    category: transaction-types
+    definition: "A Cordova setup option that pauses the transaction result for enrichment. The plugin then fires an enrich event."
+    sources: ["docs/reference/cordova-events.md"]
+  - term: "Full reversal"
+    category: transaction-types
+    definition: "An operation that cancels a transaction before settlement and returns the full authorized amount. It refers to the GUID of the original transaction."
+    identifiers: ["saleReversal", "REVERSAL", "SaleReversal"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/testing-edge-cases.md", "docs/reference/partial-approval.md"]
+  - term: "Hold duration"
+    category: transaction-types
+    definition: "The time that a pre-authorization hold lasts, which depends on the card network and issuer. An expired hold cannot be captured."
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/guides/clinic.mdx", "src/partials/functions/pre-auth-void.mdx"]
+  - term: "Installment"
+    category: transaction-types
+    definition: "The budget number of a sale that the cardholder pays in installments."
+    sources: ["docs/reference/transaction-result-object.md", "src/partials/functions/sale.mdx"]
+  - term: "Interac void"
+    category: transaction-types
+    definition: "The only corrective operation for an Interac debit transaction. It is a full-amount linked refund before batch close with the card present."
+    identifiers: ["interacVoid"]
+    sources: ["docs/reference/android-demo-app.md", "docs/reference/glossary.md", "docs/reference/interac-void.md"]
+  - term: "Keyed entry"
+    category: transaction-types
+    definition: "A sale in which the cashier types the PAN, expiry and CVV on the terminal. The terminal tokenizes the entry and processes it as MOTO."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/moto-guide.md", "docs/reference/avs.mdx"]
+  - term: "Linked refund"
+    category: transaction-types
+    definition: "A refund that includes the GUID of the original transaction. The gateway checks the original transaction."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/cloud-api-operations.md", "docs/reference/android-sdk-setup.md"]
+  - term: "Minor unit"
+    category: transaction-types
+    definition: "The smallest unit of a currency, for example cents. Terminal endpoints send amounts in minor units, and back-office endpoints use major units."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/cloud-api-operations.md", "docs/reference/fee-mitigation.mdx"]
+  - term: "MIT"
+    category: transaction-types
+    definition: "A merchant-initiated transaction. The merchant charges a card on file without cardholder involvement, after an earlier cardholder-initiated transaction."
+    sources: ["docs/reference/backoffice-integration-guide.md", "docs/reference/moto-guide.md", "src/partials/functions/sale/moto-sale.mdx"]
+  - term: "Money remittance"
+    category: transaction-types
+    definition: "A card-present sale flagged as a cross-border transfer of funds under card network rules. The merchant account needs the right merchant category code."
+    identifiers: ["moneyRemittance"]
+    sources: ["docs/reference/money-remittance-guide.md", "docs/reference/cloud-api-operations.md", "docs/reference/hilite-vs-pax.md"]
+  - term: "MOTO"
+    category: transaction-types
+    definition: "Mail order or telephone order. A card-not-present sale in which the card details are keyed on the terminal or sent remotely with a card token."
+    identifiers: ["MOTO", "MAIL_ORDER", "TELEPHONE_ORDER"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/cloud-api-operations.md", "docs/reference/moto-guide.md"]
+  - term: "Operation chain"
+    category: transaction-types
+    definition: "The group of operations on one pre-authorization, such as create, increase, capture and reversal. They share the original transaction reference."
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/transaction-recovery.md", "docs/reference/transaction-reference.md"]
+  - term: "Partial refund"
+    category: transaction-types
+    definition: "A refund for an amount that is less than the original transaction amount."
+    sources: ["docs/reference/fee-mitigation.mdx", "src/partials/functions/automatic-refund.mdx", "src/partials/functions/refund/card-present.mdx"]
+  - term: "Partial reversal"
+    category: transaction-types
+    definition: "A reversal that lowers the authorized amount of a sale to a new final amount. It works only before batch close."
+    sources: ["docs/reference/cloud-api-operations.md", "docs/reference/hilite-vs-pax.md", "docs/get-started/index.mdx"]
+  - term: "Pre-authorization"
+    category: transaction-types
+    definition: "A temporary hold of funds on a card, with no charge yet. The hold can later be captured, increased, decreased or reversed."
+    identifiers: ["preAuthorization", "PRE_AUTHORIZATION", "PreAuthorization", "PREAUTH", "preAuth"]
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/validate-integration.mdx", "docs/reference/cloud-api-operations.md"]
+  - term: "Pre-authorization capture"
+    category: transaction-types
+    definition: "An operation that finalizes a pre-authorization hold and charges the actual amount."
+    identifiers: ["preAuthorizationCapture", "PRE_AUTHORIZATION_CAPTURE", "PreAuthorizationCapture", "CAPTURE"]
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/validate-integration.mdx", "docs/reference/android-sdk-setup.md"]
+  - term: "Pre-authorization increase"
+    category: transaction-types
+    definition: "An operation that changes the amount held on an open pre-authorization. The amount is a delta, not the new total."
+    identifiers: ["preAuthorizationIncrease", "PRE_AUTHORIZATION_INCREASE", "PreAuthorizationIncrease"]
+    sources: ["docs/reference/validate-integration.mdx", "docs/reference/android-sdk-setup.md", "docs/reference/hilite-vs-pax.md"]
+  - term: "Pre-authorization reversal"
+    category: transaction-types
+    definition: "An operation that releases a pre-authorization hold without a charge."
+    identifiers: ["preAuthorizationReversal", "PreAuthorizationReversal", "PRE_AUTHORIZATION_REVERSAL"]
+    sources: ["docs/reference/pre-authorization-guide.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/error-codes.md"]
+  - term: "Refund"
+    category: transaction-types
+    definition: "A return of funds to a cardholder, either linked to the original transaction or sent without a link."
+    identifiers: ["REFUND"]
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/cloud-api-operations.md", "docs/reference/surcharging.mdx"]
+  - term: "Refund reversal"
+    category: transaction-types
+    definition: "An operation that cancels a refund that was issued in error. It must happen before batch close."
+    identifiers: ["refundReversal", "RefundReversal"]
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/javascript-sdk-integration-guide.md", "docs/reference/validate-integration-android-sdk.md"]
+  - term: "Remaining balance"
+    category: transaction-types
+    definition: "The part of the requested amount that a partial approval did not cover. Split tender collects it."
+    sources: ["docs/reference/partial-approval.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-integration-walkthrough.md"]
+  - term: "Remote refund"
+    category: transaction-types
+    definition: "A card-not-present refund that goes to the gateway with no terminal. It uses the GUID of the original transaction or a card token."
+    sources: ["docs/reference/avs.mdx", "docs/reference/backoffice-integration-guide.md", "docs/get-started/index.mdx"]
+  - term: "Remote reversal"
+    category: transaction-types
+    definition: "A reversal that goes directly to the payment gateway with no terminal. It returns a synchronous result and works only before batch close."
+    sources: ["docs/reference/backoffice-integration-guide.md", "docs/reference/validate-integration.mdx", "docs/reference/android-hilite-integration-guide.md"]
+  - term: "Remote sale"
+    category: transaction-types
+    definition: "A synchronous back-office charge of a stored card token. The cardholder and the terminal are not present."
+    sources: ["docs/reference/avs.mdx", "docs/reference/error-codes.md", "docs/reference/glossary.md"]
+  - term: "Requested amount"
+    category: transaction-types
+    definition: "The amount that the ISV asks for in a request. After a partial approval or a tip, the total amount differs from it."
+    identifiers: ["requestedAmount", "totalAmount", "TotalAmount"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/validate-integration.mdx", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "Sale"
+    category: transaction-types
+    definition: "A card-present payment that authorizes and captures the amount in one step. The final result arrives later."
+    identifiers: ["SALE"]
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/backoffice-integration-guide.md", "docs/reference/error-codes.md"]
+  - term: "Sale and tokenize"
+    category: transaction-types
+    definition: "An operation that charges the card and issues a card token in one step."
+    identifiers: ["saleAndTokenize"]
+    sources: ["docs/reference/fee-mitigation.mdx", "docs/reference/cloud-api-operations.md", "docs/reference/validate-integration.mdx"]
+  - term: "Sale with tip"
+    category: transaction-types
+    definition: "A sale in which the cardholder chooses a tip on the terminal. The tip is part of the same authorization."
+    sources: ["docs/reference/tipping-guide.md", "docs/guides/restaurant.mdx", "src/pages/agents.mdx"]
+  - term: "Same-card verification"
+    category: transaction-types
+    definition: "A merchant setting that requires the original card for a refund."
+    sources: ["docs/reference/testing-edge-cases.md", "src/partials/functions/refund/card-present.mdx", "src/partials/functions/refund.mdx"]
+  - term: "Split tender"
+    category: transaction-types
+    definition: "The collection of the remaining amount of a sale with a partial approval through another payment method."
+    sources: ["docs/reference/android-pax-integration-guide.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/partial-approval.md"]
+  - term: "Tip"
+    category: transaction-types
+    definition: "An amount that the cardholder adds to a sale for the service."
+    sources: ["docs/reference/tipping-guide.md", "docs/reference/transaction-result-object.md", "docs/guides/restaurant.mdx"]
+  - term: "Tip adjustment"
+    category: transaction-types
+    definition: "An operation that sets the tip on a completed sale before batch close. The last adjustment replaces the earlier tip."
+    identifiers: ["tipAdjustment", "TipAdjustment", "TIP_ADJUSTMENT"]
+    sources: ["docs/guides/restaurant.mdx", "docs/reference/backoffice-integration-guide.md", "docs/reference/hilite-vs-pax.md"]
+  - term: "Tip at table"
+    category: transaction-types
+    definition: "A hospitality flow in which the tip is entered after the sale is authorized. A tip adjustment then applies it."
+    sources: ["src/partials/functions/sale/sale-and-tip.mdx", "src/partials/functions/tip-adjustment.mdx", "static/.well-known/skills/acquirers/paysafe.md"]
+  - term: "Tokenized operation"
+    category: transaction-types
+    definition: "An operation that uses a card token. The SDK flow pauses after tokenization, and the Cloud API flow charges a card token from before."
+    identifiers: ["tokenizedOperation"]
+    sources: ["src/partials/functions/tokenized-operation.mdx"]
+  - term: "Transaction options"
+    category: transaction-types
+    definition: "The classes that carry settings for each operation, such as customer reference, metadata, tip and bypass options."
+    sources: ["docs/reference/android-sdk-setup.md"]
+  - term: "Transaction type"
+    category: transaction-types
+    definition: "An enum that identifies the operation of a transaction, for example SALE or REFUND."
+    identifiers: ["TransactionType", "transactionType"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/fee-mitigation.mdx", "docs/reference/pre-authorization-guide.md"]
+  - term: "Unlinked refund"
+    category: transaction-types
+    definition: "A refund sent without the GUID of the original transaction. It has its own transaction reference."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/backoffice-integration-guide.md", "docs/reference/android-sdk-setup.md"]
+  - term: "Authorized"
+    category: results-and-statuses
+    definition: "A financial status that means the issuer allowed the transaction. The funds are captured or, for a pre-authorization, held."
+    identifiers: ["AUTHORISED", "APPROVED"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/android-integration-walkthrough.md"]
+  - term: "Canceled"
+    category: results-and-statuses
+    definition: "A final status that means the cardholder or terminal canceled the transaction. The terminal can cancel after the issuer approves."
+    identifiers: ["CANCELLED"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/partial-approval.md", "docs/reference/error-codes.md"]
+  - term: "Captured"
+    category: results-and-statuses
+    definition: "A status that means a pre-authorization was captured."
+    identifiers: ["CAPTURED"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/pre-authorization-guide.md", "docs/reference/error-codes.md"]
+  - term: "Declined"
+    category: results-and-statuses
+    definition: "A final status that means the issuer or gateway declined the transaction."
+    identifiers: ["DECLINED"]
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/transaction-result-object.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "End of transaction"
+    category: results-and-statuses
+    definition: "The SDK callback that delivers the final result of a financial operation. It fires at most once for each transaction."
+    identifiers: ["endOfTransaction", "EndOfTransaction"]
+    sources: ["docs/reference/android-sdk-setup.md"]
+  - term: "Failed"
+    category: results-and-statuses
+    definition: "A final status that means a technical failure. It is not a card decline."
+    identifiers: ["FAILED"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/error-handling-guide.md", "docs/reference/validate-integration-android-sdk.md"]
+  - term: "Financial status"
+    category: results-and-statuses
+    definition: "The field on a transaction result that gives the financial outcome. The app uses it for all decisions on the result."
+    identifiers: ["finStatus", "FinancialStatus", "FinStatus", "fin_status"]
+    sources: ["docs/reference/transaction-result-object.md", "static/.well-known/skills/paths/ios-hilite.md"]
+  - term: "In progress"
+    category: results-and-statuses
+    definition: "A non-final status that means the transaction is still in process. The client keeps polling."
+    identifiers: ["IN_PROGRESS"]
+    sources: ["docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-integration-walkthrough.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Issuer message"
+    category: results-and-statuses
+    definition: "The human-readable text that the issuer returns for the outcome. The app shows it to the merchant with the financial status."
+    identifiers: ["responseText"]
+    sources: ["docs/reference/validate-integration-android-sdk.md", "docs/reference/error-codes.md", "docs/reference/error-handling-guide.md"]
+  - term: "Issuer response code"
+    category: results-and-statuses
+    definition: "The ISO 8583 code that the issuer or card network returns. It gives the reason for a decision."
+    identifiers: ["issuerResponseCode", "responseCode"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/development-hardware.md"]
+  - term: "Metadata"
+    category: results-and-statuses
+    definition: "Custom fields that the ISV sends in a request. The result returns them."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/windows-sdk-setup.md"]
+  - term: "Partial approval"
+    category: results-and-statuses
+    definition: "An approval for less than the requested amount. The cardholder accepts or declines the lower amount on the terminal."
+    identifiers: ["PARTIAL_APPROVAL", "PartialApproval"]
+    sources: ["docs/reference/partial-approval.md", "docs/reference/validate-integration.mdx", "docs/reference/testing-edge-cases.md"]
+  - term: "Processed"
+    category: results-and-statuses
+    definition: "A status that means a non-financial operation, such as tokenization or start of day, finished successfully."
+    identifiers: ["PROCESSED"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/interac-void.md", "docs/reference/transaction-recovery-cloud-api.md"]
+  - term: "Refunded"
+    category: results-and-statuses
+    definition: "A status that means the original transaction was fully refunded."
+    identifiers: ["REFUNDED"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/surcharging.mdx", "docs/reference/error-handling-guide.md"]
+  - term: "Transaction result"
+    category: results-and-statuses
+    definition: "The object that carries the outcome, amounts, card data, receipts and identifiers of a transaction. Callbacks, polling or promises deliver it."
+    identifiers: ["TransactionResult", "transactionResult"]
+    sources: ["docs/reference/multi-mid.md", "docs/reference/transaction-recovery.md", "docs/reference/cordova-events.md"]
+  - term: "Transaction result ID"
+    category: results-and-statuses
+    definition: "The identifier that the 202 response returns. The client uses it to poll for the transaction result."
+    identifiers: ["transactionResultId"]
+    sources: ["docs/reference/glossary.md"]
+  - term: "Undefined"
+    category: results-and-statuses
+    definition: "A status that means no result was received. The transaction can be processed or not, so recovery must resolve it."
+    identifiers: ["UNDEFINED"]
+    sources: ["docs/reference/android-integration-walkthrough.md", "docs/reference/transaction-recovery-cloud-api.md", "docs/reference/cloud-api-operations.md"]
+  - term: "Account type"
+    category: cards-and-card-data
+    definition: "The account that the cardholder selects at the terminal, for example checking or savings. It is separate from the credit, debit or prepaid funding type."
+    identifiers: ["tenderType", "accountType", "TenderType"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/surcharging.mdx"]
+  - term: "ARC"
+    category: cards-and-card-data
+    definition: "The authorization response code. It is EMV tag 8A and gives the outcome of the EMV decision."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/receipt-compliance.md", "docs/reference/validate-integration.mdx"]
+  - term: "Authorization code"
+    category: cards-and-card-data
+    definition: "The six-character code that the acquirer assigns to an authorized transaction. Receipts need it for disputes."
+    identifiers: ["authorisationCode", "approvalCode"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/validate-integration.mdx", "docs/reference/receipt-compliance.md"]
+  - term: "AVS"
+    category: cards-and-card-data
+    definition: "Address verification service. It checks the billing postal code and street address of the cardholder against the issuer records."
+    identifiers: ["addressVerification"]
+    sources: ["docs/reference/avs.mdx", "docs/reference/moto-guide.md", "docs/reference/cloud-api-operations.md"]
+  - term: "Bypass option"
+    category: cards-and-card-data
+    definition: "Options that skip signature capture or let the cardholder skip PIN entry where the acquirer allows it."
+    identifiers: ["bypassOptions", "BypassOptions"]
+    sources: ["docs/reference/transaction-reference.md", "src/partials/functions/refund.mdx", "src/partials/functions/sale.mdx"]
+  - term: "Card balance"
+    category: cards-and-card-data
+    definition: "An optional balance that the issuer returns."
+    sources: ["docs/reference/transaction-result-object.md"]
+  - term: "Card entry"
+    category: cards-and-card-data
+    definition: "The method that the terminal used to read the card: chip, contactless, swipe or keyed."
+    identifiers: ["entryMode"]
+    sources: ["docs/reference/devices.md", "docs/reference/development-hardware.md", "docs/reference/validate-integration-android-sdk.md"]
+  - term: "Card fallback"
+    category: cards-and-card-data
+    definition: "The terminal sequence in which a failed contactless read falls back to chip and then to swipe."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/transaction-recovery.md", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "Card network"
+    category: cards-and-card-data
+    definition: "The network that runs a card payment, for example Visa, Mastercard or Amex. The result returns its name."
+    identifiers: ["cardBrand", "cardScheme"]
+    sources: ["docs/reference/fee-mitigation.mdx", "docs/reference/pre-authorization-guide.md", "docs/reference/transaction-result-object.md"]
+  - term: "Card token"
+    category: cards-and-card-data
+    definition: "An opaque string that a token provider manages and that stands for a card. Apps use it for later MOTO or remote charges."
+    identifiers: ["cardToken", "paymentToken", "TOKEN", "STORED_TOKEN", "CardToken"]
+    sources: ["docs/reference/moto-guide.md", "docs/reference/backoffice-integration-guide.md", "docs/reference/cloud-api-operations.md"]
+  - term: "Card-not-present"
+    category: cards-and-card-data
+    definition: "A transaction in which the card is not physically present, for example MOTO or ecommerce."
+    identifiers: ["CARD_NOT_PRESENT"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/pre-authorization-guide.md", "docs/get-started/index.mdx"]
+  - term: "Card-present"
+    category: cards-and-card-data
+    definition: "A transaction in which the cardholder presents the card at the terminal. Card-present operations need physical card interaction."
+    identifiers: ["cardPresent"]
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/backoffice-integration-guide.md", "docs/reference/android-cloud-api-integration-guide.md"]
+  - term: "CVM"
+    category: cards-and-card-data
+    definition: "The cardholder verification method. It verifies the cardholder with PIN, signature, device biometrics or no verification."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/transaction-recovery.md"]
+  - term: "CVV"
+    category: cards-and-card-data
+    definition: "The card verification value, a 3-digit or 4-digit code. A merchant setting can make it mandatory for card-not-present transactions."
+    sources: ["docs/reference/error-codes.md", "docs/reference/moto-guide.md", "docs/reference/backoffice-integration-guide.md"]
+  - term: "Detokenization"
+    category: cards-and-card-data
+    definition: "The exchange of a token for the PAN and expiry at processing time. The ISV never handles the card data."
+    sources: ["src/partials/functions/tokenization/tokenex.mdx", "src/partials/functions/tokenization/paysafe-token.mdx", "src/partials/functions/tokenization/procharge.mdx"]
+  - term: "EMV"
+    category: cards-and-card-data
+    definition: "The standard for chip cards and contactless cards. A chip or contactless transaction carries EMV fields that the terminal reads from the card."
+    sources: ["docs/reference/devices.md", "docs/reference/transaction-result-object.md", "docs/reference/validate-integration.mdx"]
+  - term: "EMV fields"
+    category: cards-and-card-data
+    definition: "The chip and contactless data from an EMV transaction, such as AID, TVR, TSI, IAD and ARC."
+    identifiers: ["emvData"]
+    sources: ["docs/reference/receipt-compliance.md", "docs/reference/transaction-result-object.md", "docs/reference/development-hardware.md"]
+  - term: "ISO 8583"
+    category: cards-and-card-data
+    definition: "The standard for financial card messages. Issuers and card networks use it for response codes."
+    sources: ["docs/reference/transaction-result-object.md", "src/partials/functions/partial-reversal.mdx", "src/partials/functions/reversal/partial-reversal.mdx"]
+  - term: "Masked PAN"
+    category: cards-and-card-data
+    definition: "The PAN with only the last four digits visible. Receipts use it."
+    identifiers: ["maskedCardNumber", "maskedPan"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/validate-integration-android-sdk.md", "docs/reference/receipt-compliance.md"]
+  - term: "Mobile wallet"
+    category: cards-and-card-data
+    definition: "A payment method in which a phone wallet supplies the card. The wallet creates a PAN token that differs from the physical card."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/transaction-recovery.md", "src/partials/functions/refund/card-present.mdx"]
+  - term: "PAN"
+    category: cards-and-card-data
+    definition: "The primary account number, the long number that identifies a payment card. Back-office MOTO uses a card token instead of it."
+    identifiers: ["cardNumber"]
+    sources: ["docs/reference/development-hardware.md", "docs/reference/transaction-result-object.md", "docs/reference/testing-edge-cases.md"]
+  - term: "Payment scenario"
+    category: cards-and-card-data
+    definition: "A detailed field that gives the card entry path, including fallback paths."
+    identifiers: ["paymentScenario", "PaymentScenario"]
+    sources: ["docs/reference/android-hilite-integration-guide.md"]
+  - term: "PIN"
+    category: cards-and-card-data
+    definition: "The personal identification number that the cardholder enters on the terminal. The terminal encrypts it."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/transaction-result-object.md", "docs/reference/transaction-recovery.md"]
+  - term: "See Phone"
+    category: cards-and-card-data
+    definition: "A terminal prompt that asks the cardholder to verify on the mobile wallet device with biometrics or a passcode."
+    sources: ["docs/reference/transaction-recovery.md", "docs/reference/testing-edge-cases.md", "docs/reference/transaction-result-object.md"]
+  - term: "Signature"
+    category: cards-and-card-data
+    definition: "A cardholder verification method in which the cardholder signs. On a HiLite reader the app shows the signature screen and tells the SDK if the merchant accepts it."
+    identifiers: ["SIGNATURE"]
+    sources: ["docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-sdk-setup.md", "docs/reference/testing-edge-cases.md"]
+  - term: "Tokenization"
+    category: cards-and-card-data
+    definition: "The process that stores a card with a token provider and returns a card token. It can happen alone or with a sale."
+    identifiers: ["TOKENIZATION", "TOKENIZE"]
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/error-codes.md", "docs/reference/transaction-result-object.md"]
+  - term: "Batch"
+    category: batches-and-settlement
+    definition: "The group of transactions that the acquirer settles together after a batch close."
+    sources: ["docs/reference/backoffice-integration-guide.md", "docs/reference/validate-integration.mdx", "docs/reference/error-codes.md"]
+  - term: "Batch close"
+    category: batches-and-settlement
+    definition: "An operation that closes the open batch of transactions so that they settle. Reversals and tip adjustments are not possible after it."
+    identifiers: ["endOfDay", "closeBatch"]
+    sources: ["docs/reference/backoffice-integration-guide.md", "docs/guides/restaurant.mdx", "docs/reference/glossary.md"]
+  - term: "Batch number"
+    category: batches-and-settlement
+    definition: "The batch number that the acquirer returns for a transaction. It can be empty if it is not yet available."
+    identifiers: ["batchNumber"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/validate-integration.mdx", "docs/reference/glossary.md"]
+  - term: "Dispute"
+    category: batches-and-settlement
+    definition: "A formal challenge by a cardholder to a card transaction. Receipt fields such as the retrieval reference number and authorization code support the response."
+    sources: ["docs/reference/receipt-compliance.md", "docs/reference/validate-integration.mdx", "docs/reference/pre-authorization-guide.md"]
+  - term: "Reconciliation"
+    category: batches-and-settlement
+    definition: "The comparison of stored results with the authoritative records, for example after an incident."
+    sources: ["docs/reference/transaction-recovery.md", "docs/reference/validate-integration.mdx", "docs/get-started/index.mdx"]
+  - term: "Settlement"
+    category: batches-and-settlement
+    definition: "The transfer of funds for authorized transactions. Batch close or automatic close triggers it."
+    sources: ["docs/reference/glossary.md", "docs/reference/multi-mid.md", "docs/reference/android-sdk-setup.md"]
+  - term: "Acquirer"
+    category: acquirers-and-token-providers
+    definition: "The processor that authorizes and settles card transactions for a merchant. Supported operations differ by acquirer."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/error-handling-guide.md", "docs/reference/multi-mid.md"]
+  - term: "Acquirer capabilities matrix"
+    category: acquirers-and-token-providers
+    definition: "A reference table that shows which operations each acquirer supports on each integration path."
+    sources: ["docs/reference/acquirer-capabilities-matrix.mdx", "docs/get-started/index.mdx", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Acquirer tag"
+    category: acquirers-and-token-providers
+    definition: "A string that names an acquirer or gateway in the merchant credential object."
+    sources: ["docs/reference/multi-mid.md", "docs/reference/cloud-api-operations.md"]
+  - term: "AMEX MID"
+    category: acquirers-and-token-providers
+    definition: "A separate merchant ID for AMEX that the merchant needs with some acquirers. Without it, AMEX cards are declined."
+    sources: ["static/.well-known/skills/acquirers/emerchantpay.md", "static/.well-known/skills/acquirers/paystrax.md"]
+  - term: "Cygma"
+    category: acquirers-and-token-providers
+    definition: "A PCI-compliant token vault that EPI operates. It stores the PAN and expiry and supports MOTO charges with the token."
+    identifiers: ["PROCHARGE"]
+    sources: ["docs/reference/glossary.md", "docs/reference/moto-guide.md", "docs/reference/android-pax-integration-guide.md"]
+  - term: "emerchantpay"
+    category: acquirers-and-token-providers
+    definition: "A European acquirer that uses the Omnipay integration. Settlement is automatic."
+    identifiers: ["EMERCHANTPAY"]
+    sources: ["docs/reference/glossary.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/backoffice-integration-guide.md"]
+  - term: "EPI"
+    category: acquirers-and-token-providers
+    definition: "Handpoint's primary North American acquirer, for the US and Canada."
+    sources: ["docs/reference/backoffice-integration-guide.md", "docs/reference/glossary.md", "docs/reference/full-matrix.mdx"]
+  - term: "Gateway"
+    category: acquirers-and-token-providers
+    definition: "The Handpoint payment gateway. It receives transactions and can be queried for their status."
+    sources: ["docs/reference/fee-mitigation.mdx", "docs/reference/error-handling-guide.md", "docs/reference/transaction-result-object.md"]
+  - term: "Interac"
+    category: acquirers-and-token-providers
+    definition: "The Canadian debit network. Interac card transactions run through the TNS protocol."
+    identifiers: ["INTERAC"]
+    sources: ["docs/reference/interac-void.md", "docs/reference/development-hardware.md", "docs/guides/events.mdx"]
+  - term: "Omnipay"
+    category: acquirers-and-token-providers
+    definition: "The integration protocol that Paystrax and emerchantpay share."
+    identifiers: ["OMNIPAY"]
+    sources: ["docs/reference/full-matrix.mdx", "docs/reference/glossary.md", "static/.well-known/skills/acquirers/paystrax.md"]
+  - term: "Paysafe"
+    category: acquirers-and-token-providers
+    definition: "An acquirer that Handpoint supports in North America. It supports Interac."
+    identifiers: ["PAYSAFE"]
+    sources: ["docs/reference/full-matrix.mdx", "docs/reference/cloud-api-integration-guide.md", "docs/guides/events.mdx"]
+  - term: "Paystrax"
+    category: acquirers-and-token-providers
+    definition: "A European acquirer, including Iceland, that uses the Omnipay integration."
+    identifiers: ["PAYSTRAX"]
+    sources: ["docs/reference/glossary.md", "docs/reference/backoffice-integration-guide.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Single-use token"
+    category: acquirers-and-token-providers
+    definition: "A short-lived one-time token that is passed to the Paysafe Customer Vault. The vault returns a permanent token."
+    identifiers: ["singleUseToken"]
+    sources: ["docs/reference/backoffice-integration-guide.md", "src/partials/functions/tokenization/paysafe-token.mdx", "src/partials/functions/tokenization/tokenex.mdx"]
+  - term: "TNS"
+    category: acquirers-and-token-providers
+    definition: "The processor that handles Interac card-present transactions."
+    sources: ["docs/reference/interac-void.md", "docs/reference/development-hardware.md", "docs/reference/android-demo-app.md"]
+  - term: "Token provider"
+    category: acquirers-and-token-providers
+    definition: "The provider that issues and stores card tokens."
+    sources: ["docs/reference/glossary.md", "docs/reference/moto-guide.md", "docs/back-office/transaction-feed-api.md"]
+  - term: "TokenEx"
+    category: acquirers-and-token-providers
+    definition: "A third-party token service. It returns a stable token for each card, which Handpoint cannot detokenize."
+    identifiers: ["TOKENEX"]
+    sources: ["docs/reference/glossary.md", "docs/reference/android-pax-integration-guide.md", "src/partials/functions/tokenization/tokenex.mdx"]
+  - term: "TSYS"
+    category: acquirers-and-token-providers
+    definition: "A card processor name that the documentation uses for some US acquirer configurations."
+    identifiers: ["TSYS"]
+    sources: ["docs/reference/multi-mid.md", "docs/reference/testing-edge-cases.md", "src/pages/agents.mdx"]
+  - term: "Admin fee"
+    category: fee-mitigation
+    definition: "A fee mitigation program in which the merchant adds a flat or percentage fee to all payment methods."
+    identifiers: ["adminFee", "ADMIN_FEE"]
+    sources: ["docs/reference/fee-mitigation.mdx", "docs/reference/glossary.md", "docs/reference/receipt-compliance.md"]
+  - term: "Base amount"
+    category: fee-mitigation
+    definition: "The sale amount before tax, tip and surcharge."
+    identifiers: ["baseAmount", "BaseAmount"]
+    sources: ["docs/reference/surcharging.mdx", "docs/guides/restaurant.mdx", "docs/reference/fee-mitigation.mdx"]
+  - term: "Cash discount"
+    category: fee-mitigation
+    definition: "A fee mitigation program in which the card price is the standard price and the merchant reduces the price for cash."
+    identifiers: ["cashDiscount", "CASH_DISCOUNT"]
+    sources: ["docs/reference/fee-mitigation.mdx", "docs/reference/glossary.md", "docs/reference/receipt-compliance.md"]
+  - term: "Dual pricing"
+    category: fee-mitigation
+    definition: "A fee mitigation program in which the merchant shows a cash price and a higher card price."
+    identifiers: ["dualPricing", "DUAL_PRICING"]
+    sources: ["docs/reference/fee-mitigation.mdx", "docs/reference/receipt-compliance.md", "docs/reference/glossary.md"]
+  - term: "Fee mitigation"
+    category: fee-mitigation
+    definition: "A group of programs that recover card processing costs: surcharge, dual pricing, cash discount and admin fee."
+    sources: ["docs/reference/glossary.md", "docs/reference/receipt-compliance.md", "docs/back-office/transaction-feed-api.md"]
+  - term: "Surcharge"
+    category: fee-mitigation
+    definition: "A fee mitigation program in which the merchant adds a fee for the use of a credit card."
+    identifiers: ["SURCHARGE"]
+    sources: ["docs/reference/surcharging.mdx", "docs/reference/fee-mitigation.mdx", "docs/reference/glossary.md"]
+  - term: "Surcharge parameters"
+    category: fee-mitigation
+    definition: "The terminal parameters that Handpoint sets to control whether surcharging is on, the rate, and the base."
+    sources: ["docs/reference/surcharging.mdx"]
+  - term: "Tax amount"
+    category: fee-mitigation
+    definition: "The tax that is included in the total amount of a transaction."
+    identifiers: ["taxAmount"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/pre-authorization-guide.md", "docs/reference/surcharging.mdx"]
+  - term: "Tax on fee"
+    category: fee-mitigation
+    definition: "The part of a fee that is tax. It is inside the fee and not added on top."
+    identifiers: ["taxOnFee"]
+    sources: ["docs/reference/fee-mitigation.mdx"]
+  - term: "Card language"
+    category: receipts
+    definition: "The language preference that the card chip holds. The customer receipt uses it."
+    identifiers: ["cardLanguage"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/receipt-compliance.md", "docs/reference/cordova-events.md"]
+  - term: "Hosted URL"
+    category: receipts
+    definition: "A link to a receipt that the terminal uploaded to the receipt server. The link works after the upload finishes."
+    identifiers: ["HOSTED_URL"]
+    sources: ["docs/reference/receipt-compliance.md", "docs/reference/android-integration-walkthrough.md", "docs/reference/validate-integration.mdx"]
+  - term: "Receipt"
+    category: receipts
+    definition: "The proof of a transaction for the cardholder or merchant. The SDK delivers a customer receipt and a merchant receipt as HTML or hosted URLs."
+    sources: ["docs/reference/receipt-compliance.md", "docs/reference/validate-integration.mdx", "docs/reference/validate-integration-android-sdk.md"]
+  - term: "Receipt printing"
+    category: receipts
+    definition: "The SDK function that sends HTML or a hosted URL to the terminal printer."
+    identifiers: ["printReceipt", "PrintReceipt"]
+    sources: ["docs/reference/devices.md", "docs/reference/android-integration-walkthrough.md", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "Retrieval reference number"
+    category: receipts
+    definition: "The reference number that the acquirer assigns to a card-present transaction. Receipts need it for disputes."
+    identifiers: ["retrievalReferenceNumber"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/validate-integration-android-sdk.md", "docs/reference/validate-integration.mdx"]
+  - term: "Synthetic receipt"
+    category: receipts
+    definition: "A receipt that the ISV builds from its stored transaction record. The SDK gives no receipt for a recovered transaction."
+    sources: ["docs/reference/validate-integration-android-sdk.md"]
+  - term: "Transaction history"
+    category: receipts
+    definition: "A searchable list of transactions in the ISV app. Users reprint or email receipts from it."
+    sources: ["docs/reference/validate-integration-android-sdk.md", "src/partials/functions/reversal/remote-reversal.mdx", "src/partials/functions/reversal/reversal.mdx"]
+  - term: "Certification"
+    category: testing-and-environments
+    definition: "The mandatory scenario tests that Handpoint reviews before it issues production credentials."
+    sources: ["docs/reference/validate-integration-android-sdk.md", "docs/reference/validate-integration.mdx", "docs/reference/partial-approval.md"]
+  - term: "Debug terminal"
+    category: testing-and-environments
+    definition: "A PAX terminal in debug mode. It accepts unsigned debug builds and connects to staging."
+    sources: ["docs/reference/manual-injection.md", "docs/reference/development-hardware.md", "docs/reference/android-demo-app.md"]
+  - term: "Demo app"
+    category: testing-and-environments
+    definition: "A ready-to-run reference app for PAX terminals. It shows each SDK operation."
+    sources: ["docs/reference/android-integration-walkthrough.md", "docs/reference/android-demo-app.md", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "DEMO merchant"
+    category: testing-and-environments
+    definition: "A merchant account that uses ViscusDummy instead of a real acquirer. Transactions complete but no funds move."
+    sources: ["docs/reference/development-hardware.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/testing-edge-cases.md"]
+  - term: "Expired card"
+    category: testing-and-environments
+    definition: "A card with a past expiry date. A DEMO merchant accepts it."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/cloud-api-integration-guide.md", "docs/reference/error-handling-guide.md"]
+  - term: "Interac test card"
+    category: testing-and-environments
+    definition: "A set of PANs for Interac debit tests. They work only on a TNSDummy merchant and only with chip insertion."
+    sources: ["docs/reference/development-hardware.md", "docs/guides/events.mdx", "docs/reference/testing-edge-cases.md"]
+  - term: "Logging"
+    category: testing-and-environments
+    definition: "The required record of each SDK callback and payment event with a timestamp. The app keeps the logs for at least two weeks."
+    sources: ["docs/reference/android-integration-walkthrough.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/validate-integration.mdx"]
+  - term: "Nexus"
+    category: testing-and-environments
+    definition: "The private Handpoint artifact repository. It hosts RC and SNAPSHOT SDK builds and needs credentials."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/manual-injection.md", "docs/reference/android-pax-integration-guide.md"]
+  - term: "Production"
+    category: testing-and-environments
+    definition: "The live environment. Production terminals use it with stable SDK builds and production credentials."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md", "docs/reference/validate-integration.mdx"]
+  - term: "RC"
+    category: testing-and-environments
+    definition: "Release candidate. A pre-release SDK build for development that targets staging and is not for production."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md", "docs/reference/validate-integration-android-sdk.md"]
+  - term: "Required screens"
+    category: testing-and-environments
+    definition: "The screens that the ISV app must provide, such as merchant login, connection state, transaction in progress, result, receipt, history and recovery state."
+    sources: ["docs/reference/validate-integration-android-sdk.md"]
+  - term: "Staging"
+    category: testing-and-environments
+    definition: "The non-production environment. Debug terminals use it with the RC SDK and staging credentials."
+    identifiers: ["SANDBOX"]
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/android-demo-app.md", "docs/reference/development-hardware.md"]
+  - term: "TNSDummy"
+    category: testing-and-environments
+    definition: "A separate Handpoint test server for Interac debit tests. It always approves and accepts chip insertion only."
+    sources: ["docs/reference/development-hardware.md", "docs/guides/events.mdx"]
+  - term: "Trigger amount"
+    category: testing-and-environments
+    definition: "A special amount that forces a test outcome on ViscusDummy. Any other amount is authorized."
+    sources: ["docs/reference/testing-edge-cases.md", "docs/reference/validate-integration-android-sdk.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "ViscusDummy"
+    category: testing-and-environments
+    definition: "A Handpoint test server that stands in for an acquirer. It returns a result from the amount and moves no funds."
+    identifiers: ["ViscusDummy"]
+    sources: ["docs/reference/development-hardware.md", "docs/reference/testing-edge-cases.md", "docs/reference/error-handling-guide.md"]
+  - term: "Automatic reversal"
+    category: errors-and-recovery
+    definition: "A reversal that the terminal sends by itself after the issuer authorizes a transaction, when a later condition stops it. The result status is CANCELLED."
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/transaction-result-object.md", "docs/reference/error-handling-guide.md"]
+  - term: "Callback retry schedule"
+    category: errors-and-recovery
+    definition: "The terminal retry schedule for a callback that gets a non-2xx response. Handlers must be idempotent."
+    sources: ["docs/reference/callback-url.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Duplicate check"
+    category: errors-and-recovery
+    definition: "A check that finds a request that duplicates a recent completed transaction. The gateway rejects such a request, and the terminal can ask the user to confirm."
+    identifiers: ["duplicate_check"]
+    sources: ["docs/reference/android-integration-walkthrough.md", "docs/reference/android-sdk-setup.md", "src/partials/functions/sale/emv-sale.mdx"]
+  - term: "Error code"
+    category: errors-and-recovery
+    definition: "A value that the SDK, terminal or gateway returns to identify an error. The app must check codes and not parse localized messages."
+    identifiers: ["errorCode"]
+    sources: ["docs/reference/error-codes.md", "docs/reference/backoffice-integration-guide.md", "docs/reference/error-handling-guide.md"]
+  - term: "Error detail"
+    category: errors-and-recovery
+    definition: "The human-readable explanation of an error in a result. The result has it when the status is DECLINED or FAILED."
+    identifiers: ["errorMessage", "ErrorMessage"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/android-integration-walkthrough.md"]
+  - term: "Error shape"
+    category: errors-and-recovery
+    definition: "The three response shapes for errors: asynchronous terminal error, flat synchronous error and nested synchronous error."
+    sources: ["docs/reference/error-codes.md", "docs/reference/error-handling-guide.md", "docs/reference/cloud-api-operations.md"]
+  - term: "Gateway error"
+    category: errors-and-recovery
+    definition: "An error that the gateway sets before it contacts the acquirer, for example a configuration or connection error."
+    sources: ["docs/reference/error-handling-guide.md", "docs/reference/transaction-result-object.md", "docs/reference/validate-integration.mdx"]
+  - term: "GUID"
+    category: errors-and-recovery
+    definition: "The UUID that Handpoint assigns to a completed transaction. Reversals, refunds, tip adjustments and token retrieval use it to point to the original."
+    identifiers: ["transactionID", "TransactionID", "transactionId"]
+    sources: ["docs/reference/error-codes.md", "docs/get-started/index.mdx", "docs/reference/validate-integration.mdx"]
+  - term: "HTTP error"
+    category: errors-and-recovery
+    definition: "An error status that the Cloud API returns before the 202 response, without polling. The request is rejected and no card interaction occurs."
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/error-handling-guide.md", "docs/reference/multi-mid.md"]
+  - term: "Internal device number"
+    category: errors-and-recovery
+    definition: "The internal transaction number of the device for the original sale. It is not the GUID."
+    sources: ["src/partials/functions/tokenization.mdx", "src/partials/functions/tip-adjustment.mdx", "docs/acquirers/epi.mdx"]
+  - term: "Merchant capability"
+    category: errors-and-recovery
+    definition: "A merchant setting that enables an operation, such as pre-authorization, refund or MOTO. The gateway or the terminal rejects an operation that the setting does not enable."
+    sources: ["docs/reference/validate-integration.mdx", "docs/reference/error-handling-guide.md"]
+  - term: "Merchant reference"
+    category: errors-and-recovery
+    definition: "A value that the merchant supplies. The gateway forwards it to the acquirer and returns it in the result."
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/pre-authorization-guide.md", "src/partials/functions/moto.mdx"]
+  - term: "Rate limit"
+    category: errors-and-recovery
+    definition: "The maximum number of requests that a merchant API key can send each second."
+    sources: ["docs/reference/cloud-api-integration-guide.md", "docs/reference/error-codes.md"]
+  - term: "Reason code"
+    category: errors-and-recovery
+    definition: "A field in customFields that states why a terminal sent a reversal. It has a generic marker and a specific cause code."
+    sources: ["docs/reference/terminal-reversals.md"]
+  - term: "Recovery window"
+    category: errors-and-recovery
+    definition: "A rule that the app polls the transaction status for at least 90 seconds after the first UNDEFINED result."
+    sources: ["docs/reference/android-demo-app.md", "docs/reference/testing-edge-cases.md", "docs/reference/android-hilite-integration-walkthrough.md"]
+  - term: "Retry-safe pattern"
+    category: errors-and-recovery
+    definition: "The pattern that saves the reference and queries the status before a retry. The app sends the request again only if the status shows no transaction."
+    sources: ["docs/reference/transaction-reference.md"]
+  - term: "SDK status code"
+    category: errors-and-recovery
+    definition: "The SDK communication code of a result. It shows whether the SDK communication succeeded and is separate from the payment outcome."
+    sources: ["docs/reference/transaction-result-object.md"]
+  - term: "Status query"
+    category: errors-and-recovery
+    definition: "An operation that returns the outcome of a transaction by its reference. The Cloud API and the SDK provide it."
+    identifiers: ["getTransactionStatus", "GetTransactionStatus"]
+    sources: ["docs/reference/transaction-result-object.md", "docs/reference/transaction-recovery-cloud-api.md", "docs/reference/transaction-recovery.md"]
+  - term: "Stop transaction"
+    category: errors-and-recovery
+    definition: "An operation that stops the transaction in progress on the terminal. It is the same as the Cancel button."
+    sources: ["docs/reference/android-sdk-setup.md", "docs/reference/cordova-integration-guide.md", "docs/reference/javascript-sdk-integration-guide.md"]
+  - term: "Terminal busy"
+    category: errors-and-recovery
+    definition: "A terminal state in which it cannot accept a new command because an operation is still active. The error is 1001."
+    sources: ["docs/guides/events.mdx", "docs/reference/error-handling-guide.md", "docs/reference/cloud-api-integration-guide.md"]
+  - term: "Terminal recovery loop"
+    category: errors-and-recovery
+    definition: "The automatic retry cycle of the terminal when it cannot deliver a result to the callback URL. It retries every 5 seconds at first, then with exponential backoff."
+    sources: ["docs/reference/transaction-recovery.md", "docs/reference/transaction-result-object.md"]
+  - term: "Transaction recovery"
+    category: errors-and-recovery
+    definition: "The process that finds the outcome of a transaction when no result arrived. The app saves the reference first and then polls the status."
+    identifiers: ["RECOVERY"]
+    sources: ["docs/reference/android-integration-walkthrough.md", "docs/reference/android-hilite-integration-walkthrough.md", "docs/reference/android-sdk-setup.md"]
+  - term: "Transaction reference"
+    category: errors-and-recovery
+    definition: "A UUID that the ISV creates and stores before it sends a request. It links the request to its result and enables recovery."
+    identifiers: ["transactionReference", "TransactionReference", "pendingRef", "transaction_reference"]
+    sources: ["docs/reference/validate-integration-android-sdk.md", "docs/reference/android-demo-app.md", "docs/reference/android-integration-walkthrough.md"]
+  - term: "Worst-case timeout"
+    category: errors-and-recovery
+    definition: "The longest time that a terminal can need to process a transaction, about six minutes. The POS must not time out earlier."
+    sources: ["docs/reference/full-matrix.mdx", "docs/reference/testing-edge-cases.md", "src/partials/functions/sale.mdx"]
