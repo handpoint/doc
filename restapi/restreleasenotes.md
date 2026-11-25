@@ -37,6 +37,10 @@ See [Level 2 Purchasing Data](restleveliidata.md#validation-errors) for every va
 `amount` on `POST /moto/sale` and `capturedAmount` on `POST /preauthorization/capture` must now be decimal major-unit strings with no leading zeros except a single `0` before the decimal point, as in `0.50`, and at most 12 digits (13 characters with a decimal point). Other values, such as `"010.00"`, return `400 Bad Request`. This applies to every request, with or without Level 2 data.
 :::
 
+:::caution Breaking change on `POST /transactions`
+A `moToReversal` or `preAuthorizationReversal` with `amount` and without `currency` now returns `400 Bad Request` with the message `Missing or empty currency tag`. Before, the terminal reversed the correct amount, but the transaction result showed the amount multiplied by 100. A full reversal, without `amount`, does not need `currency`.
+:::
+
 ## 2.30.0
 
 **Features:**
