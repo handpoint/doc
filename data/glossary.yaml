@@ -85,8 +85,12 @@ terms:
     sources: ["docs/reference/development-hardware.md", "docs/reference/devices.md", "docs/reference/manual-injection.md"]
   - term: "Sub-MID"
     category: parties-and-accounts
-    definition: "A child merchant account under a main MID. The software sends a sub-MID identifier with each transaction to choose the account."
+    definition: "The MID of a sub-merchant. The software sends the external ID of the sub-merchant with a transaction to choose its Sub-MID."
     sources: ["docs/reference/multi-mid.md", "docs/guides/clinic.mdx", "docs/guides/events.mdx"]
+  - term: "Sub-merchant"
+    category: parties-and-accounts
+    definition: "A business under the merchant agreement of a Multi-MID merchant, with its own Sub-MID and its own name."
+    sources: ["docs/reference/multi-mid.md"]
   - term: "TID"
     category: parties-and-accounts
     definition: "The terminal ID. The acquirer assigns it to the terminal."
