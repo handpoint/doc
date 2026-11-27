@@ -62,6 +62,21 @@ On the Android SDK these are read at runtime through the Configuration Manager (
 Use `bypassSurcharge` to decide whether to show a "waive surcharge" option in your UI. If it is `false`, do not offer the option at all.
 :::
 
+### Relation to `feeCalculation`
+
+`surchargeApplyToTax` and `surchargeApplyToTip` choose the surcharge base. The
+[`feeCalculation` setting](/reference/fee-mitigation#calculating) of the fee mitigation contract chooses the same base with one value. If `feeCalculation` is adopted, it replaces the two booleans:
+
+| `surchargeApplyToTax` | `surchargeApplyToTip` | `feeCalculation` |
+|---|---|---|
+| `false` | `false` | `FEE_ON_BASE` |
+| `true` | `false` | `FEE_ON_BASE_TAX` |
+| `false` | `true` | `FEE_ON_BASE_TIP` |
+| `true` | `true` | `FEE_ON_BASE_TIP_TAX` |
+
+The booleans cannot express a taxed fee (`FEE_ON_BASE_TAXED_FEE`). See the
+[pending decisions](/reference/fee-mitigation#pending).
+
 ## Calculating the surcharge
 
 Build the base from the amounts your system already holds, then apply the rate. All amounts are in the minor unit of the currency — 12.50 USD is `1250`.

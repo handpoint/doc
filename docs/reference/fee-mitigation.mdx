@@ -2,7 +2,7 @@
 title: "Fee Mitigation"
 sidebar_label: "Fee Mitigation"
 description: "The four programs that let a merchant recover the cost of card acceptance — surcharge, dual pricing, cash discount and admin fee — what each one means, which cards and operations it applies to, the Fee contract you send, and what the receipt must show."
-last-reviewed: "2026-09-09"
+last-reviewed: "2026-11-27"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -38,8 +38,11 @@ The difference between these programs is legal, not arithmetic. Two programs can
 money and follow different rules.
 
 - A **surcharge** is a fee. The card networks regulate it, and several US states prohibit it.
-- **Dual pricing** is a fee that the gateway applies when the conditions of the program are met.
-  The merchant posts two prices: a cash price and a higher card price.
+- **Dual pricing** gives the customer two prices: a cash price and a higher card price. The
+  merchant does not keep two price lists. The merchant sets one rule, a percentage or an amount, and
+  your application applies it to the cash price to get the card price. The gateway sees only that
+  difference, so it travels in the `fee` object and the gateway applies it when the conditions of
+  the program are met.
 - A **cash discount** reduces the price when the customer pays cash. The card price is the standard
   price.
 - An **admin fee** applies to every payment method. It is deliberately universal. A carve-out for
@@ -63,6 +66,94 @@ calculate the fee    ──▶    check the card type
                             apply, or drop and explain
 show the result      ◀──    return the outcome
 ```
+
+## Calculating the fee {#calculating}
+
+Your application, or the SDK, calculates the fee. The gateway never calculates a percentage, a tax
+or a rounding. It receives amounts.
+
+These amounts make the total:
+
+| Symbol | Meaning | Wire field |
+|---|---|---|
+| `B` | Base amount, before tax, tip and fee | `amount` |
+| `T` | Tip | `tipAmount` |
+| `X` | Tax on the base | Part of `taxInformation.taxAmount` |
+| `fee` | The fee, without its tax | `fee.amount` |
+| `taxOnFee` | The part of the tax that exists only because the fee exists | `fee.taxOnFee`, and part of `taxInformation.taxAmount` |
+
+```
+Total = B + T + X + taxOnFee + fee
+```
+
+Every amount is a decimal with two places. Round each amount **once**, with `HALF_UP`, and add the
+rounded amounts.
+
+### The calculation rule
+
+The `feeCalculation` value says what the fee is calculated on. It is a setting of the SDK, the
+Console and your application. **It is not sent to the gateway.**
+
+| Value | The fee is calculated on | `taxOnFee` |
+|---|---|---|
+| `FEE_ON_BASE` | `B` | 0 |
+| `FEE_ON_BASE_TAX` | `B + X` | 0 |
+| `FEE_ON_BASE_TIP` | `B + T` | 0 |
+| `FEE_ON_BASE_TIP_TAX` | `B + T + X` | 0 |
+| `FEE_ON_BASE_TAXED_FEE` | `B`, and the fee is taxed | `round(fee × tax rate)` |
+| `FEE_ON_BASE_TIP_TAXED_FEE` | `B + T`, and the fee is taxed | `round(fee × tax rate)` |
+
+Example: `B` = 100.00, `T` = 15.00, tax rate 10%, fee 3%.
+
+| Value | `fee.amount` | `taxOnFee` | `taxAmount` | Total |
+|---|---|---|---|---|
+| `FEE_ON_BASE` | 3.00 | 0.00 | 10.00 | 128.00 |
+| `FEE_ON_BASE_TAX` | 3.30 | 0.00 | 10.00 | 128.30 |
+| `FEE_ON_BASE_TIP` | 3.45 | 0.00 | 10.00 | 128.45 |
+| `FEE_ON_BASE_TIP_TAX` | 3.75 | 0.00 | 10.00 | 128.75 |
+| `FEE_ON_BASE_TAXED_FEE` | 3.00 | 0.30 | 10.30 | 128.30 |
+| `FEE_ON_BASE_TIP_TAXED_FEE` | 3.45 | 0.35 | 10.35 | 128.80 |
+
+The total keeps the same shape in every row. The value changes only how `fee` and `taxOnFee` are
+obtained. A debit card authorizes 125.00 in every row, because the gateway removes `fee.amount` and
+`fee.taxOnFee`.
+
+### Order of calculation
+
+The fee and the tax can depend on each other. The order decides which values are possible.
+
+| Tax is calculated on | Order | The fee can be calculated on |
+|---|---|---|
+| The base only | Tax first, then fee | `B`, `B + T`, `B + X`, `B + T + X` |
+| The base plus the fee | Fee first, then tax | `B` or `B + T` only |
+
+When the tax includes the fee, the fee cannot use `X`. The tax needs the fee, and the fee would need
+the tax. The platform does not offer this combination. The tip is never taxed.
+
+`taxOnFee` is the result of the rule. It is not a second rule. Nobody sets it by hand: the SDK derives
+it from `feeCalculation`.
+
+| Program | Values that apply |
+|---|---|
+| Surcharge | All six. The last one waits for EPI confirmation (see [Pending decisions](#pending)) |
+| Dual pricing | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TAXED_FEE`. A tip is not allowed |
+| Admin fee | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TAXED_FEE` |
+| Cash discount | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`. The value only calculates the discount that you show |
+
+See [Fee mitigation use cases](fee-mitigation-use-cases.mdx) for every case with its amounts.
+
+## Where each value is set {#levels}
+
+A value does not always come from the same place. Four levels exist.
+
+| Level | Owner | Examples | Changes |
+|---|---|---|---|
+| 1. Merchant account | Handpoint, with the acquirer | Which program is enabled. Whether the merchant may surcharge | Rarely |
+| 2. Terminal or application | Handpoint TMS, or your application | `surchargePercent`, `feeCalculation`, tax rate, admin fee mode | When the merchant changes the rule |
+| 3. Transaction | Your application | `fee` object, `amount`, `tipAmount`, `taxInformation` | Every transaction |
+| 4. Runtime facts | The card and the acquirer | Credit, debit or prepaid. Partial approval | Every transaction, never set by you |
+
+You set level 3. You read level 2. The gateway decides level 4.
 
 ## What the platform guarantees
 
@@ -135,7 +226,10 @@ receipt and your records must show the amount the gateway actually charged.
 | Remote Refund | ❌ | ❌ | ❌ | ❌ |
 | Reversal | Automatic | Automatic | Automatic | ❌ |
 | Capture reversal | Automatic | Automatic | Automatic | ❌ |
+| Pre-Authorization, increase | ❌ | ❌ | ❌ | ❌ |
+| Pre-Authorization, decrease | ❌ | ❌ | ❌ | ❌ |
 | Tip adjustment | ❌ | ❌ | ❌ | ❌ |
+| Card verification (zero amount) | ❌ | ❌ | ❌ | ❌ |
 | Tokenization | ❌ | ❌ | ❌ | ❌ |
 | Batch operations | ❌ | ❌ | ❌ | ❌ |
 
@@ -154,6 +248,11 @@ below.
 
 **An operation with no amount carries no fee.** Tokenization, a tip adjustment and every batch
 operation set no transaction amount, so no fee can apply to them.
+
+**An increase, a decrease and a tip adjustment carry no fee.** An increase adds authorization, and a
+tip adjustment adds a tip after the authorization. Neither one collects a fee on the added amount.
+After a decrease, send the reduced total, with the reduced fee inside it. A fee sent with an
+operation marked ❌ is rejected. It is never removed without a message.
 
 **A reversal is automatic.** The reversal carries the same fee as the original transaction, because
 the acquirer requires the two values to match. You set nothing.
@@ -389,8 +488,15 @@ instead of a transaction. See [Error handling](error-handling-guide.md).
 
 ## Tax on the fee
 
-A merchant can calculate the fee before the tax, or after it. Both orders reach the same total.
-They do not reach the same tax.
+A merchant can calculate the fee before the tax, or after it. The `feeCalculation` value
+([Calculating the fee](#calculating)) sets the order. The two orders do not reach the same tax.
+
+The tax is one tax, in two parts. When the fee is taxed, the tax is 10% of the base **plus** the fee,
+not 10% of the fee alone. With a base of 100.00 and a fee of 3.00 at 10%, the tax is 10.30. That is
+10.00 on the base and 0.30 on the fee. The 0.30 is `taxOnFee`.
+
+The tax is on the fee alone only when the base has no tax and the fee is taxable. The tax engine of
+your application decides this.
 
 `taxOnFee` names the part of the tax amount that is tax on the fee. It is not part of
 `fee.amount`. The gateway rejects a `taxOnFee` that is greater than the Level 2 tax, and when it
@@ -480,6 +586,27 @@ The four values are not yet in the merchant reports or in the
 records until they arrive.
 :::
 
+## Partial approval
+
+A request that carries a fee goes to the acquirer with partial approval not allowed. The terminal
+or merchant configuration still has partial approval enabled for requests that carry no fee. The
+rule applies to each transaction, not to the whole configuration. A partial approval would leave the
+customer with a fee on an amount that was not fully authorized.
+
+## Pending decisions {#pending}
+
+These points are not final. Do not build against them yet.
+
+| # | Question | What it blocks |
+|---|---|---|
+| 1 | What are the exact values of `fee.paymentPath`, and what does the gateway do on a mismatch? Letting a debit card pay the cash price is an option for integrators that need it, not a default | The `fee.paymentPath` field and the `FEE_CARD_TYPE_MISMATCH` decline. Without the option, dual pricing is `ANY_CARD` |
+| 2 | How is a percentage admin fee classified when it applies to debit and cash? | The admin fee program |
+| 3 | May the fee base include the tax or the tip, for each network and state? | The values that contain `TAX` or `TIP` |
+| 4 | May a surcharge apply on an increase (an incremental authorization)? | A fee on an increase |
+| 5 | Can the acquirer set partial approval for each request? | The partial approval rule. If not, the platform declines and reverses the partial approval |
+| 6 | Does EPI accept "calculate on the tip" together with a taxed fee? | `FEE_ON_BASE_TIP_TAXED_FEE` |
+| 7 | Does `feeCalculation` replace the `surchargeApplyToTax` and `surchargeApplyToTip` terminal parameters? | The configuration of [Surcharging](/reference/surcharging). If yes, the two booleans go away and the mapping table on that page becomes the migration guide |
+
 ## Scope
 
 **Supported:**
@@ -511,6 +638,8 @@ records until they arrive.
 | Refused | The gateway rejected the request, and the transaction stopped |
 
 ## Related pages
+
+- [Fee mitigation use cases](fee-mitigation-use-cases.mdx) — every program, with amounts, edge cases and the operations
 
 - [Transaction result object](transaction-result-object.md) — every field the result carries
 - [Error codes](error-codes.md) — every code the platform returns

@@ -71,7 +71,7 @@ See also: [Fee Mitigation](/reference/fee-mitigation)
 
 ### Dual pricing
 
-A [fee mitigation](#fee-mitigation) program. The merchant posts two prices — a cash price and a higher card price. It is a fee that the gateway applies when the conditions of the program are met. The receipt shows no fee line for it: the fee is included in the amount line. Only an applied [surcharge](#surcharge) prints one.
+A [fee mitigation](#fee-mitigation) program. The customer sees two prices — a cash price and a higher card price. The merchant sets one rule, and your application applies it to the cash price. The gateway receives the difference as a fee and applies it when the conditions of the program are met. The receipt shows no fee line for it: the fee is included in the amount line. Only an applied [surcharge](#surcharge) prints one.
 
 See also: [Fee Mitigation](/reference/fee-mitigation)
 
@@ -92,6 +92,14 @@ Handpoint's North American acquirer. Supports Visa, Mastercard, Amex, Discover. 
 ### EmerchantPay
 
 Handpoint's European acquirer (OMNIPAY integration). Supports Visa, Mastercard, AMEX, UnionPay. Region: Europe. Automatic settlement — no batch close. MOTO keyed entry and linked MOTO refund supported; back-office card-token remote sale is EPI only.
+
+---
+
+### feeCalculation
+
+A setting that says which amounts the fee percentage applies to: `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE` or `FEE_ON_BASE_TIP_TAXED_FEE`. It lives in the SDK, Console or ISV configuration. It is not sent to the gateway: your application calculates the fee and sends only the amounts.
+
+See also: [Calculating the fee](/reference/fee-mitigation#calculating)
 
 ---
 
@@ -185,6 +193,14 @@ A server-to-device authentication credential used by the Android and iOS SDKs to
 A [fee mitigation](#fee-mitigation) program, and the only one the acquirer protocol can report. The merchant adds a fee for the use of a credit card. Never a debit card, never a prepaid card. The card networks cap it at 3% or the actual cost of acceptance, require 30 days notice, require signage, and require a separate line on the receipt. Several US states and Puerto Rico prohibit it.
 
 See also: [Fee Mitigation](/reference/fee-mitigation)
+
+---
+
+### taxOnFee
+
+The part of the transaction tax that exists only because of the fee. It is included in `taxInformation.taxAmount`, and it is not part of `fee.amount`. When the gateway drops the fee (debit or prepaid card), it removes `fee.amount` and `fee.taxOnFee` from the authorized amount.
+
+See also: [Tax on the fee](/reference/fee-mitigation#tax-on-the-fee)
 
 ---
 

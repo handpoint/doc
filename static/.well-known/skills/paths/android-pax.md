@@ -168,6 +168,10 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 
 - **Pass the base amount to the operation.** The SDK adds `fee.amount` and the tax amount to it. Never pre-add them.
 - **`taxOnFee` is part of the tax amount, not of `amount`.** Include it in `taxInformation.taxAmount`.
+- Total = base + tip + tax on the base + `taxOnFee` + `fee.amount`. The gateway never calculates a percentage, a tax or a rounding. On a debit or prepaid card it removes `fee.amount` and `fee.taxOnFee`.
+- `feeCalculation` (SDK, Console or ISV configuration, never sent to the gateway) chooses what the percentage applies to: `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE`, `FEE_ON_BASE_TIP_TAXED_FEE`. Pending decision: the enum is not final.
+- A request that carries a fee goes to the acquirer with partial approval not allowed.
+- Increase, decrease, tip adjustment, refund and card verification carry no fee.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.
@@ -175,7 +179,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
   `PROGRAM_NOT_ENABLED`, `PROGRAM_NOT_SUPPORTED`, `UNKNOWN`. Only the first two occur today.
 - `Options.surchargeAmount` and `result.surcharge` are deprecated and still work. Never set both
   `fee` and `surchargeAmount` with different amounts — the gateway returns error `4268`.
-- Dual pricing is a fee that the gateway applies when the conditions of the program are met. Only an applied surcharge prints a fee line. Admin fee and dual pricing print none: their fee is included in the amount line, so the receipt lines add up to the total.
+- Dual pricing: the customer sees a cash price and a higher card price. Your application applies the merchant's rule to the cash price. The gateway receives the difference as a fee and applies it when the conditions of the program are met. Only an applied surcharge prints a fee line. Admin fee and dual pricing print none: their fee is included in the amount line, so the receipt lines add up to the total.
 
 ## finStatus values
 
@@ -301,5 +305,6 @@ Self-validation test: trigger amount `BigInteger("3757")`. Required for Handpoin
 - Acquirer constraints: load `acquirers/{acquirer}.md`
 - Android SDK setup reference: https://developer.handpoint.com/reference/android-sdk-setup
 - Fee mitigation: https://developer.handpoint.com/reference/fee-mitigation
+- Fee mitigation use cases: https://developer.handpoint.com/reference/fee-mitigation-use-cases
 - Authentication: https://developer.handpoint.com/reference/authentication
 - Release notes: https://developer.handpoint.com/release-notes/release-notes

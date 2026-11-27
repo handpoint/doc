@@ -98,6 +98,7 @@ const sidebars = {
             'reference/surcharging',
             'reference/multi-mid',
             'reference/fee-mitigation',
+            'reference/fee-mitigation-use-cases',
             'reference/tipping-guide',
             'reference/callback-url',
             'reference/money-remittance-guide',
