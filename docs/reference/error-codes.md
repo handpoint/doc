@@ -231,8 +231,14 @@ On success: HTTP `200` with body `{"statusMessage": "tip adjusted"}`.
 
 ## Error codes — Fee Mitigation
 
+:::caution Under development
+Fee mitigation is not available yet. It is not in a released SDK or API version. The fields and
+amounts on this page can still change. Confirm availability with your Handpoint contact before you
+build against it.
+:::
+
 The gateway refuses these requests **before** the authorization, so the transaction never reaches
-the acquirer. They apply to a sale, a Remote Sale and a pre-authorization capture that carries a
+the acquirer. They apply to a sale, a MOTO sale and a pre-authorization capture that carries a
 `fee` object. See [Fee Mitigation](fee-mitigation.mdx) for the contract.
 
 | Code | Meaning | Recovery |
@@ -240,6 +246,11 @@ the acquirer. They apply to a sale, a Remote Sale and a pre-authorization captur
 | `4258` `SURCHARGE_NOT_ENABLED` | The merchant is not configured to surcharge, and the request carries a surcharge — through `fee` with `mitigationProgram: surcharge`, or through the deprecated `surchargeAmount` | Ask Handpoint to enable surcharging for the merchant, or send no fee |
 | `4268` `FEE_SURCHARGE_AMOUNT_CONFLICT` | The request carries both `fee` and the deprecated `surchargeAmount`, and they disagree. Accepted only when `mitigationProgram` is `surcharge` **and** the two amounts match | Migrate the call site completely. Send one field or the other |
 | `4269` `FEE_TAX_ON_FEE_EXCEEDS_L2_TAX` | `fee.taxOnFee` is greater than the tax carried by `taxInformation.taxAmount` | Lower `taxOnFee`, or declare the full tax. Subtracting more tax than was declared would put a negative tax on the wire |
+| `4272` `FEE_PROGRAM_NOT_SUPPORTED` | The request carries a `fee` with `mitigationProgram: cashDiscount`. A cash discount card transaction carries no fee | Remove `fee` from the request. See [cash discount](fee-mitigation.mdx#eligibility) |
+| `FEE_CARD_TYPE_MISMATCH` | The card type does not match `fee.paymentPath`: a credit card with `DEBIT_AS_CASH`, or a debit card with `CREDIT` | Ask the customer for another card, or restart the sale with the right path |
+| `FEE_AMOUNT_MISSING` | The `fee` has a `taxOnFee` but no `amount`. The gateway refuses it | Send `fee.amount`, or send no `fee` object. See [fee mitigation errors](fee-mitigation.mdx#errors) |
+| `FEE_AMOUNT_AND_TAX_ON_FEE_MISSING` | The `fee` has neither `amount` nor `taxOnFee` | Send `fee.amount`, or send no `fee` object |
+| `FEE_PAYMENT_PATH_INVALID` | `fee.paymentPath` is set with a program other than `dualPricing`, or `DEBIT_AS_CASH` is set on a MOTO sale or on a merchant that does not enable it | Remove `paymentPath`, or ask Handpoint to enable "debit as cash" |
 | `FIELD_REQUIRED` | `fee.amount` or `fee.mitigationProgram` is missing | Send both. Neither one is optional |
 | `AMOUNT_FORMAT` | `fee.amount` or `fee.taxOnFee` is malformed or negative | Send a positive amount in the documented format |
 | `MITIGATION_PROGRAM_INVALID` | `fee.mitigationProgram` is not one of the four values | Send `surcharge`, `adminFee`, `cashDiscount` or `dualPricing`. The gateway never falls back to a default |

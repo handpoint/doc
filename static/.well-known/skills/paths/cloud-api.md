@@ -787,8 +787,11 @@ amount: the terminal adds the tip, the fee and the tax amount to it. Amounts are
 - `fee.mitigationProgram`: required, exactly `surcharge`, `adminFee` or `dualPricing`. `cashDiscount`, and `dualPricing` on `preAuthorizationCapture`, return `400`.
 - `fee.taxOnFee`: optional, digits only. It is part of `taxInformation.taxAmount`, not of `fee.amount`. Level 2 data needs `purchaseOrderNumber` with `taxInformation`.
 - `surchargeAmount` is deprecated. Use `fee`.
+- A `cashDiscount` fee returns error `4272` (`FEE_PROGRAM_NOT_SUPPORTED`). A card transaction under that program carries no fee.
+- The gateway does not calculate the fee, the tax or a rounding. It keeps or drops `fee.amount` and `fee.taxOnFee` by card type.
 
 Reference: https://developer.handpoint.com/reference/fee-mitigation
+Use cases: https://developer.handpoint.com/reference/fee-mitigation-use-cases
 
 ## See also
 

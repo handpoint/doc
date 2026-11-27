@@ -32,3 +32,4 @@ moto-refund | back-office remote refund using original transaction GUID, no read
 /reference/transaction-result-object
 /reference/error-codes
 /reference/fee-mitigation
+/reference/fee-mitigation-use-cases

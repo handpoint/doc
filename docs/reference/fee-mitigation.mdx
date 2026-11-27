@@ -2,7 +2,7 @@
 title: "Fee Mitigation"
 sidebar_label: "Fee Mitigation"
 description: "The four programs that let a merchant recover the cost of card acceptance — surcharge, dual pricing, cash discount and admin fee — what each one means, which cards and operations it applies to, the Fee contract you send, and what the receipt must show."
-last-reviewed: "2026-09-09"
+last-reviewed: "2026-11-27"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -18,8 +18,20 @@ build against it.
 
 # Fee Mitigation
 
-A merchant pays a cost to accept a card. **Fee mitigation** lets the merchant move part of that
-cost to the customer, or reward a customer who pays another way.
+A merchant pays a cost to accept a card. This cost is called the *cost of acceptance*, and it is
+usually a percentage of each card payment. **Fee mitigation** is the name for the ways a merchant
+can recover part of that cost: by moving it to the customer, or by rewarding a customer who pays
+another way, such as cash.
+
+For you as an integrator, fee mitigation means three things:
+
+- **The merchant chooses a program.** Handpoint enables it for the merchant. It is a business and
+  legal decision. Some programs are restricted by the card networks and by US states.
+- **Your application calculates the fee.** It knows the price, the tip, the tax and the rounding the
+  customer sees. It sends the result in a `fee` object, together with the amount.
+- **The gateway decides if the fee applies to this card.** It keeps the fee on a credit card and
+  removes it on a debit or prepaid card where the program does not allow it. It never calculates a
+  fee itself. The result tells you what it did and why.
 
 Handpoint supports four programs. A transaction carries **one** program. It never carries two.
 
@@ -38,8 +50,11 @@ The difference between these programs is legal, not arithmetic. Two programs can
 money and follow different rules.
 
 - A **surcharge** is a fee. The card networks regulate it, and several US states prohibit it.
-- **Dual pricing** is a fee that the gateway applies when the conditions of the program are met.
-  The merchant posts two prices: a cash price and a higher card price.
+- **Dual pricing** gives the customer two prices: a cash price and a higher card price. The
+  merchant does not keep two price lists. The merchant sets one rule, a percentage or an amount, and
+  your application applies it to the cash price to get the card price. The gateway sees only that
+  difference, so it travels in the `fee` object and the gateway applies it when the conditions of
+  the program are met.
 - A **cash discount** reduces the price when the customer pays cash. The card price is the standard
   price.
 - An **admin fee** applies to every payment method. It is deliberately universal. A carve-out for
@@ -64,6 +79,120 @@ calculate the fee    ──▶    check the card type
 show the result      ◀──    return the outcome
 ```
 
+## Calculating the fee {#calculating}
+
+Your application, or the SDK, calculates the fee. The gateway never calculates a percentage, a tax
+or a rounding. It receives amounts.
+
+These amounts make the total:
+
+| Symbol | Meaning | Wire field |
+|---|---|---|
+| `B` | Base amount, before tax, tip and fee | `amount` |
+| `T` | Tip | `tipAmount` |
+| `X` | Tax on the base | Part of `taxInformation.taxAmount` |
+| `fee` | The fee, without its tax | `fee.amount` |
+| `taxOnFee` | The part of the tax that exists only because the fee exists | `fee.taxOnFee`, and part of `taxInformation.taxAmount` |
+
+```
+Total = B + T + X + taxOnFee + fee
+```
+
+Every amount is a decimal with two places. Round each amount **once**, with `HALF_UP`, and add the
+rounded amounts.
+
+### The calculation rule
+
+The `feeCalculation` value says what the fee is calculated on. It is a setting of the SDK, the
+Console and your application. **It is not sent to the gateway.**
+
+| Value | The fee is calculated on | `taxOnFee` |
+|---|---|---|
+| `FEE_ON_BASE` | `B` | 0 |
+| `FEE_ON_BASE_TAX` | `B + X` | 0 |
+| `FEE_ON_BASE_TIP` | `B + T` | 0 |
+| `FEE_ON_BASE_TIP_TAX` | `B + T + X` | 0 |
+| `FEE_ON_BASE_TAXED_FEE` | `B`, and the fee is taxed | `round(fee × tax rate)` |
+| `FEE_ON_BASE_TIP_TAXED_FEE` | `B + T`, and the fee is taxed | `round(fee × tax rate)` |
+
+Example: `B` = 100.00, `T` = 15.00, tax rate 10%, fee 3%.
+
+| Value | `fee.amount` | `taxOnFee` | `taxAmount` | Total |
+|---|---|---|---|---|
+| `FEE_ON_BASE` | 3.00 | 0.00 | 10.00 | 128.00 |
+| `FEE_ON_BASE_TAX` | 3.30 | 0.00 | 10.00 | 128.30 |
+| `FEE_ON_BASE_TIP` | 3.45 | 0.00 | 10.00 | 128.45 |
+| `FEE_ON_BASE_TIP_TAX` | 3.75 | 0.00 | 10.00 | 128.75 |
+| `FEE_ON_BASE_TAXED_FEE` | 3.00 | 0.30 | 10.30 | 128.30 |
+| `FEE_ON_BASE_TIP_TAXED_FEE` | 3.45 | 0.35 | 10.35 | 128.80 |
+
+The total keeps the same shape in every row. The value changes only how `fee` and `taxOnFee` are
+obtained. A debit card authorizes 125.00 in every row, because the gateway removes `fee.amount` and
+`fee.taxOnFee`.
+
+### How the six values differ
+
+Two questions give the six values.
+
+1. **What does the percentage apply to?** The base, the base plus the tax, the base plus the tip, or
+   the base plus the tip plus the tax.
+2. **Is the fee itself taxed?** If yes, the tax on the fee is `taxOnFee`.
+
+| Value | Applies to | Is the fee taxed? | Example fee | Example `taxOnFee` | Example total |
+|---|---|---|---|---|---|
+| `FEE_ON_BASE` | Base | No | 3.00 | 0.00 | 128.00 |
+| `FEE_ON_BASE_TAX` | Base + tax | No. The tax is already in the base of the fee | 3.30 | 0.00 | 128.30 |
+| `FEE_ON_BASE_TIP` | Base + tip | No | 3.45 | 0.00 | 128.45 |
+| `FEE_ON_BASE_TIP_TAX` | Base + tip + tax | No. The tax is already in the base of the fee | 3.75 | 0.00 | 128.75 |
+| `FEE_ON_BASE_TAXED_FEE` | Base | **Yes** | 3.00 | 0.30 | 128.30 |
+| `FEE_ON_BASE_TIP_TAXED_FEE` | Base + tip | **Yes** | 3.45 | 0.35 | 128.80 |
+
+Three differences cause most mistakes:
+
+- **"Tax" in the name is not "taxed fee".** `FEE_ON_BASE_TAX` puts the tax **inside the base** of
+  the fee. `FEE_ON_BASE_TAXED_FEE` leaves the base alone and adds tax **on the fee**. They give the
+  same total in the example (128.30) but a different `fee.amount` and a different `taxOnFee`.
+- **The tip is never taxed.** `FEE_ON_BASE_TIP_TAXED_FEE` takes the tip into the base of the fee. It
+  does not tax the tip. It taxes the fee, and the fee is larger because the tip is in its base.
+- **A taxed fee and tax in the base cannot meet.** See the next section.
+
+### Order of calculation
+
+The fee and the tax can depend on each other. The order decides which values are possible.
+
+| Tax is calculated on | Order | The fee can be calculated on |
+|---|---|---|
+| The base only | Tax first, then fee | `B`, `B + T`, `B + X`, `B + T + X` |
+| The base plus the fee | Fee first, then tax | `B` or `B + T` only |
+
+When the tax includes the fee, the fee cannot use `X`. The tax needs the fee, and the fee would need
+the tax. The platform does not offer this combination. The tip is never taxed.
+
+`taxOnFee` is the result of the rule. It is not a second rule. Nobody sets it by hand: the SDK derives
+it from `feeCalculation`.
+
+| Program | Values that apply |
+|---|---|
+| Surcharge | All six values |
+| Dual pricing | All six values. A tip is allowed. It is part of the base of the fee only with a `_TIP` value |
+| Admin fee | All six values. It is part of the base of the fee only with a `_TIP` value |
+| Cash discount | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`. The value only calculates the discount that you show |
+
+See [Fee mitigation use cases](fee-mitigation-use-cases.mdx) for every case with its amounts.
+
+## Where each value is set {#levels}
+
+A value does not always come from the same place. Four levels exist.
+
+| Level | Owner | Examples | Changes |
+|---|---|---|---|
+| 1. Merchant account | Handpoint, with the acquirer | Which program is enabled. Whether the merchant may surcharge | Rarely |
+| 2. Terminal or application | Handpoint TMS, or your application | `surchargePercent`, `feeCalculation`, tax rate, admin fee mode | When the merchant changes the rule |
+| 3. Transaction | Your application | `fee` object, `amount`, `tipAmount`, `taxInformation` | Every transaction |
+| 4. Runtime facts | The card and the acquirer | Credit, debit or prepaid. Partial approval | Every transaction, never set by you |
+
+You set level 3. You read level 2. The gateway decides level 4.
+
 ## What the platform guarantees
 
 - The fee is calculated **before** the authorization.
@@ -79,7 +208,8 @@ show the result      ◀──    return the outcome
 | Sale | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Sale with tip | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Sale with tokenization | 🕓 | ✅ | ❌ | ❌ | ❌ |
-| Remote Sale | 🕓 | ✅ | ❌ | ❌ | ❌ |
+| MOTO sale | 🕓 | ✅ | ❌ | ❌ | ❌ |
+| Pre-Authorization, create | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Pre-Authorization, capture | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Every other operation | ❌ | ❌ | ❌ | ❌ | ❌ |
 
@@ -127,26 +257,66 @@ receipt and your records must show the amount the gateway actually charged.
 | Sale | ✅ | ✅ | ✅ | ❌ |
 | Sale with tip | ✅ | ✅ | ✅ | ❌ |
 | Sale with tokenization | ✅ | ✅ | ✅ | ❌ |
-| Remote Sale | ✅ | ✅ | ✅ | ❌ |
-| Pre-Authorization, create | ❌ | ❌ | ❌ | ❌ |
+| MOTO sale | ✅ | ✅ | ✅ | ❌ |
+| Pre-Authorization, create | ✅ | ❌ | ✅ | ❌ |
 | Pre-Authorization, capture | ✅ | ❌ | ✅ | ❌ |
 | Remote Pre-Authorization, capture | ✅ | ❌ | ✅ | ❌ |
 | Refund | ❌ | ❌ | ❌ | ❌ |
 | Remote Refund | ❌ | ❌ | ❌ | ❌ |
 | Reversal | Automatic | Automatic | Automatic | ❌ |
 | Capture reversal | Automatic | Automatic | Automatic | ❌ |
+| Pre-Authorization, increase | ❌ | ❌ | ❌ | ❌ |
+| Pre-Authorization, decrease | ❌ | ❌ | ❌ | ❌ |
 | Tip adjustment | ❌ | ❌ | ❌ | ❌ |
+| Card verification (zero amount) | ❌ | ❌ | ❌ | ❌ |
 | Tokenization | ❌ | ❌ | ❌ | ❌ |
 | Batch operations | ❌ | ❌ | ❌ | ❌ |
 
 Four rules explain every ❌ in that table.
 
-**A pre-authorization carries no fee.** The fee belongs to the capture, because the capture sets the
-amount the customer pays. If you set a fee on a pre-authorization, the SDK removes it. Set it on the
-capture instead.
+:::warning A remote sale with a card token carries no fee
+**What it is.** `POST /moto/sale` charges a card token that you saved earlier. No terminal takes
+part, no cardholder is present, and no screen is shown.
+
+**Why it carries no fee.** A fee is only valid when the customer knows about it and accepts it
+before the payment. On a terminal, the platform makes this happen in three places:
+
+| Requirement | On a terminal | On `POST /moto/sale` |
+|---|---|---|
+| The customer sees the fee **before** the payment | The terminal shows the fee amount on the screen | No screen. Nobody shows it |
+| The customer can refuse | The customer cancels on the terminal | The charge runs on the server. Nobody can cancel |
+| The receipt shows the fee on a separate line | The platform prints it | No receipt rule can be met in the flow |
+
+The gateway cannot check that the merchant told the customer somewhere else. So a fee on this
+endpoint would be a charge that we cannot show to be valid.
+
+**What the gateway does.** It refuses a request with a `fee` on this endpoint, with HTTP `400`, like
+any other operation that carries no fee. The transaction does not start.
+
+**What you do.**
+
+- Do not send `fee` to `POST /moto/sale`.
+- A **MOTO sale on the terminal** (`moToSale` on `POST /transactions`) does carry a fee. The operator
+  reads the amount to the customer and confirms it on the screen.
+- If a merchant asks for a fee on a stored card, tell your Handpoint contact. The platform would need
+  a way to record that the customer accepted the fee when the card was saved. That decision is not
+  made yet, and it is not part of this release.
+:::
+
+**A pre-authorization and its capture carry the fee** for a surcharge and an admin fee. The amount
+of the pre-authorization includes the fee and the tax, so the hold covers what the customer will pay.
+The capture carries the fee again, and the total of the capture must not be above the amount that
+the pre-authorization authorized. Three rules follow.
+
+- **The fee is set when the hold is created.** Calculate the fee on the highest base that you expect
+  to capture. You cannot add a fee at the capture that the pre-authorization did not cover.
+- **The capture follows the result of the pre-authorization.** If the gateway dropped the fee on the
+  pre-authorization, for example a surcharge on a debit card, send no fee on the capture.
+- **If the final total is above the hold, increase the hold first.** An increase carries no fee. Raise
+  the hold by the missing amount, then capture. A capture above the hold is refused with error `3215`.
 
 **Dual pricing needs a cash price.** A pre-authorization has no cash alternative to price against, so
-dual pricing applies to a sale and to a Remote Sale only.
+dual pricing applies to a sale and to a MOTO sale only.
 
 **A refund carries no fee.** The card networks require a merchant to return the fee in proportion to
 the refund. The platform does not calculate that proportion, so you calculate it. Read the note
@@ -154,6 +324,11 @@ below.
 
 **An operation with no amount carries no fee.** Tokenization, a tip adjustment and every batch
 operation set no transaction amount, so no fee can apply to them.
+
+**An increase, a decrease and a tip adjustment carry no fee.** An increase adds authorization, and a
+tip adjustment adds a tip after the authorization. Neither one collects a fee on the added amount.
+After a decrease, send the reduced total, with the reduced fee inside it. A fee sent with an
+operation marked ❌ is rejected. It is never removed without a message.
 
 **A reversal is automatic.** The reversal carries the same fee as the original transaction, because
 the acquirer requires the two values to match. You set nothing.
@@ -179,7 +354,8 @@ amount = base + tip + fee.amount + tax
   which has no tip. The card amount (EMV tag `9F02`) is the same value.
 - `tax` is `taxInformation.taxAmount`, or `0` when `taxExempt` is `true`. The SDK uses the deprecated
   `taxAmount` only when `taxInformation` is not set.
-- A pre-authorization carries no fee and no tax. Its capture uses the rule above.
+- A pre-authorization uses the same rule. Its amount includes the fee and the tax, and its capture
+  uses the rule too. The total of the capture is never above the amount that was authorized.
 
 :::note Coming soon
 The capture rule comes with Android SDK 7.1015.0. Until then, the SDK captures the amount that you
@@ -199,7 +375,7 @@ the tax in `amount`, the customer pays it two times.
 <ComingSoon />
 
 `POST /transactions` does not accept a `fee` object yet. When it does, it accepts a nested `fee`
-object for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, in the shape
+object for `sale`, `moToSale`, `saleAndTokenizeCard`, `preAuthorization` and `preAuthorizationCapture`, in the shape
 below. The `amount` of the request is the base amount. The terminal adds the tip, the fee and the
 tax amount to it.
 
@@ -236,8 +412,8 @@ Amounts inside `fee` follow the rest of `POST /transactions`: minor units, as a 
 | `taxOnFee` | string | No | The tax on the fee. Digits only. It is part of `taxInformation.taxAmount` |
 
 The Cloud API checks only the format, the program and the operation. It returns HTTP `400` for an
-unknown program, `cashDiscount`, `dualPricing` on `preAuthorizationCapture`, an amount that is not
-digits only, or a `fee` on another operation. The terminal
+unknown program, `cashDiscount`, `dualPricing` on `preAuthorization` or `preAuthorizationCapture`, a
+`fee` with no `amount`, an amount that is not digits only, or a `fee` on another operation. The terminal
 applies the other rules in this page, for example `taxOnFee` not above `taxInformation.taxAmount`.
 
 :::note The old `surchargeAmount` is deprecated
@@ -276,7 +452,7 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 }
 ```
 
-A Remote Sale uses the same object on `MoToOptions`:
+A MOTO sale uses the same object on `MoToOptions`:
 
 ```kotlin
 val options = MoToOptions()
@@ -328,6 +504,7 @@ The object you send.
 | `amount` | integer, minor units | Yes | The fee without its tax. The SDK adds it to the base amount of the operation. Never negative |
 | `mitigationProgram` | enum | Yes | `SURCHARGE`, `ADMIN_FEE`, `CASH_DISCOUNT` or `DUAL_PRICING`. On the wire: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing` |
 | `taxOnFee` | integer, minor units | No | The part of the tax amount that is tax on the fee. It is not part of `amount`. Never negative. Absent reads as zero |
+| `paymentPath` | enum | No | `ANY_CARD` (default), `DEBIT_AS_CASH` or `CREDIT`. Valid for `DUAL_PRICING` only. See [the payment path](#payment-path) |
 
 Three rules apply before the transaction starts.
 
@@ -360,7 +537,6 @@ major units, the same as every other amount on the result.
 | `APPLIED` | The gateway charged the fee | Print the fee line. Settle the total that the result carries |
 | `NOT_ELIGIBLE_DEBIT` | The customer presented a debit card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
 | `NOT_ELIGIBLE_PREPAID` | The customer presented a prepaid card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
-| `FEE_AMOUNT_MISSING` | The fee had a `taxOnFee` but no `amount` | Print no fee line. Send `fee.amount` |
 | `PROGRAM_NOT_ENABLED` | The merchant is not configured for this program | Print no fee line. Ask the merchant to enable the program |
 | `PROGRAM_NOT_SUPPORTED` | The gateway does not carry this program | Print no fee line. Handle the program in your own application |
 | `UNKNOWN` | The gateway returned a reason this version of the SDK does not recognise | Read `reasonDetail`. Treat the fee as dropped unless `applied` is `true` |
@@ -375,9 +551,13 @@ acquirer.
 | `4258` `SURCHARGE_NOT_ENABLED` | The merchant is not configured to surcharge, and the request carries a surcharge | Ask the merchant to enable surcharging, or send no fee |
 | `4268` `FEE_SURCHARGE_AMOUNT_CONFLICT` | The request carries both `fee` and the deprecated `surchargeAmount`, and they disagree | Send one field or the other. If you send both, match the amounts and set `mitigationProgram` to `surcharge` |
 | `4269` `FEE_TAX_ON_FEE_EXCEEDS_L2_TAX` | `fee.taxOnFee` is greater than `taxInformation.taxAmount` | Lower `taxOnFee`, or raise the tax you declare |
+| `FEE_AMOUNT_MISSING` | The `fee` has a `taxOnFee` but no `amount`. The gateway refuses it. It does not drop the fee | Send `fee.amount`. To charge no fee, send no `fee` object |
+| `FEE_AMOUNT_AND_TAX_ON_FEE_MISSING` | The `fee` has neither `amount` nor `taxOnFee` | Send `fee.amount`, or send no `fee` object |
 | `FIELD_REQUIRED` | `fee.amount` or `fee.mitigationProgram` is missing | Send both fields. Neither one is optional |
 | `AMOUNT_FORMAT` | `fee.amount` or `fee.taxOnFee` is malformed or negative | Send a positive amount in the documented format |
 | `MITIGATION_PROGRAM_INVALID` | `fee.mitigationProgram` is not one of the four values | Send `surcharge`, `adminFee`, `cashDiscount` or `dualPricing` |
+| `FEE_CARD_TYPE_MISMATCH` | The card type does not match `fee.paymentPath`: a credit card with `DEBIT_AS_CASH`, or a debit card with `CREDIT` | Ask the customer for another card, or restart the sale with the right path |
+| `FEE_PAYMENT_PATH_INVALID` | `fee.paymentPath` is set with a program other than `dualPricing`, or `DEBIT_AS_CASH` is set on a MOTO sale or on a merchant that does not enable it | Remove `paymentPath`, or ask Handpoint to enable "debit as cash" |
 
 :::warning A half-migrated integration fails loudly, on purpose
 The gateway refuses a request that carries two different fee amounts. It never picks one for you.
@@ -389,8 +569,15 @@ instead of a transaction. See [Error handling](error-handling-guide.md).
 
 ## Tax on the fee
 
-A merchant can calculate the fee before the tax, or after it. Both orders reach the same total.
-They do not reach the same tax.
+A merchant can calculate the fee before the tax, or after it. The `feeCalculation` value
+([Calculating the fee](#calculating)) sets the order. The two orders do not reach the same tax.
+
+The tax is one tax, in two parts. When the fee is taxed, the tax is 10% of the base **plus** the fee,
+not 10% of the fee alone. With a base of 100.00 and a fee of 3.00 at 10%, the tax is 10.30. That is
+10.00 on the base and 0.30 on the fee. The 0.30 is `taxOnFee`.
+
+The tax is on the fee alone only when the base has no tax and the fee is taxable. The tax engine of
+your application decides this.
 
 `taxOnFee` names the part of the tax amount that is tax on the fee. It is not part of
 `fee.amount`. The gateway rejects a `taxOnFee` that is greater than the Level 2 tax, and when it
@@ -480,38 +667,124 @@ The four values are not yet in the merchant reports or in the
 records until they arrive.
 :::
 
+## Partial approval
+
+Fee mitigation and partial approval can both be enabled in the configuration of a merchant or a
+terminal. They do not work together in one transaction. **In this release, a transaction that
+carries a fee never accepts a partial approval.**
+
+- The platform sends every request that carries a fee to the acquirer with partial approval **not
+  allowed**.
+- A transaction that carries no fee keeps the partial approval of the configuration.
+- If the card cannot cover the full amount with the fee, the issuer declines the transaction. The
+  customer pays with another card or another way.
+- If the acquirer returns a partial approval anyway, the platform reverses it and returns a decline.
+
+The rule applies to each transaction, not to the whole configuration. A partial approval would
+leave the customer with a fee on an amount that was not fully authorized.
+
+## Decisions for this release {#decisions}
+
+Product has decided each point below. Build exactly this. Nothing in this section waits for an
+answer.
+
+| # | Topic | Decision |
+|---|---|---|
+| 1 | Debit card at the cash price (dual pricing) | **Build it, as an option.** Handpoint offers it to integrators that need it. It is off by default and the merchant account must enable it. It uses `fee.paymentPath`. See [the payment path](#payment-path) |
+| 2 | Percentage admin fee on debit and cash | **The gateway never drops an admin fee.** It applies to every card. How the card networks classify it is the merchant's responsibility, not a gateway rule |
+| 3 | Fee base that includes tax or tip | **Build six values:** `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE` and `FEE_ON_BASE_TIP_TAXED_FEE`. They apply to a surcharge, dual pricing and an admin fee. A cash discount uses the first two. Handpoint enables the values that each merchant may use in the Console. The platform does not check the rules of a network or a state |
+| 4 | Surcharge on an increase | **Not supported.** An increase carries no fee, and a fee sent with an increase is refused |
+| 5 | Partial approval | **Both can be enabled in the configuration, but not in one transaction.** A transaction that carries a fee never accepts a partial approval. The platform sends it with partial approval not allowed. If the acquirer returns one anyway, the platform reverses it and returns a decline |
+| 6 | `FEE_ON_BASE_TIP_TAXED_FEE` | **Build it.** The fee is calculated on the base plus the tip, and the fee is taxed. It is available for a surcharge |
+| 7 | `feeCalculation` and the surcharge booleans | **`feeCalculation` replaces `surchargeApplyToTax` and `surchargeApplyToTip`.** The two booleans stay readable and keep working. If a terminal has both, `feeCalculation` wins. See [Surcharging](/reference/surcharging#relation-to-feecalculation) |
+| 8 | Pre-authorization and capture | **Both carry the fee,** for a surcharge and an admin fee. The pre-authorization amount includes the fee and the tax. The capture total is never above the authorized amount. The capture follows what the gateway applied on the pre-authorization. An increase carries no fee. Dual pricing applies to a sale and a MOTO sale only. See [Transaction types](#transaction-types) |
+| 9 | Tip with dual pricing | **A tip is allowed.** A `_TIP` value puts the tip in the base of the fee. Any other value leaves it out. The tip is asked **before** the price and fee screens, so the customer sees the final price. A tip adjustment after the authorization carries no fee |
+| 10 | A `fee` with a `taxOnFee` and no `amount` | **The gateway refuses it** with `FEE_AMOUNT_MISSING`. A transaction that needs no fee sends no `fee` object. The reason `FEE_AMOUNT_MISSING` no longer exists in the fee result |
+| 11 | A cash discount fee on a card transaction | **The gateway refuses it** with error `4272`. No component removes the fee before the call. Send no `fee` on a card transaction |
+
+### The payment path {#payment-path}
+
+Dual pricing has two prices, for example a card price of 113.00 and a cash price of 110.00. When
+"debit as cash" is enabled, a debit card can pay the cash price. The terminal must choose the price
+**before** it reads the card, because the chip signs the amount. The card that arrives can differ
+from the choice. `fee.paymentPath` tells the gateway which price you charged, so that it checks the
+card type.
+
+| `paymentPath` | Amount you send | What the gateway checks |
+|---|---|---|
+| `ANY_CARD` | The card price (113.00) | Nothing. Credit and debit both pay the card price. This is the default, and you may omit the field |
+| `DEBIT_AS_CASH` | The cash price (110.00), with no `fee` | The card is debit. A credit card is declined with `FEE_CARD_TYPE_MISMATCH` |
+| `CREDIT` | The card price (113.00) | The card is credit. A debit card is declined with `FEE_CARD_TYPE_MISMATCH` |
+
+Rules:
+
+- `paymentPath` is valid for `dualPricing` only. With any other program the request is refused.
+- `DEBIT_AS_CASH` is refused on a MOTO sale, because a MOTO sale has no debit card.
+- You set `paymentPath` for each transaction. A merchant can use one path today and another tomorrow.
+- If the merchant account does not enable "debit as cash", the gateway refuses `DEBIT_AS_CASH`.
+
+## Implementation checklist {#checklist}
+
+| Component | Build |
+|---|---|
+| **Android SDK (PAX)** | The `Fee` object on `SaleOptions`, `MoToOptions`, and the pre-authorization and capture options. The rule `total = base + tip + tax on the base + taxOnFee + fee`. The three checks before sending. `fee.paymentPath` for dual pricing. The six `feeCalculation` values. The `FeeResult` on the transaction result. The deprecated `surchargeAmount` keeps working |
+| **Gateway** | Read the funding type. Keep or remove `fee.amount` and `fee.taxOnFee` by program and card. Refuse a fee on an operation that carries none. Refuse a `fee` with no `amount`. Refuse `cashDiscount` with error `4272`. Carry the fee on a pre-authorization and its capture, and never capture above the authorized amount. Check `paymentPath` and decline with `FEE_CARD_TYPE_MISMATCH`. Send partial approval as not allowed. Never calculate a fee, a tax or a rounding |
+| **Console and TMS** | The program, `surchargePercent`, `feeCalculation` (six values), the admin fee mode, and the "debit as cash" option for each merchant. The terminal receives them as configuration |
+| **Receipt** | A fee line only for an applied surcharge. See [the receipt](#the-receipt) |
+| **Cloud API** | Not in this release. The page says so, and the gateway behavior above is ready for it |
+
 ## Scope
 
-**Supported:**
+**Supported in this release:**
 
-- Card transactions.
-- Surcharge, admin fee and dual pricing.
+- Card transactions on EPI.
+- Surcharge, admin fee and dual pricing, with the debit-as-cash option.
+- A fee on a sale, a sale with tip, a sale with tokenization, a MOTO sale, a pre-authorization and its capture. See [Transaction types](#transaction-types).
+- A tip with every program that carries a fee, including dual pricing.
 - The Android SDK on PAX terminals.
 
-**Not supported:**
+**Not supported in this release:**
 
 | Item | Reason |
 |---|---|
 | Cash and e-gift tenders | The gateway processes card transactions. Your point of sale handles cash |
 | Cash discount at the gateway | It applies to a cash tender, which never reaches the gateway |
 | The Cloud API | Coming soon. The terminal accepts a `fee` object, but the Cloud API does not send one yet |
-| The iOS, Windows and Cordova SDKs | The Android SDK carries the feature |
+| The iOS, Windows and Cordova SDKs, and the HiLite readers | The Android SDK on PAX terminals carries the feature |
+| A fee mitigation program together with a partial approval, in one transaction | See [Partial approval](#partial-approval) |
+| A fee on an increase, a decrease, a tip adjustment, a refund or a card verification | These operations carry no fee, and the gateway refuses one |
+| A fee on a pre-authorization with dual pricing | A pre-authorization has no cash price |
+| A remote sale with a card token (`POST /moto/sale`) | It has no terminal and no screen. The customer cannot see or accept the fee before the charge, and the receipt rules cannot be shown. A fee sent there is refused |
+| Store and forward, offline and forced transactions | The platform does not accept a fee on them |
 | A recalculation of the fee on a partial refund | The platform does not calculate it. You do |
 | Routing that depends on the fee | Out of scope |
 | Rules for each BIN or each card brand | Out of scope |
+| Checks of the rules of a card network or a state | Out of scope. The merchant is responsible. See [Compliance for a surcharge](#compliance-for-a-surcharge) |
 
 ## Terms
 
 | Term | Meaning |
 |---|---|
+| Cost of acceptance | What the merchant pays to accept a card |
 | Fee | The money the merchant adds, under any of the four programs |
 | Program | Which of the four rules applies |
+| Base amount | The price before tax, tip and fee. It is the `amount` of the operation |
+| `feeCalculation` | The setting that says which amounts the fee percentage applies to. It is not sent to the gateway |
+| `taxOnFee` | The part of the tax amount that exists only because of the fee |
+| Funding type | Whether the card is credit, debit or prepaid. The gateway reads it |
+| Payment path | For dual pricing, the price that you charged: card price or cash price. See [the payment path](#payment-path) |
 | Applied | The gateway charged the fee |
 | Dropped | The gateway removed the fee, and the transaction continued |
 | Refused | The gateway rejected the request, and the transaction stopped |
 
 ## Related pages
 
+- [Fee mitigation use cases](fee-mitigation-use-cases.mdx) — every program, with amounts, edge cases and the operations
+- [Surcharging](surcharging.mdx) — the surcharge configuration on the terminal, and the older `surchargeAmount` field
+- [Partial approval](partial-approval.md) — how a partial approval works for a transaction without a fee
+- [Pre-authorization guide](pre-authorization-guide.md) — the pre-authorization and its capture
+- [MOTO guide](moto-guide.md) — card-not-present transactions
+- [Tipping guide](tipping-guide.md) — how a tip is added
 - [Transaction result object](transaction-result-object.md) — every field the result carries
 - [Error codes](error-codes.md) — every code the platform returns
 - [Receipt Compliance](receipt-compliance.md) — what a receipt must show
