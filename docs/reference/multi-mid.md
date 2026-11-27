@@ -250,7 +250,7 @@ The table below covers the Cloud API. For Android PAX and iOS HiLite, `MerchantA
 Test each sub-MID independently before going live:
 
 1. Provision at least two sub-MIDs on a DEMO merchant (contact Handpoint Integration Support). Get the `externalId` values for each from the onboarding team.
-2. Send a sale with `merchantAuth: [{ "externalId": "subA" }]` — verify the transaction is `AUTHORISED`. The `externalId` is not echoed in the result; confirm routing via the [Transaction Feed API](/back-office/transaction-feed-api) filtering by `externalId`.
+2. Send a sale with `merchantAuth: [{ "externalId": "subA" }]` — verify the transaction is `AUTHORISED`. The `externalId` is not echoed in the result; confirm routing from `mid` and `merchantName` in the result (they are those of the sub-merchant) or via the [Transaction Feed API](/back-office/transaction-feed-api) filtering by `externalId`.
 3. Send a second sale with `merchantAuth: [{ "externalId": "subB" }]` — verify routing to sub-MID B.
 4. Send a sale **without** `merchantAuth` — verify it routes to the primary merchant account.
 5. Test an invalid `externalId` — present a card on the terminal and confirm you receive `finStatus: "DECLINED"` with `statusMessage: "Invalid Merchant"` (`arc: "1000"`). The card must be fully read before the decline is returned; this is a poll result, not a 4xx error.
@@ -276,7 +276,7 @@ Always pre-validate that each `externalId` you send is provisioned in TMS before
 
 **`externalId` is not in the transaction result:** The `externalId` you send in `merchantAuth` is not echoed back in the transaction result. Store it alongside the `transactionID` in your own system at the time of the request — do not rely on reading it back from the result later.
 
-**`mid` in the result is the terminal TID, not the sub-MID:** The `mid` field in the transaction result reflects the terminal's default TID (configured in TMS as `defaultAcquirerTid`). The sub-MID's acquirer MID is used for settlement at the acquirer level and does not appear in the Handpoint transaction result.
+**`mid` and `merchantName` in the result are those of the sub-merchant:** For a transaction routed with `externalId`, the `mid` field in the transaction result is the Sub-MID and the `merchantName` field is the sub-merchant name. The same values print on the receipt. This applies to the Cloud API and to the Android SDK 7.1016.0 and later. The receipt address and the TID stay those of the parent merchant and the terminal. Without `merchantAuth`, `mid` and `merchantName` are those of the primary merchant account.
 
 **Missing `merchantAuth` on linked operations:** Reversal, tip adjustment, refund, and token operations inherit the MID from the original transaction — you do not re-send `merchantAuth` on those calls. The link is by `transactionID` / `originalGuid`, not by sub-MID.
 
