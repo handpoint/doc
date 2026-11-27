@@ -490,6 +490,8 @@ curl https://cloud.handpoint.com/transaction-result/082104578-1788700630100 \
 | `serial_number` | string | **Yes** | Terminal serial number |
 | `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
 | `originalTransactionId` | string | **Yes** | `transactionID` from the original pre-authorization result |
+| `amount` | string | No | Minor-unit string — `"2000"` = $20.00. Digits only. Omit for a full reversal. |
+| `currency` | string | No | ISO 4217. Required when `amount` is sent, otherwise `400 Bad Request`. |
 | `customerReference` | string | No | Free-text reference |
 
 :::note Gateway-level reversal without a terminal
@@ -932,8 +934,8 @@ curl https://cloud.handpoint.com/transaction-result/082104578-1788700647000 \
 | `operation` | string | **Yes** | `"moToReversal"` |
 | `serial_number` | string | **Yes** | Terminal serial number |
 | `terminal_type` | string | **Yes** | PAX model — [valid values](#terminal_type-values) |
-| `amount` | string | **Yes** | Minor-unit string — `"2000"` = $20.00. Digits only. |
-| `currency` | string | **Yes** | ISO 4217 |
+| `amount` | string | No | Minor-unit string — `"2000"` = $20.00. Digits only. Omit for a full reversal. |
+| `currency` | string | No | ISO 4217. Required when `amount` is sent, otherwise `400 Bad Request`. |
 | `originalTransactionId` | string | **Yes** | `transactionID` from the original MOTO sale to reverse |
 | `customerReference` | string | No | Free-text reference |
 

@@ -1443,7 +1443,7 @@ This endpoint allows to Cancel/Void/Reverse a previous transaction without a rea
 | `Header: ApiKeyCloud` <span class="badge badge--primary">Required</span>   <br />*String*     | Api key used to authenticate the merchant. (UNIQUE per Merchant) |
 | `Body: originalGuid` <span class="badge badge--primary">Required</span>   <br />*String*    | The GUID of the previously completed transaction to reverse. |
 | `Body: amount` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Decimal amount in String, ISO 4217; Required for partial-reversals. *Only if your acquirer supports partial-reversals*. |
-| `Body: currency` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Required for partial-reversals *Only if your acquirer supports partial-reversals*. |
+| `Body: currency` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Required when `amount` is sent, otherwise `400 Bad Request`. *Only if your acquirer supports partial-reversals*. |
 | `Body: messageReasonCode` <span class="badge badge--secondary">Optional</span>   <br />*String*    | default: CUSTOMER_CANCELLATION. See [allowed values](restobjects.md#messageReasonCode)|
 | `Body: timestamp` <span class="badge badge--secondary">Optional</span>   <br />*String*    | Timestamp in `YYYYMMDDHHmmssSSS` format (17 characters). Defaults to the current server time when not provided. |
 
@@ -2263,7 +2263,7 @@ Typical fields (see [MotoReversalRequest](restobjects#motoReversalRequest) for f
 
 * `originalGuid` <span class="badge badge--primary">Required</span> – GUID of the original sale to be reversed.
 * `amount` <span class="badge badge--primary">Required</span> – String amount to reverse in MAJOR units (e.g. `"20.00"` for $20.00), using a dot (`.`) as decimal separator.
-* `currency` <span class="badge badge--secondary">Optional</span> – 3-character ISO 4217 code; if provided, must respect `minLength = 3`, `maxLength = 3` and may need to match the original transaction’s currency.
+* `currency` <span class="badge badge--primary">Required</span> – 3-character ISO 4217 code of the original transaction. Without it, the request returns `400 Bad Request`, because `amount` is always sent.
 * Optional merchant references: `customerReference`, `transactionReference`.
 
 #### Returns

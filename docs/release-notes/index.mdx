@@ -29,6 +29,12 @@ Select your integration path to see the relevant changelog. Selecting a path her
 
 Your server connects to a PAX SmartPOS terminal through the Handpoint Cloud — no Android development required. Send an HTTP request to start a transaction; receive the result in real time.
 
+### 2.34.0
+
+:::caution Breaking change on `POST /transactions`
+A `moToReversal` or `preAuthorizationReversal` with `amount` and without `currency` now returns `400 Bad Request` with the message `Missing or empty currency tag`. Before, the terminal reversed the correct amount, but the transaction result showed the amount multiplied by 100. A full reversal, without `amount`, does not need `currency`.
+:::
+
 ### 2.33.0
 **Features:**
 
