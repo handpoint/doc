@@ -177,8 +177,8 @@ handpoint.motoReversal(
 | `serial_number` | string | Yes | PAX terminal serial number — triggers card entry screen on device |
 | `originalTransactionId` | string | Refund only | GUID of the original MOTO sale to refund |
 | `transactionReference` | string | No | UUID v4 for idempotency. Do not include on refunds |
-| `taxInformation` | object | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber` |
-| `purchaseOrderNumber` | string | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters |
+| `taxInformation` | object | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) tax data: `taxAmount` (string, minor units) and `taxExempt` (boolean). `taxAmount` is required: `"0"` when `taxExempt` is `true`, greater than `"0"` otherwise, and never above `amount`. Must be sent with `purchaseOrderNumber`. Level II data needs Android SDK 7.1015 or later on the terminal. Terminals on 7.1014.x reject requests that carry it. |
+| `purchaseOrderNumber` | string | No | `moToSale` only. [Level 2](/reference/level-2-purchasing-data) purchase order number. Must be sent with `taxInformation`. Alphanumeric, max 25 characters. Level II data needs Android SDK 7.1015 or later on the terminal. Terminals on 7.1014.x reject requests that carry it. |
 
 **Without reader — back-office** (`POST /moto/sale`, `/moto/refund`):
 

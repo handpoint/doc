@@ -200,7 +200,7 @@ Set `duplicate_check: false` only when you have already confirmed (via `GET /tra
   "amount": "15012",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "transactionReference": "5c7056aa-b0a6-4ee9-891e-aae6ce7ea725",
   "duplicate_check": false
 }
@@ -220,7 +220,7 @@ Optional. Controls whether the cardholder can skip PIN entry or the signature st
   "amount": "15012",
   "currency": "USD",
   "terminal_type": "PAXA920PRO",
-  "serial_number": "1850025030",
+  "serial_number": "082104578",
   "transactionReference": "<uuid>",
   "bypassOptions": {
     "signatureBypass": true,

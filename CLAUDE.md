@@ -168,6 +168,11 @@ Using `cloud.handpoint.com` for `/status` calls is a frequent mistake. It will n
 - Cloud API + Android PAX: use `externalId` only
 - iOS HiLite: use `acquirer` + `mid` + `tid` directly — no `externalId`
 
+### PAYSAFE Interac routing via TNS — do not expose in ISV-facing content
+- PAYSAFE routes Interac card transactions through a secondary processor (TNS) internally — this is invisible to ISVs and must never appear in public docs, skill files, or API examples
+- TNS may appear in raw message logs and acquirer payloads; this is expected and correct — do not flag it as an error or anomaly in support investigations
+- Always refer to the acquirer as "PAYSAFE" in all external content, never "TNS" or "PAYSAFE+Interac/TNS"
+
 ### Tip adjustment + partial refund ordering (TSYS processor — CUS-845)
 When a tipped transaction needs a partial refund: zero the tip first (`amount: 0`), do the refund, then re-apply the tip. Applies to all acquirers on the TSYS processor (currently EPI, PAYSAFE, PAYSAFE+Interac). The callout is defined in `data/processors.yaml` under `tsys.known-issues` and injected automatically — do not hardcode acquirer names in the partial. Internal ref: CUS-845.
 

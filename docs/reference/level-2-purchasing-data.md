@@ -12,6 +12,12 @@ Level 2 (Level II) purchasing data adds a tax amount, a tax-exempt flag and a pu
 Available via the **Cloud API**. Level 2 data must be enabled on the merchant's agreement with the acquirer — contact your Handpoint relationship manager to confirm it is enabled.
 :::
 
+:::warning Android SDK 7.1015 or later on the terminal
+Level II data needs Android SDK 7.1015 or later on the terminal. Terminals on 7.1014.x reject requests that carry it.
+
+This applies to `taxInformation` and `purchaseOrderNumber` on `POST /transactions`, which the terminal processes. `POST /moto/sale`, `POST /preauthorization/capture` and `POST /transactions/{guid}/tip-adjustment` do not go through the terminal.
+:::
+
 ## Supported endpoints
 
 | Endpoint | Where | Amount format |

@@ -204,7 +204,7 @@ private fun sendReversal(originalTransactionID: String) {
             put("operation", "saleReversal")
             put("originalTransactionID", originalTransactionID)
             put("terminal_type", "PAXA920")    // terminal type of the original transaction
-            put("serial_number", "0821599465") // serial number of the original terminal
+            put("serial_number", "082104578") // serial number of the original terminal
             put("transactionReference", UUID.randomUUID().toString())
         }
         val request = Request.Builder()

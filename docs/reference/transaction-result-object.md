@@ -146,7 +146,7 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 | `tipPercentage` | number | Tip as a percentage of the base amount. |
 | `dueAmount` | integer | Outstanding amount after partial payment (if applicable). |
 | `taxAmount` | integer | **Deprecated.** |
-| `surcharge` | integer | Surcharge applied by the acquirer (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. |
+| `surcharge` | integer | **Deprecated.** Surcharge amount in minor units (App 4.14.0 / REST API 2.28.0+). `0` if not applicable. Use the `fee` object instead. |
 | `currency` | string | ISO 4217 currency code: `"USD"` `"GBP"` `"EUR"` etc. |
 
 ### Card
@@ -510,7 +510,7 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `tipPercentage` | Double | Computed tip percentage. |
 | `dueAmount` | BigInteger | Outstanding amount after partial payment. |
 | `taxAmount` | BigDecimal? | **Deprecated.** Tax amount (App 4.14.0 / SDK 7.1014.0+). `null` when not applicable. |
-| `surcharge` | BigInteger | Acquirer surcharge (App 4.14.0 / SDK 7.1014.0+). `BigInteger.ZERO` if not applicable. |
+| `surcharge` | Surcharge? | **Deprecated** (SDK 7.1014.5+). Surcharge object `{amount: BigDecimal (major units), applied: Boolean, reason: String}`. `null` if not applicable. Use `fee` instead. |
 | `fee` | FeeResult? | Outcome of a fee mitigation input. `null` when the request carried no fee. See below. |
 | `currency` | Currency | Currency enum. |
 

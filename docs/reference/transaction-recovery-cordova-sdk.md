@@ -225,7 +225,7 @@ function sendReversal(originalTransactionID) {
       operation: 'saleReversal',
       originalTransactionID: originalTransactionID,
       terminal_type: 'PAXA920',    // terminal type of the original transaction
-      serial_number: '0821599465', // serial number of the original terminal
+      serial_number: '082104578', // serial number of the original terminal
       transactionReference: generateUUID(),
     }),
   })

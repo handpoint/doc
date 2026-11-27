@@ -268,7 +268,7 @@ instead of starting a transaction.
    ```
    Returns the final `finStatus` if the gateway has the result. If `IN_PROGRESS`, poll every 10 s. If `UNDEFINED`, proceed to step 2.
 
-2. **Query the Transaction Feed API** — if the status endpoint returns `UNDEFINED` or if `transactionReference` was not echoed (e.g. on-terminal MOTO — see known issue CUS-837): query the [Transaction Feed API](../back-office/transaction-feed-api) by terminal serial number and the approximate transaction time window to locate the settled record.
+2. **Query the Transaction Feed API** — if the status endpoint returns `UNDEFINED` or if `transactionReference` was not echoed (e.g. on-terminal MOTO — see [known issue KI-2026-008](/reference/known-issues)): query the [Transaction Feed API](../back-office/transaction-feed-api) by terminal serial number and the approximate transaction time window to locate the settled record.
 
 3. **Android SDK alternative:** `hapi.getTransactionStatus(transactionReference)` wraps step 1 without a direct HTTP call.
 

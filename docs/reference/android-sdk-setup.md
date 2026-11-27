@@ -1078,7 +1078,7 @@ val settings = com.handpoint.api.Settings()
 ```
 W SDK-Detailed-Logger: --> GET https://cloud.handpoint.io/init
 W SDK-Detailed-Logger: timestamp: 20260903093653
-W SDK-Detailed-Logger: CrKeyCloud: 0821599465_PAXA920_98161...
+W SDK-Detailed-Logger: CrKeyCloud: 082104578_PAXA920_98161...
 W SDK-Detailed-Logger: <-- 400 https://cloud.handpoint.io/init (1618ms)
 W SDK-Detailed-Logger: CLOUD - CloudApiService failed to start
 ```

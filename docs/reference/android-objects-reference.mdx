@@ -924,11 +924,11 @@ This field is useful for differentiating card-present SDK transactions from clou
 
 ## `Surcharge` object
 
-Fee mitigation surcharge detail. Returned as `TransactionResult.surcharge` (as a `BigInteger` of the surcharge amount — see [Transaction Result Object](/reference/transaction-result-object) for the flat field). The structured object fields below are available when the SDK exposes surcharge as a composite:
+Fee mitigation surcharge detail. `TransactionResult.surcharge` returns a `Surcharge?` object (not a `BigInteger`) since SDK 7.1014.5. Deprecated — use `TransactionResult.fee` (`FeeResult?`) instead. See [Transaction Result Object](/reference/transaction-result-object).
 
 | Property | Type | Description |
 |---|---|---|
-| `amount` | `BigDecimal` | Surcharge amount in minor units. |
+| `amount` | `BigDecimal` | Surcharge amount in **major units** (e.g. `3.00` = $3.00). Major units since SDK 7.1014.5. |
 | `applied` | `Boolean` | `true` if the surcharge was charged to the cardholder. |
 | `reason` | `String` | Why the surcharge was or was not applied — e.g. `"CREDIT_CARD"`, `"NOT_ELIGIBLE_DEBIT"`, `"MERCHANT_NOT_CONFIGURED"`. |
 

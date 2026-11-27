@@ -71,9 +71,8 @@ curl -X POST https://txnfeed.handpoint.com/transactions/ \
 | `cardTokenProvider` | Token provider if tokenization was used |
 | `serverDateTime` | Timestamp when the transaction was recorded in the backend |
 
-:::note Fee mitigation is not in the feed yet
-The feed carries no fee amount, no program, and no applied flag. Persist the `fee` object from the
-transaction result in your own records. See [Fee Mitigation](/reference/fee-mitigation).
+:::note Fee mitigation — coming soon
+The Transaction Feed API (2.11.0+) includes a `fee` object per transaction: `amount`, `mitigationProgram`, `taxOnFee`, `applied`, and `reason`. The underlying fee mitigation feature is not yet generally available — fields are present in the feed schema ahead of the rollout. See [Fee Mitigation](/reference/fee-mitigation).
 :::
 
 ## Filtering with the `filters` array
