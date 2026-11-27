@@ -737,12 +737,12 @@ acquirers:
         cordova: public
         backoffice: public
       pre-auth:
-        cloud-api: public
-        android-pax: public
+        cloud-api: not-supported
+        android-pax: not-supported
         android-hilite: not-supported
         ios-hilite: not-supported
-        cordova: public
-        backoffice: public
+        cordova: not-supported
+        backoffice: not-supported
       moto:
         cloud-api: public
         android-pax: public
