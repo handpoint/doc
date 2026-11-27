@@ -248,6 +248,8 @@ the acquirer. They apply to a sale, a MOTO sale and a pre-authorization capture 
 | `4269` `FEE_TAX_ON_FEE_EXCEEDS_L2_TAX` | `fee.taxOnFee` is greater than the tax carried by `taxInformation.taxAmount` | Lower `taxOnFee`, or declare the full tax. Subtracting more tax than was declared would put a negative tax on the wire |
 | `4272` `FEE_PROGRAM_NOT_SUPPORTED` | The request carries a `fee` with `mitigationProgram: cashDiscount`. A cash discount card transaction carries no fee | Remove `fee` from the request. See [cash discount](fee-mitigation.mdx#eligibility) |
 | `FEE_CARD_TYPE_MISMATCH` | The card type does not match `fee.paymentPath`: a credit card with `DEBIT_AS_CASH`, or a debit card with `CREDIT` | Ask the customer for another card, or restart the sale with the right path |
+| `FEE_AMOUNT_MISSING` | The `fee` has a `taxOnFee` but no `amount`. The gateway refuses it | Send `fee.amount`, or send no `fee` object. See [fee mitigation errors](fee-mitigation.mdx#errors) |
+| `FEE_AMOUNT_AND_TAX_ON_FEE_MISSING` | The `fee` has neither `amount` nor `taxOnFee` | Send `fee.amount`, or send no `fee` object |
 | `FEE_PAYMENT_PATH_INVALID` | `fee.paymentPath` is set with a program other than `dualPricing`, or `DEBIT_AS_CASH` is set on a MOTO sale or on a merchant that does not enable it | Remove `paymentPath`, or ask Handpoint to enable "debit as cash" |
 | `FIELD_REQUIRED` | `fee.amount` or `fee.mitigationProgram` is missing | Send both. Neither one is optional |
 | `AMOUNT_FORMAT` | `fee.amount` or `fee.taxOnFee` is malformed or negative | Send a positive amount in the documented format |

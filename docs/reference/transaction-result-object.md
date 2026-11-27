@@ -168,7 +168,7 @@ build against it.
 | `mitigationProgram` | string | `SURCHARGE` `ADMIN_FEE` `CASH_DISCOUNT` `DUAL_PRICING`. Absent when the gateway reports a program that the Cloud API does not know. |
 | `taxOnFee` | string | The tax on fee. It is part of the tax amount, not part of `amount`. `"0"` when the gateway did not apply the fee. |
 | `applied` | boolean | `true` when the gateway charged the fee. |
-| `reason` | string | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `FEE_AMOUNT_MISSING` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `UNKNOWN`. |
+| `reason` | string | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `UNKNOWN`. |
 
 When the gateway does not apply the fee, `requestedAmount` is the amount without the fee and without the tax on fee, and `dueAmount` is `0`.
 
@@ -558,7 +558,7 @@ The `Fee` you send uses minor units, so the units change between the request and
 | `mitigationProgram` | FeeMitigationProgram? | `SURCHARGE` `ADMIN_FEE` `CASH_DISCOUNT` `DUAL_PRICING`. `null` when the gateway reports a program this SDK version does not recognise. |
 | `taxOnFee` | BigDecimal | The part of the tax amount that is tax on the fee. Not part of `amount`. |
 | `applied` | Boolean | `true` when the gateway charged the fee. |
-| `reason` | FeeReason | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `FEE_AMOUNT_MISSING` `UNKNOWN`. |
+| `reason` | FeeReason | `APPLIED` `NOT_ELIGIBLE_DEBIT` `NOT_ELIGIBLE_PREPAID` `PROGRAM_NOT_ENABLED` `PROGRAM_NOT_SUPPORTED` `UNKNOWN`. |
 | `reasonDetail` | String? | Raw gateway text. Set when `reason` is `UNKNOWN`. |
 
 For a surcharge the SDK fills `result.surcharge` as well, so an integration written against the

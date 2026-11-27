@@ -75,7 +75,8 @@ their value without a tip.
 
 ## Dual pricing
 
-The fee is inside the card price. A tip is not allowed.
+The fee is inside the card price. A tip is allowed. With a `_TIP` value the tip is in the base of the
+fee. The tip is asked before the price and fee screens, so the customer sees the final price.
 
 | ID | Value | Card | `fee.amount` | `taxOnFee` | Total | Gateway result |
 |---|---|---|---|---|---|---|
@@ -83,12 +84,17 @@ The fee is inside the card price. A tip is not allowed.
 | DP-2 | `FEE_ON_BASE` | Debit | 3.00 | 0.00 | 113.00 | Fee kept. A debit card pays the card price |
 | DP-3 | `FEE_ON_BASE_TAX` | Credit | 3.30 | 0.00 | 113.30 | Fee kept |
 | DP-4 | `FEE_ON_BASE_TAXED_FEE` | Credit | 3.00 | 0.30 | 113.30 | Fee kept |
-| DP-5 | Any | Any | With `tipAmount` | | | Rejected. A tip is not allowed |
+| DP-5 | `FEE_ON_BASE` | Credit | 3.00 | 0.00 | 128.00 | With a tip of 15.00. The tip is not in the base of the fee. Fee kept |
 | DP-6 | `FEE_ON_BASE` | Debit, `paymentPath` is `CREDIT` | 3.00 | 0.00 | 113.00 | Declined, `FEE_CARD_TYPE_MISMATCH` |
 | DP-7 | None | Debit, `paymentPath` is `DEBIT_AS_CASH` | None | 0.00 | 110.00 | Approved at the cash price, no fee |
 | DP-8 | None | Credit, `paymentPath` is `DEBIT_AS_CASH` | None | 0.00 | 110.00 | Declined, `FEE_CARD_TYPE_MISMATCH` |
 | DP-9 | Any | `paymentPath` with another program | | | | Refused, `FEE_PAYMENT_PATH_INVALID` |
 | DP-10 | Any | `DEBIT_AS_CASH` on a MOTO sale | | | | Refused, `FEE_PAYMENT_PATH_INVALID` |
+| DP-11 | `FEE_ON_BASE_TIP` | Credit | 3.45 | 0.00 | 128.45 | With a tip of 15.00. The fee is on `B + T`. Fee kept |
+| DP-12 | `FEE_ON_BASE_TIP_TAX` | Credit | 3.75 | 0.00 | 128.75 | With a tip of 15.00. Fee kept |
+| DP-13 | `FEE_ON_BASE_TIP_TAXED_FEE` | Credit | 3.45 | 0.35 | 128.80 | With a tip of 15.00. Fee kept |
+| DP-14 | Any `_TIP` value | Debit | As its row | As its row | As its row | Fee kept. A debit card pays the card price |
+| DP-15 | Any | Any | Tip added after the authorization | | | A tip adjustment carries no fee. The fee on that tip is not collected |
 
 The cash price in these rows is 110.00.
 
@@ -105,7 +111,7 @@ calculates the discount that your application shows.
 
 | ID | Value | Flow | Discount | Total | Gateway result |
 |---|---|---|---|---|---|
-| CD-1 | `FEE_ON_BASE` | Card | 3.00 on `B` | 110.00 (listed price) | A normal sale. The SDK removes `fee` before the call. A `fee` that reaches the gateway returns error `4272` |
+| CD-1 | `FEE_ON_BASE` | Card | 3.00 on `B` | 110.00 (listed price) | A normal sale. Send no `fee`. No component removes it for you. A `fee` that reaches the gateway is refused with error `4272` |
 | CD-2 | `FEE_ON_BASE_TAX` | Card | 3.30 on `B + X` | 110.00 | Same as CD-1 |
 | CD-3 | `FEE_ON_BASE` | Cash | 3.00 | 106.70 (tax recalculated on 97.00 = 9.70) | No gateway call |
 | CD-4 | Any | The customer cancels at the SDK dialog | | | The transaction is cancelled with a reason. No receipt |
@@ -131,8 +137,8 @@ Does the request carry a fee?
 |---|---|---|
 | Sale | Yes | See the tables above |
 | Remote sale (MOTO) | Per program | The operator states the amount. The customer can cancel |
-| Pre-authorization | No | A `fee` is rejected |
-| Capture of a pre-authorization | Yes | A surcharge or an admin fee is allowed, because the capture sets the amount the customer pays. Dual pricing is not |
+| Pre-authorization | Per program | A surcharge or an admin fee is allowed. The amount includes the fee and the tax. Dual pricing is not allowed |
+| Capture of a pre-authorization | Per program | A surcharge or an admin fee is allowed. The capture total is never above the authorized amount. If the pre-authorization dropped the fee, the capture carries none. Dual pricing is not allowed |
 | Increase | No | A `fee` is rejected |
 | Decrease | No | Send the reduced total, with the reduced fee inside it |
 | Tip adjustment | No | The tip is added with no fee. A fee on that tip is not collected |
@@ -152,6 +158,23 @@ See [Decisions for this release](fee-mitigation.mdx#decisions).
 which is 62.50. The fee returned is `round(3.00 × 62.50 ÷ 125.00)` = 1.50. The refund amount you send
 is **64.00**.
 
+## Pre-authorization and capture
+
+Same data as the surcharge rows: `B = 100.00`, `R = 10 %`, `P = 3 %`, `FEE_ON_BASE`. Tax 10.00, fee 3.00.
+The hold is 113.00.
+
+| ID | Operation | Card | Fee | Amount | Result |
+|---|---|---|---|---|---|
+| PA-1 | Pre-authorization, surcharge | Credit | 3.00 | 113.00 | Fee kept. The hold includes the fee and the tax |
+| PA-2 | Capture of PA-1, same amount | Credit | 3.00 | 113.00 | Fee kept. The capture is not above the hold |
+| PA-3 | Capture of PA-1, lower amount | Credit | Recalculated on the final base | Below 113.00 | Fee kept, on the final base |
+| PA-4 | Capture of PA-1, above the hold | Credit | | Above 113.00 | Refused with error `3215`. Increase the hold first, then capture |
+| PA-5 | Pre-authorization, surcharge | Debit | 3.00 | 113.00 | Fee dropped. Authorized 110.00. `reason` is `NOT_ELIGIBLE_DEBIT` |
+| PA-6 | Capture of PA-5 | Debit | None | At most 110.00 | Send no fee. The capture follows the result of the pre-authorization |
+| PA-7 | Pre-authorization, admin fee | Any | 2.00 | 112.00 | Fee kept. The gateway never drops an admin fee |
+| PA-8 | Pre-authorization, dual pricing | Any | Any | | Refused. A pre-authorization has no cash price |
+| PA-9 | Increase with a `fee` | Any | Any | | Refused. An increase carries no fee |
+
 ## Edge cases
 
 | ID | Case | Result |
@@ -165,7 +188,7 @@ is **64.00**.
 | X-7 | Mixed tax rates in one cart | Your application chooses one rate for the tax on the fee and calculates `taxOnFee`. The gateway does not check the rate. It checks only that `taxOnFee` does not exceed `taxInformation.taxAmount` |
 | X-8 | The tip changes after the fee was calculated | Calculate again before the card read. After the read, the amount is fixed |
 | X-9 | `taxOnFee` is above `taxInformation.taxAmount` | Rejected with error `4269` |
-| X-10 | `fee.amount` is missing | `FEE_AMOUNT_MISSING` |
+| X-10 | `fee.amount` is missing | Refused with `FEE_AMOUNT_MISSING`. With neither `amount` nor `taxOnFee`: `FEE_AMOUNT_AND_TAX_ON_FEE_MISSING`. To charge no fee, send no `fee` object |
 | X-11 | The program is not enabled for the merchant | `PROGRAM_NOT_ENABLED` |
 | X-12 | The customer cancels at a fee dialog | The transaction is cancelled with a reason. No gateway call |
 | X-13 | The fee dialog times out | The transaction is cancelled with the reason `TIMEOUT`. The terminal uses the same timeout as for its other customer prompts |

@@ -172,7 +172,9 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 - `feeCalculation` (SDK, Console or ISV configuration, never sent to the gateway) chooses what the percentage applies to: `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE`, `FEE_ON_BASE_TIP_TAXED_FEE`. `_TAX` puts the tax inside the base of the fee. `_TAXED_FEE` taxes the fee (`taxOnFee`). The tip is never taxed. `feeCalculation` replaces `surchargeApplyToTax` and `surchargeApplyToTip`.
 - Dual pricing only: `fee.paymentPath` is `ANY_CARD` (default), `DEBIT_AS_CASH` (send the cash price, no fee) or `CREDIT`. A card of the wrong type is declined with `FEE_CARD_TYPE_MISMATCH`.
 - A request that carries a fee goes to the acquirer with partial approval not allowed.
-- Increase, decrease, tip adjustment, refund and card verification carry no fee.
+- A pre-authorization and its capture carry the fee for a surcharge and an admin fee. The capture total never exceeds the authorized amount; increase the hold first if it would. Increase, decrease, tip adjustment, refund and card verification carry no fee.
+- A `fee` with no `amount` is refused (`FEE_AMOUNT_MISSING`). Send no `fee` object when no fee applies. A cash discount `fee` on a card is refused with error `4272`.
+- A tip is allowed with every program, including dual pricing. A `_TIP` value of `feeCalculation` puts it in the base of the fee.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units
   (`BigDecimal`), like `result.taxAmount`.
 - Wire values of `mitigationProgram`: `surcharge`, `adminFee`, `cashDiscount`, `dualPricing`.

@@ -174,8 +174,8 @@ it from `feeCalculation`.
 | Program | Values that apply |
 |---|---|
 | Surcharge | All six values |
-| Dual pricing | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TAXED_FEE`. A tip is not allowed |
-| Admin fee | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TAXED_FEE` |
+| Dual pricing | All six values. A tip is allowed. It is part of the base of the fee only with a `_TIP` value |
+| Admin fee | All six values. It is part of the base of the fee only with a `_TIP` value |
 | Cash discount | `FEE_ON_BASE`, `FEE_ON_BASE_TAX`. The value only calculates the discount that you show |
 
 See [Fee mitigation use cases](fee-mitigation-use-cases.mdx) for every case with its amounts.
@@ -209,6 +209,7 @@ You set level 3. You read level 2. The gateway decides level 4.
 | Sale with tip | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Sale with tokenization | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | MOTO sale | 🕓 | ✅ | ❌ | ❌ | ❌ |
+| Pre-Authorization, create | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Pre-Authorization, capture | 🕓 | ✅ | ❌ | ❌ | ❌ |
 | Every other operation | ❌ | ❌ | ❌ | ❌ | ❌ |
 
@@ -257,7 +258,7 @@ receipt and your records must show the amount the gateway actually charged.
 | Sale with tip | ✅ | ✅ | ✅ | ❌ |
 | Sale with tokenization | ✅ | ✅ | ✅ | ❌ |
 | MOTO sale | ✅ | ✅ | ✅ | ❌ |
-| Pre-Authorization, create | ❌ | ❌ | ❌ | ❌ |
+| Pre-Authorization, create | ✅ | ❌ | ✅ | ❌ |
 | Pre-Authorization, capture | ✅ | ❌ | ✅ | ❌ |
 | Remote Pre-Authorization, capture | ✅ | ❌ | ✅ | ❌ |
 | Refund | ❌ | ❌ | ❌ | ❌ |
@@ -302,9 +303,17 @@ any other operation that carries no fee. The transaction does not start.
   made yet, and it is not part of this release.
 :::
 
-**A pre-authorization carries no fee.** The fee belongs to the capture, because the capture sets the
-amount the customer pays. If you set a fee on a pre-authorization, the SDK removes it. Set it on the
-capture instead.
+**A pre-authorization and its capture carry the fee** for a surcharge and an admin fee. The amount
+of the pre-authorization includes the fee and the tax, so the hold covers what the customer will pay.
+The capture carries the fee again, and the total of the capture must not be above the amount that
+the pre-authorization authorized. Three rules follow.
+
+- **The fee is set when the hold is created.** Calculate the fee on the highest base that you expect
+  to capture. You cannot add a fee at the capture that the pre-authorization did not cover.
+- **The capture follows the result of the pre-authorization.** If the gateway dropped the fee on the
+  pre-authorization, for example a surcharge on a debit card, send no fee on the capture.
+- **If the final total is above the hold, increase the hold first.** An increase carries no fee. Raise
+  the hold by the missing amount, then capture. A capture above the hold is refused with error `3215`.
 
 **Dual pricing needs a cash price.** A pre-authorization has no cash alternative to price against, so
 dual pricing applies to a sale and to a MOTO sale only.
@@ -345,7 +354,8 @@ amount = base + tip + fee.amount + tax
   which has no tip. The card amount (EMV tag `9F02`) is the same value.
 - `tax` is `taxInformation.taxAmount`, or `0` when `taxExempt` is `true`. The SDK uses the deprecated
   `taxAmount` only when `taxInformation` is not set.
-- A pre-authorization carries no fee and no tax. Its capture uses the rule above.
+- A pre-authorization uses the same rule. Its amount includes the fee and the tax, and its capture
+  uses the rule too. The total of the capture is never above the amount that was authorized.
 
 :::note Coming soon
 The capture rule comes with Android SDK 7.1015.0. Until then, the SDK captures the amount that you
@@ -365,7 +375,7 @@ the tax in `amount`, the customer pays it two times.
 <ComingSoon />
 
 `POST /transactions` does not accept a `fee` object yet. When it does, it accepts a nested `fee`
-object for `sale`, `moToSale`, `saleAndTokenizeCard` and `preAuthorizationCapture`, in the shape
+object for `sale`, `moToSale`, `saleAndTokenizeCard`, `preAuthorization` and `preAuthorizationCapture`, in the shape
 below. The `amount` of the request is the base amount. The terminal adds the tip, the fee and the
 tax amount to it.
 
@@ -402,8 +412,8 @@ Amounts inside `fee` follow the rest of `POST /transactions`: minor units, as a 
 | `taxOnFee` | string | No | The tax on the fee. Digits only. It is part of `taxInformation.taxAmount` |
 
 The Cloud API checks only the format, the program and the operation. It returns HTTP `400` for an
-unknown program, `cashDiscount`, `dualPricing` on `preAuthorizationCapture`, an amount that is not
-digits only, or a `fee` on another operation. The terminal
+unknown program, `cashDiscount`, `dualPricing` on `preAuthorization` or `preAuthorizationCapture`, a
+`fee` with no `amount`, an amount that is not digits only, or a `fee` on another operation. The terminal
 applies the other rules in this page, for example `taxOnFee` not above `taxInformation.taxAmount`.
 
 :::note The old `surchargeAmount` is deprecated
@@ -527,7 +537,6 @@ major units, the same as every other amount on the result.
 | `APPLIED` | The gateway charged the fee | Print the fee line. Settle the total that the result carries |
 | `NOT_ELIGIBLE_DEBIT` | The customer presented a debit card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
 | `NOT_ELIGIBLE_PREPAID` | The customer presented a prepaid card, and the program does not allow one | Print no fee line. Tell the customer the fee was removed |
-| `FEE_AMOUNT_MISSING` | The fee had a `taxOnFee` but no `amount` | Print no fee line. Send `fee.amount` |
 | `PROGRAM_NOT_ENABLED` | The merchant is not configured for this program | Print no fee line. Ask the merchant to enable the program |
 | `PROGRAM_NOT_SUPPORTED` | The gateway does not carry this program | Print no fee line. Handle the program in your own application |
 | `UNKNOWN` | The gateway returned a reason this version of the SDK does not recognise | Read `reasonDetail`. Treat the fee as dropped unless `applied` is `true` |
@@ -542,6 +551,8 @@ acquirer.
 | `4258` `SURCHARGE_NOT_ENABLED` | The merchant is not configured to surcharge, and the request carries a surcharge | Ask the merchant to enable surcharging, or send no fee |
 | `4268` `FEE_SURCHARGE_AMOUNT_CONFLICT` | The request carries both `fee` and the deprecated `surchargeAmount`, and they disagree | Send one field or the other. If you send both, match the amounts and set `mitigationProgram` to `surcharge` |
 | `4269` `FEE_TAX_ON_FEE_EXCEEDS_L2_TAX` | `fee.taxOnFee` is greater than `taxInformation.taxAmount` | Lower `taxOnFee`, or raise the tax you declare |
+| `FEE_AMOUNT_MISSING` | The `fee` has a `taxOnFee` but no `amount`. The gateway refuses it. It does not drop the fee | Send `fee.amount`. To charge no fee, send no `fee` object |
+| `FEE_AMOUNT_AND_TAX_ON_FEE_MISSING` | The `fee` has neither `amount` nor `taxOnFee` | Send `fee.amount`, or send no `fee` object |
 | `FIELD_REQUIRED` | `fee.amount` or `fee.mitigationProgram` is missing | Send both fields. Neither one is optional |
 | `AMOUNT_FORMAT` | `fee.amount` or `fee.taxOnFee` is malformed or negative | Send a positive amount in the documented format |
 | `MITIGATION_PROGRAM_INVALID` | `fee.mitigationProgram` is not one of the four values | Send `surcharge`, `adminFee`, `cashDiscount` or `dualPricing` |
@@ -681,11 +692,15 @@ answer.
 |---|---|---|
 | 1 | Debit card at the cash price (dual pricing) | **Build it, as an option.** Handpoint offers it to integrators that need it. It is off by default and the merchant account must enable it. It uses `fee.paymentPath`. See [the payment path](#payment-path) |
 | 2 | Percentage admin fee on debit and cash | **The gateway never drops an admin fee.** It applies to every card. How the card networks classify it is the merchant's responsibility, not a gateway rule |
-| 3 | Fee base that includes tax or tip | **Build six values:** `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE` and `FEE_ON_BASE_TIP_TAXED_FEE`. Handpoint enables the values that each merchant may use in the Console. The platform does not check the rules of a network or a state |
+| 3 | Fee base that includes tax or tip | **Build six values:** `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE` and `FEE_ON_BASE_TIP_TAXED_FEE`. They apply to a surcharge, dual pricing and an admin fee. A cash discount uses the first two. Handpoint enables the values that each merchant may use in the Console. The platform does not check the rules of a network or a state |
 | 4 | Surcharge on an increase | **Not supported.** An increase carries no fee, and a fee sent with an increase is refused |
 | 5 | Partial approval | **Both can be enabled in the configuration, but not in one transaction.** A transaction that carries a fee never accepts a partial approval. The platform sends it with partial approval not allowed. If the acquirer returns one anyway, the platform reverses it and returns a decline |
 | 6 | `FEE_ON_BASE_TIP_TAXED_FEE` | **Build it.** The fee is calculated on the base plus the tip, and the fee is taxed. It is available for a surcharge |
 | 7 | `feeCalculation` and the surcharge booleans | **`feeCalculation` replaces `surchargeApplyToTax` and `surchargeApplyToTip`.** The two booleans stay readable and keep working. If a terminal has both, `feeCalculation` wins. See [Surcharging](/reference/surcharging#relation-to-feecalculation) |
+| 8 | Pre-authorization and capture | **Both carry the fee,** for a surcharge and an admin fee. The pre-authorization amount includes the fee and the tax. The capture total is never above the authorized amount. The capture follows what the gateway applied on the pre-authorization. An increase carries no fee. Dual pricing applies to a sale and a MOTO sale only. See [Transaction types](#transaction-types) |
+| 9 | Tip with dual pricing | **A tip is allowed.** A `_TIP` value puts the tip in the base of the fee. Any other value leaves it out. The tip is asked **before** the price and fee screens, so the customer sees the final price. A tip adjustment after the authorization carries no fee |
+| 10 | A `fee` with a `taxOnFee` and no `amount` | **The gateway refuses it** with `FEE_AMOUNT_MISSING`. A transaction that needs no fee sends no `fee` object. The reason `FEE_AMOUNT_MISSING` no longer exists in the fee result |
+| 11 | A cash discount fee on a card transaction | **The gateway refuses it** with error `4272`. No component removes the fee before the call. Send no `fee` on a card transaction |
 
 ### The payment path {#payment-path}
 
@@ -712,8 +727,8 @@ Rules:
 
 | Component | Build |
 |---|---|
-| **Android SDK (PAX)** | The `Fee` object on `SaleOptions` and `MoToOptions`, and the capture options. The rule `total = base + tip + tax on the base + taxOnFee + fee`. The three checks before sending. `fee.paymentPath` for dual pricing. The six `feeCalculation` values. The `FeeResult` on the transaction result. The deprecated `surchargeAmount` keeps working |
-| **Gateway** | Read the funding type. Keep or remove `fee.amount` and `fee.taxOnFee` by program and card. Refuse a fee on an operation that carries none. Refuse `cashDiscount` with error `4272`. Check `paymentPath` and decline with `FEE_CARD_TYPE_MISMATCH`. Send partial approval as not allowed. Never calculate a fee, a tax or a rounding |
+| **Android SDK (PAX)** | The `Fee` object on `SaleOptions`, `MoToOptions`, and the pre-authorization and capture options. The rule `total = base + tip + tax on the base + taxOnFee + fee`. The three checks before sending. `fee.paymentPath` for dual pricing. The six `feeCalculation` values. The `FeeResult` on the transaction result. The deprecated `surchargeAmount` keeps working |
+| **Gateway** | Read the funding type. Keep or remove `fee.amount` and `fee.taxOnFee` by program and card. Refuse a fee on an operation that carries none. Refuse a `fee` with no `amount`. Refuse `cashDiscount` with error `4272`. Carry the fee on a pre-authorization and its capture, and never capture above the authorized amount. Check `paymentPath` and decline with `FEE_CARD_TYPE_MISMATCH`. Send partial approval as not allowed. Never calculate a fee, a tax or a rounding |
 | **Console and TMS** | The program, `surchargePercent`, `feeCalculation` (six values), the admin fee mode, and the "debit as cash" option for each merchant. The terminal receives them as configuration |
 | **Receipt** | A fee line only for an applied surcharge. See [the receipt](#the-receipt) |
 | **Cloud API** | Not in this release. The page says so, and the gateway behavior above is ready for it |
@@ -724,7 +739,8 @@ Rules:
 
 - Card transactions on EPI.
 - Surcharge, admin fee and dual pricing, with the debit-as-cash option.
-- A fee on a sale, a sale with tip, a sale with tokenization, a MOTO sale and the capture of a pre-authorization. See [Transaction types](#transaction-types).
+- A fee on a sale, a sale with tip, a sale with tokenization, a MOTO sale, a pre-authorization and its capture. See [Transaction types](#transaction-types).
+- A tip with every program that carries a fee, including dual pricing.
 - The Android SDK on PAX terminals.
 
 **Not supported in this release:**
@@ -736,7 +752,8 @@ Rules:
 | The Cloud API | Coming soon. The terminal accepts a `fee` object, but the Cloud API does not send one yet |
 | The iOS, Windows and Cordova SDKs, and the HiLite readers | The Android SDK on PAX terminals carries the feature |
 | A fee mitigation program together with a partial approval, in one transaction | See [Partial approval](#partial-approval) |
-| A fee on a pre-authorization, an increase, a decrease, a tip adjustment, a refund or a card verification | These operations carry no fee, and the gateway refuses one |
+| A fee on an increase, a decrease, a tip adjustment, a refund or a card verification | These operations carry no fee, and the gateway refuses one |
+| A fee on a pre-authorization with dual pricing | A pre-authorization has no cash price |
 | A remote sale with a card token (`POST /moto/sale`) | It has no terminal and no screen. The customer cannot see or accept the fee before the charge, and the receipt rules cannot be shown. A fee sent there is refused |
 | Store and forward, offline and forced transactions | The platform does not accept a fee on them |
 | A recalculation of the fee on a partial refund | The platform does not calculate it. You do |
