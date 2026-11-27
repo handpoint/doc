@@ -20,7 +20,7 @@ See also: [Acquirer capabilities matrix](/reference/acquirer-capabilities-matrix
 
 A [fee mitigation](#fee-mitigation) program. The merchant adds a flat or percentage fee to every payment method — cash, card and e-gift alike. It is deliberately universal: a carve-out for cash would turn it into a [cash discount](#cash-discount), and different rules would apply. The receipt shows no fee line for it: the fee is included in the amount line. Only a [surcharge](#surcharge) reaches the card networks, so an admin fee travels inside the transaction amount.
 
-See also: [Fee Mitigation](/reference/fee-mitigation)
+See also: [Fee Mitigation](/reference/fee-mitigation). Not available yet.
 
 ---
 
@@ -65,7 +65,7 @@ A surrogate string that represents a real card number, stored securely by a toke
 
 A [fee mitigation](#fee-mitigation) program. The merchant posts the card price as the standard price and reduces it when the customer pays cash or redeems an e-gift card. A card transaction under this program carries no fee, so it never reaches the gateway. The gateway refuses a cash discount on a card transaction rather than accepting it quietly.
 
-See also: [Fee Mitigation](/reference/fee-mitigation)
+See also: [Fee Mitigation](/reference/fee-mitigation). Not available yet.
 
 ---
 
@@ -73,7 +73,7 @@ See also: [Fee Mitigation](/reference/fee-mitigation)
 
 A [fee mitigation](#fee-mitigation) program. The customer sees two prices — a cash price and a higher card price. The merchant sets one rule, and your application applies it to the cash price. The gateway receives the difference as a fee and applies it when the conditions of the program are met. The receipt shows no fee line for it: the fee is included in the amount line. Only an applied [surcharge](#surcharge) prints one.
 
-See also: [Fee Mitigation](/reference/fee-mitigation)
+See also: [Fee Mitigation](/reference/fee-mitigation). Not available yet.
 
 ---
 
@@ -107,7 +107,7 @@ See also: [Calculating the fee](/reference/fee-mitigation#calculating)
 
 The four programs that let a merchant recover the cost of card acceptance: [surcharge](#surcharge), [dual pricing](#dual-pricing), [cash discount](#cash-discount) and [admin fee](#admin-fee). A transaction carries one program, never two. Your application calculates the amount and sends it in a `Fee` object; the gateway decides whether the program applies to the card, and applies or drops the fee. EPI only.
 
-See also: [Fee Mitigation](/reference/fee-mitigation)
+See also: [Fee Mitigation](/reference/fee-mitigation). Not available yet.
 
 ---
 
@@ -192,7 +192,7 @@ A server-to-device authentication credential used by the Android and iOS SDKs to
 
 A [fee mitigation](#fee-mitigation) program, and the only one the acquirer protocol can report. The merchant adds a fee for the use of a credit card. Never a debit card, never a prepaid card. The card networks cap it at 3% or the actual cost of acceptance, require 30 days notice, require signage, and require a separate line on the receipt. Several US states and Puerto Rico prohibit it.
 
-See also: [Fee Mitigation](/reference/fee-mitigation)
+See also: [Fee Mitigation](/reference/fee-mitigation). Not available yet.
 
 ---
 

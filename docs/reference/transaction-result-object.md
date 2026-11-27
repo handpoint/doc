@@ -151,6 +151,13 @@ All amounts are in the **smallest currency unit** (cents for USD/EUR/GBP, etc.).
 
 #### `fee`
 
+:::caution Under development
+Fee mitigation is not available yet. It is not in a released SDK or API version. The fields and
+amounts on this page can still change. Confirm availability with your Handpoint contact before you
+build against it.
+:::
+
+
 `GET /transactions/{transactionReference}/status` returns the fee result with the same JSON shape as `TransactionResult.fee` in the Android SDK. Read [Fee Mitigation](fee-mitigation.mdx) for the programs and the rules.
 
 **The amounts in `fee` are strings in major units** (`"3.54"` is 3.54 USD). They are not integers in minor units like the amount fields above.
@@ -531,6 +538,13 @@ All amounts are `BigInteger` in the **smallest currency unit** (cents, pence, et
 | `currency` | Currency | Currency enum. |
 
 ### `FeeResult`
+
+:::caution Under development
+Fee mitigation is not available yet. It is not in a released SDK or API version. The fields and
+amounts on this page can still change. Confirm availability with your Handpoint contact before you
+build against it.
+:::
+
 
 Populated on `result.fee` when the request carried a `Fee`. Read
 [Fee Mitigation](fee-mitigation.mdx) for the programs and the rules.

@@ -46,14 +46,16 @@ Card scheme rules and, in the US, state regulations require the cardholder to be
 
 ## Configuration
 
+The two `surchargeApplyTo…` parameters are replaced by the `feeCalculation` setting. Read the [mapping table](#relation-to-feecalculation) before you use them.
+
 These five read-only parameters are provisioned on the terminal by Handpoint. There is no self-service toggle.
 
 | Key | Type | Description |
 |---|---|---|
 | `surcharge` | boolean | Master switch. `true` means the terminal is configured to surcharge. |
 | `surchargePercent` | decimal | The rate as a percentage. `2.5` means 2.5 %. |
-| `surchargeApplyToTax` | boolean | Include the tax amount in the surcharge base. |
-| `surchargeApplyToTip` | boolean | Include the tip amount in the surcharge base. |
+| `surchargeApplyToTax` | boolean | Include the tax amount in the surcharge base. **Replaced by `feeCalculation`** (see [below](#relation-to-feecalculation)). |
+| `surchargeApplyToTip` | boolean | Include the tip amount in the surcharge base. **Replaced by `feeCalculation`** (see [below](#relation-to-feecalculation)). |
 | `bypassSurcharge` | boolean | When `true`, your app may offer the merchant a way to waive the surcharge on a single transaction. |
 
 On the Android SDK these are read at runtime through the Configuration Manager (see [Code](#code)). The Cloud API has no equivalent runtime read — server-side integrations get the rate from their own configuration, or from the [TMS APIs](/back-office/tms-apis).
@@ -62,10 +64,10 @@ On the Android SDK these are read at runtime through the Configuration Manager (
 Use `bypassSurcharge` to decide whether to show a "waive surcharge" option in your UI. If it is `false`, do not offer the option at all.
 :::
 
-### Relation to `feeCalculation`
+### Relation to `feeCalculation` {#relation-to-feecalculation}
 
 `surchargeApplyToTax` and `surchargeApplyToTip` choose the surcharge base. The
-[`feeCalculation` setting](/reference/fee-mitigation#calculating) of the fee mitigation contract chooses the same base with one value. If `feeCalculation` is adopted, it replaces the two booleans:
+[`feeCalculation` setting](/reference/fee-mitigation#calculating) of the fee mitigation contract chooses the same base with one value. `feeCalculation` replaces the two booleans. They stay readable and keep working. If a terminal has both, `feeCalculation` wins:
 
 | `surchargeApplyToTax` | `surchargeApplyToTip` | `feeCalculation` |
 |---|---|---|
@@ -75,7 +77,7 @@ Use `bypassSurcharge` to decide whether to show a "waive surcharge" option in yo
 | `true` | `true` | `FEE_ON_BASE_TIP_TAX` |
 
 The booleans cannot express a taxed fee (`FEE_ON_BASE_TAXED_FEE`). See the
-[pending decisions](/reference/fee-mitigation#pending).
+[decisions for this release](/reference/fee-mitigation#decisions).
 
 ## Calculating the surcharge
 

@@ -169,7 +169,8 @@ override fun endOfTransaction(result: TransactionResult, device: Device) {
 - **Pass the base amount to the operation.** The SDK adds `fee.amount` and the tax amount to it. Never pre-add them.
 - **`taxOnFee` is part of the tax amount, not of `amount`.** Include it in `taxInformation.taxAmount`.
 - Total = base + tip + tax on the base + `taxOnFee` + `fee.amount`. The gateway never calculates a percentage, a tax or a rounding. On a debit or prepaid card it removes `fee.amount` and `fee.taxOnFee`.
-- `feeCalculation` (SDK, Console or ISV configuration, never sent to the gateway) chooses what the percentage applies to: `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE`, `FEE_ON_BASE_TIP_TAXED_FEE`. Pending decision: the enum is not final.
+- `feeCalculation` (SDK, Console or ISV configuration, never sent to the gateway) chooses what the percentage applies to: `FEE_ON_BASE`, `FEE_ON_BASE_TAX`, `FEE_ON_BASE_TIP`, `FEE_ON_BASE_TIP_TAX`, `FEE_ON_BASE_TAXED_FEE`, `FEE_ON_BASE_TIP_TAXED_FEE`. `_TAX` puts the tax inside the base of the fee. `_TAXED_FEE` taxes the fee (`taxOnFee`). The tip is never taxed. `feeCalculation` replaces `surchargeApplyToTax` and `surchargeApplyToTip`.
+- Dual pricing only: `fee.paymentPath` is `ANY_CARD` (default), `DEBIT_AS_CASH` (send the cash price, no fee) or `CREDIT`. A card of the wrong type is declined with `FEE_CARD_TYPE_MISMATCH`.
 - A request that carries a fee goes to the acquirer with partial approval not allowed.
 - Increase, decrease, tip adjustment, refund and card verification carry no fee.
 - Request amounts are minor units (`BigInteger`). `result.fee` amounts are major units

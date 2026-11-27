@@ -60,12 +60,12 @@ Credit cards only. All six `feeCalculation` values are valid.
 | SC-3 | `FEE_ON_BASE_TIP` | Credit | 3.45 | 0.00 | 10.00 | 128.45 | Fee kept |
 | SC-4 | `FEE_ON_BASE_TIP_TAX` | Credit | 3.75 | 0.00 | 10.00 | 128.75 | Fee kept |
 | SC-5 | `FEE_ON_BASE_TAXED_FEE` | Credit | 3.00 | 0.30 | 10.30 | 128.30 | Fee kept. Receipt order: base, tip, fee, tax |
-| SC-6 | `FEE_ON_BASE_TIP_TAXED_FEE` | Credit | 3.45 | 0.35 | 10.35 | 128.80 | Fee kept. Waits for confirmation, see [Pending decisions](fee-mitigation.mdx#pending) |
+| SC-6 | `FEE_ON_BASE_TIP_TAXED_FEE` | Credit | 3.45 | 0.35 | 10.35 | 128.80 | Fee kept. The fee is calculated on `B + T`, then taxed. See [How the six values differ](fee-mitigation.mdx#how-the-six-values-differ) |
 | SC-7 | Any of SC-1 to SC-6 | Debit | As its row | As its row | As its row | As its row | Fee dropped. Authorized = total − fee − `taxOnFee` = 125.00 in all six rows. `reason` is `NOT_ELIGIBLE_DEBIT` |
 | SC-8 | Any | Prepaid | As its row | As its row | As its row | As its row | Fee dropped. Authorized 125.00. `reason` is `NOT_ELIGIBLE_PREPAID` |
 | SC-9 | Any | Debit card, customer presses "credit" | | | | | Fee dropped. The card type decides, not the button |
 | SC-10 | Any | The customer refuses the fee | None | 0.00 | 10.00 | 125.00 | Your application sends the sale with no `fee` |
-| SC-11 | Any | Credit card, partial approval enabled | As its row | | | | The acquirer receives "partial approval not allowed" for this transaction. See [Partial approval](fee-mitigation.mdx#partial-approval) |
+| SC-11 | Any | Credit card, partial approval enabled in the configuration | As its row | | | | The acquirer receives "partial approval not allowed" for this transaction. If the card cannot cover the total, the issuer declines. See [Partial approval](fee-mitigation.mdx#partial-approval) |
 | SC-12 | Any | Credit card, remote sale (MOTO) | As its row | | | | Allowed only after the operator states the amount and the customer can cancel |
 | SC-13 | SC-3, SC-4 or SC-6 | Tip added after the authorization | | | | | A tip adjustment carries no fee. The fee on that tip is not collected |
 
@@ -84,13 +84,18 @@ The fee is inside the card price. A tip is not allowed.
 | DP-3 | `FEE_ON_BASE_TAX` | Credit | 3.30 | 0.00 | 113.30 | Fee kept |
 | DP-4 | `FEE_ON_BASE_TAXED_FEE` | Credit | 3.00 | 0.30 | 113.30 | Fee kept |
 | DP-5 | Any | Any | With `tipAmount` | | | Rejected. A tip is not allowed |
+| DP-6 | `FEE_ON_BASE` | Debit, `paymentPath` is `CREDIT` | 3.00 | 0.00 | 113.00 | Declined, `FEE_CARD_TYPE_MISMATCH` |
+| DP-7 | None | Debit, `paymentPath` is `DEBIT_AS_CASH` | None | 0.00 | 110.00 | Approved at the cash price, no fee |
+| DP-8 | None | Credit, `paymentPath` is `DEBIT_AS_CASH` | None | 0.00 | 110.00 | Declined, `FEE_CARD_TYPE_MISMATCH` |
+| DP-9 | Any | `paymentPath` with another program | | | | Refused, `FEE_PAYMENT_PATH_INVALID` |
+| DP-10 | Any | `DEBIT_AS_CASH` on a MOTO sale | | | | Refused, `FEE_PAYMENT_PATH_INVALID` |
 
 The cash price in these rows is 110.00.
 
 :::note A cash price for debit cards is an option
-Handpoint offers it to integrators that need it: a debit card pays the cash price. The
-`fee.paymentPath` field carries that choice. Its exact values wait for a decision. See
-[Pending decisions](fee-mitigation.mdx#pending). Do not build against `paymentPath` yet.
+Handpoint offers it to integrators that need it. It is off by default, and the merchant account
+enables it. The `fee.paymentPath` field carries the choice. See
+[the payment path](fee-mitigation.mdx#payment-path).
 :::
 
 ## Cash discount
@@ -138,9 +143,9 @@ Does the request carry a fee?
 
 A fee sent with an operation marked "No" is rejected. It is never removed without a message.
 
-:::note An increase carries no fee yet
-Whether a surcharge can apply on an increase is a pending decision. See
-[Pending decisions](fee-mitigation.mdx#pending).
+:::note An increase carries no fee
+A surcharge on an increase is not supported in this release. A fee sent with an increase is refused.
+See [Decisions for this release](fee-mitigation.mdx#decisions).
 :::
 
 **Refund example.** A customer paid 125.00 plus a fee of 3.00. The merchant refunds half the goods,
@@ -157,13 +162,13 @@ is **64.00**.
 | X-4 | Two programs on one location | The Console blocks it. A transaction carries one program |
 | X-5 | A `_TAXED_FEE` value and no tax rate | The SDK rejects the configuration. With a tax rate of 0, `taxOnFee` is 0 |
 | X-6 | The base has no tax (`X` = 0) | `taxOnFee` follows the tax rule of the fee, not of the base. If the fee is not taxable, `taxOnFee` is 0. If the fee is taxable, `taxOnFee` is `round(fee × R)`, and it is the only tax. The gateway only checks that `taxOnFee` is not above `taxAmount` |
-| X-7 | Mixed tax rates in one cart | Your application uses one rate for the tax on the fee. The rate is not decided for this case |
+| X-7 | Mixed tax rates in one cart | Your application chooses one rate for the tax on the fee and calculates `taxOnFee`. The gateway does not check the rate. It checks only that `taxOnFee` does not exceed `taxInformation.taxAmount` |
 | X-8 | The tip changes after the fee was calculated | Calculate again before the card read. After the read, the amount is fixed |
 | X-9 | `taxOnFee` is above `taxInformation.taxAmount` | Rejected with error `4269` |
 | X-10 | `fee.amount` is missing | `FEE_AMOUNT_MISSING` |
 | X-11 | The program is not enabled for the merchant | `PROGRAM_NOT_ENABLED` |
 | X-12 | The customer cancels at a fee dialog | The transaction is cancelled with a reason. No gateway call |
-| X-13 | The fee dialog times out | The transaction is cancelled with the reason `TIMEOUT`. The time is not decided |
+| X-13 | The fee dialog times out | The transaction is cancelled with the reason `TIMEOUT`. The terminal uses the same timeout as for its other customer prompts |
 | X-14 | Partial approval and a fee | See SC-11 |
 | X-15 | Rounding: the parts differ by one cent from the rounded sum | Round each part once. Add the rounded parts |
 | X-16 | An acquirer other than EPI | Not supported |
