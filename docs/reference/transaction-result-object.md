@@ -230,7 +230,7 @@ Present on chip (ICC) and contactless chip transactions. Empty on swipe (MSR) or
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval. For terminal-initiated reversals, inspect `customFields.messageReasonCode` for the specific cause — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received from the gateway. Query `/status` endpoint — see [Transaction Recovery](/reference/transaction-recovery). |
-| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. The cardholder accepted the partial amount before this result was delivered. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. See [Partial Approval](/reference/partial-approval). |
+| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final when returned from `GET /transaction-result/{id}`.** The terminal presents an accept/decline prompt to the merchant/cardholder; if they decline, the SDK automatically reverses the transaction and the final outcome changes. Wait at least 60 seconds or until the final `transaction-result` is delivered before treating as settled. US acquirers only. |
 | `REFUNDED` | Transaction was subsequently refunded. Returned on status queries for original transactions that have been fully refunded. |
 | `PROCESSED` | Operation processed — used for non-financial operations such as `tokenizeCard`, Start of Day, and Host Init. |
 | `CAPTURED` | Pre-authorization was captured. |
@@ -641,7 +641,7 @@ Linking is a **Handpoint gateway** concept, not an acquirer-level one. If a merc
 | `CANCELLED` | Cardholder cancelled, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. Run the recovery flow before retrying. |
 | `UNDEFINED` | No result received — call `hapi.getTransactionStatus(transactionReference)` to recover. |
-| `PARTIAL_APPROVAL` | Partially approved — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. The cardholder accepted before this result was delivered via `endOfTransaction`. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. See [Partial Approval](/reference/partial-approval). |
+| `PARTIAL_APPROVAL` | Partially approved — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final `endOfTransaction` callback fires before treating as settled. US acquirers only. |
 | `REFUNDED` | Transaction was refunded. |
 | `PROCESSED` | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `CAPTURED` | Pre-auth captured. |
@@ -766,7 +766,7 @@ All fields are strings unless noted. Values are extracted from the terminal's XM
 | `PROCESSED` | `EFT_FINANC_STATUS_TRANS_PROCESSED` (0x03) | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `FAILED` | `EFT_FINANC_STATUS_TRANS_NOT_PROCESSED` (0x04) | Technical failure — check `errorMessage`. |
 | `CANCELLED` | `EFT_FINANC_STATUS_TRANS_CANCELLED` (0x05) | Cancelled by the cardholder, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
-| `PARTIAL_APPROVAL` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. |
+| `PARTIAL_APPROVAL` | `EFT_FINANC_STATUS_TRANS_PARTIAL` (0x06) | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final result callback fires before treating as settled. US acquirers only. |
 | `UNDEFINED` | `EFT_FINANC_STATUS_UNDEFINED` (0x00) | No result received — query the `/status` endpoint. |
 | `REFUNDED` | *(no iOS constant)* | May appear on status queries for refunded transactions. |
 | `CAPTURED` | *(no iOS constant)* | May appear on status queries for captured pre-auths. |
@@ -865,7 +865,7 @@ handpoint.sale(
 | `CANCELLED` | Cancelled by the cardholder at the terminal, or reversed automatically by the terminal after host approval — see [Terminal-Initiated Reversals](/reference/terminal-reversals). |
 | `FAILED` | Technical failure — check `errorMessage`. |
 | `UNDEFINED` | No result received — query the `/status` endpoint. |
-| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Final.** Card charged for `totalAmount`. Fulfil for `totalAmount`; offer split tender for `dueAmount` if applicable. US acquirers only. |
+| `PARTIAL_APPROVAL` | Partial approval — `totalAmount` is less than `requestedAmount`. **Not final** — the terminal presents an accept/decline prompt; if declined, the SDK auto-reverses and the outcome changes. Wait at least 60 seconds or until the final result callback fires before treating as settled. US acquirers only. |
 | `REFUNDED` | Transaction was subsequently refunded. |
 | `PROCESSED` | Non-financial operation processed (e.g. `tokenizeCard`). |
 | `CAPTURED` | Pre-authorization was captured. |
